@@ -1,0 +1,54 @@
+# Watchman example macro; Development branch (testing new features)
+/glg4debug/glg4param omit_muon_processes  0.0
+/glg4debug/glg4param omit_hadronic_processes  0.0
+
+#/rat/db/set DETECTOR experiment "Watchman_letterbox_8m_50m_10pct"
+#/rat/db/set DETECTOR geo_file "Watchman_letterbox_8m_50m_10pct/Watchman_letterbox_8m_50m_10pct.geo"
+/rat/db/set DETECTOR experiment "Watchman_rightcylinder_12m_12m_20pct"
+/rat/db/set DETECTOR geo_file "Watchman_rightcylinder_12m_12m_20pct/Watchman_rightcylinder_12m_12m_20pct.geo"
+
+# To activate WBLS
+#/rat/db/set GEO[detector] material "Gd_wbls_10pct"
+#/rat/db/set GEO[fiducial] material "Gd_wbls_10pct"
+
+/run/initialize
+/tracking/storeTrajectory 1
+
+# BEGIN EVENT LOOP
+## Include noise (Before DAQ!)
+/rat/proc noise
+/rat/procset rate 3000.0
+/rat/procset lookback 1000.0
+/rat/procset lookforward 1000.0
+/rat/procset maxtime 1000000.0
+/rat/procset nearhits 1
+## Use the SplitEVDAQ
+/rat/proc splitevdaq
+/rat/procset trigger_on_noise 1
+/rat/procset trigger_threshold 6.0
+/rat/procset trigger_window 600.0
+/rat/procset lookback 200.0
+/rat/procset pmt_lockout 400.0
+/rat/procset trigger_resolution 1.0
+/rat/procset max_hit_time 1000000.0
+/rat/procset pulse_width 100.0
+/rat/procset discriminator 0.25
+
+/rat/proc count
+/rat/procset update 1000
+
+# Use IO.default_output_filename
+/rat/proclast outroot
+/rat/procset file "devops.root"
+#END EVENT LOOP
+
+/generator/add combo ibd:fill:poisson
+/generator/ibd/spectrum small_hartlepool 
+### Turn off neutrons
+# /generator/ibd/neutron 0
+### Turn off positrons
+# /generator/ibd/positron 0
+/generator/vtx/set IBD 1 0 0
+/generator/pos/set 0 0 0 
+
+/run/beamOn 100

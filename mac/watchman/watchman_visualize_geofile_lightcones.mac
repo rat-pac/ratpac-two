@@ -1,0 +1,49 @@
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+/rat/db/set DETECTOR experiment "Watchman"
+/rat/db/set GEO[inner_pmts] light_cone 1
+/rat/db/set GEO[inner_pmts] orientation "manual" #can change to "point" to have PMTs point to center
+
+#light cone material parameters
+/rat/db/set GEO[inner_pmts] light_cone_material "aluminum"
+/rat/db/set GEO[inner_pmts] light_cone_surface "aluminum"
+
+#light cone dimensional parameters for optimized geometry
+/rat/db/set GEO[inner_pmts] light_cone_length 14
+/rat/db/set GEO[inner_pmts] light_cone_innerradius 12.65
+/rat/db/set GEO[inner_pmts] light_cone_outerradius 23
+/rat/db/set GEO[inner_pmts] light_cone_thickness 0.2
+
+#light cone dimensional parameters for LBNE geometry
+#/rat/db/set GEO[inner_pmts] light_cone_length 17.363
+#/rat/db/set GEO[inner_pmts] light_cone_innerradius 12.65
+#/rat/db/set GEO[inner_pmts] light_cone_outerradius 20.94
+#/rat/db/set GEO[inner_pmts] light_cone_thickness 0.2
+
+#/rat/db/set DETECTOR detector_factory "Watchman"
+/rat/db/set DETECTOR geo_file "Watchman/Watchman.geo"
+/rat/db/set WATCHMAN_PARAMS photocathode_coverage 0.20
+
+
+# Visualize the calibration source
+#/rat/db/load Watchman/DecayChamber.geo
+#/rat/db/set GEO[sourcecan] posz 10000.0
+
+/run/initialize
+
+/vis/open OGLSQt
+/vis/scene/create
+/vis/scene/add/volume
+/vis/sceneHandler/attach
+/vis/viewer/set/upVector 0.0 0.0 1.0
+/vis/viewer/set/viewpointThetaPhi -90 135
+/vis/viewer/set/style s
+/vis/viewer/flush
+
+## Cut a plane through the detector
+/vis/viewer/addCutawayPlane 0 0 0 cm 1 0 0
+#/vis/viewer/addCutawayPlane 0 -100 0 cm 0 1 0
+#/vis/viewer/set/viewpointThetaPhi -90 0
+#/vis/viewer/zoomTo 10
+#/vis/viewer/panTo 10 0

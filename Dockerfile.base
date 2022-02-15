@@ -1,0 +1,27 @@
+FROM ubuntu
+LABEL maintainer="Morgan Askins <maskins@berkeley.edu>"
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get -q update \
+ && DEBIAN_FRONTEND=noninteractive apt-get -qy install --no-install-recommends \
+    git curl build-essential vim libx11-dev libxpm-dev libqt5opengl5-dev\
+    xserver-xorg-video-intel libxft-dev libxext-dev \
+    libxkbcommon-x11-dev libopengl-dev\
+    libcurl4-gnutls-dev gfortran ca-certificates libssl-dev libffi-dev \
+ && apt-get autoclean \
+ && apt-get clean
+
+RUN useradd -ms /bin/bash watchman
+
+WORKDIR /
+
+RUN git clone --recursive https://github.com/AIT-WATCHMAN/wmutils.git wmutils
+WORKDIR /wmutils
+
+RUN ./watchmanInstaller.sh -j8 \
+ && chown -R watchman:watchman /wmutils
+
+USER watchman
+
+CMD [ "/bin/bash" ]

@@ -1,0 +1,20 @@
+#
+# isotope generator
+
+# clear any previous generator definition
+/generator/clear
+
+# 'vertex' is isotope
+# 'position' fill volume
+# 'timing' is poisson
+/generator/add combo isotope:fill:poisson
+
+# construct Li 8 
+/generator/vtx/set GenericIon 1 0 0
+/generator/isotope/A 8.0
+/generator/isotope/Z 3.0
+
+# TBD - kinetic energy or excitation energy?
+/generator/isotope/E 0.0
+
+/run/beamOn 1

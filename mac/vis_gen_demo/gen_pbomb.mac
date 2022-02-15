@@ -1,0 +1,18 @@
+# clear any previous generator definition
+/generator/clear
+
+# Option 1
+# 'vertex' is pbomb (photon bomb)
+# 'position' of source is point
+/generator/add combo pbomb:point
+
+# Option 2
+# 'vertex' is pbomb
+# 'position' fill volume
+#/generator/add combo pbomb:fill
+
+# 1000 photons at 400 nm
+/generator/vtx/set 1000 400
+/generator/pos/set 0 0 4000
+
+/run/beamOn 1

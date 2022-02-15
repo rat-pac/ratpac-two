@@ -1,0 +1,13 @@
+
+# clear any previous generator definition
+/generator/clear
+
+# 'vertex' is spectrum
+# 'position' of source is throughout volume
+# 'timing' is poission distributed
+/generator/add combo spectrum:fill:poisson
+
+# set vertex to positrons with 'promptPositron' distribution
+/generator/vtx/set e+ promptPositron
+
+/run/beamOn 1

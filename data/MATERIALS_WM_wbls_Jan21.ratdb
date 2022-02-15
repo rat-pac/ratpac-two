@@ -1,0 +1,28 @@
+{
+name: "MATERIAL",
+index: "wbls_ly500_WM_0121",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+ 
+nmaterials: 3,
+materials: ["lab", "ppo", "water"],
+matprop: [0.029931, 6.9e-05, 0.97]
+}
+
+
+{
+name: "MATERIAL",
+index: "wbls_gd_01pct_ly100_WM_0121",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+ 
+nmaterials: 4,
+materials: ["lab", "ppo", "water","gadolinium"],
+matprop: [0.009967, 2.3e-05, 0.98901, 0.001]
+}
+
+

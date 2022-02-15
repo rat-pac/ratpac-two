@@ -1,0 +1,16 @@
+
+# clear any previous generator definition
+/generator/clear
+
+# 'vertex' is gun
+# 'position' point
+/generator/add combo gun:point
+
+# px py px E(MeV)
+# including optional energy means momentum is direction only
+/generator/vtx/set gamma 0 1 0 10
+
+# positions in mm
+/generator/pos/set 1000 2000 3000
+
+/run/beamOn 1

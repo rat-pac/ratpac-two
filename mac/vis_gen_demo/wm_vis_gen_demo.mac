@@ -1,0 +1,81 @@
+#
+# demo for watchman visualisation
+# gary.smith@ed.ac.uk
+# 2nd May 2020
+#
+# To run do: 
+# $ rat - wm_vis_gen_demo.mac
+# (NB the dash starts the visualiser)
+#
+# Then in the interaction session type one 
+# of the commands at the end of this file
+# to generate one beam particle e.g.
+# Session: /control/execute gen_promptPositron.mac
+#
+# Various generators can be demonstrated
+# - see comments in the respective files
+#
+# To generate many beam particles just run the
+# macro then do e.g.
+# Session: /run/beamOn N
+# where N is the number of particles you want
+
+#####
+# geometry
+/rat/db/set DETECTOR experiment "Watchman"
+
+# using detector factory allows modifications to geometry
+# (instead of using a geo file)
+/rat/db/set DETECTOR detector_factory "Watchman"
+
+# using very very low photocoverage for fast viewing here
+# (NB usual coverage is 0.20 - 0.30)
+/rat/db/set WATCHMAN_PARAMS photocathode_coverage 0.001
+
+# commented out means no veto PMTs 
+#/rat/db/set WATCHMAN_PARAMS veto_coverage 0.02
+#####
+ 
+/run/initialize
+
+####
+# visualisation
+/vis/open OGLSQt
+
+/vis/scene/create
+/vis/scene/add/trajectories rich smooth
+/tracking/storeTrajectory 1
+/tracking/FillPointCont 1
+/vis/scene/add/volume
+/vis/scene/add/hits
+/vis/scene/add/trajectories
+/vis/sceneHandler/attach
+
+/vis/viewer/set/upVector 0.0 0.0 1.0
+/vis/viewer/set/viewpointThetaPhi -90 135 
+/vis/viewer/set/style s		  
+/vis/viewer/flush
+
+# remove some of the detector to 
+# allow better viewing inside
+#/vis/viewer/addCutawayPlane 0 -100 0 cm 0 1 0
+####
+
+###
+# generator options 
+# comment out or execute in the interactive session
+# 
+#/control/execute gen_Li8.mac		    
+#/control/execute gen_electron_gun_point.mac
+#/control/execute gen_muon_point_1_GeV.mac 
+#/control/execute gen_promptPositron.mac
+#/control/execute gen_pbomb.mac	
+#/control/execute gen_promptPositron.mac
+#
+###
+
+###
+# running
+# remove comment out symbol or execute in the interactive session
+# 
+# /run/beamOn 20

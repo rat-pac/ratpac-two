@@ -1,0 +1,18 @@
+
+# clear any previous generator definition
+/generator/clear
+
+# 'vertex' is spectrum
+# 'position' of source is throughout volume
+# 'timing' is poission distributed
+/generator/add combo gun:point
+
+# pname dir_x dir_y dir_z energy 
+
+# fixed direction
+#/generator/vtx/set e- 0 0 1 7 
+
+# or, isotropic
+/generator/vtx/set e- 0 0 0 7
+
+/run/beamOn 1
