@@ -20,10 +20,6 @@ add_library(geo OBJECT
         src/GeoCutTubeFactory.cc
         src/GeoFactory.cc
         src/GeoLensFactory.cc
-        src/GeoPMTArrayFactory.cc
-        src/GeoPMTCoverageFactory.cc
-        src/GeoPMTFactoryBase.cc
-        src/GeoPMTParser.cc
         src/GeoPerfBoxFactory.cc
         src/GeoPerfSphereFactory.cc
         src/GeoPerfTubeFactory.cc
@@ -45,8 +41,6 @@ add_library(geo OBJECT
         src/GeoWatchmanShieldFactory.cc
         src/GeoWaterBoxArrayFactory.cc
         src/Materials.cc
-        src/PMTConcentrator.cc
-        src/PMTConstruction.cc
         src/TheiaDetectorFactory.cc
         src/TubeFacetSolid.cc
         src/UnionSolidArray.cc
@@ -54,7 +48,18 @@ add_library(geo OBJECT
         #src/WatchmanWLSPSquareDetectorFactory.cc
         src/WaterBoxConstruction.cc
         src/WLSPFactory.cc
-        src/WLSPCoverFactory.cc)
+        src/WLSPCoverFactory.cc
+        src/pmt/CubicPMTConstruction.cc
+        src/pmt/LAPPDConstruction.cc
+        src/pmt/PMTArrayFactory.cc
+        src/pmt/PMTConcentrator.cc
+        src/pmt/PMTConstruction.cc
+        src/pmt/PMTCoverageFactory.cc
+        src/pmt/PMTFactoryBase.cc
+        src/pmt/PMTInfoParser.cc
+        src/pmt/RevolutionPMTConstruction.cc
+        src/pmt/ToroidalPMTConstruction.cc
+        )
 
 # Set our include directories
 target_include_directories(geo PUBLIC

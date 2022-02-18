@@ -103,6 +103,8 @@ valid_end: [0, 0],
 model_type: "PMTOptics0",
 model_params: "PMTOptics0_0",
 
+construction: "toroidal",
+
 dynode_material: "stainless_steel",
 glass_material: "glass",
 pmt_vacuum_material: "pmt_vacuum", // dilute air

@@ -41,6 +41,7 @@ public:
   void SetCount(int count) { fCount= count; }
   void AddCount(int dcount) { fCount+= dcount; }
   void SetTrackID(int trackID) { fTrackID = trackID; }
+  void SetCreatorProcess(std::string process) { fCreatorProcess = process; }
   void SetPrepulse(bool prepulse) { fPrepulse = prepulse; }
 
   int GetPMTID() const { return fPMTID; }
@@ -52,23 +53,25 @@ public:
   template <class T> inline void GetPolarization(T &x, T &y, T &z) const;
   int GetCount() const { return fCount; }
   int GetTrackID() const { return fTrackID; }
+  std::string GetCreatorProcess() const { return fCreatorProcess; }
   bool GetPrepulse() const { return fPrepulse; }
   
   void Print(std::ostream &) const;
   
 private:
-  double fTime;        /// time of hit 
-  int fPMTID;          /// ID number of PMT the HitPhoton hit
-  float fKE;           /// kinetic energy 
-  float fPosition[3];  /// x,y,z components of position
-  float fMomentum[3];  /// x,y,z components of momentum (normalized?)
-  float fPolarization[3]; /// x,y,z components of polarization
-  int fCount;          /// count of photons, often 1
-  int fTrackID;        /// ID number of track which generated this photoelectron
-  bool fPrepulse;       // if this photon was transmitted through the 
-                        // the photocathode and a photoelectron was created
-                        // at the first dynode, we will choose from the
-                        // time and charge distributions for prepulses
+  double fTime;                // time of hit 
+  int fPMTID;                  // ID number of PMT the HitPhoton hit
+  float fKE;                   // kinetic energy 
+  float fPosition[3];          // x,y,z components of position
+  float fMomentum[3];          // x,y,z components of momentum (normalized?)
+  float fPolarization[3];      // x,y,z components of polarization
+  int fCount;                  // count of photons, often 1
+  int fTrackID;                // ID number of track which generated this photoelectron
+  std::string fCreatorProcess; // Process that created the photon
+  bool fPrepulse;              // if this photon was transmitted through the 
+                               // the photocathode and a photoelectron was created
+                               // at the first dynode, we will choose from the
+                               // time and charge distributions for prepulses
 };
 
 template <class T> inline void 

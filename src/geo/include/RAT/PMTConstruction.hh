@@ -2,79 +2,46 @@
 #define __RAT_PMTConstruction__
 
 #include <string>
-#include <vector>
-#include <RAT/GLG4TorusStack.hh>
-#include <G4Material.hh>
-#include <G4OpticalSurface.hh>
-#include <G4VSensitiveDetector.hh>
+#include <RAT/DB.hh>
 #include <G4VSolid.hh>
 #include <G4LogicalVolume.hh>
 #include <G4PVPlacement.hh>
+#include <G4RotationMatrix.hh>
 
 namespace RAT {
 
-struct PMTConstructionParams {
-  PMTConstructionParams () {
-    efficiencyCorrection = 1.0;
-    prepulseProb = 0.0;
-    photocathode_MINrho = 0.0;
-    photocathode_MAXrho = 0.0;
-  };
-
-  // Envelope control
-  bool useEnvelope;
-  double faceGap;
-  double minEnvelopeRadius;
-
-  // Body
-  std::vector<double> zEdge; // n+1
-  std::vector<double> rhoEdge; // n+1
-  std::vector<double> zOrigin; // n
-  double wallThickness; // mm
-
-  double dynodeRadius; // mm
-  double dynodeTop; // mm
-  double photocathode_MINrho;//mm
-  double photocathode_MAXrho;//mm
-
-  G4Material *exterior;
-  G4Material *glass;
-  G4Material *vacuum;
-  G4Material *dynode;
-
-  G4OpticalSurface *photocathode;
-  G4OpticalSurface *mirror;
-  G4OpticalSurface *dynode_surface;
-
-  G4VSensitiveDetector *detector;
-
-  double efficiencyCorrection; // default to 1.0 for no correction
-  double prepulseProb;
-};
-
+//Superclass for building all possible PMT types
 class PMTConstruction {
 public:
-
-  PMTConstruction (const PMTConstructionParams &params);
-  G4LogicalVolume *NewPMT(const std::string &prefix, bool simpleVis=false);
-  GLG4TorusStack *NewBodySolid(const std::string &name);
-  void SetPMTOpticalSurfaces(G4PVPlacement *body_phys, const std::string &name_prefix);
+    
+    // Returns a new PMTConstruction based on the given table
+    static PMTConstruction* NewConstruction(DBLinkPtr params, G4LogicalVolume *mother);
+    
+    PMTConstruction(std::string _name) : name(_name) { }
+    
+    virtual ~PMTConstruction() { }
+    
+    // Subclass should build a solid representing just the PMT body
+    virtual G4VSolid* BuildSolid(const std::string &prefix) = 0;
+    
+    // Subclass should build the total single volume to be placed and return
+    virtual G4LogicalVolume* BuildVolume(const std::string &prefix) = 0;
+    
+    // Subclass should do any extra PMT placement finalization here e.g. optical surfaces
+    virtual G4PVPlacement* PlacePMT(
+            G4RotationMatrix *pmtrot, 
+            G4ThreeVector pmtpos, 
+            const std::string &name, 
+            G4LogicalVolume *logi_pmt, 
+            G4VPhysicalVolume *mother_phys, 
+            bool booleanSolid, int copyNo) = 0;
+            
 protected:
-  G4VSolid *NewEnvelopeSolid(const std::string &name);
-
-  void CalcInnerParams(GLG4TorusStack *body,
-                       std::vector<double> &innerZEdge, std::vector<double> &innerRhoEdge,
-                       int &equatorIndex, double &zLowestDynode);
-  // phyiscal volumes
-  G4PVPlacement* body_phys;
-  G4PVPlacement* inner1_phys;
-  G4PVPlacement* inner2_phys;
-  G4PVPlacement* central_gap_phys;
-  G4PVPlacement* dynode_phys;
-
-  PMTConstructionParams fParams;
+    
+    std::string name;
 };
 
 } // namespace RAT
 
 #endif
+

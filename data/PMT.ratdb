@@ -4,6 +4,8 @@ index: "r5912",
 valid_begin: [0,0],
 valid_end: [0,0],
 
+construction: "toroidal",
+
 dynode_material: "stainless_steel",
 glass_material: "glass",
 pmt_vacuum_material: "pmt_vacuum", // dilute air
@@ -22,9 +24,35 @@ z_origin: [-56.00,  0.00,   0.00,  56.00, -85.00, -215.00],
 
 {
 name: "PMT",
+index: "r14688",
+valid_begin: [0,0],
+valid_end: [0,0],
+
+construction: "toroidal",
+
+dynode_material: "stainless_steel",
+glass_material: "glass",
+pmt_vacuum_material: "pmt_vacuum", // dilute air
+photocathode_surface: "photocathode_r14688",
+mirror_surface: "mirror",
+dynode_surface: "stainless_steel",
+
+dynode_radius: 27.5, // mm
+dynode_top:   -30.0, // mm
+wall_thickness: 3.0, // mm
+
+z_edge:   [ 75.00, 53.06,   0.00, -53.06, -73.86,  -85.00, -215.00],
+rho_edge: [  0.00, 72.58, 101.00,  72.58,  44.32,   42.00, 42.00],
+z_origin: [-56.00,  0.00,   0.00,  56.00, -85.00, -215.00],
+}
+
+{
+name: "PMT",
 index: "r1408",
 valid_begin: [0,0],
 valid_end: [0,0],
+
+construction: "toroidal",
 
 dynode_material: "stainless_steel",
 glass_material: "glass",
@@ -40,6 +68,42 @@ wall_thickness: 3.0, // mm
 z_edge:   [ 75.00, 53.06,   0.00, -53.06, -73.86,  -85.00, -215.00],
 rho_edge: [  0.00, 72.58, 101.00,  72.58,  44.32,   42.00, 42.00],
 z_origin: [-56.00,  0.00,   0.00,  56.00, -85.00, -215.00],
+
+}
+
+{
+
+name: "PMT",
+index: "r1408_rev",
+valid_begin: [0,0],
+valid_end: [0,0],
+
+construction: "revolution",
+
+dynode_material: "stainless_steel",
+glass_material: "glass",
+pmt_vacuum_material: "pmt_vacuum",
+photocathode_surface: "photocathode_R1408", 
+mirror_surface: "mirror",
+dynode_surface: "stainless_steel",
+
+dynode_radius: 27.5, // mm
+dynode_top:   -30.0, // mm
+dynode_height: 182.0, // mm
+
+"rho_inner" : [
+	0.0, 8.497172075619783, 17.34521741993582, 25.580856472067005, 34.590617694593604, 45.12735249834655, 57.565386429334886, 65.9965008593112, 75.18335667546589, 84.10548316917038, 90.81884441996348, 95.60624053875435, 98.81710731995523, 99.30948129910692, 99.2828034995419, 98.5793846645956, 96.65227304152548, 92.48669849460822, 87.45978193883504, 80.1578523136181, 70.96737375531528, 63.37636262131124, 59.12545487412577, 54.07230583102999, 50.300144855194134, 46.11181742355254, 42.8014721263096, 41.30212377071635, 40.1263492719929, 39.19327132685637, 38.88131102215652, 39.0
+], 
+"z_inner" : [
+	72.0, 71.45434942723473, 70.66037661659678, 69.20094682621948, 67.13525319654228, 63.24351751187053, 58.6098782795783, 53.84251239690675, 48.06541189846085, 39.7699235677601, 31.508164887912518, 21.17848443941654, 9.954178769927344, 0.922769096259546, 0, -7.691261047697814, -17.43689618240154, -26.21971645247576, -34.15498626710645, -41.72068464771082, -49.140552823239176, -55.2707445397905, -58.41852049267171, -61.84016029477506, -64.27209061954491, -66.80558671460713, -70.80942321511729, -73.89719148996345, -76.42676873527704, -79.69068154540452, -83.98233146805481, -212.0
+], 
+"rho_edge" : [
+	0.0, 8.712933954276037, 17.682383102831878, 26.396184965659987, 35.36669489133502, 46.38894063411421, 58.692894439740336, 67.66610452535515, 76.89611910810048, 86.38515617649826, 93.31135572490356, 98.44590271897638, 101.78735064446326, 102.3090601185436, 102.28468159679329, 101.54819362122495, 99.50667983817857, 95.15884372941952, 89.78513971210839, 82.10472763195033, 72.88638159751623, 65.20442656882115, 60.850997271615384, 55.72908316868944, 51.88762348292407, 47.78984147144604, 45.545441716059834, 43.97335591306801, 42.92543042619249, 42.14037538808919, 41.88125882020886, 42.0
+], 
+"z_edge" : [
+	75.0, 74.44658050315763, 73.64136962267332, 72.08802830195503, 70.03313245294652, 65.96535427694118, 61.3899368556647, 56.334985786600726, 50.52842729617066, 41.720075095119114, 33.17771195066513, 22.146120064131054, 10.375669687048259, 0.8725007564532348, 0, -8.122739180443006, -18.360130626744137, -27.583402576213643, -36.05043112947445, -44.00315622362777, -51.44650358194397, -57.64943792142137, -60.872599430779815, -64.34117785837154, -66.81765766963429, -69.29239899033104, -72.02211892737404, -75.26266534239247, -77.50618741781162, -80.25155376994857, -84.00002917866578, -215.0
+]
+
 }
 
 {
@@ -47,6 +111,8 @@ name: "PMT",
 index: "r11065",
 valid_begin: [0,0],
 valid_end: [0,0],
+
+construction: "toroidal",
 
 dynode_material: "stainless_steel",
 glass_material: "quartz",
@@ -61,45 +127,21 @@ wall_thickness: 3.0, // mm
 
 z_edge:   [ 4.020,  		1.00,   0.00, -16.75,   -30.00, -32.00, -119.0], // rough guess. Photocathode details are wrong
 rho_edge: [ 38.0 ,	 	       38.0, 38.0,  38.0,     26.65, 26.65, 26.65],   // this assumes that the photocathode covers the entire front face of the PMT
-z_origin: [ -1000000.00,  	0.00,   0.00,  10000.00,  31.00, 0.00],      // and wraps back another 1mm, in reality the photocathode diameter is ~64mm
+z_origin: [ -1000000.00,  	0.00,   0.00,  10000.00,  31.00, 0.00],      // and wraps back another 1mm, in reality the photocathode diameter is ~64mm 
 }
 
 {
 name: "PMT",
-index: "r11780_hqe", //12 inch high qe
+index: "r11780_hqe",
 valid_begin: [0,0],
 valid_end: [0,0],
+
+construction: "toroidal",
 
 dynode_material: "stainless_steel",
 glass_material: "glass",
 pmt_vacuum_material: "pmt_vacuum",
-photocathode_surface: "photocathode_R7081HQE",
-photocathode_MINrho: 132.6d, // 140.0d From Characterization of the Hamamatsu R11780 12-inch Photomultiplier tube, S. Grullon
-photocathode_MAXrho: 152.5d, //
-mirror_surface: "mirror",
-dynode_surface: "stainless_steel",
-
-dynode_radius: 41.5, // mm
-dynode_top: -46.0, // mm
-wall_thickness: 3.0, // mm
-
-z_edge:   [112.50, 79.59, 0.75, 0.00, -79.59, -119.79, -127.50, -285.0],
-rho_edge: [0.00, 108.87, 151.35, 151.50, 108.87, 66.48, 63.0, 63.0],
-z_origin: [-84.00, 0.00, 0.00, 0.00, 84.00, -127.5, -285.0],
-}
-
-{
-name: "PMT",
-index: "r11780_lqe", //12 inch low qe
-valid_begin: [0,0],
-valid_end: [0,0],
-
-dynode_material: "stainless_steel",
-glass_material: "glass",
-pmt_vacuum_material: "pmt_vacuum",
-photocathode_surface: "photocathode_R3600",
-photocathode_MINrho: 132.6d, // 140.0d From Characterization of the Hamamatsu R11780 12-inch Photomultiplier tube, S. Grullon
-photocathode_MAXrho: 152.5d, //
+photocathode_surface: "photocathode_R11780",
 mirror_surface: "mirror",
 dynode_surface: "stainless_steel",
 
@@ -118,12 +160,12 @@ index: "r7081_hqe",
 valid_begin: [0,0],
 valid_end: [0,0],
 
+construction: "toroidal",
+
 dynode_material: "stainless_steel",
 glass_material: "glass",
 pmt_vacuum_material: "pmt_vacuum",
-photocathode_surface: "photocathode_R7081HQE", //need to implement photocathode surface
-photocathode_MINrho: 110.0d,
-photocathode_MAXrho: 126.5d,
+photocathode_surface: "photocathode_R1408", //need to implement photocathode surface
 mirror_surface: "mirror",
 dynode_surface: "stainless_steel",
 
@@ -137,44 +179,18 @@ z_origin: [ -40.0, 0.0, 0.0, 40.0, -142.0 ],
 
 }
 
-{
-name: "PMT",
-index: "r7081_lqe",
-valid_begin: [0,0],
-valid_end: [0,0],
-
-dynode_material: "stainless_steel",
-glass_material: "glass",
-pmt_vacuum_material: "pmt_vacuum",
-photocathode_surface: "photocathode_R3600", 
-photocathode_MINrho: 110.0d,
-photocathode_MAXrho: 126.5d,
-mirror_surface: "mirror",
-dynode_surface: "stainless_steel",
-
-dynode_radius: 27.5, // mm
-dynode_top:   -5.9, // mm
-wall_thickness: 3.0, // mm
-
-z_edge: [ 96.7, 40.0, 0.0, -40.0, -90.0, -142.0 ],
-rho_edge: [ 0.0, 111.0, 130.0, 111.0, 42.25, 42.25 ],
-z_origin: [ -40.0, 0.0, 0.0, 40.0, -142.0 ],
-
-}
-
-//F. Sutanto, this is taken from r7081pe, but the photocathode is switched to photocathode_R7081
 {
 name: "PMT",
 index: "r7081",
 valid_begin: [0,0],
 valid_end: [0,0],
 
+construction: "toroidal",
+
 dynode_material: "stainless_steel",
 glass_material: "glass",
 pmt_vacuum_material: "pmt_vacuum",
-photocathode_surface: "photocathode_R7081",
-photocathode_MINrho: 110.0d,
-photocathode_MAXrho: 126.5d,
+photocathode_surface: "photocathode_R1408", //used the 1408 photocathode in SNO+ rat 
 mirror_surface: "mirror",
 dynode_surface: "stainless_steel",
 
@@ -183,7 +199,7 @@ dynode_top:   -5.9, // mm
 wall_thickness: 3.0, // mm
 
 z_edge: [ 96.7d, 40.0d, 0.0d, -40.0d, -90.0d, -142.0d ],
-rho_edge: [ 0.0d, 111.0d, 126.5d, 111.0d, 42.25d, 42.25d ],
+rho_edge: [ 0.0d, 111.0d, 130.0d, 111.0d, 42.25d, 42.25d ],
 z_origin: [ -40.0d, 0.0d, 0.0d, 40.0d, -142.0d ],
 
 }
@@ -191,30 +207,73 @@ z_origin: [ -40.0d, 0.0d, 0.0d, 40.0d, -142.0d ],
 
 {
 name: "PMT",
-index: "r7081ft", // Fast timing
+index: "r7081_rev",
 valid_begin: [0,0],
 valid_end: [0,0],
+
+construction: "revolution",
 
 dynode_material: "stainless_steel",
 glass_material: "glass",
 pmt_vacuum_material: "pmt_vacuum",
-photocathode_surface: "photocathode_R7081HQE",
-photocathode_MINrho: 110.0d,
-photocathode_MAXrho: 126.5d,
+photocathode_surface: "photocathode_R1408", //used the 1408 photocathode in SNO+ rat 
 mirror_surface: "mirror",
 dynode_surface: "stainless_steel",
 
 dynode_radius: 27.5, // mm
-dynode_top:   -5.9, // mm
-wall_thickness: 3.0, // mm
+dynode_top:   -43.7, // mm
+dynode_height: 100.0, // mm
 
-z_edge: [ 96.7d, 40.0d, 0.0d, -40.0d, -90.0d, -142.0d ],
-rho_edge: [ 0.0d, 111.0d, 126.5d, 111.0d, 42.25d, 42.25d ],
-z_origin: [ -40.0d, 0.0d, 0.0d, 40.0d, -142.0d ],
+//0.05rad face density
+"rho_inner" : [
+	2.501690401754149, 9.172900600188227, 15.827826891209853, 22.443259412429057, 29.002604377502625, 35.48946014113348, 41.88761148855203, 48.181065933768366, 54.35409295441039, 60.39126312725447, 66.27748663718998, 71.99805097337008, 77.5386576944237, 82.88545816333328, 88.02508815999704, 92.94470128387604, 97.63200106279011, 102.07527168741201, 106.26340729451667, 110.18593972574507, 114.58025685703835, 116.6457336287988, 119.42921005937527, 121.44137628413552, 122.65123712458202, 123.1892796112572, 123.5, 123.20826612920352, 122.45409716848, 121.30060662687725, 119.54191360617526, 117.09024829771481, 113.82378257072736, 109.66097932799293, 102.62612269489755, 52.42170409044925, 45.93413443486852, 41.68177216362357, 40.15988482987869, 39.48418801210443, 39.3327, 39.00422132376172, 38.10955066507895, 36.21487231522765, 31.6456328901129
+], 
+"z_inner" : [
+	89.9766010440378, 89.68496127760612, 89.05982033702337, 88.1028455950343, 86.81643168322714, 85.20379443170408, 83.26896472675583, 81.01677868468974, 78.45286561969525, 75.58363399014434, 72.41625538681959, 68.9586466101737, 65.21944988360431, 61.20801125297499, 56.93435722666859, 52.40916971471062, 47.64375932966273, 42.65003711603731, 37.44048477892932, 32.02812348628791, 25.99684622047763, 23.20659240454441, 18.78773106851574, 14.056471664957295, 9.703270523641883, 4.63010816525746, 0.0, -4.6706796744239085, -9.466502128585988, -14.142695574352029, -18.787686078122306, -23.549751881872574, -28.20682241195521, -32.748162217503896, -37.460131376784545, -67.3812156555737, -72.74839317227139, -78.78763515794739, -84.41498380797144, -89.7032587940464, -140.0, -142.14264287772798, -145.14264287772843, -146.88499849275922, -149.26126301065534
+], 
+"rho_edge" : [
+	2.5508485939427668, 9.378623545656492, 16.18295682279789, 22.946841135803343, 29.65337029645304, 36.28578147453836, 42.82749709620691, 49.262166279264314, 55.573705701863865, 61.74633980243515, 67.76464021037252, 73.6135643089263, 79.27849283391097, 84.74526641425177, 90.00022096303854, 95.03022183062674, 99.82269663442116, 104.36566668328497, 108.64777691802907, 112.6583242931465, 116.81349999999999, 119.05066381418094, 122.1733682249623, 124.28913931517786, 125.63652632629436, 126.16638895264707, 126.5, 126.1901360329992, 125.40627941576703, 124.17550299401198, 122.28605189620758, 119.71642049234863, 116.22888426041406, 111.64320701454234, 104.22270259481036, 53.88525065868264, 47.916624458380845, 44.425887957418496, 43.10229133732535, 42.469476047904195, 42.3327, 41.879101976047906, 40.98443131736527, 38.34249272882807, 32.8701
+], 
+"z_edge" : [
+	92.97619826235575, 92.67789931066125, 92.03872663492706, 91.06027783396783, 89.7449985202197, 88.09617620698276, 86.1179320913501, 83.81521075336114, 81.1937677971268, 78.2601554648165, 75.02170625946532, 71.48651461753485, 67.66341667703774, 63.56196819179428, 59.19242064702449, 54.56569563597395, 49.69335756161847, 44.58758473167934, 39.2611389191963, 33.72733346474121, 28.0000000000000140, 25.0, 20.0, 15.0, 10.0, 5.0, 0.0, -5.0, -10.0, -15.0, -20.0, -25.0, -30.0, -35.0, -40.0, -70.0, -75.0, -80.0, -85.0, -90.0, -140.0, -143.0, -146.0, -149.0, -152.0
+]
 
 }
 
+{
+name: "PMT",
+index: "r14374_rev",
+valid_begin: [0,0],
+valid_end: [0,0],
 
+construction: "revolution",
+
+dynode_material: "stainless_steel",
+glass_material: "glass",
+pmt_vacuum_material: "pmt_vacuum",
+photocathode_surface: "photocathode_R1408", //used the 1408 photocathode in SNO+ rat 
+mirror_surface: "mirror",
+dynode_surface: "stainless_steel",
+
+// made up...
+dynode_radius: 8.25, // mm
+dynode_top:   -12.0, // mm
+dynode_height: 30.0, // mm
+
+"rho_inner" : [
+0.750507120526, 2.75187018006, 4.74834806736, 6.73297782373, 8.70078131325, 10.6468380423, 12.5662834466, 14.4543197801, 16.3062278863, 18.1173789382, 19.8832459912, 21.599415292, 23.2615973083, 24.865637449, 26.407526448, 27.8834103852, 29.2896003188, 30.6225815062, 31.8790221884, 33.0557819177, 34.3740770571, 34.9937200886, 35.8287630178, 36.4324128852, 36.7953711374, 36.9567838834, 37.05, 36.9624798388, 36.7362291505, 36.3901819881, 35.8625740819, 35.1270744893, 34.1471347712, 32.8982937984, 30.7878368085, 15.7265112271, 13.7802403305, 12.5045316491, 12.047965449, 11.8452564036, 11.79981, 11.7012663971, 11.4328651995, 10.8644616946, 9.49368986703,
+],
+"z_inner" : [
+26.9929803132, 26.9054883833, 26.7179461011, 26.4308536785, 26.044929505, 25.5611383295, 24.980689418, 24.3050336054, 23.5358596859, 22.675090197, 21.724876616, 20.6875939831, 19.5658349651, 18.3624033759, 17.080307168, 15.7227509144, 14.2931277989, 12.7950111348, 11.2321454337, 9.60843704589, 7.79905386614, 6.96197772136, 5.63631932055, 4.21694149949, 2.91098115709, 1.38903244958, 0.0, -1.40120390233, -2.83995063858, -4.24280867231, -5.63630582344, -7.06492556456, -8.46204672359, -9.82444866525, -11.238039413, -20.2143646967, -21.8245179517, -23.6362905474, -25.3244951424, -26.9109776382, -42.0, -42.6427928633, -43.5427928633, -44.0654995478, -44.7783789032,
+],
+"rho_edge" : [
+0.765254578183, 2.8135870637, 4.85488704684, 6.88405234074, 8.89601108894, 10.8857344424, 12.8482491289, 14.7786498838, 16.6721117106, 18.5239019407, 20.3293920631, 22.0840692927, 23.7835478502, 25.4235799243, 27.0000662889, 28.5090665492, 29.9468089903, 31.309700005, 32.5943330754, 33.7974972879, 35.04405, 35.7151991443, 36.6520104675, 37.2867417946, 37.6909578979, 37.8499166858, 37.95, 37.8570408099, 37.6218838247, 37.2526508982, 36.6858155689, 35.9149261477, 34.8686652781, 33.4929621044, 31.2668107784, 16.1655751976, 14.3749873375, 13.3277663872, 12.9306874012, 12.7408428144, 12.69981, 12.5637305928, 12.2953293952, 11.5027478186, 9.86103,
+], 
+"z_edge" : [
+27.8928594787, 27.8033697932, 27.6116179905, 27.3180833502, 26.9234995561, 26.4288528621, 25.8353796274, 25.144563226, 24.3581303391, 23.4780466394, 22.5065118778, 21.4459543853, 20.2990250031, 19.0685904575, 17.7577261941, 16.3697086908, 14.9080072685, 13.3762754195, 11.7783416758, 10.1182000394, 8.4, 7.5, 6.0, 4.5, 3.0, 1.5, 0.0, -1.5, -3.0, -4.5, -6.0, -7.5, -9.0, -10.5, -12.0, -21.0, -22.5, -24.0, -25.5, -27.0, -42.0, -42.9, -43.8, -44.7, -45.6,
+]
+
+}
 
 {
 name: "PMT",
@@ -222,10 +281,12 @@ index: "et9390b",
 valid_begin: [0,0],
 valid_end: [0,0],
 
+construction: "toroidal",
+
 dynode_material: "stainless_steel",
 glass_material: "glass",
 pmt_vacuum_material: "pmt_vacuum", // dilute air
-photocathode_surface: "photocathode_et9390b",
+photocathode_surface: "photocathode_et9390b", 
 mirror_surface: "mirror",
 dynode_surface: "stainless_steel",
 
@@ -234,17 +295,58 @@ dynode_top:   -100.375, // wild guess in mm was -20.625
 wall_thickness: 3.0, // wild guess in mm
 z_edge:   [ 4.020,  		1.00,   0.00, -42.75,   -84.00, -85.00, -150.00], // taken from PMT documentation. Photocathode details are wrong
 rho_edge: [ 67.50 ,	 	67.50, 67.50,  67.50,     25.75, 25.75, 25.75],   // this assumes that the photocathode covers the entire front face of the PMT
-z_origin: [ -1000000.00,  	0.00,   0.00,  10000.00,  84.50, 0.00],      // and wraps back another 1mm, in reality the photocathode diameter is ~115mm
+z_origin: [ -1000000.00,  	0.00,   0.00,  10000.00,  84.50, 0.00],      // and wraps back another 1mm, in reality the photocathode diameter is ~115mm 
 }
 
+{
+name: "PMT",
+index: "h11934",
 
+valid_begin: [0,0],
+valid_end: [0,0],
 
+construction: "cubic",
+
+case_material: "acrylic_white",
+glass_material: "glass",
+pmt_vacuum_material: "pmt_vacuum",
+photocathode_surface: "photocathode_H11934",
+mirror_surface: "mirror",
+
+case_thickness: 2.0, // mm
+glass_thickness: 1.0, // mm
+
+pmt_width: 15.0, //mm
+photocathode_width: 11.5, //mm
+}
+
+{
+name: "PMT",
+index: "lappd",
+
+valid_begin: [0,0],
+valid_end: [0,0],
+
+construction: "lappd",
+
+glass_material: "glass",
+pmt_vacuum_material: "pmt_vacuum",
+photocathode_surface: "photocathode_lappd",
+
+glass_thickness: 1.0, // mm
+
+width: 105.5, //mm
+thick: 9.25, //mm
+
+}
 
 {
 name: "PMT",
 index: "r7081pe",
 valid_begin: [0,0],
 valid_end: [0,0],
+
+construction: "toroidal",
 
 dynode_material: "stainless_steel",
 glass_material: "glass",
@@ -261,58 +363,6 @@ wall_thickness: 3.0, // mm
 
 z_edge: [ 96.7d, 40.0d, 0.0d, -40.0d, -90.0d, -142.0d ],
 rho_edge: [ 0.0d, 111.0d, 126.5d, 111.0d, 42.25d, 42.25d ],
-z_origin: [ -40.0d, 0.0d, 0.0d, 40.0d, -142.0d ],
-
-}
-
-{
-name: "PMT",
-index: "r3600",
-valid_begin: [0,0],
-valid_end: [0,0],
-
-dynode_material: "stainless_steel",
-glass_material: "glass",
-pmt_vacuum_material: "pmt_vacuum",
-photocathode_surface: "photocathode_R3600",
-photocathode_MINrho: 230.0d,
-photocathode_MAXrho: 254.0d,
-mirror_surface: "mirror",
-dynode_surface: "stainless_steel",
-
-dynode_radius: 27.5, // mm
-dynode_top:   -5.9, // mm
-wall_thickness: 4.0, // mm
-
-z_edge: [ 194.2d, 92.0d, 0.0d, -92.0d, -207.0d, -300.0d ],
-rho_edge: [ 0.0d, 200.0d, 254.0d, 200.0d, 127.5d, 127.5d ],
-z_origin: [ -60.0d, 0.0d, 0.0d, 60.0d, -300.0.0d ],
-
-}
-// Added by OAA. Assumptions to the Parameters used by scaling between
-// 10 inch and 11 inch PMT
-// Request for detail needed by ETEL
-{
-name: "PMT",
-index: "ETEL",
-valid_begin: [0,0],
-valid_end: [0,0],
-
-dynode_material: "stainless_steel",
-glass_material: "glass",
-pmt_vacuum_material: "pmt_vacuum",
-photocathode_surface: "photocathode_ETEL",
-photocathode_MINrho: 121.3d,
-photocathode_MAXrho: 139.7d,
-mirror_surface: "mirror",
-dynode_surface: "stainless_steel",
-
-dynode_radius: 27.5, // mm
-dynode_top:   -5.9, // mm
-wall_thickness: 3.0, // mm
-
-z_edge: [ 96.7d, 40.0d, 0.0d, -40.0d, -90.0d, -142.0d ],
-rho_edge: [ 0.0d, 111.0d, 139.7d, 111.0d, 42.25d, 42.25d ],
 z_origin: [ -40.0d, 0.0d, 0.0d, 40.0d, -142.0d ],
 
 }

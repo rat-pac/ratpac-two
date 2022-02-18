@@ -312,28 +312,14 @@ namespace json {
                         return v;
                     }
                 case 'd': //non-json explicit real OR strange exponential
-                    switch (cur[1]) {
-                        case '+':
-                        case '-':
-                        case '0':
-                        case '1':
-                        case '2':
-                        case '3':
-                        case '4':
-                        case '5':
-                        case '6':
-                        case '7':
-                        case '8':
-                        case '9':
-                            if (exp) throw parser_error(line,cur-lastbr,"Malformed exponential");
-                            exp = true;
+                    *cur = '\0';
+                    cur++;
+                    {
+                        char *end;
+                        Value v((TReal)strtod(start,&end));
+                        if (end != cur-1) throw parser_error(line,cur-lastbr,"Malformed real");
+                        return v;
                     }
-                    if (exp) {
-                        *cur = 'e'; //this is ugly but the syntax I'm trying to parse is also ugly
-                        cur++;
-                        break;
-                    }
-                    //intentional fallthrough
                 case 'f': //non-json explicit real
                     *cur = '\0';
                     cur++;
@@ -366,7 +352,8 @@ namespace json {
                     if (real || exp) {
                         char *end;
                         val = Value((TReal)strtod(start,&end));
-                        if (end != cur) throw parser_error(line,cur-lastbr,"Malformed real");
+                        //if (end != cur) throw parser_error(line,cur-lastbr,"Malformed real sponge");
+                        if (end != cur) throw parser_error(line,cur-lastbr,"Malformed real: "+(next));
                     } else {
                         errno = 0;
                         char *end;

@@ -2,10 +2,10 @@
     Defines a FastSimulationModel class for handling optical photon
     interactions with PMT: partial reflection, transmission, absorption,
     and hit generation.
-
+    
     This file is part of the GenericLAND software library.
     $Id: GLG4PMTOpticalModel.hh,v 1.1 2005/08/30 19:55:22 volsung Exp $
-
+    
     @author Glenn Horton-Smith, March 20, 2001.
     @author Dario Motta, Feb. 23 2005: Formalism light interaction with photocathode.
 */
@@ -15,11 +15,13 @@
 
 #include "G4VFastSimulationModel.hh"
 #include "G4MaterialPropertyVector.hh"
+#include "G4OpticalSurface.hh"
 #include "G4LogicalVolume.hh"
 #include "G4LogicalBorderSurface.hh"
 #include "G4UImessenger.hh"
 #include <utility>
 #include <vector>
+#include <map>
 
 class G4UIcommand;
 class G4UIdirectory;
@@ -40,12 +42,12 @@ public:
   //-------------------------
   // 28-Jul-2006 WGS: Must define a G4Region for Fast Simulations
   // (change from Geant 4.7 to Geant 4.8).
-  GLG4PMTOpticalModel (G4String, G4Region*, G4LogicalVolume* body,
-                       G4LogicalBorderSurface *pc_log_surface,
+  GLG4PMTOpticalModel (G4String, G4Region*, G4LogicalVolume* body, 
+                       G4OpticalSurface *op_surface, 
 		       double efficiency_correction=1.0,
 		       double dynodeTop = 0.0, double dynodeRadius = 0.0,
-		       double prepulseProb = 0.0,double photocathode_MINrho = 0.0,
-				   double photocathode_MAXrho = 0.0);
+		       double prepulseProb = 0.0, 
+                       double photocathode_MINrho = 0.0, double photocathode_MAXrho = 0.0);
   // Note: There is no GLG4PMTOpticalModel(G4String) constructor.
   ~GLG4PMTOpticalModel ();
 
@@ -61,44 +63,43 @@ public:
   // following two methods are for G4UImessenger
   void SetNewValue(G4UIcommand * command,G4String newValues);
   G4String GetCurrentValue(G4UIcommand * command);
-
-  void SetBEfficiencyCorrection(std::vector<std::pair<int,double> > _BEffiCorr){BEfficiencyCorrection=_BEffiCorr;G4cout<<GetName()<<": B correction table set\n";}
-  void DumpBEfficiencyCorrectionTable()
+  
+  void SetEfficiencyCorrection(std::map<int,double> _EffiCorr){EfficiencyCorrection=_EffiCorr;G4cout<<GetName()<<": Individual efficiency correction table set\n";}
+  void DumpEfficiencyCorrectionTable()
   {
-    G4cout<<"Magnetic correction table for the PMT efficiencies of "<<GetName()<<":\nPMT ID  corr. factor\n";
-    for(int i=0;i<int(BEfficiencyCorrection.size());i++)
-      G4cout<<BEfficiencyCorrection[i].first<<","<<BEfficiencyCorrection[i].second<<"\n";
+    G4cout<<"Individual correction table for the PMT efficiencies of "<<GetName()<<":\nPMT ID  corr. factor\n";
+    for(std::map<int,double>::iterator iter = EfficiencyCorrection.begin(); iter != EfficiencyCorrection.end(); iter++) {
+      G4cout<<iter->first<<","<<iter->second<<"\n";
+    }
   }
- void fillPMTVector(double code, double A,double An,double T,double R,
-	 double collection_eff, double N_pe, double x,double y,double z,
-	 double gx,double gy,double gz,double wavelength,double time){
-	 pmtHitVectorIndex.push_back(code);
-	 pmtHitVectorIndex.push_back(A);
-	 pmtHitVectorIndex.push_back(An);
-	 pmtHitVectorIndex.push_back(T);
-	 pmtHitVectorIndex.push_back(R);
-	 pmtHitVectorIndex.push_back(collection_eff);
-	 pmtHitVectorIndex.push_back(N_pe);
-	 pmtHitVectorIndex.push_back(x);
-	 pmtHitVectorIndex.push_back(y);
-	 pmtHitVectorIndex.push_back(z);
-	 pmtHitVectorIndex.push_back(gx);
-	 pmtHitVectorIndex.push_back(gy);
-	 pmtHitVectorIndex.push_back(gz);
-	 pmtHitVectorIndex.push_back(wavelength);
-	 pmtHitVectorIndex.push_back(time);
-	 pmtHitVector.push_back(pmtHitVectorIndex);
-	 pmtHitVectorIndex.resize(0);
- }
-
- std::vector<std::vector<double> > GetPMTVector(){
-	return pmtHitVector;
- }
- static std::vector<std::vector<double> > pmtHitVector;
-
-
+  void fillPMTVector(double code, double A,double An,double T,double R,
+	  double collection_eff, double N_pe, double x,double y,double z,
+	  double gx,double gy,double gz,double wavelength,double time){
+	  pmtHitVectorIndex.push_back(code);
+	  pmtHitVectorIndex.push_back(A);
+	  pmtHitVectorIndex.push_back(An);
+	  pmtHitVectorIndex.push_back(T);
+	  pmtHitVectorIndex.push_back(R);
+	  pmtHitVectorIndex.push_back(collection_eff);
+	  pmtHitVectorIndex.push_back(N_pe);
+	  pmtHitVectorIndex.push_back(x);
+	  pmtHitVectorIndex.push_back(y);
+	  pmtHitVectorIndex.push_back(z);
+	  pmtHitVectorIndex.push_back(gx);
+	  pmtHitVectorIndex.push_back(gy);
+	  pmtHitVectorIndex.push_back(gz);
+	  pmtHitVectorIndex.push_back(wavelength);
+	  pmtHitVectorIndex.push_back(time);
+	  pmtHitVector.push_back(pmtHitVectorIndex);
+	  pmtHitVectorIndex.resize(0);
+  }
+  std::vector<std::vector<double> > GetPMTVector(){
+         return pmtHitVector;
+  }
+  static std::vector<std::vector<double> > pmtHitVector;
+  
 private:
-  // material property vector pointers, initialized in constructor,
+  // material property vector pointers, initialized in constructor, 
   // so we don't have to look them up every time DoIt is called.
   G4MaterialPropertyVector * _rindex_glass;        // function of photon energy
   G4MaterialPropertyVector * _rindex_photocathode; // function of photon energy
@@ -114,16 +115,19 @@ private:
 
   // "luxury level" -- how fancy should the optical model be?
   G4int _luxlevel;
+  // MFB
+  G4double _rho;
+  G4double _rhoAvg;
+  G4double _rhoDif;
+  G4double _erfProb;
+  G4double _photocathode_MINrho;
+  G4double _photocathode_MAXrho;
   G4double _efficiency_correction; // global efficiency correction, default to 1.0
   G4double _dynodeTop;
   G4double _dynodeRadius;
   G4double _prepulseProb;
-	G4double _photocathode_MINrho;
-	G4double _photocathode_MAXrho;
-	G4double _rho;
-	G4double _rhoAvg;
-	G4double _rhoDif;
-	G4double _erfProb;
+
+  G4bool _applyCorrection;
 
   // verbose level -- how verbose to be (diagnostics and such)
   G4int _verbosity;
@@ -159,15 +163,11 @@ private:
   void CalculateCoefficients(); // calculate and set fR_s, etc.
   void Reflect(G4ThreeVector &dir, G4ThreeVector &pol, G4ThreeVector &norm);
   void Refract(G4ThreeVector &dir, G4ThreeVector &pol, G4ThreeVector &norm);
-  int GetPMTID(const G4FastTrack& fastTrack);
 
   static double surfaceTolerance;
-
-  std::vector<std::pair<int,double> > BEfficiencyCorrection;
-
-	std::vector<double>  pmtHitVectorIndex;
-
-
+  
+  std::map<int,double> EfficiencyCorrection;
+  std::vector<double>  pmtHitVectorIndex;
 };
 
 #endif

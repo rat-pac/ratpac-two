@@ -51,7 +51,7 @@
 #include <RAT/TimeUtil.hh>
 
 #include <RAT/GLG4PMTOpticalModel.hh>
-#include <RAT/GeoPMTFactoryBase.hh>
+#include <RAT/PMTFactoryBase.hh>
 
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <math.h>
@@ -460,7 +460,7 @@ void Gsim::MakeRun(int _runID) {
     run->SetID(_runID);
     run->SetType((unsigned)lrun->GetI("runtype"));
     run->SetStartTime(utc); 
-    run->SetPMTInfo(&GeoPMTFactoryBase::GetPMTInfo());
+    run->SetPMTInfo(&PMTFactoryBase::GetPMTInfo());
     
     DS::RunStore::AddNewRun(run);
 }
