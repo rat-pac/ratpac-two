@@ -256,6 +256,7 @@ void Gsim::EndOfRunAction(const G4Run* /*arun*/) {
 
 void Gsim::BeginOfEventAction(const G4Event* anEvent) {
     GLG4Scint::ResetTotEdep();
+    GLG4Scint::ResetPhotonCount();
     
     // Clearing theHitPMTCollection clears away the HitPhotons and HitPMTs
     GLG4VEventAction::GetTheHitPMTCollection()->Clear();
@@ -562,56 +563,12 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
         return;
     }
     
-    std::vector<std::vector<double> > a = GLG4Scint::GetScintMatrix();
-    std::sort(a.begin(), a.end());
-    int triggers = -1, actualTrigger = 0;
+    // std::vector<std::vector<double> > a = GLG4Scint::GetScintMatrix();
+    // std::sort(a.begin(), a.end());
+    int triggers = -1;
     double timeWindow = 400., old_time = -1e9, start_time = -1e9,
-    rollingEnergy = 0.;
-    double avgX = 0., avgY = 0., avgZ = 0.,
+    avgX = 0., avgY = 0., avgZ = 0.,
     avgCnt = 0.;  // Might need to do a weighted average
-    // int avgCnt = 0;
-    //
-    // remove mfb
-    /*for (unsigned long aIndex = 0; aIndex < a.size(); aIndex++) {
-        if ((a[aIndex][0] - old_time) > timeWindow) {
-            triggers += 1;
-            // G4cout << "Found a new trigger "<< triggers << "; previous trigger
-            // (start time,end time, enerrgy) " << start_time << " " << old_time << "
-            // " << rollingEnergy << G4endl;
-            if (rollingEnergy > 0.5) {
-                actualTrigger += 1;
-                if (avgCnt == 0) {
-                    avgCnt += 1;
-                }
-                G4cout << "TRIGG " << actualTrigger << " " << triggers << " "
-                << start_time << " " << old_time - start_time << " "
-                << rollingEnergy << " " << avgX / avgCnt << " " << avgY / avgCnt
-                << " " << avgZ / avgCnt << G4endl;
-            }
-            rollingEnergy = 0.0;
-            avgX = avgY = avgZ = 0.;
-            avgCnt = 0.;
-            start_time = a[aIndex][0];
-        }
-        avgX += a[aIndex][6] * a[aIndex][1];
-        avgY += a[aIndex][7] * a[aIndex][1];
-        avgZ += a[aIndex][8] * a[aIndex][1];
-        avgCnt += a[aIndex][1];
-        old_time = a[aIndex][0];
-        rollingEnergy += a[aIndex][2];
-        //  G4cout << a[aIndex][0] << " " << a[aIndex][1] <<  " " <<" " <<
-        //  a[aIndex][2] <<  " " <<" " << a[aIndex][6] <<  " " <<" " << a[aIndex][7]
-        //  <<  " " <<" " << a[aIndex][8] <<  " " << avgX/avgCnt <<  " " <<
-        //  avgY/avgCnt <<  " " << avgZ/avgCnt <<  " " << rollingEnergy << G4endl;
-    }
-    if (rollingEnergy > 0.5) {
-        triggers += 1;
-        actualTrigger += 1;
-        G4cout << "TRIGG " << actualTrigger << " " << triggers << " " << start_time
-        << " " << old_time - start_time << " " << rollingEnergy << " "
-        << avgX / avgCnt << " " << avgY / avgCnt << " " << avgZ / avgCnt
-        << G4endl;
-    }*/
     
     std::vector<G4double> rollingZero;                 // mfb
     std::vector<std::vector<double> > rollingPhotons;  // mfb
@@ -621,8 +578,6 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
     rollingZero.push_back(0.);
     
     std::sort(exinfo->timePhotonMatrix.begin(), exinfo->timePhotonMatrix.end());
-    old_time = -1e9, start_time = -1e9, rollingEnergy = 0.;
-    triggers = -1;
     
     for (unsigned long aIndex = 0; aIndex < exinfo->timePhotonMatrix.size();
          aIndex++) {
@@ -643,10 +598,6 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
         // << " " <<rollingPhotons[aIndex][2] << G4endl;
     }
     
-    // SetPMTPhotonInfo
-    // G4cout << "Size of PMTArray " << GLG4PMTOpticalModel::pmtHitVector.size()<<
-    // G4endl;
-    
     // MC summary information
     DS::MCSummary* summary = mc->GetMCSummary();
     summary->SetEnergyCentroid(exinfo->energyCentroid.GetMean());
@@ -654,16 +605,16 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
     summary->SetEnergyLossByVolume(exinfo->energyLoss);
     summary->SetTotalScintEdep(GLG4Scint::GetTotEdep());
     summary->SetTotalScintEdepQuenched(GLG4Scint::GetTotEdepQuenched());
-    const G4ThreeVector sCentroid = GLG4Scint::GetScintCentroid();
-    TVector3 scintCentroid(sCentroid.x(), sCentroid.y(), sCentroid.z());
-    summary->SetTotalScintCentroid(scintCentroid);
+    //const G4ThreeVector sCentroid = GLG4Scint::GetScintCentroid();
+    //TVector3 scintCentroid(sCentroid.x(), sCentroid.y(), sCentroid.z());
+    //summary->SetTotalScintCentroid(scintCentroid);
     summary->SetNumScintPhoton(exinfo->numScintPhoton);
     summary->SetNumReemitPhoton(exinfo->numReemitPhoton);
     summary->SetNumCerenkovPhoton(exinfo->numCerenkovPhoton);
     summary->SetPhotonInfo(rollingPhotons);
     summary->SetPMTPhotonInfo(GLG4PMTOpticalModel::pmtHitVector);
     
-    GLG4Scint::ResetTimeChargeMatrix();
+    //GLG4Scint::ResetTimeChargeMatrix();
     exinfo->timePhotonMatrix.resize(0);
     GLG4PMTOpticalModel::pmtHitVector.resize(0);
     

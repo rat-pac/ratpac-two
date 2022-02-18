@@ -103,16 +103,16 @@ int main(int argc, char **argv) {
   try { // Catch database errors
     // Set default input and output files
     if (options.input_filename != "") {
-      rdb->SetS("IO", "", "default_input_filename", options.input_filename);
+      rdb->Set("IO", "", "default_input_filename", options.input_filename);
       info << "Setting default input file to " << options.input_filename << "\n";
     }
     if (options.output_filename != "") {
-      rdb->SetS("IO", "", "default_output_filename", options.output_filename);
+      rdb->Set("IO", "", "default_output_filename", options.output_filename);
       info << "Setting default output file to " << options.output_filename << "\n";
     }
     // Set the file to read when using vector data files
     if (options.vector_filename != "") {
-      rdb->SetS("IO", "", "default_vector_filename", options.vector_filename);
+      rdb->Set("IO", "", "default_vector_filename", options.vector_filename);
       info << "Setting vector file to " << options.vector_filename << "\n";
     }
 

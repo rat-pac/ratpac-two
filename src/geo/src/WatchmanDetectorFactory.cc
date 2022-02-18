@@ -37,7 +37,7 @@ namespace RAT {
         const double steel_thickness  = shield->GetD("steel_thickness");
         const double veto_thickness_r = shield->GetD("veto_thickness_r");//Distance between TANK and Inner PMT
         const double detector_size_d  = shield->GetD("detector_size_d");
-	    const double veto_thickness_z = shield->GetD("veto_thickness_z");//Distance between TANK and Inner PMT
+	const double veto_thickness_z = shield->GetD("veto_thickness_z");//Distance between TANK and Inner PMT
         const double detector_size_z  = shield->GetD("detector_size_z");
 
         const double cable_radius = detector_size_d/2.0 - veto_thickness_r + 4.0*steel_thickness;
@@ -196,21 +196,21 @@ namespace RAT {
 
         info << "Update geometry fields related to the reflective and absorptive tarps...\n";
         // Side tarps
-        db->SetD("GEO","white_sheet_side","r_max",veto_radius);
-        db->SetD("GEO","white_sheet_side","r_min",veto_radius-10.0); // Marc Bergevin: Hardcoding in a 1 cm value for thickness
-        db->SetD("GEO","white_sheet_side","size_z",topbot_veto_offset);
+        db->Set("GEO","white_sheet_side","r_max",veto_radius);
+        db->Set("GEO","white_sheet_side","r_min",veto_radius-10.0); // Marc Bergevin: Hardcoding in a 1 cm value for thickness
+        db->Set("GEO","white_sheet_side","size_z",topbot_veto_offset);
 
-        db->SetD("GEO","black_sheet_side","r_max",pmt_radius+black_sheet_offset+black_sheet_thickness); //paige kunkle: expanding black tarp (+30cm) // Marc Bergevin: Hardcoding in a 1 cm value for thickness
-	db->SetD("GEO","black_sheet_side","r_min",pmt_radius+black_sheet_offset);  //paige kunkle: expanding black tarp (+30cm)
-	db->SetD("GEO","black_sheet_side","size_z",topbot_offset+black_sheet_offset);//paige kunkle: expanding black tarp (+30cm)
+        db->Set("GEO","black_sheet_side","r_max",pmt_radius+black_sheet_offset+black_sheet_thickness); //paige kunkle: expanding black tarp (+30cm) // Marc Bergevin: Hardcoding in a 1 cm value for thickness
+	db->Set("GEO","black_sheet_side","r_min",pmt_radius+black_sheet_offset);  //paige kunkle: expanding black tarp (+30cm)
+	db->Set("GEO","black_sheet_side","size_z",topbot_offset+black_sheet_offset);//paige kunkle: expanding black tarp (+30cm)
 
-        db->SetD("GEO","Rod_assemblies","r_max",(pmt_radius+300.)); // Based on Geofile thickness values of 10 cm
-        db->SetD("GEO","Rod_assemblies","r_min",(pmt_radius+200.));
-        db->SetD("GEO","Rod_assemblies","size_z",topbot_offset);
+        db->Set("GEO","Rod_assemblies","r_max",(pmt_radius+300.)); // Based on Geofile thickness values of 10 cm
+        db->Set("GEO","Rod_assemblies","r_min",(pmt_radius+200.));
+        db->Set("GEO","Rod_assemblies","size_z",topbot_offset);
 
-        db->SetD("GEO","white_sheet_tank_side","r_max",detector_size_d/2.0 -10.0);
-        db->SetD("GEO","white_sheet_tank_side","r_min",detector_size_d/2.0 -35.0);
-        db->SetD("GEO","white_sheet_tank_side","size_z",detector_size_z/2.0-35.0);
+        db->Set("GEO","white_sheet_tank_side","r_max",detector_size_d/2.0 -10.0);
+        db->Set("GEO","white_sheet_tank_side","r_min",detector_size_d/2.0 -35.0);
+        db->Set("GEO","white_sheet_tank_side","size_z",detector_size_z/2.0-35.0);
         
         
         //Top tarps
@@ -241,18 +241,18 @@ namespace RAT {
         
         
         
-        db->SetD("GEO","white_sheet_top","r_max",veto_radius);
-        db->SetDArray("GEO","white_sheet_top","position",move_white_top);
-        db->SetD("GEO","black_sheet_top","r_max",pmt_radius+black_sheet_offset);//paige kunkle: expanding black tarp (+30cm)
-        db->SetDArray("GEO","black_sheet_top","position",move_black_top);
-        db->SetD("GEO","Top_cap_framework","r_max",pmt_radius);
-        db->SetDArray("GEO","Top_cap_framework","position",move_topcap);
-        db->SetD("GEO","Wall_support_truss_top","r_min",pmt_radius+5.0);  // Bergevin: Values based
-        db->SetD("GEO","Wall_support_truss_top","r_max",pmt_radius+200.0);// on geofile
-        db->SetDArray("GEO","Wall_support_truss_top","position",move_toptruss);
+        db->Set("GEO","white_sheet_top","r_max",veto_radius);
+        db->Set("GEO","white_sheet_top","position",move_white_top);
+        db->Set("GEO","black_sheet_top","r_max",pmt_radius+black_sheet_offset);//paige kunkle: expanding black tarp (+30cm)
+        db->Set("GEO","black_sheet_top","position",move_black_top);
+        db->Set("GEO","Top_cap_framework","r_max",pmt_radius);
+        db->Set("GEO","Top_cap_framework","position",move_topcap);
+        db->Set("GEO","Wall_support_truss_top","r_min",pmt_radius+5.0);  // Bergevin: Values based
+        db->Set("GEO","Wall_support_truss_top","r_max",pmt_radius+200.0);// on geofile
+        db->Set("GEO","Wall_support_truss_top","position",move_toptruss);
     
-        db->SetD("GEO","white_sheet_tank_top","r_max",detector_size_d/2.0 -35.0);
-        db->SetDArray("GEO","white_sheet_tank_top","position",move_toptanktarp);
+        db->Set("GEO","white_sheet_tank_top","r_max",detector_size_d/2.0 -35.0);
+        db->Set("GEO","white_sheet_tank_top","position",move_toptanktarp);
         
         
         
@@ -282,18 +282,18 @@ namespace RAT {
         
         
         
-        db->SetD("GEO","white_sheet_bottom","r_max",veto_radius);
-        db->SetDArray("GEO","white_sheet_bottom","position",move_white_bottom);
-        db->SetD("GEO","black_sheet_bottom","r_max",pmt_radius+black_sheet_offset);//paige kunkle: expanding black tarp (+30cm)
-        db->SetDArray("GEO","black_sheet_bottom","position",move_black_bottom);
-        db->SetD("GEO","Bottom_cap_framework","r_max",pmt_radius);
-        db->SetDArray("GEO","Bottom_cap_framework","position",move_bottomcap);
-        db->SetD("GEO","Wall_support_truss_bottom","r_min",pmt_radius+5.0);  // Bergevin: Values based
-        db->SetD("GEO","Wall_support_truss_bottom","r_max",pmt_radius+200.0);// on geofile
-        db->SetDArray("GEO","Wall_support_truss_bottom","position",move_bottomtruss);
+        db->Set("GEO","white_sheet_bottom","r_max",veto_radius);
+        db->Set("GEO","white_sheet_bottom","position",move_white_bottom);
+        db->Set("GEO","black_sheet_bottom","r_max",pmt_radius+black_sheet_offset);//paige kunkle: expanding black tarp (+30cm)
+        db->Set("GEO","black_sheet_bottom","position",move_black_bottom);
+        db->Set("GEO","Bottom_cap_framework","r_max",pmt_radius);
+        db->Set("GEO","Bottom_cap_framework","position",move_bottomcap);
+        db->Set("GEO","Wall_support_truss_bottom","r_min",pmt_radius+5.0);  // Bergevin: Values based
+        db->Set("GEO","Wall_support_truss_bottom","r_max",pmt_radius+200.0);// on geofile
+        db->Set("GEO","Wall_support_truss_bottom","position",move_bottomtruss);
     
-        db->SetD("GEO","white_sheet_tank_bottom","r_max",detector_size_d/2.0 -35.0);
-        db->SetDArray("GEO","white_sheet_tank_bottom","position",move_bottomtanktarp);
+        db->Set("GEO","white_sheet_tank_bottom","r_max",detector_size_d/2.0 -35.0);
+        db->Set("GEO","white_sheet_tank_bottom","position",move_bottomtanktarp);
         
         
         info << "Adjusting the Bottom cap standoff frames ...\n";
@@ -346,51 +346,51 @@ namespace RAT {
             info << "New size " << standoff_frame_4_size[0] << " " << standoff_frame_4_size[1] << " " << standoff_frame_4_size[2] << "...\n";
         }
  
-        db->SetDArray("GEO","Bottom_cap_standoff_frame_0","size",standoff_frame_0_size);
-        db->SetDArray("GEO","Bottom_cap_standoff_frame_0","position",standoff_frame_0_pos);
-        db->SetDArray("GEO","Bottom_cap_standoff_frame_1","size",standoff_frame_1_size);
-        db->SetDArray("GEO","Bottom_cap_standoff_frame_1","position",standoff_frame_1_pos);
-        db->SetDArray("GEO","Bottom_cap_standoff_frame_2","size",standoff_frame_2_size);
-        db->SetDArray("GEO","Bottom_cap_standoff_frame_2","position",standoff_frame_2_pos);
-        db->SetDArray("GEO","Bottom_cap_standoff_frame_3","size",standoff_frame_3_size);
-        db->SetDArray("GEO","Bottom_cap_standoff_frame_3","position",standoff_frame_3_pos);
-        db->SetDArray("GEO","Bottom_cap_standoff_frame_4","size",standoff_frame_4_size);
-        db->SetDArray("GEO","Bottom_cap_standoff_frame_4","position",standoff_frame_4_pos);
+        db->Set("GEO","Bottom_cap_standoff_frame_0","size",standoff_frame_0_size);
+        db->Set("GEO","Bottom_cap_standoff_frame_0","position",standoff_frame_0_pos);
+        db->Set("GEO","Bottom_cap_standoff_frame_1","size",standoff_frame_1_size);
+        db->Set("GEO","Bottom_cap_standoff_frame_1","position",standoff_frame_1_pos);
+        db->Set("GEO","Bottom_cap_standoff_frame_2","size",standoff_frame_2_size);
+        db->Set("GEO","Bottom_cap_standoff_frame_2","position",standoff_frame_2_pos);
+        db->Set("GEO","Bottom_cap_standoff_frame_3","size",standoff_frame_3_size);
+        db->Set("GEO","Bottom_cap_standoff_frame_3","position",standoff_frame_3_pos);
+        db->Set("GEO","Bottom_cap_standoff_frame_4","size",standoff_frame_4_size);
+        db->Set("GEO","Bottom_cap_standoff_frame_4","position",standoff_frame_4_pos);
 
         
         info << "Override default PMTINFO information...\n";
-        db->SetDArray("PMTINFO","x",x);
-        db->SetDArray("PMTINFO","y",y);
-        db->SetDArray("PMTINFO","z",z);
-        db->SetDArray("PMTINFO","dir_x",dir_x);
-        db->SetDArray("PMTINFO","dir_y",dir_y);
-        db->SetDArray("PMTINFO","dir_z",dir_z);
-        db->SetIArray("PMTINFO","type",type);
+        db->Set("PMTINFO","x",x);
+        db->Set("PMTINFO","y",y);
+        db->Set("PMTINFO","z",z);
+        db->Set("PMTINFO","dir_x",dir_x);
+        db->Set("PMTINFO","dir_y",dir_y);
+        db->Set("PMTINFO","dir_z",dir_z);
+        db->Set("PMTINFO","type",type);
 
         info << "Update geometry fields related to the reflective and absorptive tarps...\n";
         
         
         info << "Update geometry fields related to veto PMTs...\n";
-        db->SetI("GEO","shield","veto_start",num_pmts);
-        db->SetI("GEO","shield","veto_len",num_vetos);
-        db->SetI("GEO","veto_pmts","start_idx",num_pmts);
-        db->SetI("GEO","veto_pmts","end_idx",total_pmts-1);
+        db->Set("GEO","shield","veto_start",num_pmts);
+        db->Set("GEO","shield","veto_len",num_vetos);
+        db->Set("GEO","veto_pmts","start_idx",num_pmts);
+        db->Set("GEO","veto_pmts","end_idx",total_pmts-1);
 
         info << "Update geometry fields related to normal PMTs...\n";
-        db->SetI("GEO","shield","cols",cols);
-        db->SetI("GEO","shield","rows",rows);
-        db->SetI("GEO","shield","inner_start",0);
-        db->SetI("GEO","shield","inner_len",num_pmts);
-        db->SetI("GEO","inner_pmts","start_idx",0);
-        db->SetI("GEO","inner_pmts","end_idx",num_pmts-1);
+        db->Set("GEO","shield","cols",cols);
+        db->Set("GEO","shield","rows",rows);
+        db->Set("GEO","shield","inner_start",0);
+        db->Set("GEO","shield","inner_len",num_pmts);
+        db->Set("GEO","inner_pmts","start_idx",0);
+        db->Set("GEO","inner_pmts","end_idx",num_pmts-1);
 
         info << "Update cable positions to match shield...\n";
-        db->SetDArray("cable_pos","x",cable_x);
-        db->SetDArray("cable_pos","y",cable_y);
-        db->SetDArray("cable_pos","z",vector<double>(cols,0.0));
-        db->SetDArray("cable_pos","dir_x",vector<double>(cols,0.0));
-        db->SetDArray("cable_pos","dir_y",vector<double>(cols,0.0));
-        db->SetDArray("cable_pos","dir_z",vector<double>(cols,1.0));
+        db->Set("cable_pos","x",cable_x);
+        db->Set("cable_pos","y",cable_y);
+        db->Set("cable_pos","z",vector<double>(cols,0.0));
+        db->Set("cable_pos","dir_x",vector<double>(cols,0.0));
+        db->Set("cable_pos","dir_y",vector<double>(cols,0.0));
+        db->Set("cable_pos","dir_z",vector<double>(cols,1.0));
 
         //DBLinkPtr inner_pmts = db->GetLink("GEO","inner_pmts");
         //  const vector<double> &size = table->GetDArray("boxsize");
@@ -412,14 +412,12 @@ namespace RAT {
         minshift.push_back(-_shift);
         info << "Update height of rock and cavern air... (" << _shift << " mm shift)\n";
 
-        db->SetDArray("GEO","rock_1",  "position",shift);
-        // db->SetDArray("GEO","cavern",  "position",noshift);
+        db->Set("GEO","rock_1",  "position",shift);
         
         info << "Adjust size and position of tank...\n";
-        db->SetD("GEO","tank","r_max",detector_size_d/2.0);
-        db->SetD("GEO","tank","size_z",detector_size_z/2.0);
-        db->SetDArray("GEO","tank","position",minshift);
-        // db->SetDArray("GEO","detector","position",minshift);
+        db->Set("GEO","tank","r_max",detector_size_d/2.0);
+        db->Set("GEO","tank","size_z",detector_size_z/2.0);
+        db->Set("GEO","tank","position",minshift);
     }
 
 }

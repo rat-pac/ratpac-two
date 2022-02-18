@@ -17,7 +17,7 @@
 #include <RAT/DetectorFactory.hh>
 #include <RAT/WatchmanDetectorFactory.hh>
 #include <RAT/TheiaDetectorFactory.hh>
-#include <RAT/WatchmanWLSPSquareDetectorFactory.hh>
+//#include <RAT/WatchmanWLSPSquareDetectorFactory.hh>
 
 using namespace std;
 
@@ -28,7 +28,7 @@ DetectorConstruction* DetectorConstruction::sDetectorConstruction = NULL;
 DetectorConstruction::DetectorConstruction() {
   DetectorFactory::Register("Watchman",new WatchmanDetectorFactory());
     DetectorFactory::Register("Theia",new TheiaDetectorFactory());
-    DetectorFactory::Register("WatchmanWLSPSquare",new WatchmanWLSPSquareDetectorFactory());
+    //DetectorFactory::Register("WatchmanWLSPSquare",new WatchmanWLSPSquareDetectorFactory());
 }
 
 G4VPhysicalVolume* DetectorConstruction::Construct() {

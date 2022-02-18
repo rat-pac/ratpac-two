@@ -15,21 +15,23 @@
  *  along with fastjson. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RAT/json.hh"
+#include <RAT/json.hh>
 
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
 #include <limits>
+#include <climits>
+#include <cerrno>
 
 namespace json {
 
-    void Value::reset(Type _type) {
+    void Value::reset(Type type_) {
         decref();
-        this->type = _type;
-        switch (_type) {
+        this->type = type_;
+        switch (type) {
             case TSTRING:
-                data._string = new TString();
+                data.string = new TString();
                 refcount = new TUInteger(0);
                 return;
             case TOBJECT:
@@ -49,7 +51,7 @@ namespace json {
         if (refcount) delete refcount;
         switch (type) {
             case TSTRING:
-                delete data._string;
+                delete data.string;
                 break;
             case TOBJECT:
                 delete data.object;
@@ -98,7 +100,7 @@ namespace json {
             case TNULL:
                 return "TNULL";
             default:
-                return "UNKNOWN";
+                return "ERROR";
         }
     }
 
@@ -144,7 +146,7 @@ namespace json {
     }
 
     Reader::~Reader() {
-        delete [] data;
+        delete[] data;
     }
 
     bool Reader::getValue(Value &result) {
@@ -282,12 +284,14 @@ namespace json {
                                 default: {
                                     char next = *cur;
                                     *cur = '\0';
-                                    TUInteger hex;
-                                    std::stringstream temp;
-                                    temp << std::hex << start;
-                                    temp >> hex;
+                                    errno = 0;
+                                    char *end;
+                                    TUInteger ui = strtoul(start,&end,16);
+                                    if (end != cur) throw parser_error(line,cur-lastbr,"Malformed hex number");
+                                    if (ui == ULONG_MAX && errno == ERANGE)
+                                        throw parser_error(line,cur-lastbr,"Unsigned integer out of bounds.");
                                     *cur = next;
-                                    return Value(hex);
+                                    return Value(ui);
                                 }
                             }
                         }
@@ -301,7 +305,12 @@ namespace json {
                 case 'u': //non-json explicit unsigned
                     *cur = '\0';
                     cur++;
-                    return Value((TUInteger)atoi(start));
+                    {
+                        char *end;
+                        Value v((TUInteger)strtoul(start,&end,10));
+                        if (end != cur-1) throw parser_error(line,cur-lastbr,"Malformed integer");
+                        return v;
+                    }
                 case 'd': //non-json explicit real OR strange exponential
                     switch (cur[1]) {
                         case '+':
@@ -328,7 +337,12 @@ namespace json {
                 case 'f': //non-json explicit real
                     *cur = '\0';
                     cur++;
-                    return Value((TReal)atof(start));
+                    {
+                        char *end;
+                        Value v((TReal)strtod(start,&end));
+                        if (end != cur-1) throw parser_error(line,cur-lastbr,"Malformed real");
+                        return v;
+                    }
                 case '.': //real
                     real = true;
                 case '+':
@@ -350,9 +364,25 @@ namespace json {
                     *cur = '\0';
                     Value val;
                     if (real || exp) {
-                        val = Value((TReal)atof(start));
+                        char *end;
+                        val = Value((TReal)strtod(start,&end));
+                        if (end != cur) throw parser_error(line,cur-lastbr,"Malformed real");
                     } else {
-                        val = Value((TInteger)atoi(start));
+                        errno = 0;
+                        char *end;
+                        TInteger i = strtol(start,&end,10);
+                        if (end != cur) throw parser_error(line,cur-lastbr,"Malformed integer");
+                        if (i == LONG_MIN && errno == ERANGE) 
+                            throw parser_error(line,cur-lastbr,"Signed integer out of bounds.");
+                        if (i == LONG_MAX && errno == ERANGE) {
+                            errno = 0;
+                            TUInteger ui = strtoul(start,NULL,10);
+                            if (ui == ULONG_MAX && errno == ERANGE)
+                                throw parser_error(line,cur-lastbr,"Unsigned integer out of bounds.");
+                            val = Value(ui);
+                        } else {
+                            val = Value(i);
+                        }
                     }
                     *cur = next;
                     return val;
@@ -507,46 +537,54 @@ namespace json {
 
     }
 
-    void Writer::putValue(Value value) {
-        writeValue(value);
+    void Writer::putValue(const Value &value) {
+        writeValue(value,"");
         out << '\n';
     }
 
-    //This could make prettier output
-    void Writer::writeValue(Value value) {
+    void Writer::writeValue(const Value &value, const std::string &depth) {
         switch (value.type) {
             case TINTEGER:
                 out << value.data.integer;
                 break;
             case TUINTEGER:
-                out << value.data.uinteger << 'u';
+                out << value.data.uinteger;
                 break;
             case TREAL:
                 out.precision(std::numeric_limits<double>::digits10);
                 out << value.data.real;
                 break;
             case TSTRING:
-                out << '"' << escapeString(*(value.data._string)) << '"';
+                out << '"' << escapeString(*(value.data.string)) << '"';
                 break;
             case TOBJECT: {
+                    const std::string nextdepth(depth+"    ");
                     TObject::iterator it = value.data.object->begin();
                     TObject::iterator end = value.data.object->end();
                     out << "{\n";
-                    for ( ; it != end; ++it) {
-                        out << '\"' << it->first << "\" : ";
-                        writeValue(it->second);
-                        out << ",\n";
+                    if (it != end) {
+                        out << nextdepth << '\"' << it->first << "\" : ";
+                        writeValue(it->second,nextdepth);
+                        it++;
                     }
-                    out << '}';
+                    for ( ; it != end; it++) {
+                        out << ",\n" << nextdepth << '\"' << it->first << "\" : ";
+                        writeValue(it->second,nextdepth);
+                    }
+                    out << '\n' << depth << '}';
                 }
                 break;
             case TARRAY: {
                     TArray::iterator it = value.data.array->begin();
                     TArray::iterator end = value.data.array->end();
                     out << '[';
-                    for ( ; it != end; ++it) {
+                    if (it != end) {
                         writeValue(*it);
+                        it++;
+                    }
+                    for ( ; it != end; it++) {
                         out << ", ";
+                        writeValue(*it);
                     }
                     out << ']';
                 }

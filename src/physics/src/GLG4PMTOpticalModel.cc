@@ -313,7 +313,7 @@ GLG4PMTOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
     _rho = sqrt(pow(pos.x(),2.)+pow(pos.y(),2.));
     _rhoAvg = (  _photocathode_MINrho + _photocathode_MAXrho )/2.0;
     _rhoDif = (  _photocathode_MAXrho - _photocathode_MINrho);
-    _erfProb  = 1.-1./2.*(TMath::Erf(4.0*(_rho-_rhoAvg)/_rhoDif)+1.);
+    _erfProb  = 1.0 - 0.5*(TMath::Erf(4.0*(_rho-_rhoAvg)/_rhoDif)+1);
 
     G4int iloop;
     G4int max_iloop= 100;
@@ -408,7 +408,6 @@ GLG4PMTOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
         A= 1.0 - (T+R);
         An= 1.0 - (fT_n+fR_n); //The absorption at normal incidence
         collection_eff= _efficiency/An; // net QE = _efficiency for normal inc.
-        //    G4cout << " WUBBA " << A <<" " << An <<" " << T  << " " << R << " " << collection_eff << " " << E_s2 << " " << pos.x()/10. << " " << pos.y()/10. << " "  << pos.z()/10. << " " << _wavelength*1e6 << " " << time<< G4endl;
 
 # ifdef G4DEBUG
         if (A < 0.0 || A > 1.0 || collection_eff < 0.0 || collection_eff > 1.0) {
@@ -452,35 +451,20 @@ GLG4PMTOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
                 N_pe = 1;
                 prepulse = true;
                 pos = posAtDynodeZ;
-              //  G4cout << " WUBBA 6 " << A <<" " << An <<" " << T  << " " << R << " " << collection_eff << " " << N_pe << " " << pos.x()/10. << " " << pos.y()/10. << " "  << pos.z()/10.<< " " << posGlobal.x() << " " << posGlobal.y() << " " << posGlobal.z() << " " << _wavelength*1e6 << " " << time<< G4endl;
-               fillPMTVector(6.,A,An,T,R,collection_eff,N_pe,
-                 pos.x()/10.,pos.y()/10.,pos.z()/10.,
-                 posGlobal.x(),posGlobal.y(),posGlobal.z(),
-                 _wavelength*1e6,time);
+                fillPMTVector(6.,A,An,T,R,collection_eff,N_pe,
+                  pos.x()/10.,pos.y()/10.,pos.z()/10.,
+                  posGlobal.x(),posGlobal.y(),posGlobal.z(),
+                  _wavelength*1e6,time);
             }
         }
 
         if (N_pe > 0) {
             if ( detector != NULL && detector->isActive() ){
-                // ((GLG4PMTSD *)detector)->SimpleHit( ipmt,
-                //                                    time,
-                //                                    energy,
-                //                                    pos,
-                //                                    dir,
-                //                                    pol,
-                //                                    N_pe,
-                //                                    fastTrack.GetPrimaryTrack()->GetTrackID(),
-                //                                    prepulse);
-                // G4cout << " WUBBA 1 " << A <<" " << An <<" " << T  << " " << R << " " << collection_eff << " " << N_pe << " " << pos.x()/10. << " " << pos.y()/10. << " "  << pos.z()/10.<< " " << posGlobal.x() << " " << posGlobal.y() << " " << posGlobal.z() << " " << _wavelength*1e6 << " " << time<< G4endl;
                 fillPMTVector(1.,A,An,T,R,collection_eff,N_pe,
                   pos.x()/10.,pos.y()/10.,pos.z()/10.,
                   posGlobal.x(),posGlobal.y(),posGlobal.z(),
                   _wavelength*1e6,time);
-
-
-                //G4cout << _rho << " " << _photocathode_MINrho << " " << _photocathode_MAXrho << " " << _erfProb <<"\n";
                 if ( G4UniformRand() <= _erfProb){
-                  // G4cout << " WUBBA 0 " << A <<" " << An <<" " << T  << " " << R << " " << collection_eff << " " << N_pe << " " << pos.x()/10. << " " << pos.y()/10. << " "  << pos.z()/10.<< " " << posGlobal.x() << " " << posGlobal.y() << " " << posGlobal.z() << " " << _wavelength*1e6 << " " << time<< G4endl;
                   fillPMTVector(0.,A,An,T,R,collection_eff,N_pe,
                     pos.x()/10.,pos.y()/10.,pos.z()/10.,
                     posGlobal.x(),posGlobal.y(),posGlobal.z(),
@@ -523,8 +507,6 @@ GLG4PMTOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
         // correct, assuming there are no bugs in the code.)
         if ( ranno_absorb < A) {
             weight= 0;
-            // G4cout << " WUBBA 2 " << A <<" " << An <<" " << T  << " " << R << " " << collection_eff << " " << N_pe << " " << pos.x()/10. << " " << pos.y()/10.<< " "  << pos.z()/10. << " " << _wavelength*1e6 << " " << time<< G4endl;
-            // G4cout << " WUBBA 2 " << A <<" " << An <<" " << T  << " " << R << " " << collection_eff << " " << N_pe << " " << pos.x()/10. << " " << pos.y()/10. << " "  << pos.z()/10.<< " " << posGlobal.x() << " " << posGlobal.y() << " " << posGlobal.z() << " " << _wavelength*1e6 << " " << time<< G4endl;
             fillPMTVector(2.,A,An,T,R,collection_eff,N_pe,
               pos.x()/10.,pos.y()/10.,pos.z()/10.,
               posGlobal.x(),posGlobal.y(),posGlobal.z(),
@@ -538,13 +520,10 @@ GLG4PMTOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
         if ( G4UniformRand() < R/(R+T) )
         { // reflect
             Reflect( dir, pol, norm );
-            // G4cout << " WUBBA 3 " << A <<" " << An <<" " << T  << " " << R << " " << collection_eff << " " << N_pe << " " << pos.x()/10. << " " << pos.y()/10. << " "  << pos.z()/10.<< " " << posGlobal.x() << " " << posGlobal.y() << " " << posGlobal.z() << " " << _wavelength*1e6 << " " << time<< G4endl;
             fillPMTVector(3.,A,An,T,R,collection_eff,N_pe,
               pos.x()/10.,pos.y()/10.,pos.z()/10.,
               posGlobal.x(),posGlobal.y(),posGlobal.z(),
               _wavelength*1e6,time);
-            // G4cout << " WUBBA 3 " << A <<" " << An <<" " << T  << " " << R << " " << collection_eff << " " << N_pe << " " << pos.x()/10. << " " << pos.y()/10.<< " "  << pos.z()/10. << " " << _wavelength*1e6 << " " << time<< G4endl;
-
             if (_verbosity >= 2)
             G4cout << "GLG4PMTOpticalModel reflects track\n";
         }
@@ -554,21 +533,16 @@ GLG4PMTOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 
             if ( whereAmI == kInGlass ){
                 whereAmI = kInVacuum;
-                // G4cout << " WUBBA 4 " << A <<" " << An <<" " << T  << " " << R << " " << collection_eff << " " << N_pe << " " << pos.x()/10. << " " << pos.y()/10. << " "  << pos.z()/10.<< " " << posGlobal.x() << " " << posGlobal.y() << " " << posGlobal.z() << " " << _wavelength*1e6 << " " << time<< G4endl;
                 fillPMTVector(4.,A,An,T,R,collection_eff,N_pe,
                   pos.x()/10.,pos.y()/10.,pos.z()/10.,
                   posGlobal.x(),posGlobal.y(),posGlobal.z(),
                   _wavelength*1e6,time);
-                // G4cout << " WUBBA 4 " << A <<" " << An <<" " << T  << " " << R << " " << collection_eff << " " << N_pe << " " << pos.x()/10. << " " << pos.y()/10.<< " "  << pos.z()/10. << " " << _wavelength*1e6 << " " << time<< G4endl;
-
             }else{
                 whereAmI = kInGlass;
-                // G4cout << " WUBBA 5 " << A <<" " << An <<" " << T  << " " << R << " " << collection_eff << " " << N_pe << " " << pos.x()/10. << " " << pos.y()/10. << " "  << pos.z()/10.<< " " << posGlobal.x() << " " << posGlobal.y() << " " << posGlobal.z() << " " << _wavelength*1e6 << " " << time<< G4endl;
                 fillPMTVector(5.,A,An,T,R,collection_eff,N_pe,
                   pos.x()/10.,pos.y()/10.,pos.z()/10.,
                   posGlobal.x(),posGlobal.y(),posGlobal.z(),
                   _wavelength*1e6,time);
-                // G4cout << " WUBBA 5 " << A <<" " << An <<" " << T  << " " << R << " " << collection_eff << " " << N_pe << " " << pos.x()/10. << " " << pos.y()/10.<< " "  << pos.z()/10. << " " << _wavelength*1e6 << " " << time<< G4endl;
             }
             if (_verbosity >= 2)
             G4cout << "GLG4PMTOpticalModel transmits track, now in "

@@ -2,7 +2,6 @@
 #include <RAT/DBMessenger.hh>
 #include <RAT/DB.hh>
 #include <RAT/DBTextLoader.hh>
-
 #include <G4UIdirectory.hh>
 #include <G4StateManager.hh>
 
@@ -17,7 +16,7 @@ void DBMessenger::Init(DB *dbToUse)
   // Build UI commands
   G4UIdirectory* dbdir = new G4UIdirectory("/rat/db/");
   dbdir->SetGuidance("RATDB commands");
-
+  
   // load database file command
   loadCmd = new G4UIcmdWithAString("/rat/db/load", this);
   loadCmd->SetParameterName("filename", false); // required
@@ -32,7 +31,7 @@ void DBMessenger::Init(DB *dbToUse)
   setCmd->SetParameter(aParam);
   aParam = new G4UIparameter("newvalue", 's', false); //required
   setCmd->SetParameter(aParam);
-
+  
   // connect to server command
   serverCmd = new G4UIcmdWithAString("/rat/db/server", this);
   serverCmd->SetParameterName("server_url", false); // required
@@ -62,7 +61,7 @@ void DBMessenger::SetNewValue(G4UIcommand * command, G4String newValue)
 {
   G4ApplicationState state = G4StateManager::GetStateManager()->GetCurrentState();
   if (state != G4State_PreInit)
-    Log::Die("Error: Cannot call " + command->GetCommandPath()
+    Log::Die("Error: Cannot call " + command->GetCommandPath()  
 	     + " after /run/initialize.");
 
   if (command == loadCmd) {
@@ -71,7 +70,7 @@ void DBMessenger::SetNewValue(G4UIcommand * command, G4String newValue)
     istringstream args(newValue);
     string tbl_descriptor, field, value;
     args >> tbl_descriptor >> field >> value;
-
+    
     Set(tbl_descriptor, field, value);
   } else if (command == serverCmd) {
     Server(newValue);
@@ -91,37 +90,57 @@ void DBMessenger::Load(std::string filename)
   db->Load(filename, true /*printPath*/);
 }
 
-void DBMessenger::Set(std::string tbl_descriptor, std::string field,
-		       std::string val)
+void DBMessenger::Set(std::string tbl_descriptor, std::string field, std::string val)
 {
   string table;
   string index;
 
   if (DB::ParseTableName(tbl_descriptor, table, index)) {
     // Just need to figure out value now
-    Tokenizer t(val);
-    switch (t.Next()) {
-    case Tokenizer::TYPE_INTEGER: db->SetI(table, index, field, t.AsInt());
-      break;
-    case Tokenizer::TYPE_DOUBLE: db->SetD(table, index,  field, t.AsDouble());
-      break;
-    case Tokenizer::TYPE_STRING: db->SetS(table, index,  field, t.Token());
-      break;
-    default:
-      Log::Die("Error parsing value: " + val);
-      return;
+    json::Reader reader(val);
+    json::Value jval;
+    reader.getValue(jval); //will throw parser_error and abort if malformed
+    
+    if (field[field.length()-1] == ']') {
+        size_t idx = atoi(field.substr(field.rfind("[")+1).c_str());
+        switch (jval.getType()) {
+            case json::TINTEGER:
+            case json::TUINTEGER:
+            case json::TREAL:
+            case json::TBOOL:
+            case json::TSTRING:
+            case json::TOBJECT:
+            case json::TARRAY:
+                DB::Get()->SetArrayIndex(table,index,field,idx,jval);
+                break;
+            case json::TNULL:
+                Log::Die("DB: Null value not supported in RATDB");
+        }
+    } else {
+        switch (jval.getType()) {
+            case json::TINTEGER:
+            case json::TUINTEGER:
+            case json::TREAL:
+            case json::TBOOL:
+            case json::TSTRING:
+            case json::TOBJECT:
+            case json::TARRAY:
+                DB::Get()->Set(table,index,field,jval);
+                break;
+            case json::TNULL:
+                Log::Die("DB: Null value not supported in RATDB");
+        }
     }
-
-    info << "DB: Setting " << table << "[" << index << "]" << " " << field
-	 << " to " << t.Token() << newline;
-  } else
+    info << "DB: Setting " << table << "[" << index << "]" << " " << field << " to " << val << newline;
+  } else {
     Log::Die("Malformed table name: " + tbl_descriptor);
+  }
 }
 
 void DBMessenger::Server(std::string url)
 {
   info << "RATDB: Connecting to CouchDB server at " << url << "\n";
-
+  
   db->SetServer(url);
 }
 
