@@ -90,6 +90,10 @@ public:
   /** Total distance traveled along the track (mm). */
   virtual Float_t GetLength() const { return length; }
   virtual void SetLength(Float_t _length) { length = _length; }
+
+  /** Total energy deposited along the track (MeV). **/
+  virtual Float_t GetDepositedEnergy() const { return depositedEnergy; }
+  virtual void SetDepositedEnergy(Float_t _depositedEnergy) { depositedEnergy = _depositedEnergy; }
   
   ClassDef(MCTrack, 1)
 
@@ -98,6 +102,7 @@ protected:
   Int_t parentID;
   Int_t pdgcode;
   Float_t length;
+  Float_t depositedEnergy;
   std::string particleName;
   std::vector<MCTrackStep> step;
 };

@@ -18,6 +18,7 @@
 #include <RAT/FitPathProc.hh>
 #include <RAT/SimpleDAQProc.hh>
 #include <RAT/NoiseProc.hh>
+#include <RAT/TrueDAQProc.hh>
 #include <RAT/SplitEVDAQProc.hh>
 #include <RAT/LessSimpleDAQProc.hh>
 #include <RAT/LessSimpleDAQ2Proc.hh>
@@ -61,18 +62,19 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock)
 
   // I/O
   procAllocators["outroot"] = new ProcAllocatorTmpl<OutROOTProc>;
-  procAllocators["outnet"] = new ProcAllocatorTmpl<OutNetProc>;
+  procAllocators["outnet"]  = new ProcAllocatorTmpl<OutNetProc>;
 
   // Fitters
   procAllocators["fitcentroid"] = new ProcAllocatorTmpl<FitCentroidProc>;
-  procAllocators["fitpath"] = new ProcAllocatorTmpl<FitPathProc>;
+  procAllocators["fitpath"]     = new ProcAllocatorTmpl<FitPathProc>;
 
   // DAQ
-  procAllocators["noise"]= new ProcAllocatorTmpl<NoiseProc>;
-  procAllocators["simpledaq"]= new ProcAllocatorTmpl<SimpleDAQProc>;
-  procAllocators["splitevdaq"]= new ProcAllocatorTmpl<SplitEVDAQProc>;
-  procAllocators["lesssimpledaq"]= new ProcAllocatorTmpl<LessSimpleDAQProc>;
-  procAllocators["lesssimpledaq2"]= new ProcAllocatorTmpl<LessSimpleDAQ2Proc>;
+  procAllocators["noise"]          = new ProcAllocatorTmpl<NoiseProc>;
+  procAllocators["simpledaq"]      = new ProcAllocatorTmpl<SimpleDAQProc>;
+  procAllocators["splitevdaq"]     = new ProcAllocatorTmpl<SplitEVDAQProc>;
+  procAllocators["lesssimpledaq"]  = new ProcAllocatorTmpl<LessSimpleDAQProc>;
+  procAllocators["lesssimpledaq2"] = new ProcAllocatorTmpl<LessSimpleDAQ2Proc>;
+  procAllocators["truedaq"]        = new ProcAllocatorTmpl<TrueDAQProc>;
 
   // Misc
   procAllocators["count"] = new ProcAllocatorTmpl<CountProc>;

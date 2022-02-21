@@ -36,6 +36,7 @@ Trajectory::Trajectory(const G4Track *aTrack) : G4Trajectory(aTrack),
     creatorProcessName = trackInfo->GetCreatorProcess();
 
   ratTrack->SetLength(0.0);
+  ratTrack->SetDepositedEnergy(0.0);
 }
 
 Trajectory::~Trajectory()
@@ -49,7 +50,7 @@ void Trajectory::AppendStep(const G4Step* aStep)
     // Add initial step at very beginning of track
     DS::MCTrackStep *initStep = ratTrack->AddNewMCTrackStep();
     G4StepPoint *initPoint = aStep->GetPreStepPoint();
-    FillStep(initPoint, aStep, initStep, 0.0);
+    FillStep(initPoint, aStep, initStep, 0.0, true);
   }
 
   // Check if we are storing truncated stepping info for muons
@@ -60,28 +61,30 @@ void Trajectory::AppendStep(const G4Step* aStep)
     if(processName=="Transportation"){
       DS::MCTrackStep *ratStep = ratTrack->AddNewMCTrackStep();
       G4StepPoint *endPoint = aStep->GetPostStepPoint();
-      FillStep(endPoint, aStep, ratStep, aStep->GetStepLength());
+      FillStep(endPoint, aStep, ratStep, aStep->GetStepLength(), false);
       // Update total track length
       //ratTrack->SetLength(ratTrack->GetLength() + ratStep->GetLength());
       // previous line won't work if we're only keeping a subset of steps
       // so let's just set it to -1 for now to prevent misuse of ratTrack->GetLength()
       // instead, will have to use position of steps to determine length
       ratTrack->SetLength(-1.);
+      ratTrack->SetDepositedEnergy(-1.);
     }
     return;
   }
   
   DS::MCTrackStep *ratStep = ratTrack->AddNewMCTrackStep();
   G4StepPoint *endPoint = aStep->GetPostStepPoint();
-  FillStep(endPoint, aStep, ratStep, aStep->GetStepLength());  
+  FillStep(endPoint, aStep, ratStep, aStep->GetStepLength(), false);
   // Update total track length
   ratTrack->SetLength(ratTrack->GetLength() + ratStep->GetLength());
+  ratTrack->SetDepositedEnergy(ratTrack->GetDepositedEnergy() + ratStep->GetDepositedEnergy());
   if(Gsim::GetFillPointCont())
     G4Trajectory::AppendStep(aStep);
 }
 
 void Trajectory::FillStep(const G4StepPoint *point, const G4Step *step,
-                          DS::MCTrackStep *ratStep, double stepLength)
+                          DS::MCTrackStep *ratStep, double stepLength, bool isInit)
 {
   G4StepPoint *startPoint = step->GetPreStepPoint();
 
@@ -96,6 +99,12 @@ void Trajectory::FillStep(const G4StepPoint *point, const G4Step *step,
   G4ThreeVector mom = point->GetMomentum();
   ratStep->SetMomentum( TVector3(mom.x(), mom.y(), mom.z()) );
   ratStep->SetKE(point->GetKineticEnergy());
+
+  if (isInit) {
+    ratStep->SetDepositedEnergy(0);
+  } else {
+    ratStep->SetDepositedEnergy(step->GetTotalEnergyDeposit());
+  }
 
   const G4VProcess *process = point->GetProcessDefinedStep();
   if (process == 0)
@@ -123,6 +132,7 @@ void Trajectory::MergeTrajectory(G4VTrajectory* secondTrajectory)
     for (int i=1; i < secondTraj->ratTrack->GetMCTrackStepCount(); i++)
       *ratTrack->AddNewMCTrackStep() = *secondTraj->ratTrack->GetMCTrackStep(i);
     ratTrack->SetLength(ratTrack->GetLength() + secondTraj->ratTrack->GetLength());
+    ratTrack->SetDepositedEnergy(ratTrack->GetDepositedEnergy() + secondTraj->ratTrack->GetDepositedEnergy());
     secondTraj->ratTrack->PruneMCTrackStep();
   }
 }

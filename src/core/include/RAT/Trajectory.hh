@@ -23,7 +23,7 @@ public:
   virtual void MergeTrajectory(G4VTrajectory* secondTrajectory); 
 
   virtual void FillStep(const G4StepPoint *point, const G4Step *step, 
-                        DS::MCTrackStep *ratStep, double stepLength);
+                        DS::MCTrackStep *ratStep, double stepLength, bool isInit);
   DS::MCTrack* GetTrack() { return ratTrack; };
   
   static void SetDoAppendMuonStepSpecial(const bool& _doAppend)

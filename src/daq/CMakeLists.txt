@@ -9,6 +9,7 @@ add_library(daq OBJECT
         src/LessSimpleDAQ2Proc.cc
         src/PDFPMTTime.cc
         src/NoiseProc.cc
+        src/TrueDAQProc.cc
         src/SimpleDAQProc.cc)
 
 # Set our include directories

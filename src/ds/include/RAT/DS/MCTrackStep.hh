@@ -62,6 +62,10 @@ public:
   virtual Float_t GetKE() const { return ke; }
   virtual void SetKE(Float_t _ke) { ke = _ke; }
 
+  /** Total energy deposited along the track (MeV). **/
+  virtual Float_t GetDepositedEnergy() const { return depositedEnergy; }
+  virtual void SetDepositedEnergy(Float_t _depositedEnergy) { depositedEnergy = _depositedEnergy; }
+
   /** Name of physics process acting at endpoint. */
   virtual std::string GetProcess() const { return process; }
   virtual void SetProcess(const std::string &_process) { process = _process; }
@@ -78,6 +82,7 @@ protected:
   Double_t localTime;
   Double_t properTime;
   Float_t ke;  
+  Float_t depositedEnergy;  
   TVector3 endpoint;
   TVector3 mom;
   std::string process;
