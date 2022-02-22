@@ -20,7 +20,10 @@ include_directories(${RATPAC_INCDIR})
 
 root_generate_dictionary(G__RATDict
         RAT/DS/Root.hh
+        RAT/DS/Digit.hh
         RAT/DS/EV.hh
+        RAT/DS/LAPPD.hh
+        RAT/DS/LAPPDHit.hh
         RAT/DS/MC.hh
         RAT/DS/MCParticle.hh
         RAT/DS/MCPhoton.hh

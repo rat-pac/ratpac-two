@@ -2,15 +2,19 @@
 # CMakeLists for daq module
 
 add_library(daq OBJECT
-        src/LessSimpleDAQProc.cc
-        src/SplitEVDAQProc.cc
-        src/MiniCleanPMTCharge.cc
-        src/PDFPMTCharge.cc
-        src/LessSimpleDAQ2Proc.cc
-        src/PDFPMTTime.cc
-        src/NoiseProc.cc
-        src/TrueDAQProc.cc
-        src/SimpleDAQProc.cc)
+  src/Digitizer.cc
+  src/LessSimpleDAQ2Proc.cc
+  src/LessSimpleDAQProc.cc
+  src/MiniCleanPMTCharge.cc
+  src/NoiseProc.cc
+  src/PDFPMTCharge.cc
+  src/PDFPMTTime.cc
+  src/PMTPulse.cc
+  src/PMTWaveform.cc
+  src/SimpleDAQProc.cc
+  src/SplitEVDAQProc.cc
+  src/TrueDAQProc.cc
+  )
 
 # Set our include directories
 target_include_directories(daq PUBLIC

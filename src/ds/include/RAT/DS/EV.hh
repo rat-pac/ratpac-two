@@ -19,8 +19,10 @@
 #include <TObject.h>
 #include <TTimeStamp.h>
 #include <RAT/DS/PMT.hh>
+#include <RAT/DS/LAPPD.hh>
 #include <RAT/DS/Centroid.hh>
 #include <RAT/DS/PathFit.hh>
+#include <RAT/DS/Digit.hh>
 #include <vector>
 
 namespace RAT {
@@ -82,6 +84,20 @@ public:
   virtual bool ExistPathFit() const { return !pathfit.empty(); }
   virtual void PrunePathFit() { pathfit.resize(0); }
 
+  /// Set CAEN digitizer information for this event
+  virtual void SetDigitizer( const Digit& dig ) { digitizer.push_back(dig); }
+
+  /// Get CAEN digitizer information for this event
+  virtual Digit& GetDigitizer(){
+    return digitizer.at( 0 );
+  };
+
+  /// Check if the digitizer exists
+  virtual bool DigitizerExists() const { return !digitizer.empty(); }
+
+  // Prune digitizer information
+  virtual void PruneDigitizer() { digitizer.resize(0); }
+
   ClassDef(EV, 1)
 
 protected:
@@ -93,6 +109,7 @@ protected:
   std::vector<PMT> pmt;
   std::vector<Centroid> centroid;
   std::vector<PathFit> pathfit;
+  std::vector<Digit> digitizer; ///< The digitizer information
 };
 
   } // namespace DS

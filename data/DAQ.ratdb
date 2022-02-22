@@ -11,14 +11,25 @@ valid_begin: [0, 0],
 valid_end: [0, 0],
 
 pulse_width: 100.0,
-trigger_threshold: 4.0,
-trigger_window: 400.0,
+trigger_threshold: 8.0,
+trigger_window: 600.0,
 pmt_lockout: 400.0,
 trigger_lockout: 0.0,
 trigger_resolution: 1.0,
-lookback: 400.0,
+lookback: 200.0,
 max_hit_time: 1000000.0,
 pmt_type: 1,
 trigger_on_noise: 1,
-discriminator: 0.25
+digitizer_name: "V1730",
+digitize: false,
+}
+
+{
+name: "TrueDAQ",
+valid_begin: [0, 0],
+valid_end: [0, 0],
+
+trigger_window: 600.0,
+trigger_lockout: 0.0,
+max_hit_time: 1000000.0,
 }

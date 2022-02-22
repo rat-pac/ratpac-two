@@ -8,12 +8,15 @@
 #include <RAT/DB.hh>
 #include <G4ThreeVector.hh>
 #include <RAT/DetectorConstruction.hh>
+#include <RAT/PMTPulse.hh>
 
 using namespace std;
 
 namespace RAT {
 
 SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
+
+  // Trigger Specifications
   ldaq               = DB::Get()->GetLink("SplitEVDAQ");
   fEventCounter      = 0;
   fPulseWidth        = ldaq->GetD("pulse_width");
@@ -24,9 +27,43 @@ SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   fTriggerResolution = ldaq->GetD("trigger_resolution");
   fLookback          = ldaq->GetD("lookback");
   fMaxHitTime        = ldaq->GetD("max_hit_time");
-  fDiscriminator     = ldaq->GetD("discriminator");
   fPmtType           = ldaq->GetI("pmt_type");
   fTriggerOnNoise    = ldaq->GetI("trigger_on_noise");
+  fDigitizerType     = ldaq->GetS("digitizer_name");
+  fDigitize          = ldaq->GetZ("digitize");
+
+  fDigitizer = new Digitizer(fDigitizerType);
+
+  // PMT pulse model specification (for digitization)
+  lpulse = DB::Get()->GetLink("PMTPULSE", "lognormal");
+  fPMTPulseOffset = lpulse->GetD("pulse_offset");
+  fPMTPulseWidth = lpulse->GetD("pulse_width");
+  fPMTPulseMean = lpulse->GetD("pulse_mean");
+  fPMTPulseMin = lpulse->GetD("pulse_min");
+  fPMTPulseTimeOffset = lpulse->GetD("pulse_time_offset");
+}
+
+PMTWaveform SplitEVDAQProc::GenerateWaveforms(DS::MCPMT* mcpmt){
+
+    PMTWaveform pmtwf;
+
+    // Loop over PEs and create a pulse for each one
+    for(int iph = 0; iph < mcpmt->GetMCPhotonCount(); iph++){
+
+      DS::MCPhoton *mcpe = mcpmt->GetMCPhoton(iph);
+
+      PMTPulse *pmtpulse = new PMTPulse;
+      pmtpulse->SetPulseCharge(mcpe->GetCharge()*50.0); // FIXME! Units
+      pmtpulse->SetPulseMin(fPMTPulseMin);
+      pmtpulse->SetPulseOffset(fPMTPulseOffset);
+      pmtpulse->SetPulseTimeOffset(fPMTPulseTimeOffset);
+      pmtpulse->SetPulseWidth(fPMTPulseWidth);
+      pmtpulse->SetPulseMean(fPMTPulseMean);
+      pmtpulse->SetPulseStartTime(mcpe->GetFrontEndTime());
+      pmtwf.fPulse.push_back(pmtpulse);
+    }
+
+    return pmtwf;
 }
 
 Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
@@ -36,13 +73,6 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   // Not included yet
   // - Noise on the trigger pulse height, rise-time, etc
   // - Disciminator on charge (all hits assumed to trigger)
-  // Note on the discriminator mk-I. Right now each photon is presumed to
-  // deposit its charge instantaneously and independently, which is faster
-  // for simulations but is less accurate for events with multi-pe since
-  // we aren't summing the hits to create a PMT waveform. We should add this
-  // feature as an option to test the accuracy of this simplified model, noting
-  // that the feature will likely cause a slowdown when used because of its
-  // increased complexity.
 
   DS::MC *mc = ds->GetMC();
   // Prune the previous EV branchs if one exists
@@ -53,8 +83,6 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   for (int imcpmt=0; imcpmt < mc->GetMCPMTCount(); imcpmt++)
   {
     DS::MCPMT *mcpmt = mc->GetMCPMT(imcpmt);
-    mcpmt->SortMCPhotons();
-    if( mcpmt->GetType() != fPmtType ) continue;
     double lastTrigger = -100000.0;
     for(int pidx=0; pidx < mcpmt->GetMCPhotonCount(); pidx++)
     {
@@ -62,10 +90,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
       // Do we want to trigger on noise hits?
       if( !fTriggerOnNoise && photon->IsDarkHit() ) continue;
       double time = photon->GetFrontEndTime();
-      double charge = photon->GetCharge();
       if (time > fMaxHitTime) continue;
-      // Pass discriminator threshold?
-      if (charge < fDiscriminator) continue;
       if (time > (lastTrigger + fPmtLockout))
       {
         trigPulses.push_back(time);
@@ -164,22 +189,41 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
           }
         }
       }
-      // If the integrated charge in the trigger window is below discriminator
-      // threshold do not record the event.
-      if ( integratedCharge < fDiscriminator )
-        pmtInEvent = false;
       std::sort(hitTimes.begin(), hitTimes.end());
       if( pmtInEvent )
       {
         DS::PMT* pmt = ev->AddNewPMT();
         pmt->SetID(pmtID);
-        double true_hit_time = hitTimes[0];
+        double true_hit_time = *std::min_element( hitTimes.begin(), hitTimes.end() );
         // PMT Hit time relative to the trigger
         pmt->SetTime( true_hit_time - tt );
         pmt->SetCharge( integratedCharge );
-        if( mcpmt->GetType() == fPmtType ) totalEVCharge += integratedCharge;
+        totalEVCharge += integratedCharge;
+      }
+      if(fDigitize){
+        PMTWaveform pmtwfm = GenerateWaveforms(mcpmt);
+        fDigitizer->AddChannel(pmtID, pmtwfm);
       }
     } // Done looping over PMTs
+
+
+    if(fDigitize){
+      std::map< UShort_t, std::vector<UShort_t> > waveforms = fDigitizer->fDigitWaveForm;
+      for (std::map<UShort_t, std::vector<UShort_t> >::const_iterator it = waveforms.begin();
+              it != waveforms.end(); it++){
+        digit.SetWaveform(UShort_t(it->first), waveforms[UShort_t(it->first)]);
+      }
+
+      digit.SetDigitName(fDigitizer->fDigitName);
+      digit.SetNSamples(UShort_t(fDigitizer->fNSamples));
+      digit.SetNBits(UShort_t(fDigitizer->fNBits));
+      digit.SetDynamicRange((fDigitizer->fVhigh - fDigitizer->fVlow));
+      digit.SetSamplingRate(fDigitizer->fSamplingRate);
+
+      ev->SetDigitizer(digit);
+    }
+
+
     ev->SetTotalCharge( totalEVCharge );
   }
   
@@ -204,8 +248,6 @@ void SplitEVDAQProc::SetD(std::string param, double value)
     fLookback = value;
   else if( param == "max_hit_time" )
     fMaxHitTime = value;
-  else if( param == "discriminator" )
-    fDiscriminator = value;
   else
     throw ParamUnknown(param);
 }
