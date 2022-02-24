@@ -8,6 +8,7 @@ add_library(gen OBJECT
         src/CfGen.cc
         src/CfSource.cc
         src/Coincidence_Gen.cc
+        src/Decay0.cc
         src/DecayChain.cc
         src/DecayChain_Gen.cc
         src/ESgen.cc
@@ -34,6 +35,7 @@ add_library(gen OBJECT
         src/ReacIBDgen.cc
         src/SNgen.cc
         src/VertexFile_Gen.cc
+        src/VertexGen_Decay0.cc
         src/VertexGen_ES.cc
         src/VertexGen_FastNeutron.cc
         src/VertexGen_IBD.cc
