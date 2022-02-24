@@ -1,0 +1,36 @@
+/glg4debug/glg4param omit_muon_processes  1.0
+/glg4debug/glg4param omit_hadronic_processes  1.0
+
+#set the detector parameters
+/rat/db/set DETECTOR experiment "Eos"
+/rat/db/set DETECTOR geo_file "Eos/Eos.geo"
+/rat/db/set GEO[eos_inner] material "water"
+
+/run/initialize
+
+#/tracking/storeTrajectory 1
+
+##### Visualization ##########################
+
+###HEPREP
+/tracking/FillPointCont true
+/vis/open HepRepFile
+# Change this output location
+#/vis/heprep/setFileDir /path/to/dir/
+/vis/scene/create
+/vis/scene/add/volume
+/vis/sceneHandler/attach
+/vis/viewer/set/style s
+/vis/scene/add/trajectories
+
+/rat/proc count
+/rat/procset update 1
+
+##### GENERATORS #################
+/generator/add combo gun:point:poisson
+/generator/vtx/set e- 0.0 0.0 0.0 2.5
+/generator/pos/set 0.0 0.0 0.0
+
+##### RUN ###########
+/run/beamOn 1
+

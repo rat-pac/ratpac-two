@@ -34,6 +34,7 @@
 #include <RAT/GeoPolyArrayFactory.hh>
 #include <RAT/WLSPFactory.hh>
 #include <RAT/WLSPCoverFactory.hh>
+#include <RAT/GeoEosFactory.hh>
 
 using namespace std;
 
@@ -70,6 +71,7 @@ GeoBuilder::GeoBuilder()
   new GeoPolyArrayFactory();
   new WLSPFactory();
   new WLSPCoverFactory();
+  new GeoEosFactory();
 
   // Register standard waveguides
   GlobalFactory<WaveguideFactory>::Register("cone",

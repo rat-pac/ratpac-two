@@ -21,7 +21,7 @@ max_hit_time: 1000000.0,
 pmt_type: 1,
 trigger_on_noise: 1,
 digitizer_name: "V1730",
-digitize: false,
+digitize: true,
 }
 
 {
