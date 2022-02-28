@@ -9,7 +9,6 @@
 
 # BEGIN EVENT LOOP
 /rat/proc lesssimpledaq
-/rat/proc fitbonsai
 /rat/proc fitcentroid
 /rat/proc fitpath
 /rat/proc count

@@ -36,7 +36,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(RATPAC_BINARY_DIR ${PROJECT_BINARY_DIR}/bin CACHE PATH "Where to output executables")
 set(RATPAC_LIBRARY_DIR ${PROJECT_BINARY_DIR}/lib CACHE PATH "Where to output library files")
 set(RATPAC_INCDIR ${PROJECT_BINARY_DIR}/include CACHE PATH "Where to collect headers")
-# option(RATPAC_BONSAI "build bonsai tool" ON)
 option(RATPAC_ROOT "build bootstrapped root executable" ON)
 option(RATPAC_RAT "build rat executable" ON)
 
