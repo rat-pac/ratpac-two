@@ -1,0 +1,140 @@
+{
+name: "MATERIAL",
+index: "wbls_1pct_WM_0820",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+ 
+nmaterials: 3,
+materials: ["lab", "ppo", "water"],
+matprop: [0.009977, 2.3e-05, 0.99]
+}
+
+
+{
+name: "MATERIAL",
+index: "wbls_3pct_WM_0820",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+ 
+nmaterials: 3,
+materials: ["lab", "ppo", "water"],
+matprop: [0.029931, 6.9e-05, 0.97]
+}
+
+
+{
+name: "MATERIAL",
+index: "wbls_5pct_WM_0820",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+ 
+nmaterials: 3,
+materials: ["lab", "ppo", "water"],
+matprop: [0.049885, 0.000115, 0.95]
+}
+
+
+{
+name: "MATERIAL",
+index: "wbls_1pct_gd_01pct_WM_0820",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+ 
+nmaterials: 4,
+materials: ["lab", "ppo", "water","gadolinium"],
+matprop: [0.009967, 2.3e-05, 0.98901, 0.001]
+}
+
+
+{
+name: "MATERIAL",
+index: "wbls_3pct_gd_01pct_WM_0820",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+ 
+nmaterials: 4,
+materials: ["lab", "ppo", "water","gadolinium"],
+matprop: [0.029901, 6.9e-05, 0.96903, 0.001]
+}
+
+
+{
+name: "MATERIAL",
+index: "wbls_1pct_WM_0820_cons",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+ 
+nmaterials: 3,
+materials: ["lab", "ppo", "water"],
+matprop: [0.009977, 2.3e-05, 0.99]
+}
+
+
+{
+name: "MATERIAL",
+index: "wbls_3pct_WM_0820_cons",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+ 
+nmaterials: 3,
+materials: ["lab", "ppo", "water"],
+matprop: [0.029931, 6.9e-05, 0.97]
+}
+
+
+{
+name: "MATERIAL",
+index: "wbls_5pct_WM_0820_cons",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+ 
+nmaterials: 3,
+materials: ["lab", "ppo", "water"],
+matprop: [0.049885, 0.000115, 0.95]
+}
+
+
+{
+name: "MATERIAL",
+index: "wbls_1pct_gd_01pct_WM_0820_cons",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+ 
+nmaterials: 4,
+materials: ["lab", "ppo", "water","gadolinium"],
+matprop: [0.009967, 2.3e-05, 0.98901, 0.001]
+}
+
+
+{
+name: "MATERIAL",
+index: "wbls_3pct_gd_01pct_WM_0820_cons",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+ 
+nmaterials: 4,
+materials: ["lab", "ppo", "water","gadolinium"],
+matprop: [0.029901, 6.9e-05, 0.96903, 0.001]
+}
+
+

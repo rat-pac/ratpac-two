@@ -23,6 +23,7 @@ src/core/Config.hh
 rootfiles
 *.log
 *.root
+*.heprep
 .DS_Store
 *.gif
 *.jpg

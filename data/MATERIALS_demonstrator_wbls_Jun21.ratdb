@@ -1,0 +1,40 @@
+{
+name: "MATERIAL",
+index: "wbls_gd_01pct_ly100_scat31_0621",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+
+nmaterials: 4,
+materials: ["lab", "ppo", "water","gadolinium"],
+matprop: [0.009967, 2.3e-05, 0.98901, 0.001]
+}
+
+
+{
+name: "MATERIAL",
+index: "wbls_gd_01pct_ly100_scat9_0621",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+
+nmaterials: 4,
+materials: ["lab", "ppo", "water","gadolinium"],
+matprop: [0.009967, 2.3e-05, 0.98901, 0.001]
+}
+
+{
+name: "MATERIAL",
+index: "wbls_gd_01pct_ly100_scat24_0621",
+valid_begin: [0,0],
+valid_end: [0,0],
+density: 1.0,
+nelements: 0,
+
+nmaterials: 4,
+materials: ["lab", "ppo", "water","gadolinium"],
+matprop: [0.009967, 2.3e-05, 0.98901, 0.001]
+}
+
