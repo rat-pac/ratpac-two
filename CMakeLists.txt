@@ -35,7 +35,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # Options
 set(RATPAC_BINARY_DIR ${PROJECT_BINARY_DIR}/bin CACHE PATH "Where to output executables")
 set(RATPAC_LIBRARY_DIR ${PROJECT_BINARY_DIR}/lib CACHE PATH "Where to output library files")
-set(RATPAC_INCDIR ${PROJECT_BINARY_DIR}/include CACHE PATH "Where to collect headers")
+set(RATPAC_INCLUDE_DIR ${PROJECT_BINARY_DIR}/include CACHE PATH "Where to collect headers")
+set(RATPAC_CMAKE_DIR ${PROJECT_BINARY_DIR}/cmake CACHE PATH "Where to cmake configuration")
 option(RATPAC_ROOT "build bootstrapped root executable" ON)
 option(RATPAC_RAT "build rat executable" ON)
 
@@ -106,3 +107,11 @@ install(DIRECTORY doc/ DESTINATION ${RATSHARE}/doc
 install(FILES ${RATPAC_BINARY_DIR}/ratpac.sh
              ${RATPAC_BINARY_DIR}/ratpac.csh
        DESTINATION bin)
+
+## CMake Config
+#export(TARGETS src
+#  FILE "${PROJECT_BINARY_DIR}/RATTargets.cmake")
+#
+#export(PACKAGE ratpac)
+#
+#file(RELATIVE_PATH REL_INCLUDE_DIR "${RATPAC_LIBRARY_DIR}" "${RATPAC_CMAKE_DIR}")

@@ -7,16 +7,16 @@ add_library(ds OBJECT
         src/RunStore.cc)
 # Set our include directories
 target_include_directories(ds PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCDIR}>
+        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)
 
-file(COPY include/ DESTINATION ${RATPAC_INCDIR})
+file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
 
 #################################################
 # Create Root Dictionary
 
 # hack hack hack hack hack
-include_directories(${RATPAC_INCDIR})
+include_directories(${RATPAC_INCLUDE_DIR})
 
 root_generate_dictionary(G__RATDict
         RAT/DS/Root.hh
@@ -57,7 +57,7 @@ root_generate_dictionary(G__RATDict
 
 add_library(RATDict OBJECT G__RATDict.cxx)
 target_include_directories(RATDict PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCDIR}>
+        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)
 
 # Export the proper dicitonary file to lib

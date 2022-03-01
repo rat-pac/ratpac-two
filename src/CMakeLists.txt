@@ -56,7 +56,7 @@ add_library(RATEvent SHARED
        stlplus/src/stringio.cc
        stlplus/src/textio.cc
        util/src/ReadFile.cc)
-target_include_directories(RATEvent PUBLIC ${RATPAC_INCDIR})
+target_include_directories(RATEvent PUBLIC ${RATPAC_INCLUDE_DIR})
 target_link_libraries(RATEvent PUBLIC 
        ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RATDict)
 
@@ -85,5 +85,5 @@ install(TARGETS RATPAC RATEvent
         ARCHIVE DESTINATION lib)
 
 ### Install the global headers
-install(DIRECTORY ${RATPAC_INCDIR} 
+install(DIRECTORY ${RATPAC_INCLUDE_DIR} 
        DESTINATION ${CMAKE_INSTALL_PREFIX})
