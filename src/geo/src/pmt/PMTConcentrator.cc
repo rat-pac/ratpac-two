@@ -103,9 +103,9 @@ double PMTConcentrator::GetHeight()
 
 void PMTConcentrator::SetInvisible()
 {
-  this->SetVisAttributes(G4VisAttributes::Invisible);
-  conc_logi->SetVisAttributes(G4VisAttributes::Invisible);
-  oil_logi->SetVisAttributes(G4VisAttributes::Invisible);
+  this->SetVisAttributes(G4VisAttributes::GetInvisible());
+  conc_logi->SetVisAttributes(G4VisAttributes::GetInvisible());
+  oil_logi->SetVisAttributes(G4VisAttributes::GetInvisible());
 }
 
 double PMTConcentrator::z_from_r (double r)

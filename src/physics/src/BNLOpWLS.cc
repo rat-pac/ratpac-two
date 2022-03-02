@@ -74,6 +74,8 @@ BNLOpWLS::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep) {
   // Implement the QY sampling
   G4int NumPhotons = 0;
 
+  // PhysicsOrderedFreeVector is obsolete and completely incorporated into
+  // PhysicsVector now. This is an alias
   G4PhysicsOrderedFreeVector* QYValues =
     (G4PhysicsOrderedFreeVector*)((*theQYTable)(aMaterial->GetIndex()));
 
@@ -81,11 +83,11 @@ BNLOpWLS::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep) {
 
   if (QYValues) {
     // Case where energy is lower than the min energy; set to min value.
-    if (primaryEnergy<QYValues->GetMinLowEdgeEnergy()) {
+    if ( primaryEnergy < QYValues->GetMinEnergy() ){
       theQY = QYValues->GetMinValue();
     }
     // Case where energy is higher than the max energy; set to max value.
-    else if (QYValues->GetMaxLowEdgeEnergy() < primaryEnergy) {
+    else if (QYValues->GetMaxEnergy() < primaryEnergy) {
       theQY = QYValues->GetMaxValue();
     }
     // Set to the nearest energy bin.

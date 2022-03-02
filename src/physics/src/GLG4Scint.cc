@@ -1009,7 +1009,7 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
   if (theWaveForm) {
 
      // do we have time-series or decay-time data?
-     if (theWaveForm->GetMinLowEdgeEnergy() >= 0.0) {
+     if (theWaveForm->GetMinEnergy() >= 0.0) {
              // we have digitized waveform (time-series) data
              // find the integral
 
@@ -1029,12 +1029,12 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
 
              /* Set the bin width to 100 times smaller than the smallest
               * decay constant. */
-             G4double mintime = -1.0*(theWaveForm->GetMaxLowEdgeEnergy());
+             G4double mintime = -1.0*(theWaveForm->GetMaxEnergy());
              G4double bin_width = mintime/100;
 
              /* Set the maximum time for the PDF to 30 times the longest
               * decay constant. */
-             G4double maxtime = -30.0*(theWaveForm->GetMinLowEdgeEnergy());
+             G4double maxtime = -30.0*(theWaveForm->GetMinEnergy());
              int nbins = ((int) (maxtime/bin_width)) + 1;
 
              G4double *tval= new G4double[nbins];
@@ -1095,7 +1095,7 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
 
       if (theReemitWaveForm) {
         // do we have time-series or decay-time data?
-        if (theReemitWaveForm->GetMinLowEdgeEnergy() >= 0.0) {
+        if (theReemitWaveForm->GetMinEnergy() >= 0.0) {
           // we have digitized waveform (time-series) data
           // find the integral
           fReemissionTimeVector.push_back( Integrate_MPV_to_POFV( theReemitWaveForm ));
@@ -1105,15 +1105,15 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
           // we have decay-time data.
           // sanity-check user's values:
           // issue a warning if they are nonsense, but continue
-          if (theReemitWaveForm->GetMaxLowEdgeEnergy() > 0.0) {
+          if (theReemitWaveForm->GetMaxEnergy() > 0.0) {
             G4cerr << "GLG4Scint::MyPhysicsTable::Entry::Build():  "
                    << "REEMITWAVEFORM" << name
                    << " has both positive and negative X values.  "
                       " Undefined results will ensue!\n";
           }
 
-          G4double maxtime= -3.0*(theReemitWaveForm->GetMinLowEdgeEnergy());
-          G4double mintime= -1.0*(theReemitWaveForm->GetMaxLowEdgeEnergy());
+          G4double maxtime= -3.0*(theReemitWaveForm->GetMinEnergy());
+          G4double mintime= -1.0*(theReemitWaveForm->GetMaxEnergy());
           G4double bin_width = mintime/100;
           int nbins= ((int) (maxtime/bin_width)) + 1;
           G4double *tval= new G4double[nbins];
@@ -1158,7 +1158,7 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
 
     if (theReemitWaveForm) {
       // do we have time-series or decay-time data?
-      if (theReemitWaveForm->GetMinLowEdgeEnergy() >= 0.0) {
+      if (theReemitWaveForm->GetMinEnergy() >= 0.0) {
         // we have digitized waveform (time-series) data
         // find the integral
         fReemissionTimeIntegral = Integrate_MPV_to_POFV( theReemitWaveForm );
@@ -1168,15 +1168,15 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
         // we have decay-time data.
         // sanity-check user's values:
         // issue a warning if they are nonsense, but continue
-        if (theReemitWaveForm->GetMaxLowEdgeEnergy() > 0.0) {
+        if (theReemitWaveForm->GetMaxEnergy() > 0.0) {
           G4cerr << "GLG4Scint::MyPhysicsTable::Entry::Build():  "
                  << "REEMITWAVEFORM" << name
                  << " has both positive and negative X values.  "
                     " Undefined results will ensue!\n";
         }
 
-        G4double maxtime= -3.0*(theReemitWaveForm->GetMinLowEdgeEnergy());
-        G4double mintime= -1.0*(theReemitWaveForm->GetMaxLowEdgeEnergy());
+        G4double maxtime= -3.0*(theReemitWaveForm->GetMinEnergy());
+        G4double mintime= -1.0*(theReemitWaveForm->GetMaxEnergy());
         G4double bin_width = mintime/100;
         int nbins= ((int) (maxtime/bin_width)) + 1;
         G4double *tval= new G4double[nbins];

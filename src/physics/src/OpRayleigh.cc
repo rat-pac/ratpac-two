@@ -90,7 +90,7 @@ OpRayleigh::GetMeanFreePath( const G4Track& track,
   const G4DynamicParticle* particle = track.GetDynamicParticle();
   const G4double photonMomentum = particle->GetTotalMomentum();
   const G4Material* material = track.GetMaterial();
-  G4PhysicsOrderedFreeVector* rayleigh = static_cast<G4PhysicsOrderedFreeVector*>( (*fPhysicsTable)( material->GetIndex() ) );
+  G4PhysicsFreeVector* rayleigh = static_cast<G4PhysicsFreeVector*>( (*fPhysicsTable)( material->GetIndex() ) );
 
   G4double rsLength = DBL_MAX;
   if( rayleigh != NULL )
@@ -111,7 +111,7 @@ OpRayleigh::BuildThePhysicsTable()
     {
       G4Material* material = (*theMaterialTable)[iMaterial];
       G4MaterialPropertiesTable* materialProperties = material->GetMaterialPropertiesTable();
-      G4PhysicsOrderedFreeVector* rayleigh = NULL;
+      G4PhysicsFreeVector* rayleigh = NULL;
       if( materialProperties != NULL )
         {
           rayleigh = materialProperties->GetProperty( "RSLENGTH" );

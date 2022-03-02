@@ -109,6 +109,8 @@ install(FILES ${RATPAC_BINARY_DIR}/ratpac.sh
        DESTINATION bin)
 
 ## CMake Config
+#export(TARGETS RATPAC RATEvent
+#  FILE "${PROJECT_BINARY_DIR}/RatpacTargets.cmake")
 #export(TARGETS src
 #  FILE "${PROJECT_BINARY_DIR}/RATTargets.cmake")
 #

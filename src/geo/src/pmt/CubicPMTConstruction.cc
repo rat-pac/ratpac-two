@@ -115,9 +115,9 @@ CubicPMTConstruction::CubicPMTConstruction(DBLinkPtr table, G4LogicalVolume *mot
      G4VisAttributes * visAtt;
      if (fParams.invisible) {
        visAtt = new G4VisAttributes(G4Color(0.0,1.0,1.0,0.05));
-       body_log->SetVisAttributes(  G4VisAttributes::Invisible );
-       glass_log->SetVisAttributes(  G4VisAttributes::Invisible );
-       vacuum_log->SetVisAttributes(G4VisAttributes::Invisible);
+       body_log->SetVisAttributes(  G4VisAttributes::GetInvisible() );
+       glass_log->SetVisAttributes(  G4VisAttributes::GetInvisible() );
+       vacuum_log->SetVisAttributes(G4VisAttributes::GetInvisible());
      } else {
        // PMT case
        visAtt= new G4VisAttributes(G4Color(0.5,0.0,0.0,0.5));

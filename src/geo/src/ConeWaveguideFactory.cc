@@ -90,7 +90,7 @@ G4LogicalVolume *ConeWaveguideFactory::Construct(const std::string &name,
 }
   
   if (invisible)
-    cone_logi_whole->SetVisAttributes(G4VisAttributes::Invisible);
+    cone_logi_whole->SetVisAttributes(G4VisAttributes::GetInvisible());
   else
     cone_logi_whole->SetVisAttributes(G4Color(0.9,0.9,0.9,0.5));
    

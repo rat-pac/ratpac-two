@@ -223,7 +223,7 @@ G4OpticalSurface *GeoWatchmanShieldFactory::GetSurface(string surface_name) {
 G4VisAttributes *GeoWatchmanShieldFactory::GetVisAttributes(DBLinkPtr table) {
     try {
         int invisible = table->GetI("invisible");
-        if (invisible) return new G4VisAttributes(G4VisAttributes::Invisible);
+        if (invisible) return new G4VisAttributes(G4VisAttributes::GetInvisible());
     } catch (DBNotFoundError &e) { };
 
     G4VisAttributes *vis = new G4VisAttributes();

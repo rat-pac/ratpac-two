@@ -60,7 +60,7 @@ namespace RAT {
 	try {
 	    int invisible = table->GetI("invisible");
 	    if (invisible == 1)
-		logiSolid->SetVisAttributes(G4VisAttributes::Invisible);
+		logiSolid->SetVisAttributes(G4VisAttributes::GetInvisible());
 	} catch (DBNotFoundError &e) { };
 
 	logiSolid->SetVisAttributes(vis);

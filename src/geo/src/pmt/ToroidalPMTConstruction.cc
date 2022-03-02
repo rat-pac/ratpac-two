@@ -242,13 +242,13 @@ ToroidalPMTConstruction::ToroidalPMTConstruction(DBLinkPtr table, G4LogicalVolum
     if (fParams.simpleVis) {
       visAtt = new G4VisAttributes(G4Color(0.0,1.0,1.0,0.05));
       if (fParams.useEnvelope) envelope_log->SetVisAttributes(visAtt);
-      body_log->SetVisAttributes(  G4VisAttributes::Invisible );
-      dynode_log->SetVisAttributes(G4VisAttributes::Invisible);
-      inner1_log->SetVisAttributes(G4VisAttributes::Invisible);
-      inner2_log->SetVisAttributes(G4VisAttributes::Invisible);  
-      central_gap_log->SetVisAttributes(G4VisAttributes::Invisible); 
+      body_log->SetVisAttributes(  G4VisAttributes::GetInvisible() );
+      dynode_log->SetVisAttributes(G4VisAttributes::GetInvisible());
+      inner1_log->SetVisAttributes(G4VisAttributes::GetInvisible());
+      inner2_log->SetVisAttributes(G4VisAttributes::GetInvisible());  
+      central_gap_log->SetVisAttributes(G4VisAttributes::GetInvisible()); 
     } else {
-      if (fParams.useEnvelope) envelope_log-> SetVisAttributes (G4VisAttributes::Invisible);
+      if (fParams.useEnvelope) envelope_log-> SetVisAttributes (G4VisAttributes::GetInvisible());
     // PMT glass
       visAtt= new G4VisAttributes(G4Color(0.0,1.0,1.0,0.05));
       body_log->SetVisAttributes( visAtt );
@@ -262,7 +262,7 @@ ToroidalPMTConstruction::ToroidalPMTConstruction(DBLinkPtr table, G4LogicalVolum
       visAtt= new G4VisAttributes(G4Color(0.6,0.7,0.8,0.67));
       inner2_log->SetVisAttributes (visAtt);
     // central gap is invisible  
-      central_gap_log->SetVisAttributes (G4VisAttributes::Invisible);
+      central_gap_log->SetVisAttributes (G4VisAttributes::GetInvisible());
     }
     
     if (fParams.useEnvelope)

@@ -60,7 +60,7 @@ G4String TrackingMessenger::GetCurrentValue(G4UIcommand * command)
   } else if(command==discardParticleTrajCmd) {
     return Gsim::GetStoreParticleTrajString(false);
   } else if(command==storeMuonTrajSpecialCmd) {
-    return Trajectory::GetDoAppendMuonStepSpecial();
+    return Trajectory::GetDoAppendMuonStepSpecial() ? "True" : "False";
   } else if(command==setMaxGlobalTimeCmd) {
     return setMaxGlobalTimeCmd->ConvertToString(GLG4SteppingAction::max_global_time);
   } else{

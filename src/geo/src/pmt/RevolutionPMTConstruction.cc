@@ -153,11 +153,11 @@ G4LogicalVolume* RevolutionPMTConstruction::BuildVolume(const std::string &prefi
     G4VisAttributes * visAtt;
     if (fParams.invisible) {
         visAtt = new G4VisAttributes(G4Color(0.0,1.0,1.0,0.05));
-        body_log->SetVisAttributes(G4VisAttributes::Invisible );
-        dynode_log->SetVisAttributes(G4VisAttributes::Invisible);
-        inner1_log->SetVisAttributes(G4VisAttributes::Invisible);
-        inner2_log->SetVisAttributes(G4VisAttributes::Invisible);  
-        central_gap_log->SetVisAttributes(G4VisAttributes::Invisible); 
+        body_log->SetVisAttributes(G4VisAttributes::GetInvisible() );
+        dynode_log->SetVisAttributes(G4VisAttributes::GetInvisible());
+        inner1_log->SetVisAttributes(G4VisAttributes::GetInvisible());
+        inner2_log->SetVisAttributes(G4VisAttributes::GetInvisible());  
+        central_gap_log->SetVisAttributes(G4VisAttributes::GetInvisible()); 
     } else {
         visAtt= new G4VisAttributes(G4Color(0.0,1.0,1.0,0.05));
         body_log->SetVisAttributes(visAtt);
@@ -167,7 +167,7 @@ G4LogicalVolume* RevolutionPMTConstruction::BuildVolume(const std::string &prefi
         inner1_log->SetVisAttributes(visAtt);
         visAtt= new G4VisAttributes(G4Color(0.6,0.7,0.8,0.67));
         inner2_log->SetVisAttributes(visAtt);
-        central_gap_log->SetVisAttributes (G4VisAttributes::Invisible);
+        central_gap_log->SetVisAttributes (G4VisAttributes::GetInvisible());
     }
 
     return body_log;

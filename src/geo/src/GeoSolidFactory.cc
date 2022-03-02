@@ -120,7 +120,7 @@ namespace RAT {
     try {
       int invisible = table->GetI("invisible");
       if (invisible == 1)
-        lv->SetVisAttributes(G4VisAttributes::Invisible);
+        lv->SetVisAttributes(G4VisAttributes::GetInvisible());
     } catch (DBNotFoundError &e) { };
 
 

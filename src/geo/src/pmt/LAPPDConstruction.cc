@@ -96,8 +96,8 @@ LAPPDConstruction::LAPPDConstruction(DBLinkPtr table, G4LogicalVolume *mother) :
      G4VisAttributes * visAtt;
      if (fParams.invisible) {
        visAtt = new G4VisAttributes(G4Color(0.0,1.0,1.0,0.05));
-       body_log->SetVisAttributes(  G4VisAttributes::Invisible );
-       vacuum_log->SetVisAttributes(G4VisAttributes::Invisible);
+       body_log->SetVisAttributes(  G4VisAttributes::GetInvisible() );
+       vacuum_log->SetVisAttributes(G4VisAttributes::GetInvisible());
      } else {
        // PMT glass
        visAtt= new G4VisAttributes(G4Color(0.0,1.0,1.0,0.05));
