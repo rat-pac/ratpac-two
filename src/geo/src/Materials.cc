@@ -215,18 +215,18 @@ void Materials::ConstructMaterials() {
 
   /// if after the second pass it is not yet found, default to the NIST databse
   if (!queue.empty()) {
-  	info << "Not all materials were found in the database. Trying to load them from NIST." << newline;
-  	G4NistManager* nist_db = G4NistManager::Instance();
-  	nist_db->SetVerbose(1);
-  	for (vector<string>::iterator i=queue.begin(); i!=queue.end(); i++) {
-  		std::string namedb = *i;
-  		G4Material *addmatptr = nist_db->FindOrBuildMaterial(namedb);
-  		if (addmatptr) {
+    info << "Not all materials were found in the database. Trying to load them from NIST." << newline;
+    G4NistManager* nist_db = G4NistManager::Instance();
+    nist_db->SetVerbose(1);
+    for (vector<string>::iterator i=queue.begin(); i!=queue.end(); i++) {
+      std::string namedb = *i;
+      G4Material *addmatptr = nist_db->FindOrBuildMaterial(namedb);
+      if (addmatptr) {
         info << "[" << namedb << "] found in NISTDB and removed from construction queue" << newline;
-  			queue.erase(i);
-  			--i;
-  		}
-  	}
+        queue.erase(i);
+        --i;
+      }
+    }
   }
 
   // Now that loaded from the database do a final loop on the queue
@@ -254,7 +254,6 @@ void Materials::ConstructMaterials() {
   }
 
   // == Optics ==================================================
-
   LoadOptics();
 }
 
@@ -333,7 +332,7 @@ bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
 
   if (formula != "BAD") {
     MPT = new G4MaterialPropertiesTable();
-    MPT->AddConstProperty("MOL", mol/CLHEP::g);
+    MPT->AddConstProperty("MOL", mol/CLHEP::g, true);
     tempptr->SetMaterialPropertiesTable(MPT);
   }
 
@@ -495,7 +494,7 @@ Materials::BuildMaterialPropertiesTable(G4Material* material, DBLinkPtr table) {
         *i == "LAMBERTIAN_REFLECTION" || *i == "LAMBERTIAN_FORWARD"   ||
         *i == "LAMBERTIAN_BACKWARD"   || *i == "ELECTRICFIELD"        ||
         *i == "TOTALNUM_INT_SITES"    || *i == "SCINT_RISE_TIME") {
-      mpt->AddConstProperty(i->c_str(), table->GetD(*i));
+      mpt->AddConstProperty(i->c_str(), table->GetD(*i), true);
       continue;
     }
 
@@ -511,7 +510,7 @@ Materials::BuildMaterialPropertiesTable(G4Material* material, DBLinkPtr table) {
     }
 
     if (pv) {
-      mpt->AddProperty((*i).c_str(), pv);
+      mpt->AddProperty((*i).c_str(), pv, true);
     }
     else {
       continue;
@@ -585,7 +584,7 @@ void Materials::LoadOptics() {
     // properties table. They are numbered by their index so that we can
     // e.g. absorb on X and it with the right spectrum, except for
     // scattering, which is combined into a single scattering length
-    mpt->AddConstProperty("NCOMPONENTS", components.size());
+    mpt->AddConstProperty("NCOMPONENTS", components.size(), true);
 
     const std::vector<G4MaterialPropertyVector*>& materialPropertyVector = mpt->GetProperties();
     const std::vector<G4String>& materialPropertyNames = mpt->GetMaterialPropertyNames();
@@ -597,7 +596,7 @@ void Materials::LoadOptics() {
       double fraction = fractions[i];
       std::stringstream ss;
       ss << "FRACTION" << i + 1;
-      mpt->AddConstProperty(ss.str().c_str(), fraction);
+      mpt->AddConstProperty(ss.str().c_str(), fraction, true);
 
       G4cout << " - Component " << i << ": " << compname
              << " (" << 100.0 * fraction << "%)" << G4endl;
@@ -642,7 +641,7 @@ void Materials::LoadOptics() {
           std::stringstream ss2;
           ss << pname << i + 1;
           //// mpt->AddProperty(ss2.str().c_str(), it->second);
-          mpt->AddProperty(ss2.str().c_str(), propertyVector);
+          mpt->AddProperty(ss2.str().c_str(), propertyVector, true);
 
           // Also compute total absorption length
           if (pname.find("ABSLENGTH") != std::string::npos) {
