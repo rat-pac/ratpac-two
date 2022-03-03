@@ -10,7 +10,6 @@
 //
 //Changed by Franco Giuliani, July 2009
 
-#ifdef G4VIS_USE
 #ifndef GLG4VISMANAGER_HH
 #define GLG4VISMANAGER_HH
 
@@ -29,5 +28,4 @@ private:
 
 };
 
-#endif
 #endif

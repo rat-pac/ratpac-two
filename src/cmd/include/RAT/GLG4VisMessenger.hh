@@ -6,7 +6,6 @@
 //
 // Author:  Glenn Horton-Smith, Jan 28, 2000
 //
-#ifdef G4VIS_USE
 #ifndef GLG4VISMESSENGER_HH
 #define GLG4VISMESSENGER_HH
 
@@ -27,5 +26,4 @@ class GLG4VisMessenger: public G4UImessenger
     GLG4VisManager* pVMan;
 };
 
-#endif
 #endif

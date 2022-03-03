@@ -3,10 +3,7 @@
 #include <RAT/Gsim.hh>
 #include <RAT/PhysicsList.hh>
 #include <G4RunManager.hh>
-
-#ifdef G4VIS_USE
 #include <RAT/GLG4VisManager.hh>
-#endif
 
 namespace RAT {
 
@@ -32,17 +29,13 @@ void RunManager::Init() {
   ratGsim = new Gsim(mainBlock);
 
   // Visualization, only if you choose to have it!
-#ifdef G4VIS_USE
   theVisManager = new GLG4VisManager();
   theVisManager -> Initialize();
-#endif
 }
 
 RunManager::~RunManager() {
   delete ratGsim;
-#ifdef G4VIS_USE
   delete theVisManager;
-#endif
 }
 
 }  // namespace RAT

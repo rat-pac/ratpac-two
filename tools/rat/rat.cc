@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
     {
       // G4UIterminal is a (dumb) terminal.
       // ..but it can be made smart by adding a "shell" to it
-      theUI->ApplyCommand("/control/execute prerun.mac");
+      //theUI->ApplyCommand("/control/execute prerun.mac");
     } 
     else 
     {

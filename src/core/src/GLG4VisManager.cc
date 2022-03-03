@@ -11,7 +11,6 @@
 // Changed by Franco Giuliani, July 2009
 // Additional Trajectory Model added. Morgan Askins, Dec 2019
 
-#ifdef G4VIS_USE
 #include "RAT/GLG4VisManager.hh"
 #include "RAT/GLG4VisMessenger.hh"
 #include "G4ViewParameters.hh"
@@ -21,18 +20,13 @@
 // Not needing external packages or libraries...
 #include "G4ASCIITree.hh"
 #include "G4DAWNFILE.hh"
-#include "G4HepRep.hh"
 #include "G4HepRepFile.hh"
 #include "G4Version.hh"
-#if (G4VERSION_NUMBER >= 500)
-#include "G4HepRep.hh"
-#endif
 #include "G4RayTracer.hh"
 #include "G4HitFilterFactories.hh"
 #include "G4TrajectoryFilterFactories.hh"
 #include "G4TrajectoryModelFactories.hh"
 #include "G4TrajectoryDrawByParticleID.hh"
-#include "G4VRML1File.hh"
 #include "G4VRML2File.hh"
 
 // Needing external packages or libraries...
@@ -80,7 +74,6 @@
 #endif
 
 #ifdef G4VIS_USE_VRML
-#include "G4VRML1.hh"
 #include "G4VRML2.hh"
 #endif
 
@@ -93,13 +86,8 @@ void GLG4VisManager::RegisterGraphicsSystems () {
   // Graphics Systems not needing external packages or libraries...
   RegisterGraphicsSystem (new G4ASCIITree);
   RegisterGraphicsSystem (new G4DAWNFILE);
-  RegisterGraphicsSystem (new G4HepRep);
   RegisterGraphicsSystem (new G4HepRepFile);
-#if (G4VERSION_NUMBER >= 500)
-  RegisterGraphicsSystem (new G4HepRep);
-#endif
   RegisterGraphicsSystem (new G4RayTracer);
-  RegisterGraphicsSystem (new G4VRML1File);
   RegisterGraphicsSystem (new G4VRML2File);
 
   // Graphics systems needing external packages or libraries...
@@ -147,7 +135,6 @@ void GLG4VisManager::RegisterGraphicsSystems () {
 #endif
 
 #ifdef G4VIS_USE_VRML
-  RegisterGraphicsSystem (new G4VRML1);
   RegisterGraphicsSystem (new G4VRML2);
 #endif
 
@@ -195,5 +182,3 @@ void GLG4VisManager::RegisterModelFactories()
 
    SelectTrajectoryModel(mymodel->Name());
 }
-
-#endif

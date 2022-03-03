@@ -10,9 +10,7 @@
 #define __RAT_RunManager__
 
 class G4RunManager;
-#ifdef G4VIS_USE
 class G4VisManager;
-#endif
 
 namespace RAT {
 
@@ -32,9 +30,7 @@ protected:
   ProcBlock* mainBlock;
   Gsim* ratGsim;
 
-#ifdef G4VIS_USE
   G4VisManager* theVisManager;
-#endif
 };
 
 } // namespace RAT

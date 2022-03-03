@@ -28,9 +28,7 @@ class PMTCharge;
 
 int get_pdgcode(const G4PrimaryParticle *p);
 
-#ifdef G4VIS_USE
 class G4VisExecutive;
-#endif
 
 class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTrackingAction  {
 public:
@@ -112,9 +110,7 @@ protected:
   static std::set<G4String> fStoreParticleTraj;
   static std::set<G4String> fDiscardParticleTraj;  
 
-#ifdef G4VIS_USE
   G4VisExecutive* theVisExecutive;
-#endif
 };
 
 } // namespace RAT
