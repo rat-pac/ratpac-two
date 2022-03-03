@@ -53,14 +53,9 @@ void IBDgen::GenEvent(const Hep3Vector &nu_dir,
   // Pick energy of neutrino and relative direction of positron
   GenInteraction(Enu, CosThetaLab);
   
-  // Zero'th order approximation of positron quantities (infinite nucleon mass)
-  double E0 = Enu - DELTA;
-  double p0 = sqrt(E0*E0-electron_mass_c2*electron_mass_c2); 
-  double v0 = p0/E0;
-  // First order correction for finite nucleon mass
-  double Ysquared = (DELTA*DELTA-electron_mass_c2*electron_mass_c2)/2;
-  double E1 = E0*(1-Enu/proton_mass_c2*(1-v0*CosThetaLab))
-               - Ysquared/proton_mass_c2;
+  // First order correction to positron quantities
+  // for finite nucleon mass
+  double E1 = PositronEnergy(Enu, CosThetaLab);
   double p1 = sqrt(E1*E1-electron_mass_c2*electron_mass_c2);
 
   // Compute nu 4-momentum
@@ -106,9 +101,13 @@ void IBDgen::GenInteraction(float &E, float &CosThetaLab)
     }
     else
     {
-      float XCtest = FluxMax * HepUniformRand();
+      // Decide whether to draw again based on relative dSigma/dCosT cross section.
+      // Find the maximum of dE1/dCosT
+      double dE1dCosTMax = EvalMax(E,FluxMax); 
+      float XCtest = dE1dCosTMax * HepUniformRand();
+      double dEdCosTWeight = dE1dCosT(E,CosThetaLab);
       double FluxWeight = rmpflux(E);
-      passed = FluxWeight > XCtest;
+      passed = dEdCosTWeight * FluxWeight > XCtest;
     }
   }
 }
@@ -116,7 +115,7 @@ void IBDgen::GenInteraction(float &E, float &CosThetaLab)
 
 double IBDgen::CrossSection(double Enu, double CosThetaLab)
 {
-  //
+  // returns dSigma/dCosTheta with first order corrections
   // Cross section constants.  Some for overall scale are just
   // to allow absolute comparison to published article.
   //
@@ -156,9 +155,7 @@ double IBDgen::CrossSection(double Enu, double CosThetaLab)
   //
   //  order 1 terms
   //
-  const double Ysquared = (DELTA*DELTA-electron_mass_c2*electron_mass_c2)/2;
-  double E1 = E0*(1-Enu/proton_mass_c2*(1-v0*CosThetaLab))-Ysquared/proton_mass_c2;
-  if(E1<electron_mass_c2) E1=electron_mass_c2;
+  double E1 = PositronEnergy(Enu, CosThetaLab);
   double p1 = sqrt(E1*E1-electron_mass_c2*electron_mass_c2);
   double v1 = p1/E1;
 
@@ -177,6 +174,50 @@ double IBDgen::CrossSection(double Enu, double CosThetaLab)
 
   return XC;  
 }
+
+double IBDgen::dE1dCosT(double Enu, double CosThetaLab)
+{
+  // Returns dEe/dCosTheta with first order corrections
+  // to positron quantities
+  // Strumia & Vissani 2003 Equiation #20 
+  double epsilon = Enu/proton_mass_c2;
+  double E1 = PositronEnergy(Enu, CosThetaLab);
+  double p1 = sqrt(E1*E1-electron_mass_c2*electron_mass_c2);
+  double dE1_dCosT =  p1 * epsilon / (1 + epsilon * (1 - CosThetaLab * E1 / p1));
+
+  return dE1_dCosT;
+}
+
+double IBDgen::EvalMax(double Enu, double FluxMax)
+{
+  // Finds the maximum value of dE1/dCosTheta
+  // in range (-1,1)
+  // always highest at cosT = 1
+  double max = 0.;
+  for (int i=0;i<200.;i++){
+    float cosT = (i-100.)/100.;
+    double tmp = dE1dCosT(Enu,cosT)*FluxMax;
+    if (tmp>max)
+      max = tmp;
+  }
+  return max;
+}
+
+double IBDgen::PositronEnergy(double Enu, double CosThetaLab)
+{
+  // Returns positron energy with first order corrections
+  // Zero'th order approximation of positron quantities (infinite nucleon mass)
+  double E0 = Enu - DELTA;
+  double p0 = sqrt(E0*E0-electron_mass_c2*electron_mass_c2); 
+  double v0 = p0/E0;
+  // First order correction to positron energy for finite nucleon mass
+  const double Ysquared = (DELTA*DELTA-electron_mass_c2*electron_mass_c2)/2;
+  double E1 = E0*(1-Enu/proton_mass_c2*(1-v0*CosThetaLab))-Ysquared/proton_mass_c2;
+  if(E1<electron_mass_c2) E1=electron_mass_c2;
+
+  return E1;
+}
+
 
 
 } // namespace RAT

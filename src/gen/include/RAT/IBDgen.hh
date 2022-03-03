@@ -36,7 +36,14 @@ public:
 
   // Differential cross section for inverse beta decay
   static double CrossSection(double Enu, double CosThetaLab);
+  // dE/dCosT for inverse beta decay (E = first order positron energy)
+  static double dE1dCosT(double Enu, double CosThetaLab);
+  // Maximum of dE/dCosT
+  static double EvalMax(double Enu, double FluxMax);
   
+  // Positron energy (first order)
+  static double PositronEnergy(double Enu, double CosThetaLab); 
+
   // Flux as a function of energy.  Interpolated from table in IBD RATDB table
   double Flux(float E) const { return rmpflux(E); };
 
