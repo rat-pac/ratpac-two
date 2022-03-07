@@ -153,7 +153,6 @@ void
 GLG4SteppingAction::UserSteppingAction(const G4Step* aStep)
 {
   G4Track* track= aStep->GetTrack();
-
   static G4int num_zero_steps_in_a_row=0;
 
   // check for too many zero steps in a row
@@ -239,8 +238,10 @@ GLG4SteppingAction::UserSteppingAction(const G4Step* aStep)
 
     //check if the process is neutron capture on 157Gd
     bool nCap157Gd            = false;
-    const G4VProcess* myproc  = track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
-    G4String nameProcess      = myproc->GetProcessName();
+    const G4VProcess* myproc  = aStep->GetPostStepPoint()->GetProcessDefinedStep();
+    G4String nameProcess = "Unknown";
+    if( myproc != 0 )
+      nameProcess = myproc->GetProcessName();
 
     G4TrackVector* fSecondary = fpSteppingManager->GetfSecondary();
     G4int numSecondaries      = fpSteppingManager->GetfN2ndariesAtRestDoIt()
