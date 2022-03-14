@@ -18,7 +18,7 @@
 #END EVENT LOOP
 
 ##### GENERATORS #################
-/generator/add combo gun:point:poisson
+/generator/add combo gun:fill:poisson
 /generator/vtx/set e- 0.0 0.0 0.0 2.5
 /generator/pos/set 0.0 0.0 0.0
 

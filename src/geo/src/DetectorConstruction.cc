@@ -27,8 +27,8 @@ DetectorConstruction* DetectorConstruction::sDetectorConstruction = NULL;
 
 DetectorConstruction::DetectorConstruction() {
   DetectorFactory::Register("Watchman",new WatchmanDetectorFactory());
-    DetectorFactory::Register("Theia",new TheiaDetectorFactory());
-    //DetectorFactory::Register("WatchmanWLSPSquare",new WatchmanWLSPSquareDetectorFactory());
+  DetectorFactory::Register("Theia",new TheiaDetectorFactory());
+  //DetectorFactory::Register("WatchmanWLSPSquare",new WatchmanWLSPSquareDetectorFactory());
 }
 
 G4VPhysicalVolume* DetectorConstruction::Construct() {

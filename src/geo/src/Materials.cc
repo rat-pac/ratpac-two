@@ -259,7 +259,7 @@ void Materials::ConstructMaterials() {
 
 
 bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
-  G4MaterialPropertiesTable* MPT = NULL;
+  G4MaterialPropertiesTable* MPT = nullptr;
 
   double densitydb;
   int nelementsdb;
@@ -363,7 +363,7 @@ bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
 
     for (vector<string>::size_type i=0; i<elemname.size(); i++) {
       std::string addmatname = elemname[i];
-      G4Material* addmatptr = NULL;
+      G4Material* addmatptr = nullptr;
       G4NistManager* man = G4NistManager::Instance();
       addmatptr = man->FindOrBuildMaterial(addmatname);
       if (!addmatptr) {
@@ -372,7 +372,7 @@ bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
 
       // If we encounter a material that hasn't been build,
       // add the material that contains it to the queue
-      if (addmatptr != NULL) {
+      if (addmatptr != nullptr) {
         tempptr->AddMaterial(addmatptr, elemprop[i]);
       }
       else {
@@ -416,13 +416,13 @@ Materials::LoadProperty(DBLinkPtr table, std::string name) {
   catch (DBNotFoundError &e) {
     G4cout << "Could not read property " << name
            << " of " << table->GetIndex() << G4endl;
-    return NULL;
+    return nullptr;
   }
 
   if (val1.size() != val2.size()) {
     G4cout << "Array size error in Materials: "
            << "bad property value sizes" << G4endl;
-    return NULL;
+    return nullptr;
   }
 
   // Material properties have to be inserted in energy order, so
@@ -463,7 +463,7 @@ Materials::LoadProperty(DBLinkPtr table, std::string name) {
 void
 Materials::BuildMaterialPropertiesTable(G4Material* material, DBLinkPtr table) {
   // Bail if the MPT already exists
-  if (material->GetMaterialPropertiesTable() != NULL) {
+  if (material->GetMaterialPropertiesTable() != nullptr) {
     return;
   }
 
@@ -528,7 +528,7 @@ void Materials::LoadOptics() {
     G4cout << "Loading optics: " << name << G4endl;
 
     G4Material* material = G4Material::GetMaterial(name);
-    if (material == NULL) {
+    if (material == nullptr) {
       G4cout << "While loading optics in Materials, "
              << "there was a bad material name: " << name << G4endl;
       continue;
@@ -611,10 +611,10 @@ void Materials::LoadOptics() {
       G4MaterialPropertiesTable* cpt = component->GetMaterialPropertiesTable();
 
       // Copy component vector properties to material
-      G4double* absorption_coeff_x = NULL;
-      G4double* absorption_coeff_y = NULL;
-      G4double* rayleigh_coeff_x = NULL;
-      G4double* rayleigh_coeff_y = NULL;
+      G4double* absorption_coeff_x = nullptr;
+      G4double* absorption_coeff_y = nullptr;
+      G4double* rayleigh_coeff_x = nullptr;
+      G4double* rayleigh_coeff_y = nullptr;
 
       //// const std::map<G4String,
       ////                G4MaterialPropertyVector*>* cpm = cpt->GetPropertiesMap();

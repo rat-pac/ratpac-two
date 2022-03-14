@@ -489,16 +489,20 @@ void GLG4PosGen_Fill::GeneratePosition( G4ThreeVector &argResult )
       gNavigator->LocateGlobalPointAndSetup(rpos,0,true); // fast check mode
     if ( _material == 0 ) {
       if ( pvtest == pv )
+      {
 	break; // we found it!
+      }
     }
     else {
       if ( pvtest != 0
 	     && pvtest->GetLogicalVolume()->GetMaterial() == _material )
+      {
 	break; // we found it!
+      }
     }
   }
   _nfound++;
-
+  
   argResult = rpos;
   return;
 }

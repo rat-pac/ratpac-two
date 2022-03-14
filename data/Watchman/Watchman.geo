@@ -175,7 +175,7 @@ mother: "detector",
 type: "tube",
 r_max:  7100.0,// These are guessed. Need a proper estimate
 size_z: 10.0,// These are guessed. Need a proper estimate
-position: [0.0, 0.0, 7100.0],
+position: [0.0, 0.0, 7105.0],
 material: "polypropylene",
 color: [0.9,0.9,0.9,0.3],
 drawstyle: "solid",
@@ -360,7 +360,7 @@ mother: "detector",
 type: "tube",
 r_max:  7100.0,// These are guessed. Need a proper estimate
 size_z: 10.0,// These are guessed. Need a proper estimate
-position: [0.0, 0.0, -7100.0],
+position: [0.0, 0.0, -7105.0],
 material: "polypropylene",
 color: [0.9,0.9,0.9,0.1],
 drawstyle: "solid",

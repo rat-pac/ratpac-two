@@ -1,7 +1,6 @@
 #ifndef __RAT_GeoEosFactory__
 #define __RAT_GeoEosFactory__
 
-//#include <G4VPhysicalVolume.hh>
 #include <RAT/GeoSolidFactory.hh>
 
 namespace RAT {

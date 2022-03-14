@@ -29,11 +29,9 @@ G4VSolid *GeoEosFactory::ConstructSolid(DBLinkPtr table)
   // Height of ellipical bottom/top cap
   G4double top_height = table->GetD("top_height");
 
-  G4double offset = table->GetD("offset");
-
   // Solids for the cylindrical body and ellipical caps
-  G4Tubs *body = new G4Tubs("body", r_min  * CLHEP::mm,
-                                    r_max  * CLHEP::mm,
+  G4Tubs *body = new G4Tubs("body", r_min * CLHEP::mm,
+                                    r_max * CLHEP::mm,
                                     size_z * CLHEP::mm,
                                     0., CLHEP::twopi);
 
@@ -42,9 +40,9 @@ G4VSolid *GeoEosFactory::ConstructSolid(DBLinkPtr table)
                                               top_height * CLHEP::mm,
                                               0., top_height * CLHEP::mm);
 
-  G4Ellipsoid *bot = new G4Ellipsoid("bot", top_radius  * CLHEP::mm,
-                                            top_radius  * CLHEP::mm,
-                                            top_height  * CLHEP::mm,
+  G4Ellipsoid *bot = new G4Ellipsoid("bot", top_radius * CLHEP::mm,
+                                            top_radius * CLHEP::mm,
+                                            top_height * CLHEP::mm,
                                             -top_height * CLHEP::mm, 0.0);
 
   // Location and rotation of the top cap

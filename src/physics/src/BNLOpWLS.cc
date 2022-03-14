@@ -19,16 +19,16 @@ BNLOpWLS::BNLOpWLS(const G4String& processName, G4ProcessType type)
     : G4VDiscreteProcess(processName, type) {
   SetProcessSubType(fOpWLS);
 
-  theIntegralTable = NULL;
-  theQYTable = NULL;
-  wlsData = NULL;
+  theIntegralTable = nullptr;
+  theQYTable = nullptr;
+  wlsData = nullptr;
  
   WLSTimeGeneratorProfile =
     new G4WLSTimeGeneratorProfileDelta("WLSTimeGeneratorProfileDelta");
 }
 
 BNLOpWLS::~BNLOpWLS() {
-  if (theIntegralTable != NULL) {
+  if (theIntegralTable != nullptr) {
     theIntegralTable->clearAndDestroy();
     delete theIntegralTable;
   }

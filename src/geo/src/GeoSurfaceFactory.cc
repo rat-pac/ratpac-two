@@ -45,8 +45,8 @@ G4VPhysicalVolume *GeoSurfaceFactory::Construct(DBLinkPtr table) {
   G4VPhysicalVolume* Phys1, *Phys2;
   G4int counter =0;
   do {
-    Phys1=NULL;
-    Phys2=NULL;
+    Phys1=nullptr;
+    Phys2=nullptr;
     
     /// looking for the first volume (FindPhysMother is misnamed)
   Phys1 = FindPhysMother(volume1_name + ((isArray1)? "_"+ConvertIntToString(counter) : "") );

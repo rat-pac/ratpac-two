@@ -17,7 +17,7 @@ void BNLOpWLSBuilder::ConstructProcess() {
   std::string matrixPath = lwls->GetS("data_path");
 
   char* dataPath = getenv("GLG4DATA");
-  if (dataPath != NULL) {
+  if (dataPath != nullptr) {
     std::string thePath = std::string(dataPath) + "/" + matrixPath;
     theBNLOpWLSProcess->SetExEmData(thePath);
     RAT::info << "BNLOpWLSBuilder::ConstructProcess: Using data from "

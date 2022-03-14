@@ -26,7 +26,8 @@
 /vis/viewer/flush
 
 ## Cut a plane through the detector
-/vis/viewer/addCutawayPlane 0 0 0 cm 1 0 0
+#/vis/viewer/addCutawayPlane 0 0 0 cm 1 0 0
+/vis/viewer/addCutawayPlane 0 0 0 cm 0 0 -1
 #/vis/viewer/addCutawayPlane 0 -100 0 cm 0 1 0
 #/vis/viewer/set/viewpointThetaPhi -90 0
 #/vis/viewer/zoomTo 10

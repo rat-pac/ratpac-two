@@ -34,7 +34,7 @@
 #include <RAT/Log.hh>
 #include <TMath.h>
 
-G4UIdirectory* GLG4PMTOpticalModel::fgCmdDir = NULL;
+G4UIdirectory* GLG4PMTOpticalModel::fgCmdDir = nullptr;
 
 double GLG4PMTOpticalModel::surfaceTolerance = 0.0;
 std::vector<std::vector <double> >GLG4PMTOpticalModel::pmtHitVector;//mfb
@@ -67,11 +67,11 @@ GLG4PMTOpticalModel::GLG4PMTOpticalModel (G4String modelName,
   // ... material properties of glass
   G4MaterialPropertiesTable* glass_pt=
     envelope_log->GetMaterial()->GetMaterialPropertiesTable();
-  if (glass_pt == NULL)
+  if (glass_pt == nullptr)
     G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: glass lacks a properties table!");
   
   _rindex_glass= glass_pt->GetProperty("RINDEX");
-  if (_rindex_glass == NULL)
+  if (_rindex_glass == nullptr)
     G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: glass does not have RINDEX!");
 
   _applyCorrection = true;
@@ -87,28 +87,28 @@ GLG4PMTOpticalModel::GLG4PMTOpticalModel (G4String modelName,
   _inner2_phys= envelope_log->GetDaughter(1);
   _central_gap_phys = envelope_log->GetDaughter(2);
 
-  if (pc_opsurf == NULL)
+  if (pc_opsurf == nullptr)
     G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: no photocathode optical surface!?!");
   G4MaterialPropertiesTable* pc_pt=
     pc_opsurf->GetMaterialPropertiesTable();
-  if (pc_pt == NULL)
+  if (pc_pt == nullptr)
     G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: photocathode lacks a properties table!");
   _inner1_solid= _inner1_phys->GetLogicalVolume()->GetSolid();
   
   _rindex_photocathode= pc_pt->GetProperty("RINDEX");
-  if (_rindex_photocathode == NULL)
+  if (_rindex_photocathode == nullptr)
     G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: photocathode does not have RINDEX!");
   
   _kindex_photocathode= pc_pt->GetProperty("KINDEX");
-  if (_kindex_photocathode == NULL)
+  if (_kindex_photocathode == nullptr)
     G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: photocathode does not have KINDEX!");
   
   _thickness_photocathode= pc_pt->GetProperty("THICKNESS");
-  if (_thickness_photocathode == NULL)
+  if (_thickness_photocathode == nullptr)
     G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: photocathode does not have THICKNESS!");
 
   _efficiency_photocathode= pc_pt->GetProperty("EFFICIENCY");
-  if (_efficiency_photocathode == NULL)
+  if (_efficiency_photocathode == nullptr)
     G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: photocathode does not have EFFICIENCY!");
 
   // initialize _photon_energy to a nonsense value to indicate that the other
@@ -119,7 +119,7 @@ GLG4PMTOpticalModel::GLG4PMTOpticalModel (G4String modelName,
   EfficiencyCorrection.clear();
 
   // add UI commands
-  if ( fgCmdDir == NULL ) {
+  if ( fgCmdDir == nullptr ) {
     fgCmdDir = new G4UIdirectory("/PMTOpticalModel/");
     fgCmdDir->SetGuidance("PMT optical model control.");
     G4UIcommand *cmd;
@@ -724,10 +724,10 @@ GLG4PMTOpticalModel::SetNewValue(G4UIcommand * command, G4String newValues)
 {
    G4String commandName= command -> GetCommandName();
    if (commandName == "verbose") {
-     _verbosity= strtol((const char *)newValues, NULL, 0);
+     _verbosity= strtol((const char *)newValues, nullptr, 0);
    }
    else if (commandName == "luxlevel") {
-     _luxlevel= strtol((const char *)newValues, NULL, 0);
+     _luxlevel= strtol((const char *)newValues, nullptr, 0);
    }
    else if(commandName=="BcorrTable")
      DumpEfficiencyCorrectionTable();

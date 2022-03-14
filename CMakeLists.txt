@@ -14,6 +14,7 @@ endif()
 ###########################################################
 # Set default build type
 set(default_build_type "Release")
+set(CMAKE_BUILD_TYPE Debug)
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
@@ -55,18 +56,20 @@ find_package(Threads REQUIRED)
 ###########################################################
 # Configure header with our version information
 configure_file(${CMAKE_SOURCE_DIR}/config/Config.hh.in
-        ${CMAKE_SOURCE_DIR}/src/core/include/RAT/Config.hh
-        @ONLY NEWLINE_STYLE UNIX)
+  ${CMAKE_SOURCE_DIR}/src/core/include/RAT/Config.hh
+  @ONLY NEWLINE_STYLE UNIX)
 
 # Configure local scripts
 set(RATROOT ${PROJECT_BINARY_DIR})
 set(RATSHARE ${PROJECT_SOURCE_DIR})
 configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.sh.in
-       ${PROJECT_SOURCE_DIR}/ratpac.sh
-       @ONLY NEWLINE_STYLE UNIX)
+  ${PROJECT_SOURCE_DIR}/ratpac.sh
+  @ONLY NEWLINE_STYLE UNIX)
 configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.csh.in
-        ${PROJECT_SOURCE_DIR}/ratpac.csh
-       @ONLY NEWLINE_STYLE UNIX)
+  ${PROJECT_SOURCE_DIR}/ratpac.csh
+  @ONLY NEWLINE_STYLE UNIX)
+configure_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
+  ${PROJECT_SOURCE_DIR}/RatpacConfig.cmake @ONLY)
 
 ###########################################################
 # Compile our libraries and executables
@@ -81,11 +84,13 @@ add_subdirectory(tools)
 set(RATROOT ${CMAKE_INSTALL_PREFIX})
 set(RATSHARE ${CMAKE_INSTALL_PREFIX}/share/RAT)
 configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.sh.in
-       ${RATPAC_BINARY_DIR}/ratpac.sh
-       @ONLY NEWLINE_STYLE UNIX)
+  ${RATPAC_BINARY_DIR}/ratpac.sh
+  @ONLY NEWLINE_STYLE UNIX)
 configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.csh.in
-       ${RATPAC_BINARY_DIR}/ratpac.csh
-       @ONLY NEWLINE_STYLE UNIX)
+  ${RATPAC_BINARY_DIR}/ratpac.csh
+  @ONLY NEWLINE_STYLE UNIX)
+configure_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
+  ${RATPAC_CMAKE_DIR}/RatpacConfig.cmake @ONLY)
 
 # Install the data files
 install(DIRECTORY data/ DESTINATION ${RATSHARE}/data
@@ -107,13 +112,3 @@ install(DIRECTORY doc/ DESTINATION ${RATSHARE}/doc
 install(FILES ${RATPAC_BINARY_DIR}/ratpac.sh
              ${RATPAC_BINARY_DIR}/ratpac.csh
        DESTINATION bin)
-
-## CMake Config
-#export(TARGETS RATPAC RATEvent
-#  FILE "${PROJECT_BINARY_DIR}/RatpacTargets.cmake")
-#export(TARGETS src
-#  FILE "${PROJECT_BINARY_DIR}/RATTargets.cmake")
-#
-#export(PACKAGE ratpac)
-#
-#file(RELATIVE_PATH REL_INCLUDE_DIR "${RATPAC_LIBRARY_DIR}" "${RATPAC_CMAKE_DIR}")

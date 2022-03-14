@@ -31,13 +31,13 @@ OpRayleigh::OpRayleigh( const G4String& processName,
 {
   SetProcessSubType( fOpRayleigh );
 
-  fPhysicsTable = NULL;
+  fPhysicsTable = nullptr;
   BuildThePhysicsTable();
 }
 
 OpRayleigh::~OpRayleigh()
 {
-  if( fPhysicsTable != NULL )
+  if( fPhysicsTable != nullptr )
     {
       fPhysicsTable->clearAndDestroy();
       delete fPhysicsTable;
@@ -93,7 +93,7 @@ OpRayleigh::GetMeanFreePath( const G4Track& track,
   G4PhysicsFreeVector* rayleigh = static_cast<G4PhysicsFreeVector*>( (*fPhysicsTable)( material->GetIndex() ) );
 
   G4double rsLength = DBL_MAX;
-  if( rayleigh != NULL )
+  if( rayleigh != nullptr )
     rsLength = rayleigh->Value( photonMomentum );
   return rsLength;
 }
@@ -111,8 +111,8 @@ OpRayleigh::BuildThePhysicsTable()
     {
       G4Material* material = (*theMaterialTable)[iMaterial];
       G4MaterialPropertiesTable* materialProperties = material->GetMaterialPropertiesTable();
-      G4PhysicsFreeVector* rayleigh = NULL;
-      if( materialProperties != NULL )
+      G4PhysicsFreeVector* rayleigh = nullptr;
+      if( materialProperties != nullptr )
         {
           rayleigh = materialProperties->GetProperty( "RSLENGTH" );
         }
