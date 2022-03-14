@@ -67,11 +67,13 @@ GeoBuilder::GeoBuilder()
   new GeoPerfBoxFactory();
   new GeoCutTubeFactory();
   new GeoWatchmanShieldFactory();
-  new GeoCherenkovSourceFactory();
   new GeoPolyArrayFactory();
   new WLSPFactory();
   new WLSPCoverFactory();
   new GeoEosFactory();
+
+  // Extra components
+  new GeoCherenkovSourceFactory();
 
   // Register standard waveguides
   GlobalFactory<WaveguideFactory>::Register("cone",

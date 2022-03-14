@@ -29,7 +29,7 @@ using namespace std;
 namespace RAT {
 
 G4VPhysicalVolume* GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
-    G4cout << "Building C Source" << G4endl; G4cout.flush();
+    G4cout << "Building Cherenkov Source" << G4endl;
     const string volumeName = table->GetIndex();
     const string motherName = table->GetS("mother");
 

@@ -70,7 +70,7 @@
   position: [0.0, 0.0, 0.0],
   rotation: [0.0, 0.0, 0.0],
   material: "acrylic_sno",
-  color: [0.12, 0.70, 0.95, 0.95],
+  color: [0.12, 0.70, 0.95, 1.0],
 }
 
 {
@@ -78,7 +78,7 @@
   index: "eos_inner",
   valid_begin: [0, 0],
   valid_end: [0, 0],
-  mother: "inner_tank",
+  mother: "eos_vessel",
   type: "eos",
   r_min: 0.0,
   r_max: 888.8,
@@ -137,4 +137,3 @@
   pos_table: "PMTINFO_hqe_top_ring",
   orientation: "manual",
 }
-

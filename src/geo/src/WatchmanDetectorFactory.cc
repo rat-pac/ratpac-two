@@ -236,11 +236,6 @@ namespace RAT {
         move_toptanktarp.push_back(0.0);
         move_toptanktarp.push_back(detector_size_z/2.0-30.0);// Bergevin: Values based on geofile
         
-        
-        
-        
-        
-        
         db->Set("GEO","white_sheet_top","r_max",veto_radius);
         db->Set("GEO","white_sheet_top","position",move_white_top);
         db->Set("GEO","black_sheet_top","r_max",pmt_radius+black_sheet_offset);//paige kunkle: expanding black tarp (+30cm)
@@ -253,9 +248,6 @@ namespace RAT {
     
         db->Set("GEO","white_sheet_tank_top","r_max",detector_size_d/2.0 -35.0);
         db->Set("GEO","white_sheet_tank_top","position",move_toptanktarp);
-        
-        
-        
         
         //Bottom tarps
         vector<double> move_white_bottom;
@@ -279,8 +271,6 @@ namespace RAT {
         move_bottomtanktarp.push_back(0.0);
         move_bottomtanktarp.push_back(0.0);
         move_bottomtanktarp.push_back(-detector_size_z/2.0+30.0);// Bergevin: Values based on geofile
-        
-        
         
         db->Set("GEO","white_sheet_bottom","r_max",veto_radius);
         db->Set("GEO","white_sheet_bottom","position",move_white_bottom);
