@@ -1,0 +1,4 @@
+# Similar to ratpac.sh.in
+set(RATROOT @RATROOT@)
+set(RATSHARE @RATSHARE@)
+set(ROOT_INCLUDE_PATH @RATROOT@/include)
