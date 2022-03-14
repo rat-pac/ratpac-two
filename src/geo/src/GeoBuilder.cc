@@ -30,6 +30,7 @@
 #include <RAT/GeoPerfBoxFactory.hh>
 #include <RAT/GeoCutTubeFactory.hh>
 #include <RAT/GeoWatchmanShieldFactory.hh>
+#include <RAT/GeoCalibrationStickFactory.hh>
 #include <RAT/GeoCherenkovSourceFactory.hh>
 #include <RAT/GeoPolyArrayFactory.hh>
 #include <RAT/WLSPFactory.hh>
@@ -74,6 +75,7 @@ GeoBuilder::GeoBuilder()
 
   // Extra components
   new GeoCherenkovSourceFactory();
+  new GeoCalibrationStickFactory();
 
   // Register standard waveguides
   GlobalFactory<WaveguideFactory>::Register("cone",
