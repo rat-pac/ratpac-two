@@ -40,7 +40,7 @@ G4VPhysicalVolume* GeoCalibrationStickFactory::Construct(DBLinkPtr table) {
     const double sourceThickness = table->GetD("source_thickness");
     const double stickLength = table->GetD("stick_length");
     const double sourcePosition = table->GetD("source_position");
-    const vector<double>& positionArray = table->GetDArray("position");
+    const vector<double> positionArray = table->GetDArray("position");
 
     G4ThreeVector offset(positionArray[0], positionArray[1], positionArray[2]);
 

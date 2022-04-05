@@ -22,7 +22,7 @@ bottom_material: "polypropylene",
 source_material: "polypropylene",
 gas_material: "air",
 
-stick_color: [0.42, 0.47, 0.57, 1.0],
-bottom_color: [0.5, 0.0, 0.0, 0.95],
+stick_color: [0.42, 0.47, 0.57, 0.9],
+bottom_color: [0.88, 0.74, 0.0, 0.95],
 source_color: [0.88, 0.74, 0.0, 0.95],
 }

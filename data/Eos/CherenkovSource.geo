@@ -9,7 +9,7 @@ type: "CherenkovSource",
 
 mother: "eos_inner",
 
-position: [0.0,0.0,0.0],
+position: [0.0,0.0,1.0],
 
 //Acrylic properties
 source_material: "chsrc_uva_acrylic",
