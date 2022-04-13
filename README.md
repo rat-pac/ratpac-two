@@ -1,4 +1,4 @@
-# RAT (is an Analysis Tool), Watchman Edition
+# RAT (is an Analysis Tool)
 [![Documentation Status](https://readthedocs.org/projects/ratpac-watchman/badge/?version=latest)](https://ratpac-watchman.readthedocs.io/en/latest/?badge=latest)
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/aitwatchman/ratpac)](https://hub.docker.com/r/aitwatchman/ratpac)
 

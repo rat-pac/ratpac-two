@@ -17,6 +17,7 @@ add_library(geo OBJECT
         src/GeoBuilder.cc
         src/GeoCalibrationStickFactory.cc
         src/GeoCherenkovSourceFactory.cc
+        src/GeoCheSSVesselFactory.cc
         src/GeoConvexLensFactory.cc
         src/GeoCutTubeFactory.cc
         src/GeoEosFactory.cc

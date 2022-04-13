@@ -273,7 +273,7 @@
   pmt_model: "r14688",
   pmt_detector_type: "idpmt",
   sensitive_detector: "/mydet/pmt/inner",
-  pos_table: "PMTINFO_side_1cm_176",
+  pos_table: "PMTINFO_side_1cm_central_gap",
   orientation: "manual",
 }
 
@@ -287,7 +287,7 @@
   pmt_model: "r14688",
   pmt_detector_type: "idpmt",
   sensitive_detector: "/mydet/pmt/inner",
-  pos_table: "PMTINFO_bottom_ring",
+  pos_table: "PMTINFO_bottom_ring_36",
   orientation: "manual",
 }
 
@@ -298,10 +298,24 @@
   valid_end: [0, 0],
   mother: "inner_tank",
   type: "pmtarray",
+  pmt_model: "r14688",
+  pmt_detector_type: "idpmt",
+  sensitive_detector: "/mydet/pmt/inner",
+  pos_table: "PMTINFO_top_ring_36",
+  orientation: "manual",
+}
+
+{
+  name: "GEO",
+  index: "pmts_central",
+  valid_begin: [0, 0],
+  valid_end: [0, 0],
+  mother: "inner_tank",
+  type: "pmtarray",
   pmt_model: "r11780_hqe",
   pmt_detector_type: "idpmt",
   sensitive_detector: "/mydet/pmt/inner",
-  pos_table: "PMTINFO_hqe_top_ring",
+  pos_table: "PMTINFO_side_hqe_central",
   orientation: "manual",
 }
 
