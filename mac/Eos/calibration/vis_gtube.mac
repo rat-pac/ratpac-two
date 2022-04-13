@@ -1,0 +1,52 @@
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+#set the detector parameters
+/rat/db/set DETECTOR experiment "Eos"
+/rat/db/set DETECTOR geo_file "Eos/Eos.geo"
+/rat/db/set GEO[pmts_side] pos_table "PMTINFO_side_1cm_176"
+/rat/db/set GEO[outer_tank] invisible 0
+/rat/db/set GEO[inner_tank] invisible 0
+
+# Visualize the calibration source
+/rat/db/load Eos/CalibrationStick.geo
+/rat/db/set GEO[CalibrationStick] source_position 800.0
+/rat/db/set GEO[CalibrationStick] outer_diameter 15.0
+/rat/db/set GEO[CalibrationStick] inner_diameter 10.0
+/rat/db/set GEO[CalibrationStick] position [0.0,0.0,0.0]
+
+/run/initialize
+
+/vis/open OGLSQt
+/vis/scene/create
+/vis/scene/add/trajectories rich smooth
+/tracking/storeTrajectory 1
+/tracking/FillPointCont 1
+/vis/scene/add/volume
+/vis/scene/add/hits
+/vis/sceneHandler/attach
+
+/vis/viewer/set/upVector 0.0 0.0 1.0
+/vis/viewer/set/viewpointThetaPhi 90 180 
+/vis/viewer/zoomTo 10
+/vis/viewer/set/style s
+
+## Cut a plane through the detector
+/vis/viewer/addCutawayPlane -20 0 0 cm 1 0 0
+
+#/generator/add combo isotope:regexfill:poisson
+#/generator/vtx/set GenericIon 1 0 0
+#/generator/isotope/A 8.0
+#/generator/isotope/Z 3.0
+#/generator/isotope/E 0.0
+#/generator/pos/set CherenkovSource_DecayChamber
+#/generator/rate/set 1.0
+
+#/rat/proc splitevdaq
+#/rat/proclast outroot
+#
+/generator/add combo gun2:regexfill:poisson
+/generator/vtx/set gamma 0.0 0.0 -1.0 0 3.0 3.0
+/generator/pos/set CalibrationStick_Source
+#
+/run/beamOn 1

@@ -36,6 +36,7 @@
 #include <RAT/WLSPFactory.hh>
 #include <RAT/WLSPCoverFactory.hh>
 #include <RAT/GeoEosFactory.hh>
+#include <RAT/GeoCheSSVesselFactory.hh>
 
 using namespace std;
 
@@ -72,6 +73,7 @@ GeoBuilder::GeoBuilder()
   new WLSPFactory();
   new WLSPCoverFactory();
   new GeoEosFactory();
+  new GeoCheSSVesselFactory();
 
   // Extra components
   new GeoCherenkovSourceFactory();

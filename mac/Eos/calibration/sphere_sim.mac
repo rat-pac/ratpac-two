@@ -1,0 +1,31 @@
+/glg4debug/glg4param omit_muon_processes  1.0
+/glg4debug/glg4param omit_hadronic_processes  1.0
+
+#set the detector parameters
+/rat/db/set DETECTOR experiment "Eos"
+/rat/db/set DETECTOR geo_file "Eos/Eos.geo"
+
+/rat/db/load Eos/CalibrationSphere.geo
+/rat/db/set GEO[SphereShield] r_max 50.0
+/rat/db/set GEO[SphereModerator] r_max 20.0
+
+/run/initialize
+
+#/tracking/storeTrajectory 1
+
+##### Visualization ##########################
+
+/tracking/storeTrajectory 1
+/rat/proc count
+/rat/procset update 100
+/rat/proc prune
+/rat/procset prune "mc.track:opticalphoton"
+/rat/proc outroot
+
+##### GENERATORS #################
+/generator/add combo gun:point:poisson
+/generator/vtx/set e- 0.0 0.0 0.0 2.8
+/generator/pos/set 0.0 0.0 0.0
+
+##### RUN ###########
+/run/beamOn 10000
