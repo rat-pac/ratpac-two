@@ -87,6 +87,8 @@ GLG4PMTOpticalModel::GLG4PMTOpticalModel (G4String modelName,
   _inner2_phys= envelope_log->GetDaughter(1);
   _central_gap_phys = envelope_log->GetDaughter(2);
 
+  G4cout << "Morgan say: " << modelName << G4endl;
+
   if (pc_opsurf == nullptr)
     G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: no photocathode optical surface!?!");
   G4MaterialPropertiesTable* pc_pt=

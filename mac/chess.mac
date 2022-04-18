@@ -2,8 +2,9 @@
 /glg4debug/glg4param omit_hadronic_processes  1.0
 
 #set the detector parameters
-/rat/db/set DETECTOR experiment "CHESS"
-/rat/db/set DETECTOR geo_file "CHESS/CHESS_cosmics.geo"
+/rat/db/set DETECTOR experiment "CHESS_LightYield"
+/rat/db/set DETECTOR geo_file "CHESS_LightYield/light_yield.geo"
+/rat/db/set GEO[content] material "water"
 
 # Colors
 /run/initialize
