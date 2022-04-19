@@ -18,15 +18,16 @@ add_subdirectory(stlplus)
 add_subdirectory(util)
 # ds has to come last to avoid race condition with ratdict 
 add_subdirectory(ds)
+add_subdirectory(ratbase)
 
 ###########################################################
 # Create our libraries and executables
 
 # RAT shared library
-add_library(RATPAC STATIC)
+add_library(RATPAC SHARED)
 target_link_libraries(RATPAC PUBLIC 
        ${ROOT_LIBRARIES} ${Geant4_LIBRARIES}
-       cmd core daq db ds fit gen geo io physics stlplus util RATDict)
+       cmd core daq db ds fit gen geo io physics ratbase stlplus util RATDict)
 
 
 ### Target: library for ROOT
