@@ -2,6 +2,8 @@
 #define __RAT__
 #include <RAT/AnyParse.hh>
 #include <TStopwatch.h>
+#include <RAT/DB.hh>
+#include <RAT/DBMessenger.hh>
 
 namespace RAT {
 
@@ -17,8 +19,11 @@ class Rat {
   int argc;
   char** argv;
   TStopwatch runTime;
+  DB* rdb;
+  DBMessenger* rdb_messenger;
 public:
   Rat(AnyParse*, int, char**);
+  ~Rat();
   void Begin();
   void Report();
 };

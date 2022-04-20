@@ -23,8 +23,6 @@
 #include <RAT/ProcBlockManager.hh>
 #include <RAT/PythonProc.hh>
 #include <RAT/SignalHandler.hh>
-#include <RAT/DB.hh>
-#include <RAT/DBMessenger.hh>
 #include <RAT/TrackingMessenger.hh>
 #include <RAT/OutROOTProc.hh>
 //#include <getopt.h>
@@ -70,6 +68,15 @@ Rat::Rat(AnyParse* parser, int argc, char** argv) : parser(parser), argc(argc), 
   this->parser->AddArgument("vis", false, "g", 0, "Load G4UI visualization", ParseInt);
   // Parser setup and ready to read command line arguments
   this->parser->Parse();
+  
+  if( this->parser->GetValue("database", "") != "" )
+    RAT::DB::Get()->SetServer( this->parser->GetValue("database", "") );
+  // Database management
+  rdb = DB::Get();
+  rdb_messenger = new DBMessenger();
+}
+
+Rat::~Rat(){
 }
 
 void Rat::Begin() {
@@ -91,11 +98,6 @@ void Rat::Begin() {
   logfilename = this->parser->GetValue("log", "") != "" ? this->parser->GetValue("log", "") : logfilename;
   Log::Init(logfilename, Log::Level(display_level), Log::Level(log_level));
 
-  // Use command line information to set static methods
-  //OutROOTProc::run_num = this->Get()
-  if( this->parser->GetValue("database", "") != "" )
-    RAT::DB::Get()->SetServer( this->parser->GetValue("database", "") );
-
   // Start by putting all of the basic rat starting functions here, eventually
   // break this apart and fix it up.
   info << "RAT, version x.x.x" << newline;
@@ -115,14 +117,11 @@ void Rat::Begin() {
   // Root ...
   gRandom->SetSeed(this->seed);
 
-  // Database management
-  DB* rdb = DB::Get();
   // Hate this with a passion
   if( getenv("GLG4DATA") != NULL )
     rdb->LoadAll(static_cast<std::string>(getenv("GLG4DATA")));
   else
     rdb->LoadAll("data");
-  DBMessenger *rdb_messenger = new DBMessenger();
 
   // Run management
   if( this->run > 0 )
