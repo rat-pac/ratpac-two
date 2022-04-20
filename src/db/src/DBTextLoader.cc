@@ -1,3 +1,4 @@
+#include <RAT/Rat.hh>
 #include <RAT/DBTextLoader.hh>
 #include <RAT/DBTable.hh>
 #include <RAT/Log.hh>
@@ -79,9 +80,11 @@ std::string PickFile(std::string name, std::string enclosing_file)
   }
 
   // Finally try file in data directory
-  newname = string(getenv("GLG4DATA")) + "/" + name;
-  if (stat(newname.c_str(), &s) == 0)
-    return newname;
+  for( auto dir : Rat::directories ){
+    newname = dir + "/" + name;
+    if (stat(newname.c_str(), &s) == 0)
+      return newname;
+  }
 
   // Give up
   throw FileNotFoundError(name);

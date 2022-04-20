@@ -1,4 +1,4 @@
-#include <string>
+#include <RAT/Rat.hh>
 #include <TVector3.h>
 #include <G4GeometryManager.hh>
 #include <G4PhysicalVolumeStore.hh>
@@ -17,7 +17,7 @@
 #include <RAT/DetectorFactory.hh>
 #include <RAT/WatchmanDetectorFactory.hh>
 #include <RAT/TheiaDetectorFactory.hh>
-//#include <RAT/WatchmanWLSPSquareDetectorFactory.hh>
+#include <string>
 
 using namespace std;
 
@@ -35,19 +35,17 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
   // Load the DETECTOR table
   DB* db = DB::Get();
   DBLinkPtr ldetector = db->GetLink("DETECTOR");
-
-  string glg4data = "";
-  string experiment = "";
-  if (getenv("GLG4DATA") != NULL) {
-    glg4data = string(getenv("GLG4DATA")) + "/";
-  }
+  std::string experiment = "";
 
   // Load experiment RATDB files before doing anything else
   try {
     experiment = ldetector->GetS("experiment");
     info << "Loading experiment-specific RATDB files for: "
          << experiment << newline;
-    db->LoadAll(glg4data + experiment);
+    for(auto dir : Rat::directories){
+      db->LoadAll(dir + "/" + experiment);
+      break;
+    }
   }
   catch (DBNotFoundError& e) {
     info << "No experiment-specific tables loaded." << newline;

@@ -1,3 +1,5 @@
+// This file needs a complete rewrite, it's a mess with incosistent style and tabs
+// all over the place.
 #include <RAT/PMTFactoryBase.hh>
 #include <RAT/DB.hh>
 #include <RAT/Log.hh>
@@ -33,24 +35,24 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table,
         const std::vector<int> &pmt_type, 
         const std::vector<double> &pmt_effi_corr) {
         
-    string volume_name = table->GetS("index");
-    string mother_name = table->GetS("mother");
-    string pmt_model = table->GetS("pmt_model");
-    
-    DBLinkPtr lpmt = DB::Get()->GetLink("PMT",pmt_model);
-
-    // Find mother volume
-    G4LogicalVolume *mother = FindMother(mother_name);
-    if (mother == 0)
-        Log::Die("PMTParser: Unable to find mother volume " + mother_name + " for " + volume_name);
-    G4VPhysicalVolume* phys_mother = FindPhysMother(mother_name);
-    if (phys_mother == 0)
-        Log::Die("PMTParser: PMT mother physical volume " + mother_name + " not found");
+  string volume_name = table->GetS("index");
+  string mother_name = table->GetS("mother");
+  string pmt_model = table->GetS("pmt_model");
   
-    PMTConstruction *construction = PMTConstruction::NewConstruction(lpmt,mother);
-    G4LogicalVolume *log_pmt = construction->BuildVolume(volume_name);
-     
+  DBLinkPtr lpmt = DB::Get()->GetLink("PMT",pmt_model);
 
+  // Find mother volume
+  G4LogicalVolume *mother = FindMother(mother_name);
+  if (mother == 0)
+      Log::Die("PMTParser: Unable to find mother volume " + mother_name + " for " + volume_name);
+  G4VPhysicalVolume* phys_mother = FindPhysMother(mother_name);
+  if (phys_mother == 0)
+      Log::Die("PMTParser: PMT mother physical volume " + mother_name + " not found");
+  
+  PMTConstruction *construction = PMTConstruction::NewConstruction(lpmt,mother);
+  G4LogicalVolume *log_pmt = construction->BuildVolume(volume_name);
+
+  /* BFields not in the database anywhere and should be looked at */
 //FIXME take a look at what's going on with the Bfield stuff - no docs on this to be found
 
 //preparing to calculate magnetic efficiency corrections for all PMTs, if requested

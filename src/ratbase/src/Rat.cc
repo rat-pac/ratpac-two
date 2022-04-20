@@ -27,7 +27,6 @@
 #include <RAT/OutROOTProc.hh>
 //#include <getopt.h>
 #include <TRandom.h>
-#include <iostream>
 #include <string>
 #include <RAT/Rat.hh>
 
@@ -74,6 +73,10 @@ Rat::Rat(AnyParse* parser, int argc, char** argv) : parser(parser), argc(argc), 
   // Database management
   rdb = DB::Get();
   rdb_messenger = new DBMessenger();
+  // Local data management
+  if( getenv("GLG4DATA") != NULL )
+    directories.insert( static_cast<std::string>(getenv("GLG4DATA")) );
+
 }
 
 Rat::~Rat(){
@@ -117,11 +120,7 @@ void Rat::Begin() {
   // Root ...
   gRandom->SetSeed(this->seed);
 
-  // Hate this with a passion
-  if( getenv("GLG4DATA") != NULL )
-    rdb->LoadAll(static_cast<std::string>(getenv("GLG4DATA")));
-  else
-    rdb->LoadAll("data");
+  rdb->LoadDefaults();
 
   // Run management
   if( this->run > 0 )

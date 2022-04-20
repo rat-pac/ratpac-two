@@ -4,10 +4,12 @@
 #include <TStopwatch.h>
 #include <RAT/DB.hh>
 #include <RAT/DBMessenger.hh>
+#include <set>
 
 namespace RAT {
 
 class Rat {
+protected:
   AnyParse *parser;
   long seed;
   std::string input_filename;
@@ -22,6 +24,8 @@ class Rat {
   DB* rdb;
   DBMessenger* rdb_messenger;
 public:
+  inline static std::set<std::string> directories = {};
+
   Rat(AnyParse*, int, char**);
   ~Rat();
   void Begin();

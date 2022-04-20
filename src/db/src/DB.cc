@@ -1,3 +1,4 @@
+#include <RAT/Rat.hh>
 #include <RAT/DB.hh>
 #include <RAT/DBTable.hh>
 #include <RAT/DBTextLoader.hh>
@@ -49,10 +50,11 @@ int DB::Load(std::string filename, bool printPath)
     else
       return LoadFile(filename);
   } else {
-    char *glg4data = getenv("GLG4DATA");
-    if (glg4data != 0) {
-      string newfilename = string(glg4data) + "/" + filename;
-      if (printPath)
+    // Check through the data directories
+    for( auto dir : Rat::directories )
+    {
+      std::string newfilename = dir + "/" + filename;
+      if( printPath )
         cout << "DB: Loading " << newfilename << "\n";
       if (stat(newfilename.c_str(), &s) == 0) {
         if (S_ISDIR(s.st_mode))
@@ -61,8 +63,7 @@ int DB::Load(std::string filename, bool printPath)
   	     return LoadFile(newfilename);
       }
     }
-
-    Log::Die("DB: Cannot open " + filename + ".\nIs $GLG4DATA set?");
+    Log::Die("DB: Cannot open " + filename + ".\nCheck the correct environment is loaded.");
   }
 
   Log::Die("DB: Cannot open " + filename);
@@ -174,10 +175,8 @@ int DB::LoadAll(std::string dirname, std::string pattern)
 
 int DB::LoadDefaults()
 {
-  if ( getenv("GLG4DATA") != NULL )
-    return LoadAll(string(getenv("GLG4DATA")));
-  else
-    return LoadAll(string("data"));
+  for(auto dir : Rat::directories)
+    LoadAll(dir);
 }
 
 
