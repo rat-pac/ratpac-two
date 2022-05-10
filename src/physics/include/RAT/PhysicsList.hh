@@ -35,6 +35,12 @@ public:
   // Get the WLS model name
   std::string GetOpWLSModelName() { return this->wlsModelName; }
 
+  void SetCerenkovMaxNumPhotonsPerStep(int maxphotons){this->CerenkovMaxNumPhotonsPerStep = maxphotons;}
+  int GetCerenkovMaxNumPhotonsPerStep(){ return this->CerenkovMaxNumPhotonsPerStep; }
+
+  void EnableCerenkov(bool status){this->IsCerenkovEnabled = status;}
+  bool GetCerenkovStatus(){return this->IsCerenkovEnabled;}
+
 private:
   // Construct and register optical processes
   void ConstructOpticalProcesses();
@@ -44,6 +50,8 @@ private:
 
   std::string wlsModelName;  // The name of the WLS model
   G4VPhysicsConstructor* wlsModel;  // The WLS model constructor
+  int CerenkovMaxNumPhotonsPerStep; // Controlls step-size for cerenkov processes
+  bool IsCerenkovEnabled;
 };
 
 }  // namespace RAT

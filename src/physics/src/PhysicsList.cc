@@ -65,9 +65,12 @@ void PhysicsList::ConstructOpticalProcesses() {
   //
   // Request that Cerenkov photons be tracked first, before continuing
   // originating particle step.  Otherwise, we get too many secondaries!
-  G4Cerenkov* cerenkovProcess = new G4Cerenkov();
-  cerenkovProcess->SetTrackSecondariesFirst(true);
-  cerenkovProcess->SetMaxNumPhotonsPerStep(1);
+  G4Cerenkov* cerenkovProcess = nullptr;
+  if( this->IsCerenkovEnabled ){
+    cerenkovProcess = new G4Cerenkov();
+    cerenkovProcess->SetTrackSecondariesFirst(true);
+    cerenkovProcess->SetMaxNumPhotonsPerStep( this->CerenkovMaxNumPhotonsPerStep );
+  }
 
   // Attenuation: RAT's GLG4OpAttenuation
   //
@@ -95,7 +98,7 @@ void PhysicsList::ConstructOpticalProcesses() {
 
   // Set verbosity
   if (verboseLevel > 0) {
-    cerenkovProcess->DumpInfo();
+    if(this->IsCerenkovEnabled){cerenkovProcess->DumpInfo();}
     attenuationProcess->DumpInfo();
     defaultScintProcess->DumpInfo();
     nucleonScintProcess->DumpInfo();
@@ -103,7 +106,7 @@ void PhysicsList::ConstructOpticalProcesses() {
     opBoundaryProcess->DumpInfo();
   }
 
-  cerenkovProcess->SetVerboseLevel(verboseLevel-1);
+  if(this->IsCerenkovEnabled){cerenkovProcess->SetVerboseLevel(verboseLevel-1);}
   attenuationProcess->SetVerboseLevel(verboseLevel-1);
   defaultScintProcess->SetVerboseLevel(verboseLevel-1);
   nucleonScintProcess->SetVerboseLevel(verboseLevel-1);
@@ -116,9 +119,11 @@ void PhysicsList::ConstructOpticalProcesses() {
     G4ParticleDefinition* particle = GetParticleIterator()->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
-    if (cerenkovProcess->IsApplicable(*particle)) {
-      pmanager->AddProcess(cerenkovProcess);
-      pmanager->SetProcessOrdering(cerenkovProcess, idxPostStep);
+    if(this->IsCerenkovEnabled){
+      if (cerenkovProcess->IsApplicable(*particle)) {
+        pmanager->AddProcess(cerenkovProcess);
+        pmanager->SetProcessOrdering(cerenkovProcess, idxPostStep);
+      }
     }
     if (particleName == "opticalphoton") {
       pmanager->AddDiscreteProcess(attenuationProcess);
