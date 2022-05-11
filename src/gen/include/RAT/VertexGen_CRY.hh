@@ -7,6 +7,7 @@
 #include <G4Event.hh>
 #include <G4ThreeVector.hh>
 #include <globals.hh>
+#include <TTimeStamp.h>
 
 class CRYGenerator;
 namespace RAT {
@@ -33,6 +34,7 @@ private:
   double latitude;
   std::string date;
   int subboxLength;
+  TTimeStamp startTime;
 };
 
 

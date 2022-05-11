@@ -6,6 +6,7 @@
 #include <RAT/VertexGen_CRY.hh>
 // #include <RAT/CRYGenMessenger.hh>
 #include <RAT/DB.hh>
+#include <RAT/EventInfo.hh>
 
 #include <G4ParticleDefinition.hh>
 #include <G4ParticleTable.hh>
@@ -13,6 +14,7 @@
 #include <Randomize.hh>
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+#include <TTimeStamp.h>
 #include <string>
 
 namespace RAT {
@@ -57,6 +59,13 @@ VertexGen_CRY::VertexGen_CRY(const char *arg_dbname)
   std::string crydirectory = static_cast<std::string>(getenv("CRYDATA"));
   CRYSetup* setup = new CRYSetup(setupString, crydirectory);
   generator = new CRYGenerator(setup);
+  // Setup the time based on the configuration date string
+  int month = stoi(date.substr(0, date.find("-")));
+  date.erase(0, date.find("-")+1);
+  int day = stoi(date.substr(0, date.find("-")));
+  date.erase(0, date.find("-")+1);
+  int year = stoi(date.substr(0, date.find("-")));
+  startTime.Set(year, month, day, 0, 0, 0, 0, 1, 0);
 }
 void VertexGen_CRY::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, G4double dt)
 {
@@ -64,6 +73,15 @@ void VertexGen_CRY::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, G4d
   std::vector<CRYParticle*>* cryvector = new std::vector<CRYParticle*>;
   // Now the interesting bit
   generator->genEvent(cryvector);
+  double timeSimulated = generator->timeSimulated(); // In seconds
+  int seconds = static_cast<int>( floor(timeSimulated) );
+  int nanoseconds = static_cast<int>( ( timeSimulated - floor(timeSimulated) )*1e9 );
+  TTimeStamp eventTime;
+  eventTime.SetSec(startTime.GetSec() + seconds);
+  eventTime.SetNanoSec(nanoseconds);
+  // Now pass this time to geant-4
+  EventInfo* exinfo = dynamic_cast<EventInfo*>(event->GetUserInformation());
+  exinfo->utc = eventTime;
   // Convert the CRYParticle into a Geant-4 particle
   for( auto cryparticle : *cryvector )
   {
