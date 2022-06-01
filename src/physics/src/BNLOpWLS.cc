@@ -83,7 +83,7 @@ BNLOpWLS::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep) {
 
   if (QYValues) {
     // Case where energy is lower than the min energy; set to min value.
-    if ( primaryEnergy < QYValues->GetMinEnergy() ){
+    if ( primaryEnergy < QYValues->GetEnergy(0) ){
       theQY = QYValues->GetMinValue();
     }
     // Case where energy is higher than the max energy; set to max value.

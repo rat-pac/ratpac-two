@@ -1009,7 +1009,7 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
   if (theWaveForm) {
 
      // do we have time-series or decay-time data?
-     if (theWaveForm->GetMinEnergy() >= 0.0) {
+     if (theWaveForm->GetEnergy(0) >= 0.0) {
              // we have digitized waveform (time-series) data
              // find the integral
 
@@ -1034,7 +1034,7 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
 
              /* Set the maximum time for the PDF to 30 times the longest
               * decay constant. */
-             G4double maxtime = -30.0*(theWaveForm->GetMinEnergy());
+             G4double maxtime = -30.0*(theWaveForm->GetEnergy(0));
              int nbins = ((int) (maxtime/bin_width)) + 1;
 
              G4double *tval= new G4double[nbins];
@@ -1095,7 +1095,7 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
 
       if (theReemitWaveForm) {
         // do we have time-series or decay-time data?
-        if (theReemitWaveForm->GetMinEnergy() >= 0.0) {
+        if (theReemitWaveForm->GetEnergy(0) >= 0.0) {
           // we have digitized waveform (time-series) data
           // find the integral
           fReemissionTimeVector.push_back( Integrate_MPV_to_POFV( theReemitWaveForm ));
@@ -1112,7 +1112,7 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
                       " Undefined results will ensue!\n";
           }
 
-          G4double maxtime= -3.0*(theReemitWaveForm->GetMinEnergy());
+          G4double maxtime= -3.0*(theReemitWaveForm->GetEnergy(0));
           G4double mintime= -1.0*(theReemitWaveForm->GetMaxEnergy());
           G4double bin_width = mintime/100;
           int nbins= ((int) (maxtime/bin_width)) + 1;
@@ -1158,7 +1158,7 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
 
     if (theReemitWaveForm) {
       // do we have time-series or decay-time data?
-      if (theReemitWaveForm->GetMinEnergy() >= 0.0) {
+      if (theReemitWaveForm->GetEnergy(0) >= 0.0) {
         // we have digitized waveform (time-series) data
         // find the integral
         fReemissionTimeIntegral = Integrate_MPV_to_POFV( theReemitWaveForm );
@@ -1175,7 +1175,7 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
                     " Undefined results will ensue!\n";
         }
 
-        G4double maxtime= -3.0*(theReemitWaveForm->GetMinEnergy());
+        G4double maxtime= -3.0*(theReemitWaveForm->GetEnergy(0));
         G4double mintime= -1.0*(theReemitWaveForm->GetMaxEnergy());
         G4double bin_width = mintime/100;
         int nbins= ((int) (maxtime/bin_width)) + 1;
