@@ -167,6 +167,8 @@ int DB::LoadAll(std::string dirname, std::string pattern)
 	return 0;
       }
     }
+    globfree(&g);
+    return 2; // Success, and folder exists
   }
 
   globfree(&g);

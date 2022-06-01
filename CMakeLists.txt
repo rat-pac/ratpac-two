@@ -33,6 +33,20 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ###########################################################
+# External libraries and dependencies
+set(CRY_Enabled 0)
+if(DEFINED ENV{CRYLIB})
+  message(STATUS "Compiling with CRY enabled")
+  set(CRY_Enabled 1)
+  set(CRYLIBDIR $ENV{CRYLIB})
+  set(CRYINCLUDE $ENV{CRYINCLUDE})
+  set(CRYDATA $ENV{CRYDATA})
+  set(CRY_LIBRARIES CRY)
+  include_directories(${CRYINCLUDE})
+  link_directories(${CRYLIBDIR})
+endif()
+
+###########################################################
 # Options
 set(RATPAC_BINARY_DIR ${PROJECT_BINARY_DIR}/bin CACHE PATH "Where to output executables")
 set(RATPAC_LIBRARY_DIR ${PROJECT_BINARY_DIR}/lib CACHE PATH "Where to output library files")

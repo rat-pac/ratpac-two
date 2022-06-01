@@ -13,6 +13,7 @@
 #include <RAT/GLG4VertexGen.hh>
 #include <RAT/VertexGen_ES.hh>
 #include <RAT/VertexGen_FastNeutron.hh>
+#include <RAT/VertexGen_CRY.hh>
 #include <RAT/VertexGen_IBD.hh>
 #include <RAT/VertexGen_Isotope.hh>
 #include <RAT/VertexGen_ReacIBD.hh>
@@ -129,6 +130,10 @@ void Gsim::Init() {
                                            "isotope", new Alloc<GLG4VertexGen, VertexGen_Isotope>);
     GlobalFactory<GLG4VertexGen>::Register(
                                            "fastneutron", new Alloc<GLG4VertexGen, VertexGen_FastNeutron>);
+#if CRY_Enabled 
+    GlobalFactory<GLG4VertexGen>::Register(
+                                           "cry", new Alloc<GLG4VertexGen, VertexGen_CRY>);
+#endif
     
     GlobalFactory<GLG4Gen>::Register("decaychain",
                                      new Alloc<GLG4Gen, DecayChain_Gen>);
