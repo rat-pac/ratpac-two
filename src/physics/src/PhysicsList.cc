@@ -22,6 +22,8 @@
 namespace RAT {
 
 PhysicsList::PhysicsList() : Shielding(), wlsModel(NULL) {
+  this->CerenkovMaxNumPhotonsPerStep = 1;
+  this->IsCerenkovEnabled = true;
   new PhysicsListMessenger(this);
 }
 

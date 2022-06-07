@@ -332,6 +332,7 @@ void Gsim::PreUserTrackingAction(const G4Track* aTrack) {
         fpTrackingManager->SetStoreTrajectory(false);
     }
     
+    /* Morgan
     if (aTrack->GetDefinition()->GetParticleName() == "opticalphoton") {
         G4Event* event =
         G4EventManager::GetEventManager()->GetNonconstCurrentEvent();
@@ -373,6 +374,7 @@ void Gsim::PreUserTrackingAction(const G4Track* aTrack) {
             trackProcessMap[aTrack->GetTrackID()] = creatorProcessName;
         }
     }
+    */
 }
 
 void Gsim::PostUserTrackingAction(const G4Track* aTrack) {
@@ -380,6 +382,9 @@ void Gsim::PostUserTrackingAction(const G4Track* aTrack) {
     // the OpticalCentroid
     std::string creatorProcessName;
     std::string destroyerProcessName;
+
+  //MORGAN
+  return;
     
     // The road to hell is paved with global variables,
     // and GEANT4 is my travelling companion.
@@ -504,6 +509,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
             rat_mcpart->SetPosition(pos);
             rat_mcpart->SetPolarization(
                                         TVector3(p->GetPolX(), p->GetPolY(), p->GetPolZ()));
+            /* Morgan
             // Track end point info
             int track_id = p->GetTrackID();
             if(trackEndMap.find(track_id) == trackEndMap.end()) continue;
@@ -512,7 +518,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
             rat_mcpart->SetEndTime(end_info[3]);
             rat_mcpart->SetEndMomentum(TVector3(end_info[4], end_info[5], end_info[6]));
             rat_mcpart->SetEndKE(end_info[7]);
-
+            */
         }
         
         PrimaryVertexInformation* ratpvi =
@@ -568,6 +574,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
         return;
     }
     
+    /* Morgan deleting marcs thing?
     // std::vector<std::vector<double> > a = GLG4Scint::GetScintMatrix();
     // std::sort(a.begin(), a.end());
     int triggers = -1;
@@ -602,6 +609,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
         // << " |  " << rollingPhotons[aIndex][0] << " " << rollingPhotons[aIndex][1]
         // << " " <<rollingPhotons[aIndex][2] << G4endl;
     }
+    */
     
     // MC summary information
     DS::MCSummary* summary = mc->GetMCSummary();
@@ -616,12 +624,12 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
     summary->SetNumScintPhoton(exinfo->numScintPhoton);
     summary->SetNumReemitPhoton(exinfo->numReemitPhoton);
     summary->SetNumCerenkovPhoton(exinfo->numCerenkovPhoton);
-    summary->SetPhotonInfo(rollingPhotons);
-    summary->SetPMTPhotonInfo(GLG4PMTOpticalModel::pmtHitVector);
+    //summary->SetPhotonInfo(rollingPhotons);
+    //summary->SetPMTPhotonInfo(GLG4PMTOpticalModel::pmtHitVector);
     
     //GLG4Scint::ResetTimeChargeMatrix();
     exinfo->timePhotonMatrix.resize(0);
-    GLG4PMTOpticalModel::pmtHitVector.resize(0);
+    //GLG4PMTOpticalModel::pmtHitVector.resize(0);
     
     // std::vector<std::vector<double> > _pmtHitVector =
     // GLG4PMTOpticalModel::pmtHitVector; G4cout << "Size of PMTArray " <<
@@ -690,6 +698,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
      * Generate noise hits in a `noise window' which extends from the first
      * to last photon hits.
      */
+    /* Morgan, do not need this
     double noiseWindowWidth = lasthittime - firsthittime;
     size_t pmtcount = fPMTInfo->GetPMTCount();
     double channelRate = noiseRate * noiseWindowWidth;
@@ -715,6 +724,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
         AddMCPhoton(mc->GetMCPMT(mcpmtObjects[pmtid]), hit, true,
                     (StoreOpticalTrackID ? exinfo : NULL), "noise");
     }
+    */
 }
 
 void Gsim::AddMCPhoton(DS::MCPMT* rat_mcpmt, const GLG4HitPhoton* photon,
