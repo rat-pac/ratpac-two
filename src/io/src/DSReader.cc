@@ -7,7 +7,7 @@ namespace RAT {
 
 #undef DEBUG
 
-DSReader::DSReader(const char *filename) : T("T")
+DSReader::DSReader(const char *filename) : T("T"), runT("runT")
 {  
   T.Add(filename);
 
@@ -32,6 +32,7 @@ DSReader::~DSReader()
 void DSReader::Add(const char* filename) 
 { 
   T.Add(filename); 
+  runT.Add(filename);
   total = T.GetEntries(); 
 
 #ifdef DEBUG
