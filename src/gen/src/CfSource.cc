@@ -146,9 +146,11 @@ namespace RAT {
 	  double phi = CLHEP::RandFlat::shoot(0.,M_PI);
 	  double cosTheta = CLHEP::RandFlat::shoot(-1.,1.);
 	  double sinTheta = sqrt( 1. - cosTheta*cosTheta );
-	  double px = neutronKE * sinTheta * cos(phi);
-	  double py = neutronKE * sinTheta * sin(phi);
-	  double pz = neutronKE * cosTheta;
+          double neutronP2 = std::max(0., energy*energy - massNeutron*massNeutron);
+          double neutronP = std::sqrt(neutronP2);
+	  double px = neutronP * sinTheta * cos(phi);
+	  double py = neutronP * sinTheta * sin(phi);
+	  double pz = neutronP * cosTheta;
 #ifdef DEBUG
 	  std::cout << "CfSource::CfSource() - neutron energy " 
 		    << nn << " = " << energy
