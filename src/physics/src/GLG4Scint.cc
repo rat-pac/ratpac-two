@@ -399,16 +399,13 @@ GLG4Scint::PostPostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
      // Note for weight=1, there's no difference between tracks and photons.
      G4double MeanNumTracks= MeanNumPhotons/fMeanPhotonsPerSecondary
           / RAT::PhotonThinning::GetFactor();
+     MeanNumTracks /= RAT::PhotonThinning::GetScintillationThinningFactor();
 
      G4double resolutionScale= physicsEntry->fResolutionScale;
-     if (MeanNumTracks > 12.0)
-             numSecondaries= (G4int)(CLHEP::RandGauss::shoot(MeanNumTracks,
-                                 resolutionScale * sqrt(MeanNumTracks)));
-     else {
-             if (resolutionScale > 1.0)
-                MeanNumTracks = CLHEP::RandGauss::shoot (MeanNumTracks, sqrt(resolutionScale*resolutionScale-1.0 )*MeanNumTracks);
-             numSecondaries =(G4int)( CLHEP::RandPoisson::shoot(MeanNumTracks) );
+     if ( resolutionScale > 1.0 ){
+         MeanNumTracks = CLHEP::RandGauss::shoot(MeanNumTracks, sqrt(resolutionScale*resolutionScale-1.0)*MeanNumTracks);
      }
+     numSecondaries = (G4int)(CLHEP::RandPoisson::shoot(MeanNumTracks));
 
      weight= fMeanPhotonsPerSecondary;
      if (numSecondaries > fMaxTracksPerStep) {
@@ -998,8 +995,12 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String& name,
       aMaterialPropertiesTable->GetProperty((property_string.str()).c_str());
 
   double rise_time = 0.0;
-
-  if (aMaterialPropertiesTable->ConstPropertyExists("SCINT_RISE_TIME")) {
+  property_string.str("");
+  property_string << "SCINT_RISE_TIME" << name;
+  if (aMaterialPropertiesTable->ConstPropertyExists(property_string.str().c_str())){
+    rise_time = aMaterialPropertiesTable->GetConstProperty(property_string.str().c_str());
+  }
+  else if (aMaterialPropertiesTable->ConstPropertyExists("SCINT_RISE_TIME")) {
     rise_time = aMaterialPropertiesTable->GetConstProperty("SCINT_RISE_TIME");
   }
 

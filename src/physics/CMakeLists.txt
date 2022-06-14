@@ -12,7 +12,9 @@ add_library(physics OBJECT
         src/GLG4Scint.cc
         src/OpRayleigh.cc
         src/PhotonThinning.cc
-        src/PhysicsList.cc)
+        src/PhysicsList.cc
+        src/ThinnableG4Cerenkov.cc
+        )
 
 # Set our include directories
 target_include_directories(physics PUBLIC
