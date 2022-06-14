@@ -30,6 +30,9 @@ public:
   /** Charge */
   virtual Float_t GetCharge() const;
 
+  /** Creation process for photon */
+  virtual std::string GetCreatorProcess() const;
+
   /** PMT type */
   virtual Int_t GetType() const { return type; };
   virtual void SetType(Int_t _type) { type = _type; };
