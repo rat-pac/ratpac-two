@@ -101,6 +101,9 @@ GLG4PrimaryGeneratorAction()
   RAT::GlobalFactory<GLG4VertexGen>::Register("HEPEvt",
 					      new RAT::Alloc<GLG4VertexGen,
 					      GLG4VertexGen_HEPEvt>);
+  RAT::GlobalFactory<GLG4VertexGen>::Register("es",
+					      new RAT::Alloc<GLG4VertexGen,
+					      GLG4VertexGen_ES>);
 
   // Position generators
   RAT::GlobalFactory<GLG4PosGen>::Register("point",
@@ -124,6 +127,9 @@ GLG4PrimaryGeneratorAction()
   RAT::GlobalFactory<GLG4PosGen>::Register("fill",
 					   new RAT::Alloc<GLG4PosGen,
 					   GLG4PosGen_Fill>);
+  RAT::GlobalFactory<GLG4PosGen>::Register("fillcyl",
+					   new RAT::Alloc<GLG4PosGen,
+					   GLG4PosGen_FillCyl>);
   RAT::GlobalFactory<GLG4PosGen>::Register("regexfill",
 					   new RAT::Alloc<GLG4PosGen,
 					   RAT::PosGen_RegexFill>);
