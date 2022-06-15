@@ -4,7 +4,7 @@
 add_library(cmd OBJECT
         src/CoincidenceMessenger.cc
         src/DBMessenger.cc
-        src/ESgenMessenger.cc
+        src/ESCrossSecMessenger.cc
         src/FastNeutronMessenger.cc
         src/GLG4DebugMessenger.cc
         src/GLG4PrimaryGeneratorMessenger.cc

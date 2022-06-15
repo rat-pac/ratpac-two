@@ -11,6 +11,7 @@ add_library(gen OBJECT
         src/Decay0.cc
         src/DecayChain.cc
         src/DecayChain_Gen.cc
+        src/ESCrossSec.cc
         src/ESgen.cc
         src/FermiFunction.cc
         src/GLG4DeferTrackProc.cc
