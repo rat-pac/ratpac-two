@@ -15,6 +15,7 @@
 #include <RAT/VertexGen_Decay0.hh>
 #include <RAT/VertexGen_ES.hh>
 #include <RAT/VertexGen_FastNeutron.hh>
+#include <RAT/VertexGen_CRY.hh>
 #include <RAT/VertexGen_IBD.hh>
 #include <RAT/VertexGen_Isotope.hh>
 #include <RAT/VertexGen_ReacIBD.hh>
@@ -135,6 +136,10 @@ void Gsim::Init() {
                                            "isotope", new Alloc<GLG4VertexGen, VertexGen_Isotope>);
     GlobalFactory<GLG4VertexGen>::Register(
                                            "fastneutron", new Alloc<GLG4VertexGen, VertexGen_FastNeutron>);
+#if CRY_Enabled 
+    GlobalFactory<GLG4VertexGen>::Register(
+                                           "cry", new Alloc<GLG4VertexGen, VertexGen_CRY>);
+#endif
     
     GlobalFactory<GLG4Gen>::Register("decaychain",
                                      new Alloc<GLG4Gen, DecayChain_Gen>);
@@ -333,6 +338,7 @@ void Gsim::PreUserTrackingAction(const G4Track* aTrack) {
         fpTrackingManager->SetStoreTrajectory(false);
     }
     
+    /* Morgan
     if (aTrack->GetDefinition()->GetParticleName() == "opticalphoton") {
         G4Event* event =
           G4EventManager::GetEventManager()->GetNonconstCurrentEvent();
@@ -359,6 +365,7 @@ void Gsim::PreUserTrackingAction(const G4Track* aTrack) {
             eventInfo->numCerenkovPhoton++;
         }
     }
+    */
 }
 
 void Gsim::PostUserTrackingAction(const G4Track* aTrack) {
@@ -366,6 +373,9 @@ void Gsim::PostUserTrackingAction(const G4Track* aTrack) {
     // the OpticalCentroid
     std::string creatorProcessName;
     std::string destroyerProcessName;
+
+  //MORGAN
+  return;
     
     // The road to hell is paved with global variables,
     // and GEANT4 is my travelling companion.
@@ -542,7 +552,6 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
         return;
     }
     
-    
     // MC summary information
     DS::MCSummary* summary = mc->GetMCSummary();
     summary->SetEnergyCentroid(exinfo->energyCentroid.GetMean());
@@ -560,7 +569,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
     
     //GLG4Scint::ResetTimeChargeMatrix();
     exinfo->timePhotonMatrix.resize(0);
-    GLG4PMTOpticalModel::pmtHitVector.resize(0);
+    //GLG4PMTOpticalModel::pmtHitVector.resize(0);
     
     /** PMT and noise simulation */
     GLG4HitPMTCollection* hitpmts = GLG4VEventAction::GetTheHitPMTCollection();
@@ -624,6 +633,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
      * Generate noise hits in a `noise window' which extends from the first
      * to last photon hits.
      */
+    /* Morgan, do not need this
     double noiseWindowWidth = lasthittime - firsthittime;
     size_t pmtcount = fPMTInfo->GetPMTCount();
     double channelRate = noiseRate * noiseWindowWidth;
@@ -649,6 +659,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
         AddMCPhoton(mc->GetMCPMT(mcpmtObjects[pmtid]), hit, true,
                     (StoreOpticalTrackID ? exinfo : NULL), "noise");
     }
+    */
 }
 
 void Gsim::AddMCPhoton(DS::MCPMT* rat_mcpmt, const GLG4HitPhoton* photon,

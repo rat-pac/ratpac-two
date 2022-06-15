@@ -11,6 +11,8 @@
 #include <G4UImessenger.hh>
 
 class G4UIcmdWithAString;
+class G4UIcmdWithAnInteger;
+class G4UIcmdWithABool;
 
 namespace RAT {
 
@@ -28,6 +30,8 @@ public:
 
 protected:
   G4UIcmdWithAString* fSetOpWLSCmd;
+  G4UIcmdWithAnInteger* fSetCerenkovMaxNumPhotonsPerStep;
+  G4UIcmdWithABool* fEnableCerenkov;
 };
   
 }  // namespace RAT

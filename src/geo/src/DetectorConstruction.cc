@@ -43,8 +43,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     info << "Loading experiment-specific RATDB files for: "
          << experiment << newline;
     for(auto dir : Rat::directories){
-      db->LoadAll(dir + "/" + experiment);
-      break;
+      std::string experimentDirectoryString = dir + "/" + experiment;
+      int result = db->LoadAll(experimentDirectoryString);
+      if( result == 2 ){
+        info << "Found experiment files in " << experimentDirectoryString << newline;
+        break;
+      }
     }
   }
   catch (DBNotFoundError& e) {

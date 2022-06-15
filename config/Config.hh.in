@@ -2,6 +2,7 @@
 // DO NOT EDIT
 
 #pragma once
+#define CRY_Enabled @CRY_Enabled@
 
 #include <string>
 

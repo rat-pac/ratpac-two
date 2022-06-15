@@ -1,6 +1,5 @@
 ###########################################################
 # CMakeLists for gen module
-
 add_library(gen OBJECT
         src/AmBeGen.cc
         src/AmBeSource.cc
@@ -49,6 +48,12 @@ add_library(gen OBJECT
         src/VertexGen_SN.cc
         src/VertexGen_Spectrum.cc
         src/VertexGen_WIMP.cc)
+
+if(${CRY_Enabled})
+  set(gen_sources ${gen_sources} src/VertexGen_CRY.cc)
+endif()
+
+add_library(gen OBJECT ${gen_sources})
 
 # Set our include directories
 target_include_directories(gen PUBLIC

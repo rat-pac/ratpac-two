@@ -37,7 +37,7 @@
 G4UIdirectory* GLG4PMTOpticalModel::fgCmdDir = nullptr;
 
 double GLG4PMTOpticalModel::surfaceTolerance = 0.0;
-std::vector<std::vector <double> >GLG4PMTOpticalModel::pmtHitVector;//mfb
+//std::vector<std::vector <double> >GLG4PMTOpticalModel::pmtHitVector;//mfb
 
 // constructor -- also handles all initialization
   // 28-Jul-2006 WGS: Must define a G4Region for Fast Simulations
@@ -86,8 +86,6 @@ GLG4PMTOpticalModel::GLG4PMTOpticalModel (G4String modelName,
   // be VERY careful about how to do this
   _inner2_phys= envelope_log->GetDaughter(1);
   _central_gap_phys = envelope_log->GetDaughter(2);
-
-  G4cout << "Morgan say: " << modelName << G4endl;
 
   if (pc_opsurf == nullptr)
     G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: no photocathode optical surface!?!");
