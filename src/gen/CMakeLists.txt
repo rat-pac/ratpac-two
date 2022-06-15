@@ -5,6 +5,7 @@ add_library(gen OBJECT
         src/AmBeGen.cc
         src/AmBeSource.cc
         src/BetaFunction.cc
+        src/CCCrossSec.cc
         src/CfGen.cc
         src/CfSource.cc
         src/Coincidence_Gen.cc

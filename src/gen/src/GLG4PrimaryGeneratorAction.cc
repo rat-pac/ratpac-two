@@ -34,6 +34,7 @@
 #include <RAT/PosGen_TriMeshSurface.hh>
 #include <RAT/VertexGen_PhotonBomb.hh>
 #include <RAT/VertexGen_WIMP.hh>
+#include <RAT/VertexGen_ES.hh>
 #include <RAT/Gen_RandomTrigger.hh>
 #include <RAT/Log.hh>
 #include <stdio.h>                   // for sprintf
@@ -103,7 +104,7 @@ GLG4PrimaryGeneratorAction()
 					      GLG4VertexGen_HEPEvt>);
   RAT::GlobalFactory<GLG4VertexGen>::Register("es",
 					      new RAT::Alloc<GLG4VertexGen,
-					      GLG4VertexGen_ES>);
+					      RAT::VertexGen_ES>);
 
   // Position generators
   RAT::GlobalFactory<GLG4PosGen>::Register("point",
