@@ -35,6 +35,9 @@ namespace RAT {
     // As in the combo generator, use a default time generator if the
     // user does not supply one.
     timeGen = new GLG4TimeGen_Poisson();
+    fInMiddle=false;
+    fInAlphaDecay=false;
+    fInGammaDecay=false;
   }
 
   DecayChain_Gen::~DecayChain_Gen()
@@ -161,6 +164,24 @@ namespace RAT {
 #endif
 
     try {
+     if ( nArgs >= 4 ){
+           // The fourth argument allows one to start midchain
+       std::string InMiddle = parts[3];
+       if (InMiddle=="midchain"){
+          G4cout << "RAT::DecayChain_Gen: starting chain at Isotope" << G4endl;
+          fInMiddle=true;
+       }
+       if (InMiddle=="alpha"){
+          G4cout << "RAT::DecayChain_Gen: alpha decay of Isotope" << G4endl;
+          fInAlphaDecay=true;
+       }
+       else if (InMiddle=="gamma"){
+          G4cout << "RAT::DecayChain_Gen: gamma decay of Isotope" << G4endl;
+          fInGammaDecay=true;
+       }
+     }else{
+       G4cout << "RAT::DecayChain_Gen: normal decay" << G4endl;
+     }
 
       if ( nArgs >= 3 )
 	{
@@ -185,7 +206,11 @@ namespace RAT {
 #ifdef DEBUG
 	      fDecayChain->SetVerbose(true);
 #endif
-	      bool found = fDecayChain->ReadInputFile(fDecayChain->GetChainName());
+          if (fInMiddle) fDecayChain->SetInMiddleChain(true);
+          if (fInAlphaDecay) fDecayChain->SetAlphaDecayStart(true);
+          if (fInGammaDecay) fDecayChain->SetGammaDecayStart(true);
+
+          bool found = fDecayChain->ReadInputFile(fDecayChain->GetChainName());
 	      if (!found) 
 		{
 		  G4cerr << "RAT::DecayChain_Gen::SetState: couldn't find data for isotope " 
