@@ -6,6 +6,7 @@ add_library(gen OBJECT
         src/AmBeSource.cc
         src/BetaFunction.cc
         src/CCCrossSec.cc
+        src/CCgen.cc
         src/CfGen.cc
         src/CfSource.cc
         src/Coincidence_Gen.cc
@@ -37,6 +38,7 @@ add_library(gen OBJECT
         src/ReacIBDgen.cc
         src/SNgen.cc
         src/VertexFile_Gen.cc
+        src/VertexGen_CC.cc
         src/VertexGen_Decay0.cc
         src/VertexGen_ES.cc
         src/VertexGen_FastNeutron.cc
