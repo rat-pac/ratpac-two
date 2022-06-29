@@ -14,7 +14,8 @@ endif()
 ###########################################################
 # Set default build type
 set(default_build_type "Release")
-set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_CXX_FLAGS -pg)
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
