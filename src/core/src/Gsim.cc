@@ -337,35 +337,6 @@ void Gsim::PreUserTrackingAction(const G4Track* aTrack) {
     } else {
         fpTrackingManager->SetStoreTrajectory(false);
     }
-    
-    /* Morgan
-    if (aTrack->GetDefinition()->GetParticleName() == "opticalphoton") {
-        G4Event* event =
-          G4EventManager::GetEventManager()->GetNonconstCurrentEvent();
-        EventInfo* eventInfo =
-          dynamic_cast<EventInfo*>(event->GetUserInformation());
-        TrackInfo* trackInfo =
-          dynamic_cast<TrackInfo*>(aTrack->GetUserInformation());
-        
-        std::string creatorProcessName;
-        const G4VProcess* creatorProcess = aTrack->GetCreatorProcess();
-        if (creatorProcess) creatorProcessName = creatorProcess->GetProcessName();
-        
-        // Now deal with creator process naming override from trackInfo
-        if (trackInfo && trackInfo->GetCreatorProcess() != "") {
-            creatorProcessName = trackInfo->GetCreatorProcess();
-        }
-        
-        if (creatorProcessName == "Scintillation") {
-            eventInfo->numScintPhoton++;
-        } else if (creatorProcessName == "Reemission") {
-            eventInfo->numReemitPhoton++;
-            
-        } else if (creatorProcessName == "Cerenkov") {
-            eventInfo->numCerenkovPhoton++;
-        }
-    }
-    */
 }
 
 void Gsim::PostUserTrackingAction(const G4Track* aTrack) {
@@ -374,9 +345,6 @@ void Gsim::PostUserTrackingAction(const G4Track* aTrack) {
     std::string creatorProcessName;
     std::string destroyerProcessName;
 
-  //MORGAN
-  return;
-    
     // The road to hell is paved with global variables,
     // and GEANT4 is my travelling companion.
     G4Event* event = G4EventManager::GetEventManager()->GetNonconstCurrentEvent();
@@ -626,40 +594,6 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
         }
     }
     mc->SetNumPE(numPE);
-    
-    /**
-     * Add noise hits
-     *
-     * Generate noise hits in a `noise window' which extends from the first
-     * to last photon hits.
-     */
-    /* Morgan, do not need this
-    double noiseWindowWidth = lasthittime - firsthittime;
-    size_t pmtcount = fPMTInfo->GetPMTCount();
-    double channelRate = noiseRate * noiseWindowWidth;
-    double detectorWideRate = channelRate * pmtcount / channelEfficiency;
-    int noiseHits =
-    static_cast<int>(floor(CLHEP::RandPoisson::shoot(detectorWideRate)));
-    
-    for (int ihit = 0; ihit < noiseHits; ihit++) {
-        GLG4HitPhoton* hit = new GLG4HitPhoton();
-        int pmtid = static_cast<int>(G4UniformRand() * pmtcount);
-        hit->SetPMTID(pmtid);
-        hit->SetTime(firsthittime + G4UniformRand() * noiseWindowWidth);
-        hit->SetCount(1);
-        // hit->SetIsNoise();
-        // Add the PMT if it did not register a "real" hit
-        if (!mcpmtObjects.count(pmtid)) {
-            DS::MCPMT* rat_mcpmt = mc->AddNewMCPMT();
-            mcpmtObjects[pmtid] = mc->GetMCPMTCount() -
-            1;  // at this point the size represent the index
-            rat_mcpmt->SetID(pmtid);
-            rat_mcpmt->SetType(fPMTInfo->GetType(pmtid));
-        }
-        AddMCPhoton(mc->GetMCPMT(mcpmtObjects[pmtid]), hit, true,
-                    (StoreOpticalTrackID ? exinfo : NULL), "noise");
-    }
-    */
 }
 
 void Gsim::AddMCPhoton(DS::MCPMT* rat_mcpmt, const GLG4HitPhoton* photon,
