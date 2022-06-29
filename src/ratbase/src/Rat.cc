@@ -120,7 +120,7 @@ void Rat::Begin() {
   // Root ...
   gRandom->SetSeed(this->seed);
 
-  rdb->LoadDefaults();
+  int dbstatus = rdb->LoadDefaults();
 
   // Run management
   if( this->run > 0 )

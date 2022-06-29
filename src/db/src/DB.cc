@@ -179,6 +179,7 @@ int DB::LoadDefaults()
 {
   for(auto dir : Rat::directories)
     LoadAll(dir);
+  return 1;
 }
 
 
