@@ -50,7 +50,7 @@ class RevolutionPMTConstruction : public PMTConstruction {
 public:
     RevolutionPMTConstruction(DBLinkPtr params, G4LogicalVolume *mother);
     virtual ~RevolutionPMTConstruction() { }
-    
+
     virtual G4LogicalVolume *BuildVolume(const std::string &prefix);
     virtual G4VSolid *BuildSolid(const std::string &prefix);
     virtual G4PVPlacement* PlacePMT(
@@ -60,16 +60,14 @@ public:
             G4LogicalVolume *logi_pmt, 
             G4VPhysicalVolume *mother_phys, 
             bool booleanSolid, int copyNo);
-    
 protected:
-                       
     G4LogicalVolume* body_log;
-    
+
     G4PVPlacement* inner1_phys;
     G4PVPlacement* inner2_phys;
     G4PVPlacement* central_gap_phys; 
     G4PVPlacement* dynode_phys;
-    
+
     RevolutionPMTConstructionParams fParams;
 };
 
