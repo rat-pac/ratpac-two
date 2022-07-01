@@ -12,6 +12,7 @@
 #include <G4ProcessManager.hh>
 #include <G4Cerenkov.hh>
 #include <G4HadronicProcess.hh>
+#include <G4EmParameters.hh>
 #include <G4HadronicInteractionRegistry.hh>
 #include <G4OpBoundaryProcess.hh>
 #include <G4RunManager.hh>
@@ -30,6 +31,11 @@ PhysicsList::PhysicsList() : Shielding(), wlsModel(NULL) {
   this->CerenkovMaxNumPhotonsPerStep = 1;
   this->IsCerenkovEnabled = true;
   new PhysicsListMessenger(this);
+  // Step sizes for light ions (alpha), muons, and hadrons
+  this->stepRatioLightIons = 0.01;
+  this->finalRangeLightIons = 0.01*CLHEP::um;
+  this->stepRatioMuHad = 0.01;
+  this->finalRangeMuHad = 0.1*CLHEP::mm;
 }
 
 PhysicsList::~PhysicsList() {}
@@ -40,6 +46,10 @@ void PhysicsList::ConstructParticle() {
 }
 
 void PhysicsList::ConstructProcess() {
+  G4EmParameters* param = G4EmParameters::Instance();
+  param->SetStepFunctionLightIons(this->stepRatioLightIons, this->finalRangeLightIons);
+  param->SetStepFunctionMuHad(this->stepRatioMuHad, this->finalRangeMuHad);
+
   AddParameterization();
   Shielding::ConstructProcess();
   ConstructOpticalProcesses();

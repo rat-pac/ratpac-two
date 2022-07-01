@@ -32,6 +32,8 @@ protected:
   G4UIcmdWithAString* fSetOpWLSCmd;
   G4UIcmdWithAnInteger* fSetCerenkovMaxNumPhotonsPerStep;
   G4UIcmdWithABool* fEnableCerenkov;
+  G4UIcommand* fSetStepFunctionLightIons;
+  G4UIcommand* fSetStepFunctionMuHad;
 };
   
 }  // namespace RAT
