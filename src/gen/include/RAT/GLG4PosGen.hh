@@ -103,6 +103,26 @@ protected:
   G4double _boundingBoxVolume;
 };
 
+class GLG4PosGen_FillCyl : public GLG4PosGen {
+public:
+  GLG4PosGen_FillCyl(const char *arg_dbname="fillcyl");
+  virtual void GeneratePosition( G4ThreeVector &argResult );
+  // Generates a position uniformly filling the cylindrical volume which 
+  // is defined by the given height and radius
+  // (This approach to specifying the volume isn't my favorite, but
+  // it is strongly motivated by subtleties in Geant4's geometry code.)
+  // - A random point in a compact physical volume is pretty fast.
+  // - A volume which only sparsely fills its geometric "extent" may
+  //   require many iterations to find an internal point -- this will be slow.
+  void SetState( G4String newValues );
+  // newValues == x y z coordinates in mm (separated by white space),
+  // optionally followed by name of physical volume expected at that position;
+  G4String GetState() const;
+  // returns current state in format above
+protected:
+  G4double _radius, _height;
+  int _volumeInfoLoaded;
+};
 
 
 class GLG4PosGen_Cosmic : public GLG4PosGen {

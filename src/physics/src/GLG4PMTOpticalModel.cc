@@ -13,6 +13,7 @@
 #include "RAT/GLG4PMTOpticalModel.hh"
 #include "RAT/GLG4VEventAction.hh"
 #include "RAT/GLG4HitPhoton.hh"
+#include "RAT/GLG4VEventAction.hh"
 
 #include "G4LogicalBorderSurface.hh"
 #include "G4MaterialPropertiesTable.hh"
@@ -236,7 +237,7 @@ GLG4PMTOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
   int ipmt= -1;
 
   // find which pmt we are in
-  ipmt=fastTrack.GetEnvelopePhysicalVolume()->GetCopyNo();
+  ipmt = GetPMTID(fastTrack);
     
   // get position and direction in local coordinates
   pos=  fastTrack.GetPrimaryTrackLocalPosition();
@@ -754,4 +755,19 @@ GLG4PMTOpticalModel::GetCurrentValue(G4UIcommand * command)
    else {
      return (commandName+" is not a valid PMTOpticalModel command");
    }
+}
+
+int GLG4PMTOpticalModel::GetPMTID( const G4FastTrack& fastTrack )
+{
+  int iDepth;
+  auto handle = fastTrack.GetPrimaryTrack()->GetTouchableHandle();
+  for( iDepth = 0; iDepth < handle->GetHistoryDepth(); iDepth++ )
+  {
+    const std::string volName = handle->GetVolume(iDepth)->GetName();
+    const size_t envelopeHistory = volName.find("_pmtenv_");
+    if( envelopeHistory != std::string::npos )
+      return handle->GetCopyNumber(iDepth);
+  }
+  RAT::Log::Die("OpticalModelBase::GetPMTID: Cannot decode PMT ID.");
+  return -1;
 }

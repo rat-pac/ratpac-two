@@ -72,7 +72,7 @@ public:
   /** Name of physics process acting at endpoint of the MCTrackStep
    * that created this photon hit. 
    */
-  virtual std::string GetProcess() const { return process; }
+  virtual std::string GetCreatorProcess() const { return process; }
   virtual void SetProcess(const std::string &_process) { process = _process; }
 
   /** Operator overload **/

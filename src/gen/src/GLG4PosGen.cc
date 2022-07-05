@@ -87,7 +87,7 @@ GLG4PosGen_Paint::GLG4PosGen_Paint(const char *arg_dbname)
 void GLG4PosGen_Paint::GeneratePosition( G4ThreeVector &argResult )
 {
   double surfaceTolerance = G4GeometryTolerance::GetInstance()->GetSurfaceTolerance();
-
+  
   // We need to refer to physical volume.  First set up the navigator
   // to know the surrounding volume and heirarchy (Note this must
   // always be done, even if we already know _pVolume.)
@@ -101,7 +101,7 @@ void GLG4PosGen_Paint::GeneratePosition( G4ThreeVector &argResult )
       "Could not find any volume at " << _pos << G4endl;
     return;
   }
-
+  
   // check or set related field variables
   if (pv != _pVolume) {  // normally happens just once after a SetState()
     if (_pVolume == 0) { // SetState() sets _pVolume==0
@@ -172,10 +172,10 @@ void GLG4PosGen_Paint::GeneratePosition( G4ThreeVector &argResult )
   // although this is largely irrelevant for us).  This is true even for
   // non-convex solids if one considers all intercepts, such that the
   // interior solid does not shadow itself.
-
+  
   G4ThreeVector rpos; // this will hold the position result
   for (int iloop=0, jloop=0; /* test inside */ ; iloop++) {
-
+    
     // First decide whether we will use a stacked intercept or trace a new
     // ray.  The following procedure avoids using consecutive intercepts
     // from the same ray; in order to avoid an ever-increasing list size,
@@ -186,7 +186,7 @@ void GLG4PosGen_Paint::GeneratePosition( G4ThreeVector &argResult )
       double Rsphere= 0.50001*sqrt(dx*dx+dy*dy+dz*dz) + surfaceTolerance;
       G4ThreeVector sphere_center(x0+0.5*dx, y0+0.5*dy, z0+0.5*dz);
       while (iint >= _intercepts.size()) {
-
+	
 	// "infinite" loop test
 	jloop++;
 	if ( jloop >= 100000 ) {
@@ -255,7 +255,7 @@ void GLG4PosGen_Paint::GeneratePosition( G4ThreeVector &argResult )
 	  else {
 	    spos += surfaceTolerance*raydir;
 	  }
-
+	  
 	  dist= solid->DistanceToOut( spos, raydir );
 	  if (dist >= 2.0*Rsphere)
 	    break;
@@ -285,13 +285,13 @@ void GLG4PosGen_Paint::GeneratePosition( G4ThreeVector &argResult )
     _intercepts.erase(_intercepts.begin()+iint);
     // the above line is not as inefficient as an old C or early C++
     // programmer might think, due to the "allocator".
-
+    
     local_to_global.ApplyPointTransform( rpos ); // convert to global coords
-
+    
     // now apply material restriction, if any
     if ( _material == 0 )
       break; // no material restriction
-
+    
     G4VPhysicalVolume *pvtest=
       gNavigator->LocateGlobalPointAndSetup(rpos,0,true); // fast check mode
     if ( pvtest != 0
@@ -320,7 +320,7 @@ void GLG4PosGen_Paint::SetState( G4String newValues )
 	   << G4endl;
     return;
   }
-
+  
   G4std::istringstream is(newValues.c_str());
 
   // set position
@@ -354,12 +354,12 @@ G4String GLG4PosGen_Paint::GetState() const
 	   << "GLG4PosGen_Paint::GetState()" << G4endl;
     volname = "!";
   }
-
+  
   os << _pos.x() << ' ' << _pos.y() << ' ' << _pos.z()
      << ' ' << volname << ' ' << _thickness << ' ' << _materialName
      << G4std::ends;
   G4String rv(os.str());
-  return rv;
+  return rv;  
 }
 
 
@@ -390,7 +390,7 @@ void GLG4PosGen_Fill::GeneratePosition( G4ThreeVector &argResult )
       "Could not find any volume at " << _pos << G4endl;
     return;
   }
-
+  
   // check or set related field variables
   if (pv != _pVolume) {  // normally happens just once after a SetState()
     if (_pVolume == 0) { // SetState() sets _pVolume==0
@@ -453,7 +453,7 @@ void GLG4PosGen_Fill::GeneratePosition( G4ThreeVector &argResult )
 
   // more complicated case: generate points uniformly in the
   // surrounding volume.
-
+  
   // loop over the following:
   //  generate points in bounding box of solid until we find one inside
   //  convert to global coordinates
@@ -489,16 +489,12 @@ void GLG4PosGen_Fill::GeneratePosition( G4ThreeVector &argResult )
       gNavigator->LocateGlobalPointAndSetup(rpos,0,true); // fast check mode
     if ( _material == 0 ) {
       if ( pvtest == pv )
-      {
 	break; // we found it!
-      }
     }
     else {
       if ( pvtest != 0
 	     && pvtest->GetLogicalVolume()->GetMaterial() == _material )
-      {
 	break; // we found it!
-      }
     }
   }
   _nfound++;
@@ -546,7 +542,7 @@ void GLG4PosGen_Fill::SetState( G4String newValues )
     }
     return;
   }
-
+  
   G4std::istringstream is(newValues.c_str());
 
   // set position
@@ -578,13 +574,86 @@ G4String GLG4PosGen_Fill::GetState() const
 	   << "GLG4PosGen_FilL::GetState()" << G4endl;
     volname = "!";
   }
-
+  
   os << _pos.x() << ' ' << _pos.y() << ' ' << _pos.z()
      << ' ' << volname << ' ' << _materialName;
 
   os << G4std::ends;
   G4String rv(os.str());
-  return rv;
+  return rv;  
+}
+
+
+GLG4PosGen_FillCyl::GLG4PosGen_FillCyl(const char *arg_dbname)
+  :  GLG4PosGen(arg_dbname),
+     _radius(0),
+     _height(0),
+     _volumeInfoLoaded(0)
+{
+}
+
+void GLG4PosGen_FillCyl::GeneratePosition( G4ThreeVector &argResult )
+{
+  double z = G4UniformRand() * (2*_height) - _height;
+  double r = sqrt(G4UniformRand() * _radius * _radius);
+  double t = 2 * G4UniformRand() * 3.14159265;
+  double x = r*cos(t);
+  double y = r*sin(t);
+  argResult = G4ThreeVector(x,y,z);
+
+  if (!_volumeInfoLoaded){
+    G4Navigator* theNavigator =
+      G4TransportationManager::GetTransportationManager()
+      ->GetNavigatorForTracking();
+    G4VPhysicalVolume* thePhyVolume = theNavigator->LocateGlobalPointAndSetup(argResult);
+    G4LogicalVolume* theLogVolume = thePhyVolume->GetLogicalVolume();
+    G4Material *theMaterial = theLogVolume->GetMaterial();
+    G4VSolid *theSolid = theLogVolume->GetSolid();
+    double theVolume = theSolid->GetCubicVolume(); // in cubic meters
+    double theMass = theLogVolume->GetMass(false,false);
+    double theNelec = theMaterial->GetElectronDensity();
+    //G4cout << "[GLG4PosGen_FillCyl] Volume " << theVolume << " " << theMass << G4endl;
+    //G4cout << "[GLG4PosGen_FillCyl] Nelec " << theNelec << G4endl;
+  }
+  return;
+}
+
+void GLG4PosGen_FillCyl::SetState( G4String newValues )
+{
+  newValues = util_strip_default(newValues);
+  if (newValues.length() == 0) {
+    // print help and current state
+    G4cout << "Current state of this GLG4PosGen_FillCyl:\n"
+	   << " \"" << GetState() << "\"\n" << G4endl;
+    G4cout << "Format of argument to GLG4PosGen_FillCyl::SetState: \n"
+      " height_mm radius_mm\n"
+	   << G4endl;
+    return;
+  }
+  
+  G4std::istringstream is(newValues.c_str());
+
+  // set position
+  G4double height, radius;
+  is >> height >> radius;
+  if (is.fail()) {
+    G4cerr << "GLG4PosGen_FillCyl::SetState: "
+      "Could not parse two floats from input string" << G4endl;
+    return;
+  }
+  _height = height;
+  _radius = radius;
+}
+
+G4String GLG4PosGen_FillCyl::GetState() const
+{
+  G4std::ostringstream os;
+  
+  os << _height << ' ' << _radius;
+
+  os << G4std::ends;
+  G4String rv(os.str());
+  return rv;  
 }
 
 ////////////////////////////////////////////////////////////////
@@ -706,7 +775,7 @@ void GLG4PosGen_Cosmic::SetState( G4String newValues )
 	   << G4endl;
     return;
   }
-
+  
   G4std::istringstream is(newValues.c_str());
 
   // set width and height
@@ -728,7 +797,7 @@ G4String GLG4PosGen_Cosmic::GetState()
   os << _width << ' ' << _height << G4std::ends;
   G4String rv(os.str());
   os.freeze(0); // avoid memory leak!
-  return rv;
+  return rv;  
 }
 
 #endif

@@ -52,6 +52,9 @@ namespace RAT {
     int GetElementDecay(int iBranch);
     double GetElementWt(int iBranch);
     double GetLifetime(int iBranch);
+    inline void SetInMiddleChain(bool inMiddle=false) {fInMiddleChain = inMiddle;};
+    inline void SetAlphaDecayStart(bool alphaStart=false) {fAlphaDecayStart = alphaStart;};
+    inline void SetGammaDecayStart(bool gammaStart=false) {fGammaDecayStart = gammaStart;};
   
     void GenerateDecayElement(int iBranch);
     void GenerateDecayElement(const std::string iElement);
@@ -111,6 +114,9 @@ namespace RAT {
     bool isVerbose;
     bool isEquilibrium;
     bool isChainElement;
+    bool fInMiddleChain;  // to start chain at the isotope defined in *.mac
+    bool fAlphaDecayStart;// to start chain at the isotope with alpha decay
+    bool fGammaDecayStart;// to start chain at the isotope with gamma decay
   
     std::string ChainName;
   

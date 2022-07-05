@@ -2,12 +2,18 @@
 #include <stdexcept>
 #include <Shielding.hh>
 // Required for G4 > 10.5
+#include <G4Neutron.hh>
+#include <G4NeutronHPThermalScattering.hh>
+#include <G4NeutronHPThermalScatteringData.hh>
 #include <G4ParticleTypes.hh>
 #include <G4FastSimulationManagerProcess.hh>
 #include <G4OpticalPhoton.hh>
 #include <G4ParticleDefinition.hh>
 #include <G4ProcessManager.hh>
 #include <G4Cerenkov.hh>
+#include <G4HadronicProcess.hh>
+#include <G4EmParameters.hh>
+#include <G4HadronicInteractionRegistry.hh>
 #include <G4OpBoundaryProcess.hh>
 #include <G4RunManager.hh>
 #include <RAT/OpRayleigh.hh>
@@ -25,6 +31,11 @@ PhysicsList::PhysicsList() : Shielding(), wlsModel(NULL) {
   this->CerenkovMaxNumPhotonsPerStep = 1;
   this->IsCerenkovEnabled = true;
   new PhysicsListMessenger(this);
+  // Step sizes for light ions (alpha), muons, and hadrons
+  this->stepRatioLightIons = 0.01;
+  this->finalRangeLightIons = 0.01*CLHEP::um;
+  this->stepRatioMuHad = 0.01;
+  this->finalRangeMuHad = 0.1*CLHEP::mm;
 }
 
 PhysicsList::~PhysicsList() {}
@@ -35,9 +46,58 @@ void PhysicsList::ConstructParticle() {
 }
 
 void PhysicsList::ConstructProcess() {
+  G4EmParameters* param = G4EmParameters::Instance();
+  param->SetStepFunctionLightIons(this->stepRatioLightIons, this->finalRangeLightIons);
+  param->SetStepFunctionMuHad(this->stepRatioMuHad, this->finalRangeMuHad);
+
   AddParameterization();
   Shielding::ConstructProcess();
   ConstructOpticalProcesses();
+  EnableThermalNeutronScattering();
+}
+
+void PhysicsList::EnableThermalNeutronScattering() {
+  // Get the particle definition for neutrons
+  G4ParticleDefinition* n_definition = G4Neutron::Definition();
+
+  // Get the elastic scattering process used for neutrons
+  G4HadronicProcess* n_elastic_process = NULL;
+  G4ProcessVector* proc_vec = n_definition->GetProcessManager()
+    ->GetProcessList();
+  for (int i = 0; i < proc_vec->size(); i++) {
+    G4VProcess* proc = proc_vec->operator[](i);
+    if (proc->GetProcessSubType() == fHadronElastic
+      && proc->GetProcessType() == fHadronic)
+    {
+      n_elastic_process = dynamic_cast<G4HadronicProcess*>(proc);
+      break;
+    }
+  }
+  if (!n_elastic_process) {
+    std::cerr << "PhysicsList::EnableThermalNeutronScattering: "
+      << " couldn't find hadron elastic scattering process.\n";
+    throw std::runtime_error(std::string("Missing") + " hadron elastic"
+      + " scattering process in PhysicsList");
+  }
+
+  // Get the "regular" neutron HP elastic scattering model
+  G4HadronicInteraction* n_elastic_hp
+    = G4HadronicInteractionRegistry::Instance()->FindModel("NeutronHPElastic");
+  if (!n_elastic_hp) {
+    std::cerr << "PhysicsList::EnableThermalNeutronScattering: "
+      << " couldn't find high-precision neutron elastic"
+      << " scattering interaction.\n";
+    throw std::runtime_error(std::string("Missing") + " NeutronHPElastic"
+      + " scattering interaction in PhysicsList");
+  }
+
+  // Exclude the thermal scattering region (below 4 eV) from the "regular"
+  // elastic scattering model
+  n_elastic_hp->SetMinEnergy(4.*CLHEP::eV);
+
+  // Use the more detailed HP thermal scattering treatment below 4 eV instead
+  n_elastic_process->RegisterMe(new G4NeutronHPThermalScattering);
+  n_elastic_process->AddDataSet(new G4NeutronHPThermalScatteringData);
 }
 
 void PhysicsList::SetOpWLSModel(std::string model) {

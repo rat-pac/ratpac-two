@@ -5,9 +5,9 @@ SHELL ["/bin/bash", "-c"]
 
 RUN apt-get -q update \
  && DEBIAN_FRONTEND=noninteractive apt-get -qy install --no-install-recommends \
-    git curl build-essential vim libx11-dev libxpm-dev libqt5opengl5-dev\
+    git curl build-essential vim libx11-dev libxpm-dev libqt5opengl5-dev cmake\
     xserver-xorg-video-intel libxft-dev libxext-dev \
-    libxkbcommon-x11-dev libopengl-dev\
+    libxkbcommon-x11-dev libopengl-dev python3\
     libcurl4-gnutls-dev ca-certificates libssl-dev libffi-dev \
  && apt-get autoclean \
  && apt-get clean
@@ -19,8 +19,8 @@ WORKDIR /
 RUN git clone https://github.com/morganaskins/ratpacSetup.git
 WORKDIR /ratpacSetup
 
-RUN chown -R ratuser:ratuser /ratpacSetup.sh
+RUN chown -R ratuser:ratuser /ratpacSetup
 USER ratuser
-RUN ./ratpacSetup.sh --only geant4 root -j5
+RUN ./ratpacSetup.sh --only geant4 root cry -j5
 
 CMD [ "/bin/bash" ]

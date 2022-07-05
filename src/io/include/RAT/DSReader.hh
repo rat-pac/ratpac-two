@@ -21,6 +21,7 @@ public:
   };
 
   TTree* GetT() { return &T; };
+  TTree* GetRunT() { return &runT; };
   DS::Root* GetDS() { return ds; };
   Long64_t GetTotal() { return total; };
 
@@ -32,6 +33,7 @@ public:
 
 protected:
   TChain T;
+  TChain runT;
   DS::Root *ds;
   Long64_t next;
   Long64_t total;

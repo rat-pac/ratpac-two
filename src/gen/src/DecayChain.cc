@@ -39,11 +39,15 @@ namespace RAT {
     std::cout << "In RAT:: DecayChain::Reset()" << std::endl;
 #endif
 
+    SetInMiddleChain();
     SetVerbose();
     SetEquilibrium();
     SelectParent();
     IncludeDaughter(true);
 
+    fInMiddleChain=false;
+    fAlphaDecayStart=false;
+    fGammaDecayStart=false;
     isChainElement = false;
 
     SetChainName("");
@@ -208,7 +212,8 @@ namespace RAT {
 	  std::string iString2(tName);
 	  if (dName == iString2) 
 	    {
-	      iFound = true;
+          if (!fAlphaDecayStart)
+	        iFound = true;
 	      fscanf(inputFile, "%d", &eP);
 	      if (isVerbose)
 		printf("Reading %s \n \n", tName);
@@ -217,10 +222,17 @@ namespace RAT {
 		  fscanf(inputFile, "%s %d %f %d %f", sName, &iChain,
 			 &weight, &iDecay, &tau);
 		  std::string iString3(sName);
-		  if(iDecay != NullParticle) {
+          if(iDecay != NullParticle && !fAlphaDecayStart) {
 		    AddElement(iString3, iChain, iDecay, (double) tau,
 			       (double) weight);
 		  }
+          if (fAlphaDecayStart && iDecay==2 && iString3==dName){
+            std::cout << "ADDING ELEMENT " << iString3 << " " << iDecay  << std::endl;
+            weight = 1;
+            AddElement(iString3, iChain, iDecay, (double) tau,
+                (double) weight);
+            iFound = true;
+          }
 		}
 	    }
 	  else if (iString == eProbe) 
@@ -236,8 +248,19 @@ namespace RAT {
 	Show();
     } else {
       printf("No such chain found: %s .\n  Looking for element only...\n", dName.c_str());
+      std::cout << "NO SUCH CHAIN FOUND" << std::endl;
+
+      if (fAlphaDecayStart){
+        printf("The element %s undergoes alpha decay...\n",dName.c_str());
+        std::cout << "THE ELEMENT UNDERGOES ALPHA DECAY " << std::endl;
+        AddElement(dName, 1, 2);
+        iFound = true;
+      }else{
+        printf("The element %s undergoes beta decay...\n",dName.c_str());
+        std::cout << "THE ELEMENT UNDERGOES BETA DECAY " << std::endl;
       AddElement(dName);
       iFound = true;
+      }
     }
     return iFound;
   }

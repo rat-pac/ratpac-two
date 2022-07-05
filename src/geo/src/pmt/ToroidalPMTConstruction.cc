@@ -80,7 +80,7 @@ ToroidalPMTConstruction::ToroidalPMTConstruction(DBLinkPtr table, G4LogicalVolum
     } catch (DBNotFoundError &e) { }
 
     // Build PMT
-    fParams.useEnvelope = false; // disable the use of envelope volume for now
+    fParams.useEnvelope = true; // disable the use of envelope volume for now
 
     assert(fParams.zEdge.size() == fParams.rhoEdge.size());
     assert(fParams.zEdge.size() == fParams.zOrigin.size()+1);

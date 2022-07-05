@@ -1,4 +1,6 @@
 #include <string>
+#include <G4UIcommand.hh>
+#include <G4UIparameter.hh>
 #include <G4UIcmdWithAString.hh>
 #include <G4UIcmdWithAnInteger.hh>
 #include <G4UIcmdWithABool.hh>
@@ -30,12 +32,39 @@ PhysicsListMessenger::PhysicsListMessenger(PhysicsList* physicsList)
   fEnableCerenkov->SetParameterName("EnableCerenkov", false);
   fEnableCerenkov->SetGuidance("Control Cerenkov production");
   fEnableCerenkov->SetDefaultValue(true);
+
+  fSetStepFunctionLightIons = new G4UIcommand("/rat/physics/setStepFunctionLightIons", this);
+  fSetStepFunctionLightIons->SetGuidance("Set the energy loss step limitation parameters for light ions.");
+  fSetStepFunctionLightIons->SetGuidance("  dRoverR:    max range variation per step");
+  fSetStepFunctionLightIons->SetGuidance("  finalRange: range for final step");
+  G4UIparameter* dRoverRLightIons = new G4UIparameter("dRoverRLightIons", 'd', false);
+  fSetStepFunctionLightIons->SetParameter(dRoverRLightIons);
+  G4UIparameter* finalRangeLightIons = new G4UIparameter("finalRangeLightIons", 'd', false);
+  fSetStepFunctionLightIons->SetParameter(finalRangeLightIons);
+  G4UIparameter* unitLightIons = new G4UIparameter("unit", 's', true);
+  unitLightIons->SetDefaultValue("mm");
+  fSetStepFunctionLightIons->SetParameter(unitLightIons);
+
+  //fSetStepFunctionMuHad = new G4UIcommand("/rat/physics/setStepFunctionLightIons", this);
+  fSetStepFunctionMuHad = new G4UIcommand("/rat/physics/setStepFunctionMuHad", this);
+  fSetStepFunctionMuHad->SetGuidance("Set the energy loss step limitation parameters for light ions.");
+  fSetStepFunctionMuHad->SetGuidance("  dRoverR:    max range variation per step");
+  fSetStepFunctionMuHad->SetGuidance("  finalRange: range for final step");
+  G4UIparameter* dRoverRMuHad = new G4UIparameter("dRoverRMuHad", 'd', false);
+  fSetStepFunctionMuHad->SetParameter(dRoverRMuHad);
+  G4UIparameter* finalRangeMuHad = new G4UIparameter("finalRangeMuHad", 'd', false);
+  fSetStepFunctionMuHad->SetParameter(finalRangeMuHad);
+  G4UIparameter* unitMuHad = new G4UIparameter("unit", 's', true);
+  unitMuHad->SetDefaultValue("mm");
+  fSetStepFunctionMuHad->SetParameter(unitMuHad);
 }
 
 PhysicsListMessenger::~PhysicsListMessenger() {
   delete fSetOpWLSCmd;
   delete fSetCerenkovMaxNumPhotonsPerStep;
   delete fEnableCerenkov;
+  delete fSetStepFunctionLightIons;
+  delete fSetStepFunctionMuHad;
 }
 
 G4String PhysicsListMessenger::GetCurrentValue(G4UIcommand* command) {
@@ -63,6 +92,17 @@ void PhysicsListMessenger::SetNewValue(G4UIcommand* command,
     fPhysicsList->SetCerenkovMaxNumPhotonsPerStep( std::stoi(newValue) );
   } else if (command == fEnableCerenkov ) {
     fPhysicsList->EnableCerenkov( G4UIcmdWithABool::GetNewBoolValue(newValue) );
+  } else if (command == fSetStepFunctionLightIons || command == fSetStepFunctionMuHad) {
+    G4double v1, v2;
+    G4String unt;
+    std::istringstream is(newValue);
+    is >> v1 >> v2 >> unt;
+    v2 *= G4UIcommand::ValueOf(unt);
+    if ( command == fSetStepFunctionLightIons ) {
+      fPhysicsList->SetStepFunctionLightIons(v1, v2);
+    } else if (command == fSetStepFunctionMuHad ) {
+      fPhysicsList->SetStepFunctionMuHad(v1, v2);
+    }
   } else {
     Log::Die(
       dformat("PhysicsListMessenger::SetCurrentValue: Unknown command %s",

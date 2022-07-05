@@ -53,6 +53,15 @@ public:
   /** Number of PMTs which were hit at least once. (Convenience method) */
   virtual Int_t Nhits() const { return GetPMTCount(); }
 
+  /** List of LAPPDs with at least one charge sample in this event. */
+  virtual LAPPD* GetLAPPD(Int_t i) { return &lappd[i]; }
+  virtual Int_t GetLAPPDCount() const { return lappd.size(); }
+  virtual LAPPD* AddNewLAPPD() {
+    lappd.resize(lappd.size() + 1);
+    return &lappd.back();
+  }
+  virtual void PruneLAPPD() { lappd.resize(0); }
+
   /** Time since last trigger in ns. */
   Double_t GetDeltaT() const { return deltat; }
   void SetDeltaT(Double_t _deltat) { deltat = _deltat; }
@@ -107,6 +116,7 @@ protected:
   Double_t deltat;
   TTimeStamp utc;
   std::vector<PMT> pmt;
+  std::vector<LAPPD> lappd;
   std::vector<Centroid> centroid;
   std::vector<PathFit> pathfit;
   std::vector<Digit> digitizer; ///< The digitizer information

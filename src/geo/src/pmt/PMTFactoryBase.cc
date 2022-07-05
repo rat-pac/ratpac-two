@@ -203,7 +203,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table,
   // id - the nth pmt that PMTFactoryBase has built
   for (size_t i = 0, id = pmtinfo.GetPMTCount(); i < pmt_pos.size(); i++, id++) {
   
-    string pmtname = volume_name + ::to_string(id); //internally PMTs are represented by the nth pmt built, not pmtid
+    string pmtname = volume_name + "_pmtenv_" + ::to_string(id); //internally PMTs are represented by the nth pmt built, not pmtid
     
     G4ThreeVector pmtpos = pmt_pos[i];
     G4ThreeVector pmtdir = pmt_dir[i];

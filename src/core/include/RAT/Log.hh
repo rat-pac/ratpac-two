@@ -25,7 +25,7 @@
  *  and DETAIL are written to disk.  Messages with a verbosity higher
  *  than the current setting are discarded.
  *
- *  @section Usage
+ *  @section Usage 
  *
  *  To send messages to the logging system, there are 4 global
  *  ostream-like objects: @c warn, @c info, @c detail, @c debug.  You
@@ -65,6 +65,12 @@ Log::Die("Could not open " + filename + " for input.");
  *
  *  Works like standard assert(), but lets you print something to the user
  *  before dying if condition fails.
+ *
+ *  REVISION HISTORY
+ *    2017-06-08: M Smiley - Resolve memory leak induced by
+ *                           keeping log in buffer during simulation
+ *
+ *
  */
 
 #ifndef __RAT_Log__
@@ -75,11 +81,11 @@ Log::Die("Could not open " + filename + " for input.");
 #include <vector>
 #include <utility>
 
-#include "RAT/dprintf.hpp"
-#include "RAT/fileio.hpp"
-#include "RAT/stringio.hpp"
-#include "RAT/multiio.hpp"
-#include "RAT/string_utilities.hpp"
+#include "dprintf.hpp"
+#include "fileio.hpp"
+#include "stringio.hpp"
+#include "multiio.hpp"
+#include "string_utilities.hpp"
 
 #include <TObject.h>
 #include <TMap.h>
@@ -90,7 +96,7 @@ namespace RAT {
 
 class Log {
 public:
-
+  
   /** Verbosity levels */
   enum Level { WARN=0,   /**< Warning messages */
 	       INFO=1,   /**< Short informational messages */
@@ -106,15 +112,13 @@ public:
    *  @param  _filename  Name of log file to open for writing.
    *  @param  display    Verbosity level for display on screen
    *  @param  log        Verbosity level for writing to log file.
-   *  @param  use_buffer Keep copy of log in memory buffer?
    */
-  static bool Init(std::string _filename,
-		   Level display=INFO, Level log=DETAIL,
-		   bool use_buffer=true);
+  static bool Init(std::string _filename, 
+		   Level display=INFO, Level log=DETAIL);
 
   /** Get the current verbosity level for display on screen. */
   static int GetDisplayLevel() { return display_level; };
-
+  
   /** Set verbosity level for display on screen. */
   static void SetDisplayLevel(Level level);
 
@@ -133,7 +137,7 @@ public:
   static void Assert(bool condition, std::string message, int return_code=1);
 
   /** Return reference to string containing entire log from this session */
-  static const std::string &GetLogBuffer() { return logbuffer.get_string(); };
+  static const std::string GetLogBuffer();
 
   /** Add macro commands to buffer.  Don't forget newlines! */
   static void AddMacro(const std::string &contents) {
@@ -143,8 +147,8 @@ public:
   static const std::string &GetMacro() { return macro; };
 
   /** Log a TObject.  Do not delete this pointer after you log it! */
-  static void AddObject(const std::string &name, TObject *obj) {
-    objects.push_back(std::pair<std::string, TObject *>(name, obj));
+  static void AddObject(const std::string &name, TObject *obj) { 
+    objects.push_back(std::pair<std::string, TObject *>(name, obj)); 
   };
 
   /** Get an array of logged TObjects. Should be used by output processors
@@ -168,7 +172,7 @@ public:
   /** Add a RATDB double access to the DB trace. */
   inline static void TraceDBAccess(const std::string &table,
 				   const std::string &index,
-				   const std::string &field,
+				   const std::string &field, 
 				   double value);
   /** Add a RATDB string access to the DB trace. */
   inline static void TraceDBAccess(const std::string &table,
@@ -224,11 +228,9 @@ protected:
 
   static std::string filename;   /**< Name of log file. */
   static oftext logfile;         /**< Log file object */
-  static ostext logbuffer;         /**< In-memory copy of logfile object */
-  static bool use_buffer;        /**< Set if log file should be saved in memory */
   static int display_level;      /**< Current display verbosity */
   static int log_level;          /**< Current log file verbsoity */
-
+  
   static std::string macro;      /**< Buffer of macro commands run so far */
 
   static bool enable_dbtrace;    /**< Enable RATDB tracing? */
@@ -324,7 +326,7 @@ void Log::TraceDBAccess(const std::string &table, const std::string &index,
   }
   str_value += "]";
 
-  AddDBEntry(key, str_value);
+  AddDBEntry(key, str_value);  
 }
 
 void Log::TraceDBAccess(const std::string &table, const std::string &index,
@@ -341,7 +343,7 @@ void Log::TraceDBAccess(const std::string &table, const std::string &index,
   }
   str_value += "]";
 
-  AddDBEntry(key, str_value);
+  AddDBEntry(key, str_value);  
 }
 
 
@@ -352,12 +354,12 @@ void Log::TraceDBAccess(const std::string &table, const std::string &index,
   std::string key = table + "[" + index + "]."+field;
   if (!enable_dbtrace || dbtrace->FindObject(key.c_str()))
     return;
-
+    
   std::stringstream ss;
   json::Writer writer(ss);
   writer.putValue(value);
-
-  AddDBEntry(key, ss.str());
+  
+  AddDBEntry(key, ss.str());  
 }
 
 } // namespace RAT

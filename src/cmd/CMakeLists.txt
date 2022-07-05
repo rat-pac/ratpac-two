@@ -2,9 +2,10 @@
 # CMakeLists for the cmd module
 
 add_library(cmd OBJECT
+        src/CCCrossSecMessenger.cc
         src/CoincidenceMessenger.cc
         src/DBMessenger.cc
-        src/ESgenMessenger.cc
+        src/ESCrossSecMessenger.cc
         src/FastNeutronMessenger.cc
         src/GLG4DebugMessenger.cc
         src/GLG4PrimaryGeneratorMessenger.cc

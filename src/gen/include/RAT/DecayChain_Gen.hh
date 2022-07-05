@@ -24,7 +24,7 @@
 // generator, the default is a poisson.
 
 // The location of the file path data/beta_decays.dat is assumed to be
-// relative to the directory in the RATSHARE enviornment variable.  If you have
+// relative to the directory in the RATROOT enviornment variable.  If you have
 // to start RAT from a different location, want to use a different
 // beta_decays.dat file, etc., you can change the file path by setting
 // the variable $RATDecayDataDir in your shell environment.
@@ -71,6 +71,10 @@ namespace RAT {
 
     // The decay chain for the isotope selected by the user.
     DecayChain* fDecayChain;
+
+    bool fInMiddle;  //to start chain from the isotope;
+    bool fInAlphaDecay;// to have only alpha decay
+    bool fInGammaDecay;// to have only gamma decay
   };
 
 } // namespace RAT

@@ -149,6 +149,7 @@ G4VParticleChange* Dicebox158Gd::PostStepDoIt(const G4Track& aTrack,
     aSecondaryTrack->SetParentID(aTrack.GetTrackID());
     RAT::TrackInfo* trackInfo = new RAT::TrackInfo();
     trackInfo->SetCreatorStep(aTrack.GetCurrentStepNumber());
+    trackInfo->SetCreatorProcess("nCapture");
     aSecondaryTrack->SetUserInformation(trackInfo);
 
     // Add the secondary to the ParticleChange object
