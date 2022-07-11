@@ -23,10 +23,12 @@ public:
   virtual void AddPMT(const TVector3& _pos,
                       const TVector3& _dir,
                       const int _type,
-                      const std::string _model) {
+                      const std::string _model,
+                      const double _individual_noise_rate) {
     pos.push_back(_pos);
     dir.push_back(_dir);
     type.push_back(_type);
+    individual_noise_rate.push_back(_individual_noise_rate);
     std::vector<std::string>::iterator which = std::find(models.begin(),models.end(),_model);
     if (which != models.end()) {
         modeltype.push_back(which-models.begin());
@@ -39,7 +41,7 @@ public:
   virtual void AddPMT(const TVector3& _pos,
                       const TVector3& _dir,
                       const int _type) {
-    AddPMT(_pos,_dir,_type,"");                   
+    AddPMT(_pos,_dir,_type,"",0.0);                   
   }
 
   virtual Int_t GetPMTCount() const { return pos.size(); }
@@ -52,6 +54,9 @@ public:
 
   virtual int GetType(int id) const { return type.at(id); }
   virtual void SetType(int id, int _type) { type.at(id) = _type; }
+
+  virtual double GetNoiseRate(int id) const { return individual_noise_rate.at(id); }
+  virtual void SetNoiseRate(int id, double _rate) { individual_noise_rate.at(id) = _rate; }
   
   virtual int GetModel(int id) const { return modeltype.at(id); }
   virtual int SetModel(int id, std::string _model) {
@@ -69,6 +74,8 @@ public:
   virtual std::string GetModelName(int _modeltype) const { return models.at(_modeltype); }
   virtual int GetModelCount() const { return models.size(); }
 
+  virtual std::string GetModelNameByID(int id) const { return GetModelName( GetModel(id) ); }
+
   ClassDef(PMTInfo, 1)
 
 protected:
@@ -77,6 +84,7 @@ protected:
   std::vector<int> type;
   std::vector<int> modeltype;
   std::vector<std::string> models;
+  std::vector<double> individual_noise_rate;
 };
 
   } // namespace DS

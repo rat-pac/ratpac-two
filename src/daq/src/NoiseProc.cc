@@ -18,11 +18,12 @@ namespace RAT {
 NoiseProc::NoiseProc() : Processor("noise") {
   DBLinkPtr lnoise = DB::Get()->GetLink("NOISEPROC");
 
-  fNoiseRate   = lnoise->GetD("noise_rate");
-  fLookback    = lnoise->GetD("noise_lookback");
-  fLookforward = lnoise->GetD("noise_lookforward");
-  fMaxTime     = lnoise->GetD("noise_maxtime");
-  fNearHits    = lnoise->GetI("noise_nearhits");
+  fNoiseFlag        = lnoise->GetD("noise_flag");
+  fDefaultNoiseRate = lnoise->GetD("default_noise_rate");
+  fLookback         = lnoise->GetD("noise_lookback");
+  fLookforward      = lnoise->GetD("noise_lookforward");
+  fMaxTime          = lnoise->GetD("noise_maxtime");
+  fNearHits         = lnoise->GetI("noise_nearhits");
 }
 
 Processor::Result NoiseProc::DSEvent(DS::Root* ds) {
@@ -72,6 +73,11 @@ Processor::Result NoiseProc::DSEvent(DS::Root* ds) {
   if( lasthittime > fMaxTime ) lasthittime = fMaxTime;
   // And really just in case
   if( firsthittime < -fMaxTime ) firsthittime = -fMaxTime;
+  // When there are no hits present in an event:
+  if( firsthittime > lasthittime ) {
+    firsthittime = 0;
+    lasthittime = 0;
+  }
   double noiseBegin       = firsthittime - fLookback;
   double noiseEnd         = lasthittime + fLookforward;
 
@@ -100,25 +106,80 @@ Processor::Result NoiseProc::DSEvent(DS::Root* ds) {
 int NoiseProc::GenerateNoiseInWindow( DS::MC* mc, double noiseBegin, 
     double noiseEnd, DS::PMTInfo* pmtinfo, std::map<int, int> mcpmtObjects )
 {
+  // If pmt-by-pmt noise rates are used then we have little choice but to loop
+  // through each pmt -- this can be very slow for large numbers of pmts.  If
+  // the pmts are indistinguishable then we can take a shortcut and generate
+  // the total count first and speed things along.
   double noiseWindowWidth = noiseEnd - noiseBegin;
   size_t pmtCount         = pmtinfo->GetPMTCount();
-  double darkCount        = fNoiseRate * noiseWindowWidth * pmtCount * 1e-9;
+  int noiseHits           = 0;
 
-  int noiseHits = static_cast<int>(floor(CLHEP::RandPoisson::shoot(darkCount)));
-  for(int ihit=0; ihit < noiseHits; ihit++)
+  if( fNoiseFlag == 0 )
   {
-    int pmtid = static_cast<int>(G4UniformRand() * pmtCount);
-    if( !mcpmtObjects.count(pmtid) )
+    double darkCount        = fDefaultNoiseRate * noiseWindowWidth * pmtCount * 1e-9;
+    noiseHits               = static_cast<int>(floor(CLHEP::RandPoisson::shoot(darkCount)));
+    for(int ihit=0; ihit < noiseHits; ihit++)
     {
-      DS::MCPMT* mcpmt = mc->AddNewMCPMT();
-      mcpmtObjects[pmtid] = mc->GetMCPMTCount() - 1;
-      mcpmt->SetID(pmtid);
-      mcpmt->SetType( pmtinfo->GetType(pmtid) );
+      int pmtid = static_cast<int>(G4UniformRand() * pmtCount);
+      if( !mcpmtObjects.count(pmtid) )
+      {
+        DS::MCPMT* mcpmt = mc->AddNewMCPMT();
+        mcpmtObjects[pmtid] = mc->GetMCPMTCount() - 1;
+        mcpmt->SetID(pmtid);
+        mcpmt->SetType( pmtinfo->GetType(pmtid) );
+      }
+      DS::MCPMT* mcpmt = mc->GetMCPMT( mcpmtObjects[pmtid] );
+      double hittime = noiseBegin + G4UniformRand()*noiseWindowWidth;
+      AddNoiseHit( mcpmt, pmtinfo, hittime );
     }
-    DS::MCPMT* mcpmt = mc->GetMCPMT( mcpmtObjects[pmtid] );
-    double hittime = noiseBegin + G4UniformRand()*noiseWindowWidth;
-    AddNoiseHit( mcpmt, pmtinfo, hittime );
   }
+  else
+  {
+    for( int pmtid=0; pmtid < pmtCount; pmtid++ )
+    {
+      double NoiseRate = 0;
+      switch(fNoiseFlag)
+      {
+        case 1:
+        {
+          const std::string modelName = pmtinfo->GetModelNameByID(pmtid);
+          NoiseRate = fModelNoiseMap[modelName];
+          break;
+        }
+        case 2:
+        {
+          NoiseRate = pmtinfo->GetNoiseRate(pmtid);
+          break;
+        }
+        default:
+          NoiseRate = fDefaultNoiseRate;
+      }
+      if( NoiseRate >= 0 )
+      {
+        double darkCount = NoiseRate * noiseWindowWidth * 1e-9;
+        int idnoiseHits = static_cast<int>(floor(CLHEP::RandPoisson::shoot(darkCount)));
+        for( int ihit=0; ihit < idnoiseHits; ihit++ )
+        {
+          if( !mcpmtObjects.count(pmtid) )
+          {
+            DS::MCPMT* mcpmt = mc->AddNewMCPMT();
+            mcpmtObjects[pmtid] = mc->GetMCPMTCount() - 1;
+            mcpmt->SetID(pmtid);
+            mcpmt->SetType( pmtinfo->GetType(pmtid) );
+          }
+          DS::MCPMT* mcpmt = mc->GetMCPMT( mcpmtObjects[pmtid] );
+          double hittime = noiseBegin + G4UniformRand()*noiseWindowWidth;
+          AddNoiseHit(mcpmt, pmtinfo, hittime);
+        }
+        noiseHits += idnoiseHits;
+      }
+      else
+      {
+        throw ParamInvalid("rate", "Noise rate must be positive");
+      }
+    }
+  }
+
   return noiseHits;
 }
 
@@ -157,7 +218,7 @@ void NoiseProc::UpdatePMTModels( DS::PMTInfo* pmtinfo )
   fPMTCharge.resize(numModels);
   for(size_t i=0; i<numModels; i++)
   {
-    const std::string modelName = pmtinfo->GetModelName(i);
+    const std::string modelName = pmtinfo->GetModelName(pmtinfo->GetType(i));
     try{
       fPMTTime[i] = new RAT::PDFPMTTime(modelName);
     }
@@ -169,6 +230,13 @@ void NoiseProc::UpdatePMTModels( DS::PMTInfo* pmtinfo )
     }
     catch (DBNotFoundError& e){
       fPMTCharge[i] = new RAT::MiniCleanPMTCharge();
+    }
+    try{
+      DBLinkPtr lpmt = DB::Get()->GetLink("PMT", modelName);
+      fModelNoiseMap[modelName] = lpmt->GetD("noise_rate");
+    }
+    catch(DBNotFoundError& e){
+      fModelNoiseMap[modelName] = fDefaultNoiseRate;
     }
   }
   return;
@@ -212,8 +280,8 @@ std::map<double, double> NoiseProc::FindWindows(std::vector<double> &times, doub
 void NoiseProc::SetD(std::string param, double value)
 {
   if (param == "rate")
-    if(value > 0)
-      fNoiseRate = value;
+    if(value >= 0)
+      fDefaultNoiseRate = value;
     else
       throw ParamInvalid(param, "Noise rate must be positive");
   else if(param == "lookback")
@@ -230,6 +298,8 @@ void NoiseProc::SetI(std::string param, int value)
 {
   if (param == "nearhits")
     fNearHits = value;
+  else if(param == "flag")
+    fNoiseFlag = value;
   else
     throw ParamUnknown(param);
 }
