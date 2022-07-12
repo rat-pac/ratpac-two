@@ -15,7 +15,7 @@ using namespace std;
 
 namespace RAT {
 
-RevolutionPMTConstruction::RevolutionPMTConstruction(DBLinkPtr table, G4LogicalVolume *mother) : PMTConstruction("toroidal") {
+RevolutionPMTConstruction::RevolutionPMTConstruction(DBLinkPtr table, G4LogicalVolume *mother) : PMTConstruction("revolution") {
     
     string pmt_model = table->GetS("index");
     
@@ -187,7 +187,8 @@ G4PVPlacement* RevolutionPMTConstruction::PlacePMT(
         G4VPhysicalVolume *mother_phys, 
         bool booleanSolid, int copyNo) {
         
-    G4PVPlacement *body_phys = new G4PVPlacement(pmtrot, pmtpos, name, logi_pmt, mother_phys,  booleanSolid, copyNo);
+    // TODO: Need to add useEnvelop here just as in the toroidal pmts
+    G4PVPlacement *body_phys = new G4PVPlacement(pmtrot, pmtpos, _name, logi_pmt, mother_phys,  booleanSolid, copyNo);
     
     // photocathode surface
     new G4LogicalBorderSurface(_name+"_photocathode_logsurf1", inner1_phys, body_phys, fParams.photocathode);
