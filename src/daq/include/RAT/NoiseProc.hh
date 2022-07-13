@@ -5,7 +5,7 @@
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/PMTCharge.hh>
 #include <RAT/PMTTime.hh>
-
+#include <map>
 
 namespace RAT {
 
@@ -25,13 +25,15 @@ public:
   void SetI(std::string param, int value);
 
 protected:
-  double fNoiseRate;
+  double fDefaultNoiseRate;
   double fLookback;
   double fLookforward;
   double fMaxTime;
   bool fNearHits;
+  bool fNoiseFlag;
   std::vector<RAT::PMTTime*> fPMTTime;
   std::vector<RAT::PMTCharge*> fPMTCharge;
+  std::map<std::string, double> fModelNoiseMap;
 };
 
 

@@ -202,13 +202,7 @@ void Gsim::BeginOfRunAction(const G4Run* /*aRun*/) {
     if (!DS::RunStore::GetRun(runID)) {
         MakeRun(runID);
     }
-    
-    DBLinkPtr lnoise = DB::Get()->GetLink("NOISE");
-    noiseRate = lnoise->GetD("noise_rate");
-    
-    DBLinkPtr ldaq = DB::Get()->GetLink("DAQ");
-    channelEfficiency = ldaq->GetD("channel_efficiency");
-    
+
     DS::Run* run = DS::RunStore::GetRun(runID);
     fPMTInfo = run->GetPMTInfo();
     

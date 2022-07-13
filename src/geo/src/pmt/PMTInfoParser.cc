@@ -60,6 +60,14 @@ PMTInfoParser::PMTInfoParser(DBLinkPtr lpos_table, const std::string &mother_nam
         fill(fEfficiencyCorrection.begin(),fEfficiencyCorrection.end(),1.0); //defaults to 1.0
     }
 
+    try {
+      fNoiseRate = lpos_table->GetDArray("noise_rate");
+      Log::Assert(fPos.size() == fNoiseRate.size(),"PMTInfoParser: PMTINFO arrays must be same length!");
+    } catch (DBNotFoundError &e) {
+      fNoiseRate.resize(fPos.size());
+      fill(fNoiseRate.begin(), fNoiseRate.end(), 0.0);
+    }
+
     // Find mother volume
     G4LogicalVolume *log_mother = GeoFactory::FindMother(mother_name);
     if (log_mother == 0)

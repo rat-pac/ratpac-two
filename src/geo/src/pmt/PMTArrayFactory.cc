@@ -22,6 +22,7 @@ namespace RAT {
         const vector<G4ThreeVector> &pmtinfo_pos = pmtinfo.GetPMTLocations();
         const vector<G4ThreeVector> &pmtinfo_dir = pmtinfo.GetPMTDirections();
         const G4ThreeVector local_offset = pmtinfo.GetLocalOffset();
+        const vector<double> &pmtinfo_noiserates = pmtinfo.GetPMTNoiseRates();
 
         const vector<int> &pmtinfo_types = pmtinfo.GetTypes();
     
@@ -100,7 +101,7 @@ namespace RAT {
             if (flip) dir[i] = -dir[i];
         }
         
-        return ConstructPMTs(table,pos,dir,ptypes,pmtinfo.GetEfficiencyCorrections());
+        return ConstructPMTs(table,pos,dir,ptypes,pmtinfo.GetEfficiencyCorrections(),pmtinfo_noiserates);
     }
     
 } // namespace RAT
