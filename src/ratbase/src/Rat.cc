@@ -51,6 +51,7 @@ std::string get_long_hostname() {
 
 Rat::Rat(AnyParse* parser, int argc, char** argv) : parser(parser), argc(argc), argv(argv) {
   // Setup a base set of arguments
+  this->parser->SetHelpLine("[options] macro1.mac macro2.mac ...");
   // Form is AddArgument(name, default, shortname, length, help, type)
   this->parser->AddArgument("run", 0, "r", 1, "Simulated run number", ParseInt);
   this->parser->AddArgument("quiet", false, "q", 0, "Quiet mode, only show warnings", ParseInt);
