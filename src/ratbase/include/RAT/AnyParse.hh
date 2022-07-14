@@ -26,6 +26,7 @@ public:
       int nargs, const std::string help, ConvertType cv)
   {
     this->shortName[shortname] = key;
+    this->reverseShortName[key] = shortname;
     this->help[key] = help;
     this->nargs[key] = nargs;
     this->SetValue(key, value);
@@ -41,15 +42,19 @@ public:
     return std::any_cast<T>(iterator->second);
   }
 
-
   void Parse();
+  void Help();
+  void SetHelpLine(std::string helpLine){this->HelpLine = helpLine;}
 
   // Properties of the argument
+  std::string ExecutableName;
+  std::string HelpLine;
   std::vector<std::string> CommandLine;
   std::vector<std::string> Positionals;
   std::map< std::string, ConvertType > Conversion;
   std::map< std::string, std::any > Arguments;
   std::map< std::string, std::string > shortName;
+  std::map< std::string, std::string > reverseShortName;
   std::map< std::string, std::string > help;
   std::map< std::string, int > nargs;
 };

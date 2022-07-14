@@ -1,10 +1,14 @@
 #include <RAT/AnyParse.hh>
 #include <algorithm>
+#include <iostream>
+#include <iomanip>
 
 namespace RAT {
 
 AnyParse::AnyParse(int argc, char** argv)
 {
+  this->HelpLine = "";
+  this->ExecutableName = std::string(argv[0]);
   this->CommandLine = std::vector<std::string>(argv+1,argv+argc);
 }
 
@@ -15,6 +19,11 @@ void AnyParse::Parse(){
   std::vector<std::string> subArguments;
   for( auto& arg : this->CommandLine )
   {
+    // If help comes up, stop the program and display the help page
+    if( arg.rfind("-h", 0) == 0 || arg.rfind("--help") == 0 ){
+      this->Help();
+      return;
+    }
     if( arg.rfind("--", 0) == 0 )
     {
       arg.erase(0, 2);
@@ -62,7 +71,9 @@ void AnyParse::Parse(){
             this->SetValue(key, stod(arg));
           }
           else
-            this->SetValue(key, arg);
+          {
+            this->SetValue(key, arg.c_str());
+          }
         }
         else
         {
@@ -91,6 +102,20 @@ void AnyParse::Parse(){
       }
     }
   }
+}
+
+void AnyParse::Help() {
+  // Usage
+  std::cout << "usage: ";
+  std::cout << this->ExecutableName << " " << this->HelpLine << std::endl << std::endl;
+  // Options
+  std::cout << "options:" << std::endl;
+  for( auto& [key, value]: this->help ){
+    std::cout << std::setw(25) << std::left;
+    std::cout << " -"+this->reverseShortName[key]+", --"+key;
+    std::cout << value << std::endl;
+  }
+  std::exit(EXIT_SUCCESS);
 }
 
 } // namespace RAT
