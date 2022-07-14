@@ -71,7 +71,9 @@ void AnyParse::Parse(){
             this->SetValue(key, stod(arg));
           }
           else
-            this->SetValue(key, arg);
+          {
+            this->SetValue(key, arg.c_str());
+          }
         }
         else
         {
