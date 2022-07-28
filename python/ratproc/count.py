@@ -14,8 +14,8 @@ class Count(Processor):
         self.triggers += ds.GetEVCount()
 
         if self.count % self.interval == 0:
-            print 'PyCountProc: Event %d (%d triggered events)' % (self.count, self.triggers)
+            print(f'PyCountProc: Event {self.count:0.0f} ({self.triggers:0.0f})')
         return 0
 
     def finish(self):
-        print 'PyCountProc: Total # of events %d (%d triggers)' % (self.count, self.triggers)
+        print(f'PyCountProc: Total # of events {self.count:0.0f} ({self.triggers:0.0f})')

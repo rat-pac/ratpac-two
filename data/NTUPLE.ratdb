@@ -71,4 +71,3 @@ fields: [
 	"centroid_r", "ev?.centroid.pos.Mag()",
 	],
 }
-
