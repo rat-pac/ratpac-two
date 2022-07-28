@@ -1,6 +1,7 @@
 '''Code for parsing ROOT-style selector strings, as are used in TTree::Draw.'''
 import operator
 import itertools
+from functools import reduce
 
 def unpack_attributes(identifier):
     '''Converts an identifier string into a list of attribute parts.
@@ -32,7 +33,7 @@ def is_loopable(obj):
     except TypeError:
         iterable = False
 
-    if isinstance(obj, (str, unicode)):
+    if isinstance(obj, str):
         return False
     elif obj.__class__.__name__.endswith('TVector3'):
         return False
@@ -202,7 +203,10 @@ class AttributeNode(object):
         if self.attribute == '':
             yield obj # Pass through empty attribute
         elif obj is not None:
-            value = getattr(obj, attribute)
+            try:
+                value = getattr(obj, attribute)
+            except AttributeError:
+                value = None
             # PyROOT does not return a None when it gives you a null ptr anymore
             # Have to convert to a boolean to test!
             if not bool(value) and 'RAT' in value.__class__.__name__:

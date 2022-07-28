@@ -35,7 +35,7 @@ class Ntuple(Processor):
         db = RAT.DB.Get()
         lntuple = db.GetLink("NTUPLE", name)
         # Python lists are better than STL vectors
-        fields = list(lntuple.GetSArray("fields"))
+        fields = [str(x) for x in lntuple.GetSArray("fields")]
 
         # Deinterleave field names and selectors
         field_names = fields[::2]
@@ -43,13 +43,13 @@ class Ntuple(Processor):
 
         assert len(field_names) == len(field_selectors)
 
-        N = ROOT.TNtuple(name, "RAT reduced ntuple",
-                         ":".join(field_names))
+        varlist = ":".join(list(field_names))
+        N = ROOT.TNtuple(name, "RAT reduced ntuple", varlist)
         return NtupleWriter(N, field_selectors)
 
     def dsevent(self, ds):
         if self.first_event:
-            print 'ntuple: Writing to', self.filename
+            print('ntuple: Writing to', self.filename)
             self.f = ROOT.TFile.Open(self.filename, "RECREATE")
             self.ntuples = [ self.create_ntuple(name)
                              for name in self.ntuple_names ]
@@ -64,6 +64,6 @@ class Ntuple(Processor):
     def finish(self):
         self.f.cd()
         for writer in self.ntuples:
-            print 'ntuple: Wrote %d entries to %s' % (writer.count, writer.ntuple.GetName())
+            print('ntuple: Wrote %d entries to %s' % (writer.count, writer.ntuple.GetName()))
             writer.write()
         self.f.Close()

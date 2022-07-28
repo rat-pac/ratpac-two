@@ -6,4 +6,3 @@ valid_end: [0, 0],
 default_input_filename: "input.root",
 default_output_filename: "output.root",
 }
-

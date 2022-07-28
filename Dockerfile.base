@@ -23,4 +23,5 @@ RUN chown -R ratuser:ratuser /ratpacSetup
 USER ratuser
 RUN ./ratpacSetup.sh --only geant4 root cry -j5
 
+ENTRYPOINT [ /ratpacSetup/env.sh ]
 CMD [ "/bin/bash" ]
