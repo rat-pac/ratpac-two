@@ -33,7 +33,7 @@ class Ntuple(Processor):
 
     def create_ntuple(self, name):
         db = RAT.DB.Get()
-        lntuple = db.GetLink("NTUPLE", name)
+        lntuple = db.GetLink("NTUPLE_PYTHON", name)
         # Python lists are better than STL vectors
         fields = [str(x) for x in lntuple.GetSArray("fields")]
 
