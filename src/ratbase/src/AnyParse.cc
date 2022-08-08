@@ -33,7 +33,7 @@ void AnyParse::Parse(){
       subArguments.clear();
       // If something takes no additional arguments then it is a switch
       if( remainingArgs == 0 )
-        this->SetValue(key, 1);
+        this->SetValue(key, true);
     }
     else if ( arg.rfind("-", 0) == 0 )
     {
@@ -43,7 +43,7 @@ void AnyParse::Parse(){
       remainingArgs = nargs[key];
       subArguments.clear();
       if( remainingArgs == 0 )
-        this->SetValue(key, 1);
+        this->SetValue(key, true);
     }
     else
     {
