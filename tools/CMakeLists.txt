@@ -3,7 +3,8 @@
 
 if(RATPAC_RAT)
         add_subdirectory(rat)
-        list(APPEND TOOLS rat)
+        add_subdirectory(ratdb2json)
+        list(APPEND TOOLS rat ratdb2json)
 endif()
 if(RATPAC_ROOT)
         add_subdirectory(root)
