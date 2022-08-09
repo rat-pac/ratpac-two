@@ -10,8 +10,6 @@ class TTree;
 
 namespace RAT {
 
-
-
 class OutNtupleProc : public Processor {
 public:
   static int run_num;
@@ -31,7 +29,7 @@ public:
 
   virtual bool OpenFile(std::string theFilename);
 
-  virtual void SetZ(std::string param, bool value);
+  virtual void SetI(std::string param, int value);
   virtual void SetS(std::string param, std::string value);
 
 protected:
@@ -78,6 +76,18 @@ protected:
   std::vector<int> hitPMTID;
   std::vector<double> hitPMTTime;
   std::vector<double> hitPMTCharge;
+  // Tracking
+  std::map<int, std::string> processCodeMap;
+  std::vector<int> trackPDG;
+  std::vector<std::vector<double>> trackPosX;
+  std::vector<std::vector<double>> trackPosY;
+  std::vector<std::vector<double>> trackPosZ;
+  std::vector<std::vector<double>> trackMomX;
+  std::vector<std::vector<double>> trackMomY;
+  std::vector<std::vector<double>> trackMomZ;
+  std::vector<std::vector<double>> trackKE;
+  std::vector<std::vector<double>> trackTime;
+  std::vector<std::vector<int>> trackProcess;
   // Fill Functions
   std::vector<std::function<void()>> additionalBranches;
   struct NtupleOptions {

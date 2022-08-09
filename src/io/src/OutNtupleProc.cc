@@ -99,6 +99,18 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("hitPMTTime", &hitPMTTime);
     outputTree->Branch("hitPMTCharge", &hitPMTCharge);
   }
+  if( options.tracking ) {
+    outputTree->Branch("trackPDG", &trackPDG);
+    outputTree->Branch("trackPosX", &trackPosX);
+    outputTree->Branch("trackPosY", &trackPosY);
+    outputTree->Branch("trackPosZ", &trackPosZ);
+    outputTree->Branch("trackMomX", &trackMomX);
+    outputTree->Branch("trackMomY", &trackMomY);
+    outputTree->Branch("trackMomZ", &trackMomZ);
+    outputTree->Branch("trackKE", &trackKE);
+    outputTree->Branch("trackTime", &trackTime);
+    outputTree->Branch("trackProcess", &trackProcess);
+  }
 
   return true;
 }
@@ -146,6 +158,63 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcv = mcDiry[0];
   mcw = mcDirz[0];
   mcke = accumulate(mcKEnergies.begin(), mcKEnergies.end(), 0.0);
+  // Tracking
+  if( options.tracking ){
+    int nTracks = mc->GetMCTrackCount();
+    // Clear previous event
+    trackPDG.clear();
+    trackPosX.clear();
+    trackPosY.clear();
+    trackPosZ.clear();
+    trackMomX.clear();
+    trackMomY.clear();
+    trackMomZ.clear();
+    trackKE.clear();
+    trackTime.clear();
+    trackProcess.clear();
+
+    std::vector<double> xtrack, ytrack, ztrack;
+    std::vector<double> pxtrack, pytrack, pztrack;
+    std::vector<double> kinetic, localtime;
+    std::vector<int> processMapID;
+    for(int trk=0; trk < nTracks; trk++){
+      RAT::DS::MCTrack* track = mc->GetMCTrack(trk);
+      trackPDG.push_back( track->GetPDGCode() );
+      xtrack.clear();
+      ytrack.clear();
+      ztrack.clear();
+      pxtrack.clear();
+      pytrack.clear();
+      pztrack.clear();
+      kinetic.clear();
+      localtime.clear();
+      processMapID.clear();
+      int nSteps = track->GetMCTrackStepCount();
+      for(int stp=0; stp < nSteps; stp++){
+        RAT::DS::MCTrackStep* step = track->GetMCTrackStep(stp);
+        // Process
+        std::string proc = step->GetProcess();
+        TVector3 tv = step->GetEndpoint();
+        TVector3 momentum = step->GetMomentum();
+        kinetic.push_back( step->GetKE() );
+        localtime.push_back( step->GetLocalTime() );
+        xtrack.push_back(tv.X());
+        ytrack.push_back(tv.Y());
+        ztrack.push_back(tv.Z());
+        pxtrack.push_back(momentum.X());
+        pytrack.push_back(momentum.Y());
+        pztrack.push_back(momentum.Z());
+      }
+      trackKE.push_back( kinetic );
+      trackTime.push_back( localtime );
+      trackPosX.push_back( xtrack );
+      trackPosY.push_back( ytrack );
+      trackPosZ.push_back( ztrack );
+      trackMomX.push_back( pxtrack );
+      trackMomY.push_back( pytrack );
+      trackMomZ.push_back( pztrack );
+    }
+  }
   // EV Branches
   for (subev = 0; subev < ds->GetEVCount(); subev++) {
     RAT::DS::EV *ev = ds->GetEV(subev);
@@ -174,8 +243,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         hitPMTCharge.push_back(charge);
       }
     }
-    if( options.tracking ){
-    }
     // Fill
     outputTree->Fill();
   }
@@ -193,11 +260,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       hitPMTTime.clear();
       hitPMTCharge.clear();
     }
-    if( options.tracking ) {
-    }
     outputTree->Fill();
   }
-
 
   // Additional branches
   // for(auto& f : this->additionalBranches){
@@ -254,18 +318,18 @@ void OutNtupleProc::SetS(std::string param, std::string value){
   }
 }
 
-void OutNtupleProc::SetZ(std::string param, bool value){
+void OutNtupleProc::SetI(std::string param, int value){
   if( param == "include_tracking" ){
-    options.tracking = value;
+    options.tracking = value ? true : false;
   }
   if( param == "include_mcparticles" ){
-    options.mcparticles = value;
+    options.mcparticles = value ? true : false;
   }
   if( param == "include_pmthits" ){
-    options.pmthits= value;
+    options.pmthits= value ? true : false;
   }
   if( param == "include_untriggered_events" ){
-    options.untriggered = value;
+    options.untriggered = value ? true : false;
   }
 }
 } // namespace RAT
