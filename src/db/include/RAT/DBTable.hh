@@ -163,6 +163,8 @@ public:
   */
   json::Value GetJSON(const std::string &name) const;
 
+  json::Value GetCompleteJSON(){return this->table;}
+
   /** Template version of the Get method.
    *
    *  Provided as a convenience to the DBLink implementation.  Fetches
