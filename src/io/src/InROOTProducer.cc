@@ -62,7 +62,7 @@ void InROOTProducer::SetNewValue(G4UIcommand * command, G4String newValue)
     std::string filename;
 
     if (command == readDefaultCmd) {
-      DBLinkPtr lIO = DB::Get()->GetLink("IO");
+      DBLinkPtr lIO = DB::Get()->GetLink("IO","ROOTProc");
       filename = lIO->GetS("default_input_filename");
     } else {
       size_t size = newValue.size();

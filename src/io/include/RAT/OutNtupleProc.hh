@@ -30,17 +30,21 @@ public:
   virtual Processor::Result DSEvent(DS::Root *ds);
 
   virtual bool OpenFile(std::string theFilename);
-  //virtual std::string GetFilename() { return filename; };
+
+  virtual void SetZ(std::string param, bool value);
+  virtual void SetS(std::string param, std::string value);
 
 protected:
-  //std::string default_filename;
-  std::string filename;
+  std::string defaultFilename;
   TFile *outputFile;
   TTree *outputTree;
   TTree *metaTree;
+  DS::Run* runBranch;
   // Meta Branches
-  int runNumber;
-  int entries;
+  Int_t runId;
+  ULong64_t runType;
+  TTimeStamp runTime;
+  int dsentries;
   std::string macro;
   std::vector<int> pmtType;
   std::vector<int> pmtId;
@@ -76,6 +80,13 @@ protected:
   std::vector<double> hitPMTCharge;
   // Fill Functions
   std::vector<std::function<void()>> additionalBranches;
+  struct NtupleOptions {
+    bool tracking;
+    bool mcparticles;
+    bool pmthits;
+    bool untriggered;
+  };
+  NtupleOptions options;
 };
 
 } // namespace RAT

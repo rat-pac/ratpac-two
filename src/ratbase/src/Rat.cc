@@ -140,7 +140,8 @@ void Rat::Begin() {
     }
     if( this->output_filename != "" )
     {
-      rdb->Set("IO", "", "default_output_filename", this->output_filename);
+      rdb->Set("IO", "ROOTProc", "default_output_filename", this->output_filename);
+      rdb->Set("IO", "NtupleProc", "default_output_filename", this->output_filename);
       info << "Setting default output file to " << this->output_filename << newline;
     }
     if( this->vector_filename != "" )
