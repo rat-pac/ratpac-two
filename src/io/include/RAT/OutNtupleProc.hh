@@ -1,8 +1,8 @@
 #ifndef __RATOutNtupleProc___
 #define __RATOutNtupleProc___
 
-#include <RAT/Processor.hh>
 #include <RAT/DS/Run.hh>
+#include <RAT/Processor.hh>
 #include <functional>
 
 class TFile;
@@ -19,11 +19,12 @@ public:
   // file - string, name of file to open for output, file will be erased
   // updatefile - string, name of file to append to
   // (do not use both file and update file)
-  //virtual void SetS(std::string param, std::string value);
-  
+  // virtual void SetS(std::string param, std::string value);
+
   // autosave - integer, update root file every N kilobytes
-  // savetree 0 - Do not save the event tree.  Must set *before* file or updatefile.
-  //virtual void SetI(std::string param, int value);
+  // savetree 0 - Do not save the event tree.  Must set *before* file or
+  // updatefile.
+  // virtual void SetI(std::string param, int value);
 
   virtual Processor::Result DSEvent(DS::Root *ds);
 
@@ -33,7 +34,7 @@ public:
   virtual void SetS(std::string param, std::string value);
 
   // Exposed members for external tools
-  DS::Run* runBranch;
+  DS::Run *runBranch;
   // Fill Functions
   std::vector<std::function<void()>> additionalBranches;
   struct NtupleOptions {

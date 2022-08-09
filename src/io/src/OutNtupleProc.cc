@@ -30,10 +30,10 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
 
   // Load options from the database
   DB *db = DB::Get();
-  DBLinkPtr table = db->GetLink("IO","NtupleProc");
+  DBLinkPtr table = db->GetLink("IO", "NtupleProc");
   try {
     defaultFilename = table->GetS("default_output_filename");
-    if( defaultFilename.find(".") == std::string::npos ){
+    if (defaultFilename.find(".") == std::string::npos) {
       defaultFilename += ".ntuple.root";
     }
   } catch (DBNotFoundError &e) {
@@ -57,9 +57,9 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputFile = TFile::Open(filename.c_str(), "RECREATE");
   // Meta Tree
   metaTree = new TTree("meta", "meta");
-  //metaTree->Branch("runId", &runId);
-  //metaTree->Branch("runType", &runType);
-  //metaTree->Branch("runTime", &runTime);
+  // metaTree->Branch("runId", &runId);
+  // metaTree->Branch("runType", &runType);
+  // metaTree->Branch("runTime", &runTime);
   metaTree->Branch("dsentries", &dsentries);
   metaTree->Branch("macro", &macro);
   metaTree->Branch("pmtType", &pmtType);
@@ -84,7 +84,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("subev", &subev);
   outputTree->Branch("nanotime", &nanotime);
   outputTree->Branch("mcpcount", &mcpcount);
-  if( options.mcparticles ) {
+  if (options.mcparticles) {
     outputTree->Branch("pdgcodes", &pdgcodes);
     outputTree->Branch("mcKEnergies", &mcKEnergies);
     outputTree->Branch("mcPosx", &mcPosx);
@@ -100,12 +100,12 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("u", &u);
   outputTree->Branch("v", &v);
   outputTree->Branch("w", &w);
-  if( options.pmthits ) {
+  if (options.pmthits) {
     outputTree->Branch("hitPMTID", &hitPMTID);
     outputTree->Branch("hitPMTTime", &hitPMTTime);
     outputTree->Branch("hitPMTCharge", &hitPMTCharge);
   }
-  if( options.tracking ) {
+  if (options.tracking) {
     outputTree->Branch("trackPDG", &trackPDG);
     outputTree->Branch("trackPosX", &trackPosX);
     outputTree->Branch("trackPosY", &trackPosY);
@@ -165,7 +165,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcw = mcDirz[0];
   mcke = accumulate(mcKEnergies.begin(), mcKEnergies.end(), 0.0);
   // Tracking
-  if( options.tracking ){
+  if (options.tracking) {
     int nTracks = mc->GetMCTrackCount();
     // Clear previous event
     trackPDG.clear();
@@ -183,9 +183,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     std::vector<double> pxtrack, pytrack, pztrack;
     std::vector<double> kinetic, localtime;
     std::vector<int> processMapID;
-    for(int trk=0; trk < nTracks; trk++){
-      RAT::DS::MCTrack* track = mc->GetMCTrack(trk);
-      trackPDG.push_back( track->GetPDGCode() );
+    for (int trk = 0; trk < nTracks; trk++) {
+      RAT::DS::MCTrack *track = mc->GetMCTrack(trk);
+      trackPDG.push_back(track->GetPDGCode());
       xtrack.clear();
       ytrack.clear();
       ztrack.clear();
@@ -196,14 +196,14 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       localtime.clear();
       processMapID.clear();
       int nSteps = track->GetMCTrackStepCount();
-      for(int stp=0; stp < nSteps; stp++){
-        RAT::DS::MCTrackStep* step = track->GetMCTrackStep(stp);
+      for (int stp = 0; stp < nSteps; stp++) {
+        RAT::DS::MCTrackStep *step = track->GetMCTrackStep(stp);
         // Process
         std::string proc = step->GetProcess();
         TVector3 tv = step->GetEndpoint();
         TVector3 momentum = step->GetMomentum();
-        kinetic.push_back( step->GetKE() );
-        localtime.push_back( step->GetLocalTime() );
+        kinetic.push_back(step->GetKE());
+        localtime.push_back(step->GetLocalTime());
         xtrack.push_back(tv.X());
         ytrack.push_back(tv.Y());
         ztrack.push_back(tv.Z());
@@ -211,14 +211,14 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         pytrack.push_back(momentum.Y());
         pztrack.push_back(momentum.Z());
       }
-      trackKE.push_back( kinetic );
-      trackTime.push_back( localtime );
-      trackPosX.push_back( xtrack );
-      trackPosY.push_back( ytrack );
-      trackPosZ.push_back( ztrack );
-      trackMomX.push_back( pxtrack );
-      trackMomY.push_back( pytrack );
-      trackMomZ.push_back( pztrack );
+      trackKE.push_back(kinetic);
+      trackTime.push_back(localtime);
+      trackPosX.push_back(xtrack);
+      trackPosY.push_back(ytrack);
+      trackPosZ.push_back(ztrack);
+      trackMomX.push_back(pxtrack);
+      trackMomY.push_back(pytrack);
+      trackMomZ.push_back(pztrack);
     }
   }
   // EV Branches
@@ -236,7 +236,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     v = dir.Y();
     w = dir.Z();
 
-    if( options.pmthits ) {
+    if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
       hitPMTCharge.clear();
@@ -252,7 +252,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     // Fill
     outputTree->Fill();
   }
-  if( options.untriggered && ds->GetEVCount() == 0 ) {
+  if (options.untriggered && ds->GetEVCount() == 0) {
     evid = 0;
     nanotime = mctime;
     x = -999999;
@@ -261,7 +261,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     u = 0;
     v = 0;
     w = 0;
-    if( options.pmthits ) {
+    if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
       hitPMTCharge.clear();
@@ -286,19 +286,19 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 OutNtupleProc::~OutNtupleProc() {
   if (outputFile) {
     outputFile->cd();
-    RAT::DS::PMTInfo* pmtinfo = runBranch->GetPMTInfo();
-    for( int id=0; id < pmtinfo->GetPMTCount(); id++ ){
+    RAT::DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
+    for (int id = 0; id < pmtinfo->GetPMTCount(); id++) {
       int type = pmtinfo->GetType(id);
       TVector3 position = pmtinfo->GetPosition(id);
       TVector3 direction = pmtinfo->GetDirection(id);
-      pmtType.push_back( type );
-      pmtId.push_back( id );
-      pmtX.push_back( position.X() );
-      pmtY.push_back( position.Y() );
-      pmtZ.push_back( position.Z() );
-      pmtU.push_back( direction.X() );
-      pmtV.push_back( direction.Y() );
-      pmtW.push_back( direction.Z() );
+      pmtType.push_back(type);
+      pmtId.push_back(id);
+      pmtX.push_back(position.X());
+      pmtY.push_back(position.Y());
+      pmtZ.push_back(position.Z());
+      pmtU.push_back(direction.X());
+      pmtV.push_back(direction.Y());
+      pmtW.push_back(direction.Z());
     }
     runId = runBranch->GetID();
     runType = runBranch->GetType();
@@ -318,23 +318,23 @@ OutNtupleProc::~OutNtupleProc() {
   }
 }
 
-void OutNtupleProc::SetS(std::string param, std::string value){
-  if(param == "file"){
+void OutNtupleProc::SetS(std::string param, std::string value) {
+  if (param == "file") {
     this->defaultFilename = value;
   }
 }
 
-void OutNtupleProc::SetI(std::string param, int value){
-  if( param == "include_tracking" ){
+void OutNtupleProc::SetI(std::string param, int value) {
+  if (param == "include_tracking") {
     options.tracking = value ? true : false;
   }
-  if( param == "include_mcparticles" ){
+  if (param == "include_mcparticles") {
     options.mcparticles = value ? true : false;
   }
-  if( param == "include_pmthits" ){
-    options.pmthits= value ? true : false;
+  if (param == "include_pmthits") {
+    options.pmthits = value ? true : false;
   }
-  if( param == "include_untriggered_events" ){
+  if (param == "include_untriggered_events") {
     options.untriggered = value ? true : false;
   }
 }
