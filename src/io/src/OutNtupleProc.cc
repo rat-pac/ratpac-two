@@ -27,7 +27,6 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
   outputTree = nullptr;
   metaTree = nullptr;
   runBranch = new DS::Run();
-  // Options
 
   // Load options from the database
   DB *db = DB::Get();
@@ -40,10 +39,17 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
   } catch (DBNotFoundError &e) {
     defaultFilename = "output.ntuple.root";
   }
-  options.tracking = table->GetZ("include_tracking");
-  options.mcparticles = table->GetZ("include_mcparticles");
-  options.pmthits = table->GetZ("include_pmthits");
-  options.untriggered = table->GetZ("include_untriggered_events");
+  try {
+    options.tracking = table->GetZ("include_tracking");
+    options.mcparticles = table->GetZ("include_mcparticles");
+    options.pmthits = table->GetZ("include_pmthits");
+    options.untriggered = table->GetZ("include_untriggered_events");
+  } catch (DBNotFoundError &e) {
+    options.tracking = false;
+    options.mcparticles = false;
+    options.pmthits = true;
+    options.untriggered = false;
+  }
 }
 
 bool OutNtupleProc::OpenFile(std::string filename) {

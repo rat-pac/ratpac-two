@@ -32,12 +32,23 @@ public:
   virtual void SetI(std::string param, int value);
   virtual void SetS(std::string param, std::string value);
 
+  // Exposed members for external tools
+  DS::Run* runBranch;
+  // Fill Functions
+  std::vector<std::function<void()>> additionalBranches;
+  struct NtupleOptions {
+    bool tracking;
+    bool mcparticles;
+    bool pmthits;
+    bool untriggered;
+  };
+  NtupleOptions options;
+
 protected:
   std::string defaultFilename;
   TFile *outputFile;
   TTree *outputTree;
   TTree *metaTree;
-  DS::Run* runBranch;
   // Meta Branches
   Int_t runId;
   ULong64_t runType;
@@ -88,15 +99,6 @@ protected:
   std::vector<std::vector<double>> trackKE;
   std::vector<std::vector<double>> trackTime;
   std::vector<std::vector<int>> trackProcess;
-  // Fill Functions
-  std::vector<std::function<void()>> additionalBranches;
-  struct NtupleOptions {
-    bool tracking;
-    bool mcparticles;
-    bool pmthits;
-    bool untriggered;
-  };
-  NtupleOptions options;
 };
 
 } // namespace RAT
