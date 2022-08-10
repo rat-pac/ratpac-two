@@ -82,8 +82,9 @@ protected:
   std::vector<double> mcDiry;
   std::vector<double> mcDirz;
   // Reconstruted variables
-  double x, y, z;
-  double u, v, w;
+  std::vector<int> fitterId;
+  std::vector<double> fitx, fity, fitz;
+  std::vector<double> fitu, fitv, fitw;
   // Store PMT Hit Positions
   std::vector<int> hitPMTID;
   std::vector<double> hitPMTTime;

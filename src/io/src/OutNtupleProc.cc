@@ -94,12 +94,12 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("mcDiry", &mcDiry);
     outputTree->Branch("mcDirz", &mcDirz);
   }
-  outputTree->Branch("x", &x);
-  outputTree->Branch("y", &y);
-  outputTree->Branch("z", &z);
-  outputTree->Branch("u", &u);
-  outputTree->Branch("v", &v);
-  outputTree->Branch("w", &w);
+  // outputTree->Branch("fitx", &fitx);
+  // outputTree->Branch("fity", &fity);
+  // outputTree->Branch("fitz", &fitz);
+  // outputTree->Branch("fitu", &fitu);
+  // outputTree->Branch("fitv", &fitv);
+  // outputTree->Branch("fitw", &fitw);
   if (options.pmthits) {
     outputTree->Branch("hitPMTID", &hitPMTID);
     outputTree->Branch("hitPMTTime", &hitPMTTime);
@@ -233,15 +233,16 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     RAT::DS::EV *ev = ds->GetEV(subev);
     evid = ev->GetID();
     nanotime = static_cast<ULong64_t>(ev->GetCalibratedTriggerTime()) + mctime;
-    RAT::DS::PathFit *fit = ev->GetPathFit();
-    TVector3 pos = fit->GetPosition();
-    x = pos.X();
-    y = pos.Y();
-    z = pos.Z();
-    TVector3 dir = fit->GetDirection();
-    u = dir.X();
-    v = dir.Y();
-    w = dir.Z();
+    // Todo: Need to decide how to add fit information
+    // RAT::DS::PathFit *fit = ev->GetPathFit();
+    // TVector3 pos = fit->GetPosition();
+    // fitx = pos.X();
+    // fity = pos.Y();
+    // fitz = pos.Z();
+    // TVector3 dir = fit->GetDirection();
+    // fitu = dir.X();
+    // fitv = dir.Y();
+    // fitw = dir.Z();
 
     if (options.pmthits) {
       hitPMTID.clear();
@@ -262,12 +263,12 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   if (options.untriggered && ds->GetEVCount() == 0) {
     evid = 0;
     nanotime = mctime;
-    x = -999999;
-    y = -999999;
-    z = -999999;
-    u = 0;
-    v = 0;
-    w = 0;
+    // fitxx = -999999;
+    // fitxy = -999999;
+    // fitxz = -999999;
+    // fitxu = 0;
+    // fitxv = 0;
+    // fitxw = 0;
     if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
