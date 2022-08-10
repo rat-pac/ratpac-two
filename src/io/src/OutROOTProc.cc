@@ -10,6 +10,7 @@
 #include <TTree.h>
 #include <TObjString.h>
 
+#include <string>
 
 namespace RAT {
 
@@ -27,9 +28,12 @@ OutROOTProc::OutROOTProc() : Processor("outroot")
   // Extract default filename from database.  Used if no
   // output file is specified by user with /rat/procset
   DB *db = DB::Get();
-  DBLinkPtr roottab = db->GetLink("IO");
+  DBLinkPtr roottab = db->GetLink("IO","ROOTProc");
   try {
     default_filename = roottab->GetS("default_output_filename");
+    if( default_filename.find(".") == std::string::npos ) {
+      default_filename += ".root";
+    }
   } catch (DBNotFoundError &e) { 
     default_filename = "out.root";
   }

@@ -54,6 +54,8 @@
 #pragma link C++ class map<int, int>+;
 #pragma link C++ class map<int, vector<int> >+;
 #pragma link C++ class vector<TVector3>;
+#pragma link C++ class vector<vector<int> >+;
+#pragma link C++ class vector<vector<double> >+;
 
 #pragma link C++ class vector<RAT::DS::Root>;
 #pragma link C++ class vector<RAT::DS::PMTInfo>;

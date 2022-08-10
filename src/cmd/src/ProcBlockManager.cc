@@ -12,6 +12,7 @@
 #include <RAT/PythonProc.hh>
 #include <RAT/CountProc.hh>
 #include <RAT/OutROOTProc.hh>
+#include <RAT/OutNtupleProc.hh>
 #include <RAT/OutNetProc.hh>
 #include <RAT/PruneProc.hh>
 #include <RAT/FitCentroidProc.hh>
@@ -62,6 +63,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock)
 
   // I/O
   procAllocators["outroot"] = new ProcAllocatorTmpl<OutROOTProc>;
+  procAllocators["outntuple"] = new ProcAllocatorTmpl<OutNtupleProc>;
   procAllocators["outnet"]  = new ProcAllocatorTmpl<OutNetProc>;
 
   // Fitters

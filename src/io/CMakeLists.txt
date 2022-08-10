@@ -7,6 +7,7 @@ add_library(io OBJECT
         src/InNetProducer.cc
         src/InROOTProducer.cc
         src/OutNetProc.cc
+        src/OutNtupleProc.cc
         src/OutROOTProc.cc
         src/TrackCursor.cc
         src/TrackNav.cc)
