@@ -200,6 +200,12 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         RAT::DS::MCTrackStep *step = track->GetMCTrackStep(stp);
         // Process
         std::string proc = step->GetProcess();
+        if (processCodeMap.find(proc) == processCodeMap.end()) {
+          processCodeMap[proc] = processCodeMap.size();
+          processCodeIndex.push_back(processCodeMap.size() - 1);
+          processName.push_back(proc);
+        }
+        processMapID.push_back(processCodeMap[proc]);
         TVector3 tv = step->GetEndpoint();
         TVector3 momentum = step->GetMomentum();
         kinetic.push_back(step->GetKE());
@@ -219,6 +225,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       trackMomX.push_back(pxtrack);
       trackMomY.push_back(pytrack);
       trackMomZ.push_back(pztrack);
+      trackProcess.push_back(processMapID);
     }
   }
   // EV Branches

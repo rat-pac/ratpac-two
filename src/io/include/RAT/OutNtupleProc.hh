@@ -89,7 +89,10 @@ protected:
   std::vector<double> hitPMTTime;
   std::vector<double> hitPMTCharge;
   // Tracking
-  std::map<int, std::string> processCodeMap;
+  std::map<std::string, int> processCodeMap;
+  std::vector<int> processCodeIndex;
+  std::vector<std::string> processName;
+
   std::vector<int> trackPDG;
   std::vector<std::vector<double>> trackPosX;
   std::vector<std::vector<double>> trackPosY;
