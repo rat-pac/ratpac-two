@@ -116,6 +116,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("trackKE", &trackKE);
     outputTree->Branch("trackTime", &trackTime);
     outputTree->Branch("trackProcess", &trackProcess);
+    metaTree->Branch("processCodeMap", &processCodeMap);
   }
 
   return true;
@@ -320,7 +321,7 @@ OutNtupleProc::~OutNtupleProc() {
     TMap* dbtrace = Log::GetDBTraceMap();
     dbtrace->Write("db", TObject::kSingleKey);
     */
-    outputFile->Write(0, TObject::kOverwrite);
+    //outputFile->Write(0, TObject::kOverwrite);
     outputFile->Close();
     delete outputFile;
   }

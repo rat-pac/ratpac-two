@@ -2,6 +2,7 @@
 #include <RAT/DB.hh>
 #include <RAT/DBTable.hh>
 #include <RAT/OutNtupleProc.hh>
+#include <RAT/Log.hh>
 #include <TFile.h>
 #include <TTree.h>
 #include <fstream>
@@ -36,6 +37,9 @@ int main(int argc, char **argv) {
 
     RAT::DS::Root *ds = new RAT::DS::Root();
     T->SetBranchAddress("ds", &ds);
+
+    std::string macro = static_cast<std::string>( ((TObjString*)infile->Get("macro"))->GetString() );
+    RAT::Log::AddMacro(macro);
 
     RAT::OutNtupleProc proc;
     proc.options.tracking = parser->GetValue("tracking", false);
