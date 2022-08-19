@@ -18,6 +18,7 @@
 #include <RAT/DS/PathFit.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
+#include <RAT/DS/RunStore.hh>
 #include <RAT/OutNtupleProc.hh>
 
 namespace RAT {
@@ -57,9 +58,9 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputFile = TFile::Open(filename.c_str(), "RECREATE");
   // Meta Tree
   metaTree = new TTree("meta", "meta");
-  // metaTree->Branch("runId", &runId);
-  // metaTree->Branch("runType", &runType);
-  // metaTree->Branch("runTime", &runTime);
+  metaTree->Branch("runId", &runId);
+  metaTree->Branch("runType", &runType);
+  metaTree->Branch("runTime", &runTime);
   metaTree->Branch("dsentries", &dsentries);
   metaTree->Branch("macro", &macro);
   metaTree->Branch("pmtType", &pmtType);
@@ -116,6 +117,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("trackKE", &trackKE);
     outputTree->Branch("trackTime", &trackTime);
     outputTree->Branch("trackProcess", &trackProcess);
+    metaTree->Branch("processCodeMap", &processCodeMap);
   }
 
   return true;
@@ -127,6 +129,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       Log::Die("No output file specified");
     }
   }
+  runBranch = RAT::DS::RunStore::GetRun(ds);
   ULong64_t stonano = 1000000000;
   dsentries++;
   // Clear the previous vectors
@@ -310,17 +313,20 @@ OutNtupleProc::~OutNtupleProc() {
     }
     runId = runBranch->GetID();
     runType = runBranch->GetType();
-    runTime = runBranch->GetStartTime();
+    // Converting to unix time
+    ULong64_t stonano = 1000000000;
+    TTimeStamp rootTime = runBranch->GetStartTime();
+    runTime = static_cast<ULong64_t>(rootTime.GetSec()) * stonano +
+              static_cast<ULong64_t>(rootTime.GetNanoSec());
     macro = Log::GetMacro();
     metaTree->Fill();
-    // DS::RunStore::FlushWriteTree();
     metaTree->Write();
     outputTree->Write();
     /*
     TMap* dbtrace = Log::GetDBTraceMap();
     dbtrace->Write("db", TObject::kSingleKey);
     */
-    outputFile->Write(0, TObject::kOverwrite);
+    //outputFile->Write(0, TObject::kOverwrite);
     outputFile->Close();
     delete outputFile;
   }
