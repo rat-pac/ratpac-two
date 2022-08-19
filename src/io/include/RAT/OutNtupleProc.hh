@@ -53,7 +53,7 @@ protected:
   // Meta Branches
   Int_t runId;
   ULong64_t runType;
-  TTimeStamp runTime;
+  ULong64_t runTime;
   int dsentries;
   std::string macro;
   std::vector<int> pmtType;
