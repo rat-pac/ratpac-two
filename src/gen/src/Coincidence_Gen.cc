@@ -106,9 +106,13 @@ namespace RAT {
 			// the first one will be the start of the event so  keep track of that
 			double firsttime = fTimeWindow; // set to latest possible value to begin
 			for(int iEx=0; iEx<=nExtra; ++iEx){
-				double t = G4UniformRand()*fTimeWindow;
-				times.push_back(t);	// for the extra interactions
-				if(t<firsttime)firsttime=t;
+                                double t;
+                                double randval = G4UniformRand();
+                                if(randval>0.5){t = 0.5*fTimeWindow;}
+                                else{t = fTimeWindow;}
+                                //double t = G4UniformRand()*fTimeWindow;
+                                times.push_back(t);     // for the extra interactions
+                                if(t<firsttime)firsttime=t;
 			}
 			// now subtract this first time from every time
 			for(int iEx=0; iEx<=nExtra; ++iEx){

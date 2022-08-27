@@ -34,7 +34,8 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table,
         const std::vector<G4ThreeVector> &pmt_dir, 
         const std::vector<int> &pmt_type, 
         const std::vector<double> &pmt_effi_corr,
-        const std::vector<double> &individual_noise_rate
+        const std::vector<double> &individual_noise_rate,
+        const std::vector<double> &individual_afterpulse_fraction
         ) {
         
   string volume_name = table->GetS("index");
@@ -220,7 +221,8 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table,
         TVector3(pmtdir.x(),pmtdir.y(),pmtdir.z()),
         pmt_type[i],
         pmt_model,
-        individual_noise_rate[i]
+        individual_noise_rate[i],
+	individual_afterpulse_fraction[i]
         );
 
     // if requested, generates the magnetic efficiency corrections as the PMTs are created
