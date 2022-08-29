@@ -1,0 +1,26 @@
+{
+name: "PMT",
+index: "validPMT",
+valid_begin: [0,0],
+valid_end: [0,0],
+
+construction: "toroidal",
+
+dynode_material: "stainless_steel",
+glass_material: "glass",
+pmt_vacuum_material: "pmt_vacuum",
+photocathode_surface: "photocathode_R7081HQE",
+photocathode_MINrho: 110.0d,
+photocathode_MAXrho: 126.5d,
+mirror_surface: "mirror",
+dynode_surface: "stainless_steel",
+
+dynode_radius: 27.5, // mm
+dynode_top:   -5.9, // mm
+wall_thickness: 3.0, // mm
+noise_rate: 1000.0,
+
+z_edge: [ 96.7d, 40.0d, 0.0d, -40.0d, -90.0d, -142.0d ],
+rho_edge: [ 0.0d, 111.0d, 126.5d, 111.0d, 42.25d, 42.25d ],
+z_origin: [ -40.0d, 0.0d, 0.0d, 40.0d, -142.0d ],
+}

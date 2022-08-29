@@ -16,6 +16,7 @@
 #include <RAT/OutNetProc.hh>
 #include <RAT/PruneProc.hh>
 #include <RAT/FitCentroidProc.hh>
+#include <RAT/FitTensorProc.hh>
 #include <RAT/FitPathProc.hh>
 #include <RAT/SimpleDAQProc.hh>
 #include <RAT/NoiseProc.hh>
@@ -68,6 +69,9 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock)
 
   // Fitters
   procAllocators["fitcentroid"] = new ProcAllocatorTmpl<FitCentroidProc>;
+#if TENSORFLOW_Enabled
+  procAllocators["fittensor"]   = new ProcAllocatorTmpl<FitTensorProc>;
+#endif
   procAllocators["fitpath"]     = new ProcAllocatorTmpl<FitPathProc>;
 
   // DAQ

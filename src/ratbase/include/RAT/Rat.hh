@@ -24,7 +24,8 @@ protected:
   DB* rdb;
   DBMessenger* rdb_messenger;
 public:
-  inline static std::set<std::string> directories = {};
+  inline static std::set<std::string> ratdb_directories = {};
+  inline static std::set<std::string> model_directories = {};
 
   Rat(AnyParse*, int, char**);
   ~Rat();

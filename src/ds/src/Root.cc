@@ -6,7 +6,7 @@
 #include "RAT/DS/Calib.hh"
 #include "RAT/DS/EV.hh"
 #include "RAT/DS/PMT.hh"
-#include "RAT/DS/PosFit.hh"
+#include "RAT/DS/FitResult.hh"
 
 ClassImp(RAT::DS::Root)
 ClassImp(RAT::DS::MC)
@@ -15,5 +15,4 @@ ClassImp(RAT::DS::MCPMT)
 ClassImp(RAT::DS::Calib)
 ClassImp(RAT::DS::EV)
 ClassImp(RAT::DS::PMT)
-ClassImp(RAT::DS::PosFit)
-
+ClassImp(RAT::DS::FitResult)

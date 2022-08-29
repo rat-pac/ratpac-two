@@ -10,12 +10,10 @@
 #include <TVector3.h>
 
 #include <RAT/DB.hh>
-#include <RAT/DS/Centroid.hh>
 #include <RAT/DS/EV.hh>
 #include <RAT/DS/MC.hh>
 #include <RAT/DS/MCParticle.hh>
 #include <RAT/DS/PMTInfo.hh>
-#include <RAT/DS/PathFit.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/DS/RunStore.hh>
@@ -237,7 +235,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     evid = ev->GetID();
     nanotime = static_cast<ULong64_t>(ev->GetCalibratedTriggerTime()) + mctime;
     // Todo: Need to decide how to add fit information
-    // RAT::DS::PathFit *fit = ev->GetPathFit();
     // TVector3 pos = fit->GetPosition();
     // fitx = pos.X();
     // fity = pos.Y();

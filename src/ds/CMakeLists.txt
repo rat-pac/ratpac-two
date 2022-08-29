@@ -22,7 +22,7 @@ root_generate_dictionary(G__RATDict
         RAT/DS/Root.hh
         RAT/DS/Digit.hh
         RAT/DS/EV.hh
-        RAT/DS/FitGeneric.hh
+        RAT/DS/FitResult.hh
         RAT/DS/LAPPD.hh
         RAT/DS/LAPPDHit.hh
         RAT/DS/MC.hh
@@ -33,13 +33,10 @@ root_generate_dictionary(G__RATDict
         RAT/DS/PMT.hh
         RAT/DS/RunStore.hh
         RAT/DS/Run.hh
-        RAT/DS/PosFit.hh
         RAT/DS/PMTInfo.hh
         RAT/DS/MCTrack.hh
         RAT/DS/MCTrackStep.hh
         RAT/DS/Calib.hh
-        RAT/DS/Centroid.hh
-        RAT/DS/PathFit.hh
         RAT/DSReader.hh
         RAT/DSWriter.hh
         RAT/TrackNav.hh

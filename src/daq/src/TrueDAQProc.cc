@@ -22,10 +22,9 @@
 #include <algorithm>
 #include <RAT/TrueDAQProc.hh>
 #include <RAT/DB.hh>
+#include <RAT/DS/FitResult.hh>
 #include <G4ThreeVector.hh>
 #include <RAT/DetectorConstruction.hh>
-
-using namespace std;
 
 namespace RAT {
 
@@ -204,10 +203,11 @@ Processor::Result TrueDAQProc::DSEvent(DS::Root *ds) {
             ev->SetTotalCharge(energy);
             
             //Fill pathfit structure
-            DS::PathFit* fit = ev->GetPathFit();
+            DS::FitResult* fit = new DS::FitResult("TrueDAQ");
             fit->SetPosition(vertex);
             fit->SetTime(tt);
             fit->SetDirection(dir);
+            ev->AddFitResult(fit);
 
             //Only one trigger window for a single event, so if we got here we're done
             if (isSingle) {

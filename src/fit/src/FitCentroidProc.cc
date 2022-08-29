@@ -1,7 +1,7 @@
 #include <cmath>
 #include <string>
 #include <TVector3.h>
-#include <RAT/DS/Centroid.hh>
+#include <RAT/DS/FitResult.hh>
 #include <RAT/DS/EV.hh>
 #include <RAT/DS/PMT.hh>
 #include <RAT/DS/Root.hh>
@@ -53,9 +53,9 @@ Processor::Result FitCentroidProc::Event(DS::Root* ds, DS::EV* ev) {
   }
 
   centroid *= 1.0 / totalQ;
-  DS::Centroid* fit = ev->GetCentroid();
+  DS::FitResult* fit = new DS::FitResult("CentroidFit");
   fit->SetPosition(centroid);
-  fit->SetPower(fPower);
+  ev->AddFitResult(fit);
 
   return Processor::OK;
 }

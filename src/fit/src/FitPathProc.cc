@@ -1,10 +1,10 @@
 #include <RAT/DB.hh>
 #include <RAT/DS/EV.hh>
 #include <RAT/DS/PMT.hh>
-#include <RAT/DS/PathFit.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/DS/RunStore.hh>
+#include <RAT/DS/FitResult.hh>
 #include <RAT/FitPathProc.hh>
 #include <RAT/Processor.hh>
 #include <RAT/SimulatedAnnealing.hh>
@@ -229,7 +229,7 @@ Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
     fHits[i].t = pmt->GetTime();
   }
 
-  DS::PathFit *fit = ev->GetPathFit();
+  DS::FitResult* fit = new DS::FitResult("PathFit");
 
   if (ev->GetPMTCount() == 0) {
     fit->SetPosition(TVector3(-100000, -100000, -100000));
@@ -265,8 +265,8 @@ Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
   stage0.GetBestPoint(seed);
 
   TVector3 pos0(seed[0], seed[1], seed[2]);
-  fit->SetPos0(pos0);
-  fit->SetTime0(seed[3]);
+  //fit->SetPos0(pos0);
+  //fit->SetTime0(seed[3]);
   fStage = 1;
   SimulatedAnnealing<6> stage1(this);
 
@@ -332,6 +332,7 @@ Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
   fit->SetPosition(fFitPos);
   fit->SetTime(fFitTime);
   fit->SetDirection(dir);
+  ev->AddFitResult(fit);
 
   return Processor::OK;
 }

@@ -47,6 +47,14 @@ if(DEFINED ENV{CRYLIB})
   link_directories(${CRYLIBDIR})
 endif()
 
+set(TENSORFLOW_Enabled 0)
+find_library(TENSORFLOW_LIBRARIES tensorflow)
+if(TENSORFLOW_LIBRARIES)
+  message(STATUS "Compiling with Tensorflow")
+  set(TENSORFLOW_Enabled 1)
+endif()
+
+
 ###########################################################
 # Options
 set(RATPAC_BINARY_DIR ${PROJECT_BINARY_DIR}/bin CACHE PATH "Where to output executables")
@@ -108,8 +116,11 @@ configure_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
   ${RATPAC_CMAKE_DIR}/RatpacConfig.cmake @ONLY)
 
 # Install the data files
-install(DIRECTORY data/ DESTINATION ${RATSHARE}/data
-        PATTERN "data/*")
+install(DIRECTORY ratdb/ DESTINATION ${RATSHARE}/ratdb
+        PATTERN "ratdb/*")
+
+install(DIRECTORY models/ DESTINATION ${RATSHARE}/models
+        PATTERN "models/*")
 
 # Install the python files
 install(DIRECTORY python/ DESTINATION ${RATSHARE}/python
