@@ -53,10 +53,6 @@ Processor::Result FitTensorProc::Event(DS::Root* ds, DS::EV* ev) {
   fit->SetPosition( fitPosition );
   fit->SetDirection( fitDirection );
 
-  fit->SetBoolFigureOfMerit("Validity", true);
-  fit->SetIntFigureOfMerit("Numba", 1);
-  fit->SetDoubleFigureOfMerit("Size", 12.3);
-
   ev->AddFitResult(fit);
 
   return Processor::OK;
