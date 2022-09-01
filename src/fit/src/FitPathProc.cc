@@ -229,7 +229,7 @@ Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
     fHits[i].t = pmt->GetTime();
   }
 
-  DS::FitResult* fit = new DS::FitResult("PathFit");
+  DS::FitResult* fit = new DS::FitResult("FitPath");
 
   if (ev->GetPMTCount() == 0) {
     fit->SetPosition(TVector3(-100000, -100000, -100000));

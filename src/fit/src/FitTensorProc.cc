@@ -1,3 +1,4 @@
+#include <RAT/Config.hh>
 #if TENSORFLOW_Enabled
 #include <RAT/Rat.hh>
 #include <RAT/DS/Root.hh>
@@ -44,13 +45,17 @@ FitTensorProc::FitTensorProc() : Processor("fittensor") {
 
 Processor::Result FitTensorProc::Event(DS::Root* ds, DS::EV* ev) {
 
-  DS::FitResult* fit = new DS::FitResult("TensorFit");
+  DS::FitResult* fit = new DS::FitResult("FitTensor");
 
   TVector3 fitPosition = PositionFit(ds, ev);
   TVector3 fitDirection = DirectionFit(ds, ev, fitPosition);
 
   fit->SetPosition( fitPosition );
   fit->SetDirection( fitDirection );
+
+  fit->SetBoolFigureOfMerit("Validity", true);
+  fit->SetIntFigureOfMerit("Numba", 1);
+  fit->SetDoubleFigureOfMerit("Size", 12.3);
 
   ev->AddFitResult(fit);
 

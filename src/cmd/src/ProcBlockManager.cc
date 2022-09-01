@@ -11,6 +11,7 @@
 // Processors
 #include <RAT/PythonProc.hh>
 #include <RAT/CountProc.hh>
+#include <RAT/Config.hh>
 #include <RAT/OutROOTProc.hh>
 #include <RAT/OutNtupleProc.hh>
 #include <RAT/OutNetProc.hh>
