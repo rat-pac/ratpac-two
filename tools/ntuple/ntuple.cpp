@@ -38,7 +38,9 @@ int main(int argc, char **argv) {
     RAT::DS::Root *ds = new RAT::DS::Root();
     T->SetBranchAddress("ds", &ds);
 
-    std::string macro = static_cast<std::string>( ((TObjString*)infile->Get("macro"))->GetString() );
+    //std::string macro = static_cast<std::string>( ((TObjString*)infile->Get("macro"))->GetString() );
+    std::string macro = static_cast<std::string>( 
+        dynamic_cast<TObjString*>( infile->Get("macro") )->GetString() );
     RAT::Log::AddMacro(macro);
 
     RAT::OutNtupleProc proc;
