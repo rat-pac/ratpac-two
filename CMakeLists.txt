@@ -59,7 +59,11 @@ option(RATPAC_RAT "build rat executable" ON)
 ###########################################################
 # Set up third party libraries
 
-find_package(ROOT CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython)
+if(ROOT_DIR)
+  find_package(ROOT NO_DEFAULT_PATH CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython)
+else()
+  find_package(ROOT CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython)
+endif()
 include(${ROOT_USE_FILE})
 
 find_package(Geant4 REQUIRED COMPONENTS qt)
