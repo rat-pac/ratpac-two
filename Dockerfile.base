@@ -22,6 +22,7 @@ WORKDIR /ratpacSetup
 RUN chown -R ratuser:ratuser /ratpacSetup
 USER ratuser
 RUN ./ratpacSetup.sh --only geant4 root cry -j5
+RUN source env.sh &>/dev/null
 
-ENTRYPOINT [ /ratpacSetup/env.sh ]
+#ENTRYPOINT ["/bin/bash","/ratpacSetup/env.sh;"]
 CMD [ "/bin/bash" ]

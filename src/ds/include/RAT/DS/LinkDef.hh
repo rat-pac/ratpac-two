@@ -11,16 +11,13 @@
 #pragma link C++ class RAT::DS::MCPhoton+;
 #pragma link C++ class RAT::DS::MCSummary+;
 #pragma link C++ class RAT::DS::Calib+;
+#pragma link C++ class RAT::DS::FitResult+;
 
 #pragma link C++ class RAT::DS::EV+;
 #pragma link C++ class RAT::DS::PMT+;
 #pragma link C++ class RAT::DS::LAPPD+;
 #pragma link C++ class RAT::DS::LAPPDHit+;
 #pragma link C++ class RAT::DS::Digit+;
-
-#pragma link C++ class RAT::DS::PosFit+;
-#pragma link C++ class RAT::DS::Centroid+;
-#pragma link C++ class RAT::DS::PathFit+;
 
 #pragma link C++ class RAT::DS::RunStore+;
 #pragma link C++ class RAT::DS::Run+;

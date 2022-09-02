@@ -80,7 +80,7 @@ std::string PickFile(std::string name, std::string enclosing_file)
   }
 
   // Finally try file in data directory
-  for( auto dir : Rat::directories ){
+  for( auto dir : Rat::ratdb_directories ){
     newname = dir + "/" + name;
     if (stat(newname.c_str(), &s) == 0)
       return newname;

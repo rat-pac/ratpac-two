@@ -20,9 +20,8 @@
 #include <TTimeStamp.h>
 #include <RAT/DS/PMT.hh>
 #include <RAT/DS/LAPPD.hh>
-#include <RAT/DS/Centroid.hh>
-#include <RAT/DS/PathFit.hh>
 #include <RAT/DS/Digit.hh>
+#include <RAT/DS/FitResult.hh>
 #include <vector>
 
 namespace RAT {
@@ -73,25 +72,10 @@ public:
   Float_t GetTotalCharge() const { return qTotal; }
   void SetTotalCharge(Float_t _qTotal) { qTotal = _qTotal; }
 
-  /** Centroid position fitter. */
-  virtual Centroid* GetCentroid() {
-    if (centroid.empty()) {
-      centroid.resize(1);
-    }
-    return &centroid.back();
-  }
-  virtual bool ExistCentroid() const { return !centroid.empty(); }
-  virtual void PruneCentroid() { centroid.resize(0); }
-  
-  /** PathFit position, direction, time fitter. */
-  virtual PathFit* GetPathFit() {
-    if (pathfit.empty()) {
-      pathfit.resize(1);
-    }
-    return &pathfit.back();
-  }
-  virtual bool ExistPathFit() const { return !pathfit.empty(); }
-  virtual void PrunePathFit() { pathfit.resize(0); }
+  /** Fit Results **/
+  virtual std::vector<FitResult*> GetFitResults() { return fitResults; }
+  virtual void AddFitResult(FitResult* fit){ fitResults.push_back(fit); }
+  virtual void PruneFitResults() { fitResults.resize(0); }
 
   /// Set CAEN digitizer information for this event
   virtual void SetDigitizer( const Digit& dig ) { digitizer.push_back(dig); }
@@ -117,8 +101,7 @@ protected:
   TTimeStamp utc;
   std::vector<PMT> pmt;
   std::vector<LAPPD> lappd;
-  std::vector<Centroid> centroid;
-  std::vector<PathFit> pathfit;
+  std::vector<FitResult*> fitResults;
   std::vector<Digit> digitizer; ///< The digitizer information
 };
 

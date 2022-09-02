@@ -4,6 +4,7 @@
 #include <RAT/BNLOpWLSBuilder.hh>
 #include <RAT/Log.hh>
 #include <RAT/DB.hh>
+#include <string>
 
 void BNLOpWLSBuilder::ConstructParticle() {
   G4OpticalPhoton::OpticalPhotonDefinition();
@@ -16,7 +17,7 @@ void BNLOpWLSBuilder::ConstructProcess() {
   RAT::DBLinkPtr lwls = RAT::DB::Get()->GetLink("BNL_WLS_MODEL");
   std::string matrixPath = lwls->GetS("data_path");
 
-  char* dataPath = getenv("GLG4DATA");
+  std::string dataPath = static_cast<std::string>(getenv("RATSHARE")) + "/ratdb";
   if (dataPath != nullptr) {
     std::string thePath = std::string(dataPath) + "/" + matrixPath;
     theBNLOpWLSProcess->SetExEmData(thePath);

@@ -51,7 +51,7 @@ int DB::Load(std::string filename, bool printPath)
       return LoadFile(filename);
   } else {
     // Check through the data directories
-    for( auto dir : Rat::directories )
+    for( auto dir : Rat::ratdb_directories )
     {
       std::string newfilename = dir + "/" + filename;
       if( printPath )
@@ -177,7 +177,7 @@ int DB::LoadAll(std::string dirname, std::string pattern)
 
 int DB::LoadDefaults()
 {
-  for(auto dir : Rat::directories)
+  for(auto dir : Rat::ratdb_directories)
     LoadAll(dir);
   return 1;
 }

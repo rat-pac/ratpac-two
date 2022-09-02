@@ -174,12 +174,12 @@ public:
    *  directory, all of the files in that directory ending in .ratdb
    *  will be loaded.
    *
-   *  The current directory is searched first, then the $GLG4DATA
+   *  The current directory is searched first, then the $RATSHARE/ratdb
    *  directory.
    *
    *  If printFullPath is true, then an info message is printed
    *  to stdout (and logged) indicating the path of the
-   *  file that is loaded.  Shows whether $GLG4DATA was used.
+   *  file that is loaded.  Shows whether $RATSHARE/ratdb was used.
    */
   int Load(std::string filename, bool printPath=false);
 
@@ -190,7 +190,7 @@ public:
 
   /** Load DB text file of tables into memory. 
    *
-   *  This function does not search in $GLG4DATA automatically, so it
+   *  This function does not search in $RATSHARE/ratdb automatically, so it
    *  must be given a file name relative to the current directory or
    *  an absolute path.
    */
@@ -199,14 +199,14 @@ public:
   /** Load all of the DB files in a directory.
    *
    *  Searches @p dirname for all files matching @p pattern.  Does not
-   *  search $GLG4DATA automatically, so a path relative to current
+   *  search $RATSHARE/ratdb automatically, so a path relative to current
    *  directory or an absolute path much be given.
    */
   int LoadAll(std::string dirname, std::string pattern="*.ratdb");
 
   /** Load standard tables into memory.
    *
-   *  Currently, the standard tables are $GLG4DATA/ *.ratdb. 
+   *  Currently, the standard tables are $RATSHARE/ratdb/ *.ratdb. 
    */
   int LoadDefaults();
 

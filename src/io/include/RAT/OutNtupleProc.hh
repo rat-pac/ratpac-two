@@ -104,6 +104,12 @@ protected:
   std::vector<std::vector<double>> trackKE;
   std::vector<std::vector<double>> trackTime;
   std::vector<std::vector<int>> trackProcess;
+
+  std::set<std::string> branchNames;
+
+  void SetBranchValue(std::string name, double *value);
+  void SetBranchValue(std::string name, int *value);
+  void SetBranchValue(std::string name, bool *value);
 };
 
 } // namespace RAT
