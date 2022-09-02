@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
 
     std::string macro = static_cast<std::string>( 
         dynamic_cast<TObjString*>( infile->Get("macro") )->GetString().Data() );
+
     RAT::Log::AddMacro(macro);
 
     RAT::OutNtupleProc proc;
