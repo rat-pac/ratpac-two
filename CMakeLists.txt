@@ -52,6 +52,8 @@ find_library(TENSORFLOW_LIBRARIES tensorflow)
 if(TENSORFLOW_LIBRARIES)
   message(STATUS "Compiling with Tensorflow")
   set(TENSORFLOW_Enabled 1)
+else()
+  set(TENSORFLOW_LIBRARIES "")
 endif()
 
 
