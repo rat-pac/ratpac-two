@@ -107,16 +107,16 @@ void Gsim::Init() {
     // Adapted from glg4sim.cc. Thanks Glenn!
     // Manages GEANT4 simulation process
     theRunManager = G4RunManager::GetRunManager();
-    
+
     // Detector geometry
     DetectorConstruction* theDetectorConstruction =
     DetectorConstruction::GetDetectorConstruction();
     theRunManager->SetUserInitialization(theDetectorConstruction);
-    
+
     // Particle generator
     theRunManager->SetUserAction(new GLG4PrimaryGeneratorAction());
     theRunManager->SetUserAction(new StackingAction);
-    
+
     // Add RAT-specific generators
     GlobalFactory<GLG4VertexGen>::Register(
                                            "ibd", new Alloc<GLG4VertexGen, VertexGen_IBD>);
@@ -136,11 +136,11 @@ void Gsim::Init() {
                                            "isotope", new Alloc<GLG4VertexGen, VertexGen_Isotope>);
     GlobalFactory<GLG4VertexGen>::Register(
                                            "fastneutron", new Alloc<GLG4VertexGen, VertexGen_FastNeutron>);
-#if CRY_Enabled 
+#if CRY_Enabled
     GlobalFactory<GLG4VertexGen>::Register(
                                            "cry", new Alloc<GLG4VertexGen, VertexGen_CRY>);
 #endif
-    
+
     GlobalFactory<GLG4Gen>::Register("decaychain",
                                      new Alloc<GLG4Gen, DecayChain_Gen>);
     GlobalFactory<GLG4Gen>::Register("cf", new Alloc<GLG4Gen, CfGen>);
@@ -154,24 +154,24 @@ void Gsim::Init() {
                                      new Alloc<GLG4Gen, Coincidence_Gen>);
     GlobalFactory<GLG4Gen>::Register("vertexfile",
                                      new Alloc<GLG4Gen, VertexFile_Gen>);
-    
+
     // An additional "messenger" class for user diagnostics
     theDebugMessenger = new GLG4DebugMessenger(theDetectorConstruction);
-    
+
     // User actions to control Run Manager behavior
-    
+
     // Detect start of run so we can create run description objects
     theRunManager->SetUserAction(static_cast<G4UserRunAction*>(this));
-    
+
     // Tracking action used to add our specialized Trajectory object
     // to capture particle track information
     theRunManager->SetUserAction(static_cast<G4UserTrackingAction*>(this));
     theRunManager->SetUserAction(new GLG4SteppingAction);
-    
+
     // ...and finally the hook.  Here's where we trap GEANT4 at the end of
     // each event and do our business.
     theRunManager->SetUserAction(static_cast<G4UserEventAction*>(this));
-    
+
     // PMT transit time and single-pe charge calculators
     fPMTTime.resize(0);
     fPMTCharge.resize(0);
@@ -184,7 +184,7 @@ Gsim::~Gsim() {
     // SetUserAction() is overloaded.
     theRunManager->SetUserAction(static_cast<G4UserEventAction*>(NULL));
     theRunManager->SetUserAction(static_cast<G4UserTrackingAction*>(NULL));
-    
+
     for (size_t i = 0; i < fPMTTime.size(); i++) {
         delete fPMTTime[i];
         delete fPMTCharge[i];
@@ -198,19 +198,19 @@ void Gsim::BeginOfRunAction(const G4Run* /*aRun*/) {
 
     info << "Gsim: Simulating run " << runID << newline;
     info << "Gsim: Run start at " << utc.AsString() << newline;
-    
+
     if (!DS::RunStore::GetRun(runID)) {
         MakeRun(runID);
     }
 
     DS::Run* run = DS::RunStore::GetRun(runID);
     fPMTInfo = run->GetPMTInfo();
-    
+
     for (size_t i = 0; i < fPMTTime.size(); i++) {
         delete fPMTTime[i];
         delete fPMTCharge[i];
     }
-    
+
     const size_t numModels = fPMTInfo->GetModelCount();
     fPMTTime.resize(numModels);
     fPMTCharge.resize(numModels);
@@ -229,17 +229,17 @@ void Gsim::BeginOfRunAction(const G4Run* /*aRun*/) {
             fPMTCharge[i] = new RAT::MiniCleanPMTCharge();
         }
     }
-    
+
     // Tell the generator when the run starts
     GLG4PrimaryGeneratorAction* theGLG4PGA =
     GLG4PrimaryGeneratorAction::GetTheGLG4PrimaryGeneratorAction();
     theGLG4PGA->SetRunUTC(utc);
-    
+
     // Find out whether /tracking/storeTrajectory was set by user.
     // fpTrackingManager provided by G4UserTrackingAction parent class
     // We have to restore this state at the end of the event.
     fInitialStoreTrajectoryState = fpTrackingManager->GetStoreTrajectory();
-    
+
     // Check for a maximum photoelectron limit. Events exceeding this limit
     // are aborted.
     try {
@@ -262,15 +262,15 @@ void Gsim::EndOfRunAction(const G4Run* /*arun*/) {
 void Gsim::BeginOfEventAction(const G4Event* anEvent) {
     GLG4Scint::ResetTotEdep();
     GLG4Scint::ResetPhotonCount();
-    
+
     // Clearing theHitPMTCollection clears away the HitPhotons and HitPMTs
     GLG4VEventAction::GetTheHitPMTCollection()->Clear();
-    
+
     EventInfo* eventInfo =
     dynamic_cast<EventInfo*>(anEvent->GetUserInformation());
-    
+
     eventInfo->StorePhotonIDs = StoreOpticalTrackID;
-    
+
     // This is only necessary if the photons are flagged to be tracked and stored
     if (StoreOpticalTrackID) {
         OpticalPhotonIDs.resize(10000);
@@ -284,22 +284,22 @@ void Gsim::EndOfEventAction(const G4Event* anEvent) {
     ds->SetRunID(runID);
     ds->AppendProcResult("gsim", Processor::OK);
     ds->SetRatVersion(RATVERSION);
-    
+
     // Let main processor block process the event
     mainBlock->DSEvent(ds);
-    
+
     delete ds;
-    
+
     // Check if the user has requested exit
     if (SignalHandler::IsTermRequested()) {
         warn << "Terminating since Ctrl-C (SIGINT) caught..." << newline;
         theRunManager->AbortRun(true);  // Soft abort
     }
-    
+
     // Reset the store trajectory state to the initial state as
     // specified in the user macro.
     fpTrackingManager->SetStoreTrajectory(fInitialStoreTrajectoryState);
-    
+
     if (StoreOpticalTrackID) {
         OpticalPhotonIDs.resize(0);
     }
@@ -313,7 +313,7 @@ void Gsim::PreUserTrackingAction(const G4Track* aTrack) {
         // grumble, grumble, C++ const keyword, grumble
         const_cast<G4Track*>(aTrack)->SetUserInformation(new TrackInfo);
     }
-    
+
     // For very large, complex tracks, it is not sufficient to
     // discard the track if we do not want it.  We must prevent
     // GEANT4 from saving the information in the first place.
@@ -322,7 +322,7 @@ void Gsim::PreUserTrackingAction(const G4Track* aTrack) {
     // on the fly.  We restore the original state at the end of
     // the event, which is critical if beamOn is called more than once
     // in a macro.
-    
+
     // Store track if requested for this particle.  fpTrackingManager
     // provided by G4UserTrackingAction parent class
     if (GetStoreParticleTraj(aTrack->GetDefinition()->GetParticleName())) {
@@ -330,6 +330,32 @@ void Gsim::PreUserTrackingAction(const G4Track* aTrack) {
         fpTrackingManager->SetTrajectory(new Trajectory(aTrack));
     } else {
         fpTrackingManager->SetStoreTrajectory(false);
+    }
+
+    if (aTrack->GetDefinition()->GetParticleName() == "opticalphoton") {
+        G4Event* event = G4EventManager::GetEventManager()->GetNonconstCurrentEvent();
+        EventInfo* eventInfo = dynamic_cast<EventInfo* >(event->GetUserInformation());
+        TrackInfo *trackInfo = dynamic_cast<TrackInfo*>(aTrack->GetUserInformation());
+
+        std::string creatorProcessName;
+        const G4VProcess* creatorProcess = aTrack->GetCreatorProcess();
+        if (creatorProcess) {
+            creatorProcessName = creatorProcess->GetProcessName();
+        }
+        // Now deal with creator process naming override from trackInfo
+        if (trackInfo && trackInfo->GetCreatorProcess() != "") {
+            creatorProcessName = trackInfo->GetCreatorProcess();
+        }
+
+        if (creatorProcessName == "Scintillation") {
+            eventInfo->numScintPhoton++;
+        }
+        else if (creatorProcessName == "Reemission") {
+            eventInfo->numReemitPhoton++;
+        }
+        else if (creatorProcessName == "Cerenkov") {
+            eventInfo->numCerenkovPhoton++;
+        }
     }
 }
 
@@ -344,7 +370,7 @@ void Gsim::PostUserTrackingAction(const G4Track* aTrack) {
     G4Event* event = G4EventManager::GetEventManager()->GetNonconstCurrentEvent();
     EventInfo* eventInfo = dynamic_cast<EventInfo*>(event->GetUserInformation());
     TrackInfo* trackInfo = dynamic_cast<TrackInfo*>(aTrack->GetUserInformation());
-    
+
     // Abort events with too many PE if a limit has been set.
     if (maxpe > 0) {
         int nhits = 0;
@@ -358,30 +384,35 @@ void Gsim::PostUserTrackingAction(const G4Track* aTrack) {
             nabort++;
         }
     }
-    
+
     int TrackID = aTrack->GetTrackID();
     int ParentID = aTrack->GetParentID();
-    
+
     // Determine the creator process
     const G4VProcess* creatorProcess = aTrack->GetCreatorProcess();
     if (creatorProcess) {
         creatorProcessName = creatorProcess->GetProcessName();
     }
-    
+
     // Now deal with creator process naming override from trackInfo
     if (trackInfo && trackInfo->GetCreatorProcess() != "") {
         creatorProcessName = trackInfo->GetCreatorProcess();
     }
-    
+
     if (trackInfo) {
+        // Fill the energy loss by volume map
+        for (std::map<string, double>::iterator it = trackInfo->energyLoss.begin(); it != trackInfo->energyLoss.end(); it++) {
+            eventInfo->energyLoss[it->first] = it->second;
+        }
+
         // Fill the energy centroid
         eventInfo->energyCentroid.Add(trackInfo->energyCentroid);
-        
+
         // Finally fill the optical centroid information if we have an optical
         // photon which was not created by the TPB but WAS absorbed by it. This
         // represents the best approximation to the "reconstructable" event
         // vertex, neglecting exotics like TPB scintillation and cerenkov emmission
-        
+
         // With surface TPB model: Not reemitted, but killed by SurfaceAbsorption
         // With bulk TPB model:    Not made by OpWLS, but killed by OpWLS
         if ((aTrack->GetDefinition()->GetParticleName() == "opticalphoton") &&
@@ -408,34 +439,34 @@ void Gsim::PostUserTrackingAction(const G4Track* aTrack) {
 void Gsim::MakeRun(int _runID) {
     DBLinkPtr lrun = DB::Get()->GetLink("RUN", "", _runID);
     DS::Run* run = new DS::Run();
-    
+
     run->SetID(_runID);
     run->SetType((unsigned)lrun->GetI("runtype"));
-    run->SetStartTime(utc); 
+    run->SetStartTime(utc);
     run->SetPMTInfo(&PMTFactoryBase::GetPMTInfo());
-    
+
     DS::RunStore::AddNewRun(run);
 }
 
 void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
     DS::MC* mc = ds->GetMC();
     EventInfo* exinfo = dynamic_cast<EventInfo*>(g4ev->GetUserInformation());
-    
+
     // Event Header
     ds->SetRunID(theRunManager->GetCurrentRun()->GetRunID());
     mc->SetID(g4ev->GetEventID());
     mc->SetUTC(exinfo->utc);
- 
+
     // Vertex Info
     for (int ivert = 0; ivert < g4ev->GetNumberOfPrimaryVertex(); ivert++) {
         G4PrimaryVertex* pv = g4ev->GetPrimaryVertex(ivert);
-        
+
         double t = pv->GetT0();
         TVector3 pos(pv->GetX0(), pv->GetY0(), pv->GetZ0());
-        
+
         for (int ipart = 0; ipart < pv->GetNumberOfParticle(); ipart++) {
             DS::MCParticle* rat_mcpart = mc->AddNewMCParticle();
-            
+
             G4PrimaryParticle* p = pv->GetPrimary(ipart);
             rat_mcpart->SetPDGCode(get_pdgcode(p));
             if (p->GetG4code()) {
@@ -460,7 +491,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
             rat_mcpart->SetEndMomentum(TVector3(end_info[4], end_info[5], end_info[6]));
             rat_mcpart->SetEndKE(end_info[7]);
         }
-        
+
         PrimaryVertexInformation* ratpvi =
         dynamic_cast<PrimaryVertexInformation*>(pv->GetUserInformation());
         if (ratpvi) {
@@ -484,14 +515,14 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
             }
         }
     }
-    
+
     // Calibration source information
     const DS::Calib* calib = exinfo->GetCalib();
     // only copy if there is something real to copy
     if (calib->GetID() != -1) {
         *ds->GetCalib() = *calib;
     }
-    
+
     // Trajectory Info
     G4TrajectoryContainer* traj_list = g4ev->GetTrajectoryContainer();
     if (traj_list) {
@@ -505,7 +536,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
             *track = *traj->GetTrack();
         }
     }
-    
+
     // If the event was aborted because of the maximum number of
     // photoelectron limit, then store the information about the
     // primary particle and any tracking information, but do not keep
@@ -513,7 +544,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
     if (g4ev->IsAborted()) {
         return;
     }
-    
+
     // MC summary information
     DS::MCSummary* summary = mc->GetMCSummary();
     summary->SetEnergyCentroid(exinfo->energyCentroid.GetMean());
@@ -521,34 +552,34 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
     summary->SetEnergyLossByVolume(exinfo->energyLoss);
     summary->SetTotalScintEdep(GLG4Scint::GetTotEdep());
     summary->SetTotalScintEdepQuenched(GLG4Scint::GetTotEdepQuenched());
-    //const G4ThreeVector sCentroid = GLG4Scint::GetScintCentroid();
-    //TVector3 scintCentroid(sCentroid.x(), sCentroid.y(), sCentroid.z());
-    //summary->SetTotalScintCentroid(scintCentroid);
+    const G4ThreeVector sCentroid = GLG4Scint::GetScintCentroidSum();//Normalized despite function name
+    TVector3 scintCentroid(sCentroid.x(), sCentroid.y(), sCentroid.z());
+    summary->SetTotalScintCentroid(scintCentroid);
     summary->SetNumScintPhoton(exinfo->numScintPhoton);
     summary->SetNumReemitPhoton(exinfo->numReemitPhoton);
     summary->SetNumCerenkovPhoton(exinfo->numCerenkovPhoton);
     //summary->SetPMTPhotonInfo(GLG4PMTOpticalModel::pmtHitVector);
-    
+
     //GLG4Scint::ResetTimeChargeMatrix();
     exinfo->timePhotonMatrix.resize(0);
     //GLG4PMTOpticalModel::pmtHitVector.resize(0);
-    
+
     /** PMT and noise simulation */
     GLG4HitPMTCollection* hitpmts = GLG4VEventAction::GetTheHitPMTCollection();
     int numPE = 0;
-    
+
     double firsthittime = std::numeric_limits<double>::max();
     double lasthittime = std::numeric_limits<double>::min();
-    
+
     // Get the PMT type for IDPMTs. Then in the loop,
     // increment numPE only when the PE is in an IDPMT.
     // Map ID-INDEX for later noise calculation
     std::map<int, int> mcpmtObjects;
-    
+
     for (int ipmt = 0; ipmt < hitpmts->GetEntries(); ipmt++) {
         GLG4HitPMT* a_pmt = hitpmts->GetPMT(ipmt);
         a_pmt->SortTimeAscending();
-        
+
         // Create and initialize a RAT DS::MCPMT
         // note that GLG4HitPMTs are given IDs which are their index
         DS::MCPMT* rat_mcpmt = mc->AddNewMCPMT();
@@ -557,9 +588,9 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
         // the index of the PMT we just added
         rat_mcpmt->SetID(a_pmt->GetID());
         rat_mcpmt->SetType(fPMTInfo->GetType(a_pmt->GetID()));
-        
+
         numPE += a_pmt->GetEntries();
-        
+
         /** Add "real" hits from actual simulated photons */
         for (int i = 0; i < a_pmt->GetEntries(); i++) {
             // Find the optical process responsible
@@ -572,7 +603,7 @@ void Gsim::MakeEvent(const G4Event* g4ev, DS::Root* ds) {
             } else {
                 AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), false, NULL, process);
             }
-            
+
             /** Update event start and end time */
             double hittime = a_pmt->GetPhoton(i)->GetTime();
             if (hittime < firsthittime) {
@@ -594,7 +625,7 @@ void Gsim::AddMCPhoton(DS::MCPMT* rat_mcpmt, const GLG4HitPhoton* photon,
                        bool isDarkHit, EventInfo* /*exinfo*/, std::string process) {
     DS::MCPhoton* rat_mcphoton = rat_mcpmt->AddNewMCPhoton();
     rat_mcphoton->SetDarkHit(isDarkHit);
-    
+
     // parameters relevant only for actual photon hits, not noise hits
     if (!isDarkHit) {
         rat_mcphoton->SetLambda(photon->GetWavelength());
@@ -684,9 +715,9 @@ void Gsim::PhotonRecurse(std::vector<int>& PhotonIDs, int trackID,
         parentID = trackID;
         return;
     }
-    
+
     if (PhotonIDs[trackID] != 0) firstCreatedID = trackID;
-    
+
     PhotonRecurse(PhotonIDs, PhotonIDs[trackID], parentID, firstCreatedID);
 }
 
