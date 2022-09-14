@@ -1,17 +1,16 @@
 #include <RAT/Log.hh>
 #include <RAT/PruneProc.hh>
-
-#include "RAT/string_utilities.hpp"
 #include <algorithm>
 #include <vector>
+
+#include "RAT/string_utilities.hpp"
 
 using namespace std;
 
 namespace RAT {
 
 PruneProc::PruneProc() : Processor("prune") {
-  mc = mc_particle = mc_track = mc_pmt = mc_pmt_photon = mc_pmt_pulse = ev =
-      ev_pmt = false;
+  mc = mc_particle = mc_track = mc_pmt = mc_pmt_photon = mc_pmt_pulse = ev = ev_pmt = false;
 }
 
 PruneProc::~PruneProc() {}
@@ -23,11 +22,10 @@ void PruneProc::SetS(std::string param, std::string value) {
       vector<string> subparts = split(parts[i], ":");
 
       if (subparts.size() == 1)
-        SetPruneState(parts[i], true); // normal case
+        SetPruneState(parts[i], true);  // normal case
       else {
         // mc.track case
-        if (subparts[0] != "mc.track")
-          throw ParamInvalid(param, "Cannot use colon in " + parts[i]);
+        if (subparts[0] != "mc.track") throw ParamInvalid(param, "Cannot use colon in " + parts[i]);
 
         SetPruneState("mc.track", true);
         track_cut.push_back(subparts[1]);
@@ -77,47 +75,40 @@ bool PruneProc::GetPruneState(std::string item) {
     return ev_pmt;
   else {
     Log::Die("prune: Get state on unknown list " + item);
-    return false; // never get here
+    return false;  // never get here
   }
 }
 
 Processor::Result PruneProc::DSEvent(DS::Root *ds) {
-  if (mc)
-    ds->PruneMC();
+  if (mc) ds->PruneMC();
 
   if (ds->ExistMC()) {
     DS::MC *pmc = ds->GetMC();
 
-    if (mc_particle)
-      pmc->PruneMCParticle();
+    if (mc_particle) pmc->PruneMCParticle();
 
     if (mc_track) {
       if (track_cut.size() == 0)
         pmc->PruneMCTrack();
-      else { // remove each listed particle name
-        for (unsigned i = 0; i < track_cut.size(); i++)
-          pmc->PruneMCTrack(track_cut[i]);
+      else {  // remove each listed particle name
+        for (unsigned i = 0; i < track_cut.size(); i++) pmc->PruneMCTrack(track_cut[i]);
       }
     }
 
-    if (mc_pmt)
-      pmc->PrunePMT();
+    if (mc_pmt) pmc->PrunePMT();
 
     if (mc_pmt_photon) {
-      for (int i = 0; i < pmc->GetMCPMTCount(); i++)
-        pmc->GetMCPMT(i)->PruneMCPhoton();
+      for (int i = 0; i < pmc->GetMCPMTCount(); i++) pmc->GetMCPMT(i)->PruneMCPhoton();
     }
   }
 
-  if (ev)
-    ds->PruneEV();
+  if (ev) ds->PruneEV();
 
   if (ev_pmt) {
-    for (int i = 0; i < ds->GetEVCount(); i++)
-      ds->GetEV(i)->PrunePMT();
+    for (int i = 0; i < ds->GetEVCount(); i++) ds->GetEV(i)->PrunePMT();
   }
 
   return Processor::OK;
 }
 
-} // namespace RAT
+}  // namespace RAT

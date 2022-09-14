@@ -42,13 +42,12 @@ class G4MaterialPropertiesTable;
 namespace RAT {
 
 class OpRayleigh : public G4VDiscreteProcess {
-public:
+ public:
   // Construct the class
   //
   // processName: optional, defaults to OpRayleigh
   // type: optional, defaults to fOptical
-  OpRayleigh(const G4String &processName = "OpRayleigh",
-             G4ProcessType type = fOptical);
+  OpRayleigh(const G4String &processName = "OpRayleigh", G4ProcessType type = fOptical);
 
   // Deletes the physics table
   ~OpRayleigh();
@@ -64,21 +63,20 @@ public:
   // Returns the mean free path for the track in mm.
   //
   // previousStepSize and condition are unused
-  G4double GetMeanFreePath(const G4Track &track, G4double previousStepSize,
-                           G4ForceCondition *condition);
+  G4double GetMeanFreePath(const G4Track &track, G4double previousStepSize, G4ForceCondition *condition);
 
   // Invoke scattering to the track
   //
   // returns a particle change description
   G4VParticleChange *PostStepDoIt(const G4Track &track, const G4Step &step);
 
-private:
+ private:
   // Builds the physics table, i.e. a table of mean free paths
   void BuildThePhysicsTable();
 
-  G4PhysicsTable *fPhysicsTable; // The physics table used
+  G4PhysicsTable *fPhysicsTable;  // The physics table used
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -17,7 +17,7 @@ namespace RAT {
 namespace DS {
 
 class LAPPDHit : public TObject {
-public:
+ public:
   LAPPDHit() : TObject() {}
   virtual ~LAPPDHit() {}
 
@@ -40,7 +40,7 @@ public:
   TVector3 pos;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

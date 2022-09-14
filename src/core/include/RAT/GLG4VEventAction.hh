@@ -13,12 +13,9 @@
 
 #include "G4UImessenger.hh"
 #include "G4UserEventAction.hh"
-#include "globals.hh"
-
 #include "fstream"
+#include "globals.hh"
 //#include "GLG4HitPhotonCollection.hh"
-#include "GLG4HitPMTCollection.hh"
-
 #include "G4DigiManager.hh"
 #include "G4Event.hh"
 #include "G4EventManager.hh"
@@ -34,12 +31,13 @@
 #include "G4VHitsCollection.hh"
 #include "G4VVisManager.hh"
 #include "G4ios.hh"
+#include "GLG4HitPMTCollection.hh"
 
 class G4UIcmdWithAString;
 class G4UIcmdWithAnInteger;
 
 class GLG4VEventAction : public G4UserEventAction, public G4UImessenger {
-public:
+ public:
   // constructor, destructor
   GLG4VEventAction();
   ~GLG4VEventAction();
@@ -54,27 +52,23 @@ public:
 
   //  static GLG4HitPhotonCollection*  GetTheHitPhotons() { return
   //  &theHitPhotons; }
-  static GLG4HitPMTCollection *GetTheHitPMTCollection() {
-    return &theHitPMTCollection;
-  }
-  static G4bool GetDoParameterizedScintillation() {
-    return fgDoParameterizedScintillation;
-  }
+  static GLG4HitPMTCollection *GetTheHitPMTCollection() { return &theHitPMTCollection; }
+  static G4bool GetDoParameterizedScintillation() { return fgDoParameterizedScintillation; }
 
-protected:
+ protected:
   //  static GLG4HitPhotonCollection theHitPhotons;
   static GLG4HitPMTCollection theHitPMTCollection;
 
   static G4bool flagFullOutputMode;
   G4String drawFlag;
 
-public:
+ public:
   virtual void OpenFile(const G4String filename, G4bool outputMode) = 0;
   virtual void CloseFile() = 0;
   virtual void FillData(const G4Event *) = 0;
   virtual void Clear() = 0;
 
-protected:
+ protected:
   G4UIcmdWithAString *fDrawCmd;
   G4UIcommand *fFileCmd;
   G4UIcmdWithAString *fModeCmd;

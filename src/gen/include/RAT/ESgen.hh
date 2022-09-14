@@ -75,6 +75,7 @@
 
 #include <CLHEP/Random/RandGeneral.h>
 #include <CLHEP/Vector/LorentzVector.h>
+
 #include <G4LorentzVector.hh>
 #include <G4ThreeVector.hh>
 #include <RAT/LinearInterp.hh>
@@ -89,7 +90,7 @@ namespace RAT {
 class ESCrossSec;
 
 class ESgen {
-public:
+ public:
   ESgen();
   ~ESgen();
 
@@ -105,8 +106,7 @@ public:
    * used). \param[out] electron Outgoing electron direction (lab coordinates).
    * \return 4-momentum vectors for resulting electron.
    */
-  void GenerateEvent(const G4ThreeVector &nu_dir, G4LorentzVector &neutrino,
-                     G4LorentzVector &electron);
+  void GenerateEvent(const G4ThreeVector &nu_dir, G4LorentzVector &neutrino, G4LorentzVector &electron);
 
   /**
    * Setter for the flux to use.
@@ -164,7 +164,7 @@ public:
    */
   void SetDBName(const G4String name);
 
-private:
+ private:
   /** Private member for load the database and cross-section data. */
   void LoadGenerator();
 
@@ -182,7 +182,7 @@ private:
   /** Sampler of recoil electron energy from the differential cross section. */
   G4double SampleRecoilEnergy(G4double Enu);
 
-protected:
+ protected:
   /** Private method to check if generator is loaded. */
   inline G4bool GetGenLoaded() { return fGenLoaded; };
 
@@ -241,6 +241,6 @@ protected:
   G4String fDBName;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

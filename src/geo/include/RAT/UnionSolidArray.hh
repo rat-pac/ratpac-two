@@ -12,10 +12,9 @@ namespace RAT {
 // To support recursion, optional arguments are included to select a subrange
 // of the translations/rotations array.  Normally you can ignore those two
 // arguments.
-G4VSolid *MakeUnionSolidArray(const std::string &name,
-                              const std::vector<G4VSolid *> &solids,
-                              int firstIndex = 0, int length = -1);
+G4VSolid *MakeUnionSolidArray(const std::string &name, const std::vector<G4VSolid *> &solids, int firstIndex = 0,
+                              int length = -1);
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

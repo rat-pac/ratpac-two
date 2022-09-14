@@ -6,9 +6,7 @@
 #include <RAT/Log.hh>
 #include <string>
 
-void BNLOpWLSBuilder::ConstructParticle() {
-  G4OpticalPhoton::OpticalPhotonDefinition();
-}
+void BNLOpWLSBuilder::ConstructParticle() { G4OpticalPhoton::OpticalPhotonDefinition(); }
 
 void BNLOpWLSBuilder::ConstructProcess() {
   BNLOpWLS *theBNLOpWLSProcess = new BNLOpWLS();
@@ -17,13 +15,11 @@ void BNLOpWLSBuilder::ConstructProcess() {
   RAT::DBLinkPtr lwls = RAT::DB::Get()->GetLink("BNL_WLS_MODEL");
   std::string matrixPath = lwls->GetS("data_path");
 
-  std::string dataPath =
-      static_cast<std::string>(getenv("RATSHARE")) + "/ratdb";
+  std::string dataPath = static_cast<std::string>(getenv("RATSHARE")) + "/ratdb";
   if (dataPath != nullptr) {
     std::string thePath = std::string(dataPath) + "/" + matrixPath;
     theBNLOpWLSProcess->SetExEmData(thePath);
-    RAT::info << "BNLOpWLSBuilder::ConstructProcess: Using data from "
-              << thePath << newline;
+    RAT::info << "BNLOpWLSBuilder::ConstructProcess: Using data from " << thePath << newline;
   } else {
     RAT::warn << "BNLOpWLSBuilder::ConstructProcess: Warning: Could not find "
                  "Ex/Em data path for BNLOpOPWLS model"

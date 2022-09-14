@@ -35,8 +35,7 @@
 namespace RAT {
 
 class CfSource {
-
-public:
+ public:
   /** CfSource constructor.  Use a default isotope of Cf252, which
    * currently is the only isotope implement in this class. */
   CfSource(int newIsotope = 252);
@@ -59,9 +58,7 @@ public:
   /** Returns the energy of the neutrons produced by each Cf decay.
    *  Called with the integer index for each neutron in the neutronE
    *  array, from 0 to the total number of neutrons. */
-  CLHEP::HepLorentzVector GetCfNeutronMomentum(int n) const {
-    return neutronE[n];
-  }
+  CLHEP::HepLorentzVector GetCfNeutronMomentum(int n) const { return neutronE[n]; }
   double GetCfNeutronTime(int n) const { return Tneutron[n]; }
 
   /** Returns the energy of the gammas produced by each Cf decay.
@@ -70,7 +67,7 @@ public:
   CLHEP::HepLorentzVector GetCfGammaMomentum(int n) const { return gammaE[n]; }
   double GetCfGammaTime(int n) const { return Tgamma[n]; }
 
-private:
+ private:
   int Isotope;
 
   static const int maxNeutron = 8;
@@ -111,6 +108,6 @@ private:
   static float Cf252GammaSpectrum(const float &x);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

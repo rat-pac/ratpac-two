@@ -6,13 +6,12 @@
 namespace RAT {
 
 class GeoSolidFactory : public GeoFactory {
-public:
+ public:
   GeoSolidFactory(const std::string &name) : GeoFactory(name){};
   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
-  virtual G4LogicalVolume *ConstructLogicalVolume(G4VSolid *solid,
-                                                  DBLinkPtr table);
+  virtual G4LogicalVolume *ConstructLogicalVolume(G4VSolid *solid, DBLinkPtr table);
   virtual G4VSolid *ConstructSolid(DBLinkPtr table) = 0;
 };
 
-} // namespace RAT
+}  // namespace RAT
 #endif

@@ -18,7 +18,7 @@
 class TBranch;
 
 class BNLOpWLSData {
-public:
+ public:
   BNLOpWLSData(const std::string fname);
   virtual ~BNLOpWLSData();
 
@@ -40,4 +40,4 @@ public:
   std::vector<std::vector<std::vector<double>>> ExEmData;
 };
 
-#endif // __BNLOpWLSData__
+#endif  // __BNLOpWLSData__

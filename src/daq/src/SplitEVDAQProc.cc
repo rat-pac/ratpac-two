@@ -15,7 +15,6 @@ using namespace std;
 namespace RAT {
 
 SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
-
   // Trigger Specifications
   ldaq = DB::Get()->GetLink("SplitEVDAQ");
   fEventCounter = 0;
@@ -44,16 +43,14 @@ SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
 }
 
 PMTWaveform SplitEVDAQProc::GenerateWaveforms(DS::MCPMT *mcpmt) {
-
   PMTWaveform pmtwf;
 
   // Loop over PEs and create a pulse for each one
   for (int iph = 0; iph < mcpmt->GetMCPhotonCount(); iph++) {
-
     DS::MCPhoton *mcpe = mcpmt->GetMCPhoton(iph);
 
     PMTPulse *pmtpulse = new PMTPulse;
-    pmtpulse->SetPulseCharge(mcpe->GetCharge() * 50.0); // FIXME! Units
+    pmtpulse->SetPulseCharge(mcpe->GetCharge() * 50.0);  // FIXME! Units
     pmtpulse->SetPulseMin(fPMTPulseMin);
     pmtpulse->SetPulseOffset(fPMTPulseOffset);
     pmtpulse->SetPulseTimeOffset(fPMTPulseTimeOffset);
@@ -76,8 +73,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
 
   DS::MC *mc = ds->GetMC();
   // Prune the previous EV branchs if one exists
-  if (ds->ExistEV())
-    ds->PruneEV();
+  if (ds->ExistEV()) ds->PruneEV();
 
   // First loop through the PMTs and create a summed trigger
   vector<double> trigPulses;
@@ -87,19 +83,16 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     for (int pidx = 0; pidx < mcpmt->GetMCPhotonCount(); pidx++) {
       DS::MCPhoton *photon = mcpmt->GetMCPhoton(pidx);
       // Do we want to trigger on noise hits?
-      if (!fTriggerOnNoise && photon->IsDarkHit())
-        continue;
+      if (!fTriggerOnNoise && photon->IsDarkHit()) continue;
       double time = photon->GetFrontEndTime();
-      if (time > fMaxHitTime)
-        continue;
+      if (time > fMaxHitTime) continue;
       if (time > (lastTrigger + fPmtLockout)) {
         trigPulses.push_back(time);
         lastTrigger = time;
       }
     }
   }
-  if (trigPulses.size() < 1)
-    return Processor::OK; // We're done, no triggers
+  if (trigPulses.size() < 1) return Processor::OK;  // We're done, no triggers
 
   double start = *std::min_element(trigPulses.begin(), trigPulses.end());
   start = floor(start / fTriggerResolution) * fTriggerResolution;
@@ -131,8 +124,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     double x = triggerTrain[i];
     if (x > 0) {
       for (int j = i; j < i + fPulseWidth; j++) {
-        if (j >= nbins)
-          break;
+        if (j >= nbins) break;
         triggerHistogram[j] += x;
       }
     }
@@ -143,7 +135,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   vector<double> triggerTimes;
   for (int i = 0; i < nbins; i++) {
     double v = triggerHistogram[i];
-    if (v >= fTriggerThreshold) // check for trigger
+    if (v >= fTriggerThreshold)  // check for trigger
     {
       if ((i * bw) + start > (lastTrigger + fTriggerWindow + fTriggerLockout)) {
         lastTrigger = (i * bw) + start;
@@ -160,7 +152,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     ev->SetCalibratedTriggerTime(tt);
     ev->SetDeltaT(tt - lastTrigger);
     lastTrigger = tt;
-    double totalEVCharge = 0; // What does total charge get used for?
+    double totalEVCharge = 0;  // What does total charge get used for?
     for (int imcpmt = 0; imcpmt < mc->GetMCPMTCount(); imcpmt++) {
       DS::MCPMT *mcpmt = mc->GetMCPMT(imcpmt);
       int pmtID = mcpmt->GetID();
@@ -184,8 +176,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
       if (pmtInEvent) {
         DS::PMT *pmt = ev->AddNewPMT();
         pmt->SetID(pmtID);
-        double true_hit_time =
-            *std::min_element(hitTimes.begin(), hitTimes.end());
+        double true_hit_time = *std::min_element(hitTimes.begin(), hitTimes.end());
         // PMT Hit time relative to the trigger
         pmt->SetTime(true_hit_time - tt);
         pmt->SetCharge(integratedCharge);
@@ -195,14 +186,12 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         PMTWaveform pmtwfm = GenerateWaveforms(mcpmt);
         fDigitizer->AddChannel(pmtID, pmtwfm);
       }
-    } // Done looping over PMTs
+    }  // Done looping over PMTs
 
     if (fDigitize) {
-      std::map<UShort_t, std::vector<UShort_t>> waveforms =
-          fDigitizer->fDigitWaveForm;
-      for (std::map<UShort_t, std::vector<UShort_t>>::const_iterator it =
-               waveforms.begin();
-           it != waveforms.end(); it++) {
+      std::map<UShort_t, std::vector<UShort_t>> waveforms = fDigitizer->fDigitWaveForm;
+      for (std::map<UShort_t, std::vector<UShort_t>>::const_iterator it = waveforms.begin(); it != waveforms.end();
+           it++) {
         digit.SetWaveform(UShort_t(it->first), waveforms[UShort_t(it->first)]);
       }
 
@@ -251,4 +240,4 @@ void SplitEVDAQProc::SetI(std::string param, int value) {
     throw ParamUnknown(param);
 }
 
-} // namespace RAT
+}  // namespace RAT

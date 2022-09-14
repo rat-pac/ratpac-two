@@ -12,7 +12,7 @@
 namespace RAT {
 
 class DBMessenger : public G4UImessenger {
-public:
+ public:
   DBMessenger() { Init(DB::Get()); };
   DBMessenger(DB *dbToUse) { Init(dbToUse); };
   ~DBMessenger();
@@ -25,7 +25,7 @@ public:
   void Server(std::string url);
   void Run(int run);
 
-protected:
+ protected:
   void Init(DB *dbToUse);
 
   DB *db;
@@ -35,6 +35,6 @@ protected:
   G4UIcmdWithAnInteger *runCmd;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

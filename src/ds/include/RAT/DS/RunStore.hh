@@ -57,8 +57,9 @@
 #ifndef __RAT_DS_RunStore__
 #define __RAT_DS_RunStore__
 
-#include <RAT/DS/Run.hh>
 #include <TTree.h>
+
+#include <RAT/DS/Run.hh>
 #include <map>
 
 namespace RAT {
@@ -68,7 +69,7 @@ class RunStore;
 class Root;
 
 class RunRecord {
-public:
+ public:
   RunRecord() : run(0), writtenToDisk(false) {}
   ~RunRecord() { delete run; }
   Run *run;
@@ -77,7 +78,7 @@ public:
 
 class RunStore {
   /** Static interface */
-public:
+ public:
   /**
    * Get a pointer to the global RunStore instance.
    *
@@ -121,9 +122,7 @@ public:
    *  will call GetEntry(), SetBranchAddress(), and SetBranchStatus()
    *  on the tree at will.
    */
-  inline static void SetReadTree(TTree *tree) {
-    Get()->InstanceSetReadTree(tree);
-  }
+  inline static void SetReadTree(TTree *tree) { Get()->InstanceSetReadTree(tree); }
 
   /**
    * Sets the TTree to which Run records are written.
@@ -139,9 +138,7 @@ public:
    *
    *  The caller retains ownership of the tree.
    */
-  inline static void SetWriteTree(TTree *tree) {
-    Get()->InstanceSetWriteTree(tree);
-  }
+  inline static void SetWriteTree(TTree *tree) { Get()->InstanceSetWriteTree(tree); }
 
   /** Writes all unwritten run records to the write tree.
    *
@@ -176,15 +173,14 @@ public:
    *  tree.  Instead you can preload the cache from the tree at
    *  the beginning, then write only the new run records to it.
    */
-  inline static void PreloadFromTree(TTree *tree,
-                                     bool alreadyWrittenToDisk = false) {
+  inline static void PreloadFromTree(TTree *tree, bool alreadyWrittenToDisk = false) {
     Get()->InstancePreloadFromTree(tree, alreadyWrittenToDisk);
   }
 
-protected:
+ protected:
   static RunStore *fgStore;
 
-public:
+ public:
   /** You probably want the static interface above. */
   RunStore();
   virtual ~RunStore();
@@ -206,7 +202,7 @@ public:
   std::map<int, RunRecord *> fCache;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

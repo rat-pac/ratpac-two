@@ -33,7 +33,7 @@
 namespace RAT {
 
 class Processor {
-public:
+ public:
   /** The short name of this processor. */
   std::string name;
 
@@ -65,7 +65,7 @@ public:
    *  Thrown if some problem happens while setting a parameter.
    */
   class ParamError {
-  public:
+   public:
     /** Create parameter error.
      *
      *  @param[in]  _param  Name of parameter which triggered this
@@ -81,7 +81,7 @@ public:
       processor.
   */
   class ParamUnknown : public ParamError {
-  public:
+   public:
     /** Create unknown parameter error.
      *
      *  @param[in]  _param  Name of unknown parameter
@@ -99,14 +99,13 @@ public:
    *  function to format strings, much like sprintf().
    */
   class ParamInvalid : public ParamError {
-  public:
+   public:
     /** Create invalid parameter value error.
      *
      *  @param[in]  _param  Name of parameter
      *  @param[in]  _msg    Message explaining problem with setting the value.
      */
-    ParamInvalid(std::string _param, std::string _msg)
-        : ParamError(_param), msg(_msg){};
+    ParamInvalid(std::string _param, std::string _msg) : ParamError(_param), msg(_msg){};
 
     std::string msg; /**< Message explaining problem. */
   };
@@ -178,6 +177,6 @@ public:
   virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

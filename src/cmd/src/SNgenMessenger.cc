@@ -4,67 +4,59 @@
 // Provide user commands to allow the user to change
 // the SNgen parameters via the command line.
 
-#include <RAT/SNgen.hh>
-#include <RAT/SNgenMessenger.hh>
-
 #include <G4String.hh>
 #include <G4UIcmdWithADouble.hh>
 #include <G4UIcommand.hh>
 #include <G4UIdirectory.hh>
+#include <RAT/SNgen.hh>
+#include <RAT/SNgenMessenger.hh>
 
 namespace RAT {
 
 SNgenMessenger::SNgenMessenger(SNgen *e) : sngen(e) {
   // Commands will in a /generator/supernova/ directory
   G4UIdirectory *dir = new G4UIdirectory("/generator/supernova/");
-  dir->SetGuidance(
-      "Control the physics parameters of the elastic-scattering generator");
+  dir->SetGuidance("Control the physics parameters of the elastic-scattering generator");
 
   wmaCmd = new G4UIcmdWithADouble("/generator/supernova/wma", this);
-  wmaCmd->SetGuidance(
-      "Sets the value of sine-squared theta (the weak mixing angle)");
+  wmaCmd->SetGuidance("Sets the value of sine-squared theta (the weak mixing angle)");
   wmaCmd->SetParameterName("sin2th", false);
   wmaCmd->SetDefaultValue(sngen->GetMixingAngle());
 
   vmuCmd = new G4UIcmdWithADouble("/generator/supernova/vmu", this);
-  vmuCmd->SetGuidance("Sets the value of the neutrino magnetic moment (units "
-                      "of Bohr magnetons)");
+  vmuCmd->SetGuidance(
+      "Sets the value of the neutrino magnetic moment (units "
+      "of Bohr magnetons)");
   vmuCmd->SetParameterName("vmu", false);
   vmuCmd->SetDefaultValue(sngen->GetMagneticMoment());
 
   IBDAmpCmd = new G4UIcmdWithADouble("/generator/supernova/ibd", this);
-  IBDAmpCmd->SetGuidance(
-      "Sets the fractional amount of supernova Inverse Beta Decay's ");
+  IBDAmpCmd->SetGuidance("Sets the fractional amount of supernova Inverse Beta Decay's ");
   IBDAmpCmd->SetParameterName("IBDAmp", false);
   IBDAmpCmd->SetDefaultValue(sngen->GetIBDAmplitude());
 
   ESAmpCmd = new G4UIcmdWithADouble("/generator/supernova/es", this);
-  ESAmpCmd->SetGuidance(
-      "Sets the fractional amount of supernova Elastic Scattering");
+  ESAmpCmd->SetGuidance("Sets the fractional amount of supernova Elastic Scattering");
   ESAmpCmd->SetParameterName("ESAmp", false);
   ESAmpCmd->SetDefaultValue(sngen->GetESAmplitude());
 
   CCAmpCmd = new G4UIcmdWithADouble("/generator/supernova/cc", this);
-  CCAmpCmd->SetGuidance(
-      "Sets the fractional amount of supernova Charge Current");
+  CCAmpCmd->SetGuidance("Sets the fractional amount of supernova Charge Current");
   CCAmpCmd->SetParameterName("CCAmp", false);
   CCAmpCmd->SetDefaultValue(sngen->GetCCAmplitude());
 
   ICCAmpCmd = new G4UIcmdWithADouble("/generator/supernova/icc", this);
-  ICCAmpCmd->SetGuidance(
-      "Sets the fractional amount of supernova Inverse Charge Current ");
+  ICCAmpCmd->SetGuidance("Sets the fractional amount of supernova Inverse Charge Current ");
   ICCAmpCmd->SetParameterName("ICCAmp", false);
   ICCAmpCmd->SetDefaultValue(sngen->GetICCAmplitude());
 
   NCAmpCmd = new G4UIcmdWithADouble("/generator/supernova/nc", this);
-  NCAmpCmd->SetGuidance(
-      "Sets the fractional amount of supernova Neutral Current");
+  NCAmpCmd->SetGuidance("Sets the fractional amount of supernova Neutral Current");
   NCAmpCmd->SetParameterName("NCAmp", false);
   NCAmpCmd->SetDefaultValue(sngen->GetNCAmplitude());
 
   ModelCmd = new G4UIcmdWithADouble("/generator/supernova/model", this);
-  ModelCmd->SetGuidance(
-      "Sets the fractional amount based on model (1: livermore, 2:gkvm)");
+  ModelCmd->SetGuidance("Sets the fractional amount based on model (1: livermore, 2:gkvm)");
   ModelCmd->SetParameterName("Model", false);
   ModelCmd->SetDefaultValue(sngen->GetModel());
 }
@@ -122,4 +114,4 @@ G4String SNgenMessenger::GetCurrentValue(G4UIcommand *command) {
   return G4String("Error: Invalid SNgenMessenger \"get\" command");
 }
 
-} // namespace RAT
+}  // namespace RAT

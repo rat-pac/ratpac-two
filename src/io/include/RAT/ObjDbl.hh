@@ -7,7 +7,7 @@ namespace RAT {
 
 // TObject wrapper for a double so you can write it to a file
 class ObjDbl : public TObject {
-public:
+ public:
   ObjDbl() : TObject() { fVal = 0; };
   ObjDbl(double val) : TObject() { fVal = val; };
   ObjDbl(const ObjDbl &other) : TObject() { fVal = other.fVal; };
@@ -27,10 +27,10 @@ public:
 
   ClassDef(ObjDbl, 1);
 
-protected:
+ protected:
   double fVal;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

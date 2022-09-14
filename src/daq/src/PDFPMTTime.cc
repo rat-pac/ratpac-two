@@ -24,17 +24,14 @@ PDFPMTTime::PDFPMTTime(string pmt_model) {
     info << pmt_model << endl;
   }
 
-  if (fTime.size() != fTimeProb.size())
-    Log::Die("PDFPMTTime: time and probability arrays of different length");
-  if (fTime.size() < 2)
-    Log::Die("PDFPMTTime: cannot define a PDF with fewer than 2 points");
+  if (fTime.size() != fTimeProb.size()) Log::Die("PDFPMTTime: time and probability arrays of different length");
+  if (fTime.size() < 2) Log::Die("PDFPMTTime: cannot define a PDF with fewer than 2 points");
 
   double integral = 0.0;
   fTimeProbCumu = vector<double>(fTime.size());
   fTimeProbCumu[0] = 0.0;
   for (size_t i = 0; i < fTime.size() - 1; i++) {
-    integral += (fTime[i + 1] - fTime[i]) * (fTimeProb[i] + fTimeProb[i + 1]) /
-                2.0; // trapazoid integration
+    integral += (fTime[i + 1] - fTime[i]) * (fTimeProb[i] + fTimeProb[i + 1]) / 2.0;  // trapazoid integration
     fTimeProbCumu[i + 1] = integral;
   }
   for (size_t i = 0; i < fTime.size(); i++) {
@@ -50,9 +47,8 @@ double PDFPMTTime::PickTime(double time) const {
   for (size_t i = 1; i < fTime.size(); i++) {
     if (rval <= fTimeProbCumu[i]) {
       return time + fCableDelay +
-             (rval - fTimeProbCumu[i - 1]) * (fTime[i] - fTime[i - 1]) /
-                 (fTimeProbCumu[i] - fTimeProbCumu[i - 1]) +
-             fTime[i - 1]; // linear interpolation
+             (rval - fTimeProbCumu[i - 1]) * (fTime[i] - fTime[i - 1]) / (fTimeProbCumu[i] - fTimeProbCumu[i - 1]) +
+             fTime[i - 1];  // linear interpolation
     }
   }
   info << "PDFPMTTime::PickTime: impossible condition encountered - returning "
@@ -61,4 +57,4 @@ double PDFPMTTime::PickTime(double time) const {
   return time + fCableDelay + fTime[fTime.size() - 1];
 }
 
-} // namespace RAT
+}  // namespace RAT

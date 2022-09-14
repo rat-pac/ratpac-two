@@ -28,7 +28,7 @@
 */
 
 class GLG4HitPhoton {
-public:
+ public:
   GLG4HitPhoton() { fPrepulse = false; }
 
   void SetPMTID(int id) { fPMTID = id; }
@@ -48,9 +48,12 @@ public:
   double GetTime() const { return fTime; }
   double GetKineticEnergy() const;
   double GetWavelength() const;
-  template <class T> inline void GetPosition(T &x, T &y, T &z) const;
-  template <class T> inline void GetMomentum(T &x, T &y, T &z) const;
-  template <class T> inline void GetPolarization(T &x, T &y, T &z) const;
+  template <class T>
+  inline void GetPosition(T &x, T &y, T &z) const;
+  template <class T>
+  inline void GetMomentum(T &x, T &y, T &z) const;
+  template <class T>
+  inline void GetPolarization(T &x, T &y, T &z) const;
   int GetCount() const { return fCount; }
   int GetTrackID() const { return fTrackID; }
   std::string GetCreatorProcess() const { return fCreatorProcess; }
@@ -58,20 +61,20 @@ public:
 
   void Print(std::ostream &) const;
 
-private:
-  double fTime;           // time of hit
-  int fPMTID;             // ID number of PMT the HitPhoton hit
-  float fKE;              // kinetic energy
-  float fPosition[3];     // x,y,z components of position
-  float fMomentum[3];     // x,y,z components of momentum (normalized?)
-  float fPolarization[3]; // x,y,z components of polarization
-  int fCount;             // count of photons, often 1
-  int fTrackID; // ID number of track which generated this photoelectron
-  std::string fCreatorProcess; // Process that created the photon
-  bool fPrepulse;              // if this photon was transmitted through the
-                  // the photocathode and a photoelectron was created
-                  // at the first dynode, we will choose from the
-                  // time and charge distributions for prepulses
+ private:
+  double fTime;                 // time of hit
+  int fPMTID;                   // ID number of PMT the HitPhoton hit
+  float fKE;                    // kinetic energy
+  float fPosition[3];           // x,y,z components of position
+  float fMomentum[3];           // x,y,z components of momentum (normalized?)
+  float fPolarization[3];       // x,y,z components of polarization
+  int fCount;                   // count of photons, often 1
+  int fTrackID;                 // ID number of track which generated this photoelectron
+  std::string fCreatorProcess;  // Process that created the photon
+  bool fPrepulse;               // if this photon was transmitted through the
+                                // the photocathode and a photoelectron was created
+                                // at the first dynode, we will choose from the
+                                // time and charge distributions for prepulses
 };
 
 template <class T>
@@ -97,9 +100,8 @@ inline void GLG4HitPhoton::GetPolarization(T &x, T &y, T &z) const {
 
 /** comparison function for sorting GLG4HitPhoton pointers
  */
-inline bool Compare_HitPhotonPtr_TimeAscending(const GLG4HitPhoton *a,
-                                               const GLG4HitPhoton *b) {
+inline bool Compare_HitPhotonPtr_TimeAscending(const GLG4HitPhoton *a, const GLG4HitPhoton *b) {
   return a->GetTime() < b->GetTime();
 }
 
-#endif // __GLG4HitPhoton_hh__
+#endif  // __GLG4HitPhoton_hh__

@@ -5,16 +5,15 @@
 
 namespace RAT {
 class GeoSolidArrayFactoryBase : public GeoFactory {
-public:
+ public:
   GeoSolidArrayFactoryBase(const std::string &name) : GeoFactory(name){};
   using GeoFactory::Construct;
 
-protected:
+ protected:
   virtual G4VPhysicalVolume *Construct(G4VSolid *BaseSolid, DBLinkPtr table);
-  virtual G4VPhysicalVolume *Construct(G4LogicalVolume *logiSolid,
-                                       DBLinkPtr table);
+  virtual G4VPhysicalVolume *Construct(G4LogicalVolume *logiSolid, DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

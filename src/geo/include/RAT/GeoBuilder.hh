@@ -9,7 +9,7 @@
 namespace RAT {
 
 class GeoBuilder {
-public:
+ public:
   // Initialize factory with default classes
   GeoBuilder();
   // Construct all geometry from database, returns world volume
@@ -20,6 +20,6 @@ public:
   G4VPhysicalVolume *Construct(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -39,10 +39,10 @@ G4VSolid *GeoTubeIntersectionFactory::ConstructSolid(DBLinkPtr table) {
   } catch (DBNotFoundError &e) {
   };
   if (posz.size() != rmax.size() || posz.size() != rmin.size())
-    Log::Die("GeoTubeIntersectionFactory: base tube arrays"
-             " do not have equal lengths");
-  if (posz.size() < 2)
-    Log::Die("GeoTubeIntersectionFactory: tube arrays must have length > 1");
+    Log::Die(
+        "GeoTubeIntersectionFactory: base tube arrays"
+        " do not have equal lengths");
+  if (posz.size() < 2) Log::Die("GeoTubeIntersectionFactory: tube arrays must have length > 1");
   for (unsigned i = 0; i < posz.size(); i++) {
     posz[i] *= CLHEP::mm;
     rmax[i] *= CLHEP::mm;
@@ -53,8 +53,9 @@ G4VSolid *GeoTubeIntersectionFactory::ConstructSolid(DBLinkPtr table) {
   vector<double> poszInter = table->GetDArray("pos_z_inter");
   vector<double> phiInter = table->GetDArray("phi_inter");
   if (poszInter.size() != phiInter.size())
-    Log::Die("GeoTubeIntersectionFactory: intersecton parameter arrays"
-             " do not have same lengths");
+    Log::Die(
+        "GeoTubeIntersectionFactory: intersecton parameter arrays"
+        " do not have same lengths");
   vector<double> sizezInter = table->GetDArray("size_z_inter");
   vector<double> rmaxInter = table->GetDArray("r_max_inter");
   vector<double> rminInter(sizezInter.size(), 0.0);
@@ -67,21 +68,20 @@ G4VSolid *GeoTubeIntersectionFactory::ConstructSolid(DBLinkPtr table) {
     dispInter = table->GetDArray("disp_inter");
   } catch (DBNotFoundError &e) {
   }
-  if (poszInter.size() != poszInter.size() ||
-      rmaxInter.size() != poszInter.size() ||
-      rminInter.size() != poszInter.size() ||
-      dispInter.size() != poszInter.size())
-    Log::Die("GeoTubeIntersectionFactory: intersecton parameter arrays"
-             " do not have equal lengths");
+  if (poszInter.size() != poszInter.size() || rmaxInter.size() != poszInter.size() ||
+      rminInter.size() != poszInter.size() || dispInter.size() != poszInter.size())
+    Log::Die(
+        "GeoTubeIntersectionFactory: intersecton parameter arrays"
+        " do not have equal lengths");
 
   vector<bool> inter = vector<bool>(poszInter.size(), true);
   try {
     vector<int> includeInter = table->GetIArray("include_inter");
     if (poszInter.size() != includeInter.size())
-      Log::Die("GeoTubeIntersectionFactory: intersecton parameter arrays"
-               " do not have equal lengths");
-    for (unsigned i = 0; i < includeInter.size(); i++)
-      inter[i] = includeInter[i];
+      Log::Die(
+          "GeoTubeIntersectionFactory: intersecton parameter arrays"
+          " do not have equal lengths");
+    for (unsigned i = 0; i < includeInter.size(); i++) inter[i] = includeInter[i];
   } catch (DBNotFoundError &e) {
   }
 
@@ -97,14 +97,11 @@ G4VSolid *GeoTubeIntersectionFactory::ConstructSolid(DBLinkPtr table) {
 
   G4VSolid *baseTube;
   if (posz.size() == 2)
-    baseTube = new G4Tubs(volumeName, rmin[0], rmax[0],
-                          abs(posz[1] - posz[0]) / 2, phiStart, phiDelta);
+    baseTube = new G4Tubs(volumeName, rmin[0], rmax[0], abs(posz[1] - posz[0]) / 2, phiStart, phiDelta);
   else if (zeror)
-    baseTube = new G4Polycone(volumeName, phiStart, phiDelta, posz.size(),
-                              rmaxArray, poszArray);
+    baseTube = new G4Polycone(volumeName, phiStart, phiDelta, posz.size(), rmaxArray, poszArray);
   else
-    baseTube = new G4Polycone(volumeName, phiStart, phiDelta, posz.size(),
-                              poszArray, rminArray, rmaxArray);
+    baseTube = new G4Polycone(volumeName, phiStart, phiDelta, posz.size(), poszArray, rminArray, rmaxArray);
 
   for (unsigned i = 0; i < poszInter.size(); i++) {
     sizezInter[i] *= CLHEP::mm;
@@ -128,19 +125,18 @@ G4VSolid *GeoTubeIntersectionFactory::ConstructSolid(DBLinkPtr table) {
       }
     }
     if (j1 == -1 || j2 == -1)
-      Log::Die("GeoTubeIntersectionFactory: intersection point out of "
-               "base sold's z range");
+      Log::Die(
+          "GeoTubeIntersectionFactory: intersection point out of "
+          "base sold's z range");
 
     double rcenter = (rmax[j2] - rmax[j1]) * (poszInter[i] - posz[j1]);
     rcenter /= posz[j2] - posz[j1];
     rcenter += rmax[j1] + dispInter[i];
 
-    double minr =
-        (rmin[j2] - rmin[j1]) * (poszInter[i] - rmaxInter[i] - posz[j1]);
+    double minr = (rmin[j2] - rmin[j1]) * (poszInter[i] - rmaxInter[i] - posz[j1]);
     minr /= posz[j2] - posz[j1];
     minr += rmin[j1] + dispInter[i];
-    if (minr == 0.0)
-      minr = rcenter;
+    if (minr == 0.0) minr = rcenter;
 
     double dr = minr * (1 - sqrt(1 - pow(fmin(rmaxInter[i] / minr, 1.0), 2)));
     dr += rcenter - minr;
@@ -149,40 +145,29 @@ G4VSolid *GeoTubeIntersectionFactory::ConstructSolid(DBLinkPtr table) {
     stringstream ss;
     ss << i;
     G4VSolid *interTube =
-        new G4Tubs(volumeName + "_inter_" + ss.str(), rminInter[i],
-                   rmaxInter[i], sizezInter[i], 0.0, CLHEP::twopi);
+        new G4Tubs(volumeName + "_inter_" + ss.str(), rminInter[i], rmaxInter[i], sizezInter[i], 0.0, CLHEP::twopi);
     double cutz = sizezInter[i];
-    if (dispInter[i] == 0.0)
-      cutz *= 1.0 + 1e-6;
-    G4VSolid *cutTube = new G4Tubs(volumeName + "_cut_" + ss.str(), 0.0,
-                                   rmaxInter[i], cutz, 0.0, CLHEP::twopi);
+    if (dispInter[i] == 0.0) cutz *= 1.0 + 1e-6;
+    G4VSolid *cutTube = new G4Tubs(volumeName + "_cut_" + ss.str(), 0.0, rmaxInter[i], cutz, 0.0, CLHEP::twopi);
 
     // put the inter on the x-axis, then rotate
     G4RotationMatrix *rotate = new G4RotationMatrix();
     rotate->rotateZ(-phiInter[i]);
     rotate->rotateY(90 * CLHEP::deg);
     G4ThreeVector translate((rcenter + sizezInter[i] - dr) * cos(phiInter[i]),
-                            (rcenter + sizezInter[i] - dr) * sin(phiInter[i]),
-                            poszInter[i]);
+                            (rcenter + sizezInter[i] - dr) * sin(phiInter[i]), poszInter[i]);
 
-    if (minr < rcenter)
-      baseTube = new G4SubtractionSolid(volumeName, baseTube, cutTube, rotate,
-                                        translate);
+    if (minr < rcenter) baseTube = new G4SubtractionSolid(volumeName, baseTube, cutTube, rotate, translate);
     if (inter[i]) {
-      baseTube =
-          new G4UnionSolid(volumeName, baseTube, interTube, rotate, translate);
+      baseTube = new G4UnionSolid(volumeName, baseTube, interTube, rotate, translate);
       if (minr < rcenter) {
         G4VSolid *innerTube;
         if (posz.size() == 2)
-          innerTube =
-              new G4Tubs(volumeName + "_inner", 0.0, rmin[0],
-                         abs(posz[1] - posz[0]) / 2, phiStart, phiDelta);
+          innerTube = new G4Tubs(volumeName + "_inner", 0.0, rmin[0], abs(posz[1] - posz[0]) / 2, phiStart, phiDelta);
         else
-          innerTube = new G4Polycone(volumeName + "_inner", phiStart, phiDelta,
-                                     posz.size(), rminArray, poszArray);
-        baseTube =
-            new G4SubtractionSolid(volumeName + "_inter" + ss.str(), baseTube,
-                                   innerTube, 0, G4ThreeVector(0.0, 0.0, 0.0));
+          innerTube = new G4Polycone(volumeName + "_inner", phiStart, phiDelta, posz.size(), rminArray, poszArray);
+        baseTube = new G4SubtractionSolid(volumeName + "_inter" + ss.str(), baseTube, innerTube, 0,
+                                          G4ThreeVector(0.0, 0.0, 0.0));
       }
     }
   }
@@ -190,4 +175,4 @@ G4VSolid *GeoTubeIntersectionFactory::ConstructSolid(DBLinkPtr table) {
   return baseTube;
 }
 
-} // namespace RAT
+}  // namespace RAT

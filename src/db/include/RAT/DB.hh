@@ -95,15 +95,14 @@ double rindex = lmedia->GetD("index_of_refraction");
 
 namespace RAT {
 
-class DB; // Forward decl to allow for static DB member inside itself
+class DB;  // Forward decl to allow for static DB member inside itself
 class DBTable;
 class DBLink;
 
 class DBTableKey {
-public:
+ public:
   DBTableKey() : name(""), index(""), run(0){};
-  DBTableKey(const std::string &_name, const std::string &_index,
-             const int _run = 0)
+  DBTableKey(const std::string &_name, const std::string &_index, const int _run = 0)
       : name(_name), index(_index), run(_run){};
 
   std::string name;
@@ -125,7 +124,7 @@ typedef simple_ptr_nocopy<DBLink> DBLinkPtr;
 typedef std::map<std::string, DBLinkPtr> DBLinkGroup;
 
 class DB : public DBFieldCallback {
-public:
+ public:
   /** Obtain pointer to global database
    *
    *  Unless you want a private database, this is the method you
@@ -148,18 +147,17 @@ public:
    *
    *  @returns True if @p descriptor was a properly formatted table name.
    */
-  static bool ParseTableName(std::string descriptor, std::string &table,
-                             std::string &index);
+  static bool ParseTableName(std::string descriptor, std::string &table, std::string &index);
 
   /** Reads a file and returns all the RATDB tables found inside.
    *  Works with both RATDB native and JSON files */
   static std::vector<RAT::DBTable *> ReadRATDBFile(const std::string &filename);
 
-protected:
+ protected:
   /** Pointer to global DB instance */
   static DB *primary;
 
-public:
+ public:
   /** Create new database in memory with no tables. */
   DB();
   virtual ~DB();
@@ -247,23 +245,20 @@ public:
 
   /** Set field in user plane, no table index. */
   template <typename T>
-  void Set(const std::string &tblname, const std::string &fieldname,
-           const T &val);
+  void Set(const std::string &tblname, const std::string &fieldname, const T &val);
 
   /** Set field in user plane, with table index. */
   template <typename T>
-  void Set(const std::string &tblname, const std::string &index,
-           const std::string &fieldname, const T &val);
+  void Set(const std::string &tblname, const std::string &index, const std::string &fieldname, const T &val);
 
   /** Set array field index in user plane, no table index. */
   template <typename T>
-  void SetArrayIndex(const std::string &tblname, const std::string &fieldname,
-                     size_t idx, const T &val);
+  void SetArrayIndex(const std::string &tblname, const std::string &fieldname, size_t idx, const T &val);
 
   /** Set array field index in user plane, with table index. */
   template <typename T>
-  void SetArrayIndex(const std::string &tblname, const std::string &index,
-                     const std::string &fieldname, size_t idx, const T &val);
+  void SetArrayIndex(const std::string &tblname, const std::string &index, const std::string &fieldname, size_t idx,
+                     const T &val);
 
   /************************DBLink interface********************/
   // This is the low level interface that DBLinks use.
@@ -271,9 +266,7 @@ public:
 
   /** Get pointer to a table in user plane: do not use unless you know
       what you are doing! */
-  DBTable *GetUserTable(std::string tblname, std::string index) {
-    return FindTable(tblname, index, -1);
-  };
+  DBTable *GetUserTable(std::string tblname, std::string index) { return FindTable(tblname, index, -1); };
 
   /** Get pointer to a table in run plane: do not use unless you know
       what you are doing! */
@@ -283,9 +276,7 @@ public:
 
   /** Get pointer to a table in default plane: do not use unless you know
       what you are doing! */
-  DBTable *GetDefaultTable(std::string tblname, std::string index) {
-    return FindTable(tblname, index, 0);
-  };
+  DBTable *GetDefaultTable(std::string tblname, std::string index) { return FindTable(tblname, index, 0); };
 
   /** Remove a table link from the list of outstanding links: do not
    *  use unless you know what you are doing!
@@ -305,12 +296,10 @@ public:
    */
   int NumLinks() { return links.size(); };
 
-  virtual std::vector<int> FetchIArray(const std::string &tableID,
-                                       const std::string &fieldname);
-  virtual std::vector<double> FetchDArray(const std::string &tableID,
-                                          const std::string &fieldname);
+  virtual std::vector<int> FetchIArray(const std::string &tableID, const std::string &fieldname);
+  virtual std::vector<double> FetchDArray(const std::string &tableID, const std::string &fieldname);
 
-protected:
+ protected:
   /** Obtain a pointer to a table loaded in memory.
    *
    *  @returns Pointer to table if found, otherwise 0.
@@ -323,8 +312,7 @@ protected:
    *  @returns Pointer to existing table, or pointer to new table,
    *  which is also added to @p tblset.
    */
-  DBTable *FindOrCreateTable(std::string tblname, std::string index,
-                             int runNumber);
+  DBTable *FindOrCreateTable(std::string tblname, std::string index, int runNumber);
 
   /** List of DBLinks which have been issued by GetLink() or
    *  GetLinkGroup().
@@ -369,48 +357,40 @@ protected:
   int run;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 // Unfortunately necessary to include this after definition of DB to avoid
 // circular references
 #include <RAT/DBLink.hh>
 
 template <typename T>
-void RAT::DB::Set(const std::string &tblname, const std::string &fieldname,
-                  const T &val) {
+void RAT::DB::Set(const std::string &tblname, const std::string &fieldname, const T &val) {
   Set(tblname, "", fieldname, val);
 }
 
 /** Set field in user plane, with table index. */
 template <typename T>
-void RAT::DB::Set(const std::string &tblname, const std::string &index,
-                  const std::string &fieldname, const T &val) {
+void RAT::DB::Set(const std::string &tblname, const std::string &index, const std::string &fieldname, const T &val) {
   DBTable *t = FindOrCreateTable(tblname, index, -1);
   t->Set(fieldname, val);
 }
 
 /** Set array field index in user plane, no table index. */
 template <typename T>
-void RAT::DB::SetArrayIndex(const std::string &tblname,
-                            const std::string &fieldname, size_t idx,
-                            const T &val) {
+void RAT::DB::SetArrayIndex(const std::string &tblname, const std::string &fieldname, size_t idx, const T &val) {
   SetArrayIndex(tblname, "", fieldname, idx, val);
 }
 
 /** Set array field index in user plane, with table index. */
 template <typename T>
-void RAT::DB::SetArrayIndex(const std::string &tblname,
-                            const std::string &index,
-                            const std::string &fieldname, size_t idx,
-                            const T &val) {
+void RAT::DB::SetArrayIndex(const std::string &tblname, const std::string &index, const std::string &fieldname,
+                            size_t idx, const T &val) {
   DBTable *t = FindOrCreateTable(tblname, index, -1);
-  DBLinkPtr p =
-      GetLink(tblname,
-              index); // This ensures we always grab either the previously set
-                      // or default plane array without keeping track explicitly
+  DBLinkPtr p = GetLink(tblname,
+                        index);  // This ensures we always grab either the previously set
+                                 // or default plane array without keeping track explicitly
   json::Value jval = p->Get<json::Value>(fieldname);
-  Log::Assert(jval.getType() == json::TARRAY,
-              "RATDB: Cannot set an index for an item that is not an array!");
+  Log::Assert(jval.getType() == json::TARRAY, "RATDB: Cannot set an index for an item that is not an array!");
   jval[index] = val;
   t->Set(fieldname, jval);
 }

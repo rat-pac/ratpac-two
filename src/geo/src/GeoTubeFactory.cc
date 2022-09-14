@@ -1,5 +1,6 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <G4Tubs.hh>
 #include <RAT/GeoTubeFactory.hh>
 
@@ -32,4 +33,4 @@ G4VSolid *GeoTubeFactory::ConstructSolid(DBLinkPtr table) {
   return new G4Tubs(volume_name, r_min, r_max, size_z, phi_start, phi_delta);
 }
 
-} // namespace RAT
+}  // namespace RAT

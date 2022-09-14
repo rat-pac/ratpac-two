@@ -1,5 +1,6 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <G4Box.hh>
 #include <G4RotationMatrix.hh>
 #include <G4SubtractionSolid.hh>
@@ -26,15 +27,12 @@ G4VSolid *GeoPerfBoxFactory::ConstructSolid(DBLinkPtr table) {
   }
   for (unsigned i = 0; i < size.size(); i++) {
     size[i] *= CLHEP::mm;
-    if (size[i] < thickness)
-      Log::Die("GeoPerfBoxFactory: thickness larger than dimension");
+    if (size[i] < thickness) Log::Die("GeoPerfBoxFactory: thickness larger than dimension");
   }
   G4VSolid *box = new G4Box(volumeName, size[0], size[1], size[2]);
   if (thickness > 0.0) {
-    G4VSolid *cut = new G4Box(volumeName + "_cut", size[0] - thickness,
-                              size[1] - thickness, size[2] - thickness);
-    box = new G4SubtractionSolid(volumeName, box, cut, 0,
-                                 G4ThreeVector(0.0, 0.0, 0.0));
+    G4VSolid *cut = new G4Box(volumeName + "_cut", size[0] - thickness, size[1] - thickness, size[2] - thickness);
+    box = new G4SubtractionSolid(volumeName, box, cut, 0, G4ThreeVector(0.0, 0.0, 0.0));
   }
 
   // cut out the holes
@@ -49,13 +47,11 @@ G4VSolid *GeoPerfBoxFactory::ConstructSolid(DBLinkPtr table) {
     yhole[i] *= CLHEP::mm;
     stringstream ss;
     ss << i;
-    G4VSolid *tube = new G4Tubs(volumeName + ss.str(), 0.0, rhole[i],
-                                size[2] * 1.01, 0.0, CLHEP::twopi);
-    box = new G4SubtractionSolid(volumeName, box, tube, 0,
-                                 G4ThreeVector(xhole[i], yhole[i], 0.0));
+    G4VSolid *tube = new G4Tubs(volumeName + ss.str(), 0.0, rhole[i], size[2] * 1.01, 0.0, CLHEP::twopi);
+    box = new G4SubtractionSolid(volumeName, box, tube, 0, G4ThreeVector(xhole[i], yhole[i], 0.0));
   }
 
   return box;
 }
 
-} // namespace RAT
+}  // namespace RAT

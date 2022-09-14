@@ -20,14 +20,15 @@
 #ifndef __RAT_ProcBlock__
 #define __RAT_ProcBlock__
 
-#include <RAT/Processor.hh>
 #include <TStopwatch.h>
+
+#include <RAT/Processor.hh>
 #include <vector>
 
 namespace RAT {
 
 class ProcBlock : public Processor {
-public:
+ public:
   /** Create an empty block of processors. */
   ProcBlock();
 
@@ -79,7 +80,7 @@ public:
    */
   virtual Processor::Result DSEvent(DS::Root *ds);
 
-protected:
+ protected:
   /** List of pointers to processors in this block.  The ProcBlock
    *  object owns these Processor objects. */
   std::vector<Processor *> fProcessorList;
@@ -108,6 +109,6 @@ protected:
   std::vector<Processor *> fDeferredAppendList;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -14,7 +14,7 @@ class DBTable;
 
 /** Tokenizer for RATDB text format. */
 class Tokenizer {
-public:
+ public:
   enum Type {
     TYPE_IDENTIFIER,
     TYPE_INTEGER,
@@ -43,7 +43,7 @@ public:
     return type == TYPE_STRING || type == TYPE_INTEGER || type == TYPE_DOUBLE;
   };
 
-protected:
+ protected:
   enum State {
     STATE_START,
     STATE_COMMENT,
@@ -76,7 +76,7 @@ protected:
 
 /** Tokenizer stack to support #include of other files */
 class TokenizerStack {
-public:
+ public:
   TokenizerStack(Tokenizer tokenizer) { stack.push(tokenizer); };
 
   void Push(Tokenizer tokenizer) { stack.push(tokenizer); };
@@ -88,23 +88,20 @@ public:
   double AsDouble() { return stack.top().AsDouble(); };
 
   void RaiseError(std::string message) { stack.top().RaiseError(message); };
-  void RaiseProbablyJSONError(std::string message) {
-    stack.top().RaiseProbablyJSONError(message);
-  };
+  void RaiseProbablyJSONError(std::string message) { stack.top().RaiseProbablyJSONError(message); };
 
   bool Eof() { return stack.top().Eof(); };
 
   std::string GetCurrentFilename() const { return stack.top().GetFilename(); };
 
-protected:
+ protected:
   std::stack<Tokenizer> stack;
 };
 
 /** Parser of RATDB text format. */
 class Parser {
-public:
-  Parser(std::string str, std::string filename)
-      : tokenizer(Tokenizer(str, filename)){};
+ public:
+  Parser(std::string str, std::string filename) : tokenizer(Tokenizer(str, filename)){};
 
   enum State {
     STATE_START,
@@ -119,17 +116,17 @@ public:
 
   DBTable *Next();
 
-protected:
+ protected:
   TokenizerStack tokenizer;
 };
 
 /* A $#%!! class with one static function to make rootcint happy */
 class DBTextLoader {
-public:
+ public:
   /** Returns a list of all tables found in RATDB text file @p filename. */
   static std::vector<RAT::DBTable *> parse(std::string filename);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

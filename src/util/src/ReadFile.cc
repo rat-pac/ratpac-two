@@ -1,5 +1,6 @@
-#include <RAT/ReadFile.hh>
 #include <stdio.h>
+
+#include <RAT/ReadFile.hh>
 #if __HAS_BZ2
 #include <bzlib.h>
 #endif
@@ -17,12 +18,10 @@ int ReadFile(const std::string &filename, std::string &filecontents) {
   // Try bzip2 first
   BZFILE *bf = BZ2_bzopen(filename.c_str(), "r");
 
-  if (bf == NULL)
-    return -1;
+  if (bf == NULL) return -1;
 
   filecontents = "";
   while ((nread = BZ2_bzread(bf, buffer, nmax))) {
-
     // Did the read fail?
     if (nread < 0) {
       bzip2 = false;
@@ -40,12 +39,10 @@ int ReadFile(const std::string &filename, std::string &filecontents) {
     // Not BZIP2 format, so just dump the file contents raw into the string
     FILE *f = fopen(filename.c_str(), "r");
 
-    if (f == NULL)
-      return -1;
+    if (f == NULL) return -1;
 
     filecontents = "";
-    while ((nread = fread(buffer, sizeof(char), nmax, f)))
-      filecontents.append(buffer, nread);
+    while ((nread = fread(buffer, sizeof(char), nmax, f))) filecontents.append(buffer, nread);
 
     fclose(f);
   }
@@ -53,4 +50,4 @@ int ReadFile(const std::string &filename, std::string &filecontents) {
   return 0;
 }
 
-} // namespace RAT
+}  // namespace RAT

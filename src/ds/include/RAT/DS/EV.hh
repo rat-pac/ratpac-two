@@ -16,19 +16,20 @@
 #define __signed signed
 #endif
 
+#include <TObject.h>
+#include <TTimeStamp.h>
+
 #include <RAT/DS/Digit.hh>
 #include <RAT/DS/FitResult.hh>
 #include <RAT/DS/LAPPD.hh>
 #include <RAT/DS/PMT.hh>
-#include <TObject.h>
-#include <TTimeStamp.h>
 #include <vector>
 
 namespace RAT {
 namespace DS {
 
 class EV : public TObject {
-public:
+ public:
   EV() : TObject() {}
   virtual ~EV() {}
 
@@ -65,9 +66,7 @@ public:
   Double_t GetDeltaT() const { return deltat; }
   void SetDeltaT(Double_t _deltat) { deltat = _deltat; }
 
-  void SetCalibratedTriggerTime(Double_t _calibratedTriggerTime) {
-    calibratedTriggerTime = _calibratedTriggerTime;
-  }
+  void SetCalibratedTriggerTime(Double_t _calibratedTriggerTime) { calibratedTriggerTime = _calibratedTriggerTime; }
   Double_t GetCalibratedTriggerTime() const { return calibratedTriggerTime; }
 
   /** Total charge in all PMT waveforms (pC). */
@@ -101,10 +100,10 @@ public:
   std::vector<PMT> pmt;
   std::vector<LAPPD> lappd;
   std::vector<FitResult *> fitResults;
-  std::vector<Digit> digitizer; ///< The digitizer information
+  std::vector<Digit> digitizer;  ///< The digitizer information
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

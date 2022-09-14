@@ -1,3 +1,6 @@
+#include <TH1D.h>
+#include <TMath.h>
+
 #include <RAT/DB.hh>
 #include <RAT/DBLink.hh>
 #include <RAT/Log.hh>
@@ -5,8 +8,6 @@
 #include <RAT/MultiChargeDist.hh>
 #include <RAT/PDFPMTCharge.hh>
 #include <RAT/string_utilities.hpp>
-#include <TH1D.h>
-#include <TMath.h>
 #include <cassert>
 
 namespace RAT {
@@ -17,18 +18,15 @@ static TGraph *HistToNormGraph(TH1 *hist) {
   assert(nbins > 2);
 
   int start_bin = hist->FindBin(lowEdge);
-  if (hist->GetBinCenter(start_bin) < lowEdge)
-    start_bin++;
+  if (hist->GetBinCenter(start_bin) < lowEdge) start_bin++;
 
   std::vector<double> x(nbins + 2 - start_bin);
   std::vector<double> y(nbins + 2 - start_bin);
 
   // Extrapolate first point back to lower edge
   x[0] = lowEdge;
-  y[0] = hist->GetBinContent(start_bin) -
-         (hist->GetBinContent(start_bin + 1) - hist->GetBinContent(start_bin)) *
-             (hist->GetBinCenter(start_bin) - lowEdge) /
-             hist->GetBinWidth(start_bin);
+  y[0] = hist->GetBinContent(start_bin) - (hist->GetBinContent(start_bin + 1) - hist->GetBinContent(start_bin)) *
+                                              (hist->GetBinCenter(start_bin) - lowEdge) / hist->GetBinWidth(start_bin);
 
   double integral = 0.0;
   for (unsigned i = 1; i < x.size(); i++) {
@@ -48,7 +46,7 @@ static TGraph *HistToNormGraph(TH1 *hist) {
 
   TGraph *gr = new TGraph(x.size(), &x.front(), &y.front());
   gr->SetName((std::string(hist->GetName()) + "_interp").c_str());
-  gr->GetHistogram(); // ensure thread-safety later
+  gr->GetHistogram();  // ensure thread-safety later
   return gr;
 }
 
@@ -73,8 +71,7 @@ static double interpolate(TGraph *gr, double x) {
     low = 0;
     up = 1;
   }
-  if (fX[low] == fX[up])
-    return fY[low];
+  if (fX[low] == fX[up]) return fY[low];
   Double_t yn = x * (fY[low] - fY[up]) + fX[low] * fY[up] - fX[up] * fY[low];
   return yn / (fX[low] - fX[up]);
 }
@@ -86,8 +83,7 @@ static double convolution(double q, double stepSize, TGraph *f, TGraph *g) {
   TAxis *g_axis = g->GetXaxis();
   double min = fmin(f_axis->GetXmin(), g_axis->GetXmin());
   int steps = (int)((q - min) / stepSize);
-  if (steps <= 0)
-    return 0.0;
+  if (steps <= 0) return 0.0;
 
   for (int istep = 0; istep < steps; istep++) {
     double x = min + istep * stepSize;
@@ -104,8 +100,7 @@ static double convolution(double q, double stepSize, TGraph *f, TGraph *g) {
       g_val = interpolate(g, q - x);
 
     double term = f_val * g_val * stepSize;
-    if (term < 0.0)
-      term = 0.0;
+    if (term < 0.0) term = 0.0;
 
     sum += term;
   }
@@ -113,8 +108,7 @@ static double convolution(double q, double stepSize, TGraph *f, TGraph *g) {
   return sum;
 }
 
-std::vector<TGraph *> MultiChargeDist(int maxPE, double qMaxStepSize, int qBins,
-                                      double meanSinglePE) {
+std::vector<TGraph *> MultiChargeDist(int maxPE, double qMaxStepSize, int qBins, double meanSinglePE) {
   // FIXME: future people might appreciate being able to specify a pmt_model
   // to be used with PDFPMTCharge, but this was original behavior
   PMTCharge *pmtCharge = new RAT::MiniCleanPMTCharge();
@@ -128,8 +122,7 @@ std::vector<TGraph *> MultiChargeDist(int maxPE, double qMaxStepSize, int qBins,
     double rms = 0.0;
     int nsamples = 1000;
     double stepsize = maxSinglePE / (meanSinglePE * nsamples);
-    for (int i = 0; i < nsamples; i++)
-      rms += pow(pmtCharge->PDF(stepsize * (i + 0.5)) - 1, 2);
+    for (int i = 0; i < nsamples; i++) rms += pow(pmtCharge->PDF(stepsize * (i + 0.5)) - 1, 2);
     rms = sqrt(rms / nsamples) * meanSinglePE;
     singlePErange = meanSinglePE + rms * 5;
   }
@@ -169,25 +162,19 @@ std::vector<TGraph *> MultiChargeDist(int maxPE, double qMaxStepSize, int qBins,
 
     // Start where the last PDF did unless the value there is too large.
     // Then move up until we reach the specified probability.
-    if (convolution(qmax + 2 * meanSinglePE, stepsize, chargeDistInterp[1],
-                    chargeDistInterp[numPE - 1]) > minprob)
+    if (convolution(qmax + 2 * meanSinglePE, stepsize, chargeDistInterp[1], chargeDistInterp[numPE - 1]) > minprob)
       qmin = fmax(meanSinglePE * numPE - singlePErange * sqrt(numPE), qmin);
-    while (convolution(qmin, stepsize, chargeDistInterp[1],
-                       chargeDistInterp[numPE - 1]) < minprob)
-      qmin += stepsize;
+    while (convolution(qmin, stepsize, chargeDistInterp[1], chargeDistInterp[numPE - 1]) < minprob) qmin += stepsize;
 
     // End 2 times the mean further away from where the last PDF ended
     // unless the value there is too large.  Then move back until
     // we reach the specified probability.
-    if (convolution(qmax + 2 * meanSinglePE, stepsize, chargeDistInterp[1],
-                    chargeDistInterp[numPE - 1]) < minprob)
+    if (convolution(qmax + 2 * meanSinglePE, stepsize, chargeDistInterp[1], chargeDistInterp[numPE - 1]) < minprob)
       qmax += 2 * meanSinglePE;
     else
       qmax = fmax(meanSinglePE * numPE + singlePErange * sqrt(numPE), qmax);
 
-    while (convolution(qmax, stepsize, chargeDistInterp[1],
-                       chargeDistInterp[numPE - 1]) < minprob)
-      qmax -= stepsize;
+    while (convolution(qmax, stepsize, chargeDistInterp[1], chargeDistInterp[numPE - 1]) < minprob) qmax -= stepsize;
 
     // Set the stepsize and number of bins using the new min and max
     stepsize = (qmax - qmin) / nbins;
@@ -196,16 +183,14 @@ std::vector<TGraph *> MultiChargeDist(int maxPE, double qMaxStepSize, int qBins,
       nbins = (int)((qmax - qmin) / stepsize);
     }
 
-    TH1D *h =
-        new TH1D(("pmt_q" + ::to_string(numPE)).c_str(), "", nbins, qmin, qmax);
+    TH1D *h = new TH1D(("pmt_q" + ::to_string(numPE)).c_str(), "", nbins, qmin, qmax);
     h->Sumw2();
 
     // Speed things up by drawing a charge from the N-1 distribution
     // and a charge from the single pe distribution
     for (int ibin = 1; ibin < h->GetNbinsX(); ibin++) {
       double q = h->GetBinCenter(ibin);
-      double pdf_value = convolution(q, stepsize, chargeDistInterp[1],
-                                     chargeDistInterp[numPE - 1]);
+      double pdf_value = convolution(q, stepsize, chargeDistInterp[1], chargeDistInterp[numPE - 1]);
       // thread-safe, unlike SetBinContent(), but does not check bounds
       h->SetBinContent(ibin, pdf_value);
     }
@@ -218,10 +203,7 @@ std::vector<TGraph *> MultiChargeDist(int maxPE, double qMaxStepSize, int qBins,
   // Deallocate the TH1Ds and check the means
   int inorm = -1;
   for (unsigned i = 0; i < chargeDist.size(); i++) {
-    if (fabs(chargeDist[i]->GetMean() - i * meanSinglePE) / (i * meanSinglePE) >
-            0.01 &&
-        inorm < 0)
-      inorm = i;
+    if (fabs(chargeDist[i]->GetMean() - i * meanSinglePE) / (i * meanSinglePE) > 0.01 && inorm < 0) inorm = i;
     delete chargeDist[i];
   }
   if (inorm > 0)
@@ -232,4 +214,4 @@ std::vector<TGraph *> MultiChargeDist(int maxPE, double qMaxStepSize, int qBins,
   return chargeDistInterp;
 }
 
-} // namespace RAT
+}  // namespace RAT

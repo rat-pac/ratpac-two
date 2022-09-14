@@ -1,13 +1,12 @@
-#include "TRint.h"
-#include "TROOT.h"
-#include <string>
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
+#include <string>
+
+#include "TROOT.h"
+#include "TRint.h"
 
 /* Shut up the silly RooFit banner */
-Int_t doBanner() {
-  return 0;
-}
+Int_t doBanner() { return 0; }
 
 int main(int argc, char *argv[]) {
   TRint *app = new TRint("ROOT for RAT", &argc, argv);
@@ -18,4 +17,3 @@ int main(int argc, char *argv[]) {
   app->Run();
   return 0;
 }
-

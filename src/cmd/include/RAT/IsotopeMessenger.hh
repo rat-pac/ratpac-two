@@ -20,14 +20,14 @@ namespace RAT {
 class VertexGen_Isotope;
 
 class IsotopeMessenger : public G4UImessenger {
-public:
+ public:
   IsotopeMessenger(VertexGen_Isotope *);
   ~IsotopeMessenger();
 
   void SetNewValue(G4UIcommand *command, G4String newValues);
   G4String GetCurrentValue(G4UIcommand *command);
 
-private:
+ private:
   RAT::VertexGen_Isotope *isotope;
 
   G4UIcmdWithADouble *ACmd;
@@ -35,6 +35,6 @@ private:
   G4UIcmdWithADouble *ECmd;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_IsotopeMessenger_hh
+#endif  // RAT_IsotopeMessenger_hh

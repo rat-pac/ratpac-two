@@ -20,14 +20,14 @@ namespace RAT {
 class VertexGen_FastNeutron;
 
 class FastNeutronMessenger : public G4UImessenger {
-public:
+ public:
   FastNeutronMessenger(VertexGen_FastNeutron *);
   ~FastNeutronMessenger();
 
   void SetNewValue(G4UIcommand *command, G4String newValues);
   G4String GetCurrentValue(G4UIcommand *command);
 
-private:
+ private:
   RAT::VertexGen_FastNeutron *fastneutron;
 
   G4UIcmdWithADouble *DCmd;
@@ -35,6 +35,6 @@ private:
   G4UIcmdWithADouble *STCmd;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_FastNeutronMessenger_hh
+#endif  // RAT_FastNeutronMessenger_hh

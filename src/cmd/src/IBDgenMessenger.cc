@@ -1,12 +1,11 @@
-#include <RAT/IBDgen.hh>
-#include <RAT/IBDgenMessenger.hh>
-
 #include <G4String.hh>
 #include <G4UIcmdWithABool.hh>
 #include <G4UIcmdWithADouble.hh>
 #include <G4UIcmdWithAString.hh>
 #include <G4UIcommand.hh>
 #include <G4UIdirectory.hh>
+#include <RAT/IBDgen.hh>
+#include <RAT/IBDgenMessenger.hh>
 
 namespace RAT {
 IBDgenMessenger::IBDgenMessenger(IBDgen *re) : ibdgen(re) {
@@ -16,8 +15,7 @@ IBDgenMessenger::IBDgenMessenger(IBDgen *re) : ibdgen(re) {
 
   // Choose the positron spectrum
   SpectrumUseCmd = new G4UIcmdWithAString("/generator/ibd/spectrum", this);
-  SpectrumUseCmd->SetGuidance(
-      "Set the spectrum (index of the IBD ratdb table)");
+  SpectrumUseCmd->SetGuidance("Set the spectrum (index of the IBD ratdb table)");
   SpectrumUseCmd->SetParameterName("Spectrum", false);
   SpectrumUseCmd->SetDefaultValue("default");
 
@@ -56,4 +54,4 @@ G4String IBDgenMessenger::GetCurrentValue(G4UIcommand *command) {
   return G4String("Error: Invalid IBDgenMessenger \"get\" command");
 }
 
-} // namespace RAT
+}  // namespace RAT

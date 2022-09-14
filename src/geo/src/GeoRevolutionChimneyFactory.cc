@@ -1,5 +1,6 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <G4Polycone.hh>
 #include <G4SubtractionSolid.hh>
 #include <G4Tubs.hh>
@@ -12,7 +13,6 @@ using namespace std;
 namespace RAT {
 
 G4VSolid *GeoRevolutionChimneyFactory::ConstructSolid(DBLinkPtr table) {
-
   string volume_name = table->GetIndex();
 
   G4int numZPlanes;
@@ -32,10 +32,10 @@ G4VSolid *GeoRevolutionChimneyFactory::ConstructSolid(DBLinkPtr table) {
 
   numZPlanes = G4int(z.size());
 
-  if ((z.size() != r_max.size()) || (z.size() != r_min.size()) ||
-      (r_max.size() != r_min.size())) {
-    Log::Die("GeoRevolutionChimneyFactory::ConstructSolid: Tables z, r_max and "
-             "r_min must all be same size for 'revolve'.");
+  if ((z.size() != r_max.size()) || (z.size() != r_min.size()) || (r_max.size() != r_min.size())) {
+    Log::Die(
+        "GeoRevolutionChimneyFactory::ConstructSolid: Tables z, r_max and "
+        "r_min must all be same size for 'revolve'.");
   }
 
   // Optional parameters
@@ -64,13 +64,10 @@ G4VSolid *GeoRevolutionChimneyFactory::ConstructSolid(DBLinkPtr table) {
     r_min_array[i] = fabs(r_min[i]) * CLHEP::mm;
   }
   /// This is the revolution
-  G4Polycone *vessel =
-      new G4Polycone("vessel", phi_start, phi_delta, numZPlanes, z_array,
-                     r_min_array, r_array);
+  G4Polycone *vessel = new G4Polycone("vessel", phi_start, phi_delta, numZPlanes, z_array, r_min_array, r_array);
 
   /// Here comes the chimney
-  G4Tubs *chimney = new G4Tubs("chimney", 0, rout_chim, (z_top - z_bot) * .5,
-                               0., CLHEP::twopi);
+  G4Tubs *chimney = new G4Tubs("chimney", 0, rout_chim, (z_top - z_bot) * .5, 0., CLHEP::twopi);
   G4RotationMatrix *rot = new G4RotationMatrix();
   rot->rotateY(90. * CLHEP::deg);
 
@@ -86,4 +83,4 @@ G4VSolid *GeoRevolutionChimneyFactory::ConstructSolid(DBLinkPtr table) {
     return new G4UnionSolid(volume_name, vessel, chimney, rot, offset);
 }
 
-} // namespace RAT
+}  // namespace RAT

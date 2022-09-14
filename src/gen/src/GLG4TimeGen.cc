@@ -1,7 +1,10 @@
 #include "RAT/GLG4TimeGen.hh"
-#include "RAT/GLG4StringUtil.hh"
+
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <Randomize.hh>
+
+#include "RAT/GLG4StringUtil.hh"
 
 void GLG4TimeGen_Uniform::SetState(G4String state) {
   state = util_strip_default(state);
@@ -20,12 +23,8 @@ void GLG4TimeGen_Uniform::SetState(G4String state) {
   rate = util_to_double(state) / CLHEP::s;
 }
 
-G4String GLG4TimeGen_Uniform::GetState() const {
-  return util_dformat("%lf", rate);
-}
+G4String GLG4TimeGen_Uniform::GetState() const { return util_dformat("%lf", rate); }
 
 // *****************************************************
 
-double GLG4TimeGen_Poisson::GenerateEventTime(double offset) {
-  return -log(1.0 - G4UniformRand()) / rate + offset;
-}
+double GLG4TimeGen_Poisson::GenerateEventTime(double offset) { return -log(1.0 - G4UniformRand()) / rate + offset; }

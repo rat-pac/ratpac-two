@@ -11,15 +11,16 @@
 #ifndef __RAT_DS_MCTrack__
 #define __RAT_DS_MCTrack__
 
+#include <TObject.h>
+
 #include <RAT/DS/MCTrackStep.hh>
 #include <RAT/ListHelp.hh>
-#include <TObject.h>
 
 namespace RAT {
 namespace DS {
 
 class MCTrack : public TObject {
-public:
+ public:
   MCTrack() : TObject() {}
   virtual ~MCTrack() {}
 
@@ -51,9 +52,7 @@ public:
    * Often more accurate than the pdgcode, which is used inconsistently.
    */
   virtual const std::string &GetParticleName() const { return particleName; }
-  virtual void SetParticleName(const std::string &_particleName) {
-    particleName = _particleName;
-  }
+  virtual void SetParticleName(const std::string &_particleName) { particleName = _particleName; }
 
   /**
    * List of segments in this track.
@@ -93,9 +92,7 @@ public:
 
   /** Total energy deposited along the track (MeV). **/
   virtual Float_t GetDepositedEnergy() const { return depositedEnergy; }
-  virtual void SetDepositedEnergy(Float_t _depositedEnergy) {
-    depositedEnergy = _depositedEnergy;
-  }
+  virtual void SetDepositedEnergy(Float_t _depositedEnergy) { depositedEnergy = _depositedEnergy; }
 
   ClassDef(MCTrack, 1)
 
@@ -108,7 +105,7 @@ public:
   std::vector<MCTrackStep> step;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

@@ -20,7 +20,7 @@ namespace RAT {
 #endif
 
 class otext_streambuf : public std::streambuf {
-public:
+ public:
   otext_streambuf(otext *_out) { out = _out; };
 
   virtual int_type overflow(int_type c) {
@@ -30,7 +30,7 @@ public:
     return c;
   };
 
-protected:
+ protected:
   otext *out;
 };
 
@@ -39,8 +39,8 @@ otext_streambuf info_streambuf(&info);
 //********************************************************************
 
 //**** Definition of the global logging objects.
-omtext warn(ferr); // default to screen output
-omtext info(fout); // default to screen output
+omtext warn(ferr);  // default to screen output
+omtext info(fout);  // default to screen output
 omtext detail;
 omtext debug;
 
@@ -74,7 +74,7 @@ bool Log::Init(std::string _filename, Level display, Level log) {
   enable_dbtrace = true;
 
   SetupIO();
-  return true; // FIXME: How do I figure out if logfile didn't open?
+  return true;  // FIXME: How do I figure out if logfile didn't open?
 }
 
 void Log::SetDisplayLevel(Level level) {
@@ -104,7 +104,7 @@ void Log::SetupIO() {
     ClearOMText(outstreams[i]);
     if (display_level >= i) {
       if (i == WARN)
-        outstreams[i]->add(ferr); // special case to ensure warn is unbuffered
+        outstreams[i]->add(ferr);  // special case to ensure warn is unbuffered
       else
         outstreams[i]->add(fout);
     }
@@ -116,16 +116,14 @@ void Log::SetupIO() {
 
 void Log::ClearOMText(omtext *out) {
   int count = out->device_count();
-  for (int i = 0; i < count; i++)
-    out->remove(0); // Always remove head device
+  for (int i = 0; i < count; i++) out->remove(0);  // Always remove head device
 }
 
 const std::string Log::GetLogBuffer() {
   std::ifstream fin(filename.c_str());
-  std::string content((std::istreambuf_iterator<char>(fin)),
-                      (std::istreambuf_iterator<char>()));
+  std::string content((std::istreambuf_iterator<char>(fin)), (std::istreambuf_iterator<char>()));
   fin.close();
   return content;
 }
 
-} // namespace RAT
+}  // namespace RAT

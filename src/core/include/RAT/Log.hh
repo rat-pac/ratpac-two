@@ -76,6 +76,11 @@ Log::Die("Could not open " + filename + " for input.");
 #ifndef __RAT_Log__
 #define __RAT_Log__
 
+#include <TMap.h>
+#include <TObjString.h>
+#include <TObject.h>
+
+#include <RAT/json.hh>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -87,15 +92,10 @@ Log::Die("Could not open " + filename + " for input.");
 #include "string_utilities.hpp"
 #include "stringio.hpp"
 
-#include <RAT/json.hh>
-#include <TMap.h>
-#include <TObjString.h>
-#include <TObject.h>
-
 namespace RAT {
 
 class Log {
-public:
+ public:
   /** Verbosity levels */
   enum Level {
     WARN = 0,   /**< Warning messages */
@@ -112,8 +112,7 @@ public:
    *  @param  display    Verbosity level for display on screen
    *  @param  log        Verbosity level for writing to log file.
    */
-  static bool Init(std::string _filename, Level display = INFO,
-                   Level log = DETAIL);
+  static bool Init(std::string _filename, Level display = INFO, Level log = DETAIL);
 
   /** Get the current verbosity level for display on screen. */
   static int GetDisplayLevel() { return display_level; };
@@ -151,9 +150,7 @@ public:
 
   /** Get an array of logged TObjects. Should be used by output processors
     just before closing their output file. */
-  static std::vector<std::pair<std::string, TObject *>> GetObjects() {
-    return objects;
-  };
+  static std::vector<std::pair<std::string, TObject *>> GetObjects() { return objects; };
 
   /** Enable/Disable tracing of RATDB accesses.
    *
@@ -165,50 +162,37 @@ public:
   static bool GetDBTraceState() { return enable_dbtrace; };
 
   /** Add a RATDB integer access to the DB trace. */
-  inline static void TraceDBAccess(const std::string &table,
-                                   const std::string &index,
-                                   const std::string &field, int value);
+  inline static void TraceDBAccess(const std::string &table, const std::string &index, const std::string &field,
+                                   int value);
   /** Add a RATDB double access to the DB trace. */
-  inline static void TraceDBAccess(const std::string &table,
-                                   const std::string &index,
-                                   const std::string &field, double value);
+  inline static void TraceDBAccess(const std::string &table, const std::string &index, const std::string &field,
+                                   double value);
   /** Add a RATDB string access to the DB trace. */
-  inline static void TraceDBAccess(const std::string &table,
-                                   const std::string &index,
-                                   const std::string &field,
+  inline static void TraceDBAccess(const std::string &table, const std::string &index, const std::string &field,
                                    const std::string &value);
 
   /** Add a RATDB integer array access to the DB trace. */
-  inline static void TraceDBAccess(const std::string &table,
-                                   const std::string &index,
-                                   const std::string &field,
+  inline static void TraceDBAccess(const std::string &table, const std::string &index, const std::string &field,
                                    const std::vector<int> &value);
   /** Add a RATDB double array access to the DB trace. */
-  inline static void TraceDBAccess(const std::string &table,
-                                   const std::string &index,
-                                   const std::string &field,
+  inline static void TraceDBAccess(const std::string &table, const std::string &index, const std::string &field,
                                    const std::vector<double> &value);
   /** Add a RATDB string access to the DB trace. */
-  inline static void TraceDBAccess(const std::string &table,
-                                   const std::string &index,
-                                   const std::string &field,
+  inline static void TraceDBAccess(const std::string &table, const std::string &index, const std::string &field,
                                    const std::vector<std::string> &value);
 
   /** Add a RATDB JSON object access to the DB trace. */
-  inline static void TraceDBAccess(const std::string &table,
-                                   const std::string &index,
-                                   const std::string &field,
+  inline static void TraceDBAccess(const std::string &table, const std::string &index, const std::string &field,
                                    const json::Value &value);
 
   static TMap *GetDBTraceMap() { return dbtrace; };
 
-protected:
+ protected:
   /** This class cannot be instantiated. */
   Log();
 
   /** Add a string key/value pair to the dbtrace map */
-  inline static void AddDBEntry(const std::string &key,
-                                const std::string &value);
+  inline static void AddDBEntry(const std::string &key, const std::string &value);
 
   /** Reset output streams to according to verbosity levels.
    *
@@ -235,8 +219,7 @@ protected:
   static bool enable_dbtrace; /**< Enable RATDB tracing? */
   static TMap *dbtrace;       /**< Record of all accessed RATDB fields */
 
-  static std::vector<std::pair<std::string, TObject *>>
-      objects; /**< Record of logged TObjects */
+  static std::vector<std::pair<std::string, TObject *>> objects; /**< Record of logged TObjects */
 };
 
 extern omtext warn;
@@ -263,38 +246,32 @@ inline std::string to_ratdb_float_string(double value) {
 inline std::string to_ratdb_double_string(double value) {
   std::string str = to_ratdb_float_string(value);
   size_t pos = str.find("d");
-  if (pos == std::string::npos)
-    str += "d";
+  if (pos == std::string::npos) str += "d";
   return str;
 }
 
 inline std::string escape_ratdb_string(const std::string &value) {
-  if (value.find("\"") != std::string::npos)
-    Log::Die("RATDB Trace Eror: value string with quotes inside!");
+  if (value.find("\"") != std::string::npos) Log::Die("RATDB Trace Eror: value string with quotes inside!");
   return "\"" + value + "\"";
 }
 
-void Log::TraceDBAccess(const std::string &table, const std::string &index,
-                        const std::string &field, int value) {
+void Log::TraceDBAccess(const std::string &table, const std::string &index, const std::string &field, int value) {
   AddDBEntry(table + "[" + index + "]." + field, ::to_string(value));
 }
 
-void Log::TraceDBAccess(const std::string &table, const std::string &index,
-                        const std::string &field, double value) {
+void Log::TraceDBAccess(const std::string &table, const std::string &index, const std::string &field, double value) {
   AddDBEntry(table + "[" + index + "]." + field, to_ratdb_double_string(value));
 }
 
-void Log::TraceDBAccess(const std::string &table, const std::string &index,
-                        const std::string &field, const std::string &value) {
+void Log::TraceDBAccess(const std::string &table, const std::string &index, const std::string &field,
+                        const std::string &value) {
   AddDBEntry(table + "[" + index + "]." + field, escape_ratdb_string(value));
 }
 
-void Log::TraceDBAccess(const std::string &table, const std::string &index,
-                        const std::string &field,
+void Log::TraceDBAccess(const std::string &table, const std::string &index, const std::string &field,
                         const std::vector<int> &value) {
   std::string key = table + "[" + index + "]." + field;
-  if (!enable_dbtrace || dbtrace->FindObject(key.c_str()))
-    return;
+  if (!enable_dbtrace || dbtrace->FindObject(key.c_str())) return;
 
   std::string str_value("[ ");
   for (unsigned i = 0; i < value.size(); i++) {
@@ -305,12 +282,10 @@ void Log::TraceDBAccess(const std::string &table, const std::string &index,
   AddDBEntry(key, str_value);
 }
 
-void Log::TraceDBAccess(const std::string &table, const std::string &index,
-                        const std::string &field,
+void Log::TraceDBAccess(const std::string &table, const std::string &index, const std::string &field,
                         const std::vector<double> &value) {
   std::string key = table + "[" + index + "]." + field;
-  if (!enable_dbtrace || dbtrace->FindObject(key.c_str()))
-    return;
+  if (!enable_dbtrace || dbtrace->FindObject(key.c_str())) return;
 
   std::string str_value("[ ");
   for (unsigned i = 0; i < value.size(); i++) {
@@ -321,12 +296,10 @@ void Log::TraceDBAccess(const std::string &table, const std::string &index,
   AddDBEntry(key, str_value);
 }
 
-void Log::TraceDBAccess(const std::string &table, const std::string &index,
-                        const std::string &field,
+void Log::TraceDBAccess(const std::string &table, const std::string &index, const std::string &field,
                         const std::vector<std::string> &value) {
   std::string key = table + "[" + index + "]." + field;
-  if (!enable_dbtrace || dbtrace->FindObject(key.c_str()))
-    return;
+  if (!enable_dbtrace || dbtrace->FindObject(key.c_str())) return;
 
   std::string str_value("[ ");
   for (unsigned i = 0; i < value.size(); i++) {
@@ -337,11 +310,10 @@ void Log::TraceDBAccess(const std::string &table, const std::string &index,
   AddDBEntry(key, str_value);
 }
 
-void Log::TraceDBAccess(const std::string &table, const std::string &index,
-                        const std::string &field, const json::Value &value) {
+void Log::TraceDBAccess(const std::string &table, const std::string &index, const std::string &field,
+                        const json::Value &value) {
   std::string key = table + "[" + index + "]." + field;
-  if (!enable_dbtrace || dbtrace->FindObject(key.c_str()))
-    return;
+  if (!enable_dbtrace || dbtrace->FindObject(key.c_str())) return;
 
   std::stringstream ss;
   json::Writer writer(ss);
@@ -350,6 +322,6 @@ void Log::TraceDBAccess(const std::string &table, const std::string &index,
   AddDBEntry(key, ss.str());
 }
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

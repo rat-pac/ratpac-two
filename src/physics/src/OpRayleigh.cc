@@ -16,17 +16,15 @@
  */
 
 #include <G4OpProcessSubType.hh>
-#include <Randomize.hh>
-
 #include <RAT/OpRayleigh.hh>
 #include <RAT/TrackInfo.hh>
+#include <Randomize.hh>
 
 using CLHEP::twopi;
 
 using namespace RAT;
 
-OpRayleigh::OpRayleigh(const G4String &processName, G4ProcessType type)
-    : G4VDiscreteProcess(processName, type) {
+OpRayleigh::OpRayleigh(const G4String &processName, G4ProcessType type) : G4VDiscreteProcess(processName, type) {
   SetProcessSubType(fOpRayleigh);
 
   fPhysicsTable = nullptr;
@@ -40,8 +38,7 @@ OpRayleigh::~OpRayleigh() {
   }
 }
 
-G4VParticleChange *OpRayleigh::PostStepDoIt(const G4Track &track,
-                                            const G4Step &step) {
+G4VParticleChange *OpRayleigh::PostStepDoIt(const G4Track &track, const G4Step &step) {
   aParticleChange.Initialize(track);
   const G4DynamicParticle *aParticle = track.GetDynamicParticle();
 
@@ -56,9 +53,7 @@ G4VParticleChange *OpRayleigh::PostStepDoIt(const G4Track &track,
   const G4ThreeVector e2 = oldMomentum.cross(oldPolarisation);
 
   // oldPolarisation is Z, oldMomentum is x and e2 y
-  G4ThreeVector newMomentum = cos(psi) * oldPolarisation +
-                              sin(psi) * cos(phi) * oldMomentum +
-                              sin(psi) * sin(phi) * e2;
+  G4ThreeVector newMomentum = cos(psi) * oldPolarisation + sin(psi) * cos(phi) * oldMomentum + sin(psi) * sin(phi) * e2;
   newMomentum.unit();
 
   G4ThreeVector newPolarisation = oldPolarisation - cos(psi) * newMomentum;
@@ -67,8 +62,7 @@ G4VParticleChange *OpRayleigh::PostStepDoIt(const G4Track &track,
   aParticleChange.ProposePolarization(newPolarisation);
   aParticleChange.ProposeMomentumDirection(newMomentum);
 
-  RAT::TrackInfo *trackHistory =
-      dynamic_cast<RAT::TrackInfo *>(track.GetUserInformation());
+  RAT::TrackInfo *trackHistory = dynamic_cast<RAT::TrackInfo *>(track.GetUserInformation());
   if (trackHistory) {
     // trackHistory->AddToHistory(RAT::DS::MCPE::hRayleighScatt); //FIXME
     // rat-pac does not have
@@ -77,31 +71,26 @@ G4VParticleChange *OpRayleigh::PostStepDoIt(const G4Track &track,
   return G4VDiscreteProcess::PostStepDoIt(track, step);
 }
 
-G4double OpRayleigh::GetMeanFreePath(const G4Track &track, G4double,
-                                     G4ForceCondition *) {
+G4double OpRayleigh::GetMeanFreePath(const G4Track &track, G4double, G4ForceCondition *) {
   const G4DynamicParticle *particle = track.GetDynamicParticle();
   const G4double photonMomentum = particle->GetTotalMomentum();
   const G4Material *material = track.GetMaterial();
-  G4PhysicsFreeVector *rayleigh = static_cast<G4PhysicsFreeVector *>(
-      (*fPhysicsTable)(material->GetIndex()));
+  G4PhysicsFreeVector *rayleigh = static_cast<G4PhysicsFreeVector *>((*fPhysicsTable)(material->GetIndex()));
 
   G4double rsLength = DBL_MAX;
-  if (rayleigh != nullptr)
-    rsLength = rayleigh->Value(photonMomentum);
+  if (rayleigh != nullptr) rsLength = rayleigh->Value(photonMomentum);
   return rsLength;
 }
 
 void OpRayleigh::BuildThePhysicsTable() {
-  if (fPhysicsTable)
-    return;
+  if (fPhysicsTable) return;
   const G4MaterialTable *theMaterialTable = G4Material::GetMaterialTable();
   const G4int numOfMaterials = G4Material::GetNumberOfMaterials();
   fPhysicsTable = new G4PhysicsTable(numOfMaterials);
 
   for (G4int iMaterial = 0; iMaterial < numOfMaterials; iMaterial++) {
     G4Material *material = (*theMaterialTable)[iMaterial];
-    G4MaterialPropertiesTable *materialProperties =
-        material->GetMaterialPropertiesTable();
+    G4MaterialPropertiesTable *materialProperties = material->GetMaterialPropertiesTable();
     G4PhysicsFreeVector *rayleigh = nullptr;
     if (materialProperties != nullptr) {
       rayleigh = materialProperties->GetProperty("RSLENGTH");

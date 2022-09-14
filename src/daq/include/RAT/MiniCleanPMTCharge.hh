@@ -16,16 +16,18 @@
 #ifndef __RAT_MiniCleanPMTCharge__
 #define __RAT_MiniCleanPMTCharge__
 
-#include "TH1.h"
 #include <CLHEP/Random/RandGeneral.h>
+
 #include <RAT/PMTCharge.hh>
 #include <cstddef>
 #include <vector>
 
+#include "TH1.h"
+
 namespace RAT {
 
 class MiniCleanPMTCharge : public PMTCharge {
-public:
+ public:
   MiniCleanPMTCharge();
   virtual ~MiniCleanPMTCharge();
   /** Returns charge for one photoelectron. */
@@ -34,7 +36,7 @@ public:
   /** Value of charge PDF at charge q (not normalized) */
   virtual double PDF(double q) const;
 
-protected:
+ protected:
   double Bisection(double Flat) const;
   double PIntegrate(double R) const;
   double Polya(double Q) const;
@@ -50,6 +52,6 @@ protected:
   double qPa;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

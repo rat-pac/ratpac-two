@@ -6,25 +6,27 @@
 
   ------------------------------------------------------------------------------*/
 #include "RAT/fileio.hpp"
+
+#include <errno.h>
+
 #include "RAT/debug.hpp"
 #include "RAT/os_fixes.hpp"
-#include <errno.h>
 ////////////////////////////////////////////////////////////////////////////////
 // Output
 
 ofbuff::ofbuff(FILE *fh, bool _line_buffer)
-    : // for unmanaged files, just pump raw bytes to the file - it is not
-      // TextIO's job to do line-endings
-      obuff(_line_buffer, otext::binary_mode), m_managed(false), m_handle(fh) {}
+    :  // for unmanaged files, just pump raw bytes to the file - it is not
+       // TextIO's job to do line-endings
+      obuff(_line_buffer, otext::binary_mode),
+      m_managed(false),
+      m_handle(fh) {}
 
-ofbuff::ofbuff(const char *fname, size_t bufsize, otext::open_t mode,
-               bool _line_buffer)
+ofbuff::ofbuff(const char *fname, size_t bufsize, otext::open_t mode, bool _line_buffer)
     : m_managed(false), m_handle(0) {
   open(std::string(fname ? fname : ""), bufsize, mode, _line_buffer);
 }
 
-ofbuff::ofbuff(const std::string &fname, size_t bufsize, otext::open_t mode,
-               bool _line_buffer)
+ofbuff::ofbuff(const std::string &fname, size_t bufsize, otext::open_t mode, bool _line_buffer)
     : m_managed(false), m_handle(0) {
   open(fname, bufsize, mode, _line_buffer);
 }
@@ -38,8 +40,7 @@ std::string ofbuff::error_string(void) const {
     return obuff::error_string();
 }
 
-void ofbuff::open(const std::string &fname, size_t bufsize, otext::open_t mode,
-                  bool _line_buffer) {
+void ofbuff::open(const std::string &fname, size_t bufsize, otext::open_t mode, bool _line_buffer) {
   // open a managed file
   if (fname.empty()) {
     // an empty filename is an error without even trying to open the file
@@ -55,8 +56,7 @@ void ofbuff::open(const std::string &fname, size_t bufsize, otext::open_t mode,
         set_error(errno);
       else
         set_error(textio_open_failed);
-    } else if (setvbuf(m_handle, 0, (bufsize ? _IOFBF : _IONBF), bufsize) !=
-               0) {
+    } else if (setvbuf(m_handle, 0, (bufsize ? _IOFBF : _IONBF), bufsize) != 0) {
       int error = ferror(m_handle);
       if (error)
         set_error(error);
@@ -79,17 +79,14 @@ void ofbuff::flush(void) {
 
 ofbuff::~ofbuff(void) {
   flush();
-  if (m_managed && m_handle)
-    fclose(m_handle);
+  if (m_managed && m_handle) fclose(m_handle);
 }
 
 unsigned ofbuff::put(unsigned char ch) {
-  if (!m_handle)
-    return 0;
+  if (!m_handle) return 0;
   if (fputc(ch, m_handle) == EOF) {
     int error = ferror(m_handle);
-    if (error)
-      set_error(error);
+    if (error) set_error(error);
     return 0;
   }
   return 1;
@@ -101,27 +98,21 @@ size_t oftext::preferred_buffer = 4096;
 
 oftext::oftext(void) : otext() {}
 
-oftext::oftext(FILE *fh, bool line_buffer)
-    : otext(new ofbuff(fh, line_buffer)) {}
+oftext::oftext(FILE *fh, bool line_buffer) : otext(new ofbuff(fh, line_buffer)) {}
 
 oftext::oftext(const char *fname, size_t bufsize, open_t mode, bool line_buffer)
     : otext(new ofbuff(fname, bufsize, mode, line_buffer)) {}
 
-oftext::oftext(const std::string &fname, size_t bufsize, open_t mode,
-               bool line_buffer)
+oftext::oftext(const std::string &fname, size_t bufsize, open_t mode, bool line_buffer)
     : otext(new ofbuff(fname, bufsize, mode, line_buffer)) {}
 
-void oftext::open(FILE *fh, bool line_buffer) {
-  otext::open(new ofbuff(fh, line_buffer));
-}
+void oftext::open(FILE *fh, bool line_buffer) { otext::open(new ofbuff(fh, line_buffer)); }
 
-void oftext::open(const char *fname, size_t bufsize, open_t mode,
-                  bool line_buffer) {
+void oftext::open(const char *fname, size_t bufsize, open_t mode, bool line_buffer) {
   otext::open(new ofbuff(fname, bufsize, mode, line_buffer));
 }
 
-void oftext::open(const std::string &fname, size_t bufsize, open_t mode,
-                  bool line_buffer) {
+void oftext::open(const std::string &fname, size_t bufsize, open_t mode, bool line_buffer) {
   otext::open(new ofbuff(fname.c_str(), bufsize, mode, line_buffer));
 }
 
@@ -135,19 +126,14 @@ oftext::operator FILE *(void) {
 
 ifbuff::ifbuff(FILE *fp) : m_managed(false), m_handle(fp) {}
 
-ifbuff::ifbuff(const char *fname, size_t bufsize)
-    : m_managed(false), m_handle(0) {
+ifbuff::ifbuff(const char *fname, size_t bufsize) : m_managed(false), m_handle(0) {
   open(std::string(fname ? fname : ""), bufsize);
 }
 
-ifbuff::ifbuff(const std::string &fname, size_t bufsize)
-    : m_managed(false), m_handle(0) {
-  open(fname, bufsize);
-}
+ifbuff::ifbuff(const std::string &fname, size_t bufsize) : m_managed(false), m_handle(0) { open(fname, bufsize); }
 
 ifbuff::~ifbuff(void) {
-  if (m_managed && m_handle)
-    fclose(m_handle);
+  if (m_managed && m_handle) fclose(m_handle);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -166,8 +152,7 @@ void ifbuff::open(const std::string &fname, size_t bufsize) {
         set_error(errno);
       else
         set_error(textio_open_failed);
-    } else if (setvbuf(m_handle, 0, (bufsize ? _IOFBF : _IONBF), bufsize) !=
-               0) {
+    } else if (setvbuf(m_handle, 0, (bufsize ? _IOFBF : _IONBF), bufsize) != 0) {
       int error = ferror(m_handle);
       if (error)
         set_error(error);
@@ -178,28 +163,24 @@ void ifbuff::open(const std::string &fname, size_t bufsize) {
 }
 
 int ifbuff::peek(void) {
-  if (!m_handle)
-    return -1;
+  if (!m_handle) return -1;
   int ch = getc(m_handle);
   if (ch != EOF && ungetc(ch, m_handle) == EOF) {
     int error = ferror(m_handle);
-    if (error)
-      set_error(error);
+    if (error) set_error(error);
   }
   return ch;
 }
 
 int ifbuff::get(void) {
-  if (!m_handle)
-    return -1;
+  if (!m_handle) return -1;
   int ch = getc(m_handle);
   if (ch == EOF) {
     // may be a stdio error or the user may be trying to read past the last
     // valid character in the latter case it is not actually an error - it is
     // perfectly legal to read the EOF
     int error = ferror(m_handle);
-    if (error)
-      set_error(error);
+    if (error) set_error(error);
   }
   return ch;
 }
@@ -221,21 +202,15 @@ iftext::iftext(void) : itext() {}
 
 iftext::iftext(FILE *fh) : itext(new ifbuff(fh)) {}
 
-iftext::iftext(const char *fname, size_t bufsize)
-    : itext(new ifbuff(fname, bufsize)) {}
+iftext::iftext(const char *fname, size_t bufsize) : itext(new ifbuff(fname, bufsize)) {}
 
-iftext::iftext(const std::string &fname, size_t bufsize)
-    : itext(new ifbuff(fname, bufsize)) {}
+iftext::iftext(const std::string &fname, size_t bufsize) : itext(new ifbuff(fname, bufsize)) {}
 
 void iftext::open(FILE *fh) { itext::open(new ifbuff(fh)); }
 
-void iftext::open(const char *fname, size_t bufsize) {
-  itext::open(new ifbuff(fname, bufsize));
-}
+void iftext::open(const char *fname, size_t bufsize) { itext::open(new ifbuff(fname, bufsize)); }
 
-void iftext::open(const std::string &fname, size_t bufsize) {
-  itext::open(new ifbuff(fname.c_str(), bufsize));
-}
+void iftext::open(const std::string &fname, size_t bufsize) { itext::open(new ifbuff(fname.c_str(), bufsize)); }
 
 iftext::operator FILE *(void) {
   ifbuff *filebuf = dynamic_cast<ifbuff *>(m_buffer);

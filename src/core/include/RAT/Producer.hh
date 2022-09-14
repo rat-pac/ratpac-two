@@ -51,7 +51,7 @@ namespace RAT {
 class ProcBlock;
 
 class Producer : public G4UImessenger {
-public:
+ public:
   /** Create a new producer with no block.
    *
    *  It is not allowed to do anything further with this object until
@@ -76,11 +76,11 @@ public:
   /** Set the main block used by this producer. */
   void SetMainBlock(ProcBlock *block);
 
-protected:
+ protected:
   /** Run events on this block of processors when created. */
   ProcBlock *mainBlock;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

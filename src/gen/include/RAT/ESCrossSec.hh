@@ -59,8 +59,7 @@ namespace RAT {
 class ESCrossSecMessenger;
 
 class ESCrossSec {
-
-public:
+ public:
   enum NuEType { nue, nuebar, numu, numubar };
 
   ESCrossSec(const char *flavor = "nue");
@@ -95,8 +94,7 @@ public:
    * @return \f$ \left.\frac{d\sigma}{dT}\right|_{\left[T1;T2\right]} \f$ in
    * units of \f$ 10^{-42} cm^{2} \f$ .
    */
-  double IntegraldSigmadT(const double Enu, const double T1,
-                          const double T2) const;
+  double IntegraldSigmadT(const double Enu, const double T1, const double T2) const;
 
   /**
    * @brief Calculate the differential cross section as a function of the recoil
@@ -180,7 +178,7 @@ public:
    */
   double CrossSecNorm() const { return 1e-42; };
 
-protected:
+ protected:
   /**
    * @brief Internal function to load the data from the DB.
    */
@@ -188,23 +186,23 @@ protected:
 
   void CalcG();
 
-private:
+ private:
   // Sets the defaults for the calculation
   void Defaults();
 
   // add by y.t. 16-JAN-2003
   double fL(const double x) const;
 
-  NuEType fReaction;        /// Reaction type
-  std::string fReactionStr; /// String characterizing the reaction type
+  NuEType fReaction;         /// Reaction type
+  std::string fReactionStr;  /// String characterizing the reaction type
 
-  double fEmin, fEmax; /// Auxiliary variables to deal with the energies
+  double fEmin, fEmax;  /// Auxiliary variables to deal with the energies
 
   // Some constants
-  static const double fGf;     /// Fermi constant (GeV^-2)
-  static const double fhbarc;  /// hbar*c (MeV*fm)
-  static const double fhbarc2; /// hbar*c^2(GeV^2 mb)
-  static const double falpha;  /// radiative correction term
+  static const double fGf;      /// Fermi constant (GeV^-2)
+  static const double fhbarc;   /// hbar*c (MeV*fm)
+  static const double fhbarc2;  /// hbar*c^2(GeV^2 mb)
+  static const double falpha;   /// radiative correction term
 
   /**
    * This variable is defined as static (and not const) because it can be
@@ -213,14 +211,14 @@ private:
    */
   static double fsinthetaW2;
 
-  double fMe;          /// electron mass
-  double fSigmaOverMe; /// \f$ \frac{\sigma}{m_{e^{-}}}\f$
+  double fMe;           /// electron mass
+  double fSigmaOverMe;  /// \f$ \frac{\sigma}{m_{e^{-}}}\f$
 
   double fgL;
   double fgR;
 
   //-----------------------------------------------------------------------
-  int fRadiativeCorrection; // flag to use radiative correction or not
+  int fRadiativeCorrection;  // flag to use radiative correction or not
 
   /// Vars to manipulate the tables. Since the tables are the same for all
   /// instances, these can be static
@@ -266,6 +264,6 @@ inline void ESCrossSec::CalcG() {
     throw std::invalid_argument("Unknown reaction " + fReactionStr);
   }
 }
-} // namespace RAT
+}  // namespace RAT
 
 #endif

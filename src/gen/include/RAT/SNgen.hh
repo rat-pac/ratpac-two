@@ -15,15 +15,17 @@
 // cross-section.  Some of the code (the flux in particular) is copied
 // from IBDgen.
 
+#include <CLHEP/Vector/LorentzVector.h>
+
+#include <G4ThreeVector.hh>
+#include <RAT/LinearInterp.hh>
+
 #include "RAT/DB.hh"
 #include "TF1.h"
 #include "TFile.h"
 #include "TGraph.h"
 #include "TH1D.h"
 #include "TMath.h"
-#include <CLHEP/Vector/LorentzVector.h>
-#include <G4ThreeVector.hh>
-#include <RAT/LinearInterp.hh>
 
 namespace RAT {
 
@@ -31,7 +33,7 @@ namespace RAT {
 class SNgenMessenger;
 
 class SNgen {
-public:
+ public:
   SNgen();
   ~SNgen();
 
@@ -98,7 +100,7 @@ public:
   //        Float_t q2_f;
   //        Float_t q3_f;
 
-protected:
+ protected:
   //        double IBDTGraph2TF1(Double_t *x, Double_t *);
   //        double ESTGraph2TF1(Double_t *x, Double_t *);
   //        double CCTGraph2TF1(Double_t *x, Double_t *);
@@ -150,9 +152,9 @@ protected:
   TF1 *funcNCNU;
   TF1 *funcINC;
 
-  std::vector<double> spec_E; // spectrum energy values
+  std::vector<double> spec_E;  // spectrum energy values
   std::vector<double> spec_mag;
-  DBLinkPtr _lspec; // link to spectrum entry in database
+  DBLinkPtr _lspec;  // link to spectrum entry in database
 
   //
 
@@ -160,6 +162,6 @@ protected:
   SNgenMessenger *messenger;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

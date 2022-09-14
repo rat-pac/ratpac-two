@@ -1,8 +1,8 @@
+#include <math.h>
+
 #include <RAT/DB.hh>
 #include <RAT/Log.hh>
 #include <RAT/WatchmanWLSPSquareDetectorFactory.hh>
-
-#include <math.h>
 #include <vector>
 
 using namespace std;
@@ -17,8 +17,9 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   const double veto_offset = 700;
   const std::string geo_template = "Watchman_WLSP/Watchman_WLSP.geo";
   if (db->Load(geo_template) == 0) {
-    Log::Die("WatchmanDetectorFactory: could not load template "
-             "Watchman_WLSP/Watchman_WLSP.geo");
+    Log::Die(
+        "WatchmanDetectorFactory: could not load template "
+        "Watchman_WLSP/Watchman_WLSP.geo");
   }
 
   // calculate the area of the defined inner_pmts
@@ -29,39 +30,29 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   vector<double> z_edge = pmt->GetDArray("z_edge");
   double photocathode_radius = rho_edge[0];
   for (size_t i = 1; i < rho_edge.size(); i++) {
-    if (photocathode_radius < rho_edge[i])
-      photocathode_radius = rho_edge[i];
+    if (photocathode_radius < rho_edge[i]) photocathode_radius = rho_edge[i];
   }
-  const double photocathode_area =
-      M_PI * photocathode_radius * photocathode_radius;
+  const double photocathode_area = M_PI * photocathode_radius * photocathode_radius;
 
   DBLinkPtr shield = db->GetLink("GEO", "shield");
   const double steel_thickness = shield->GetD("steel_thickness");
-  const double veto_thickness_r =
-      shield->GetD("veto_thickness_r"); // Distance between TANK and Inner PMT
+  const double veto_thickness_r = shield->GetD("veto_thickness_r");  // Distance between TANK and Inner PMT
   const double detector_size_d = shield->GetD("detector_size_d");
-  const double veto_thickness_z =
-      shield->GetD("veto_thickness_z"); // Distance between TANK and Inner PMT
+  const double veto_thickness_z = shield->GetD("veto_thickness_z");  // Distance between TANK and Inner PMT
   const double detector_size_z = shield->GetD("detector_size_z");
 
-  const double cable_radius =
-      detector_size_d / 2.0 - veto_thickness_r + 4.0 * steel_thickness;
-  const double pmt_radius =
-      detector_size_d / 2.0 - veto_thickness_r - 4.0 * steel_thickness;
+  const double cable_radius = detector_size_d / 2.0 - veto_thickness_r + 4.0 * steel_thickness;
+  const double pmt_radius = detector_size_d / 2.0 - veto_thickness_r - 4.0 * steel_thickness;
   const double veto_radius = pmt_radius + veto_offset;
 
   const double topbot_offset = detector_size_z / 2.0 - veto_thickness_z;
   const double topbot_veto_offset = topbot_offset + veto_offset;
 
-  const double surface_area = 2.0 * M_PI * pmt_radius * pmt_radius +
-                              2.0 * topbot_offset * 2.0 * M_PI * pmt_radius;
-  const double required_pmts =
-      ceil(photocathode_coverage * surface_area / photocathode_area);
+  const double surface_area = 2.0 * M_PI * pmt_radius * pmt_radius + 2.0 * topbot_offset * 2.0 * M_PI * pmt_radius;
+  const double required_pmts = ceil(photocathode_coverage * surface_area / photocathode_area);
   const double veto_surface_area =
-      2.0 * M_PI * veto_radius * veto_radius +
-      2.0 * topbot_veto_offset * 2.0 * M_PI * veto_radius;
-  const double required_vetos =
-      ceil(veto_coverage * veto_surface_area / photocathode_area);
+      2.0 * M_PI * veto_radius * veto_radius + 2.0 * topbot_veto_offset * 2.0 * M_PI * veto_radius;
+  const double required_vetos = ceil(veto_coverage * veto_surface_area / photocathode_area);
 
   const double pmt_space = sqrt(surface_area / required_pmts);
   const double veto_space = sqrt(veto_surface_area / required_vetos);
@@ -77,10 +68,9 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   vector<double> cable_x(cols), cable_y(cols);
   vector<pair<int, int>> topbot;
   vector<pair<int, int>> topbot_veto;
-  if (photocathode_coverage !=
-      0.00) { // Setting photocathode_coverage to 0 will use the baseline design
-              // -- YOU SHOULD STILL USE THIS FACTORY TO PROPERLY GENERATE WLS
-              // PLATES AND THEIR REFLECTORS
+  if (photocathode_coverage != 0.00) {  // Setting photocathode_coverage to 0 will use the baseline design
+                                        // -- YOU SHOULD STILL USE THIS FACTORY TO PROPERLY GENERATE WLS
+                                        // PLATES AND THEIR REFLECTORS
     info << "Generating new PMT positions for:\n";
     info << "\tdesired photocathode coverage " << photocathode_coverage << '\n';
     info << "\ttotal area " << surface_area << '\n';
@@ -97,8 +87,7 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
         if (pmt_space * sqrt(i * i + j * j) <= pmt_radius - pmt_space / 2.0) {
           topbot.push_back(make_pair(i, j));
         }
-        if (veto_space * sqrt(i * i + j * j) <=
-            pmt_radius - pmt_space / 2.0) { // pmt_* is not a mistake
+        if (veto_space * sqrt(i * i + j * j) <= pmt_radius - pmt_space / 2.0) {  // pmt_* is not a mistake
           topbot_veto.push_back(make_pair(i, j));
         }
       }
@@ -109,8 +98,7 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
     total_pmts = num_pmts + num_vetos;
 
     info << "Actual calculated values:\n";
-    info << "\tactual photocathode coverage "
-         << photocathode_area * num_pmts / surface_area << '\n';
+    info << "\tactual photocathode coverage " << photocathode_area * num_pmts / surface_area << '\n';
     info << "\tgenerated PMTs " << num_pmts << '\n';
     info << "\tcols " << cols << '\n';
     info << "\trows " << rows << '\n';
@@ -135,17 +123,14 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   pmtinfodirx = pmtinfo->GetDArray("dir_x");
   pmtinfodiry = pmtinfo->GetDArray("dir_y");
   pmtinfodirz = pmtinfo->GetDArray("dir_z");
-  if (photocathode_coverage == 0.00)
-    total_pmts = pmtinfox.size();
-  vector<double> x(total_pmts), y(total_pmts), z(total_pmts), dir_x(total_pmts),
-      dir_y(total_pmts), dir_z(total_pmts);
+  if (photocathode_coverage == 0.00) total_pmts = pmtinfox.size();
+  vector<double> x(total_pmts), y(total_pmts), z(total_pmts), dir_x(total_pmts), dir_y(total_pmts), dir_z(total_pmts);
   vector<double> xp, yp, zp;
   vector<double> dir_xp, dir_yp, dir_zp;
   vector<int> type(total_pmts);
 
   // WLS Plate positions are generated alongside the PMT positions here
   if (photocathode_coverage == 0.00) {
-
     for (size_t i = 0; i < total_pmts; i++) {
       x[i] = pmtinfox[i];
       y[i] = pmtinfoy[i];
@@ -165,7 +150,6 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
       type[i] = 1;
     }
   } else {
-
     // generate cylinder PMT positions
     for (size_t col = 0; col < cols; col++) {
       for (size_t row = 0; row < rows; row++) {
@@ -174,8 +158,7 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
 
         x[idx] = pmt_radius * cos(phi);
         y[idx] = pmt_radius * sin(phi);
-        z[idx] =
-            row * 2.0 * topbot_offset / rows + pmt_space / 2.0 - topbot_offset;
+        z[idx] = row * 2.0 * topbot_offset / rows + pmt_space / 2.0 - topbot_offset;
 
         dir_x[idx] = -cos(phi);
         dir_y[idx] = -sin(phi);
@@ -239,8 +222,7 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
 
         x[idx] = veto_radius * cos(phi);
         y[idx] = veto_radius * sin(phi);
-        z[idx] = row * 2.0 * topbot_offset / veto_rows + veto_space / 2 -
-                 topbot_offset;
+        z[idx] = row * 2.0 * topbot_offset / veto_rows + veto_space / 2 - topbot_offset;
 
         dir_x[idx] = cos(phi);
         dir_y[idx] = sin(phi);
@@ -287,26 +269,21 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
     // Side tarps
     db->Set("GEO", "white_sheet_side", "r_max", veto_radius + 60.0);
     db->Set("GEO", "white_sheet_side", "r_min",
-            veto_radius - 10.0 +
-                60.0); // Marc Bergevin: Hardcoding in a 1 cm value for tickness
+            veto_radius - 10.0 + 60.0);  // Marc Bergevin: Hardcoding in a 1 cm value for tickness
     db->Set("GEO", "white_sheet_side", "size_z", topbot_veto_offset);
     db->Set("GEO", "black_sheet_side", "r_max", pmt_radius + 10.0 + 60.0);
     db->Set("GEO", "black_sheet_side", "r_min",
-            pmt_radius +
-                60.0); // Marc Bergevin: Hardcoding in a 1 cm value for tickness
+            pmt_radius + 60.0);  // Marc Bergevin: Hardcoding in a 1 cm value for tickness
     db->Set("GEO", "black_sheet_side", "size_z", topbot_offset);
 
     db->Set("GEO", "Rod_assemblies", "r_max",
-            (pmt_radius + 300.)); // Based on Geofile thickness values of 10 cm
+            (pmt_radius + 300.));  // Based on Geofile thickness values of 10 cm
     db->Set("GEO", "Rod_assemblies", "r_min", (pmt_radius + 200.));
     db->Set("GEO", "Rod_assemblies", "size_z", topbot_offset);
 
-    db->Set("GEO", "white_sheet_tank_side", "r_max",
-            detector_size_d / 2.0 - 10.0 + 60.0);
-    db->Set("GEO", "white_sheet_tank_side", "r_min",
-            detector_size_d / 2.0 - 35.0 + 60.0);
-    db->Set("GEO", "white_sheet_tank_side", "size_z",
-            detector_size_z / 2.0 - 35.0 + 60.0);
+    db->Set("GEO", "white_sheet_tank_side", "r_max", detector_size_d / 2.0 - 10.0 + 60.0);
+    db->Set("GEO", "white_sheet_tank_side", "r_min", detector_size_d / 2.0 - 35.0 + 60.0);
+    db->Set("GEO", "white_sheet_tank_side", "size_z", detector_size_z / 2.0 - 35.0 + 60.0);
 
     // Top tarps
     vector<double> move_white_top;
@@ -324,14 +301,12 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
     vector<double> move_toptruss;
     move_toptruss.push_back(0.0);
     move_toptruss.push_back(0.0);
-    move_toptruss.push_back(topbot_offset + 200. +
-                            2.5); // Bergevin: Values based on geofile
+    move_toptruss.push_back(topbot_offset + 200. + 2.5);  // Bergevin: Values based on geofile
 
     vector<double> move_toptanktarp;
     move_toptanktarp.push_back(0.0);
     move_toptanktarp.push_back(0.0);
-    move_toptanktarp.push_back(detector_size_z / 2.0 -
-                               30.0); // Bergevin: Values based on geofile
+    move_toptanktarp.push_back(detector_size_z / 2.0 - 30.0);  // Bergevin: Values based on geofile
 
     db->Set("GEO", "white_sheet_top", "r_max", veto_radius);
     db->Set("GEO", "white_sheet_top", "position", move_white_top);
@@ -340,13 +315,12 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
     db->Set("GEO", "Top_cap_framework", "r_max", pmt_radius);
     db->Set("GEO", "Top_cap_framework", "position", move_topcap);
     db->Set("GEO", "Wall_support_truss_top", "r_min",
-            pmt_radius + 5.0); // Bergevin: Values based
+            pmt_radius + 5.0);  // Bergevin: Values based
     db->Set("GEO", "Wall_support_truss_top", "r_max",
-            pmt_radius + 200.0); // on geofile
+            pmt_radius + 200.0);  // on geofile
     db->Set("GEO", "Wall_support_truss_top", "position", move_toptruss);
 
-    db->Set("GEO", "white_sheet_tank_top", "r_max",
-            detector_size_d / 2.0 - 35.0);
+    db->Set("GEO", "white_sheet_tank_top", "r_max", detector_size_d / 2.0 - 35.0);
     db->Set("GEO", "white_sheet_tank_top", "position", move_toptanktarp);
 
     // Bottom tarps
@@ -365,14 +339,12 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
     vector<double> move_bottomtruss;
     move_bottomtruss.push_back(0.0);
     move_bottomtruss.push_back(0.0);
-    move_bottomtruss.push_back(-topbot_offset - 200. -
-                               2.5); // Bergevin: Values based on geofile
+    move_bottomtruss.push_back(-topbot_offset - 200. - 2.5);  // Bergevin: Values based on geofile
 
     vector<double> move_bottomtanktarp;
     move_bottomtanktarp.push_back(0.0);
     move_bottomtanktarp.push_back(0.0);
-    move_bottomtanktarp.push_back(-detector_size_z / 2.0 +
-                                  30.0); // Bergevin: Values based on geofile
+    move_bottomtanktarp.push_back(-detector_size_z / 2.0 + 30.0);  // Bergevin: Values based on geofile
 
     db->Set("GEO", "white_sheet_bottom", "r_max", veto_radius);
     db->Set("GEO", "white_sheet_bottom", "position", move_white_bottom);
@@ -381,13 +353,12 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
     db->Set("GEO", "Bottom_cap_framework", "r_max", pmt_radius);
     db->Set("GEO", "Bottom_cap_framework", "position", move_bottomcap);
     db->Set("GEO", "Wall_support_truss_bottom", "r_min",
-            pmt_radius + 5.0); // Bergevin: Values based
+            pmt_radius + 5.0);  // Bergevin: Values based
     db->Set("GEO", "Wall_support_truss_bottom", "r_max",
-            pmt_radius + 200.0); // on geofile
+            pmt_radius + 200.0);  // on geofile
     db->Set("GEO", "Wall_support_truss_bottom", "position", move_bottomtruss);
 
-    db->Set("GEO", "white_sheet_tank_bottom", "r_max",
-            detector_size_d / 2.0 - 35.0);
+    db->Set("GEO", "white_sheet_tank_bottom", "r_max", detector_size_d / 2.0 - 35.0);
     db->Set("GEO", "white_sheet_tank_bottom", "position", move_bottomtanktarp);
 
     info << "Adjusting the Bottom cap standoff frames ...\n";
@@ -408,92 +379,57 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
     vector<double> standoff_frame_4_size = frame_4->GetDArray("size");
     vector<double> standoff_frame_4_pos = frame_4->GetDArray("position");
 
-    info << "Size loaded in frame 0" << standoff_frame_0_size[0] << " "
-         << standoff_frame_0_size[1] << " " << standoff_frame_0_size[2]
-         << "...\n";
-    if (standoff_frame_0_size[2] !=
-        (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5))) {
-      standoff_frame_0_size[2] =
-          (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5)) / 2.0;
-      standoff_frame_0_pos[2] =
-          -(detector_size_z / 2.0 + (topbot_offset + 200. + 2.5)) / 2.0;
-      info << "New size " << standoff_frame_0_size[0] << " "
-           << standoff_frame_0_size[1] << " " << standoff_frame_0_size[2]
-           << "...\n";
+    info << "Size loaded in frame 0" << standoff_frame_0_size[0] << " " << standoff_frame_0_size[1] << " "
+         << standoff_frame_0_size[2] << "...\n";
+    if (standoff_frame_0_size[2] != (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5))) {
+      standoff_frame_0_size[2] = (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5)) / 2.0;
+      standoff_frame_0_pos[2] = -(detector_size_z / 2.0 + (topbot_offset + 200. + 2.5)) / 2.0;
+      info << "New size " << standoff_frame_0_size[0] << " " << standoff_frame_0_size[1] << " "
+           << standoff_frame_0_size[2] << "...\n";
     }
-    info << "Size loaded in frame 1" << standoff_frame_1_size[0] << " "
-         << standoff_frame_1_size[1] << " " << standoff_frame_1_size[2]
-         << "...\n";
-    if (standoff_frame_1_size[2] !=
-        (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5))) {
-      standoff_frame_1_size[2] =
-          (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5)) / 2.0;
-      standoff_frame_1_pos[2] =
-          -(detector_size_z / 2.0 + (topbot_offset + 200. + 2.5)) / 2.0;
-      info << "New size " << standoff_frame_1_size[0] << " "
-           << standoff_frame_1_size[1] << " " << standoff_frame_1_size[2]
-           << "...\n";
+    info << "Size loaded in frame 1" << standoff_frame_1_size[0] << " " << standoff_frame_1_size[1] << " "
+         << standoff_frame_1_size[2] << "...\n";
+    if (standoff_frame_1_size[2] != (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5))) {
+      standoff_frame_1_size[2] = (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5)) / 2.0;
+      standoff_frame_1_pos[2] = -(detector_size_z / 2.0 + (topbot_offset + 200. + 2.5)) / 2.0;
+      info << "New size " << standoff_frame_1_size[0] << " " << standoff_frame_1_size[1] << " "
+           << standoff_frame_1_size[2] << "...\n";
     }
-    info << "Size loaded in frame 2" << standoff_frame_2_size[0] << " "
-         << standoff_frame_2_size[1] << " " << standoff_frame_2_size[2]
-         << "...\n";
-    if (standoff_frame_2_size[2] !=
-        (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5))) {
-      standoff_frame_2_size[2] =
-          (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5)) / 2.0;
-      standoff_frame_2_pos[2] =
-          -(detector_size_z / 2.0 + (topbot_offset + 200. + 2.5)) / 2.0;
-      info << "New size " << standoff_frame_2_size[0] << " "
-           << standoff_frame_2_size[1] << " " << standoff_frame_2_size[2]
-           << "...\n";
+    info << "Size loaded in frame 2" << standoff_frame_2_size[0] << " " << standoff_frame_2_size[1] << " "
+         << standoff_frame_2_size[2] << "...\n";
+    if (standoff_frame_2_size[2] != (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5))) {
+      standoff_frame_2_size[2] = (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5)) / 2.0;
+      standoff_frame_2_pos[2] = -(detector_size_z / 2.0 + (topbot_offset + 200. + 2.5)) / 2.0;
+      info << "New size " << standoff_frame_2_size[0] << " " << standoff_frame_2_size[1] << " "
+           << standoff_frame_2_size[2] << "...\n";
     }
-    info << "Size loaded in frame 3" << standoff_frame_3_size[0] << " "
-         << standoff_frame_3_size[1] << " " << standoff_frame_3_size[2]
-         << "...\n";
-    if (standoff_frame_3_size[2] !=
-        (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5))) {
-      standoff_frame_3_size[2] =
-          (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5)) / 2.0;
-      standoff_frame_3_pos[2] =
-          -(detector_size_z / 2.0 + (topbot_offset + 200. + 2.5)) / 2.0;
-      info << "New size " << standoff_frame_3_size[0] << " "
-           << standoff_frame_3_size[1] << " " << standoff_frame_3_size[2]
-           << "...\n";
+    info << "Size loaded in frame 3" << standoff_frame_3_size[0] << " " << standoff_frame_3_size[1] << " "
+         << standoff_frame_3_size[2] << "...\n";
+    if (standoff_frame_3_size[2] != (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5))) {
+      standoff_frame_3_size[2] = (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5)) / 2.0;
+      standoff_frame_3_pos[2] = -(detector_size_z / 2.0 + (topbot_offset + 200. + 2.5)) / 2.0;
+      info << "New size " << standoff_frame_3_size[0] << " " << standoff_frame_3_size[1] << " "
+           << standoff_frame_3_size[2] << "...\n";
     }
-    info << "Size loaded in frame 4" << standoff_frame_4_size[0] << " "
-         << standoff_frame_4_size[1] << " " << standoff_frame_4_size[2]
-         << "...\n";
-    if (standoff_frame_4_size[2] !=
-        (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5))) {
-      standoff_frame_4_size[2] =
-          (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5)) / 2.0;
-      standoff_frame_4_pos[2] =
-          -(detector_size_z / 2.0 + (topbot_offset + 200. + 2.5)) / 2.0;
-      info << "New size " << standoff_frame_4_size[0] << " "
-           << standoff_frame_4_size[1] << " " << standoff_frame_4_size[2]
-           << "...\n";
+    info << "Size loaded in frame 4" << standoff_frame_4_size[0] << " " << standoff_frame_4_size[1] << " "
+         << standoff_frame_4_size[2] << "...\n";
+    if (standoff_frame_4_size[2] != (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5))) {
+      standoff_frame_4_size[2] = (detector_size_z / 2.0 - (topbot_offset + 200. + 2.5)) / 2.0;
+      standoff_frame_4_pos[2] = -(detector_size_z / 2.0 + (topbot_offset + 200. + 2.5)) / 2.0;
+      info << "New size " << standoff_frame_4_size[0] << " " << standoff_frame_4_size[1] << " "
+           << standoff_frame_4_size[2] << "...\n";
     }
 
-    db->Set("GEO", "Bottom_cap_standoff_frame_0", "size",
-            standoff_frame_0_size);
-    db->Set("GEO", "Bottom_cap_standoff_frame_0", "position",
-            standoff_frame_0_pos);
-    db->Set("GEO", "Bottom_cap_standoff_frame_1", "size",
-            standoff_frame_1_size);
-    db->Set("GEO", "Bottom_cap_standoff_frame_1", "position",
-            standoff_frame_1_pos);
-    db->Set("GEO", "Bottom_cap_standoff_frame_2", "size",
-            standoff_frame_2_size);
-    db->Set("GEO", "Bottom_cap_standoff_frame_2", "position",
-            standoff_frame_2_pos);
-    db->Set("GEO", "Bottom_cap_standoff_frame_3", "size",
-            standoff_frame_3_size);
-    db->Set("GEO", "Bottom_cap_standoff_frame_3", "position",
-            standoff_frame_3_pos);
-    db->Set("GEO", "Bottom_cap_standoff_frame_4", "size",
-            standoff_frame_4_size);
-    db->Set("GEO", "Bottom_cap_standoff_frame_4", "position",
-            standoff_frame_4_pos);
+    db->Set("GEO", "Bottom_cap_standoff_frame_0", "size", standoff_frame_0_size);
+    db->Set("GEO", "Bottom_cap_standoff_frame_0", "position", standoff_frame_0_pos);
+    db->Set("GEO", "Bottom_cap_standoff_frame_1", "size", standoff_frame_1_size);
+    db->Set("GEO", "Bottom_cap_standoff_frame_1", "position", standoff_frame_1_pos);
+    db->Set("GEO", "Bottom_cap_standoff_frame_2", "size", standoff_frame_2_size);
+    db->Set("GEO", "Bottom_cap_standoff_frame_2", "position", standoff_frame_2_pos);
+    db->Set("GEO", "Bottom_cap_standoff_frame_3", "size", standoff_frame_3_size);
+    db->Set("GEO", "Bottom_cap_standoff_frame_3", "position", standoff_frame_3_pos);
+    db->Set("GEO", "Bottom_cap_standoff_frame_4", "size", standoff_frame_4_size);
+    db->Set("GEO", "Bottom_cap_standoff_frame_4", "position", standoff_frame_4_pos);
     info << "Override default PMTINFO information...\n";
     db->Set("PMTINFO", "x", x);
     db->Set("PMTINFO", "y", y);
@@ -542,35 +478,24 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
 
     // This generates the geometry values for the WLS plates and their
     // reflectors
-    db->Set("GEO", "WLS_Plates", "size",
-            {(pmt_space / 2.0) - 10.0, (pmt_space / 2.0) - 10.0,
-             wlsp->GetDArray("z")[1]});
-    db->Set("GEO", "WLS_Plates", "r_max",
-            {rho_edge[1] + 5.0, rho_edge[1] - 15.0});
+    db->Set("GEO", "WLS_Plates", "size", {(pmt_space / 2.0) - 10.0, (pmt_space / 2.0) - 10.0, wlsp->GetDArray("z")[1]});
+    db->Set("GEO", "WLS_Plates", "r_max", {rho_edge[1] + 5.0, rho_edge[1] - 15.0});
     db->Set("GEO", "WLS_Plates", "r_min", {0.0, 0.0});
-    db->Set("GEO", "WLS_Plates", "z",
-            {-wlsp->GetDArray("z")[1] - 1.0, wlsp->GetDArray("z")[1] + 1.0});
+    db->Set("GEO", "WLS_Plates", "z", {-wlsp->GetDArray("z")[1] - 1.0, wlsp->GetDArray("z")[1] + 1.0});
     db->Set("GEO", "WLSP_reflector", "inner_size",
-            {(pmt_space / 2.0) - 10.0, (pmt_space / 2.0) - 10.0,
-             wlsp->GetDArray("z")[1] + 2.0});
+            {(pmt_space / 2.0) - 10.0, (pmt_space / 2.0) - 10.0, wlsp->GetDArray("z")[1] + 2.0});
     db->Set("GEO", "WLSP_reflector", "outer_size",
-            {(pmt_space / 2.0) - 10.0 + 2.0, (pmt_space / 2.0) - 10.0 + 2.0,
-             wlsp->GetDArray("z")[1]});
+            {(pmt_space / 2.0) - 10.0 + 2.0, (pmt_space / 2.0) - 10.0 + 2.0, wlsp->GetDArray("z")[1]});
   } else {
     // If the baseline detector configuration is used, more constant values are
     // used.  I still do this here rather than in the geo file because it reads
     // in the PMT dimensions
-    db->Set("GEO", "WLS_Plates", "size",
-            {240.0, 240.0, wlsp->GetDArray("z")[1]});
-    db->Set("GEO", "WLS_Plates", "r_max",
-            {rho_edge[1] + 5.0, rho_edge[1] - 15.0});
+    db->Set("GEO", "WLS_Plates", "size", {240.0, 240.0, wlsp->GetDArray("z")[1]});
+    db->Set("GEO", "WLS_Plates", "r_max", {rho_edge[1] + 5.0, rho_edge[1] - 15.0});
     db->Set("GEO", "WLS_Plates", "r_min", {0.0, 0.0});
-    db->Set("GEO", "WLS_Plates", "z",
-            {-wlsp->GetDArray("z")[1] - 1.0, wlsp->GetDArray("z")[1] + 1.0});
-    db->Set("GEO", "WLSP_reflector", "inner_size",
-            {240.0, 240.0, wlsp->GetDArray("z")[1] + 2.0});
-    db->Set("GEO", "WLSP_reflector", "outer_size",
-            {242.0, 242.0, wlsp->GetDArray("z")[1]});
+    db->Set("GEO", "WLS_Plates", "z", {-wlsp->GetDArray("z")[1] - 1.0, wlsp->GetDArray("z")[1] + 1.0});
+    db->Set("GEO", "WLSP_reflector", "inner_size", {240.0, 240.0, wlsp->GetDArray("z")[1] + 2.0});
+    db->Set("GEO", "WLSP_reflector", "outer_size", {242.0, 242.0, wlsp->GetDArray("z")[1]});
   }
 
   // db->Set("GEO","WLSP_reflector","inner_size",{(pmt_space/2.0)-8.0,(pmt_space/2.0)-8.0,wlspcover->GetDArray("z")[1]});
@@ -582,12 +507,11 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
     DBLinkPtr cavern = db->GetLink("GEO", "cavern");
     // const vector<double>  &cavSize = cavern->GetDArray("size_z"); //Should be
     // a cube float _shift = cavSize[0]-detector_size_z/2.0;
-    const double cavSize = cavern->GetD("size_z"); // Should be a cube
+    const double cavSize = cavern->GetD("size_z");  // Should be a cube
     float _shift = cavSize - detector_size_z / 2.0;
 
     if (_shift < 0.0) {
-      info << "size of detector greater than cavern. (" << detector_size_z
-           << " mm," << cavSize * 2 << "\n";
+      info << "size of detector greater than cavern. (" << detector_size_z << " mm," << cavSize * 2 << "\n";
     }
     vector<double> shift, minshift;
     shift.push_back(0.0);
@@ -596,8 +520,7 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
     minshift.push_back(0.0);
     minshift.push_back(0.0);
     minshift.push_back(-_shift);
-    info << "Update height of rock and cavern air... (" << _shift
-         << " mm shift)\n";
+    info << "Update height of rock and cavern air... (" << _shift << " mm shift)\n";
 
     db->Set("GEO", "rock_1", "position", shift);
     // db->Set("GEO","cavern",  "position",noshift);
@@ -610,4 +533,4 @@ void WatchmanWLSPSquareDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   }
 }
 
-} // namespace RAT
+}  // namespace RAT

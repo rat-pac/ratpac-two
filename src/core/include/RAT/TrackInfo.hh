@@ -10,19 +10,15 @@
 namespace RAT {
 
 class TrackInfo : public G4VUserTrackInformation {
-public:
+ public:
   TrackInfo(){};
   virtual ~TrackInfo(){};
 
   inline void *operator new(size_t);
   inline void operator delete(void *);
 
-  void SetCreatorProcess(std::string &creatorProcess) {
-    fCreatorProcess = creatorProcess;
-  };
-  void SetCreatorProcess(const char *creatorProcess) {
-    fCreatorProcess = creatorProcess;
-  };
+  void SetCreatorProcess(std::string &creatorProcess) { fCreatorProcess = creatorProcess; };
+  void SetCreatorProcess(const char *creatorProcess) { fCreatorProcess = creatorProcess; };
   std::string GetCreatorProcess() const { return fCreatorProcess; };
 
   // Ok, I'm tired of getter/setter C++ bondage crap.  Just expose the
@@ -42,7 +38,7 @@ public:
 
   virtual void Print() const {};
 
-protected:
+ protected:
   std::string fCreatorProcess;
   int CreatorStep;
 };
@@ -56,10 +52,8 @@ inline void *TrackInfo::operator new(size_t) {
   return aTrackInfo;
 }
 
-inline void TrackInfo::operator delete(void *aTrackInfo) {
-  aTrackInfoAllocator.FreeSingle((TrackInfo *)aTrackInfo);
-}
+inline void TrackInfo::operator delete(void *aTrackInfo) { aTrackInfoAllocator.FreeSingle((TrackInfo *)aTrackInfo); }
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

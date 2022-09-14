@@ -16,7 +16,7 @@
 namespace RAT {
 
 class BWVetGenericChamberHit : public G4VHit {
-public:
+ public:
   BWVetGenericChamberHit(G4int i, G4double t);
   virtual ~BWVetGenericChamberHit();
   BWVetGenericChamberHit(const BWVetGenericChamberHit &right);
@@ -29,14 +29,14 @@ public:
   void Draw();
   void Print();
 
-private:
+ private:
   G4int id;
   G4double time;
   G4ThreeVector pos;
   G4RotationMatrix rot;
   const G4LogicalVolume *pLogV;
 
-public:
+ public:
   inline G4int GetID() const { return id; }
   inline G4double GetTime() const { return time; }
   inline void SetTime(G4double val) { time = val; }
@@ -48,8 +48,7 @@ public:
   inline const G4LogicalVolume *GetLogV() const { return pLogV; }
 };
 
-typedef G4THitsCollection<BWVetGenericChamberHit>
-    BWVetGenericChamberHitsCollection;
+typedef G4THitsCollection<BWVetGenericChamberHit> BWVetGenericChamberHitsCollection;
 
 extern G4Allocator<BWVetGenericChamberHit> BWVetGenericChamberHitAllocator;
 
@@ -63,6 +62,6 @@ inline void BWVetGenericChamberHit::operator delete(void *aHit) {
   BWVetGenericChamberHitAllocator.FreeSingle((BWVetGenericChamberHit *)aHit);
 }
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

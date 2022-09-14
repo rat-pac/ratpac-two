@@ -1,5 +1,6 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <G4Torus.hh>
 #include <RAT/GeoTorusFactory.hh>
 
@@ -32,4 +33,4 @@ G4VSolid *GeoTorusFactory::ConstructSolid(DBLinkPtr table) {
   return new G4Torus(volume_name, r_min, r_max, r_torus, phi_start, phi_delta);
 }
 
-} // namespace RAT
+}  // namespace RAT

@@ -12,6 +12,7 @@
 // Additional Trajectory Model added. Morgan Askins, Dec 2019
 
 #include "RAT/GLG4VisManager.hh"
+
 #include "G4ViewParameters.hh"
 #include "RAT/GLG4VisMessenger.hh"
 
@@ -79,7 +80,6 @@
 GLG4VisManager::GLG4VisManager() { new GLG4VisMessenger(this); }
 
 void GLG4VisManager::RegisterGraphicsSystems() {
-
   // Graphics Systems not needing external packages or libraries...
   RegisterGraphicsSystem(new G4ASCIITree);
   RegisterGraphicsSystem(new G4DAWNFILE);
@@ -153,8 +153,7 @@ void GLG4VisManager::RegisterModelFactories() {
   RegisterModelFactory(new G4HitAttributeFilterFactory());
 
   // Custom model
-  G4TrajectoryDrawByParticleID *mymodel =
-      new G4TrajectoryDrawByParticleID("watchmodel");
+  G4TrajectoryDrawByParticleID *mymodel = new G4TrajectoryDrawByParticleID("watchmodel");
 
   G4Colour pink(1.0, 0.2, 0.8);
   G4Colour alpha(0.0, 1.0, 0.8);
@@ -170,10 +169,8 @@ void GLG4VisManager::RegisterModelFactories() {
   mymodel->Set("e-", "yellow");
   mymodel->Set("mu-", "red");
   mymodel->Set("e+", "red");
-  mymodel->Set(
-      "mu+",
-      G4Colour(0.78, 0.78,
-               0.78)); // to distinguish mu+ from mu- on black background.
+  mymodel->Set("mu+", G4Colour(0.78, 0.78,
+                               0.78));  // to distinguish mu+ from mu- on black background.
   mymodel->Set("proton", "magenta");
   mymodel->Set("neutron", G4Colour(1.0, 0.6, 0.0, 1.0));
   RegisterModel(mymodel);

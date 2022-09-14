@@ -23,13 +23,13 @@ class G4HCofThisEvent;
 class G4TouchableHistory;
 
 class GLG4PMTSD : public G4VSensitiveDetector {
-protected:
+ protected:
   int max_pmts;
   int pmt_no_offset;
   int my_id_pmt_size;
   // enum { max_waveform_ns= 200 };
 
-public:
+ public:
   G4int *hit_sum; /* indexed by pmt number */
   // typedef G4int waveform_t[max_waveform_ns];
   // waveform_t *hit_waveform; /* indexed by pmt number */
@@ -37,10 +37,9 @@ public:
   G4int n_pmt_hits; /* # of hits,       calculated at EndOfEvent */
   G4int n_hit_pmts; /* # of PMTs hit,   calculated at EndOfEvent */
 
-public:
+ public:
   // member functions
-  GLG4PMTSD(G4String name, int max_pmts = 1920, int pmt_no_offset = 0,
-            int my_id_pmt_size = -1);
+  GLG4PMTSD(G4String name, int max_pmts = 1920, int pmt_no_offset = 0, int my_id_pmt_size = -1);
   virtual ~GLG4PMTSD();
 
   virtual void Initialize(G4HCofThisEvent *HCE);
@@ -49,12 +48,11 @@ public:
   virtual void DrawAll();
   virtual void PrintAll();
 
-  void SimpleHit(G4int ipmt, G4double time, G4double kineticEnergy,
-                 const G4ThreeVector &position, const G4ThreeVector &momentum,
-                 const G4ThreeVector &polarization, G4int iHitPhotonCount,
+  void SimpleHit(G4int ipmt, G4double time, G4double kineticEnergy, const G4ThreeVector &position,
+                 const G4ThreeVector &momentum, const G4ThreeVector &polarization, G4int iHitPhotonCount,
                  G4int trackID = -1, G4bool prepulse = false);
 
-protected:
+ protected:
   virtual G4bool ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist);
 };
 

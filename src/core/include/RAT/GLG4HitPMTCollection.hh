@@ -9,9 +9,10 @@
     @author Glenn Horton-Smith, December 2004
 */
 
-#include "GLG4HitPMT.hh"
 #include <map>
 #include <vector>
+
+#include "GLG4HitPMT.hh"
 
 /** GLG4HitPMTCollection stores GLG4HitPMT objects.
 
@@ -31,7 +32,7 @@
 */
 
 class GLG4HitPMTCollection {
-public:
+ public:
   GLG4HitPMTCollection();
   virtual ~GLG4HitPMTCollection();
 
@@ -44,9 +45,9 @@ public:
 
   void Print(std::ostream &) const;
 
-private:
+ private:
   std::vector<GLG4HitPMT *> fPMT;
   std::map<int, GLG4HitPMT *> fHitmap;
 };
 
-#endif // __GLG4HitPMTCollection_hh__
+#endif  // __GLG4HitPMTCollection_hh__

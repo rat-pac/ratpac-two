@@ -21,12 +21,9 @@ using namespace std;
 namespace RAT {
 
 // always intialize the event count to 0 for every triggered event
-LessSimpleDAQ2Proc::LessSimpleDAQ2Proc() : Processor("lesssimpledaq2") {
-  fEventCounter = 0;
-}
+LessSimpleDAQ2Proc::LessSimpleDAQ2Proc() : Processor("lesssimpledaq2") { fEventCounter = 0; }
 
 Processor::Result LessSimpleDAQ2Proc::DSEvent(DS::Root *ds) {
-
   // remove any existing branch to avoid having multiple detectors in this event
   DS::MC *mc = ds->GetMC();
   if (ds->ExistEV()) {
@@ -34,24 +31,21 @@ Processor::Result LessSimpleDAQ2Proc::DSEvent(DS::Root *ds) {
   }
 
   // declare several vectors
-  vector<int> iArray, iArraySort;      // index
-  vector<double> tArray, tArraySort;   // front end time
-  vector<double> qArray, qArraySort;   // charge
-  vector<double> idArray, idArraySort; // PMT ID
+  vector<int> iArray, iArraySort;       // index
+  vector<double> tArray, tArraySort;    // front end time
+  vector<double> qArray, qArraySort;    // charge
+  vector<double> idArray, idArraySort;  // PMT ID
   vector<double> phArray,
-      phArraySort; // photon count ...we are not using this...
+      phArraySort;  // photon count ...we are not using this...
   vector<double> htArray,
-      htArraySort; // hit time     ...we are not using this either...
+      htArraySort;  // hit time     ...we are not using this either...
 
   // get the information for 1 full event and put them in vectors
   for (int imcpmt = 0; imcpmt < mc->GetMCPMTCount(); imcpmt++) {
-
     DS::MCPMT *mcpmt = mc->GetMCPMT(imcpmt);
 
     if (mcpmt->GetMCPhotonCount() > 0) {
-
       for (int i = 0; i < mcpmt->GetMCPhotonCount(); i++) {
-
         tArray.push_back(mcpmt->GetMCPhoton(i)->GetFrontEndTime());
         tArraySort.push_back(mcpmt->GetMCPhoton(i)->GetFrontEndTime());
         qArray.push_back(mcpmt->GetMCPhoton(i)->GetCharge());
@@ -85,7 +79,6 @@ Processor::Result LessSimpleDAQ2Proc::DSEvent(DS::Root *ds) {
 
   // if there is at least 1 event ...
   if (tArraySort.size() > 0) {
-
     // group these events and get bunch of subevents. the cluster time will be
     // the earliest time among the PMTs.
     double timeWindow = 400.0;
@@ -112,7 +105,6 @@ Processor::Result LessSimpleDAQ2Proc::DSEvent(DS::Root *ds) {
     // ok, we have the number of subevents now (numSub+1). Let's set things up!
     double qSum = 0.0;
     for (int b = 0; b < numSub + 1; b++) {
-
       DS::EV *ev = ds->AddNewEV();
       DS::PMT *pmt;
       fEventCounter += 1;
@@ -129,7 +121,6 @@ Processor::Result LessSimpleDAQ2Proc::DSEvent(DS::Root *ds) {
 
       for (unsigned long bb = startIndex[b]; bb < tArraySort.size(); bb++) {
         if (subIndex[bb] == b) {
-
           pmt = ev->AddNewPMT();
           pmt->SetID(idArraySort[bb]);
           pmt->SetTime(tArraySort[bb]);
@@ -145,4 +136,4 @@ Processor::Result LessSimpleDAQ2Proc::DSEvent(DS::Root *ds) {
   }
   return Processor::OK;
 }
-} // namespace RAT
+}  // namespace RAT

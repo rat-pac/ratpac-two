@@ -16,7 +16,7 @@ class G4Material;
 #include <vector>
 
 class GLG4PosGen {
-public:
+ public:
   GLG4PosGen(const char *arg_dbname = "pos") : _dbname(arg_dbname) {}
   virtual ~GLG4PosGen() {}
 
@@ -30,12 +30,12 @@ public:
   // returns the current state information in a form that can be understood
   // by SetState (and, hopefully, a well-informed human)
 
-protected:
-  G4String _dbname; // used for GLG4param key prefix
+ protected:
+  G4String _dbname;  // used for GLG4param key prefix
 };
 
 class GLG4PosGen_Point : public GLG4PosGen {
-public:
+ public:
   GLG4PosGen_Point(const char *arg_dbname = "point");
   virtual void GeneratePosition(G4ThreeVector &argResult);
   // Generates a position either at a fixed point in the global coordinates
@@ -43,12 +43,12 @@ public:
   // newValues == x y z coordinates in mm (separated by white space),
   G4String GetState() const;
   // returns current state in format above
-protected:
+ protected:
   G4ThreeVector _fixedPos;
 };
 
 class GLG4PosGen_Paint : public GLG4PosGen {
-public:
+ public:
   GLG4PosGen_Paint(const char *arg_dbname = "paint");
   virtual void GeneratePosition(G4ThreeVector &argResult);
   // Generates a position uniformly over the surface of the volume
@@ -62,7 +62,7 @@ public:
   // optionally followed by name of material to which to restrict "paint".
   G4String GetState() const;
   // returns current state in format above
-protected:
+ protected:
   G4ThreeVector _pos;
   G4double _thickness;
   G4String _pVolumeName;
@@ -76,7 +76,7 @@ protected:
 };
 
 class GLG4PosGen_Fill : public GLG4PosGen {
-public:
+ public:
   GLG4PosGen_Fill(const char *arg_dbname = "fill");
   virtual void GeneratePosition(G4ThreeVector &argResult);
   // Generates a position uniformly filling the volume which contains
@@ -91,7 +91,7 @@ public:
   // optionally followed by name of physical volume expected at that position;
   G4String GetState() const;
   // returns current state in format above
-protected:
+ protected:
   G4ThreeVector _pos;
   G4String _pVolumeName;
   G4VPhysicalVolume *_pVolume;
@@ -103,7 +103,7 @@ protected:
 };
 
 class GLG4PosGen_FillCyl : public GLG4PosGen {
-public:
+ public:
   GLG4PosGen_FillCyl(const char *arg_dbname = "fillcyl");
   virtual void GeneratePosition(G4ThreeVector &argResult);
   // Generates a position uniformly filling the cylindrical volume which
@@ -118,20 +118,19 @@ public:
   // optionally followed by name of physical volume expected at that position;
   G4String GetState() const;
   // returns current state in format above
-protected:
+ protected:
   G4double _radius, _height;
   int _volumeInfoLoaded;
 };
 
 class GLG4PosGen_Cosmic : public GLG4PosGen {
-public:
+ public:
   GLG4PosGen_Cosmic(const char *arg_dbname);
-  virtual void GenerateVertexPositions(G4PrimaryVertex *argVertex,
-                                       double max_chain_time, double event_rate,
+  virtual void GenerateVertexPositions(G4PrimaryVertex *argVertex, double max_chain_time, double event_rate,
                                        double dt = 0.0);
   // external flux uniformly distributed over area normal to
   // incident direction of first track in vertex
-  void GeneratePosition(G4ThreeVector &); // (not used)
+  void GeneratePosition(G4ThreeVector &);  // (not used)
   void SetState(G4String newValues);
   // newValues == "width height"
   //  width == width of rectangular area normal to incident direction (mm)
@@ -150,7 +149,7 @@ public:
   // for the area of the rectangle.
   G4String GetState() const;
   // returns current state in format above
-private:
+ private:
   G4double _width, _height;
 };
 

@@ -47,7 +47,7 @@ namespace RAT {
 class DB;
 
 class DBLink {
-public:
+ public:
   /** Create a new link to a table.
    *
    *  @param  db  Pointer to database which created this link.  When
@@ -152,12 +152,13 @@ public:
    *  @param  T          C++ data type for field
    *  @param  fieldname  Name of field
    */
-  template <class T> T Get(const std::string &fieldname);
+  template <class T>
+  T Get(const std::string &fieldname);
 
   // Used by DB class, do not use this yourself
   void Unlink() { db = 0; };
 
-protected:
+ protected:
   /** Pointer to DB which created this link. */
   DB *db;
 
@@ -171,8 +172,8 @@ protected:
   int currentRun;
 };
 
-template <class T> T DBLink::Get(const std::string &fieldname) {
-
+template <class T>
+T DBLink::Get(const std::string &fieldname) {
   DBTable *tbl;
   // First try user plane
   tbl = db->GetUserTable(tblname, index);
@@ -180,8 +181,7 @@ template <class T> T DBLink::Get(const std::string &fieldname) {
     // Then try the run plane
     tbl = db->GetRunTable(tblname, index, currentRun);
     if (tbl) {
-      if (tbl->GetFieldType(fieldname) == DBTable::NOTFOUND)
-        throw DBNotFoundError(tblname, index, fieldname);
+      if (tbl->GetFieldType(fieldname) == DBTable::NOTFOUND) throw DBNotFoundError(tblname, index, fieldname);
     } else {
       // Finally try default plane
       tbl = db->GetDefaultTable(tblname, index);
@@ -200,6 +200,6 @@ template <class T> T DBLink::Get(const std::string &fieldname) {
   return value;
 }
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

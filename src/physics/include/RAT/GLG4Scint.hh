@@ -34,57 +34,40 @@
 #include "G4Step.hh"
 #include "G4ThreeVector.hh"
 #include "G4UImessenger.hh"
+#include "G4VProcess.hh"
 #include "globals.hh"
 #include "list"
 #include "local_g4compat.hh"
 #include "templates.hh"
 #include "vector"
 
-#include "G4VProcess.hh"
-
 // Dummy classes used as placeholders in new opticalphoton tracks so
 // that G4Track users can figure out the name of the process which
 // created the track.
 class GLG4DummyProcess : public G4VProcess {
-public:
-  GLG4DummyProcess(const G4String &aName = "NoName",
-                   G4ProcessType aType = fNotDefined)
-      : G4VProcess(aName, aType){};
+ public:
+  GLG4DummyProcess(const G4String &aName = "NoName", G4ProcessType aType = fNotDefined) : G4VProcess(aName, aType){};
 
   // Bogus, not a real process
-  virtual G4double AlongStepGetPhysicalInteractionLength(
-      const G4Track & /*track*/, G4double /*previousStepSize*/,
-      G4double /*currentMinimumStep*/, G4double & /*proposedSafety*/,
-      G4GPILSelection * /*selection*/) {
+  virtual G4double AlongStepGetPhysicalInteractionLength(const G4Track & /*track*/, G4double /*previousStepSize*/,
+                                                         G4double /*currentMinimumStep*/, G4double & /*proposedSafety*/,
+                                                         G4GPILSelection * /*selection*/) {
     return 0;
   };
 
-  virtual G4double
-  AtRestGetPhysicalInteractionLength(const G4Track & /*track*/,
-                                     G4ForceCondition * /*condition*/) {
+  virtual G4double AtRestGetPhysicalInteractionLength(const G4Track & /*track*/, G4ForceCondition * /*condition*/) {
     return 0;
   };
 
-  virtual G4double
-  PostStepGetPhysicalInteractionLength(const G4Track & /*track*/,
-                                       G4double /*previousStepSize*/,
-                                       G4ForceCondition * /*condition*/) {
+  virtual G4double PostStepGetPhysicalInteractionLength(const G4Track & /*track*/, G4double /*previousStepSize*/,
+                                                        G4ForceCondition * /*condition*/) {
     return 0;
   };
 
-  virtual G4VParticleChange *PostStepDoIt(const G4Track & /*track*/,
-                                          const G4Step & /*stepData*/) {
-    return 0;
-  };
+  virtual G4VParticleChange *PostStepDoIt(const G4Track & /*track*/, const G4Step & /*stepData*/) { return 0; };
 
-  virtual G4VParticleChange *AlongStepDoIt(const G4Track & /*track*/,
-                                           const G4Step & /*stepData*/) {
-    return 0;
-  };
-  virtual G4VParticleChange *AtRestDoIt(const G4Track & /*track*/,
-                                        const G4Step & /*stepData*/) {
-    return 0;
-  };
+  virtual G4VParticleChange *AlongStepDoIt(const G4Track & /*track*/, const G4Step & /*stepData*/) { return 0; };
+  virtual G4VParticleChange *AtRestDoIt(const G4Track & /*track*/, const G4Step & /*stepData*/) { return 0; };
 };
 
 class G4UIcommand;
@@ -172,35 +155,32 @@ class G4UIdirectory;
       of real photons per macro-particle.
 */
 
-class GLG4Scint
-    : public G4UImessenger // not creating a separate class is my laziness -GHS.
+class GLG4Scint : public G4UImessenger  // not creating a separate class is my laziness -GHS.
 {
-
-private:
+ private:
   //////////////
   // Operators
   //////////////
 
   // GLG4Scint& operator=(const GLG4Scint &right);
 
-public:
+ public:
   ///////////////
   // Nested class
   ////////////////
 
   class MyPhysicsTable {
-  public:
+   public:
     G4String *fName;
     class Entry {
-    public:
+     public:
       G4PhysicsOrderedFreeVector *fSpectrumIntegral;
       G4PhysicsOrderedFreeVector *fReemissionIntegral;
       G4PhysicsOrderedFreeVector *fTimeIntegral;
       G4PhysicsOrderedFreeVector *fReemissionTimeIntegral;
-      G4std::vector<G4PhysicsOrderedFreeVector *> fReemissionTimeVector;
-      G4std::vector<G4PhysicsOrderedFreeVector *> fReemissionSpectrumVector;
-      int fOwnSpectrumIntegral, fOwnTimeIntegral, fOwnReemissionTimeIntegral,
-          fOwnReemissionTimeVector;
+      std::vector<G4PhysicsOrderedFreeVector *> fReemissionTimeVector;
+      std::vector<G4PhysicsOrderedFreeVector *> fReemissionSpectrumVector;
+      int fOwnSpectrumIntegral, fOwnTimeIntegral, fOwnReemissionTimeIntegral, fOwnReemissionTimeVector;
       G4double fResolutionScale;
       G4double fBirksConstant;
       G4double fRefdEdx;
@@ -210,11 +190,10 @@ public:
       Entry();
       ~Entry();
 
-      void Build(const G4String &name, int material_index,
-                 G4MaterialPropertiesTable *matprops);
+      void Build(const G4String &name, int material_index, G4MaterialPropertiesTable *matprops);
     };
 
-  private:
+   private:
     static MyPhysicsTable *fHead;
     MyPhysicsTable *fNext;
     G4int fUsedByCount;
@@ -229,13 +208,12 @@ public:
 
     friend class GLG4Scint;
 
-  public:
+   public:
     static MyPhysicsTable *FindOrBuild(const G4String &name);
     static const MyPhysicsTable *GetDefault(void) { return fHead; }
     void IncUsedBy(void) { ++fUsedByCount; }
     void DecUsedBy(void) {
-      if (--fUsedByCount <= 0)
-        delete this;
+      if (--fUsedByCount <= 0) delete this;
     }
     const Entry *GetEntry(int i) const { return fData + i; }
     void Dump(void) const;
@@ -255,8 +233,7 @@ public:
   // Methods
   ////////////
 
-  G4VParticleChange *PostPostStepDoIt(const G4Track &aTrack,
-                                      const G4Step &aStep);
+  G4VParticleChange *PostPostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
 
   G4double GetLowerMassLimit(void) const;
 
@@ -287,8 +264,7 @@ public:
   static unsigned int GetScintillatedCount() { return fsScintillatedCount; }
   static unsigned int GetReemittedCount() { return fsReemittedCount; }
 
-  static void GetTotEdepAll(G4double &totEdep, G4double &totEdepQuenched,
-                            G4double &totEdepTime,
+  static void GetTotEdepAll(G4double &totEdep, G4double &totEdepQuenched, G4double &totEdepTime,
                             G4ThreeVector &scintCentroidSum) {
     totEdep = fTotEdep;
     totEdepQuenched = fTotEdepQuenched;
@@ -296,8 +272,7 @@ public:
     scintCentroidSum = fScintCentroidSum;
   }
 
-  static void SetTotEdep(G4double &totEdep, G4double &totEdepQuenched,
-                         G4double &totEdepTime,
+  static void SetTotEdep(G4double &totEdep, G4double &totEdepQuenched, G4double &totEdepTime,
                          G4ThreeVector &scintCentroidSum) {
     fTotEdep = totEdep;
     fTotEdepQuenched = totEdepQuenched;
@@ -313,15 +288,13 @@ public:
   static G4double GetTotEdepQuenched() { return fTotEdepQuenched; }
   static G4double GetTotEdepTime() { return fTotEdepTime; }
   static G4bool GetDoScintillation() { return fDoScintillation; }
-  static G4ThreeVector GetScintCentroidSum() {
-    return fScintCentroidSum * (1.0 / fTotEdepQuenched);
-  }
+  static G4ThreeVector GetScintCentroidSum() { return fScintCentroidSum * (1.0 / fTotEdepQuenched); }
 
   ///////////////////////
   // Class Data Members
   ///////////////////////
 
-protected:
+ protected:
   int fVerboseLevel;
 
   // Below is the pointer to the physics table which this instance
@@ -343,7 +316,7 @@ protected:
   // They register themselves when created,
   // remove themselves when deleted.
   // Used by GenericPostPostStepDoIt
-  static G4std::vector<GLG4Scint *> fMasterVectorOfGLG4Scint;
+  static std::vector<GLG4Scint *> fMasterVectorOfGLG4Scint;
 
   // top level of scintillation command
   static G4UIdirectory *fGLG4ScintDir;
@@ -379,7 +352,7 @@ protected:
   // primary particle energy
   static G4double fPrimaryEnergy;
 
-public:
+ public:
   // methods to access the Quenching Factor
   static G4double GetQuenchingFactor() { return fQuenchingFactor; }
   static void SetQuenchingFactor(G4double qf);
@@ -394,23 +367,18 @@ public:
 // Inline methods
 ////////////////////
 
-inline GLG4Scint::MyPhysicsTable *GLG4Scint::GetMyPhysicsTable() const {
-  return fMyPhysicsTable;
-}
+inline GLG4Scint::MyPhysicsTable *GLG4Scint::GetMyPhysicsTable() const { return fMyPhysicsTable; }
 
 inline void GLG4Scint::DumpInfo() const {
   if (fMyPhysicsTable) {
     G4cout << "GLG4Scint[" << *(fMyPhysicsTable->fName) << "] {\n"
            << "  fLowerMassLimit=" << fLowerMassLimit << G4endl;
-    if (fVerboseLevel >= 2)
-      fMyPhysicsTable->Dump();
+    if (fVerboseLevel >= 2) fMyPhysicsTable->Dump();
     G4cout << "}" << G4endl;
   }
 }
 
-inline G4double GLG4Scint::GetLowerMassLimit(void) const {
-  return fLowerMassLimit;
-}
+inline G4double GLG4Scint::GetLowerMassLimit(void) const { return fLowerMassLimit; }
 
 inline void GLG4Scint::SetVerboseLevel(int level) { fVerboseLevel = level; }
 inline G4int GLG4Scint::GetVerboseLevel(void) const { return fVerboseLevel; }

@@ -6,17 +6,15 @@
 namespace RAT {
 
 class TrackNode : public DS::MCTrackStep {
-public:
+ public:
   TrackNode() {
     trackStart = true;
     prev = next = 0;
   };
   virtual ~TrackNode() {
-    if (next)
-      delete next;
+    if (next) delete next;
     for (unsigned i = 0; i < child.size(); i++)
-      if (child[i])
-        delete child[i];
+      if (child[i]) delete child[i];
   };
 
   /** True if this is the first step in the track */
@@ -47,9 +45,7 @@ public:
    *  Often this is more accurate than the pdgcode, which is used
    * inconsistently. */
   virtual const std::string &GetParticleName() const { return particleName; };
-  virtual void SetParticleName(const std::string &_particleName) {
-    particleName = _particleName;
-  }
+  virtual void SetParticleName(const std::string &_particleName) { particleName = _particleName; }
 
   // Step information inherited from DS::MCTrackStep
 
@@ -59,7 +55,7 @@ public:
   virtual TrackNode *GetNext() const { return next; };
   virtual void SetNext(TrackNode *_next) { next = _next; };
 
-  std::vector<TrackNode *> child; // Any additional tracks connected to this one
+  std::vector<TrackNode *> child;  // Any additional tracks connected to this one
   // Not using TClonesArray because this object does not go into a TTree ever!
 
   // Util methods
@@ -80,7 +76,7 @@ public:
 
   ClassDef(TrackNode, 2);
 
-protected:
+ protected:
   bool trackStart;
   int trackID;
   int stepID;
@@ -88,9 +84,9 @@ protected:
   std::string particleName;
 
   TrackNode *prev;
-  TrackNode *next; // Next node for this same particle
+  TrackNode *next;  // Next node for this same particle
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -9,16 +9,16 @@
 
 namespace RAT {
 class GeoCalibrationStickFactory : public GeoFactory {
-public:
+ public:
   GeoCalibrationStickFactory() : GeoFactory("CalibrationStick"){};
   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
 
-protected:
+ protected:
   static G4VisAttributes *GetColor(std::vector<double> color);
   void SetVis(G4LogicalVolume *volume, std::vector<double> color);
   G4OpticalSurface *GetSurface(std::string surface_name);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // __RAT_GeoCalibrationStickFactory__
+#endif  // __RAT_GeoCalibrationStickFactory__

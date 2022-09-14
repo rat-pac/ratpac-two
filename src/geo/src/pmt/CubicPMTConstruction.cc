@@ -13,10 +13,7 @@ using namespace std;
 
 namespace RAT {
 
-CubicPMTConstruction::CubicPMTConstruction(DBLinkPtr table,
-                                           G4LogicalVolume *mother)
-    : PMTConstruction("cubic") {
-
+CubicPMTConstruction::CubicPMTConstruction(DBLinkPtr table, G4LogicalVolume *mother) : PMTConstruction("cubic") {
   glass_phys = 0;
   vacuum_phys = 0;
 
@@ -37,8 +34,7 @@ CubicPMTConstruction::CubicPMTConstruction(DBLinkPtr table,
   fParams.mirror = Materials::optical_surface[table->GetS("mirror_surface")];
 
   if (fParams.photocathode == 0)
-    Log::Die("PMTFactoryBase error: Photocathode surface \"" + pc_surface_name +
-             "\" not found");
+    Log::Die("PMTFactoryBase error: Photocathode surface \"" + pc_surface_name + "\" not found");
 
   // Set new overall correction if requested (not included in individual)
   try {
@@ -48,97 +44,71 @@ CubicPMTConstruction::CubicPMTConstruction(DBLinkPtr table,
   }
 
   string pmt_model = table->GetS("index");
-  Log::Assert(fParams.pmtWidth > 0,
-              "CubicPMTConstruction: " + pmt_model + " width must be postive");
+  Log::Assert(fParams.pmtWidth > 0, "CubicPMTConstruction: " + pmt_model + " width must be postive");
   Log::Assert(fParams.photocathodeWidth > 0,
-              "CubicPMTConstruction: " + pmt_model +
-                  " photocathode width must be postive");
-  Log::Assert(fParams.caseThickness > 0, "CubicPMTConstruction: " + pmt_model +
-                                             " case thickness must be postive");
-  Log::Assert(fParams.glassThickness > 0,
-              "CubicPMTConstruction: " + pmt_model +
-                  " glass thickness must be postive");
-  Log::Assert(fParams.pmtWidth >
-                  fParams.caseThickness + fParams.photocathodeWidth,
+              "CubicPMTConstruction: " + pmt_model + " photocathode width must be postive");
+  Log::Assert(fParams.caseThickness > 0, "CubicPMTConstruction: " + pmt_model + " case thickness must be postive");
+  Log::Assert(fParams.glassThickness > 0, "CubicPMTConstruction: " + pmt_model + " glass thickness must be postive");
+  Log::Assert(fParams.pmtWidth > fParams.caseThickness + fParams.photocathodeWidth,
               "CubicPMTConstruction: " + pmt_model + " width is too small");
-  Log::Assert(fParams.outerCase, "CubicPMTConstruction: " + pmt_model +
-                                     " has an invalid case material");
-  Log::Assert(fParams.glass, "CubicPMTConstruction: " + pmt_model +
-                                 " has an invalid glass material");
-  Log::Assert(fParams.vacuum, "CubicPMTConstruction: " + pmt_model +
-                                  " has an invalid vacuum material");
-  Log::Assert(fParams.photocathode,
-              "CubicPMTConstruction: " + pmt_model +
-                  " has an invalid photocathode material");
-  Log::Assert(fParams.mirror, "CubicPMTConstruction: " + pmt_model +
-                                  " has an invalid mirror surface");
+  Log::Assert(fParams.outerCase, "CubicPMTConstruction: " + pmt_model + " has an invalid case material");
+  Log::Assert(fParams.glass, "CubicPMTConstruction: " + pmt_model + " has an invalid glass material");
+  Log::Assert(fParams.vacuum, "CubicPMTConstruction: " + pmt_model + " has an invalid vacuum material");
+  Log::Assert(fParams.photocathode, "CubicPMTConstruction: " + pmt_model + " has an invalid photocathode material");
+  Log::Assert(fParams.mirror, "CubicPMTConstruction: " + pmt_model + " has an invalid mirror surface");
 }
 
 G4LogicalVolume *CubicPMTConstruction::BuildVolume(const std::string &prefix) {
-
-  if (log_pmt)
-    return log_pmt;
+  if (log_pmt) return log_pmt;
 
   // Case envelope body
   G4Box *body_solid = (G4Box *)BuildSolid(prefix + "_body_solid");
 
   // Glass body
-  G4Box *glass_solid = new G4Box(prefix + "_glass_solid",
-                                 fParams.pmtWidth - fParams.caseThickness,
-                                 fParams.pmtWidth - fParams.caseThickness,
-                                 fParams.pmtWidth - fParams.caseThickness);
+  G4Box *glass_solid = new G4Box(prefix + "_glass_solid", fParams.pmtWidth - fParams.caseThickness,
+                                 fParams.pmtWidth - fParams.caseThickness, fParams.pmtWidth - fParams.caseThickness);
 
   // Construct inners
-  const double vacuumHeight =
-      fParams.pmtWidth - fParams.caseThickness - fParams.glassThickness;
+  const double vacuumHeight = fParams.pmtWidth - fParams.caseThickness - fParams.glassThickness;
   G4Box *vacuum_solid =
-      new G4Box(prefix + "_vacuum_solid", fParams.photocathodeWidth,
-                fParams.photocathodeWidth, vacuumHeight);
+      new G4Box(prefix + "_vacuum_solid", fParams.photocathodeWidth, fParams.photocathodeWidth, vacuumHeight);
 
   // ------------ Logical Volumes -------------
   G4LogicalVolume *body_log, *glass_log, *vacuum_log;
 
-  body_log = new G4LogicalVolume(body_solid, fParams.outerCase,
-                                 prefix + "_body_logic");
-  glass_log =
-      new G4LogicalVolume(glass_solid, fParams.glass, prefix + "_glass_logic");
-  vacuum_log = new G4LogicalVolume(vacuum_solid, fParams.vacuum,
-                                   prefix + "_vacuum_logic");
+  body_log = new G4LogicalVolume(body_solid, fParams.outerCase, prefix + "_body_logic");
+  glass_log = new G4LogicalVolume(glass_solid, fParams.glass, prefix + "_glass_logic");
+  vacuum_log = new G4LogicalVolume(vacuum_solid, fParams.vacuum, prefix + "_vacuum_logic");
 
   // ------------ Physical Volumes -------------
   G4ThreeVector noTranslation(0., 0., 0.);
 
   // Place the inner solids in the glass solid to produce the physical volumes
-  glass_phys = new G4PVPlacement(
-      0, // no rotation
-      G4ThreeVector(
-          0.0, 0.0,
-          fParams.caseThickness), // place glass surface at case surface
-      glass_log,                  // the logical volume
-      prefix + "_glass_phys",     // a name for this physical volume
-      body_log,                   // the mother volume
-      false,                      // no boolean ops
-      0);                         // copy number
+  glass_phys = new G4PVPlacement(0,  // no rotation
+                                 G4ThreeVector(0.0, 0.0,
+                                               fParams.caseThickness),  // place glass surface at case surface
+                                 glass_log,                             // the logical volume
+                                 prefix + "_glass_phys",                // a name for this physical volume
+                                 body_log,                              // the mother volume
+                                 false,                                 // no boolean ops
+                                 0);                                    // copy number
 
-  vacuum_phys = new G4PVPlacement(
-      0,             // no rotation
-      noTranslation, // must share the same origin than the mother volume
-                     // if we want the PMT optical model working properly
-      vacuum_log,    // the logical volume
-      prefix + "_vacuum_phys", // a name for this physical volume
-      glass_log,               // the mother volume
-      false,                   // no boolean ops
-      0);                      // copy number
+  vacuum_phys = new G4PVPlacement(0,                        // no rotation
+                                  noTranslation,            // must share the same origin than the mother volume
+                                                            // if we want the PMT optical model working properly
+                                  vacuum_log,               // the logical volume
+                                  prefix + "_vacuum_phys",  // a name for this physical volume
+                                  glass_log,                // the mother volume
+                                  false,                    // no boolean ops
+                                  0);                       // copy number
 
   // ------------ FastSimulationModel -------------
   // 28-Jul-2006 WGS: Must define a G4Region for Fast Simulations
   // (change from Geant 4.7 to Geant 4.8).
   G4Region *body_region = new G4Region(prefix + "_GLG4_PMTOpticalRegion");
   body_region->AddRootLogicalVolume(glass_log);
-  new GLG4PMTOpticalModel(prefix + "_optical_model", body_region, glass_log,
-                          fParams.photocathode, fParams.efficiencyCorrection,
-                          0.0, 0.0,
-                          0.0 /*prepusling handled after absorption*/);
+  new GLG4PMTOpticalModel(prefix + "_optical_model", body_region, glass_log, fParams.photocathode,
+                          fParams.efficiencyCorrection, 0.0, 0.0, 0.0 /*prepusling handled after absorption*/);
 
   // ------------ Vis Attributes -------------
   G4VisAttributes *visAtt;
@@ -166,30 +136,22 @@ G4LogicalVolume *CubicPMTConstruction::BuildVolume(const std::string &prefix) {
 }
 
 G4VSolid *CubicPMTConstruction::BuildSolid(const string &name) {
-  G4Box *body =
-      new G4Box(name, fParams.pmtWidth, fParams.pmtWidth, fParams.pmtWidth);
+  G4Box *body = new G4Box(name, fParams.pmtWidth, fParams.pmtWidth, fParams.pmtWidth);
   return body;
 }
 
-G4PVPlacement *CubicPMTConstruction::PlacePMT(G4RotationMatrix *pmtrot,
-                                              G4ThreeVector pmtpos,
-                                              const std::string &name,
-                                              G4LogicalVolume *logi_pmt,
-                                              G4VPhysicalVolume *mother_phys,
+G4PVPlacement *CubicPMTConstruction::PlacePMT(G4RotationMatrix *pmtrot, G4ThreeVector pmtpos, const std::string &name,
+                                              G4LogicalVolume *logi_pmt, G4VPhysicalVolume *mother_phys,
                                               bool booleanSolid, int copyNo) {
-
-  G4PVPlacement *body_phys = new G4PVPlacement(
-      pmtrot, pmtpos, name, logi_pmt, mother_phys, booleanSolid, copyNo);
+  G4PVPlacement *body_phys = new G4PVPlacement(pmtrot, pmtpos, name, logi_pmt, mother_phys, booleanSolid, copyNo);
 
   // photocathode surface
-  new G4LogicalBorderSurface(name + "_photocathode_logsurf1", vacuum_phys,
-                             glass_phys, fParams.photocathode);
+  new G4LogicalBorderSurface(name + "_photocathode_logsurf1", vacuum_phys, glass_phys, fParams.photocathode);
 
   // build the mirrored surface
-  new G4LogicalBorderSurface(name + "_mirror_logsurf1", body_phys, glass_phys,
-                             fParams.mirror);
+  new G4LogicalBorderSurface(name + "_mirror_logsurf1", body_phys, glass_phys, fParams.mirror);
 
   return body_phys;
 }
 
-} // namespace RAT
+}  // namespace RAT

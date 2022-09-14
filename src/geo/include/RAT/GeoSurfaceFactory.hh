@@ -22,10 +22,10 @@
 namespace RAT {
 
 class GeoSurfaceFactory : public GeoFactory {
-public:
+ public:
   GeoSurfaceFactory() : GeoFactory("border"){};
   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 #endif

@@ -20,13 +20,14 @@
 
 #include <TObject.h>
 #include <TVector3.h>
+
 #include <string>
 
 namespace RAT {
 namespace DS {
 
 class MCTrackStep : public TObject {
-public:
+ public:
   MCTrackStep() : TObject() {}
   virtual ~MCTrackStep() {}
 
@@ -64,9 +65,7 @@ public:
 
   /** Total energy deposited along the track (MeV). **/
   virtual Float_t GetDepositedEnergy() const { return depositedEnergy; }
-  virtual void SetDepositedEnergy(Float_t _depositedEnergy) {
-    depositedEnergy = _depositedEnergy;
-  }
+  virtual void SetDepositedEnergy(Float_t _depositedEnergy) { depositedEnergy = _depositedEnergy; }
 
   /** Name of physics process acting at endpoint. */
   virtual std::string GetProcess() const { return process; }
@@ -90,7 +89,7 @@ public:
   std::string volume;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

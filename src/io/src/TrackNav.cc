@@ -15,15 +15,14 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
   map<int, int> idToIndex;
   multimap<const int, int> idToDaughter;
   typedef multimap<const int, int>::iterator MMIter;
-  set<int> idYetToLoad; // This is really just for sanity check
+  set<int> idYetToLoad;  // This is really just for sanity check
 
   for (int i = 0; i < mc->GetMCTrackCount(); i++) {
     DS::MCTrack *track = mc->GetMCTrack(i);
     int trackID = track->GetID();
     int parentID = track->GetParentID();
 
-    if (verbose)
-      cerr << "\rReading in track " << i << " (id " << trackID << ")     ";
+    if (verbose) cerr << "\rReading in track " << i << " (id " << trackID << ")     ";
 
     if (idYetToLoad.count(trackID) == 0) {
       idYetToLoad.insert(trackID);
@@ -33,8 +32,7 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
       cerr << "TrackNav: TrackID " << trackID << " duplicated!" << endl;
   }
 
-  if (verbose)
-    cerr << endl;
+  if (verbose) cerr << endl;
 
   // Set head node with appropriate markers
   fHead = new TrackNode();
@@ -44,14 +42,13 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
   fHead->SetVolume("_____");
 
   // Initialize tree-building data structures
-  stack<int> readyToAdd; // Track IDs we can add since parent exists
+  stack<int> readyToAdd;  // Track IDs we can add since parent exists
 
   // Tracks with no parent are children of head node, so we are ready
   // to add all tracks with parentID == 0
   fTracks[0] = fHead;
-  pair<MMIter, MMIter> mmipair = idToDaughter.equal_range(0); // I hate C++.
-  for (MMIter mmi = mmipair.first; mmi != mmipair.second; mmi++)
-    readyToAdd.push(mmi->second);
+  pair<MMIter, MMIter> mmipair = idToDaughter.equal_range(0);  // I hate C++.
+  for (MMIter mmi = mmipair.first; mmi != mmipair.second; mmi++) readyToAdd.push(mmi->second);
 
   // Loop until nothing left in readyToAdd.  If track list is not corrupted
   // then in principle all tracks will be reached.
@@ -59,15 +56,14 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
     // Fetch next track
     int trackID = readyToAdd.top();
 
-    if (verbose)
-      cerr << "\rAdding " << trackID << " to tree.";
+    if (verbose) cerr << "\rAdding " << trackID << " to tree.";
 
     readyToAdd.pop();
     DS::MCTrack *track = mc->GetMCTrack(idToIndex[trackID]);
 
     // Create initial node
     TrackNode *trackHead = new TrackNode;
-    *trackHead = *track->GetMCTrackStep(0); // Copy over initial step
+    *trackHead = *track->GetMCTrackStep(0);  // Copy over initial step
     trackHead->SetTrackID(track->GetID());
     trackHead->SetStepID(0);
     trackHead->SetPDGCode(track->GetPDGCode());
@@ -79,7 +75,7 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
     TrackNode *last = trackHead;
     for (int istep = 1; istep < track->GetMCTrackStepCount(); istep++) {
       TrackNode *node = new TrackNode;
-      *node = *track->GetMCTrackStep(istep); // Copy over initial step
+      *node = *track->GetMCTrackStep(istep);  // Copy over initial step
       node->SetTrackID(track->GetID());
       node->SetStepID(istep);
       node->SetPDGCode(track->GetPDGCode());
@@ -97,15 +93,13 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
     TVector3 nodePos = trackHead->GetEndpoint();
     // Start from end.  If several steps with identical positions
     // we will connect to last one
-    while (!parent->IsTrackEnd())
-      parent = parent->GetNext();
+    while (!parent->IsTrackEnd()) parent = parent->GetNext();
     TVector3 parentPos = parent->GetEndpoint();
 
     TrackNode *bestParent = parent;
     double closestDist = (nodePos - parentPos).Mag();
     const double tolerance = 1e-5;
-    while (parent->GetPrev() != 0 &&
-           parent->GetPrev()->GetTrackID() == parent->GetTrackID()) {
+    while (parent->GetPrev() != 0 && parent->GetPrev()->GetTrackID() == parent->GetTrackID()) {
       parent = parent->GetPrev();
       parentPos = parent->GetEndpoint();
       double dist = (nodePos - parentPos).Mag();
@@ -121,11 +115,9 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
     // Special case test: optical photons are frequently absorbed and
     // reemitted, it which case it is more useful to append them to the parent
     // track rather than register them as a child.
-    if (bestParent->IsTrackEnd() // only append
-        && bestParent->GetParticleName() ==
-               trackHead->GetParticleName() // to same kind of particle
-        && idToDaughter.count(bestParent->GetTrackID()) ==
-               1) { // if we are the only child
+    if (bestParent->IsTrackEnd()                                          // only append
+        && bestParent->GetParticleName() == trackHead->GetParticleName()  // to same kind of particle
+        && idToDaughter.count(bestParent->GetTrackID()) == 1) {           // if we are the only child
 
       // Need to renumber the steps
       TrackCursor bestParentCur(bestParent);
@@ -143,8 +135,7 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
 
     // Add this track's children to the available stack
     pair<MMIter, MMIter> mmipair2 = idToDaughter.equal_range(track->GetID());
-    for (MMIter mmi = mmipair2.first; mmi != mmipair2.second; mmi++)
-      readyToAdd.push(mmi->second);
+    for (MMIter mmi = mmipair2.first; mmi != mmipair2.second; mmi++) readyToAdd.push(mmi->second);
 
     // Finally, remove this track from the yet-to-load set (for checking at
     // end)
@@ -164,11 +155,10 @@ void TrackNav::Clear() { delete fHead; }
 
 TrackNode *TrackNav::FindID(int trackID) { return fTracks[trackID]; }
 
-TrackNode *TrackNav::FindParticle(const std::string &particleName,
-                                  bool verbose) {
+TrackNode *TrackNav::FindParticle(const std::string &particleName, bool verbose) {
   TrackCursor c = Cursor(false);
   c.SetVerbose(verbose);
   return c.FindNextParticle(particleName);
 }
 
-} // namespace RAT
+}  // namespace RAT

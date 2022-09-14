@@ -10,7 +10,7 @@ class TTree;
 namespace RAT {
 
 class OutROOTProc : public Processor {
-public:
+ public:
   static int run_num;
   OutROOTProc();
   virtual ~OutROOTProc();
@@ -30,7 +30,7 @@ public:
   virtual bool OpenFile(std::string theFilename, bool update = false);
   virtual std::string GetFilename() { return filename; };
 
-protected:
+ protected:
   std::string default_filename;
   std::string filename;
   TFile *f;
@@ -42,6 +42,6 @@ protected:
   bool savetree;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

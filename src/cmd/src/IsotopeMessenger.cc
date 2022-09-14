@@ -11,7 +11,6 @@
 #include <G4UIcmdWithADouble.hh>
 #include <G4UIcommand.hh>
 #include <G4UIdirectory.hh>
-
 #include <RAT/VertexGen_Isotope.hh>
 
 namespace RAT {
@@ -22,8 +21,7 @@ IsotopeMessenger::IsotopeMessenger(VertexGen_Isotope *e) : isotope(e) {
   dir->SetGuidance("Control the physics parameters of the isotope selector");
 
   ACmd = new G4UIcmdWithADouble("/generator/isotope/A", this);
-  ACmd->SetGuidance(
-      "Sets the value of sine-squared theta (the weak mixing angle)");
+  ACmd->SetGuidance("Sets the value of sine-squared theta (the weak mixing angle)");
   ACmd->SetParameterName("valueA", false);
   ACmd->SetDefaultValue(isotope->GetIsotopeA());
 
@@ -66,4 +64,4 @@ G4String IsotopeMessenger::GetCurrentValue(G4UIcommand *command) {
   return G4String("Error: Invalid IsotopeMessenger \"get\" command");
 }
 
-} // namespace RAT
+}  // namespace RAT

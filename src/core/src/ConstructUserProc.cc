@@ -6,7 +6,7 @@ namespace RAT {
 // file and add code to construct your RATUserProc subclass.
 
 Processor *construct_user_proc(std::string /*userProcName*/) {
-  return 0; // No user processors by default
+  return 0;  // No user processors by default
 }
 
-} // namespace RAT
+}  // namespace RAT

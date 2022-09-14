@@ -24,8 +24,7 @@
 namespace RAT {
 
 class AmBeSource {
-
-public:
+ public:
   /** AmBeSource constructor.  Use a default reaction of AmBe,*/
   AmBeSource();
 
@@ -47,20 +46,16 @@ public:
   /** Returns the energy of the neutrons produced by each AmBe decay.
    *  Called with the integer index for each neutron in the neutronE
    *  array, from 0 to the total number of neutrons. */
-  CLHEP::HepLorentzVector GetAmBeNeutronMomentum(int n) const {
-    return neutronE[n];
-  }
+  CLHEP::HepLorentzVector GetAmBeNeutronMomentum(int n) const { return neutronE[n]; }
   double GetAmBeNeutronTime(int n) const { return Tneutron[n]; }
 
   /** Returns the energy of the gammas produced by each AmBe decay.
    *  Called with the integer index for each gamma in the gammaE
    *  array, from 0 to the total number of gammas/source. */
-  CLHEP::HepLorentzVector GetAmBeGammaMomentum(int n) const {
-    return gammaE[n];
-  }
+  CLHEP::HepLorentzVector GetAmBeGammaMomentum(int n) const { return gammaE[n]; }
   double GetAmBeGammaTime(int n) const { return Tgamma[n]; }
 
-private:
+ private:
   static const int maxNeutron = 1;
   static const int maxGamma = 1;
   int Nneutron, Ngamma;
@@ -87,6 +82,6 @@ private:
   static float AmBeNeutronSpectrum(const float &x);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

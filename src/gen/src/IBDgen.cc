@@ -1,4 +1,5 @@
 #include <CLHEP/Units/PhysicalConstants.h>
+
 #include <RAT/DB.hh>
 #include <RAT/IBDgen.hh>
 #include <RAT/IBDgenMessenger.hh>
@@ -39,8 +40,8 @@ void IBDgen::SetSpectrumIndex(G4String _specIndex) {
   UpdateFromDatabaseIndex();
 }
 
-void IBDgen::GenEvent(const Hep3Vector &nu_dir, HepLorentzVector &neutrino,
-                      HepLorentzVector &positron, HepLorentzVector &neutron) {
+void IBDgen::GenEvent(const Hep3Vector &nu_dir, HepLorentzVector &neutrino, HepLorentzVector &positron,
+                      HepLorentzVector &neutron) {
   float Enu, CosThetaLab;
 
   // Pick energy of neutrino and relative direction of positron
@@ -52,7 +53,7 @@ void IBDgen::GenEvent(const Hep3Vector &nu_dir, HepLorentzVector &neutrino,
   double p1 = sqrt(E1 * E1 - electron_mass_c2 * electron_mass_c2);
 
   // Compute nu 4-momentum
-  neutrino.setVect(nu_dir * Enu); // MeV (divide by c if need real units)
+  neutrino.setVect(nu_dir * Enu);  // MeV (divide by c if need real units)
   neutrino.setE(Enu);
 
   // Compute positron 4-momentum
@@ -60,7 +61,7 @@ void IBDgen::GenEvent(const Hep3Vector &nu_dir, HepLorentzVector &neutrino,
 
   // Rotation from nu direction to pos direction.
   double theta = acos(CosThetaLab);
-  double phi = 2 * pi * HepUniformRand(); // Random phi
+  double phi = 2 * pi * HepUniformRand();  // Random phi
   Hep3Vector rotation_axis = nu_dir.orthogonal();
   rotation_axis.rotate(phi, nu_dir);
   pos_momentum.rotate(theta, rotation_axis);
@@ -74,7 +75,6 @@ void IBDgen::GenEvent(const Hep3Vector &nu_dir, HepLorentzVector &neutrino,
 }
 
 void IBDgen::GenInteraction(float &E, float &CosThetaLab) {
-
   bool passed = false;
 
   while (!passed) {
@@ -113,19 +113,16 @@ double IBDgen::CrossSection(double Enu, double CosThetaLab) {
   //
   // check for threshold
   //
-  const double EminBeta = ((proton_mass_c2 + DELTA + electron_mass_c2) *
-                               (proton_mass_c2 + electron_mass_c2 + DELTA) -
+  const double EminBeta = ((proton_mass_c2 + DELTA + electron_mass_c2) * (proton_mass_c2 + electron_mass_c2 + DELTA) -
                            proton_mass_c2 * proton_mass_c2) /
                           2 / proton_mass_c2;
 
-  if (Enu < EminBeta)
-    return 0;
+  if (Enu < EminBeta) return 0;
 
   //
   // overall scale
   //
-  const double Sigma0 =
-      GFERMI * GFERMI * CosThetaC * CosThetaC / pi * (1 + RadCor);
+  const double Sigma0 = GFERMI * GFERMI * CosThetaC * CosThetaC / pi * (1 + RadCor);
   //
   // couplings
   //
@@ -137,8 +134,7 @@ double IBDgen::CrossSection(double Enu, double CosThetaLab) {
   // order 0 terms
   //
   double E0 = Enu - DELTA;
-  if (E0 < electron_mass_c2)
-    E0 = electron_mass_c2;
+  if (E0 < electron_mass_c2) E0 = electron_mass_c2;
   double p0 = sqrt(E0 * E0 - electron_mass_c2 * electron_mass_c2);
   double v0 = p0 / E0;
 
@@ -150,20 +146,14 @@ double IBDgen::CrossSection(double Enu, double CosThetaLab) {
   double v1 = p1 / E1;
 
   double Gamma =
-      2 * (f + f2) * g *
-          ((2 * E0 + DELTA) * (1 - v0 * CosThetaLab) -
-           electron_mass_c2 * electron_mass_c2 / E0) +
-      (f * f + g * g) * (DELTA * (1 + v0 * CosThetaLab) +
-                         electron_mass_c2 * electron_mass_c2 / E0) +
+      2 * (f + f2) * g * ((2 * E0 + DELTA) * (1 - v0 * CosThetaLab) - electron_mass_c2 * electron_mass_c2 / E0) +
+      (f * f + g * g) * (DELTA * (1 + v0 * CosThetaLab) + electron_mass_c2 * electron_mass_c2 / E0) +
       (f * f + 3 * g * g) * ((E0 + DELTA) * (1 - CosThetaLab / v0) - DELTA) +
-      (f * f - g * g) * ((E0 + DELTA) * (1 - CosThetaLab / v0) - DELTA) * v0 *
-          CosThetaLab;
+      (f * f - g * g) * ((E0 + DELTA) * (1 - CosThetaLab / v0) - DELTA) * v0 * CosThetaLab;
 
-  double XC =
-      ((f * f + 3 * g * g) + (f * f - g * g) * v1 * CosThetaLab) * E1 * p1 -
-      Gamma / proton_mass_c2 * E0 * p0;
+  double XC = ((f * f + 3 * g * g) + (f * f - g * g) * v1 * CosThetaLab) * E1 * p1 - Gamma / proton_mass_c2 * E0 * p0;
   XC *= Sigma0 / 2;
-  XC *= hbarc * hbarc; // Convert from MeV^-2 to mm^2 (native units for GEANT4)
+  XC *= hbarc * hbarc;  // Convert from MeV^-2 to mm^2 (native units for GEANT4)
 
   return XC;
 }
@@ -188,8 +178,7 @@ double IBDgen::EvalMax(double Enu, double FluxMax) {
   for (int i = 0; i < 200.; i++) {
     float cosT = (i - 100.) / 100.;
     double tmp = dE1dCosT(Enu, cosT) * FluxMax;
-    if (tmp > max)
-      max = tmp;
+    if (tmp > max) max = tmp;
   }
   return max;
 }
@@ -201,14 +190,11 @@ double IBDgen::PositronEnergy(double Enu, double CosThetaLab) {
   double p0 = sqrt(E0 * E0 - electron_mass_c2 * electron_mass_c2);
   double v0 = p0 / E0;
   // First order correction to positron energy for finite nucleon mass
-  const double Ysquared =
-      (DELTA * DELTA - electron_mass_c2 * electron_mass_c2) / 2;
-  double E1 = E0 * (1 - Enu / proton_mass_c2 * (1 - v0 * CosThetaLab)) -
-              Ysquared / proton_mass_c2;
-  if (E1 < electron_mass_c2)
-    E1 = electron_mass_c2;
+  const double Ysquared = (DELTA * DELTA - electron_mass_c2 * electron_mass_c2) / 2;
+  double E1 = E0 * (1 - Enu / proton_mass_c2 * (1 - v0 * CosThetaLab)) - Ysquared / proton_mass_c2;
+  if (E1 < electron_mass_c2) E1 = electron_mass_c2;
 
   return E1;
 }
 
-} // namespace RAT
+}  // namespace RAT

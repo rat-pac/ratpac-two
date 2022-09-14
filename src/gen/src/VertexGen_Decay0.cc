@@ -1,22 +1,20 @@
 // VertexGen_Decay0.cc
 // See notes in Decay0.hh, COPYING.decay0
+#include <CLHEP/Units/SystemOfUnits.h>
+
+#include <G4Event.hh>
 #include <G4IonTable.hh>
 #include <G4Ions.hh>
 #include <G4NistManager.hh>
-#include <RAT/Log.hh>
-#include <RAT/PrimaryVertexInformation.hh>
-#include <RAT/VertexGen_Decay0.hh>
-
-#include <CLHEP/Units/SystemOfUnits.h>
-#include <G4Event.hh>
-#include <G4IonTable.hh>
 #include <G4ParticleTable.hh>
 #include <G4PrimaryParticle.hh>
 #include <G4PrimaryVertex.hh>
 #include <G4ThreeVector.hh>
 #include <G4UnitsTable.hh>
+#include <RAT/Log.hh>
+#include <RAT/PrimaryVertexInformation.hh>
+#include <RAT/VertexGen_Decay0.hh>
 #include <Randomize.hh>
-
 #include <sstream>
 
 using CLHEP::MeV;
@@ -24,12 +22,11 @@ using CLHEP::ns;
 using CLHEP::s;
 using std::ostringstream;
 
-#define G4std std
+#define std std
 namespace RAT {
 
 VertexGen_Decay0::VertexGen_Decay0(const char *arg_dbname)
-    : GLG4VertexGen(arg_dbname), fHasTimeCutoff(false), fHasAlphaCut(false),
-      fDecay0(0) {
+    : GLG4VertexGen(arg_dbname), fHasTimeCutoff(false), fHasAlphaCut(false), fDecay0(0) {
   fLoE = -1;
   fHiE = -1;
   fLdecay = 0;
@@ -37,15 +34,14 @@ VertexGen_Decay0::VertexGen_Decay0(const char *arg_dbname)
 ///-------------------------------------------------------------------------
 VertexGen_Decay0::~VertexGen_Decay0() {}
 ///-------------------------------------------------------------------------
-void VertexGen_Decay0::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx,
-                                             G4double dt) {
+void VertexGen_Decay0::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, G4double dt) {
   G4int nParticles = 0;
   G4String particleName;
   G4double px, py, pz, time;
   G4int partCode;
-  if (fType == "2beta") { // to simulate double beta
+  if (fType == "2beta") {  // to simulate double beta
     fDecay0->GenBBDeex();
-  } else if (fType == "backg") { // to simulate the background events
+  } else if (fType == "backg") {  // to simulate the background events
     fDecay0->GenEvent();
   }
 
@@ -74,8 +70,7 @@ void VertexGen_Decay0::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx,
   nParticles = fDecay0->GetNbPart();
 
 #ifdef RATDEBUG
-  info << "VertexGen_Decay0::GeneratePrimaryVertex : Got " << nParticles
-       << " particles." << endl;
+  info << "VertexGen_Decay0::GeneratePrimaryVertex : Got " << nParticles << " particles." << endl;
 #endif
   for (G4int j = 0; j < nParticles; j++) {
     partCode = fDecay0->GetNpGeant(j + 1);
@@ -87,8 +82,7 @@ void VertexGen_Decay0::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx,
 
     // Create primary particle
     G4PrimaryParticle *particle =
-        new G4PrimaryParticle(theParticleTable->FindParticle(particleName),
-                              px * MeV, py * MeV, pz * MeV);
+        new G4PrimaryParticle(theParticleTable->FindParticle(particleName), px * MeV, py * MeV, pz * MeV);
     // Don't set relative time of particle as each particle has its own vertex
     // and time is set there (don't do it twice!)
     particle->SetProperTime(0);
@@ -115,9 +109,8 @@ void VertexGen_Decay0::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx,
       val = 1;
     else
       val = 0;
-    info << "VertexGen_Decay0::GeneratePrimaryVertex : Particle " << j
-         << " has parent " << fDecay0->GetParentIdx(j) << " (old eval :" << val
-         << ")" << endl;
+    info << "VertexGen_Decay0::GeneratePrimaryVertex : Particle " << j << " has parent " << fDecay0->GetParentIdx(j)
+         << " (old eval :" << val << ")" << endl;
 #endif
     if (fDecay0->GetParentIdx(j) == 1) {
       vertinfo->AddNewParentParticle(parent2);
@@ -249,9 +242,10 @@ void VertexGen_Decay0::SetState(G4String newValues) {
 #endif
       fLevel = level;
     } else {
-      Log::Die(dformat("VertexGen_Decay0: for isotope %s the levels are from 0 "
-                       "to %d inclusive \n",
-                       isotope.data(), vlevel.size() - 1));
+      Log::Die(
+          dformat("VertexGen_Decay0: for isotope %s the levels are from 0 "
+                  "to %d inclusive \n",
+                  isotope.data(), vlevel.size() - 1));
     }
     // argument : [MODE]
     int mode;
@@ -295,8 +289,7 @@ void VertexGen_Decay0::SetState(G4String newValues) {
     }
     if ((mode >= 4 && mode <= 8) || mode == 10 || mode == 12) {
       if (loE > hiE && hiE != -1) {
-        Log::Die(dformat("VertexGen_Decay0: wrong limits: from %lg  to %lg",
-                         loE, hiE));
+        Log::Die(dformat("VertexGen_Decay0: wrong limits: from %lg  to %lg", loE, hiE));
       }
       fLoE = loE;
       fHiE = hiE;
@@ -309,8 +302,7 @@ void VertexGen_Decay0::SetState(G4String newValues) {
         fHiE = loE;
       }
 #ifdef DEBUG
-      info << "VertexGen_Decay0: energy range: " << fLoE << ", " << fHiE
-           << "\n";
+      info << "VertexGen_Decay0: energy range: " << fLoE << ", " << fHiE << "\n";
 #endif
     } else {
       info << "limiting the energy possible only for modes: \n4,5,6,7,8,10 and "
@@ -333,8 +325,7 @@ void VertexGen_Decay0::SetState(G4String newValues) {
       Log::Die("VertexGen_Decay0: Incorrect vertex setting " + newValues);
     }
 #ifdef RATDEBUG
-    info << "VertexGen_Decay0::SetState : Parsing isotope [" << isotope << "]"
-         << endl;
+    info << "VertexGen_Decay0::SetState : Parsing isotope [" << isotope << "]" << endl;
 #endif
     fIsotopeRawIn = isotope;
     // Strip the isotope name
@@ -373,8 +364,7 @@ void VertexGen_Decay0::SetState(G4String newValues) {
     is >> units;
     if (is.fail() || units.size() == 0) {
       // No units were specified. Assume ns
-      warn << "VertexGen_Decay0: No time cut units were specified. Assuming ns."
-           << endl;
+      warn << "VertexGen_Decay0: No time cut units were specified. Assuming ns." << endl;
     } else {
       unit_value = G4UnitDefinition::GetValueOf(units);
     }
@@ -398,15 +388,16 @@ void VertexGen_Decay0::SetState(G4String newValues) {
 
     fDecay0->SetCutoffWindow(tcut);
   } else {
-    Log::Die("VertexGen_Decay0: Incorrect vertex setting: define \n'   2beta' "
-             "for double beta  or \n   'backg' for background study ");
+    Log::Die(
+        "VertexGen_Decay0: Incorrect vertex setting: define \n'   2beta' "
+        "for double beta  or \n   'backg' for background study ");
   }
 }
 ///-------------------------------------------------------------------------
 G4String VertexGen_Decay0::GetState() {
   // State setting is the input file to be used
-  G4std::ostringstream os;
-  os << fIsotope << " " << fLevel << " " << fMode << G4std::ends;
+  std::ostringstream os;
+  os << fIsotope << " " << fLevel << " " << fMode << std::ends;
   G4String rv(os.str());
   return rv;
 }
@@ -465,15 +456,14 @@ void VertexGen_Decay0::GetParentAZ(G4int &A1, G4int &Z1, G4int &A2, G4int &Z2) {
     A2 = atoi(value.c_str());
   }
 #ifdef RATDEBUG
-  info << "VertexGen_Decay0::GetParentAZ : " << fIsotope << " ! " << A1 << " "
-       << Z1 << " " << A2 << " " << Z2 << newline;
+  info << "VertexGen_Decay0::GetParentAZ : " << fIsotope << " ! " << A1 << " " << Z1 << " " << A2 << " " << Z2
+       << newline;
 #endif
 }
 
 ///************************************************/
 
 void VertexGen_Decay0::StripIsotopeSuffix() {
-
   vector<string> suffixes;
   suffixes.push_back("-pure");
   suffixes.push_back("-timecut");
@@ -490,16 +480,14 @@ void VertexGen_Decay0::StripIsotopeSuffix() {
 
   if ((pos = fIsotope.find(suffixes.at(1))) != string::npos) {
     debug << "VertexGen_Decay0::StripIsotopeSuffix : Found \"" << suffixes.at(1)
-          << "\" suffix. Flagging it to enable coincidence time cutoff."
-          << endl;
+          << "\" suffix. Flagging it to enable coincidence time cutoff." << endl;
     fHasTimeCutoff = true;
     fIsotope = fIsotope.erase(pos, suffixes.at(1).length());
   }
 
 #ifdef RATDEBUG
-  debug << "VertexGen_Decay0::StripIsotopeSuffix : Final isotope name : "
-        << fIsotope << endl;
+  debug << "VertexGen_Decay0::StripIsotopeSuffix : Final isotope name : " << fIsotope << endl;
 #endif
 }
 
-} // namespace RAT
+}  // namespace RAT

@@ -15,15 +15,15 @@
 #include "G4GeometryTolerance.hh"
 #include "G4Step.hh"
 #include "G4VParticleChange.hh"
-class G4UImessenger; // for G4ProcessTable.hh
+class G4UImessenger;  // for G4ProcessTable.hh
+#include <CLHEP/Units/PhysicalConstants.h>
+
 #include "G4ProcessTable.hh"
 #include "RAT/GLG4PrimaryGeneratorAction.hh"
-#include <CLHEP/Units/PhysicalConstants.h>
 
 ////////////////////////////////////////////////////////////////
 
-GLG4DeferTrackProc::GLG4DeferTrackProc(const G4String &aName)
-    : G4VProcess(aName) {
+GLG4DeferTrackProc::GLG4DeferTrackProc(const G4String &aName) : G4VProcess(aName) {
   if (verboseLevel > 0) {
     G4cout << GetProcessName() << " is created " << G4endl;
   }
@@ -39,14 +39,13 @@ GLG4DeferTrackProc::~GLG4DeferTrackProc() {}
 
 ////////////////////////////////////////////////////////////////
 
-GLG4DeferTrackProc::GLG4DeferTrackProc(GLG4DeferTrackProc &right)
-    : G4VProcess(right) {}
+GLG4DeferTrackProc::GLG4DeferTrackProc(GLG4DeferTrackProc &right) : G4VProcess(right) {}
 
 ////////////////////////////////////////////////////////////////
 
-G4double GLG4DeferTrackProc::PostStepGetPhysicalInteractionLength(
-    const G4Track &aTrack, G4double /* previousStepSize */,
-    G4ForceCondition *condition) {
+G4double GLG4DeferTrackProc::PostStepGetPhysicalInteractionLength(const G4Track &aTrack,
+                                                                  G4double /* previousStepSize */,
+                                                                  G4ForceCondition *condition) {
   // condition is set to "Not Forced"
   *condition = NotForced;
 
@@ -55,15 +54,13 @@ G4double GLG4DeferTrackProc::PostStepGetPhysicalInteractionLength(
   if (dTime <= 0.0) {
     return G4GeometryTolerance::GetInstance()->GetSurfaceTolerance();
   }
-  G4double beta = (aTrack.GetDynamicParticle()->GetTotalMomentum()) /
-                  (aTrack.GetTotalEnergy());
+  G4double beta = (aTrack.GetDynamicParticle()->GetTotalMomentum()) / (aTrack.GetTotalEnergy());
   return beta * CLHEP::c_light * dTime;
 }
 
 ////////////////////////////////////////////////////////////////
 
-G4VParticleChange *GLG4DeferTrackProc::PostStepDoIt(const G4Track &aTrack,
-                                                    const G4Step & /* aStep */
+G4VParticleChange *GLG4DeferTrackProc::PostStepDoIt(const G4Track &aTrack, const G4Step & /* aStep */
 ) {
   _generator->DeferTrackToLaterEvent(&aTrack);
   aParticleChange.Initialize(aTrack);

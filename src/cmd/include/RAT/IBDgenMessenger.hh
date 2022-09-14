@@ -17,14 +17,14 @@ namespace RAT {
 class IBDgen;
 
 class IBDgenMessenger : public G4UImessenger {
-public:
+ public:
   IBDgenMessenger(IBDgen *);
   ~IBDgenMessenger();
 
   void SetNewValue(G4UIcommand *command, G4String newValues);
   G4String GetCurrentValue(G4UIcommand *command);
 
-private:
+ private:
   IBDgen *ibdgen;
 
   G4UIcmdWithAString *SpectrumUseCmd;
@@ -32,6 +32,6 @@ private:
   G4UIcmdWithABool *PositronUseCmd;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_IBDgenMessenger_hh
+#endif  // RAT_IBDgenMessenger_hh

@@ -4,8 +4,7 @@
 
 namespace RAT {
 
-ThinnableG4Cerenkov::ThinnableG4Cerenkov()
-    : should_thin(false), thinning_factor(1.0) {
+ThinnableG4Cerenkov::ThinnableG4Cerenkov() : should_thin(false), thinning_factor(1.0) {
   this->heprandom = CLHEP::HepRandom();
 }
 
@@ -23,8 +22,7 @@ double ThinnableG4Cerenkov::GetThinningFactor() {
   return rv;
 }
 
-G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack,
-                                                     const G4Step &aStep) {
+G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) {
   // let G4 predict how many photons should be produced...
   G4VParticleChange *rv = G4Cerenkov::PostStepDoIt(aTrack, aStep);
 
@@ -64,4 +62,4 @@ G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack,
   return rv;
 }
 
-} // namespace RAT
+}  // namespace RAT

@@ -1,4 +1,5 @@
 #include "RAT/MiniSim.hh"
+
 #include <G4RunManager.hh>
 #include <G4VParticleChange.hh>
 #include <RAT/DB.hh>
@@ -14,18 +15,15 @@ MiniSim::MiniSim() : fHaveControl(false), fUseGLG4(false) {
   } catch (DBNotFoundError &e) {
     scintPhysList = "glg4";
   }
-  if (scintPhysList == "glg4")
-    fUseGLG4 = true;
+  if (scintPhysList == "glg4") fUseGLG4 = true;
 }
 
 MiniSim::~MiniSim() {
-  if (fHaveControl)
-    ReleaseSimControl();
+  if (fHaveControl) ReleaseSimControl();
 }
 
 void MiniSim::TakeSimControl() {
-  if (fHaveControl)
-    return;
+  if (fHaveControl) return;
 
   G4RunManager *runManager = G4RunManager::GetRunManager();
 
@@ -48,22 +46,17 @@ void MiniSim::TakeSimControl() {
 }
 
 void MiniSim::ReleaseSimControl() {
-  if (!fHaveControl)
-    return;
+  if (!fHaveControl) return;
 
   G4RunManager *runManager = G4RunManager::GetRunManager();
 
   // Restore original actions
   runManager->SetUserAction(const_cast<G4UserRunAction *>(fOrigRunAction));
   runManager->SetUserAction(const_cast<G4UserEventAction *>(fOrigEventAction));
-  runManager->SetUserAction(
-      const_cast<G4UserStackingAction *>(fOrigStackingAction));
-  runManager->SetUserAction(
-      const_cast<G4UserTrackingAction *>(fOrigTrackingAction));
-  runManager->SetUserAction(
-      const_cast<G4UserSteppingAction *>(fOrigSteppingAction));
-  runManager->SetUserAction(
-      const_cast<G4VUserPrimaryGeneratorAction *>(fOrigPrimaryGeneratorAction));
+  runManager->SetUserAction(const_cast<G4UserStackingAction *>(fOrigStackingAction));
+  runManager->SetUserAction(const_cast<G4UserTrackingAction *>(fOrigTrackingAction));
+  runManager->SetUserAction(const_cast<G4UserSteppingAction *>(fOrigSteppingAction));
+  runManager->SetUserAction(const_cast<G4VUserPrimaryGeneratorAction *>(fOrigPrimaryGeneratorAction));
   fHaveControl = false;
 }
 
@@ -83,15 +76,12 @@ void MiniSim::UserSteppingAction(const G4Step *aStep) {
     ++num_zero_steps_in_a_row;
     if (num_zero_steps_in_a_row >= 4) {
       const G4VPhysicalVolume *pv = track->GetVolume();
-      const G4VProcess *lastproc =
-          track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
+      const G4VProcess *lastproc = track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
       G4cerr << "MiniSim: Too many zero steps for this track, terminating!"
              << " type=" << track->GetDefinition()->GetParticleName()
              << "\n volume=" << (pv != 0 ? pv->GetName() : G4String("NULL"))
-             << " last_process="
-             << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
-             << "\n position=" << track->GetPosition()
-             << " momentum=" << track->GetMomentum() << G4endl;
+             << " last_process=" << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
+             << "\n position=" << track->GetPosition() << " momentum=" << track->GetMomentum() << G4endl;
       track->SetTrackStatus(fStopAndKill);
       num_zero_steps_in_a_row = 0;
     }
@@ -101,23 +91,18 @@ void MiniSim::UserSteppingAction(const G4Step *aStep) {
   // check for very high number of steps
   if (track->GetCurrentStepNumber() > 1000000) {
     const G4VPhysicalVolume *pv = track->GetVolume();
-    const G4VProcess *lastproc =
-        track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
+    const G4VProcess *lastproc = track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
     G4cerr << "MiniSim: Too many steps for this track, terminating!\n"
-           << " step_no=" << track->GetCurrentStepNumber()
-           << " type=" << track->GetDefinition()->GetParticleName()
+           << " step_no=" << track->GetCurrentStepNumber() << " type=" << track->GetDefinition()->GetParticleName()
            << "\n volume=" << (pv != 0 ? pv->GetName() : G4String("NULL"))
-           << " last_process="
-           << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
-           << "\n position=" << track->GetPosition()
-           << " momentum=" << track->GetMomentum() << G4endl;
+           << " last_process=" << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
+           << "\n position=" << track->GetPosition() << " momentum=" << track->GetMomentum() << G4endl;
     track->SetTrackStatus(fStopAndKill);
   }
 
   if (fUseGLG4) {
     // invoke scintillation process
-    G4VParticleChange *pParticleChange =
-        GLG4Scint::GenericPostPostStepDoIt(aStep);
+    G4VParticleChange *pParticleChange = GLG4Scint::GenericPostPostStepDoIt(aStep);
     // were any secondaries defined?
     G4int iSecondary = pParticleChange->GetNumberOfSecondaries();
     if (iSecondary > 0) {
@@ -131,4 +116,4 @@ void MiniSim::UserSteppingAction(const G4Step *aStep) {
   }
 }
 
-} // namespace RAT
+}  // namespace RAT

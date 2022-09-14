@@ -1,18 +1,17 @@
-#include "TMath.h"
 #include <RAT/GLG4StringUtil.hh>
 #include <RAT/PosGen_Radial.hh>
 #include <Randomize.hh>
 #include <sstream>
 
+#include "TMath.h"
+
 namespace RAT {
 
-PosGen_Radial::PosGen_Radial(const char *arg_dbname)
-    : GLG4PosGen(arg_dbname), fCenter(0., 0., 0.), fMaxRadius(0.) {}
+PosGen_Radial::PosGen_Radial(const char *arg_dbname) : GLG4PosGen(arg_dbname), fCenter(0., 0., 0.), fMaxRadius(0.) {}
 
 void PosGen_Radial::GeneratePosition(G4ThreeVector &argResult) {
   fPoint = G4ThreeVector(0, 0, 0);
-  fPoint.setRThetaPhi(G4UniformRand(), acos(2. * G4UniformRand() - 1.),
-                      (2. * G4UniformRand() - 1.) * TMath::Pi());
+  fPoint.setRThetaPhi(G4UniformRand(), acos(2. * G4UniformRand() - 1.), (2. * G4UniformRand() - 1.) * TMath::Pi());
 
   argResult = fMaxRadius * fPoint + fCenter;
 }
@@ -46,8 +45,7 @@ void PosGen_Radial::SetState(G4String newValues) {
 }
 
 G4String PosGen_Radial::GetState() const {
-  return util_dformat("%.3f\t%.3f\t%.3f\t%.3f", fCenter.x(), fCenter.y(),
-                      fCenter.z(), fMaxRadius);
+  return util_dformat("%.3f\t%.3f\t%.3f\t%.3f", fCenter.x(), fCenter.y(), fCenter.z(), fMaxRadius);
 }
 
-} // namespace RAT
+}  // namespace RAT

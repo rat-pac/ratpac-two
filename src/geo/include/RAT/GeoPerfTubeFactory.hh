@@ -5,11 +5,11 @@
 
 namespace RAT {
 class GeoPerfTubeFactory : public GeoSolidFactory {
-public:
+ public:
   GeoPerfTubeFactory() : GeoSolidFactory("ptube"){};
   virtual G4VSolid *ConstructSolid(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

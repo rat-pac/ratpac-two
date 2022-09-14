@@ -14,14 +14,14 @@
 class GLG4VisManager;
 
 class GLG4VisMessenger : public G4UImessenger {
-public:
+ public:
   GLG4VisMessenger(GLG4VisManager *pVMan_);
   ~GLG4VisMessenger();
 
   void SetNewValue(G4UIcommand *command, G4String newValues);
   G4String GetCurrentValue(G4UIcommand *command);
 
-protected:
+ protected:
   GLG4VisManager *pVMan;
 };
 

@@ -12,31 +12,27 @@ namespace RAT {
 ESCrossSecMessenger::ESCrossSecMessenger(ESCrossSec *e) : fESXS(e) {
   // Commands will go in a /generator/es/ directory
   G4UIdirectory *dir = new G4UIdirectory("/generator/es/xsection/");
-  dir->SetGuidance(
-      "Control the physics parameters of the elastic-scattering generator");
+  dir->SetGuidance("Control the physics parameters of the elastic-scattering generator");
 
   fWmaCmd = new G4UIcmdWithADouble("/generator/es/xsection/wma", this);
-  fWmaCmd->SetGuidance(
-      "Sets the value of sine-squared theta (the weak mixing angle)");
+  fWmaCmd->SetGuidance("Sets the value of sine-squared theta (the weak mixing angle)");
   fWmaCmd->SetParameterName("sin2th", false);
   fWmaCmd->SetDefaultValue(fESXS->GetSinThetaW());
 
   fStratCmd = new G4UIcmdWithAnInteger("/generator/es/xsection/strategy", this);
-  fStratCmd->SetGuidance(
-      "Sets the strategy for the ES cross section calculation.");
+  fStratCmd->SetGuidance("Sets the strategy for the ES cross section calculation.");
   fStratCmd->SetGuidance("Usage: /generator/es/xsection/strategy strat");
   fStratCmd->SetGuidance("Options:");
   fStratCmd->SetGuidance("  1 : Original routine from QSNO::PNuE (Bahcall).");
+  fStratCmd->SetGuidance("  2 : Improved routine from QSNO::PNuE (without rad. corrections).");
   fStratCmd->SetGuidance(
-      "  2 : Improved routine from QSNO::PNuE (without rad. corrections).");
-  fStratCmd->SetGuidance("  3 : Improved routine from QSNO::PNuE (with rad. "
-                         "corrections - analytical).");
-  fStratCmd->SetGuidance("  4 (default) : Improved routine from QSNO::PNuE "
-                         "(with rad. corrections - table).");
+      "  3 : Improved routine from QSNO::PNuE (with rad. "
+      "corrections - analytical).");
+  fStratCmd->SetGuidance(
+      "  4 (default) : Improved routine from QSNO::PNuE "
+      "(with rad. corrections - table).");
   fStratCmd->SetParameter(new G4UIparameter("strat", 'i', false));
   fStratCmd->SetDefaultValue(fESXS->GetRadiativeCorrection());
-
-  //
 }
 
 ESCrossSecMessenger::~ESCrossSecMessenger() { ; }
@@ -63,4 +59,4 @@ G4String ESCrossSecMessenger::GetCurrentValue(G4UIcommand *command) {
   return G4String("Error: Invalid ESCrossSecMessenger \"get\" command");
 }
 
-} // namespace RAT
+}  // namespace RAT

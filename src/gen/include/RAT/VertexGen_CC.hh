@@ -1,11 +1,10 @@
 #ifndef __RAT_VertexGen_CC__
 #define __RAT_VertexGen_CC__
 
-#include <RAT/CCgen.hh>
-#include <RAT/GLG4VertexGen.hh>
-
 #include <G4Event.hh>
 #include <G4ThreeVector.hh>
+#include <RAT/CCgen.hh>
+#include <RAT/GLG4VertexGen.hh>
 #include <globals.hh>
 
 ////////////////////////////////////////////////////////////////////
@@ -29,7 +28,7 @@
 namespace RAT {
 
 class VertexGen_CC : public GLG4VertexGen {
-public:
+ public:
   // Note that the database named is "ibd" by default in the
   // constructor.  In other words, we assume the anti-neutrino flux
   // is the same for both inverse beta-decay (IBD) and elastic
@@ -37,8 +36,7 @@ public:
 
   VertexGen_CC(const char *arg_dbname = "solar");
   virtual ~VertexGen_CC();
-  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx,
-                                     G4double dt);
+  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G4double dt);
   // generates a primary vertex with given particle type, direction, and energy.
   virtual void SetState(G4String newValues);
   // format: dir_x dir_y dir_z
@@ -93,7 +91,7 @@ public:
    */
   void SetDBName(const G4String name);
 
-private:
+ private:
   /** Definitions of the involved particles. */
   G4ParticleDefinition *fElectron, *fNue, *fNumu;
 
@@ -126,6 +124,6 @@ private:
   bool fRandomDir;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

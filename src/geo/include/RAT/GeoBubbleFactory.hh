@@ -9,11 +9,11 @@ namespace RAT {
 ///
 /// Makes an array of water boxes
 class GeoBubbleFactory : public GeoFactory {
-public:
+ public:
   GeoBubbleFactory() : GeoFactory("bubble"){};
   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

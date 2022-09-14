@@ -4,8 +4,6 @@
 //  GLG4 version by Glenn Horton-Smith December, 2004.
 //  Based on earlier work by H. Ikeda and G. Horton-Smith
 
-#include "local_g4compat.hh"
-
 #include "RAT/GLG4VEventAction.hh"
 
 #include "G4DigiManager.hh"
@@ -23,13 +21,12 @@
 #include "G4VHitsCollection.hh"
 #include "G4VVisManager.hh"
 #include "G4ios.hh"
-
-#include "RAT/GLG4Scint.hh" // for doScintilllation and total energy deposition info
+#include "RAT/GLG4Scint.hh"  // for doScintilllation and total energy deposition info
+#include "local_g4compat.hh"
 
 // GLG4HitPhotonCollection GLG4VEventAction :: theHitPhotons=
 // GLG4HitPhotonCollection();
-GLG4HitPMTCollection GLG4VEventAction ::theHitPMTCollection =
-    GLG4HitPMTCollection();
+GLG4HitPMTCollection GLG4VEventAction ::theHitPMTCollection = GLG4HitPMTCollection();
 G4bool GLG4VEventAction ::flagFullOutputMode = false;
 G4bool GLG4VEventAction ::fgDoParameterizedScintillation = true;
 
@@ -52,16 +49,17 @@ GLG4VEventAction::GLG4VEventAction() : drawFlag("all") {
   fModeCmd->SetParameterName("choice", true);
   fModeCmd->SetDefaultValue("basic");
   fModeCmd->SetCandidates("basic full");
-  fModeCmd->AvailableForStates(G4State_PreInit, G4State_Idle,
-                               G4State_GeomClosed);
+  fModeCmd->AvailableForStates(G4State_PreInit, G4State_Idle, G4State_GeomClosed);
 
   G4UIcommand *other_cmd;
   other_cmd = new G4UIcommand("/event/doParameterizedScintillation", this);
-  other_cmd->SetGuidance("Turn on/off fast simulation of PMT response to "
-                         "scintillator energy deposition.");
-  other_cmd->SetGuidance("Note that fast (parameterized) simulation only "
-                         "occurs if detailed tracking of\n"
-                         "optical photons is disabled via /glg4scint/off");
+  other_cmd->SetGuidance(
+      "Turn on/off fast simulation of PMT response to "
+      "scintillator energy deposition.");
+  other_cmd->SetGuidance(
+      "Note that fast (parameterized) simulation only "
+      "occurs if detailed tracking of\n"
+      "optical photons is disabled via /glg4scint/off");
   other_cmd->SetParameter(new G4UIparameter("status", 'i', false));
 }
 
@@ -79,8 +77,9 @@ G4String GLG4VEventAction::GetCurrentValue(G4UIcommand *command) {
   else if (command->GetCommandName() == "doParameterizedScintillation")
     return (fgDoParameterizedScintillation ? "1" : "0");
 
-  return G4String("Unhandled command passed to "
-                  "GLG4EventAction::GetCurrentValue");
+  return G4String(
+      "Unhandled command passed to "
+      "GLG4EventAction::GetCurrentValue");
 }
 
 void GLG4VEventAction::SetNewValue(G4UIcommand *command, G4String newValue) {
@@ -90,8 +89,7 @@ void GLG4VEventAction::SetNewValue(G4UIcommand *command, G4String newValue) {
     G4bool old_flagFullOutputMode = flagFullOutputMode;
     flagFullOutputMode = (newValue == "full");
     if (flagFullOutputMode != old_flagFullOutputMode) {
-      G4cout << "Switching output mode to "
-             << (flagFullOutputMode ? "full" : "basic") << G4endl;
+      G4cout << "Switching output mode to " << (flagFullOutputMode ? "full" : "basic") << G4endl;
     } else {
       G4cout << "FYI: new output mode == old output mode" << G4endl;
     }
@@ -110,8 +108,7 @@ void GLG4VEventAction::SetNewValue(G4UIcommand *command, G4String newValue) {
   } else if (command->GetCommandName() == "doParameterizedScintillation") {
     fgDoParameterizedScintillation = (atoi((const char *)newValue) != 0);
   } else {
-    G4cerr << "Unknown command ``" << command->GetCommandName()
-           << " passed to GLG4EventAction::SetNewValue\n";
+    G4cerr << "Unknown command ``" << command->GetCommandName() << " passed to GLG4EventAction::SetNewValue\n";
   }
 }
 
@@ -136,9 +133,7 @@ void GLG4VEventAction::EndOfEventAction(const G4Event *evt) {
     for (G4int i = 0; i < n_trajectories; i++) {
       // GLG4UDGE: the explicit cast on the next line is not a good thing.
       G4Trajectory *trj = (G4Trajectory *)((*trajectoryContainer)[i]);
-      if ((drawFlag == "all") ||
-          ((drawFlag == "allnonopt") &&
-           (trj->GetParticleName() != "opticalphoton")) ||
+      if ((drawFlag == "all") || ((drawFlag == "allnonopt") && (trj->GetParticleName() != "opticalphoton")) ||
           ((drawFlag == "charged") && (trj->GetCharge() != 0.)))
 #if G4VERSION_NUMBER > 1000
         trj->DrawTrajectory();

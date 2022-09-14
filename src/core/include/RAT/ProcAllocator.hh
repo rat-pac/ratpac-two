@@ -14,7 +14,7 @@ namespace RAT {
 class Processor;
 
 class ProcAllocator {
-public:
+ public:
   /** Returns new instance of a Processor.
    *
    *  This must be overridden by subclass to return a particular kind
@@ -54,14 +54,15 @@ proc = (*procAllocators[procname])();
  *             subclass of Processor.
  */
 
-template <class T> class ProcAllocatorTmpl : public ProcAllocator {
-public:
+template <class T>
+class ProcAllocatorTmpl : public ProcAllocator {
+ public:
   /** Create new instance of processor subclass T */
   virtual Processor *operator()() { return new T; }
 
   virtual ~ProcAllocatorTmpl(){};
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -17,7 +17,7 @@
 #endif
 
 #if (G4VERSION_NUMBER >= 600)
-#define G4std std
+#define std std
 #endif
 
 #endif /* __local_g4compat__ */

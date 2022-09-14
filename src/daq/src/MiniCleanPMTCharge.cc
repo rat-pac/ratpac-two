@@ -1,9 +1,10 @@
 #include <CLHEP/Random/RandFlat.h>
 #include <CLHEP/Random/RandGauss.h>
 #include <CLHEP/Random/RandGeneral.h>
-#include <RAT/MiniCleanPMTCharge.hh>
 #include <TH1.h>
 #include <TMath.h>
+
+#include <RAT/MiniCleanPMTCharge.hh>
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -25,9 +26,7 @@ MiniCleanPMTCharge::MiniCleanPMTCharge() {
 MiniCleanPMTCharge::~MiniCleanPMTCharge() {}
 
 double MiniCleanPMTCharge::Polya(double Q) const {
-  return norm * (beta * pow(Q, m - 1) *
-                     (a1 * exp(-m * Q) +
-                      (b1 * pow(1 / qPa, m - 1) * exp(-m * Q / qPa))) +
+  return norm * (beta * pow(Q, m - 1) * (a1 * exp(-m * Q) + (b1 * pow(1 / qPa, m - 1) * exp(-m * Q / qPa))) +
                  (c1 * exp(-Q / qP0)));
 }
 
@@ -56,8 +55,7 @@ double MiniCleanPMTCharge::Bisection(double FLAT) const {
   for (int a = 0; a <= 35; a++) {
     f1 = FLAT - norm * PIntegrate(L1);
     f2 = FLAT - norm * PIntegrate(L2);
-    if (f1 * f2 < 0)
-      L3 = L2 - (fabs(L1 - L2) / 2.00);
+    if (f1 * f2 < 0) L3 = L2 - (fabs(L1 - L2) / 2.00);
     f3 = FLAT - norm * PIntegrate(L3);
     if (f1 * f3 < 0)
       L2 = L3;
@@ -74,4 +72,4 @@ double MiniCleanPMTCharge::PickCharge() const {
 
 double MiniCleanPMTCharge::PDF(double q) const { return Polya(q); }
 
-} // namespace RAT
+}  // namespace RAT

@@ -3,14 +3,13 @@
 // Provide user commands to allow the user to change
 // the parameters of the Coincidence_Gen generator via the command line.
 
-#include <RAT/CoincidenceMessenger.hh>
-#include <RAT/Coincidence_Gen.hh>
-
 #include <G4String.hh>
 #include <G4UIcmdWithABool.hh>
 #include <G4UIcmdWithADouble.hh>
 #include <G4UIcommand.hh>
 #include <G4UIdirectory.hh>
+#include <RAT/CoincidenceMessenger.hh>
+#include <RAT/Coincidence_Gen.hh>
 
 namespace RAT {
 
@@ -20,27 +19,21 @@ CoincidenceMessenger::CoincidenceMessenger(Coincidence_Gen *cg) : Co_gen(cg) {
   dir->SetGuidance("Control the parameters of the coincidence generator");
 
   GenAddCmd = new G4UIcommand("/generator/coincidence/add", this);
-  GenAddCmd->SetGuidance(
-      "Enable and add new interaction to coincidence generator.");
-  GenAddCmd->SetGuidance(
-      "Usage: /generator/coincidence/add generator_name:generator_state");
+  GenAddCmd->SetGuidance("Enable and add new interaction to coincidence generator.");
+  GenAddCmd->SetGuidance("Usage: /generator/coincidence/add generator_name:generator_state");
   GenAddCmd->SetParameter(new G4UIparameter("gen_name", 's', true));
   GenAddCmd->SetParameter(new G4UIparameter("gen_state", 's', true));
 
   VtxSetCmd = new G4UIcommand("/generator/coincidence/vtx/set", this);
-  VtxSetCmd->SetGuidance(
-      "Set vertex generator for most recently added coincidence interaction");
+  VtxSetCmd->SetGuidance("Set vertex generator for most recently added coincidence interaction");
   VtxSetCmd->SetParameter(new G4UIparameter("setting", 's', true));
 
   PosSetCmd = new G4UIcommand("/generator/coincidence/pos/set", this);
-  PosSetCmd->SetGuidance(
-      "Set position generator for most recently added coincidence interaction");
+  PosSetCmd->SetGuidance("Set position generator for most recently added coincidence interaction");
   PosSetCmd->SetParameter(new G4UIparameter("setting", 's', true));
 
-  TimeWinCmd =
-      new G4UIcmdWithADouble("/generator/coincidence/timewindow", this);
-  TimeWinCmd->SetGuidance(
-      "Set time window of coincidences in ns (default = 400ns)");
+  TimeWinCmd = new G4UIcmdWithADouble("/generator/coincidence/timewindow", this);
+  TimeWinCmd->SetGuidance("Set time window of coincidences in ns (default = 400ns)");
   TimeWinCmd->SetParameterName("timewin", false);
   TimeWinCmd->SetDefaultValue(400);
 
@@ -49,12 +42,10 @@ CoincidenceMessenger::CoincidenceMessenger(Coincidence_Gen *cg) : Co_gen(cg) {
   ERangeCmd->SetParameter(new G4UIparameter("Erange", 's', true));
 
   ExpCmd = new G4UIcommand("/generator/coincidence/exponential", this);
-  ExpCmd->SetGuidance(
-      "Set time constants in ns for subsequent decays (max of 5)");
+  ExpCmd->SetGuidance("Set time constants in ns for subsequent decays (max of 5)");
   ExpCmd->SetParameter(new G4UIparameter("Exponents", 's', true));
 
-  ExpForceWinCmd =
-      new G4UIcmdWithABool("/generator/coincidence/expoForceWindow", this);
+  ExpForceWinCmd = new G4UIcmdWithABool("/generator/coincidence/expoForceWindow", this);
   ExpForceWinCmd->SetGuidance(
       "Force all the events within the time window (which by default is "
       "400ns). Takes a boolean, the default is false");
@@ -72,8 +63,7 @@ CoincidenceMessenger::~CoincidenceMessenger() {
   delete ExpForceWinCmd;
 }
 
-void CoincidenceMessenger::SetNewValue(G4UIcommand *command,
-                                       G4String newValues) {
+void CoincidenceMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
   if (command == GenAddCmd) {
     Co_gen->AddExtra(newValues);
   } else if (command == VtxSetCmd) {
@@ -98,4 +88,4 @@ G4String CoincidenceMessenger::GetCurrentValue(G4UIcommand * /*command*/) {
   // should add some returns here eventually
   return G4String("invalid Coincidence	Messenger \"get\" command");
 }
-} // namespace RAT
+}  // namespace RAT

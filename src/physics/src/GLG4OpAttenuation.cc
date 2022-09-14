@@ -11,13 +11,13 @@
 //
 
 #include "RAT/GLG4OpAttenuation.hh"
-#include "G4ios.hh"
 
 #include "G4DynamicParticle.hh"
 #include "G4GeometryTolerance.hh"
 #include "G4Material.hh"
 #include "G4OpticalPhoton.hh"
 #include "G4Step.hh"
+#include "G4ios.hh"
 #include "Randomize.hh"
 #include "globals.hh"
 #include "templates.hh"
@@ -42,15 +42,14 @@ DummyProcess GLG4OpAttenuation::fgAttenuation("Attenuation");
 DummyProcess GLG4OpAttenuation::fgScattering("Scattering");
 
 static void InitializeTable(void) {
-  double angTolerance =
-      G4GeometryTolerance::GetInstance()->GetAngularTolerance();
+  double angTolerance = G4GeometryTolerance::GetInstance()->GetAngularTolerance();
 
   double cos2th = 0.0;
 
   for (int i = 0; i < N_COSTHETA_ENTRIES - 1; i++) {
     double x = i / (double)(N_COSTHETA_ENTRIES - 1);
     double old_cos2th;
-    do { // find exact root by iterating to convergence
+    do {  // find exact root by iterating to convergence
       old_cos2th = cos2th;
       double costh = 2.0 * x / (3.0 - cos2th);
       cos2th = costh * costh;
@@ -65,10 +64,8 @@ static void InitializeTable(void) {
 // Constructors and Destructor
 /////////////////
 
-GLG4OpAttenuation::GLG4OpAttenuation(const G4String &processName)
-    : G4OpAbsorption(processName) {
-  if (!TableInitialized)
-    InitializeTable();
+GLG4OpAttenuation::GLG4OpAttenuation(const G4String &processName) : G4OpAbsorption(processName) {
+  if (!TableInitialized) InitializeTable();
 }
 
 GLG4OpAttenuation::~GLG4OpAttenuation() {}
@@ -80,8 +77,7 @@ GLG4OpAttenuation::~GLG4OpAttenuation() {}
 // PostStepDoIt
 // -------------
 //
-G4VParticleChange *GLG4OpAttenuation::PostStepDoIt(const G4Track &aTrack,
-                                                   const G4Step &aStep) {
+G4VParticleChange *GLG4OpAttenuation::PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) {
   aParticleChange.Initialize(aTrack);
 
   const G4DynamicParticle *aParticle = aTrack.GetDynamicParticle();
@@ -110,31 +106,25 @@ G4VParticleChange *GLG4OpAttenuation::PostStepDoIt(const G4Track &aTrack,
     // where theta is angle between initial polarization and final
     // momentum vectors.  All light in Geant4 is fully polarized...
     G4double urand = G4UniformRand() - 0.5;
-    G4double Cos2Theta0 = Cos2ThetaTable[(
-        int)(fabs(urand) * 2.0 * (N_COSTHETA_ENTRIES - 1) + 0.5)];
+    G4double Cos2Theta0 = Cos2ThetaTable[(int)(fabs(urand) * 2.0 * (N_COSTHETA_ENTRIES - 1) + 0.5)];
     G4double CosTheta = 4.0 * urand / (3.0 - Cos2Theta0);
 #ifdef G4DEBUG
     if (fabs(CosTheta) > 1.0) {
-      cerr << "GLG4OpAttenution: Warning, CosTheta=" << CosTheta
-           << " urand=" << urand << endl;
+      cerr << "GLG4OpAttenution: Warning, CosTheta=" << CosTheta << " urand=" << urand << endl;
       CosTheta = CosTheta > 0.0 ? 1.0 : -1.0;
     }
 #endif
     G4double SinTheta = sqrt(1.0 - CosTheta * CosTheta);
     G4double Phi = (2.0 * G4UniformRand() - 1.0) * M_PI;
-    G4ThreeVector e2(
-        aParticle->GetMomentumDirection().cross(aParticle->GetPolarization()));
+    G4ThreeVector e2(aParticle->GetMomentumDirection().cross(aParticle->GetPolarization()));
 
-    G4ThreeVector NewMomentum =
-        (CosTheta * aParticle->GetPolarization() +
-         (SinTheta * cos(Phi)) * aParticle->GetMomentumDirection() +
-         (SinTheta * sin(Phi)) * e2)
-            .unit();
+    G4ThreeVector NewMomentum = (CosTheta * aParticle->GetPolarization() +
+                                 (SinTheta * cos(Phi)) * aParticle->GetMomentumDirection() + (SinTheta * sin(Phi)) * e2)
+                                    .unit();
 
     // polarization is normal to new momentum and in same plane as
     // old new momentum and old polarization
-    G4ThreeVector NewPolarization =
-        (aParticle->GetPolarization() - CosTheta * NewMomentum).unit();
+    G4ThreeVector NewPolarization = (aParticle->GetPolarization() - CosTheta * NewMomentum).unit();
 
     aParticleChange.ProposeMomentumDirection(NewMomentum);
     aParticleChange.ProposePolarization(NewPolarization);

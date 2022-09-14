@@ -5,34 +5,34 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wshadow"
 
+#include <CLHEP/Units/PhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <stdio.h>
+
 #include <RAT/Decay0.hh>
+#include <RAT/Log.hh>
 #include <algorithm>
 #include <cmath>
 #include <complex>
 #include <cstring>
 #include <iostream>
 #include <sstream>
-#include <stdio.h>
 
+#include "Math/AdaptiveIntegratorMultiDim.h"
 #include "Math/AllIntegrationTypes.h"
 #include "Math/Functor.h"
 #include "Math/GaussIntegrator.h"
+#include "Math/GaussLegendreIntegrator.h"
+#include "Math/IFunction.h"
+#include "Math/IFunctionfwd.h"
 #include "Math/Integrator.h"
 #include "Math/IntegratorMultiDim.h"
 #include "Math/WrappedMultiTF1.h"
+#include "Math/WrappedParamFunction.h"
 #include "Math/WrappedTF1.h"
 #include "TF1.h"
 #include "TF2.h"
 #include "TMath.h"
-#include <RAT/Log.hh>
-
-#include "Math/AdaptiveIntegratorMultiDim.h"
-#include "Math/GaussLegendreIntegrator.h"
-#include "Math/IFunction.h"
-#include "Math/IFunctionfwd.h"
-#include "Math/WrappedParamFunction.h"
-#include <CLHEP/Units/PhysicalConstants.h>
-#include <CLHEP/Units/SystemOfUnits.h>
 
 // Replaced the existing using namespace std by explicit using statements to
 // reduce the risk of variable shadowing
@@ -53,15 +53,12 @@ namespace RAT {
 // Berlin, Springer-Verlag, 1969.
 // Range of momenta correspond to kinetic energy range
 // from 2.55 keV to 25.0 MeV.
-double plog69[] = {
-    -2.302585,  -1.609438,  -1.203973,  -0.9162907, -0.6931472, -0.5108256,
-    -0.3566750, -0.2231435, -0.1053605, 0.0000000,  0.1823216,  0.3364722,
-    0.4700036,  0.5877866,  0.6931472,  0.7884574,  0.8754688,  0.9555114,
-    1.029619,   1.098612,   1.163151,   1.223776,   1.280934,   1.335001,
-    1.386294,   1.504077,   1.609438,   1.704748,   1.791759,   1.871802,
-    1.945910,   2.014903,   2.079442,   2.197225,   2.302585,   2.397895,
-    2.484907,   2.564949,   2.639057,   2.772589,   2.890372,   2.995732,
-    3.218876,   3.401197,   3.555348,   3.688879,   3.806663,   3.912023};
+double plog69[] = {-2.302585,  -1.609438, -1.203973, -0.9162907, -0.6931472, -0.5108256, -0.3566750, -0.2231435,
+                   -0.1053605, 0.0000000, 0.1823216, 0.3364722,  0.4700036,  0.5877866,  0.6931472,  0.7884574,
+                   0.8754688,  0.9555114, 1.029619,  1.098612,   1.163151,   1.223776,   1.280934,   1.335001,
+                   1.386294,   1.504077,  1.609438,  1.704748,   1.791759,   1.871802,   1.945910,   2.014903,
+                   2.079442,   2.197225,  2.302585,  2.397895,   2.484907,   2.564949,   2.639057,   2.772589,
+                   2.890372,   2.995732,  3.218876,  3.401197,   3.555348,   3.688879,   3.806663,   3.912023};
 ///************************************************/
 Double_t Decay0::funbeta(Double_t *x, Double_t *par) {
   Double_t xx = x[0];
@@ -69,9 +66,7 @@ Double_t Decay0::funbeta(Double_t *x, Double_t *par) {
   //  par[1]=GetMass(3);
   //  par[2]=fZdtr;
   Double_t funbeta = 0;
-  if (xx > 0.)
-    funbeta = sqrt(xx * (xx + 2. * par[1])) * (xx + par[1]) *
-              pow((par[0] - xx), 2) * fermi(par[2], xx);
+  if (xx > 0.) funbeta = sqrt(xx * (xx + 2. * par[1])) * (xx + par[1]) * pow((par[0] - xx), 2) * fermi(par[2], xx);
   return funbeta;
 }
 ///************************************************/
@@ -80,8 +75,7 @@ Double_t Decay0::funbeta1f(Double_t *x, Double_t *par) {
   Double_t funbeta1f = 0.;
 
   if (xx > 0) {
-    float all = sqrt(xx * (xx + 2. * par[1])) * (xx + par[1]) *
-                pow(par[0] - xx, 2) * fermi(par[2], xx);
+    float all = sqrt(xx * (xx + 2. * par[1])) * (xx + par[1]) * pow(par[0] - xx, 2) * fermi(par[2], xx);
     float w = xx / par[1] + 1.;
     float cf = 1. + fC1 / w + fC2 * w + fC3 * w * w + fC4 * w * w * w;
     funbeta1f = all * cf;
@@ -92,9 +86,8 @@ Double_t Decay0::funbeta1f(Double_t *x, Double_t *par) {
 Double_t Decay0::funbeta1fu(Double_t *x, Double_t *par) {
   Double_t xx = x[0];
   Double_t funbeta1fu = 0.;
-  if (xx > 0) { // allowed spectrum
-    double all = sqrt(xx * (xx + 2. * par[1])) * (xx + par[1]) *
-                 pow(par[0] - xx, 2) * fermi(par[2], xx);
+  if (xx > 0) {  // allowed spectrum
+    double all = sqrt(xx * (xx + 2. * par[1])) * (xx + par[1]) * pow(par[0] - xx, 2) * fermi(par[2], xx);
 
     // correction factor 1 (theoretical)
     double w = xx / par[1] + 1.;
@@ -121,24 +114,18 @@ Double_t Decay0::funbeta2f(Double_t *x, Double_t *par) {
   Double_t funbeta2f = 0.;
   if (xx > 0) {
     // allowed spectrum
-    float all = sqrt(xx * (xx + 2. * par[1])) * (xx + par[1]) *
-                pow(par[0] - xx, 2) * fermi(par[2], xx);
+    float all = sqrt(xx * (xx + 2. * par[1])) * (xx + par[1]) * pow(par[0] - xx, 2) * fermi(par[2], xx);
     // correction factor
     float w = xx / par[1] + 1.;
     float pel = sqrt(w * w - 1.);
     float pnu = (par[0] - xx) / par[1];
     float cf = 1.;
-    if (fKf == 1)
-      cf = pel * pel + fC1 * pnu * pnu;
-    if (fKf == 2)
-      cf = pow(pel, 4) + fC1 * pel * pel * pnu * pnu + fC2 * pow(pnu, 4);
-    if (fKf == 3)
-      cf = pow(pel, 6) + fC1 * pow(pel, 4) * pnu * pnu +
-           fC2 * pel * pel * pow(pnu, 4) + fC3 * pow(pnu, 6);
+    if (fKf == 1) cf = pel * pel + fC1 * pnu * pnu;
+    if (fKf == 2) cf = pow(pel, 4) + fC1 * pel * pel * pnu * pnu + fC2 * pow(pnu, 4);
+    if (fKf == 3) cf = pow(pel, 6) + fC1 * pow(pel, 4) * pnu * pnu + fC2 * pel * pel * pow(pnu, 4) + fC3 * pow(pnu, 6);
     if (fKf == 4)
-      cf = pow(pel, 8) + fC1 * pow(pel, 6) * pnu * pnu +
-           fC2 * pow(pel, 4) * pow(pnu, 4) + fC3 * pel * pel * pow(pnu, 6) +
-           fC4 * pow(pnu, 8);
+      cf = pow(pel, 8) + fC1 * pow(pel, 6) * pnu * pnu + fC2 * pow(pel, 4) * pow(pnu, 4) +
+           fC3 * pel * pel * pow(pnu, 6) + fC4 * pow(pnu, 8);
     // spectrum with correction
     funbeta2f = all * cf;
   }
@@ -150,18 +137,16 @@ Decay0::Decay0() : fHasTimeCutoff(false), fHasAlphaCut(false), fIsotope("") {
   fCutoffWindow = 500.0 * ns;
 }
 ///************************************************/
-Decay0::Decay0(const std::string isotope, const int level, const int mode,
-               const float lE, const float hE) {
+Decay0::Decay0(const std::string isotope, const int level, const int mode, const float lE, const float hE) {
   fLevel = level;
   fIsotope = isotope;
   fMode = mode;
   fLoE = lE;
   fHiE = hE;
 #ifdef DEBUG
-  info << "In RAT::Decay0::Decay0(), isotope = " << isotope
-       << " level= " << fLevel << std::endl;
-  info << "                          bb-mode= " << fMode << " energy range ("
-       << fLoE << ", " << fHiE << ")" << std::endl;
+  info << "In RAT::Decay0::Decay0(), isotope = " << isotope << " level= " << fLevel << std::endl;
+  info << "                          bb-mode= " << fMode << " energy range (" << fLoE << ", " << fHiE << ")"
+       << std::endl;
 #endif
   // Set the default time cutoff to what was used in the past
   fCutoffWindow = 500.0 * ns;
@@ -189,24 +174,18 @@ void Decay0::GenBBTest() {
   fNbPart = 0;
   fPparent.clear();
   fCurParentIdx = 0;
-  if (fMode >= 1 && fMode <= 5)
-    fModebb = fMode;
-  if (fMode == 6)
-    fModebb = 14;
-  if (fMode == 7)
-    fModebb = 6;
-  if (fMode == 8)
-    fModebb = 13;
-  if (fMode >= 9 && fMode <= 14)
-    fModebb = fMode - 2;
-  if (fMode == 15 || fMode == 16)
-    fModebb = fMode;
+  if (fMode >= 1 && fMode <= 5) fModebb = fMode;
+  if (fMode == 6) fModebb = 14;
+  if (fMode == 7) fModebb = 6;
+  if (fMode == 8) fModebb = 13;
+  if (fMode >= 9 && fMode <= 14) fModebb = fMode - 2;
+  if (fMode == 15 || fMode == 16) fModebb = fMode;
 
   fEbb1 = 0.;
   fEbb2 = 4.3;
 
-  if ((fModebb == 4 || fModebb == 5 || fModebb == 6 || fModebb == 8 ||
-       fModebb == 10 || fModebb == 13 || fModebb == 14)) {
+  if ((fModebb == 4 || fModebb == 5 || fModebb == 6 || fModebb == 8 || fModebb == 10 || fModebb == 13 ||
+       fModebb == 14)) {
     fEbb1 = fLoE;
     fEbb2 = fHiE;
   }
@@ -240,48 +219,41 @@ void Decay0::GenBBTest() {
 
   float El = fLevelE[fLevel] / 1000;
 
-  if (fLevel == 8 && fIsotope == "Ru96")
-    fEK = 0.003;
-  if (fLevel == 9 && fIsotope == "Ru96")
-    fEK = 0.002;
-  if (fLevel == 9 && fIsotope == "Ce136")
-    fEK = 0.006;
+  if (fLevel == 8 && fIsotope == "Ru96") fEK = 0.003;
+  if (fLevel == 9 && fIsotope == "Ru96") fEK = 0.002;
+  if (fLevel == 9 && fIsotope == "Ce136") fEK = 0.006;
 
-  if (fZdbb >= 0)
-    fE0 = fQbb;
-  if (fZdbb < 0)
-    fE0 = fQbb - 4. * GetMass(3);
-  if (fModebb == 9 || fModebb == 10)
-    fE0 = fQbb - fEK - 2. * GetMass(3);
-  if (fModebb == 11 || fModebb == 12)
-    fE0 = fQbb - 2. * fEK;
+  if (fZdbb >= 0) fE0 = fQbb;
+  if (fZdbb < 0) fE0 = fQbb - 4. * GetMass(3);
+  if (fModebb == 9 || fModebb == 10) fE0 = fQbb - fEK - 2. * GetMass(3);
+  if (fModebb == 11 || fModebb == 12) fE0 = fQbb - 2. * fEK;
 
   if (fE0 <= El) {
-    Log::Die(dformat("****\nnot enough energy for transition to this level, "
-                     "full energy release and Elevel: %lf %lf\n****",
-                     fE0, El));
+    Log::Die(
+        dformat("****\nnot enough energy for transition to this level, "
+                "full energy release and Elevel: %lf %lf\n****",
+                fE0, El));
   }
 
-  if (fZdbb >= 0 &&
-      (fModebb == 9 || fModebb == 10 || fModebb == 11 || fModebb == 12)) {
+  if (fZdbb >= 0 && (fModebb == 9 || fModebb == 10 || fModebb == 11 || fModebb == 12)) {
     Log::Die(
         dformat("****\ndecay mode (%d) and nuclide (%s) are inconsistent:\n "
                 "this mode is only for isotopes with Zdbb<0 ! \n**** ",
                 fMode, fIsotope.data()));
   }
 
-  if ((fTrans[fLevel] == 0) &&
-      (fModebb == 7 || fModebb == 8 || fModebb == 16)) {
-    Log::Die(dformat("****\ndecay mode (%d): spin of daughter nucleus level "
-                     "should be 2+: you have %d+ \n****\n",
-                     fMode, fTrans[fLevel]));
+  if ((fTrans[fLevel] == 0) && (fModebb == 7 || fModebb == 8 || fModebb == 16)) {
+    Log::Die(
+        dformat("****\ndecay mode (%d): spin of daughter nucleus level "
+                "should be 2+: you have %d+ \n****\n",
+                fMode, fTrans[fLevel]));
   }
-  if ((fTrans[fLevel] == 2) &&
-      (fModebb != 3 && fModebb != 7 && fModebb != 8 && fModebb != 9 &&
-       fModebb != 10 && fModebb != 11 && fModebb != 12 && fModebb != 16)) {
-    Log::Die(dformat("****\ndecay mode (%d): spin of daughter nucleus level "
-                     "should be 0+: you have %d+ \n****",
-                     fMode, fTrans[fLevel]));
+  if ((fTrans[fLevel] == 2) && (fModebb != 3 && fModebb != 7 && fModebb != 8 && fModebb != 9 && fModebb != 10 &&
+                                fModebb != 11 && fModebb != 12 && fModebb != 16)) {
+    Log::Die(
+        dformat("****\ndecay mode (%d): spin of daughter nucleus level "
+                "should be 0+: you have %d+ \n****",
+                fMode, fTrans[fLevel]));
   }
   fSpmax = -1;
   fFe2m = -1;
@@ -292,16 +264,12 @@ void Decay0::GenBBTest() {
 
 ///************************************************/
 void Decay0::GenBackgTest() {
-
   info << "Decay0::GenBackgTest : Isotope name: " << fIsotope << endl;
   info << "Decay0::GenBackgTest : Checked suffixes: " << endl;
-  info << "Decay0::GenBackgTest : [PURE]    : "
-       << ((fHasAlphaCut) ? "true" : "false") << newline;
-  info << "Decay0::GenBackgTest : [TIMECUT] : "
-       << ((fHasTimeCutoff) ? "true" : "false") << newline;
+  info << "Decay0::GenBackgTest : [PURE]    : " << ((fHasAlphaCut) ? "true" : "false") << newline;
+  info << "Decay0::GenBackgTest : [TIMECUT] : " << ((fHasTimeCutoff) ? "true" : "false") << newline;
   if (fHasTimeCutoff) {
-    info << "Decay0::GenBackgTest : Current time cutoff set to "
-         << GetCutoffWindow() / ns << " ns." << endl;
+    info << "Decay0::GenBackgTest : Current time cutoff set to " << GetCutoffWindow() / ns << " ns." << endl;
   }
   fLdecay = DB::Get()->GetLink("Decay0Backg", fIsotope);
   try {
@@ -309,8 +277,7 @@ void Decay0::GenBackgTest() {
   } catch (DBNotFoundError &e) {
     Log::Die("Decay0: can't find isotope " + fIsotope);
   }
-  info << "Decay0::GenBackgTest : Loading data for isotope: " << fIsotope
-       << endl;
+  info << "Decay0::GenBackgTest : Loading data for isotope: " << fIsotope << endl;
   try {
     fEbindeK = fLdecay->GetD("EbindeK");
   } catch (DBNotFoundError &e) {
@@ -419,12 +386,10 @@ void Decay0::GenEvent() {
     Ac228();
   else if (fIsotope == "Ar39") {
     // Nucl. Phys. A 633(1998)1.
-    beta1fu(fEndPoint[0], tcnuc, 0., fShCorrFactor[0], fShCorrFactor[1],
-            fShCorrFactor[2], fShCorrFactor[3]);
+    beta1fu(fEndPoint[0], tcnuc, 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
   } else if (fIsotope == "Ar42") {
     // Nucl. Data Sheets 92(2001)1.
-    beta1fu(fEndPoint[0], tcnuc, 0., fShCorrFactor[0], fShCorrFactor[1],
-            fShCorrFactor[2], fShCorrFactor[3]);
+    beta1fu(fEndPoint[0], tcnuc, 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
   } else if (fIsotope == "As79")
     As79();
   else if (fIsotope == "Be11")
@@ -436,11 +401,11 @@ void Decay0::GenEvent() {
     // VIT, 17.12.1995; 10.05.2005
     pdecay = 100. * GetRandom();
     if (pdecay <= fProbDecay[0])
-      fEgamma = fEbindeK;                                       // EC-K 43.6%
-    else if (pdecay > fProbDecay[0] && pdecay <= fProbDecay[1]) // EC-L 40.2%
+      fEgamma = fEbindeK;                                        // EC-K 43.6%
+    else if (pdecay > fProbDecay[0] && pdecay <= fProbDecay[1])  // EC-L 40.2%
       fEgamma = fEbindeL;
     else
-      fEgamma = fEbindeM; // EC-M 16.2%
+      fEgamma = fEbindeM;  // EC-M 16.2%
 
     particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
     fThlev = 32.e-12;
@@ -453,17 +418,17 @@ void Decay0::GenEvent() {
     Bi212();
     int fNbPart0 = fNbPart;
 
-    if (fNpGeant[1] != 47) { /// decay of Po212
+    if (fNpGeant[1] != 47) {  /// decay of Po212
       fThnuc = fHLifeTime[1];
       if (fHasTimeCutoff) {
         double time = tcnuc - fThnuc / log(2.) * log(GetRandom());
-        while (time > GetCutoffWindow() / s) // Time cut off here
+        while (time > GetCutoffWindow() / s)  // Time cut off here
           time = tcnuc - fThnuc / log(2.) * log(GetRandom());
         fTdnuc = time;
       } else {
         fTdnuc = tcnuc - fThnuc / log(2.) * log(GetRandom());
       }
-      fCurParentIdx++; // Increment the parent, since this is the decay from Po
+      fCurParentIdx++;  // Increment the parent, since this is the decay from Po
       particle(47, fEnAlpha[5], fEnAlpha[5], 0., pi, 0., twopi, 0, 0);
       fPtime[fNbPart0 + 1] = fPtime[fNbPart0 + 1] + fTdnuc;
     }
@@ -472,8 +437,8 @@ void Decay0::GenEvent() {
     bool next400 = false, next328 = false;
     float palfa;
 
-    palfa = 100. * GetRandom();   // 212Bi alpha-decay
-    if (palfa <= fProbAlpha[0]) { // 1.10%
+    palfa = 100. * GetRandom();    // 212Bi alpha-decay
+    if (palfa <= fProbAlpha[0]) {  // 1.10%
       particle(47, fEnAlpha[0], fEnAlpha[0], 0., pi, 0., twopi, 0, 0);
       p = 100. * GetRandom();
       if (p <= 5.) {
@@ -485,7 +450,7 @@ void Decay0::GenEvent() {
         nucltransK(0.164, 0.086, 0.75, 0.);
         next328 = true;
       }
-    } else if (palfa <= fProbAlpha[1]) { // 0.15%
+    } else if (palfa <= fProbAlpha[1]) {  // 0.15%
       particle(47, fEnAlpha[1], fEnAlpha[1], 0., pi, 0., twopi, 0, 0);
       p = 100. * GetRandom();
       if (p <= 68.) {
@@ -497,13 +462,13 @@ void Decay0::GenEvent() {
         nucltransK(0.145, 0.086, 2.8, 0.);
         next328 = true;
       }
-    } else if (palfa <= fProbAlpha[2]) { // 1.67%
+    } else if (palfa <= fProbAlpha[2]) {  // 1.67%
       particle(47, fEnAlpha[2], fEnAlpha[2], 0., pi, 0., twopi, 0, 0);
       next328 = true;
-    } else if (palfa <= fProbAlpha[3]) { // 69.88%
+    } else if (palfa <= fProbAlpha[3]) {  // 69.88%
       particle(47, fEnAlpha[3], fEnAlpha[3], 0., pi, 0., twopi, 0, 0);
       next400 = true;
-    } else { // 27.20%
+    } else {  // 27.20%
       particle(47, fEnAlpha[4], fEnAlpha[4], 0., pi, 0., twopi, 0, 0);
     }
 
@@ -524,8 +489,8 @@ void Decay0::GenEvent() {
     // beta-decay of Tl208
     fThnuc = fHLifeTime[1];
     fTdnuc = tcnuc - fThnuc / log(2.) * log(GetRandom());
-    fCurParentIdx++; // Increment the parent, since this is now the decay from
-                     // Tl
+    fCurParentIdx++;  // Increment the parent, since this is now the decay from
+                      // Tl
     Tl208();
     // set the time of the first 208Tl-decay emitted particle to be after T1/2
     fPtime[fNbPart0 + 1] = fPtime[fNbPart0 + 1] + fTdnuc;
@@ -541,13 +506,13 @@ void Decay0::GenEvent() {
     Bi214();
     int fNbPart0 = fNbPart;
 
-    if (fNpGeant[1] != 47) { /// decay of Po214
-      fCurParentIdx++; // Increment the parent, since this is the decay from Po
+    if (fNpGeant[1] != 47) {  /// decay of Po214
+      fCurParentIdx++;        // Increment the parent, since this is the decay from Po
       Po214();
       if (fHasTimeCutoff) {
         // There is a time cutoff
         double time = tcnuc - fThnuc / log(2.) * log(GetRandom());
-        while (time > GetCutoffWindow() / s) // 500ns cut off here
+        while (time > GetCutoffWindow() / s)  // 500ns cut off here
           time = tcnuc - fThnuc / log(2.) * log(GetRandom());
         fTdnuc = time;
       }
@@ -584,8 +549,7 @@ void Decay0::GenEvent() {
     // experimental corrections to the allowed beta shape from
     // F.E.Wietfeldt et al., PRC 52(1995)1028
     // cf(e)=(1+c1/w+c2*w+c3*w**2+c4*w**3), w=e/GetMass(3)+1
-    beta1f(fEndPoint[0], tcnuc, 0., fShCorrFactor[0], fShCorrFactor[1],
-           fShCorrFactor[2], fShCorrFactor[3]);
+    beta1f(fEndPoint[0], tcnuc, 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
   } else if (fIsotope == "Ca48") {
     // It is supposed that decay goes to excited 5+ level of
     // Sc48 (E_exc=131 keV) with T1/2=1.1e21 y calculated in
@@ -603,8 +567,7 @@ void Decay0::GenEvent() {
     // are taken from: F.A.Danevich et al., Phys. At. Nuclei 59(1996)1.
     //  Q_beta=0.320 MeV, G.Audi et al., Nucl. Phys. A 729(2003)337.
     // VIT, 31.03.2006.
-    beta2f(fEndPoint[0], 0., 0., 3, fShCorrFactor[0], fShCorrFactor[1],
-           fShCorrFactor[2], fShCorrFactor[3]);
+    beta2f(fEndPoint[0], 0., 0., 3, fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
   } else if (fIsotope == "Co60")
     Co60();
   else if (fIsotope == "Cs136")
@@ -615,13 +578,11 @@ void Decay0::GenEvent() {
     // but not the model of Cs137 decay alone !
     pbeta = 100. * GetRandom();
     if (pbeta <= fProbBeta[0]) {
-      beta1fu(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1],
-              fShCorrFactor[2], fShCorrFactor[3]);
+      beta1fu(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
       fThlev = 153.12;
       nucltransKL(fEnGamma[0], fEbindeK, 9.0e-2, fEbindeL, 1.6e-2, 0.);
     } else {
-      beta1f(fEndPoint[1], 0., 0., fShCorrFactor[4], fShCorrFactor[5],
-             fShCorrFactor[6], fShCorrFactor[7]);
+      beta1f(fEndPoint[1], 0., 0., fShCorrFactor[4], fShCorrFactor[5], fShCorrFactor[6], fShCorrFactor[7]);
     }
   } else if (fIsotope == "Eu147")
     Eu147();
@@ -674,16 +635,12 @@ void Decay0::GenEvent() {
       // capture from only K shell is supposed
       particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
       fThlev = 9.7e-12;
-      nucltransKLM(fEnGamma[0], fEbindeK, 7.3e-3, fEbindeL, 7.8e-4, fEbindeM,
-                   2.6e-4, 0.);
+      nucltransKLM(fEnGamma[0], fEbindeK, 7.3e-3, fEbindeL, 7.8e-4, fEbindeM, 2.6e-4, 0.);
     } else {
       pklm = 100. * GetRandom();
-      if (pklm <= 84.73)
-        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
-      if (pklm > 84.73 && pklm <= 97.44)
-        particle(1, fEbindeL, fEbindeL, 0., pi, 0., twopi, 0, 0);
-      if (pklm > 97.44)
-        particle(1, fEbindeM, fEbindeM, 0., pi, 0., twopi, 0, 0);
+      if (pklm <= 84.73) particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
+      if (pklm > 84.73 && pklm <= 97.44) particle(1, fEbindeL, fEbindeL, 0., pi, 0., twopi, 0, 0);
+      if (pklm > 97.44) particle(1, fEbindeM, fEbindeM, 0., pi, 0., twopi, 0, 0);
     }
   } else if (fIsotope == "Kr85") {
     // NDS 62(1991)271 and ENSDF at NNDC site on 9.12.2007).
@@ -695,19 +652,15 @@ void Decay0::GenEvent() {
       fThlev = 1.015e-6;
       p = 100. * GetRandom();
       if (p <= 99.99947) {
-        nucltransKLM(fEnGamma[0], fEbindeK, 6.3e-3, fEbindeL, 7.1e-4, fEbindeM,
-                     2.3e-4, 0.);
+        nucltransKLM(fEnGamma[0], fEbindeK, 6.3e-3, fEbindeL, 7.1e-4, fEbindeM, 2.3e-4, 0.);
       } else {
-        nucltransKLM(fEnGamma[1], fEbindeK, 2.9e-2, fEbindeL, 3.9e-3, fEbindeM,
-                     1.3e-3, 0.);
+        nucltransKLM(fEnGamma[1], fEbindeK, 2.9e-2, fEbindeL, 3.9e-3, fEbindeM, 1.3e-3, 0.);
         fThlev = 0.71e-9;
-        nucltransKLM(fEnGamma[2], fEbindeK, 4.3e-2, fEbindeL, 4.8e-3, fEbindeM,
-                     3.4e-4, 0.);
+        nucltransKLM(fEnGamma[2], fEbindeK, 4.3e-2, fEbindeL, 4.8e-3, fEbindeM, 3.4e-4, 0.);
       }
     } else
-      beta2f(fEndPoint[1], 0., 0., 1, fShCorrFactor[0], fShCorrFactor[1],
-             fShCorrFactor[2],
-             fShCorrFactor[3]); // 1st forbidden unique beta decay
+      beta2f(fEndPoint[1], 0., 0., 1, fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2],
+             fShCorrFactor[3]);  // 1st forbidden unique beta decay
   } else if (fIsotope == "Mn54") {
     // "Table of Isotopes",8th ed.,1996 + NDS 50(1987)255).
     // Accuracy in description of:
@@ -715,7 +668,7 @@ void Decay0::GenEvent() {
     // VIT, 16.04.1998.
     // VIT, 1.04.2007, updated to NDS 107(2006)1393.
     particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0.,
-             0.); // 100% EC to Cr54
+             0.);  // 100% EC to Cr54
     fThlev = 7.9e-12;
     nucltransK(fEnGamma[0], fEbindeK, 2.4e-4, 0.);
   } else if (fIsotope == "Na22") {
@@ -733,32 +686,28 @@ void Decay0::GenEvent() {
         particle(1, 0.001, fEbindeK, 0., pi, 0., twopi, 0, 0);
       else {
         fThlev = 3.63e-12;
-        beta1f(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1],
-               fShCorrFactor[2], fShCorrFactor[3]);
+        beta1f(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
       }
       fThlev = 3.63e-12;
       nucltransK(fEnGamma[0], fEbindeK, 6.8e-6, 2.1e-5);
     } else {
-      beta2f(fEndPoint[1], 0., 0., 2, fShCorrFactor[4], fShCorrFactor[5],
-             fShCorrFactor[6], fShCorrFactor[7]);
+      beta2f(fEndPoint[1], 0., 0., 2, fShCorrFactor[4], fShCorrFactor[5], fShCorrFactor[6], fShCorrFactor[7]);
     }
   } else if (fIsotope == "P32") {
     // ToI'1998 and ENSDF'2004.
     // experimental corrections to the allowed beta shape from
     // H.Daniel, RMP 40(1968)659 and M.J.Canty et al., NP 85(1966)317
     // VIT, 5.11.2006.
-    beta1f(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1],
-           fShCorrFactor[2], fShCorrFactor[3]);
+    beta1f(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
   } else if (fIsotope == "Pa234m")
     Pa234m();
   else if (fIsotope == "Pb210") {
     // NDS 99(2003)649 and ENSDF at the NNDC site on 6.08.2007.
     // VIT, 6.08.2007.
-    pbeta = 100. * GetRandom(); // beta decay to U234
+    pbeta = 100. * GetRandom();  // beta decay to U234
     if (pbeta <= fProbBeta[0]) {
       beta(fEndPoint[0], 0., 0.);
-      nucltransKLM(fEnGamma[0], fEbindeK, 14.2, fEbindeL, 3.36, fEbindeM, 1.14,
-                   0.);
+      nucltransKLM(fEnGamma[0], fEbindeK, 14.2, fEbindeL, 3.36, fEbindeM, 1.14, 0.);
     } else
       beta(fEndPoint[1], 0., 0.);
   } else if (fIsotope == "Pb211")
@@ -776,8 +725,7 @@ void Decay0::GenEvent() {
   else if (fIsotope == "Rb87") {
     // NDS 95(2002)543 and ENSDF at NNDC site on 6.08.2007.
     // VIT, 6.08.2007.
-    beta2f(fEndPoint[0], 0., 0., 2, fShCorrFactor[0], fShCorrFactor[1],
-           fShCorrFactor[2], fShCorrFactor[3]);
+    beta2f(fEndPoint[0], 0., 0., 2, fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
   } else if (fIsotope == "Rh106")
     Rh106();
   else if (fIsotope == "Sb125")
@@ -792,8 +740,7 @@ void Decay0::GenEvent() {
     // Change from the allowed shape to the 1st forbidden unique
     // with empirical correction from:
     // H.H.Hansen, Appl. Rad. Isot. 34(1983)1241
-    beta1fu(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1],
-            fShCorrFactor[2], fShCorrFactor[3]);
+    beta1fu(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
   } else if (fIsotope == "Ta182")
     Ta182();
   else if (fIsotope == "Te133")
@@ -825,24 +772,20 @@ void Decay0::GenEvent() {
       // change to forbidden spectrum with experimental correction
       // from J.M.Trischuk et al., NPA 90(1967)33 and H.Daniel,
       // RMP 40(1968)659
-      beta1f(fEndPoint[1], 0., 0., fShCorrFactor[0], fShCorrFactor[1],
-             fShCorrFactor[2], fShCorrFactor[3]);
+      beta1f(fEndPoint[1], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
     }
   } else if (fIsotope == "Tl208")
     Tl208();
   else if (fIsotope == "Xe129m") {
     // NDS 77(1996)631 and ENSDF at NNDC site on 13.11.2007).
     // VIT, 13.11.2007.
-    nucltransKLM(fEnGamma[0], fEbindeK, 13.94, fEbindeL, 5.34, fEbindeM, 1.52,
-                 0.);
+    nucltransKLM(fEnGamma[0], fEbindeK, 13.94, fEbindeL, 5.34, fEbindeM, 1.52, 0.);
     fThlev = 0.97e-9;
-    nucltransKLM(fEnGamma[1], fEbindeK, 10.49, fEbindeL, 1.43, fEbindeM, 0.39,
-                 0.);
+    nucltransKLM(fEnGamma[1], fEbindeK, 10.49, fEbindeL, 1.43, fEbindeM, 0.39, 0.);
   } else if (fIsotope == "Xe131m") {
     // NDS 107(2006)2715 and ENSDF at NNDC site on 13.11.2007).
     // VIT, 13.11.2007.
-    nucltransKLM(fEnGamma[0], fEbindeK, 31.60, fEbindeL, 14.75, fEbindeM, 4.15,
-                 0.);
+    nucltransKLM(fEnGamma[0], fEbindeK, 31.60, fEbindeL, 14.75, fEbindeM, 4.15, 0.);
   } else if (fIsotope == "Xe133")
     Xe133();
   else if (fIsotope == "Xe135")
@@ -855,20 +798,18 @@ void Decay0::GenEvent() {
     //                     : deexcitation process - 0.001%.
     pbeta = 100. * GetRandom();
     if (pbeta <= fProbBeta[0]) {
-      beta1fu(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1],
-              fShCorrFactor[2], fShCorrFactor[3]);
+      beta1fu(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
       fThlev = 61.3e-9;
       p = 100. * GetRandom();
       if (p <= 27.7) {
         pair(0.739);
       } else {
         particle(3, 1.743, 1.743, 0., pi, 0., twopi, fTclev,
-                 fThlev);                                         // electron
-        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0); // gamma
+                 fThlev);                                          // electron
+        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);  // gamma
       }
     } else
-      beta1fu(fEndPoint[1], 0., 0., fShCorrFactor[4], fShCorrFactor[5],
-              fShCorrFactor[6], fShCorrFactor[7]);
+      beta1fu(fEndPoint[1], 0., 0., fShCorrFactor[4], fShCorrFactor[5], fShCorrFactor[6], fShCorrFactor[7]);
   } else if (fIsotope == "Zn65")
     Zn65();
   else if (fIsotope == "Zr96") {
@@ -944,8 +885,7 @@ void Decay0::GenBBDeex() {
     nucltransK(fEnGamma[0], fEbindeK, 8.0e-3, 0.);
   } else if (fIsotope == "Te130" && fLevelE[fLevel] != 0.)
     Xe130low();
-  else if ((fIsotope == "Xe136" || fIsotope == "Ce136") &&
-           fLevelE[fLevel] != 0.)
+  else if ((fIsotope == "Xe136" || fIsotope == "Ce136") && fLevelE[fLevel] != 0.)
     Ba136low();
   else if (fIsotope == "Nd148" && fLevelE[fLevel] != 0.)
     Sm148low();
@@ -954,8 +894,7 @@ void Decay0::GenBBDeex() {
   else if (fIsotope == "W186" && fLevelE[fLevel] == 137) {
     fThlev = 875.e-12;
     // KLM ratios in accordance with BrIcc calculation
-    nucltransKLM(fEnGamma[0], fEbindeK, 0.44, fEbindeL, 0.64, fEbindeM, 0.20,
-                 0.);
+    nucltransKLM(fEnGamma[0], fEbindeK, 0.44, fEbindeL, 0.64, fEbindeM, 0.20, 0.);
   }
   /// Simulation of doublebeta-like radioactive decays
   else if (fIsotope == "Bi214") {
@@ -994,10 +933,8 @@ void Decay0::bb() {
   float Edlevel = fLevelE[fLevel] / 1000.;
   float phi1, phi2;
 
-  if (fZdbb >= 0)
-    fE0 = fQbb - Edlevel;
-  if (fZdbb < 0)
-    fE0 = fQbb - Edlevel - 4. * GetMass(3);
+  if (fZdbb >= 0) fE0 = fQbb - Edlevel;
+  if (fZdbb < 0) fE0 = fQbb - Edlevel - 4. * GetMass(3);
 
   if (fModebb == 10)
     fE0 = fQbb - Edlevel - fEK - 2. * GetMass(3);
@@ -1021,24 +958,19 @@ void Decay0::bb() {
   if (fStartbb == 0) {
     // calculate the theoretical energy spectrum of first particle
     // with step of 1 keV and find its maximum
-    if (fEbb2 > fE0)
-      fEbb2 = fE0;
-    if (fEbb1 < 0 || fEbb1 > fEbb2)
-      fEbb1 = 0;
+    if (fEbb2 > fE0) fEbb2 = fE0;
+    if (fEbb1 < 0 || fEbb1 > fEbb2) fEbb1 = 0;
 
     int maxi = (int)(fE0 * 1000.);
     for (int i = 1; i <= maxi + 1; ++i) {
       fE1 = i / 1000.;
       fSpthe1[i] = 0.;
-      if ((fModebb >= 1 && fModebb <= 3) || fModebb == 7 || fModebb == 10)
-        fSpthe1[i] = fe1_mod();
+      if ((fModebb >= 1 && fModebb <= 3) || fModebb == 7 || fModebb == 10) fSpthe1[i] = fe1_mod();
 
       float elow = max(1e-4, fEbb1 - fE1 + 1e-4);
       float ehigh = max(1e-4, fEbb2 - fE1 + 1e-4);
 
-      if (((fModebb >= 4 && fModebb <= 6) || fModebb == 8 ||
-           (fModebb >= 13 && fModebb <= 16)) &&
-          fE1 < fE0) {
+      if (((fModebb >= 4 && fModebb <= 6) || fModebb == 8 || (fModebb >= 13 && fModebb <= 16)) && fE1 < fE0) {
         TF1 f1("f1", this, 0, fE0, 4, "Decay0");
         ROOT::Math::WrappedTF1 wf1(f1);
         ROOT::Math::GaussLegendreIntegrator ig;
@@ -1047,8 +979,7 @@ void Decay0::bb() {
         ig.SetNumberPoints(40);
         fSpthe1[i] = ig.Integral(elow, ehigh);
       }
-      if (fSpthe1[i] > fSpmax)
-        fSpmax = fSpthe1[i];
+      if (fSpthe1[i] > fSpmax) fSpmax = fSpthe1[i];
     }
     return;
   }
@@ -1061,14 +992,12 @@ void Decay0::bb() {
     else if (fModebb != 10)
       fE1 = fEbb2 * GetRandom();
     k = (int)(round(fE1 * 1000.));
-    if (k < 1)
-      k = 1;
+    if (k < 1) k = 1;
   } while ((fSpmax * GetRandom()) > fSpthe1[k]);
 
   if ((fModebb >= 1 && fModebb <= 3) || fModebb == 7)
     fE2 = fE0 - fE1;
-  else if ((fModebb >= 4 && fModebb <= 6) || fModebb == 8 ||
-           (fModebb >= 13 && fModebb <= 16)) {
+  else if ((fModebb >= 4 && fModebb <= 6) || fModebb == 8 || (fModebb >= 13 && fModebb <= 16)) {
     re2s = max(float(0.0), fEbb1 - fE1);
     re2f = fEbb2 - fE1;
     float f2max = -1.;
@@ -1078,15 +1007,12 @@ void Decay0::bb() {
     for (int ke2 = ke2s; ke2 <= ke2f; ke2++) {
       fE2 = ke2 / 1000.;
       fSpthe2[ke2] = fe2_mod();
-      if (fSpthe2[ke2] > f2max)
-        f2max = fSpthe2[ke2];
+      if (fSpthe2[ke2] > f2max) f2max = fSpthe2[ke2];
     }
 
     do {
       fE2 = re2s + (re2f - re2s) * GetRandom();
-      if ((fModebb >= 4 && fModebb <= 6) || fModebb == 8 ||
-          (fModebb >= 13 && fModebb <= 16))
-        fFe2m = fe2_mod();
+      if ((fModebb >= 4 && fModebb <= 6) || fModebb == 8 || (fModebb >= 13 && fModebb <= 16)) fFe2m = fe2_mod();
     } while (f2max * GetRandom() > fFe2m);
   } else if (fModebb == 10) {
     // energy of X-ray is fixed; no angular correlation
@@ -1115,10 +1041,8 @@ void Decay0::bb() {
   } else if (fModebb == 7) {
     w1 = fE1 + GetMass(3);
     w2 = fE2 + GetMass(3);
-    a = 5. * (w1 * w2 + GetMass(3) * GetMass(3)) * (p1 * p1 + p2 * p2) -
-        p1 * p1 * p2 * p2;
-    b = -p1 * p2 *
-        (10. * (w1 * w2 + GetMass(3) * GetMass(3)) + p1 * p1 + p2 * p2);
+    a = 5. * (w1 * w2 + GetMass(3) * GetMass(3)) * (p1 * p1 + p2 * p2) - p1 * p1 * p2 * p2;
+    b = -p1 * p2 * (10. * (w1 * w2 + GetMass(3) * GetMass(3)) + p1 * p1 + p2 * p2);
     c = 3. * p1 * p1 * p2 * p2;
   } else if (fModebb == 8 || fModebb == 16)
     b = b1 * b2 / 3.;
@@ -1141,10 +1065,8 @@ void Decay0::bb() {
 
   fNbPart = fNbPart + 1;
   fPparent.push_back(fCurParentIdx);
-  if (fZdbb >= 0)
-    fNpGeant[fNbPart] = 3;
-  if (fZdbb < 0)
-    fNpGeant[fNbPart] = 2;
+  if (fZdbb >= 0) fNpGeant[fNbPart] = 3;
+  if (fZdbb < 0) fNpGeant[fNbPart] = 2;
   fPmoment[0][fNbPart] = p1 * stet1 * cos(phi1);
   fPmoment[1][fNbPart] = p1 * stet1 * sin(phi1);
   fPmoment[2][fNbPart] = p1 * ctet1;
@@ -1152,10 +1074,8 @@ void Decay0::bb() {
 
   fNbPart = fNbPart + 1;
   fPparent.push_back(fCurParentIdx);
-  if (fZdbb >= 0)
-    fNpGeant[fNbPart] = 3;
-  if (fZdbb < 0)
-    fNpGeant[fNbPart] = 2;
+  if (fZdbb >= 0) fNpGeant[fNbPart] = 3;
+  if (fZdbb < 0) fNpGeant[fNbPart] = 2;
   fPmoment[0][fNbPart] = p2 * stet2 * cos(phi2);
   fPmoment[1][fNbPart] = p2 * stet2 * sin(phi2);
   fPmoment[2][fNbPart] = p2 * ctet2;
@@ -1173,7 +1093,7 @@ void Decay0::Ti48low() {
   float p;
   bool next = false;
 
-  if (fLevel == 2) { // 2421.
+  if (fLevel == 2) {  // 2421.
     fThlev = 24.e-15;
     p = 100. * GetRandom();
     if (p < 8)
@@ -1183,7 +1103,7 @@ void Decay0::Ti48low() {
       next = true;
     }
   }
-  if (fLevel == 1 || next) { // 984.
+  if (fLevel == 1 || next) {  // 984.
     fThlev = 4.3e-12;
     nucltransK(fEnGamma[2], fEbindeK, 1.2e-4, 0.);
     return;
@@ -1199,7 +1119,7 @@ void Decay0::Fe58low() {
   float p;
   bool next = false;
 
-  if (fLevel == 2) { // 1675
+  if (fLevel == 2) {  // 1675
     p = 100. * GetRandom();
     if (p < 43.)
       nucltransK(fEnGamma[0], fEbindeK, 1.0e-4, 0.6e-4);
@@ -1208,7 +1128,7 @@ void Decay0::Fe58low() {
       next = true;
     }
   }
-  if (fLevel == 1 || next) { // 811.
+  if (fLevel == 1 || next) {  // 811.
     fThlev = 9.0e-12;
     nucltransK(fEnGamma[2], fEbindeK, 5.0e-4, 0.);
     return;
@@ -1226,7 +1146,7 @@ void Decay0::Se76low() {
   float cK = 2.0e-3;
   bool next = false;
 
-  if (fLevel == 3) { // 1216
+  if (fLevel == 3) {  // 1216
     fThlev = 3.4e-12;
     p = 100. * GetRandom();
     if (p < 36.) {
@@ -1237,7 +1157,7 @@ void Decay0::Se76low() {
       next = true;
     }
   }
-  if (fLevel == 2) { // 1122
+  if (fLevel == 2) {  // 1122
     fThlev = 11.e-12;
     fEgamma = fEnGamma[2];
     p = (cg + cK) * GetRandom();
@@ -1245,13 +1165,12 @@ void Decay0::Se76low() {
       particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
       npg563 = fNbPart;
     } else {
-      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi,
-               fTclev, fThlev);
+      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
       particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
     }
     next = true;
   }
-  if (fLevel == 1 || next) { // 559
+  if (fLevel == 1 || next) {  // 559
     fThlev = 12.3e-12;
     fEgamma = fEnGamma[3];
     p = (cg + cK) * GetRandom();
@@ -1259,18 +1178,13 @@ void Decay0::Se76low() {
       particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
       npg559 = fNbPart;
     } else {
-      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi,
-               fTclev, fThlev);
+      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
       particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
     }
     // Angular correlation between gammas 559 and 563 keV, L.Pandola + VIT
     if (npg559 != 0 && npg563 != 0) {
-      float p559 =
-          sqrt(pow(fPmoment[0][npg559], 2) + pow(fPmoment[1][npg559], 2) +
-               pow(fPmoment[2][npg559], 2));
-      float p563 =
-          sqrt(pow(fPmoment[0][npg563], 2) + pow(fPmoment[1][npg563], 2) +
-               pow(fPmoment[2][npg563], 2));
+      float p559 = sqrt(pow(fPmoment[0][npg559], 2) + pow(fPmoment[1][npg559], 2) + pow(fPmoment[2][npg559], 2));
+      float p563 = sqrt(pow(fPmoment[0][npg563], 2) + pow(fPmoment[1][npg563], 2) + pow(fPmoment[2][npg563], 2));
       // Coefficients in formula 1+a2*ctet**2+a4*ctet**4 are from: R.D.Evans,
       //"The Atomic Nucleus", Krieger Publ. Comp., 1985, p. 240, 0(2)2(2)0
       // cascade.
@@ -1286,8 +1200,7 @@ void Decay0::Se76low() {
         ctet2 = 1. - 2. * GetRandom();
         stet2 = sqrt(1. - ctet2 * ctet2);
         ctet = ctet1 * ctet2 + stet1 * stet2 * cos(phi1 - phi2);
-      } while (GetRandom() * (1. + abs(a2) + abs(a4)) >
-               1. + a2 * ctet * ctet + a4 * pow(ctet, 4));
+      } while (GetRandom() * (1. + abs(a2) + abs(a4)) > 1. + a2 * ctet * ctet + a4 * pow(ctet, 4));
 
       fPmoment[0][npg559] = p559 * stet1 * cos(phi1);
       fPmoment[1][npg559] = p559 * stet1 * sin(phi1);
@@ -1306,7 +1219,7 @@ void Decay0::Ge74low() {
   // levelE:[0,596,1204],
   bool next = false;
 
-  if (fLevel == 2) { // 1204
+  if (fLevel == 2) {  // 1204
     fThlev = 6.0e-12;
     float p = 100. * GetRandom();
     if (p < 34) {
@@ -1317,7 +1230,7 @@ void Decay0::Ge74low() {
       next = true;
     }
   }
-  if (fLevel == 1 || next) { // 596
+  if (fLevel == 1 || next) {  // 596
     fThlev = 12.0e-12;
     nucltransK(fEnGamma[2], fEbindeK, 1.1e-3, 0.);
     return;
@@ -1331,7 +1244,7 @@ void Decay0::Kr82low() {
   bool next = false;
   float p;
 
-  if (fLevel == 2) { // 1475
+  if (fLevel == 2) {  // 1475
     p = 100. * GetRandom();
     if (p <= 36.7) {
       nucltransK(fEnGamma[0], fEbindeK, 2.0e-4, 0.5e-4);
@@ -1341,7 +1254,7 @@ void Decay0::Kr82low() {
       next = true;
     }
   }
-  if (fLevel == 1 || next) { // 776
+  if (fLevel == 1 || next) {  // 776
     fThlev = 5.e-12;
     nucltransK(fEnGamma[2], fEbindeK, 9.3e-4, 0.);
     return;
@@ -1359,7 +1272,7 @@ void Decay0::Mo96low() {
   bool next778 = false, next1148 = false, next1498 = false, next1626 = false;
   float p;
 
-  if (fLevel == 9) { // 2713
+  if (fLevel == 9) {  // 2713
     nucltransK(fEnGamma[0], fEbindeK, 5.9e-1, 0.);
     fThlev = 0.208e-12;
     nucltransK(fEnGamma[1], fEbindeK, 1.3e-3, 0.);
@@ -1367,7 +1280,7 @@ void Decay0::Mo96low() {
     nucltransK(fEnGamma[2], fEbindeK, 1.1e-3, 0.);
     next778 = true;
   }
-  if (fLevel == 8) { // 2700
+  if (fLevel == 8) {  // 2700
     fThlev = 0.103e-12;
     p = 100. * GetRandom();
     if (p <= 3.04) {
@@ -1398,12 +1311,12 @@ void Decay0::Mo96low() {
       return;
     }
   }
-  if (fLevel == 7) { // 2623
+  if (fLevel == 7) {  // 2623
     fThlev = 0.6e-12;
     nucltransK(fEnGamma[11], fEbindeK, 2.2e-4, 2.3e-4);
     next778 = true;
   }
-  if (fLevel == 6) { // 2426
+  if (fLevel == 6) {  // 2426
     fThlev = 0.19e-12;
     p = 100. * GetRandom();
     if (p <= 2.50) {
@@ -1452,7 +1365,7 @@ void Decay0::Mo96low() {
       return;
     }
   }
-  if (fLevel == 5) { // 2096
+  if (fLevel == 5) {  // 2096
     fThlev = 0.097e-12;
     p = 100. * GetRandom();
     if (p <= 3.06) {
@@ -1466,7 +1379,7 @@ void Decay0::Mo96low() {
       return;
     }
   }
-  if (fLevel == 4 || next1626) { // 1626
+  if (fLevel == 4 || next1626) {  // 1626
     fThlev = 1.4e-12;
     p = 100. * GetRandom();
     if (p <= 8.47) {
@@ -1480,7 +1393,7 @@ void Decay0::Mo96low() {
       next1498 = true;
     }
   }
-  if (fLevel == 3 || next1498) { // 1498
+  if (fLevel == 3 || next1498) {  // 1498
     fThlev = 0.78e-12;
     p = 100. * GetRandom();
     if (p <= 29.73) {
@@ -1491,12 +1404,12 @@ void Decay0::Mo96low() {
       next778 = true;
     }
   }
-  if (fLevel == 2 || next1148) { // 1148
+  if (fLevel == 2 || next1148) {  // 1148
     fThlev = 61.e-12;
     nucltransK(fEnGamma[32], fEbindeK, 1.2e-2, 0.);
     next778 = true;
   }
-  if (fLevel == 1 || next778) { // 778
+  if (fLevel == 1 || next778) {  // 778
     fThlev = 3.67e-12;
     nucltransK(fEnGamma[33], fEbindeK, 1.4e-3, 0.);
     return;
@@ -1510,12 +1423,12 @@ void Decay0::Zr92low() {
   // levelE:[0,934,1383],
   bool next = false;
 
-  if (fLevel == 2) { // 1383
+  if (fLevel == 2) {  // 1383
     fThlev = 0.17e-9;
     nucltransK(fEnGamma[0], fEbindeK, 5.5e-3, 0.);
     next = true;
   }
-  if (fLevel == 1 || next) { // 934
+  if (fLevel == 1 || next) {  // 934
     fThlev = 5.0e-12;
     nucltransK(fEnGamma[1], fEbindeK, 8.0e-4, 0.);
     return;
@@ -1531,20 +1444,18 @@ void Decay0::Ru100low() {
   bool next540 = false, next1130 = false, next1362 = false;
   float ctet, stet1, stet2, ctet1, ctet2;
 
-  if (fLevel == 4) { // 1741
+  if (fLevel == 4) {  // 1741
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 0.05) {
-      particle(3, fEnGamma[0] - fEbindeK, fEnGamma[0] - fEbindeK, 0., pi, 0.,
-               twopi, fTclev, fThlev);
+      particle(3, fEnGamma[0] - fEbindeK, fEnGamma[0] - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
       particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
       return;
     } else if (p <= 59.00) {
       nucltransK(fEnGamma[1], fEbindeK, 6.2e-4, 0.1e-4);
       next540 = true;
     } else if (p <= 59.03) {
-      particle(3, fEnGamma[2] - fEbindeK, fEnGamma[2] - fEbindeK, 0., pi, 0.,
-               twopi, fTclev, fThlev);
+      particle(3, fEnGamma[2] - fEbindeK, fEnGamma[2] - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
       particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
       next1130 = true;
     } else {
@@ -1552,7 +1463,7 @@ void Decay0::Ru100low() {
       next1362 = true;
     }
   }
-  if (fLevel == 3 || next1362) { // 1362
+  if (fLevel == 3 || next1362) {  // 1362
     fThlev = 1.2e-12;
     p = 100. * GetRandom();
     if (p <= 43.) {
@@ -1563,12 +1474,11 @@ void Decay0::Ru100low() {
       next540 = true;
     }
   }
-  if (fLevel == 2 || next1130) { // 1130
+  if (fLevel == 2 || next1130) {  // 1130
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 0.02) {
-      particle(3, 1.130 - fEbindeK, 1.130 - fEbindeK, 0., pi, 0., twopi, fTclev,
-               fThlev);
+      particle(3, 1.130 - fEbindeK, 1.130 - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
       particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
       return;
     } else {
@@ -1581,14 +1491,13 @@ void Decay0::Ru100low() {
         particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
         npg591 = fNbPart;
       } else {
-        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi,
-                 fTclev, fThlev);
+        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
         particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
       }
     }
     next540 = true;
   }
-  if (fLevel == 1 || next540) { // 540
+  if (fLevel == 1 || next540) {  // 540
     // nucltransK(0.540,fEbindeK,4.4e-3,0.);
     fThlev = 11.e-12;
     fEgamma = fEnGamma[7];
@@ -1599,17 +1508,12 @@ void Decay0::Ru100low() {
       particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
       npg540 = fNbPart;
     } else {
-      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi,
-               fTclev, fThlev);
+      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
       particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
     }
     if (npg591 != 0 && npg540 != 0) {
-      float p591 =
-          sqrt(pow(fPmoment[0][npg591], 2) + pow(fPmoment[1][npg591], 2) +
-               pow(fPmoment[2][npg591], 2));
-      float p540 =
-          sqrt(pow(fPmoment[0][npg540], 2) + pow(fPmoment[1][npg540], 2) +
-               pow(fPmoment[2][npg540], 2));
+      float p591 = sqrt(pow(fPmoment[0][npg591], 2) + pow(fPmoment[1][npg591], 2) + pow(fPmoment[2][npg591], 2));
+      float p540 = sqrt(pow(fPmoment[0][npg540], 2) + pow(fPmoment[1][npg540], 2) + pow(fPmoment[2][npg540], 2));
       // Coefficients in formula 1+a2*ctet**2+a4*ctet**4 are from:
       // R.D.Evans, "The Atomic Nucleus", Krieger Publ. Comp.,
       // 1985, p.240, 0(2)2(2)0 cascade.
@@ -1624,8 +1528,7 @@ void Decay0::Ru100low() {
         ctet2 = 1. - 2. * GetRandom();
         stet2 = sqrt(1. - ctet2 * ctet2);
         ctet = ctet1 * ctet2 + stet1 * stet2 * cos(phi1 - phi2);
-      } while (GetRandom() * (1. + abs(a2) + abs(a4)) >
-               1. + a2 * pow(ctet, 2) + a4 * pow(ctet, 4));
+      } while (GetRandom() * (1. + abs(a2) + abs(a4)) > 1. + a2 * pow(ctet, 2) + a4 * pow(ctet, 4));
 
       fPmoment[0][npg591] = p591 * stet1 * cos(phi1);
       fPmoment[1][npg591] = p591 * stet1 * sin(phi1);
@@ -1645,7 +1548,7 @@ void Decay0::Pd106low() {
   bool next1128 = false, next1134 = false, next512 = false;
   float p;
 
-  if (fLevel == 5) { // 1706
+  if (fLevel == 5) {  // 1706
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 87.2) {
@@ -1656,7 +1559,7 @@ void Decay0::Pd106low() {
       next1128 = true;
     }
   }
-  if (fLevel == 4) { // 1562
+  if (fLevel == 4) {  // 1562
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 9.0) {
@@ -1673,7 +1576,7 @@ void Decay0::Pd106low() {
       next1134 = true;
     }
   }
-  if (fLevel == 3 || next1134) { // 1134
+  if (fLevel == 3 || next1134) {  // 1134
     fThlev = 6.8e-12;
     p = 100. * GetRandom();
     if (p <= 5.7e-2) {
@@ -1685,7 +1588,7 @@ void Decay0::Pd106low() {
       next512 = true;
     }
   }
-  if (fLevel == 2 || next1128) { // 1128
+  if (fLevel == 2 || next1128) {  // 1128
     fThlev = 3.12e-12;
     p = 100. * GetRandom();
     if (p <= 35.0) {
@@ -1696,7 +1599,7 @@ void Decay0::Pd106low() {
       next512 = true;
     }
   }
-  if (fLevel == 1 || next512) { // 512
+  if (fLevel == 1 || next512) {  // 512
     fThlev = 12.1e-12;
     nucltransK(fEnGamma[9], fEbindeK, 5.6e-3, 0.);
     return;
@@ -1711,7 +1614,7 @@ void Decay0::Sn116low() {
   float p;
   fThlev = 0.;
 
-  if (fLevel == 5) { // 2225
+  if (fLevel == 5) {  // 2225
     p = 100. * GetRandom();
     if (p <= 37.) {
       nucltransK(fEnGamma[0], fEbindeK, 2.7e-4, 3.4e-4);
@@ -1721,7 +1624,7 @@ void Decay0::Sn116low() {
       next1294 = true;
     }
   }
-  if (fLevel == 4) { // 2112
+  if (fLevel == 4) {  // 2112
     p = 100. * GetRandom();
     if (p <= 54.9) {
       nucltransK(fEnGamma[2], fEbindeK, 3.1e-4, 2.7e-4);
@@ -1734,15 +1637,14 @@ void Decay0::Sn116low() {
       next1757 = true;
     }
   }
-  if (fLevel == 3) { // 2027
+  if (fLevel == 3) {  // 2027
     nucltransK(fEnGamma[5], fEbindeK, 2.7e-3, 0.);
     next1294 = true;
   }
-  if (fLevel == 2 || next1757) { // 1757
+  if (fLevel == 2 || next1757) {  // 1757
     p = 100. * GetRandom();
     if (p <= 0.29) {
-      particle(3, 1.757 - fEbindeK, 1.757 - fEbindeK, 0., pi, 0., twopi, fTclev,
-               fThlev);
+      particle(3, 1.757 - fEbindeK, 1.757 - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
       particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
       return;
     } else {
@@ -1750,7 +1652,7 @@ void Decay0::Sn116low() {
       next1294 = true;
     }
   }
-  if (fLevel == 1 || next1294) { // 1294
+  if (fLevel == 1 || next1294) {  // 1294
     fThlev = 0.36e-12;
     nucltransK(fEnGamma[7], fEbindeK, 7.5e-4, 0.5e-4);
     return;
@@ -1764,7 +1666,7 @@ void Decay0::Cd112low() {
   float p;
   bool next618 = false, next1224 = false, next1312 = false, next1469 = false;
 
-  if (fLevel == 6) { // 1871
+  if (fLevel == 6) {  // 1871
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 86.91) {
@@ -1778,7 +1680,7 @@ void Decay0::Cd112low() {
       next1469 = true;
     }
   }
-  if (fLevel == 5 || next1469) { // 1469
+  if (fLevel == 5 || next1469) {  // 1469
     fThlev = 2.7e-12;
     p = 100. * GetRandom();
     if (p <= 36.98) {
@@ -1792,7 +1694,7 @@ void Decay0::Cd112low() {
       next1224 = true;
     }
   }
-  if (fLevel == 4) { // 1433
+  if (fLevel == 4) {  // 1433
     fThlev = 1.9e-9;
     p = 100. * GetRandom();
     if (p <= 0.66) {
@@ -1816,7 +1718,7 @@ void Decay0::Cd112low() {
       next1312 = true;
     }
   }
-  if (fLevel == 3 || next1312) { // 1312
+  if (fLevel == 3 || next1312) {  // 1312
     fThlev = 2.0e-12;
     p = 100. * GetRandom();
     if (p <= 26.59) {
@@ -1827,7 +1729,7 @@ void Decay0::Cd112low() {
       next618 = true;
     }
   }
-  if (fLevel == 2 || next1224) { // 1224
+  if (fLevel == 2 || next1224) {  // 1224
     fThlev = 4.2e-12;
     p = 100. * GetRandom();
     if (p <= 0.12) {
@@ -1844,7 +1746,7 @@ void Decay0::Cd112low() {
       next618 = true;
     }
   }
-  if (fLevel == 1 || next618) { // 618
+  if (fLevel == 1 || next618) {  // 618
     fThlev = 6.51e-12;
     nucltransK(fEnGamma[11], fEbindeK, 3.7e-3, 0.);
     return;
@@ -1858,7 +1760,7 @@ void Decay0::Te124low() {
   bool next603 = false, next1657 = false, next1326 = false;
   float p;
 
-  if (fLevel == 8) { // 2182
+  if (fLevel == 8) {  // 2182
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 9.53) {
@@ -1872,7 +1774,7 @@ void Decay0::Te124low() {
       next1326 = true;
     }
   }
-  if (fLevel == 7) { // 2153
+  if (fLevel == 7) {  // 2153
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 19.29) {
@@ -1883,7 +1785,7 @@ void Decay0::Te124low() {
       next1326 = true;
     }
   }
-  if (fLevel == 6) { // 2092
+  if (fLevel == 6) {  // 2092
     fThlev = 0.28e-12;
     p = 100. * GetRandom();
     if (p <= 97.97) {
@@ -1896,7 +1798,7 @@ void Decay0::Te124low() {
       next1326 = true;
     }
   }
-  if (fLevel == 5) { // 2039
+  if (fLevel == 5) {  // 2039
     fThlev = 0.49e-12;
     p = 100. * GetRandom();
     if (p <= 34.26) {
@@ -1915,7 +1817,7 @@ void Decay0::Te124low() {
       next1657 = true;
     }
   }
-  if (fLevel == 4) { // 1883
+  if (fLevel == 4) {  // 1883
     fThlev = 0.76e-12;
     p = 100. * GetRandom();
     if (p <= 0.31) {
@@ -1936,7 +1838,7 @@ void Decay0::Te124low() {
       next1657 = true;
     }
   }
-  if (fLevel == 3 || next1657) { // 1657
+  if (fLevel == 3 || next1657) {  // 1657
     fThlev = 0.55 - 12;
     p = 100. * GetRandom();
     if (p <= 0.02) {
@@ -1953,7 +1855,7 @@ void Decay0::Te124low() {
       next603 = true;
     }
   }
-  if (fLevel == 2 || next1326) { // 1326
+  if (fLevel == 2 || next1326) {  // 1326
     fThlev = 1.04e-12;
     p = 100. * GetRandom();
     if (p <= 13.84) {
@@ -1964,7 +1866,7 @@ void Decay0::Te124low() {
       next603 = true;
     }
   }
-  if (fLevel == 1 || next603) { // 603
+  if (fLevel == 1 || next603) {  // 603
     fThlev = 6.2e-12;
     nucltransK(fEnGamma[17], fEbindeK, 4.9e-3, 0.);
     return;
@@ -1978,7 +1880,7 @@ void Decay0::Xe130low() {
   float p;
   bool next536 = false, next1122 = false;
 
-  if (fLevel == 3) { // 1794
+  if (fLevel == 3) {  // 1794
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 1.0) {
@@ -1998,7 +1900,7 @@ void Decay0::Xe130low() {
       next1122 = true;
     }
   }
-  if (fLevel == 2 || next1122) { // 1122
+  if (fLevel == 2 || next1122) {  // 1122
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 13.3) {
@@ -2009,7 +1911,7 @@ void Decay0::Xe130low() {
       next536 = true;
     }
   }
-  if (fLevel == 1 || next536) { // 536
+  if (fLevel == 1 || next536) {  // 536
     fThlev = 7.0e-12;
     nucltransK(fEnGamma[4], fEbindeK, 7.4e-3, 0.);
     return;
@@ -2023,17 +1925,17 @@ void Decay0::Ba136low() {
   bool next819 = false, next1551 = false;
   float p;
 
-  if (fLevel == 9) { // 2400
+  if (fLevel == 9) {  // 2400
     fThlev = 0.;
     nucltransK(fEnGamma[0], fEbindeK, 1.0e-3, 1.1e-4);
     next819 = true;
   }
-  if (fLevel == 8) { // 2315
+  if (fLevel == 8) {  // 2315
     fThlev = 0.;
     nucltransK(fEnGamma[1], fEbindeK, 8.7e-4, 7.7e-5);
     next819 = true;
   }
-  if (fLevel == 7) { // 2223
+  if (fLevel == 7) {  // 2223
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 4.3) {
@@ -2047,12 +1949,12 @@ void Decay0::Ba136low() {
       next1551 = true;
     }
   }
-  if (fLevel == 6) { // 2141
+  if (fLevel == 6) {  // 2141
     fThlev = 0.;
     nucltransK(fEnGamma[5], fEbindeK, 1.0e-3, 2.6e-5);
     next819 = true;
   }
-  if (fLevel == 5) { // 2129
+  if (fLevel == 5) {  // 2129
     fThlev = 0.051e-12;
     p = 100. * GetRandom();
     if (p <= 33.3) {
@@ -2063,7 +1965,7 @@ void Decay0::Ba136low() {
       next819 = true;
     }
   }
-  if (fLevel == 4) { // 2080
+  if (fLevel == 4) {  // 2080
     fThlev = 0.6e-12;
     p = 100. * GetRandom();
     if (p <= 35.4) {
@@ -2077,12 +1979,12 @@ void Decay0::Ba136low() {
       next1551 = true;
     }
   }
-  if (fLevel == 3) { // 1579
+  if (fLevel == 3) {  // 1579
     fThlev = 0.;
     nucltransK(fEnGamma[11], fEbindeK, 3.4e-3, 0.);
     next819 = true;
   }
-  if (fLevel == 2 || next1551) { // 1551
+  if (fLevel == 2 || next1551) {  // 1551
     fThlev = 1.01e-12;
     p = 100. * GetRandom();
     if (p <= 52.1) {
@@ -2093,7 +1995,7 @@ void Decay0::Ba136low() {
       next819 = true;
     }
   }
-  if (fLevel == 1 || next819) { // 819
+  if (fLevel == 1 || next819) {  // 819
     fThlev = 1.93e-12;
     nucltransK(fEnGamma[14], fEbindeK, 2.9e-3, 0.);
     return;
@@ -2106,7 +2008,7 @@ void Decay0::Sm148low() {
   // levelE:[0,550,1455],
   bool next550 = false;
   float p;
-  if (fLevel == 2) { // 1455
+  if (fLevel == 2) {  // 1455
     fThlev = 0.6e-12;
     p = 100. * GetRandom();
     if (p <= 42.) {
@@ -2117,7 +2019,7 @@ void Decay0::Sm148low() {
       next550 = true;
     }
   }
-  if (fLevel == 1 || next550) { // 550
+  if (fLevel == 1 || next550) {  // 550
     fThlev = 7.3e-12;
     nucltransK(fEnGamma[2], fEbindeK, 9.0e-3, 0.);
     return;
@@ -2131,7 +2033,7 @@ void Decay0::Sm150low() {
   bool next334 = false, next740 = false, next1046 = false;
   float p;
 
-  if (fLevel == 5) { // 1256
+  if (fLevel == 5) {  // 1256
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 93.) {
@@ -2142,7 +2044,7 @@ void Decay0::Sm150low() {
       next1046 = true;
     }
   }
-  if (fLevel == 4) { // 1194
+  if (fLevel == 4) {  // 1194
     fThlev = 1.3e-12;
     p = 100. * GetRandom();
     if (p <= 55.9) {
@@ -2161,7 +2063,7 @@ void Decay0::Sm150low() {
       next334 = true;
     }
   }
-  if (fLevel == 3 || next1046) { // 1046
+  if (fLevel == 3 || next1046) {  // 1046
     fThlev = 0.7e-12;
     p = 100. * GetRandom();
     if (p <= 7.0) {
@@ -2180,12 +2082,11 @@ void Decay0::Sm150low() {
       next334 = true;
     }
   }
-  if (fLevel == 2 || next740) { // 740
+  if (fLevel == 2 || next740) {  // 740
     fThlev = 20.e-12;
     p = 100. * GetRandom();
     if (p <= 1.33) {
-      particle(3, 0.740 - fEbindeK, 0.740 - fEbindeK, 0., pi, 0., twopi, fTclev,
-               fThlev);
+      particle(3, 0.740 - fEbindeK, 0.740 - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
       particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
       return;
     } else {
@@ -2193,7 +2094,7 @@ void Decay0::Sm150low() {
       next334 = true;
     }
   }
-  if (fLevel == 1 || next334) { // 334
+  if (fLevel == 1 || next334) {  // 334
     fThlev = 48.5e-12;
     nucltransK(fEnGamma[12], fEbindeK, 3.7e-2, 0.);
     return;
@@ -2341,7 +2242,7 @@ void Decay0::Ac228() {
   float pbeta, p;
 
   pbeta = 100. * GetRandom();
-  if (pbeta <= fProbBeta[0]) { // 0.06%
+  if (pbeta <= fProbBeta[0]) {  // 0.06%
     beta(fEndPoint[0], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 39.6) {
@@ -2360,7 +2261,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[4], fEbindeK, 4.5e-2, 0.);
       next1638 = true;
     }
-  } else if (pbeta <= fProbBeta[1]) { // 0.023%
+  } else if (pbeta <= fProbBeta[1]) {  // 0.023%
     beta(fEndPoint[1], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 29.2) {
@@ -2379,7 +2280,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[9], fEbindeK, 2.3e-2, 0.);
       next1065 = true;
     }
-  } else if (pbeta <= fProbBeta[2]) { // 0.07%
+  } else if (pbeta <= fProbBeta[2]) {  // 0.07%
     beta(fEndPoint[2], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 31.8) {
@@ -2395,7 +2296,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[13], fEbindeK, 5.0e-2, 0.);
       next969 = true;
     }
-  } else if (pbeta <= fProbBeta[3]) { // 0.31%
+  } else if (pbeta <= fProbBeta[3]) {  // 0.31%
     beta(fEndPoint[3], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 42.5) {
@@ -2414,7 +2315,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[18], fEbindeK, 5.1e-3, 0.);
       next1039 = true;
     }
-  } else if (pbeta <= fProbBeta[4]) { // 0.05%
+  } else if (pbeta <= fProbBeta[4]) {  // 0.05%
     beta(fEndPoint[4], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 2.6) {
@@ -2430,7 +2331,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[22], fEbindeK, 0., 0.);
       next1143 = true;
     }
-  } else if (pbeta <= fProbBeta[5]) { // 0.06%
+  } else if (pbeta <= fProbBeta[5]) {  // 0.06%
     beta(fEndPoint[5], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 59.2) {
@@ -2443,7 +2344,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[25], fEbindeK, 1.8, 0.);
       next1702 = true;
     }
-  } else if (pbeta <= fProbBeta[6]) { // 0.07%
+  } else if (pbeta <= fProbBeta[6]) {  // 0.07%
     beta(fEndPoint[6], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 60.6) {
@@ -2459,7 +2360,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[29], fEbindeK, 2.4e-2, 0.);
       next965 = true;
     }
-  } else if (pbeta <= fProbBeta[7]) { // 0.11%
+  } else if (pbeta <= fProbBeta[7]) {  // 0.11%
     beta(fEndPoint[7], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 38.1) {
@@ -2475,7 +2376,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[33], fEbindeK, 5.9e-3, 0.);
       next1039 = true;
     }
-  } else if (pbeta <= fProbBeta[8]) { // 0.05%
+  } else if (pbeta <= fProbBeta[8]) {  // 0.05%
     beta(fEndPoint[8], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 24.3) {
@@ -2488,10 +2389,10 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[36], fEbindeK, 1.3e-2, 0.);
       next338 = true;
     }
-  } else if (pbeta <= fProbBeta[9]) { // 0.14%
+  } else if (pbeta <= fProbBeta[9]) {  // 0.14%
     beta(fEndPoint[9], 0., 0.);
     next1702 = true;
-  } else if (pbeta <= fProbBeta[10]) { // 0.06%
+  } else if (pbeta <= fProbBeta[10]) {  // 0.06%
     beta(fEndPoint[10], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 20.4) {
@@ -2504,7 +2405,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[39], fEbindeK, 6.0e-2, 0.);
       next1245 = true;
     }
-  } else if (pbeta <= fProbBeta[11]) { // 0.38%
+  } else if (pbeta <= fProbBeta[11]) {  // 0.38%
     beta(fEndPoint[11], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 29.3) {
@@ -2520,7 +2421,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[43], fEbindeK, 1.6e-2, 0.);
       next1286 = true;
     }
-  } else if (pbeta <= fProbBeta[12]) { // 0.15%
+  } else if (pbeta <= fProbBeta[12]) {  // 0.15%
     beta(fEndPoint[12], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 40.7) {
@@ -2536,7 +2437,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[47], fEbindeK, 0., 0.);
       next332 = true;
     }
-  } else if (pbeta <= fProbBeta[13]) { // 1.93%
+  } else if (pbeta <= fProbBeta[13]) {  // 1.93%
     beta(fEndPoint[13], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 10.) {
@@ -2555,7 +2456,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[52], fEbindeK, 1.2e-1, 0.);
       next1153 = true;
     }
-  } else if (pbeta <= fProbBeta[14]) { // 2.5%
+  } else if (pbeta <= fProbBeta[14]) {  // 2.5%
     beta(fEndPoint[14], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 61.) {
@@ -2571,7 +2472,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[56], fEbindeK, 0., 0.);
       next1588 = true;
     }
-  } else if (pbeta <= fProbBeta[15]) { // 0.20%        1st-forbidden
+  } else if (pbeta <= fProbBeta[15]) {  // 0.20%        1st-forbidden
     beta(fEndPoint[15], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 56.) {
@@ -2584,7 +2485,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[59], fEbindeK, 1.2e-1, 0.);
       next1039 = true;
     }
-  } else if (pbeta <= fProbBeta[16]) { // 1.21%
+  } else if (pbeta <= fProbBeta[16]) {  // 1.21%
     beta(fEndPoint[16], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 22.5) {
@@ -2597,10 +2498,10 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[62], fEbindeK, 5.9e-3, 0.);
       next965 = true;
     }
-  } else if (pbeta <= fProbBeta[17]) { // 4.12%
+  } else if (pbeta <= fProbBeta[17]) {  // 4.12%
     beta(fEndPoint[17], 0., 0.);
     next1588 = true;
-  } else if (pbeta <= fProbBeta[18]) { // 0.82%      1st-forbidden
+  } else if (pbeta <= fProbBeta[18]) {  // 0.82%      1st-forbidden
     beta(fEndPoint[18], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 71.1) {
@@ -2616,10 +2517,10 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[66], fEbindeK, 9.0e-2, 0.);
       next1065 = true;
     }
-  } else if (pbeta <= fProbBeta[19]) { // 1.23%
+  } else if (pbeta <= fProbBeta[19]) {  // 1.23%
     beta(fEndPoint[19], 0., 0.);
     next1638 = true;
-  } else if (pbeta <= fProbBeta[20]) { // 0.07%
+  } else if (pbeta <= fProbBeta[20]) {  // 0.07%
     beta(fEndPoint[20], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 31.5) {
@@ -2632,7 +2533,7 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[69], fEbindeK, 1.7e-2, 0.);
       next969 = true;
     }
-  } else if (pbeta <= fProbBeta[21]) { // 8.8%     1st-forbidden
+  } else if (pbeta <= fProbBeta[21]) {  // 8.8%     1st-forbidden
     // This decay populates the 228Th 1588 keV level producing 138 keV and 57
     // keV gammas, leading to a 536 keV beta energy. The reference used here
     // (http://www.nucleide.org/DDEP_WG/DDEPdata.htm) diverges from the NDS for
@@ -2648,14 +2549,13 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[70], fEbindeK, 6.0, 0.);
       next1451 = true;
     } else {
-      nucltransKLM(fEnGamma[71], fEbindeK, 0., fEbindeL, 2.6e+2, fEbindeM,
-                   7.0e+1, 0.);
+      nucltransKLM(fEnGamma[71], fEbindeK, 0., fEbindeL, 2.6e+2, fEbindeM, 7.0e+1, 0.);
       next562 = true;
     }
-  } else if (pbeta <= fProbBeta[22]) { // 1.6%
+  } else if (pbeta <= fProbBeta[22]) {  // 1.6%
     beta(fEndPoint[22], 0., 0.);
     next1245 = true;
-  } else if (pbeta <= fProbBeta[23]) { // 0.06%
+  } else if (pbeta <= fProbBeta[23]) {  // 0.06%
     beta(fEndPoint[23], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 10.9) {
@@ -2671,10 +2571,10 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[75], fEbindeK, 3.1e-1, 0.);
       next944 = true;
     }
-  } else if (pbeta <= fProbBeta[24]) { // 0.21%   1st-forbidden
+  } else if (pbeta <= fProbBeta[24]) {  // 0.21%   1st-forbidden
     beta(fEndPoint[24], 0., 0.);
     next1286 = true;
-  } else if (pbeta <= fProbBeta[25]) { // 1.46%   1st-forbidden unique
+  } else if (pbeta <= fProbBeta[25]) {  // 1.46%   1st-forbidden unique
     beta(fEndPoint[25], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 61.1) {
@@ -2684,22 +2584,22 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[77], fEbindeK, 9.0e-3, 0.);
       next338 = true;
     }
-  } else if (pbeta <= fProbBeta[26]) { // 0.67%   1st-forbidden
+  } else if (pbeta <= fProbBeta[26]) {  // 0.67%   1st-forbidden
     beta(fEndPoint[26], 0., 0.);
     next1039 = true;
-  } else if (pbeta <= fProbBeta[27]) { // 0.17%
+  } else if (pbeta <= fProbBeta[27]) {  // 0.17%
     beta(fEndPoint[27], 0., 0.);
     next1175 = true;
-  } else if (pbeta <= fProbBeta[28]) { // 3.39%    1st-forbidden
+  } else if (pbeta <= fProbBeta[28]) {  // 3.39%    1st-forbidden
     beta(fEndPoint[28], 0., 0.);
     next1110 = true;
-  } else if (pbeta <= fProbBeta[29]) { // 6%
+  } else if (pbeta <= fProbBeta[29]) {  // 6%
     beta(fEndPoint[29], 0., 0.);
     next1153 = true;
-  } else if (pbeta <= fProbBeta[30]) { // 6.67%     1st-forbidden
+  } else if (pbeta <= fProbBeta[30]) {  // 6.67%     1st-forbidden
     beta(fEndPoint[30], 0., 0.);
     next1065 = true;
-  } else if (pbeta <= fProbBeta[31]) { // 0.10%     1st-forbidden
+  } else if (pbeta <= fProbBeta[31]) {  // 0.10%     1st-forbidden
     beta(fEndPoint[31], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 35.3) {
@@ -2712,13 +2612,13 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[80], fEbindeK, 8.0e-2, 0.);
       next332 = true;
     }
-  } else if (pbeta <= fProbBeta[32]) { // 3%
+  } else if (pbeta <= fProbBeta[32]) {  // 3%
     beta(fEndPoint[32], 0., 0.);
     next965 = true;
-  } else if (pbeta <= fProbBeta[33]) { // 0.39%
+  } else if (pbeta <= fProbBeta[33]) {  // 0.39%
     beta(fEndPoint[33], 0., 0.);
     next1016 = true;
-  } else if (pbeta <= fProbBeta[34]) { // 0.24%
+  } else if (pbeta <= fProbBeta[34]) {  // 0.24%
     beta(fEndPoint[34], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 5.1) {
@@ -2734,10 +2634,10 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[84], fEbindeK, 7.6e-3, 0.);
       next338 = true;
     }
-  } else if (pbeta <= fProbBeta[35]) { // 31%
+  } else if (pbeta <= fProbBeta[35]) {  // 31%
     beta(fEndPoint[35], 0., 0.);
     next969 = true;
-  } else if (pbeta <= fProbBeta[36]) { // 0.18%   1st-forbidden
+  } else if (pbeta <= fProbBeta[36]) {  // 0.18%   1st-forbidden
     beta(fEndPoint[36], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 20.6) {
@@ -2750,25 +2650,25 @@ void Decay0::Ac228() {
       nucltransK(fEnGamma[87], fEbindeK, 3.3e-2, 0.);
       next332 = true;
     }
-  } else if (pbeta <= fProbBeta[37]) { // 0.09%
+  } else if (pbeta <= fProbBeta[37]) {  // 0.09%
     beta(fEndPoint[37], 0., 0.);
     next944 = true;
-  } else if (pbeta <= fProbBeta[38]) { // 0.17%
+  } else if (pbeta <= fProbBeta[38]) {  // 0.17%
     beta(fEndPoint[38], 0., 0.);
     next874 = true;
-  } else if (pbeta <= fProbBeta[39]) { // 12.4%   1st-forbidden
+  } else if (pbeta <= fProbBeta[39]) {  // 12.4%   1st-forbidden
     beta(fEndPoint[39], 0., 0.);
     next338 = true;
-  } else if (pbeta <= fProbBeta[40]) { // 0.15%    2nd-forbidden unique
+  } else if (pbeta <= fProbBeta[40]) {  // 0.15%    2nd-forbidden unique
     beta(fEndPoint[40], 0., 0.);
     next191 = true;
-  } else if (pbeta <= fProbBeta[41]) { // 0.72%    1st-forbidden unique
+  } else if (pbeta <= fProbBeta[41]) {  // 0.72%    1st-forbidden unique
     beta(fEndPoint[41], 0., 0.);
     next328 = true;
-  } else if (pbeta <= fProbBeta[42]) { // 0.6%
+  } else if (pbeta <= fProbBeta[42]) {  // 0.6%
     beta(fEndPoint[42], 0., 0.);
     next129 = true;
-  } else if (pbeta <= fProbBeta[43]) { // 6%
+  } else if (pbeta <= fProbBeta[43]) {  // 6%
     beta(fEndPoint[43], 0., 0.);
     next58 = true;
   }
@@ -3113,13 +3013,11 @@ void Decay0::Ac228() {
     }
   }
   if (next129) {
-    nucltransKLM(fEnGamma[170], fEbindeK, 2.6e-1, fEbindeL, 2.5, fEbindeM,
-                 7.0e-1, 0.);
+    nucltransKLM(fEnGamma[170], fEbindeK, 2.6e-1, fEbindeL, 2.5, fEbindeM, 7.0e-1, 0.);
     next58 = true;
   }
   if (next58) {
-    nucltransKLM(fEnGamma[171], fEbindeK, 0., fEbindeL, 1.1e+2, fEbindeM,
-                 3.1e+1, 0.);
+    nucltransKLM(fEnGamma[171], fEbindeK, 0., fEbindeL, 1.1e+2, fEbindeM, 3.1e+1, 0.);
     return;
   }
 }
@@ -3203,11 +3101,11 @@ void Decay0::As79() {
     fThlev = 235.2;
     p = 100 * GetRandom();
     if (p <= 99.944) {
-      nucltransK(fEnGamma[11], fEbindeK, 9.39, 0.); // IT to Se79 (gs)
+      nucltransK(fEnGamma[11], fEbindeK, 9.39, 0.);  // IT to Se79 (gs)
       return;
     } else {
       fZdtr = fDaughterZ[1];
-      beta(0.247, fTclev, fThlev); // beta to Br79 (gs)
+      beta(0.247, fTclev, fThlev);  // beta to Br79 (gs)
       return;
     }
   }
@@ -3277,8 +3175,7 @@ void Decay0::Be11() {
   } else if (pbeta <= fProbBeta[3]) {
     // beta- decay to 5.020 MeV stste of 11B
     // first order non-unique forbidden: 1/2+ -> 3/2-
-    beta1f(fEndPoint[3], 0., 0., fShCorrFactor[0], fShCorrFactor[1],
-           fShCorrFactor[2], fShCorrFactor[3]);
+    beta1f(fEndPoint[3], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
     p = 100.0 * GetRandom();
     if (p <= 85.3) {
       // de-excitation direct to GS (5.020 MeV)
@@ -3291,20 +3188,17 @@ void Decay0::Be11() {
   } else if (pbeta <= fProbBeta[4]) {
     // beta- decay to 4.445 MeV excited state and direct de-excitation to GS
     // first order unique forbidden: 1/2+ -> 5/2-
-    beta1fu(fEndPoint[4], 0.0, 0.0, fShCorrFactor[0], fShCorrFactor[1],
-            fShCorrFactor[2], fShCorrFactor[3]);
+    beta1fu(fEndPoint[4], 0.0, 0.0, fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
     nucltransK(fEnGamma[10], fEbindeK, 0.0, 0.0);
   } else if (pbeta <= fProbBeta[5]) {
     // beta- decay to 2.125 MeV excited state and direct de-excitation to GS
     // first order non-unique forbidden: 1/2+ -> 1/2-
-    beta1f(fEndPoint[5], 0.0, 0.0, fShCorrFactor[0], fShCorrFactor[1],
-           fShCorrFactor[2], fShCorrFactor[3]);
+    beta1f(fEndPoint[5], 0.0, 0.0, fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
     next2125 = true;
   } else {
     // beta- decay to GS
     // first order non-unique forbidden: 1/2+ -> 3/2-
-    beta1f(fEndPoint[6], 0.0, 0.0, fShCorrFactor[0], fShCorrFactor[1],
-           fShCorrFactor[2], fShCorrFactor[3]);
+    beta1f(fEndPoint[6], 0.0, 0.0, fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
   }
   if (next2125 == true) {
     nucltransK(fEnGamma[2], fEbindeK, 0.0, 0.0);
@@ -3365,16 +3259,13 @@ void Decay0::Bi207() {
       if (p <= cg)
         particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
       else if (p <= cg + cK) {
-        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi,
-                 fTclev, fThlev);
+        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
         PbAtShell(88);
       } else if (p <= cg + cK + cL) {
-        particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi,
-                 fTclev, fThlev);
+        particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi, fTclev, fThlev);
         PbAtShell(15);
       } else if (p <= cg + cK + cL + cM) {
-        particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., pi, 0., twopi,
-                 fTclev, fThlev);
+        particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., pi, 0., twopi, fTclev, fThlev);
         PbAtShell(3);
       } else
         pair(fEgamma - 1.022);
@@ -3396,18 +3287,15 @@ void Decay0::Bi207() {
       particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
       npg1064 = fNbPart;
     } else if (p <= cg + cK) {
-      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi,
-               fTclev, fThlev);
+      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
       npe1064 = fNbPart;
       PbAtShell(88);
     } else if (p <= cg + cK + cL) {
-      particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi,
-               fTclev, fThlev);
+      particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi, fTclev, fThlev);
       npe1064 = fNbPart;
       PbAtShell(15);
     } else {
-      particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., pi, 0., twopi,
-               fTclev, fThlev);
+      particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., pi, 0., twopi, fTclev, fThlev);
       npe1064 = fNbPart;
       PbAtShell(3);
     }
@@ -3435,12 +3323,10 @@ void Decay0::Bi207() {
       if (p <= cg)
         particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
       else if (p <= cg + cK) {
-        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi,
-                 fTclev, fThlev);
+        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
         PbAtShell(88);
       } else {
-        particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi,
-                 fTclev, fThlev);
+        particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi, fTclev, fThlev);
         PbAtShell(15);
       }
       return;
@@ -3453,16 +3339,13 @@ void Decay0::Bi207() {
       if (p <= cg)
         particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
       else if (p <= cg + cK) {
-        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi,
-                 fTclev, fThlev);
+        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
         PbAtShell(88);
       } else if (p <= cg + cK + cL) {
-        particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi,
-                 fTclev, fThlev);
+        particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi, fTclev, fThlev);
         PbAtShell(15);
       } else {
-        particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., pi, 0., twopi,
-                 fTclev, fThlev);
+        particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., pi, 0., twopi, fTclev, fThlev);
         PbAtShell(3);
       }
       next57 = true;
@@ -3479,18 +3362,15 @@ void Decay0::Bi207() {
       particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
       npg570 = fNbPart;
     } else if (p <= cg + cK) {
-      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi,
-               fTclev, fThlev);
+      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
       npe570 = fNbPart;
       PbAtShell(88);
     } else if (p <= cg + cK + cL) {
-      particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi,
-               fTclev, fThlev);
+      particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi, fTclev, fThlev);
       npe570 = fNbPart;
       PbAtShell(15);
     } else {
-      particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., pi, 0., twopi,
-               fTclev, fThlev);
+      particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., pi, 0., twopi, fTclev, fThlev);
       npe570 = fNbPart;
       PbAtShell(3);
     }
@@ -3520,10 +3400,8 @@ void Decay0::Bi207() {
   float phi1, phi2;
   float p2, p4;
   float ctet, stet1, stet2, ctet1, ctet2;
-  float p1064 = sqrt(pow(fPmoment[0][np1064], 2) + pow(fPmoment[1][np1064], 2) +
-                     pow(fPmoment[2][np1064], 2));
-  float p570 = sqrt(pow(fPmoment[0][np570], 2) + pow(fPmoment[1][np570], 2) +
-                    pow(fPmoment[2][np570], 2));
+  float p1064 = sqrt(pow(fPmoment[0][np1064], 2) + pow(fPmoment[1][np1064], 2) + pow(fPmoment[2][np1064], 2));
+  float p570 = sqrt(pow(fPmoment[0][np570], 2) + pow(fPmoment[1][np570], 2) + pow(fPmoment[2][np570], 2));
   do {
     phi1 = twopi * GetRandom();
     ctet1 = 1. - 2. * GetRandom();
@@ -3566,8 +3444,7 @@ void Decay0::Bi210() {
       return;
     }
   } else
-    beta1f(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1],
-           fShCorrFactor[2], fShCorrFactor[3]);
+    beta1f(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
 }
 ///^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 void Decay0::Bi212() {
@@ -3578,9 +3455,9 @@ void Decay0::Bi212() {
   float pdecay, p, palfa, pbeta;
 
   pdecay = 100 * GetRandom();
-  if (pdecay <= fProbDecay[0]) { // 36% alfa to 208Tl
+  if (pdecay <= fProbDecay[0]) {  // 36% alfa to 208Tl
     palfa = 100. * GetRandom();
-    if (palfa <= fProbAlpha[0]) { // 1.10%
+    if (palfa <= fProbAlpha[0]) {  // 1.10%
       particle(47, fEnAlpha[0], fEnAlpha[0], 0., pi, 0., twopi, 0, 0);
       p = 100. * GetRandom();
       if (p <= 5.) {
@@ -3593,7 +3470,7 @@ void Decay0::Bi212() {
         nucltransK(fEnGamma[2], fEbindeK, 0.75, 0.);
         next328 = true;
       }
-    } else if (palfa <= fProbAlpha[1]) { // 0.15%
+    } else if (palfa <= fProbAlpha[1]) {  // 0.15%
       particle(47, fEnAlpha[1], fEnAlpha[1], 0., pi, 0., twopi, 0, 0);
       p = 100. * GetRandom();
       if (p <= 68.) {
@@ -3606,13 +3483,13 @@ void Decay0::Bi212() {
         nucltransK(fEnGamma[5], fEbindeK, 2.8, 0.);
         next328 = true;
       }
-    } else if (palfa <= fProbAlpha[2]) { // 1.67%
+    } else if (palfa <= fProbAlpha[2]) {  // 1.67%
       particle(47, fEnAlpha[2], fEnAlpha[2], 0., pi, 0., twopi, 0, 0);
       next328 = true;
-    } else if (palfa <= fProbAlpha[3]) { // 69.88%
+    } else if (palfa <= fProbAlpha[3]) {  // 69.88%
       particle(47, fEnAlpha[3], fEnAlpha[3], 0., pi, 0., twopi, 0, 0);
       next400 = true;
-    } else { // 27.20%
+    } else {  // 27.20%
       particle(47, fEnAlpha[4], fEnAlpha[4], 0., pi, 0., twopi, 0, 0);
       return;
     }
@@ -3632,9 +3509,9 @@ void Decay0::Bi212() {
       nucltransK(fEnGamma[8], 0.015, 22.55, 0.);
       return;
     }
-  } else { // 64% beta to 212Po
+  } else {  // 64% beta to 212Po
     pbeta = 64. * GetRandom();
-    if (pbeta <= fProbBeta[0]) { // 0.660%
+    if (pbeta <= fProbBeta[0]) {  // 0.660%
       beta(fEndPoint[0], 0., 0.);
       p = 100 * GetRandom();
       if (p <= 17.) {
@@ -3644,7 +3521,7 @@ void Decay0::Bi212() {
         nucltransK(fEnGamma[10], fEbindeK2, 2.0e-2, 0.);
         next727 = true;
       }
-    } else if (pbeta <= fProbBeta[1]) { // 0.027%
+    } else if (pbeta <= fProbBeta[1]) {  // 0.027%
       beta(fEndPoint[1], 0., 0.);
       p = 100 * GetRandom();
       if (p <= 35.) {
@@ -3655,7 +3532,7 @@ void Decay0::Bi212() {
         nucltransK(fEnGamma[11], fEbindeK2, 7.0e-3, 0.);
         next727 = true;
       }
-    } else if (pbeta <= fProbBeta[2]) { // 0.250%
+    } else if (pbeta <= fProbBeta[2]) {  // 0.250%
       beta(fEndPoint[2], 0., 0.);
       p = 100 * GetRandom();
       if (p <= 28.) {
@@ -3665,7 +3542,7 @@ void Decay0::Bi212() {
         nucltransK(fEnGamma[13], fEbindeK2, 4.5e-2, 0.);
         next727 = true;
       }
-    } else if (pbeta <= fProbBeta[3]) { // 1.900%
+    } else if (pbeta <= fProbBeta[3]) {  // 1.900%
       beta(fEndPoint[3], 0., 0.);
       p = 100 * GetRandom();
       if (p <= 80.) {
@@ -3675,7 +3552,7 @@ void Decay0::Bi212() {
         nucltransK(fEnGamma[15], fEbindeK2, 4.5e-2, 0.);
         next727 = true;
       }
-    } else if (pbeta <= fProbBeta[4]) { // 1.500%
+    } else if (pbeta <= fProbBeta[4]) {  // 1.500%
       beta(fEndPoint[4], 0., 0.);
       p = 100 * GetRandom();
       if (p <= 22.) {
@@ -3685,10 +3562,10 @@ void Decay0::Bi212() {
         nucltransK(fEnGamma[17], fEbindeK2, 4.1e-2, 0.);
         next727 = true;
       }
-    } else if (pbeta <= fProbBeta[5]) { // 4.400%
+    } else if (pbeta <= fProbBeta[5]) {  // 4.400%
       beta(fEndPoint[5], 0., 0.);
       next727 = true;
-    } else { // 55.263%
+    } else {  // 55.263%
       beta(fEndPoint[6], 0., 0.);
       return;
     }
@@ -3716,16 +3593,16 @@ void Decay0::Bi214() {
   float p, pdecay, palfa;
 
   pdecay = 100. * GetRandom();
-  if (pdecay <= fProbDecay[0]) { // 0.021% alfa to 210Tl
+  if (pdecay <= fProbDecay[0]) {  // 0.021% alfa to 210Tl
     palfa = 100. * GetRandom();
-    if (palfa <= fProbAlpha[0]) { // 5.86%
+    if (palfa <= fProbAlpha[0]) {  // 5.86%
       particle(47, fEnAlpha[0], fEnAlpha[0], 0., pi, 0., twopi, 0, 0);
       nucltransK(fEnGamma[0], fEbindeK, 1.3, 0.);
       next630 = true;
-    } else if (palfa <= fProbAlpha[1]) { // 54.50%
+    } else if (palfa <= fProbAlpha[1]) {  // 54.50%
       particle(47, fEnAlpha[1], fEnAlpha[1], 0., pi, 0., twopi, 0, 0);
       next630 = true;
-    } else { // 39.64%
+    } else {  // 39.64%
       particle(47, fEnAlpha[2], fEnAlpha[2], 0., pi, 0., twopi, 0, 0);
       return;
     }
@@ -3733,13 +3610,13 @@ void Decay0::Bi214() {
       nucltransK(fEnGamma[1], 0.015, 6.48, 0.);
       return;
     }
-  } else { // 99.979% beta to 214Po
+  } else {  // 99.979% beta to 214Po
     float pbeta = 100. * GetRandom();
     if (pbeta <= fProbBeta[0]) {
       beta(fEndPoint[0], 0., 0.);
       nucltransK(fEnGamma[2], fEbindeK2, 4.0e-4, 8.0e-4);
       return;
-    } else if (pbeta <= fProbBeta[1]) { // 0.001%
+    } else if (pbeta <= fProbBeta[1]) {  // 0.001%
       beta(fEndPoint[1], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 41.) {
@@ -3749,15 +3626,15 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[4], fEbindeK2, 6.0e-4, 4.6e-4);
         next609 = true;
       }
-    } else if (pbeta <= fProbBeta[2]) { // 0.001%
+    } else if (pbeta <= fProbBeta[2]) {  // 0.001%
       beta(fEndPoint[2], 0., 0.);
       nucltransK(fEnGamma[5], fEbindeK2, 4.0e-4, 8.0e-4);
       return;
-    } else if (pbeta <= fProbBeta[3]) { // 0.005%
+    } else if (pbeta <= fProbBeta[3]) {  // 0.005%
       beta(fEndPoint[3], 0., 0.);
       nucltransK(fEnGamma[6], fEbindeK2, 4.2e-4, 8.0e-4);
       return;
-    } else if (pbeta <= fProbBeta[4]) { // 0.004%
+    } else if (pbeta <= fProbBeta[4]) {  // 0.004%
       beta(fEndPoint[4], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 60.0) {
@@ -3770,7 +3647,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[9], fEbindeK2, 3.5e-3, 0.5e-4);
         next1415 = true;
       }
-    } else if (pbeta <= fProbBeta[5]) { // 0.005%
+    } else if (pbeta <= fProbBeta[5]) {  // 0.005%
       beta(fEndPoint[5], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 0.9) {
@@ -3789,11 +3666,11 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[14], fEbindeK2, 1.2e-2, 0.5e-4);
         next1730 = true;
       }
-    } else if (pbeta <= fProbBeta[6]) { // 0.007%
+    } else if (pbeta <= fProbBeta[6]) {  // 0.007%
       beta(fEndPoint[6], 0., 0.);
       nucltransK(fEnGamma[15], fEbindeK2, 1.8e-2, 3.0e-6);
       next1847 = true;
-    } else if (pbeta <= fProbBeta[7]) { // 0.010%
+    } else if (pbeta <= fProbBeta[7]) {  // 0.010%
       beta(fEndPoint[7], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 84.6) {
@@ -3803,7 +3680,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[17], fEbindeK2, 2.8e-3, 4.0e-4);
         next609 = true;
       }
-    } else if (pbeta <= fProbBeta[8]) { // 0.009%
+    } else if (pbeta <= fProbBeta[8]) {  // 0.009%
       beta(fEndPoint[8], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 83.0) {
@@ -3813,7 +3690,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[19], fEbindeK2, 6.0e-3, 1.3e-4);
         next1275 = true;
       }
-    } else if (pbeta <= fProbBeta[9]) { // 0.017%
+    } else if (pbeta <= fProbBeta[9]) {  // 0.017%
       beta(fEndPoint[9], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 83.6) {
@@ -3823,7 +3700,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[21], fEbindeK2, 2.8e-3, 4.0e-4);
         next609 = true;
       }
-    } else if (pbeta <= fProbBeta[10]) { // 0.042%
+    } else if (pbeta <= fProbBeta[10]) {  // 0.042%
       beta(fEndPoint[10], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 52.1) {
@@ -3836,7 +3713,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[24], fEbindeK2, 1.2e-2, 1.5e-5);
         next1661 = true;
       }
-    } else if (pbeta <= fProbBeta[11]) { // 0.002%
+    } else if (pbeta <= fProbBeta[11]) {  // 0.002%
       beta(fEndPoint[11], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 21.3) {
@@ -3846,7 +3723,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[26], fEbindeK2, 3.0e-3, 3.7e-4);
         next609 = true;
       }
-    } else if (pbeta <= fProbBeta[12]) { // 0.001%
+    } else if (pbeta <= fProbBeta[12]) {  // 0.001%
       beta(fEndPoint[12], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 73.3) {
@@ -3856,7 +3733,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[28], fEbindeK2, 3.0e-3, 3.7e-4);
         next609 = true;
       }
-    } else if (pbeta <= fProbBeta[13]) { // 0.023%
+    } else if (pbeta <= fProbBeta[13]) {  // 0.023%
       beta(fEndPoint[13], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 60.9) {
@@ -3866,15 +3743,15 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[30], fEbindeK2, 3.0e-3, 3.7e-4);
         next609 = true;
       }
-    } else if (pbeta <= fProbBeta[14]) { // 0.001%
+    } else if (pbeta <= fProbBeta[14]) {  // 0.001%
       beta(fEndPoint[14], 0., 0.);
       nucltransK(fEnGamma[31], fEbindeK2, 3.0e-3, 3.7e-4);
       next609 = true;
-    } else if (pbeta <= fProbBeta[15]) { // 0.005%
+    } else if (pbeta <= fProbBeta[15]) {  // 0.005%
       beta(fEndPoint[15], 0., 0.);
       nucltransK(fEnGamma[32], fEbindeK2, 3.0e-3, 3.6e-4);
       next609 = true;
-    } else if (pbeta <= fProbBeta[16]) { // 0.011%
+    } else if (pbeta <= fProbBeta[16]) {  // 0.011%
       beta(fEndPoint[16], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 26.1) {
@@ -3890,7 +3767,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[36], fEbindeK2, 7.5e-2, 0.);
         next2266 = true;
       }
-    } else if (pbeta <= fProbBeta[17]) { // 0.011%
+    } else if (pbeta <= fProbBeta[17]) {  // 0.011%
       beta(fEndPoint[17], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 87.6) {
@@ -3900,7 +3777,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[38], fEbindeK2, 3.0e-3, 3.5e-4);
         next609 = true;
       }
-    } else if (pbeta <= fProbBeta[18]) { // 0.014%
+    } else if (pbeta <= fProbBeta[18]) {  // 0.014%
       beta(fEndPoint[18], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 63.5) {
@@ -3910,7 +3787,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[40], fEbindeK2, 8.0e-3, 9.1e-5);
         next1275 = true;
       }
-    } else if (pbeta <= fProbBeta[19]) { // 0.014%
+    } else if (pbeta <= fProbBeta[19]) {  // 0.014%
       beta(fEndPoint[19], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 2.7) {
@@ -3923,11 +3800,11 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[43], fEbindeK2, 2.2e-2, 0.);
         next1847 = true;
       }
-    } else if (pbeta <= fProbBeta[20]) { // 0.002%
+    } else if (pbeta <= fProbBeta[20]) {  // 0.002%
       beta(fEndPoint[20], 0., 0.);
       nucltransK(fEnGamma[44], fEbindeK2, 1.8e-3, 5.8e-4);
       return;
-    } else if (pbeta <= fProbBeta[21]) { // 0.036%
+    } else if (pbeta <= fProbBeta[21]) {  // 0.036%
       beta(fEndPoint[21], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 15.4) {
@@ -3943,7 +3820,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[48], fEbindeK2, 1.4e-2, 0.);
         next1847 = true;
       }
-    } else if (pbeta <= fProbBeta[22]) { // 0.036%
+    } else if (pbeta <= fProbBeta[22]) {  // 0.036%
       beta(fEndPoint[22], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 54.6) {
@@ -3956,7 +3833,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[51], fEbindeK2, 1.0e-2, 3.6e-5);
         next1378 = true;
       }
-    } else if (pbeta <= fProbBeta[23]) { // 0.561%
+    } else if (pbeta <= fProbBeta[23]) {  // 0.561%
       beta(fEndPoint[23], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 1.2) {
@@ -3981,7 +3858,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[58], fEbindeK2, 3.3e-1, 0.);
         next2448 = true;
       }
-    } else if (pbeta <= fProbBeta[24]) { // 0.278%
+    } else if (pbeta <= fProbBeta[24]) {  // 0.278%
       beta(fEndPoint[24], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 0.7) {
@@ -4006,7 +3883,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[65], fEbindeK2, 9.0e-2, 0.);
         next2119 = true;
       }
-    } else if (pbeta <= fProbBeta[25]) { // 0.054%
+    } else if (pbeta <= fProbBeta[25]) {  // 0.054%
       beta(fEndPoint[25], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 5.3) {
@@ -4016,7 +3893,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[67], fEbindeK2, 4.0e-3, 2.8e-4);
         next609 = true;
       }
-    } else if (pbeta <= fProbBeta[26]) { // 0.053%
+    } else if (pbeta <= fProbBeta[26]) {  // 0.053%
       beta(fEndPoint[26], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 29.5) {
@@ -4035,7 +3912,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[72], fEbindeK2, 7.0e-2, 0.);
         next2204 = true;
       }
-    } else if (pbeta <= fProbBeta[27]) { // 0.263%
+    } else if (pbeta <= fProbBeta[27]) {  // 0.263%
       beta(fEndPoint[27], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 11.9) {
@@ -4072,7 +3949,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[83], fEbindeK2, 8.0e-2, 0.);
         next2209 = true;
       }
-    } else if (pbeta <= fProbBeta[28]) { // 0.127%
+    } else if (pbeta <= fProbBeta[28]) {  // 0.127%
       beta(fEndPoint[28], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 0.2) {
@@ -4091,7 +3968,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[88], fEbindeK2, 2.8e-2, 0.);
         next1713 = true;
       }
-    } else if (pbeta <= fProbBeta[29]) { // 0.021%
+    } else if (pbeta <= fProbBeta[29]) {  // 0.021%
       beta(fEndPoint[29], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 3.8) {
@@ -4101,7 +3978,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[90], fEbindeK2, 4.0e-3, 2.5e-4);
         next609 = true;
       }
-    } else if (pbeta <= fProbBeta[30]) { // 0.084%
+    } else if (pbeta <= fProbBeta[30]) {  // 0.084%
       beta(fEndPoint[30], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 0.5) {
@@ -4123,7 +4000,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[96], fEbindeK2, 1.3e-1, 0.);
         next2209 = true;
       }
-    } else if (pbeta <= fProbBeta[31]) { // 0.053%
+    } else if (pbeta <= fProbBeta[31]) {  // 0.053%
       beta(fEndPoint[31], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 77.4) {
@@ -4133,7 +4010,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[98], fEbindeK2, 1.6e-2, 3.6e-6);
         next1378 = true;
       }
-    } else if (pbeta <= fProbBeta[32]) { // 0.140%
+    } else if (pbeta <= fProbBeta[32]) {  // 0.140%
       beta(fEndPoint[32], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 49.8) {
@@ -4149,7 +4026,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[102], fEbindeK2, 7.0e-2, 0.);
         next2011 = true;
       }
-    } else if (pbeta <= fProbBeta[33]) { // 0.193%
+    } else if (pbeta <= fProbBeta[33]) {  // 0.193%
       beta(fEndPoint[33], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 3.0) {
@@ -4165,7 +4042,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[106], fEbindeK2, 2.6e-2, 0.);
         next1543 = true;
       }
-    } else if (pbeta <= fProbBeta[34]) { // 1.332%
+    } else if (pbeta <= fProbBeta[34]) {  // 1.332%
       beta(fEndPoint[34], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 0.1) {
@@ -4175,30 +4052,25 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[108], fEbindeK2, 5.0e-3, 1.9e-4);
         next609 = true;
       } else if (p <= 51.0) {
-        nucltransKLM(fEnGamma[109], fEbindeK2, 1.6e-3, fEbindeL2, 2.5e-4,
-                     fEbindeM2, 8.0e-5, 6.4e-5);
+        nucltransKLM(fEnGamma[109], fEbindeK2, 1.6e-3, fEbindeL2, 2.5e-4, fEbindeM2, 8.0e-5, 6.4e-5);
         next1275 = true;
       } else if (p <= 56.9) {
         nucltransK(fEnGamma[110], fEbindeK2, 1.0e-2, 7.8e-7);
         next1378 = true;
       } else if (p <= 58.3) {
-        nucltransKLM(fEnGamma[111], fEbindeK2, 1.4e-2, fEbindeL2, 2.5e-3,
-                     fEbindeM2, 5.0e-4, 0.);
+        nucltransKLM(fEnGamma[111], fEbindeK2, 1.4e-2, fEbindeL2, 2.5e-3, fEbindeM2, 5.0e-4, 0.);
         next1543 = true;
       } else if (p <= 70.7) {
         nucltransK(fEnGamma[112], fEbindeK2, 3.7e-2, 0.);
         next1661 = true;
       } else if (p <= 80.9) {
-        nucltransKLM(fEnGamma[113], fEbindeK2, 2.4e-2, fEbindeL2, 4.4e-3,
-                     fEbindeM2, 6.0e-4, 0.);
+        nucltransKLM(fEnGamma[113], fEbindeK2, 2.4e-2, fEbindeL2, 4.4e-3, fEbindeM2, 6.0e-4, 0.);
         next1730 = true;
       } else if (p <= 81.4) {
-        nucltransKLM(fEnGamma[114], fEbindeK2, 3.6e-2, fEbindeL2, 7.0e-3,
-                     fEbindeM2, 7.0e-3, 0.);
+        nucltransKLM(fEnGamma[114], fEbindeK2, 3.6e-2, fEbindeL2, 7.0e-3, fEbindeM2, 7.0e-3, 0.);
         next1847 = true;
       } else if (p <= 83.5) {
-        nucltransKLM(fEnGamma[115], fEbindeK2, 8.9e-3, fEbindeL2, 1.5e-3,
-                     fEbindeM2, 4.5e-4, 0.);
+        nucltransKLM(fEnGamma[115], fEbindeK2, 8.9e-3, fEbindeL2, 1.5e-3, fEbindeM2, 4.5e-4, 0.);
         next1995 = true;
       } else if (p <= 84.8) {
         nucltransK(fEnGamma[116], fEbindeK2, 1.3e-1, 0.);
@@ -4207,10 +4079,10 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[117], fEbindeK2, 3.6e-1, 0.);
         next2209 = true;
       }
-    } else if (pbeta <= fProbBeta[35]) { // 2.815%
+    } else if (pbeta <= fProbBeta[35]) {  // 2.815%
       beta(fEndPoint[35], 0., 0.);
       next2448 = true;
-    } else if (pbeta <= fProbBeta[36]) { // 0.080%
+    } else if (pbeta <= fProbBeta[36]) {  // 0.080%
       beta(fEndPoint[36], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 7.2) {
@@ -4229,7 +4101,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[122], fEbindeK2, 3.5e-2, 0.);
         next1764 = true;
       }
-    } else if (pbeta <= fProbBeta[37]) { // 0.560%
+    } else if (pbeta <= fProbBeta[37]) {  // 0.560%
       beta(fEndPoint[37], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 54.6) {
@@ -4245,13 +4117,13 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[126], fEbindeK2, 2.0e-2, 0.);
         next1415 = true;
       }
-    } else if (pbeta <= fProbBeta[38]) { // 0.201%
+    } else if (pbeta <= fProbBeta[38]) {  // 0.201%
       beta(fEndPoint[38], 0., 0.);
       next2266 = true;
-    } else if (pbeta <= fProbBeta[39]) { // 5.729%
+    } else if (pbeta <= fProbBeta[39]) {  // 5.729%
       beta(fEndPoint[39], 0., 0.);
       next2204 = true;
-    } else if (pbeta <= fProbBeta[40]) { // 0.833%
+    } else if (pbeta <= fProbBeta[40]) {  // 0.833%
       beta(fEndPoint[40], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 4.1) {
@@ -4261,19 +4133,16 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[128], fEbindeK2, 5.4e-3, 8.7e-5);
         next609 = true;
       } else if (p <= 87.8) {
-        nucltransKLM(fEnGamma[129], fEbindeK2, 2.6e-3, fEbindeL2, 4.1e-4,
-                     fEbindeM2, 1.4e-4, 0.);
+        nucltransKLM(fEnGamma[129], fEbindeK2, 2.6e-3, fEbindeL2, 4.1e-4, fEbindeM2, 1.4e-4, 0.);
         next1275 = true;
       } else if (p <= 92.5) {
-        nucltransKLM(fEnGamma[130], fEbindeK2, 1.9e-2, fEbindeL2, 3.6e-3,
-                     fEbindeM2, 1.4e-3, 0.);
+        nucltransKLM(fEnGamma[130], fEbindeK2, 1.9e-2, fEbindeL2, 3.6e-3, fEbindeM2, 1.4e-3, 0.);
         next1378 = true;
       } else {
-        nucltransKLM(fEnGamma[131], fEbindeK2, 3.4e-2, fEbindeL2, 6.0e-3,
-                     fEbindeM2, 3.0e-3, 0.);
+        nucltransKLM(fEnGamma[131], fEbindeK2, 3.4e-2, fEbindeL2, 6.0e-3, fEbindeM2, 3.0e-3, 0.);
         next1543 = true;
       }
-    } else if (pbeta <= fProbBeta[41]) { // 0.421%
+    } else if (pbeta <= fProbBeta[41]) {  // 0.421%
       beta(fEndPoint[41], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 3.2) {
@@ -4289,67 +4158,65 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[135], fEbindeK2, 4.5e-2, 0.);
         next1378 = true;
       }
-    } else if (pbeta <= fProbBeta[42]) { // 4.267%
+    } else if (pbeta <= fProbBeta[42]) {  // 4.267%
       beta(fEndPoint[42], 0., 0.);
       next2119 = true;
-    } else if (pbeta <= fProbBeta[43]) { // 0.096%
+    } else if (pbeta <= fProbBeta[43]) {  // 0.096%
       beta(fEndPoint[43], 0., 0.);
       next2088 = true;
-    } else if (pbeta <= fProbBeta[44]) { // 2.204%
+    } else if (pbeta <= fProbBeta[44]) {  // 2.204%
       beta(fEndPoint[44], 0., 0.);
       next2017 = true;
-    } else if (pbeta <= fProbBeta[45]) { // 1.372%
+    } else if (pbeta <= fProbBeta[45]) {  // 1.372%
       beta(fEndPoint[45], 0., 0.);
       next2011 = true;
-    } else if (pbeta <= fProbBeta[46]) { // 1.142%
+    } else if (pbeta <= fProbBeta[46]) {  // 1.142%
       beta(fEndPoint[46], 0., 0.);
       next1995 = true;
-    } else if (pbeta <= fProbBeta[47]) { // 1.593%
+    } else if (pbeta <= fProbBeta[47]) {  // 1.593%
       beta(fEndPoint[47], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 5.0) {
         nucltransK(fEnGamma[136], fEbindeK2, 2.8e-3, 2.6e-4);
         return;
       } else if (p <= 96.2) {
-        nucltransKLM(fEnGamma[137], fEbindeK2, 9.5e-3, fEbindeL2, 1.6e-3,
-                     fEbindeM2, 5.5e-4, 1.6e-5);
+        nucltransKLM(fEnGamma[137], fEbindeK2, 9.5e-3, fEbindeL2, 1.6e-3, fEbindeM2, 5.5e-4, 1.6e-5);
         next609 = true;
       } else {
-        nucltransKLM(fEnGamma[138], fEbindeK2, 5.6e-3, fEbindeL2, 9.0e-4,
-                     fEbindeM2, 3.0e-4, 0.);
+        nucltransKLM(fEnGamma[138], fEbindeK2, 5.6e-3, fEbindeL2, 9.0e-4, fEbindeM2, 3.0e-4, 0.);
         next1275 = true;
       }
-    } else if (pbeta <= fProbBeta[48]) { // 8.193%
+    } else if (pbeta <= fProbBeta[48]) {  // 8.193%
       beta(fEndPoint[48], 0., 0.);
       next1847 = true;
-    } else if (pbeta <= fProbBeta[49]) { // 17.073%
+    } else if (pbeta <= fProbBeta[49]) {  // 17.073%
       beta(fEndPoint[49], 0., 0.);
       next1764 = true;
-    } else if (pbeta <= fProbBeta[50]) { // 0.113%
+    } else if (pbeta <= fProbBeta[50]) {  // 0.113%
       beta(fEndPoint[50], 0., 0.);
       next1743 = true;
-    } else if (pbeta <= fProbBeta[51]) { // 17.854%
+    } else if (pbeta <= fProbBeta[51]) {  // 17.854%
       beta(fEndPoint[51], 0., 0.);
       next1730 = true;
-    } else if (pbeta <= fProbBeta[52]) { // 0.150%
+    } else if (pbeta <= fProbBeta[52]) {  // 0.150%
       beta(fEndPoint[52], 0., 0.);
       next1713 = true;
-    } else if (pbeta <= fProbBeta[53]) { // 0.721%
+    } else if (pbeta <= fProbBeta[53]) {  // 0.721%
       beta(fEndPoint[53], 0., 0.);
       next1661 = true;
-    } else if (pbeta <= fProbBeta[54]) { // 2.955%
+    } else if (pbeta <= fProbBeta[54]) {  // 2.955%
       beta(fEndPoint[54], 0., 0.);
       next1543 = true;
-    } else if (pbeta <= fProbBeta[55]) { // 0.811%
+    } else if (pbeta <= fProbBeta[55]) {  // 0.811%
       beta(fEndPoint[55], 0., 0.);
       next1415 = true;
-    } else if (pbeta <= fProbBeta[56]) { // 7.442%
+    } else if (pbeta <= fProbBeta[56]) {  // 7.442%
       beta(fEndPoint[56], 0., 0.);
       next1378 = true;
-    } else if (pbeta <= fProbBeta[57]) { // 1.703%
+    } else if (pbeta <= fProbBeta[57]) {  // 1.703%
       beta(fEndPoint[57], 0., 0.);
       next609 = true;
-    } else { // 18.255%
+    } else {  // 18.255%
       beta(fEndPoint[58], 0., 0.);
       return;
     }
@@ -4384,36 +4251,28 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[146], fEbindeK2, 1.2e-3, 5.3e-4);
         next609 = true;
       } else if (p <= 68.6) {
-        nucltransKLM(fEnGamma[147], fEbindeK2, 4.4e-3, fEbindeL2, 8.3e-4,
-                     fEbindeM2, 2.8e-4, 6.2e-6);
+        nucltransKLM(fEnGamma[147], fEbindeK2, 4.4e-3, fEbindeL2, 8.3e-4, fEbindeM2, 2.8e-4, 6.2e-6);
         next1275 = true;
       } else if (p <= 78.1) {
-        nucltransKLM(fEnGamma[148], fEbindeK2, 2.0e-3, fEbindeL2, 3.1e-4,
-                     fEbindeM2, 1.0e-4, 5.5e-6);
+        nucltransKLM(fEnGamma[148], fEbindeK2, 2.0e-3, fEbindeL2, 3.1e-4, fEbindeM2, 1.0e-4, 5.5e-6);
         next1378 = true;
       } else if (p <= 80.8) {
-        nucltransKLM(fEnGamma[149], fEbindeK2, 2.1e-3, fEbindeL2, 3.3e-4,
-                     fEbindeM2, 1.1e-4, 0.);
+        nucltransKLM(fEnGamma[149], fEbindeK2, 2.1e-3, fEbindeL2, 3.3e-4, fEbindeM2, 1.1e-4, 0.);
         next1415 = true;
       } else if (p <= 83.7) {
-        nucltransKLM(fEnGamma[150], fEbindeK2, 2.7e-3, fEbindeL2, 4.2e-4,
-                     fEbindeM2, 1.4e-4, 0.);
+        nucltransKLM(fEnGamma[150], fEbindeK2, 2.7e-3, fEbindeL2, 4.2e-4, fEbindeM2, 1.4e-4, 0.);
         next1543 = true;
       } else if (p <= 94.4) {
-        nucltransKLM(fEnGamma[151], fEbindeK2, 3.5e-3, fEbindeL2, 5.5e-4,
-                     fEbindeM2, 1.9e-4, 0.);
+        nucltransKLM(fEnGamma[151], fEbindeK2, 3.5e-3, fEbindeL2, 5.5e-4, fEbindeM2, 1.9e-4, 0.);
         next1661 = true;
       } else if (p <= 96.0) {
-        nucltransKLM(fEnGamma[152], fEbindeK2, 4.3e-3, fEbindeL2, 6.9e-4,
-                     fEbindeM2, 2.2e-4, 0.);
+        nucltransKLM(fEnGamma[152], fEbindeK2, 4.3e-3, fEbindeL2, 6.9e-4, fEbindeM2, 2.2e-4, 0.);
         next1743 = true;
       } else if (p <= 98.8) {
-        nucltransKLM(fEnGamma[153], fEbindeK2, 4.6e-3, fEbindeL2, 7.3e-4,
-                     fEbindeM2, 2.4e-4, 0.);
+        nucltransKLM(fEnGamma[153], fEbindeK2, 4.6e-3, fEbindeL2, 7.3e-4, fEbindeM2, 2.4e-4, 0.);
         next1764 = true;
       } else {
-        nucltransKLM(fEnGamma[154], fEbindeK2, 8.0e-2, fEbindeL2, 1.7e-2,
-                     fEbindeM2, 5.6e-3, 0.);
+        nucltransKLM(fEnGamma[154], fEbindeK2, 8.0e-2, fEbindeL2, 1.7e-2, fEbindeM2, 5.6e-3, 0.);
         next1995 = true;
       }
     }
@@ -4436,28 +4295,22 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[158], fEbindeK2, 5.5e-3, 9.1e-5);
         next609 = true;
       } else if (p <= 94.2) {
-        nucltransKLM(fEnGamma[159], fEbindeK2, 2.9e-2, fEbindeL2, 5.0e-3,
-                     fEbindeM2, 2.0e-3, 0.);
+        nucltransKLM(fEnGamma[159], fEbindeK2, 2.9e-2, fEbindeL2, 5.0e-3, fEbindeM2, 2.0e-3, 0.);
         next1378 = true;
       } else if (p <= 94.5) {
-        nucltransKLM(fEnGamma[160], fEbindeK2, 3.3e-2, fEbindeL2, 5.7e-3,
-                     fEbindeM2, 1.9e-3, 0.);
+        nucltransKLM(fEnGamma[160], fEbindeK2, 3.3e-2, fEbindeL2, 5.7e-3, fEbindeM2, 1.9e-3, 0.);
         next1415 = true;
       } else if (p <= 95.3) {
-        nucltransKLM(fEnGamma[161], fEbindeK2, 3.3e-2, fEbindeL2, 6.0e-3,
-                     fEbindeM2, 2.0e-3, 0.);
+        nucltransKLM(fEnGamma[161], fEbindeK2, 3.3e-2, fEbindeL2, 6.0e-3, fEbindeM2, 2.0e-3, 0.);
         next1543 = true;
       } else if (p <= 96.9) {
-        nucltransKLM(fEnGamma[162], fEbindeK2, 5.0e-2, fEbindeL2, 1.1e-2,
-                     fEbindeM2, 9.0e-3, 0.);
+        nucltransKLM(fEnGamma[162], fEbindeK2, 5.0e-2, fEbindeL2, 1.1e-2, fEbindeM2, 9.0e-3, 0.);
         next1713 = true;
       } else if (p <= 99.0) {
-        nucltransKLM(fEnGamma[163], fEbindeK2, 7.0e-2, fEbindeL2, 1.5e-2,
-                     fEbindeM2, 4.9e-3, 0.);
+        nucltransKLM(fEnGamma[163], fEbindeK2, 7.0e-2, fEbindeL2, 1.5e-2, fEbindeM2, 4.9e-3, 0.);
         next1730 = true;
       } else {
-        nucltransKLM(fEnGamma[164], fEbindeK2, 1.4e-1, fEbindeL2, 2.3e-2,
-                     fEbindeM2, 7.4e-3, 0.);
+        nucltransKLM(fEnGamma[164], fEbindeK2, 1.4e-1, fEbindeL2, 2.3e-2, fEbindeM2, 7.4e-3, 0.);
         next1743 = true;
       }
     }
@@ -4473,12 +4326,10 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[167], fEbindeK2, 3.1e-2, 0.);
         next1378 = true;
       } else if (p <= 89.0) {
-        nucltransKLM(fEnGamma[168], fEbindeK2, 4.5e-2, fEbindeL2, 7.6e-3,
-                     fEbindeM2, 2.6e-3, 0.);
+        nucltransKLM(fEnGamma[168], fEbindeK2, 4.5e-2, fEbindeL2, 7.6e-3, fEbindeM2, 2.6e-3, 0.);
         next1415 = true;
       } else {
-        nucltransKLM(fEnGamma[169], fEbindeK2, 2.1e-1, fEbindeL2, 3.7e-2,
-                     fEbindeM2, 1.2e-2, 0.);
+        nucltransKLM(fEnGamma[169], fEbindeK2, 2.1e-1, fEbindeL2, 3.7e-2, fEbindeM2, 1.2e-2, 0.);
         next1730 = true;
       }
     }
@@ -4503,20 +4354,16 @@ void Decay0::Bi214() {
           pair(0.995);
         return;
       } else if (p <= 98.01) {
-        nucltransKLM(fEnGamma[172], fEbindeK2, 3.1e-3, fEbindeL2, 5.7e-4,
-                     fEbindeM2, 1.9e-4, 5.7e-5);
+        nucltransKLM(fEnGamma[172], fEbindeK2, 3.1e-3, fEbindeL2, 5.7e-4, fEbindeM2, 1.9e-4, 5.7e-5);
         next609 = true;
       } else if (p <= 99.41) {
-        nucltransKLM(fEnGamma[173], fEbindeK2, 1.4e-2, fEbindeL2, 3.7e-3,
-                     fEbindeM2, 1.2e-3, 0.);
+        nucltransKLM(fEnGamma[173], fEbindeK2, 1.4e-2, fEbindeL2, 3.7e-3, fEbindeM2, 1.2e-3, 0.);
         next1378 = true;
       } else if (p <= 99.75) {
-        nucltransKLM(fEnGamma[174], fEbindeK2, 4.6e-2, fEbindeL2, 2.4e-2,
-                     fEbindeM2, 8.1e-3, 0.);
+        nucltransKLM(fEnGamma[174], fEbindeK2, 4.6e-2, fEbindeL2, 2.4e-2, fEbindeM2, 8.1e-3, 0.);
         next1661 = true;
       } else {
-        nucltransKLM(fEnGamma[175], fEbindeK2, 6.9e-1, fEbindeL2, 1.2e-1,
-                     fEbindeM2, 3.8e-2, 0.);
+        nucltransKLM(fEnGamma[175], fEbindeK2, 6.9e-1, fEbindeL2, 1.2e-1, fEbindeM2, 3.8e-2, 0.);
         next1764 = true;
       }
     }
@@ -4526,8 +4373,7 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[176], fEbindeK2, 2.2e-3, 3.2e-4);
         return;
       } else if (p <= 94.7) {
-        nucltransKLM(fEnGamma[177], fEbindeK2, 4.4e-3, fEbindeL2, 7.7e-4,
-                     fEbindeM2, 2.3e-4, 3.8e-5);
+        nucltransKLM(fEnGamma[177], fEbindeK2, 4.4e-3, fEbindeL2, 7.7e-4, fEbindeM2, 2.3e-4, 3.8e-5);
         next609 = true;
       } else if (p <= 98.7) {
         nucltransK(fEnGamma[178], fEbindeK2, 4.5e-2, 0.);
@@ -4540,19 +4386,16 @@ void Decay0::Bi214() {
     if (next1995) {
       p = 100. * GetRandom();
       if (p <= 60.3) {
-        nucltransKLM(fEnGamma[180], fEbindeK2, 1.3e-3, fEbindeL2, 2.0e-4,
-                     fEbindeM2, 6.4e-5, 1.8e-4);
+        nucltransKLM(fEnGamma[180], fEbindeK2, 1.3e-3, fEbindeL2, 2.0e-4, fEbindeM2, 6.4e-5, 1.8e-4);
         next609 = true;
       } else if (p <= 90.8) {
-        nucltransKLM(fEnGamma[181], fEbindeK2, 1.1e-2, fEbindeL2, 2.7e-3,
-                     fEbindeM2, 9.3e-4, 0.);
+        nucltransKLM(fEnGamma[181], fEbindeK2, 1.1e-2, fEbindeL2, 2.7e-3, fEbindeM2, 9.3e-4, 0.);
         next1275 = true;
       } else if (p <= 93.5) {
         nucltransK(fEnGamma[182], fEbindeK2, 6.8e-3, 0.);
         next1378 = true;
       } else {
-        nucltransKLM(fEnGamma[183], fEbindeK2, 2.0e-2, fEbindeL2, 3.5e-3,
-                     fEbindeM2, 1.1e-3, 0.);
+        nucltransKLM(fEnGamma[183], fEbindeK2, 2.0e-2, fEbindeL2, 3.5e-3, fEbindeM2, 1.1e-3, 0.);
         next1661 = true;
       }
     }
@@ -4562,20 +4405,16 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[184], fEbindeK2, 2.5e-3, 2.4e-4);
         return;
       } else if (p <= 97.0) {
-        nucltransKLM(fEnGamma[185], fEbindeK2, 1.0e-2, fEbindeL2, 1.8e-3,
-                     fEbindeM2, 5.5e-4, 1.0e-5);
+        nucltransKLM(fEnGamma[185], fEbindeK2, 1.0e-2, fEbindeL2, 1.8e-3, fEbindeM2, 5.5e-4, 1.0e-5);
         next609 = true;
       } else if (p <= 97.3) {
-        nucltransKLM(fEnGamma[186], fEbindeK2, 8.2e-3, fEbindeL2, 1.8e-3,
-                     fEbindeM2, 6.4e-4, 0.);
+        nucltransKLM(fEnGamma[186], fEbindeK2, 8.2e-3, fEbindeL2, 1.8e-3, fEbindeM2, 6.4e-4, 0.);
         next1015 = true;
       } else if (p <= 98.2) {
-        nucltransKLM(fEnGamma[187], fEbindeK2, 6.4e-3, fEbindeL2, 1.1e-3,
-                     fEbindeM2, 3.4e-4, 0.);
+        nucltransKLM(fEnGamma[187], fEbindeK2, 6.4e-3, fEbindeL2, 1.1e-3, fEbindeM2, 3.4e-4, 0.);
         next1275 = true;
       } else {
-        nucltransKLM(fEnGamma[188], fEbindeK2, 8.0e-2, fEbindeL2, 1.6e-2,
-                     fEbindeM2, 5.1e-3, 0.);
+        nucltransKLM(fEnGamma[188], fEbindeK2, 8.0e-2, fEbindeL2, 1.6e-2, fEbindeM2, 5.1e-3, 0.);
         next1378 = true;
       }
     }
@@ -4585,26 +4424,21 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[189], fEbindeK2, 6.0e-3, 1.5e-4);
         return;
       } else if (p <= 97.01) {
-        nucltransKLM(fEnGamma[190], fEbindeK2, 1.2e-2, fEbindeL2, 2.0e-3,
-                     fEbindeM2, 6.3e-4, 2.8e-6);
+        nucltransKLM(fEnGamma[190], fEbindeK2, 1.2e-2, fEbindeL2, 2.0e-3, fEbindeM2, 6.3e-4, 2.8e-6);
         next609 = true;
       } else if (p <= 99.06) {
-        nucltransKLM(fEnGamma[191], fEbindeK2, 1.3e-1, fEbindeL2, 2.8e-2,
-                     fEbindeM2, 8.9e-3, 0.);
+        nucltransKLM(fEnGamma[191], fEbindeK2, 1.3e-1, fEbindeL2, 2.8e-2, fEbindeM2, 8.9e-3, 0.);
         next1378 = true;
       } else if (p <= 99.97) {
-        nucltransKLM(fEnGamma[192], fEbindeK2, 2.9e-1, fEbindeL2, 5.0e-2,
-                     fEbindeM2, 1.6e-2, 0.);
+        nucltransKLM(fEnGamma[192], fEbindeK2, 2.9e-1, fEbindeL2, 5.0e-2, fEbindeM2, 1.6e-2, 0.);
         next1415 = true;
       } else {
-        nucltransKLM(fEnGamma[193], fEbindeK2, 5.6e-1, fEbindeL2, 1.6e-1,
-                     fEbindeM2, 5.4e-2, 0.);
+        nucltransKLM(fEnGamma[193], fEbindeK2, 5.6e-1, fEbindeL2, 1.6e-1, fEbindeM2, 5.4e-2, 0.);
         next1543 = true;
       }
     }
     if (next1743) {
-      nucltransKLM(fEnGamma[194], fEbindeK2, 4.7e-3, fEbindeL2, 9.0e-4,
-                   fEbindeM2, 2.9e-4, 2.8e-6);
+      nucltransKLM(fEnGamma[194], fEbindeK2, 4.7e-3, fEbindeL2, 9.0e-4, fEbindeM2, 2.9e-4, 2.8e-6);
       next609 = true;
     }
     if (next1730) {
@@ -4613,16 +4447,13 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[195], fEbindeK2, 2.7e-3, 1.9e-4);
         return;
       } else if (p <= 97.92) {
-        nucltransKLM(fEnGamma[196], fEbindeK2, 1.3e-2, fEbindeL2, 2.2e-3,
-                     fEbindeM2, 6.7e-4, 1.2e-6);
+        nucltransKLM(fEnGamma[196], fEbindeK2, 1.3e-2, fEbindeL2, 2.2e-3, fEbindeM2, 6.7e-4, 1.2e-6);
         next609 = true;
       } else if (p <= 99.55) {
-        nucltransKLM(fEnGamma[197], fEbindeK2, 1.0e-2, fEbindeL2, 1.7e-3,
-                     fEbindeM2, 5.3e-4, 0.);
+        nucltransKLM(fEnGamma[197], fEbindeK2, 1.0e-2, fEbindeL2, 1.7e-3, fEbindeM2, 5.3e-4, 0.);
         next1275 = true;
       } else {
-        nucltransKLM(fEnGamma[198], fEbindeK2, 1.6e-1, fEbindeL2, 3.7e-2,
-                     fEbindeM2, 1.2e-2, 0.);
+        nucltransKLM(fEnGamma[198], fEbindeK2, 1.6e-1, fEbindeL2, 3.7e-2, fEbindeM2, 1.2e-2, 0.);
         next1378 = true;
       }
     }
@@ -4652,16 +4483,13 @@ void Decay0::Bi214() {
         nucltransK(fEnGamma[203], fEbindeK2, 2.7e-3, 1.1e-4);
         return;
       } else if (p <= 99.26) {
-        nucltransKLM(fEnGamma[204], fEbindeK2, 2.0e-2, fEbindeL2, 3.5e-3,
-                     fEbindeM2, 1.2e-3, 0.);
+        nucltransKLM(fEnGamma[204], fEbindeK2, 2.0e-2, fEbindeL2, 3.5e-3, fEbindeM2, 1.2e-3, 0.);
         next609 = true;
       } else if (p <= 99.38) {
-        nucltransKLM(fEnGamma[205], fEbindeK2, 2.0e-2, fEbindeL2, 6.4e-3,
-                     fEbindeM2, 2.1e-3, 0.);
+        nucltransKLM(fEnGamma[205], fEbindeK2, 2.0e-2, fEbindeL2, 6.4e-3, fEbindeM2, 2.1e-3, 0.);
         next1015 = true;
       } else {
-        nucltransKLM(fEnGamma[206], fEbindeK2, 3.3e-2, fEbindeL2, 5.8e-3,
-                     fEbindeM2, 1.8e-3, 0.);
+        nucltransKLM(fEnGamma[206], fEbindeK2, 3.3e-2, fEbindeL2, 5.8e-3, fEbindeM2, 1.8e-3, 0.);
         next1275 = true;
       }
     }
@@ -4678,39 +4506,33 @@ void Decay0::Bi214() {
 
         return;
       } else {
-        nucltransKLM(fEnGamma[207], fEbindeK2, 8.7e-3, fEbindeL2, 2.0e-3,
-                     fEbindeM2, 6.6e-4, 0.);
+        nucltransKLM(fEnGamma[207], fEbindeK2, 8.7e-3, fEbindeL2, 2.0e-3, fEbindeM2, 6.6e-4, 0.);
         next609 = true;
       }
     }
     if (next1378) {
       p = 100. * GetRandom();
       if (p <= 44.47) {
-        nucltransKLM(fEnGamma[208], fEbindeK2, 3.3e-3, fEbindeL2, 5.9e-4,
-                     fEbindeM2, 2.0e-4, 4.8e-5);
+        nucltransKLM(fEnGamma[208], fEbindeK2, 3.3e-3, fEbindeL2, 5.9e-4, fEbindeM2, 2.0e-4, 4.8e-5);
         return;
       } else {
-        nucltransKLM(fEnGamma[209], fEbindeK2, 1.3e-2, fEbindeL2, 2.7e-3,
-                     fEbindeM2, 9.0e-4, 0.);
+        nucltransKLM(fEnGamma[209], fEbindeK2, 1.3e-2, fEbindeL2, 2.7e-3, fEbindeM2, 9.0e-4, 0.);
         next609 = true;
       }
     }
     if (next1275) {
       fThlev = 0.;
-      nucltransKLM(fEnGamma[210], fEbindeK2, 4.8e-3, fEbindeL2, 7.7e-4,
-                   fEbindeM2, 2.5e-4, 0.);
+      nucltransKLM(fEnGamma[210], fEbindeK2, 4.8e-3, fEbindeL2, 7.7e-4, fEbindeM2, 2.5e-4, 0.);
       next609 = true;
     }
     if (next1015) {
       fThlev = 0.;
-      nucltransKLM(fEnGamma[211], fEbindeK2, 3.5e-2, fEbindeL2, 1.5e-2,
-                   fEbindeM2, 5.1e-3, 0.);
+      nucltransKLM(fEnGamma[211], fEbindeK2, 3.5e-2, fEbindeL2, 1.5e-2, fEbindeM2, 5.1e-3, 0.);
       next609 = true;
     }
     if (next609) {
       fThlev = 0.;
-      nucltransKLM(fEnGamma[212], fEbindeK2, 1.5e-2, fEbindeL2, 4.2e-3,
-                   fEbindeM2, 1.4e-3, 0.);
+      nucltransKLM(fEnGamma[212], fEbindeK2, 1.5e-2, fEbindeL2, 4.2e-3, fEbindeM2, 1.4e-3, 0.);
       return;
     }
   }
@@ -4783,8 +4605,7 @@ void Decay0::Co60() {
         particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
         npg1173 = fNbPart;
       } else if (p <= cg + cK) {
-        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi,
-                 fTclev, fThlev);
+        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
         particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
       } else {
         pair(fEgamma - 1.022);
@@ -4803,8 +4624,7 @@ void Decay0::Co60() {
       }
     }
   } else {
-    beta2f(fEndPoint[1], 0., 0., 2, fShCorrFactor[0], fShCorrFactor[1],
-           fShCorrFactor[2], fShCorrFactor[3]);
+    beta2f(fEndPoint[1], 0., 0., 2, fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
     next1333 = true;
   }
   if (next1333) {
@@ -4816,20 +4636,15 @@ void Decay0::Co60() {
       particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
       npg1333 = fNbPart;
     } else if (p <= cg + cK) {
-      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi,
-               fTclev, fThlev);
+      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
       particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
     } else {
       pair(fEgamma - 1.022);
     }
   }
   if (npg1333 != 0 && npg1173 != 0) {
-    float p1333 =
-        sqrt(pow(fPmoment[0][npg1333], 2) + pow(fPmoment[1][npg1333], 2) +
-             pow(fPmoment[2][npg1333], 2));
-    float p1173 =
-        sqrt(pow(fPmoment[0][npg1173], 2) + pow(fPmoment[1][npg1173], 2) +
-             pow(fPmoment[2][npg1173], 2));
+    float p1333 = sqrt(pow(fPmoment[0][npg1333], 2) + pow(fPmoment[1][npg1333], 2) + pow(fPmoment[2][npg1333], 2));
+    float p1173 = sqrt(pow(fPmoment[0][npg1173], 2) + pow(fPmoment[1][npg1173], 2) + pow(fPmoment[2][npg1173], 2));
     // Coefficients in formula 1+a2*ctet**2+a4*ctet**4 are from:
     // R.D.Evans, "The Atomic Nucleus", Krieger Publ. Comp., 1985,
     // p. 240 (4(2)2(2)0 cascade).
@@ -4848,8 +4663,7 @@ void Decay0::Co60() {
       ctet2 = 1. - 2. * GetRandom();
       stet2 = sqrt(1. - ctet2 * ctet2);
       ctet = ctet1 * ctet2 + stet1 * stet2 * cos(phi1 - phi2);
-    } while (GetRandom() * (1. + abs(a2) + abs(a4)) >
-             1. + a2 * ctet * ctet + a4 * pow(ctet, 4));
+    } while (GetRandom() * (1. + abs(a2) + abs(a4)) > 1. + a2 * ctet * ctet + a4 * pow(ctet, 4));
     fPmoment[0][npg1333] = p1333 * stet1 * cos(phi1);
     fPmoment[1][npg1333] = p1333 * stet1 * sin(phi1);
     fPmoment[2][npg1333] = p1333 * ctet1;
@@ -4867,7 +4681,7 @@ void Decay0::Cs136() {
   bool next2031 = false, next819 = false;
 
   pbeta = 100. * GetRandom();
-  if (pbeta <= fProbBeta[0]) { // 2.025%
+  if (pbeta <= fProbBeta[0]) {  // 2.025%
     beta(fEndPoint[0], 0., 0.);
     p = 100. * GetRandom();
     if (p <= 48.02) {
@@ -4883,7 +4697,7 @@ void Decay0::Cs136() {
       nucltransK(fEnGamma[3], fEbindeK, 2.5e-1, 0.);
       next2207 = true;
     }
-  } else if (pbeta <= fProbBeta[1]) { // 0.208%
+  } else if (pbeta <= fProbBeta[1]) {  // 0.208%
     beta(fEndPoint[1], 0., 0.);
     p = 100. * GetRandom();
     if (p <= 47.12) {
@@ -4896,16 +4710,16 @@ void Decay0::Cs136() {
       nucltransK(fEnGamma[6], fEbindeK, 4.5e-2, 0.);
       next2054 = true;
     }
-  } else if (pbeta <= fProbBeta[2]) { // 69.776%
+  } else if (pbeta <= fProbBeta[2]) {  // 69.776%
     beta(fEndPoint[2], 0., 0.);
     next2207 = true;
-  } else if (pbeta <= fProbBeta[3]) { // 10.422%
+  } else if (pbeta <= fProbBeta[3]) {  // 10.422%
     beta(fEndPoint[3], 0., 0.);
     next2140 = true;
-  } else if (pbeta <= fProbBeta[4]) { // 4.666%
+  } else if (pbeta <= fProbBeta[4]) {  // 4.666%
     beta(fEndPoint[4], 0., 0.);
     next2054 = true;
-  } else { // 12.903%
+  } else {  // 12.903%
     beta(fEndPoint[5], 0., 0.);
     next1867 = true;
   }
@@ -5144,15 +4958,12 @@ void Decay0::Eu152() {
   float pdecay, pbeta, pKLM, pec, p;
 
   pdecay = 100. * GetRandom();
-  if (pdecay <= fProbDecay[0]) { //  EC to 152Sm
+  if (pdecay <= fProbDecay[0]) {  //  EC to 152Sm
     // approximate electron capture from K (82%), L (14%) or M (4%) shell
     pKLM = 100. * GetRandom();
-    if (pKLM <= 82.)
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
-    if (pKLM > 82. && pKLM <= 96.)
-      particle(1, fEbindeL, fEbindeL, 0., pi, 0., twopi, 0, 0);
-    if (pKLM > 96.)
-      particle(1, fEbindeM, fEbindeM, 0., pi, 0., twopi, 0, 0);
+    if (pKLM <= 82.) particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
+    if (pKLM > 82. && pKLM <= 96.) particle(1, fEbindeL, fEbindeL, 0., pi, 0., twopi, 0, 0);
+    if (pKLM > 96.) particle(1, fEbindeM, fEbindeM, 0., pi, 0., twopi, 0, 0);
 
     pec = 100. * GetRandom();
     if (pec <= fProbEC[0]) {
@@ -5491,7 +5302,7 @@ void Decay0::Eu152() {
       nucltransK(fEnGamma[78], fEbindeK, 1.2e-0, 0.);
       return;
     }
-  } else { //   b- to 152Gd
+  } else {  //   b- to 152Gd
     pbeta = 100. * GetRandom();
     if (pbeta <= fProbBeta[0]) {
       beta(fEndPoint[0], 0., 0.);
@@ -5582,8 +5393,7 @@ void Decay0::Eu152() {
       beta(fEndPoint[9], 0., 0.);
       next755 = true;
     } else {
-      beta1f(fEndPoint[10], 0., 0., fShCorrFactor[0], fShCorrFactor[1],
-             fShCorrFactor[2], fShCorrFactor[3]);
+      beta1f(fEndPoint[10], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
       next344 = true;
     }
 
@@ -5737,7 +5547,7 @@ void Decay0::Eu154() {
   float pdecay, pbeta, p;
 
   pdecay = 100. * GetRandom();
-  if (pdecay <= fProbDecay[0]) { // 0.020% EC to 154Sm
+  if (pdecay <= fProbDecay[0]) {  // 0.020% EC to 154Sm
     particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
     if (pdecay <= 0.005) {
       fThlev = 172.e-12;
@@ -5750,7 +5560,7 @@ void Decay0::Eu154() {
       nucltransK(fEnGamma[2], fEbindeK, 4.9 + 0, 0.);
       return;
     }
-  } else { // 99.980% b- to 154Gd
+  } else {  // 99.980% b- to 154Gd
     pbeta = 100. * GetRandom();
     if (pbeta <= fProbBeta[0]) {
       beta(fEndPoint[0], 0., 0.);
@@ -5916,8 +5726,7 @@ void Decay0::Eu154() {
       beta(fEndPoint[15], 0., 0.);
       next371 = true;
     } else {
-      beta1f(fEndPoint[16], 0., 0., fShCorrFactor[0], fShCorrFactor[1],
-             fShCorrFactor[2], fShCorrFactor[3]);
+      beta1f(fEndPoint[16], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
       next123 = true;
     }
 
@@ -6463,10 +6272,10 @@ void Decay0::I126() {
   bool next666 = false, next389 = false;
 
   pdecay = 100. * GetRandom();
-  if (pdecay <= fProbDecay[0]) { // 47.300% beta- to 126Xe
+  if (pdecay <= fProbDecay[0]) {  // 47.300% beta- to 126Xe
     fZdtr = fDaughterZ[0];
     pbeta = 100. * GetRandom();
-    if (pbeta <= fProbBeta[0]) { // 7.65%
+    if (pbeta <= fProbBeta[0]) {  // 7.65%
       beta(fEndPoint[0], 0., 0.);
       p = 100. * GetRandom();
       if (p <= 20.51) {
@@ -6476,7 +6285,7 @@ void Decay0::I126() {
         nucltransK(fEnGamma[1], fEbindeK, 9.5e-3, 0.);
         next389 = true;
       }
-    } else if (pbeta <= fProbBeta[1]) { // 70.57%
+    } else if (pbeta <= fProbBeta[1]) {  // 70.57%
       beta(fEndPoint[1], 0., 0.);
       next389 = true;
     } else {
@@ -6488,10 +6297,10 @@ void Decay0::I126() {
       nucltransK(fEnGamma[2], fEbindeK, 1.9e-2, 0.);
       return;
     }
-  } else if (pdecay <= fProbDecay[1]) { // 51.692% EC    to 126Te
+  } else if (pdecay <= fProbDecay[1]) {  // 51.692% EC    to 126Te
     particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0, 0);
     pec = 100. * GetRandom();
-    if (pec <= fProbEC[0]) { // 0.014%
+    if (pec <= fProbEC[0]) {  // 0.014%
       p = 100. * GetRandom();
       if (p <= 66.00) {
         nucltransK(fEnGamma[3], fEbindeK2, 3.0e-4, 2.3e-4);
@@ -6500,10 +6309,10 @@ void Decay0::I126() {
         nucltransK(fEnGamma[4], fEbindeK2, 1.2e-3, 0.7e-4);
         next666 = true;
       }
-    } else if (pec <= fProbEC[1]) { //  0.001%
+    } else if (pec <= fProbEC[1]) {  //  0.001%
       nucltransK(fEnGamma[5], fEbindeK2, 1.1e-3, 0.1e-4);
       next666 = true;
-    } else if (pec <= fProbEC[2]) { //  8.615%
+    } else if (pec <= fProbEC[2]) {  //  8.615%
       p = 100. * GetRandom();
       if (p <= 6.83) {
         nucltransK(fEnGamma[6], fEbindeK2, 7.0e-4, 0.2e-4);
@@ -6512,16 +6321,16 @@ void Decay0::I126() {
         nucltransK(fEnGamma[7], fEbindeK2, 2.8e-3, 0.);
         next666 = true;
       }
-    } else if (pec <= fProbEC[3]) { // 55.170%
+    } else if (pec <= fProbEC[3]) {  // 55.170%
       next666 = true;
     } else
-      return; // 36.200%
+      return;  // 36.200%
 
     if (next666) {
       nucltransK(fEnGamma[8], fEbindeK2, 3.8e-3, 0.);
       return;
     }
-  } else { // 1.008% beta+ to 126Te
+  } else {  // 1.008% beta+ to 126Te
     pbeta = 100. * GetRandom();
     fZdtr = fDaughterZ[1];
     if (pbeta <= fProbBeta[3]) {
@@ -6737,8 +6546,7 @@ void Decay0::I134() {
   // VIT, 8.10.2002.
   bool next3314 = false, next2654 = false, next2588 = false, next2548 = false;
   bool next2408 = false, next2353 = false, next2302 = false, next2272 = false;
-  bool next2137 = false, next1920 = false, next1731 = false, next1614 = false,
-       next847 = false;
+  bool next2137 = false, next1920 = false, next1731 = false, next1614 = false, next847 = false;
   float pbeta, p;
 
   pbeta = 100. * GetRandom();
@@ -7429,15 +7237,14 @@ void Decay0::K40() {
 
   float pdecay = 100. * GetRandom();
   if (pdecay <= fProbDecay[0]) {
-    beta2f(fEndPoint[0], 0., 0., 3, fShCorrFactor[0], fShCorrFactor[1],
-           fShCorrFactor[2], fShCorrFactor[3]);
-  } else if (pdecay <= fProbDecay[1]) { // 10.660% ec 40Ar(1461)
+    beta2f(fEndPoint[0], 0., 0., 3, fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
+  } else if (pdecay <= fProbDecay[1]) {  // 10.660% ec 40Ar(1461)
     particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
     fThlev = 1.12e-12;
     nucltransK(fEnGamma[1], fEbindeK, 3.0e-5, 7.3e-5);
-  } else if (pdecay <= fProbDecay[2]) { // 0.199% ec 40Ar(gs)
+  } else if (pdecay <= fProbDecay[2]) {  // 0.199% ec 40Ar(gs)
     particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
-  } else { // 0.001% b+ 40Ar(gs)
+  } else {  // 0.001% b+ 40Ar(gs)
     fZdtr = fDaughterZ[1];
     beta(fEndPoint[1], 0., 0.);
   }
@@ -7454,7 +7261,7 @@ void Decay0::K42() {
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
     beta(fEndPoint[0], 0., 0.);
-    fThlev = 250.e-15; // ToI-1998
+    fThlev = 250.e-15;  // ToI-1998
     p = 100. * GetRandom();
     if (p <= 63.66) {
       nucltransK(fEnGamma[0], fEbindeK, 1.2e-5, 5.8e-4);
@@ -7470,11 +7277,10 @@ void Decay0::K42() {
     beta(fEndPoint[1], 0., 0.);
     next2424 = true;
   } else if (pbeta <= fProbBeta[2]) {
-    beta1fu(fEndPoint[2], 0., 0., fShCorrFactor[0], fShCorrFactor[1],
-            fShCorrFactor[2], fShCorrFactor[3]);
+    beta1fu(fEndPoint[2], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
     fThlev = 0.33e-9;
     p = 100. * GetRandom();
-    if (p <= 2.1) { // ToI-1978
+    if (p <= 2.1) {  // ToI-1978
       p = 100. * GetRandom();
       if (p <= 90.) {
         pair(0.815);
@@ -7488,21 +7294,19 @@ void Decay0::K42() {
       next1525 = true;
     }
   } else if (pbeta <= fProbBeta[3]) {
-    beta1f(fEndPoint[3], 0., 0., fShCorrFactor[4], fShCorrFactor[5],
-           fShCorrFactor[6], fShCorrFactor[7]);
+    beta1f(fEndPoint[3], 0., 0., fShCorrFactor[4], fShCorrFactor[5], fShCorrFactor[6], fShCorrFactor[7]);
     next1525 = true;
   } else {
-    beta1fu(fEndPoint[4], 0., 0., fShCorrFactor[8], fShCorrFactor[9],
-            fShCorrFactor[10], fShCorrFactor[11]);
+    beta1fu(fEndPoint[4], 0., 0., fShCorrFactor[8], fShCorrFactor[9], fShCorrFactor[10], fShCorrFactor[11]);
     return;
   }
   if (next2753) {
-    fThlev = 3.0e-12; // ToI-1998
+    fThlev = 3.0e-12;  // ToI-1998
     nucltransK(fEnGamma[4], fEbindeK, 5.6e-5, 1.4e-5);
     next1525 = true;
   }
   if (next2424) {
-    fThlev = 140.e-15; // ToI-1998
+    fThlev = 140.e-15;  // ToI-1998
     p = 100. * GetRandom();
     if (p <= 27.78) {
       nucltransK(fEnGamma[5], fEbindeK, 1.5e-5, 5.2e-4);
@@ -7513,7 +7317,7 @@ void Decay0::K42() {
     }
   }
   if (next1525) {
-    fThlev = 0.82e-12; // ToI-1998
+    fThlev = 0.82e-12;  // ToI-1998
     nucltransK(fEnGamma[7], fEbindeK, 3.6e-5, 9.8e-5);
     return;
   }
@@ -7534,11 +7338,11 @@ void Decay0::Pa234m() {
   float pdecay, pbeta, p;
 
   pdecay = 100. * GetRandom();
-  if (pdecay <= fProbDecay[0]) { // IT to Pa234
+  if (pdecay <= fProbDecay[0]) {  // IT to Pa234
     nucltransK(fEnGamma[0], 0.021, 1.1e+1, 0.);
     return;
   }
-  pbeta = 100. * GetRandom(); // beta decay to U234
+  pbeta = 100. * GetRandom();  // beta decay to U234
   if (pbeta <= fProbBeta[0]) {
     beta(fEndPoint[0], 0., 0.);
     p = 100. * GetRandom();
@@ -7582,8 +7386,7 @@ void Decay0::Pa234m() {
     beta(fEndPoint[4], 0., 0.);
     next786 = true;
   } else {
-    beta1f(fEndPoint[5], 0., 0., fShCorrFactor[0], fShCorrFactor[1],
-           fShCorrFactor[2], fShCorrFactor[3]);
+    beta1f(fEndPoint[5], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
     return;
   }
 
@@ -7833,32 +7636,25 @@ void Decay0::Pb214() {
     beta(0.184, 0., 0.);
     p = 100. * GetRandom();
     if (p <= 21.3) {
-      nucltransKLM(fEnGamma[1], fEbindeK, 2.99e-3, fEbindeL, 4.7e-4, fEbindeM,
-                   1.5e-4, 0.);
+      nucltransKLM(fEnGamma[1], fEbindeK, 2.99e-3, fEbindeL, 4.7e-4, fEbindeM, 1.5e-4, 0.);
       return;
     } else if (p <= 60.1) {
-      nucltransKLM(fEnGamma[2], fEbindeK, 3.38e-3, fEbindeL, 5.3e-4, fEbindeM,
-                   1.7e-4, 0.);
+      nucltransKLM(fEnGamma[2], fEbindeK, 3.38e-3, fEbindeL, 5.3e-4, fEbindeM, 1.7e-4, 0.);
       next53 = true;
     } else if (p <= 72.9) {
-      nucltransKLM(fEnGamma[3], fEbindeK, 6.06e-3, fEbindeL, 9.7e-4, fEbindeM,
-                   3.2e-4, 0.);
+      nucltransKLM(fEnGamma[3], fEbindeK, 6.06e-3, fEbindeL, 9.7e-4, fEbindeM, 3.2e-4, 0.);
       next259 = true;
     } else if (p <= 75.4) {
-      nucltransKLM(fEnGamma[4], fEbindeK, 6.90e-3, fEbindeL, 1.11e-3, fEbindeM,
-                   3.7e-4, 0.);
+      nucltransKLM(fEnGamma[4], fEbindeK, 6.90e-3, fEbindeL, 1.11e-3, fEbindeM, 3.7e-4, 0.);
       next295 = true;
     } else if (p <= 90.8) {
-      nucltransKLM(fEnGamma[5], fEbindeK, 8.65e-3, fEbindeL, 1.41e-3, fEbindeM,
-                   4.4e-4, 0.);
+      nucltransKLM(fEnGamma[5], fEbindeK, 8.65e-3, fEbindeL, 1.41e-3, fEbindeM, 4.4e-4, 0.);
       next352 = true;
     } else if (p <= 98.8) {
-      nucltransKLM(fEnGamma[6], fEbindeK, 9.64e-3, fEbindeL, 1.58e-3, fEbindeM,
-                   4.8e-4, 0.);
+      nucltransKLM(fEnGamma[6], fEbindeK, 9.64e-3, fEbindeL, 1.58e-3, fEbindeM, 4.8e-4, 0.);
       next377 = true;
     } else {
-      nucltransKLM(fEnGamma[7], fEbindeK, 2.40e-2, fEbindeL, 4.1e-3, fEbindeM,
-                   1.3e-3, 0.);
+      nucltransKLM(fEnGamma[7], fEbindeK, 2.40e-2, fEbindeL, 4.1e-3, fEbindeM, 1.3e-3, 0.);
       next534 = true;
     }
   } else if (pbeta <= 2.787) {
@@ -7885,12 +7681,10 @@ void Decay0::Pb214() {
       nucltransKL(fEnGamma[9], fEbindeK, 5.0e-2, fEbindeL, 1.0e-2, 0.);
       return;
     } else if (p <= 46.0) {
-      nucltransKLM(fEnGamma[10], fEbindeK, 1.22e-1, fEbindeL, 1.9e-2, fEbindeM,
-                   6.0e-3, 0.);
+      nucltransKLM(fEnGamma[10], fEbindeK, 1.22e-1, fEbindeL, 1.9e-2, fEbindeM, 6.0e-3, 0.);
       next53 = true;
     } else {
-      nucltransKLM(fEnGamma[11], fEbindeK, 2.9e-1, fEbindeL, 7.3e-2, fEbindeM,
-                   2.4e-2, 0.);
+      nucltransKLM(fEnGamma[11], fEbindeK, 2.9e-1, fEbindeL, 7.3e-2, fEbindeM, 2.4e-2, 0.);
       next259 = true;
     }
   }
@@ -7905,35 +7699,29 @@ void Decay0::Pb214() {
     }
   }
   if (next352) {
-    nucltransKLM(fEnGamma[14], fEbindeK, 2.55e-1, fEbindeL, 4.41e-2, fEbindeM,
-                 1.38e-2, 0.);
+    nucltransKLM(fEnGamma[14], fEbindeK, 2.55e-1, fEbindeL, 4.41e-2, fEbindeM, 1.38e-2, 0.);
     return;
   }
   if (next295) {
     p = 100. * GetRandom();
     if (p <= 67.10) {
-      nucltransKLM(fEnGamma[15], fEbindeK, 3.8e-1, fEbindeL, 6.9e-2, fEbindeM,
-                   2.2e-2, 0.);
+      nucltransKLM(fEnGamma[15], fEbindeK, 3.8e-1, fEbindeL, 6.9e-2, fEbindeM, 2.2e-2, 0.);
       return;
     } else {
-      nucltransKLM(fEnGamma[16], fEbindeK, 7.13e-1, fEbindeL, 1.23e-1, fEbindeM,
-                   3.88e-2, 0.);
+      nucltransKLM(fEnGamma[16], fEbindeK, 7.13e-1, fEbindeL, 1.23e-1, fEbindeM, 3.88e-2, 0.);
       next53 = true;
     }
   }
   if (next259) {
     p = 100. * GetRandom();
     if (p <= 81.4) {
-      nucltransKLM(fEnGamma[17], fEbindeK, 5.92e-1, fEbindeL, 1.03e-1, fEbindeM,
-                   3.2e-2, 0.);
+      nucltransKLM(fEnGamma[17], fEbindeK, 5.92e-1, fEbindeL, 1.03e-1, fEbindeM, 3.2e-2, 0.);
       return;
     } else if (p <= 83.8) {
-      nucltransKLM(fEnGamma[18], fEbindeK, 1.12e+0, fEbindeL, 1.95e-1, fEbindeM,
-                   6.1e-2, 0.);
+      nucltransKLM(fEnGamma[18], fEbindeK, 1.12e+0, fEbindeL, 1.95e-1, fEbindeM, 6.1e-2, 0.);
       next53 = true;
     } else {
-      nucltransKLM(fEnGamma[19], fEbindeK, 1.28e+0, fEbindeL, 2.23e-1, fEbindeM,
-                   7.0e-2, 0.);
+      nucltransKLM(fEnGamma[19], fEbindeK, 1.28e+0, fEbindeL, 2.23e-1, fEbindeM, 7.0e-2, 0.);
       next63 = true;
     }
   }
@@ -8585,12 +8373,12 @@ void Decay0::Sb133() {
     return;
   }
   if (next334) {
-    return; // creation of isomeric 133mTe with E_exc=334 keV
-            // and T1/2=55.4 m
+    return;  // creation of isomeric 133mTe with E_exc=334 keV
+             // and T1/2=55.4 m
   }
   if (next308) {
     nucltransK(fEnGamma[34], fEbindeK, 2.5e-2, 0.);
-    return; // creation of 133Te in g.s. (T1/2=12.5 m)
+    return;  // creation of 133Te in g.s. (T1/2=12.5 m)
   }
 }
 ///^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -9591,11 +9379,11 @@ void Decay0::Te133m() {
   float pdecay, pbeta, p;
 
   pdecay = 100. * GetRandom();
-  if (pdecay <= fProbDecay[0]) { // 17.5% IT to 133Te(g.s.)
+  if (pdecay <= fProbDecay[0]) {  // 17.5% IT to 133Te(g.s.)
     nucltransK(fEnGamma[0], fEbindeK, 1.431, 0.);
     return;
   } else {
-    pbeta = 100. * GetRandom(); // 82.5% beta decay to 133I
+    pbeta = 100. * GetRandom();  // 82.5% beta decay to 133I
     if (pbeta <= fProbBeta[0]) {
       beta(fEndPoint[0], 0., 0.);
       p = 100 * GetRandom();
@@ -10613,115 +10401,95 @@ void Decay0::Tl208() {
   bool next3708 = false, next3475 = false, next3198 = false, next2615 = false;
   float pbeta, p;
 
-  pbeta = 100. * GetRandom(); // 82.5% beta decay to 133I
+  pbeta = 100. * GetRandom();  // 82.5% beta decay to 133I
   if (pbeta <= fProbBeta[0]) {
     beta(fEndPoint[0], 0., 0.);
-    nucltransKLM_Pb(fEnGamma[0], fEbindeK, 7.75e-3, fEbindeL, 1.27e-3, fEbindeM,
-                    0.41e-3, 2.3e-5);
+    nucltransKLM_Pb(fEnGamma[0], fEbindeK, 7.75e-3, fEbindeL, 1.27e-3, fEbindeM, 0.41e-3, 2.3e-5);
     next3198 = true;
   } else if (pbeta <= fProbBeta[1]) {
     beta(fEndPoint[1], 0., 0.);
-    nucltransKLM_Pb(fEnGamma[1], fEbindeK, 9.49e-3, fEbindeL, 1.56e-3, fEbindeM,
-                    0.47e-3, 4.9e-6);
+    nucltransKLM_Pb(fEnGamma[1], fEbindeK, 9.49e-3, fEbindeL, 1.56e-3, fEbindeM, 0.47e-3, 4.9e-6);
     next3198 = true;
   } else if (pbeta <= fProbBeta[2]) {
     beta(fEndPoint[2], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 4.55) {
-      nucltransKLM_Pb(fEnGamma[2], fEbindeK, 3.56e-3, fEbindeL, 0.58e-3,
-                      fEbindeM, 0.17e-3, 2.6e-4);
+      nucltransKLM_Pb(fEnGamma[2], fEbindeK, 3.56e-3, fEbindeL, 0.58e-3, fEbindeM, 0.17e-3, 2.6e-4);
       next2615 = true;
     } else if (p <= 29.55) {
-      nucltransKLM_Pb(fEnGamma[3], fEbindeK, 9.99e-3, fEbindeL, 1.64e-3,
-                      fEbindeM, 0.51e-3, 2.6e-6);
+      nucltransKLM_Pb(fEnGamma[3], fEbindeK, 9.99e-3, fEbindeL, 1.64e-3, fEbindeM, 0.51e-3, 2.6e-6);
       next3198 = true;
     } else {
-      nucltransKLM_Pb(fEnGamma[4], fEbindeK, 20.13e-3, fEbindeL, 3.33e-3,
-                      fEbindeM, 1.02e-3, 0.);
+      nucltransKLM_Pb(fEnGamma[4], fEbindeK, 20.13e-3, fEbindeL, 3.33e-3, fEbindeM, 1.02e-3, 0.);
       next3475 = true;
     }
   } else if (pbeta <= fProbBeta[3]) {
     beta(fEndPoint[3], 0., 0.);
-    nucltransKLM_Pb(fEnGamma[5], fEbindeK, 1.69e-3, fEbindeL, 0.26e-3, fEbindeM,
-                    0.08e-3, 2.1e-6);
+    nucltransKLM_Pb(fEnGamma[5], fEbindeK, 1.69e-3, fEbindeL, 0.26e-3, fEbindeM, 0.08e-3, 2.1e-6);
     next3198 = true;
   } else if (pbeta <= fProbBeta[4]) {
     beta(fEndPoint[4], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 87.23) {
-      nucltransKLM_Pb(fEnGamma[6], fEbindeK, 2.43e-2, fEbindeL, 0.40e-2,
-                      fEbindeM, 0.12e-2, 0.);
+      nucltransKLM_Pb(fEnGamma[6], fEbindeK, 2.43e-2, fEbindeL, 0.40e-2, fEbindeM, 0.12e-2, 0.);
       next3475 = true;
     } else {
-      nucltransKLM_Pb(fEnGamma[7], fEbindeK, 5.78e-2, fEbindeL, 0.97e-2,
-                      fEbindeM, 0.29e-2, 0.);
+      nucltransKLM_Pb(fEnGamma[7], fEbindeK, 5.78e-2, fEbindeL, 0.97e-2, fEbindeM, 0.29e-2, 0.);
       next3708 = true;
     }
   } else if (pbeta <= fProbBeta[5]) {
     beta(fEndPoint[5], 0., 0.);
-    nucltransKLM_Pb(fEnGamma[8], fEbindeK, 4.11e-3, fEbindeL, 0.67e-3, fEbindeM,
-                    0.20e-3, 0.19e-3);
+    nucltransKLM_Pb(fEnGamma[8], fEbindeK, 4.11e-3, fEbindeL, 0.67e-3, fEbindeM, 0.20e-3, 0.19e-3);
     next2615 = true;
   } else if (pbeta <= fProbBeta[6]) {
     beta(fEndPoint[6], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 90.31) {
-      nucltransKLM_Pb(fEnGamma[9], fEbindeK, 1.53e-2, fEbindeL, 0.25e-2,
-                      fEbindeM, 0.08e-2, 0.);
+      nucltransKLM_Pb(fEnGamma[9], fEbindeK, 1.53e-2, fEbindeL, 0.25e-2, fEbindeM, 0.08e-2, 0.);
       next3198 = true;
     } else {
-      nucltransKLM_Pb(fEnGamma[10], fEbindeK, 3.60e-2, fEbindeL, 0.60e-2,
-                      fEbindeM, 0.18e-2, 0.);
+      nucltransKLM_Pb(fEnGamma[10], fEbindeK, 3.60e-2, fEbindeL, 0.60e-2, fEbindeM, 0.18e-2, 0.);
       next3475 = true;
     }
   } else if (pbeta <= fProbBeta[7]) {
     beta(fEndPoint[7], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 96.15) {
-      nucltransKLM_Pb(fEnGamma[11], fEbindeK, 1.77e-2, fEbindeL, 0.29e-2,
-                      fEbindeM, 0.10e-2, 0.);
+      nucltransKLM_Pb(fEnGamma[11], fEbindeK, 1.77e-2, fEbindeL, 0.29e-2, fEbindeM, 0.10e-2, 0.);
       next3198 = true;
     } else {
-      nucltransKLM_Pb(fEnGamma[12], fEbindeK, 4.45e-2, fEbindeL, 0.75e-2,
-                      fEbindeM, 0.22e-2, 0.);
+      nucltransKLM_Pb(fEnGamma[12], fEbindeK, 4.45e-2, fEbindeL, 0.75e-2, fEbindeM, 0.22e-2, 0.);
       next3475 = true;
     }
   } else if (pbeta <= fProbBeta[8]) {
     beta(fEndPoint[8], 0., 0.);
-    nucltransKLM_Pb(fEnGamma[13], fEbindeK, 6.43e-3, fEbindeL, 1.05e-3,
-                    fEbindeM, 0.32e-3, 0.05e-3);
+    nucltransKLM_Pb(fEnGamma[13], fEbindeK, 6.43e-3, fEbindeL, 1.05e-3, fEbindeM, 0.32e-3, 0.05e-3);
     next2615 = true;
   } else if (pbeta <= fProbBeta[9]) {
     beta(fEndPoint[9], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 51.25) {
-      nucltransKLM_Pb(fEnGamma[14], fEbindeK, 2.93e-2, fEbindeL, 0.49e-2,
-                      fEbindeM, 0.14e-2, 0.);
+      nucltransKLM_Pb(fEnGamma[14], fEbindeK, 2.93e-2, fEbindeL, 0.49e-2, fEbindeM, 0.14e-2, 0.);
       next3198 = true;
     } else if (p <= 64.82) {
-      nucltransKLM_Pb(fEnGamma[15], fEbindeK, 9.54e-2, fEbindeL, 1.61e-2,
-                      fEbindeM, 0.49e-2, 0.);
+      nucltransKLM_Pb(fEnGamma[15], fEbindeK, 9.54e-2, fEbindeL, 1.61e-2, fEbindeM, 0.49e-2, 0.);
       next3475 = true;
     } else {
-      nucltransKLM_Pb(fEnGamma[16], fEbindeK, 51.60e-2, fEbindeL, 8.83e-2,
-                      fEbindeM, 2.57e-2, 0.);
+      nucltransKLM_Pb(fEnGamma[16], fEbindeK, 51.60e-2, fEbindeL, 8.83e-2, fEbindeM, 2.57e-2, 0.);
       next3708 = true;
     }
   } else if (pbeta <= fProbBeta[10]) {
     beta(fEndPoint[10], 0., 0.);
-    nucltransKLM_Pb(fEnGamma[17], fEbindeK, 3.08e-2, fEbindeL, 0.51e-2,
-                    fEbindeM, 0.16e-2, 0.);
+    nucltransKLM_Pb(fEnGamma[17], fEbindeK, 3.08e-2, fEbindeL, 0.51e-2, fEbindeM, 0.16e-2, 0.);
     next3198 = true;
   } else if (pbeta <= fProbBeta[11]) {
     beta(fEndPoint[11], 0., 0.);
     p = 100 * GetRandom();
     if (p <= 39.49) {
-      nucltransKLM_Pb(fEnGamma[18], fEbindeK, 3.20e-2, fEbindeL, 0.54e-2,
-                      fEbindeM, 0.16e-2, 0.);
+      nucltransKLM_Pb(fEnGamma[18], fEbindeK, 3.20e-2, fEbindeL, 0.54e-2, fEbindeM, 0.16e-2, 0.);
       next3198 = true;
     } else {
-      nucltransKLM_Pb(fEnGamma[19], fEbindeK, 9.22e-1, fEbindeL, 1.59e-1,
-                      fEbindeM, 0.45e-1, 0.);
+      nucltransKLM_Pb(fEnGamma[19], fEbindeK, 9.22e-1, fEbindeL, 1.59e-1, fEbindeM, 0.45e-1, 0.);
       next3708 = true;
     }
   } else if (pbeta <= fProbBeta[12]) {
@@ -10738,16 +10506,13 @@ void Decay0::Tl208() {
   if (next3708) {
     p = 100 * GetRandom();
     if (p <= 1.66) {
-      nucltransKLM_Pb(fEnGamma[20], fEbindeK, 4.49e-3, fEbindeL, 0.84e-3,
-                      fEbindeM, 0.27e-3, 0.);
+      nucltransKLM_Pb(fEnGamma[20], fEbindeK, 4.49e-3, fEbindeL, 0.84e-3, fEbindeM, 0.27e-3, 0.);
       next2615 = true;
     } else if (p <= 97.95) {
-      nucltransKLM_Pb(fEnGamma[21], fEbindeK, 8.42e-2, fEbindeL, 1.42e-2,
-                      fEbindeM, 0.43e-2, 0.);
+      nucltransKLM_Pb(fEnGamma[21], fEbindeK, 8.42e-2, fEbindeL, 1.42e-2, fEbindeM, 0.43e-2, 0.);
       next3198 = true;
     } else {
-      nucltransKLM_Pb(fEnGamma[22], fEbindeK, 5.47e-1, fEbindeL, 1.16e-1,
-                      fEbindeM, 0.37e-1, 0.);
+      nucltransKLM_Pb(fEnGamma[22], fEbindeK, 5.47e-1, fEbindeL, 1.16e-1, fEbindeM, 0.37e-1, 0.);
       next3475 = true;
     }
   }
@@ -10755,25 +10520,21 @@ void Decay0::Tl208() {
     fThlev = 4.e-12;
     p = 100 * GetRandom();
     if (p <= 55.95) {
-      nucltransKLM_Pb(fEnGamma[23], fEbindeK, 2.17e-2, fEbindeL, 0.36e-2,
-                      fEbindeM, 0.11e-2, 0.);
+      nucltransKLM_Pb(fEnGamma[23], fEbindeK, 2.17e-2, fEbindeL, 0.36e-2, fEbindeM, 0.11e-2, 0.);
       next2615 = true;
     } else {
-      nucltransKLM_Pb(fEnGamma[24], fEbindeK, 4.36e-1, fEbindeL, 0.75e-1,
-                      fEbindeM, 0.22e-1, 0.);
+      nucltransKLM_Pb(fEnGamma[24], fEbindeK, 4.36e-1, fEbindeL, 0.75e-1, fEbindeM, 0.22e-1, 0.);
       next3198 = true;
     }
   }
   if (next3198) {
     fThlev = 294.e-12;
-    nucltransKLM_Pb(fEnGamma[25], fEbindeK, 1.51e-2, fEbindeL, 0.41e-2,
-                    fEbindeM, 0.13e-2, 0.);
+    nucltransKLM_Pb(fEnGamma[25], fEbindeK, 1.51e-2, fEbindeL, 0.41e-2, fEbindeM, 0.13e-2, 0.);
     next2615 = true;
   }
   if (next2615) {
     fThlev = 16.7e-12;
-    nucltransKLM_Pb(fEnGamma[26], fEbindeK, 1.71e-3, fEbindeL, 0.29e-3,
-                    fEbindeM, 0.10e-3, 0.37e-3);
+    nucltransKLM_Pb(fEnGamma[26], fEbindeK, 1.71e-3, fEbindeL, 0.29e-3, fEbindeM, 0.10e-3, 0.37e-3);
   }
 }
 ///^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -10783,7 +10544,7 @@ void Decay0::Xe133() {
   bool next161 = false, next81 = false;
   float pbeta, p;
 
-  pbeta = 100. * GetRandom(); // 82.5% beta decay to 133I
+  pbeta = 100. * GetRandom();  // 82.5% beta decay to 133I
   if (pbeta <= fProbBeta[0]) {
     beta(fEndPoint[0], 0., 0.);
     fThlev = 21.e-12;
@@ -10934,9 +10695,8 @@ void Decay0::Y88() {
   } else if (pdecay <= fProbDecay[3]) {
     particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
     next1836 = true;
-  } else { // b+ to Sr88
-    beta2f(fEndPoint[0], 0., 0., 1, fShCorrFactor[0], fShCorrFactor[1],
-           fShCorrFactor[2], fShCorrFactor[3]);
+  } else {  // b+ to Sr88
+    beta2f(fEndPoint[0], 0., 0., 1, fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
     next1836 = true;
   }
 
@@ -10964,9 +10724,9 @@ void Decay0::Zn65() {
 
   pec = 100. * GetRandom();
   if (pec <= fProbEC[0]) {
-    pair(0.329); // beta+ decay to g.s. of 65-Cu
+    pair(0.329);  // beta+ decay to g.s. of 65-Cu
     return;
-  } else { // X ray after EC to 65-Cu
+  } else {  // X ray after EC to 65-Cu
     particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
     if (pec <= fProbEC[1]) {
       fThlev = 0.285e-12;
@@ -11154,8 +10914,8 @@ void Decay0::Nb96() {
 ///************************************************/
 /// Additional functions
 ///************************************************/
-void Decay0::particle(int np, float E1, float E2, float teta1, float teta2,
-                      float phi1, float phi2, float tclev, float thlev) {
+void Decay0::particle(int np, float E1, float E2, float teta1, float teta2, float phi1, float phi2, float tclev,
+                      float thlev) {
   // Generation of isotropic emission of particle in the range of  energies and
   // angles. E1,E2       - range of kinetic energy of particle (MeV);
   // teta1,teta2 - range of teta angle (radians);
@@ -11166,13 +10926,11 @@ void Decay0::particle(int np, float E1, float E2, float teta1, float teta2,
   fNbPart = fNbPart + 1;
   fPparent.push_back(fCurParentIdx);
   if (fNbPart > 100) {
-    warn << "Decay0::particle :WARNING: in event with more than 100 particles: "
-         << fNbPart << newline;
+    warn << "Decay0::particle :WARNING: in event with more than 100 particles: " << fNbPart << newline;
   }
 
   if (np < 1 || np > 50 || (np > 32 && np < 45)) {
-    warn << "Decay0::particle :WARNING: unknown particle number: " << np
-         << newline;
+    warn << "Decay0::particle :WARNING: unknown particle number: " << np << newline;
   }
 
   fNpGeant[fNbPart] = np;
@@ -11183,16 +10941,13 @@ void Decay0::particle(int np, float E1, float E2, float teta1, float teta2,
   float ctet2 = -1.;
   double p;
   float E, ctet;
-  if (teta1 != 0.)
-    ctet1 = cos(teta1);
-  if (teta2 != pi)
-    ctet2 = cos(teta2);
+  if (teta1 != 0.) ctet1 = cos(teta1);
+  if (teta2 != pi) ctet2 = cos(teta2);
 
   ctet = ctet1 + (ctet2 - ctet1) * GetRandom();
   float stet = sqrt(1. - ctet * ctet);
   E = E1;
-  if (E1 != E2)
-    E = E1 + (E2 - E1) * GetRandom();
+  if (E1 != E2) E = E1 + (E2 - E1) * GetRandom();
 
   p = sqrt(E * (E + 2. * pmass));
   fPmoment[0][fNbPart] = p * stet * cos(phi);
@@ -11200,8 +10955,7 @@ void Decay0::particle(int np, float E1, float E2, float teta1, float teta2,
   fPmoment[2][fNbPart] = p * ctet;
   fTdlev = fTclev;
 
-  if (fThlev > 0)
-    fTdlev = fTclev - fThlev / log(2.) * log(GetRandom());
+  if (fThlev > 0) fTdlev = fTclev - fThlev / log(2.) * log(GetRandom());
 
   fPtime[fNbPart] = fTdlev;
   return;
@@ -11276,8 +11030,7 @@ float Decay0::fe1_mod() {
   //  fModebb=1,2,3,7,10 in the doublebeta model
 
   float fe1mod = 0.;
-  if (fE1 > fE0)
-    return fe1mod;
+  if (fE1 > fE0) return fe1mod;
 
   fE2 = fE0 - fE1;
 
@@ -11285,26 +11038,20 @@ float Decay0::fe1_mod() {
   float p2 = sqrt(fE2 * (fE2 + 2. * GetMass(3)));
 
   if (fModebb == 1)
-    fe1mod = (fE1 + GetMass(3)) * p1 * fermi(fZdbb, fE1) * (fE2 + GetMass(3)) *
-             p2 * fermi(fZdbb, fE2);
+    fe1mod = (fE1 + GetMass(3)) * p1 * fermi(fZdbb, fE1) * (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2);
 
   else if (fModebb == 2)
-    fe1mod = (fE1 + GetMass(3)) * p1 * fermi(fZdbb, fE1) * (fE2 + GetMass(3)) *
-             p2 * fermi(fZdbb, fE2) * (fE0 - 2. * fE1) * (fE0 - 2. * fE1);
+    fe1mod = (fE1 + GetMass(3)) * p1 * fermi(fZdbb, fE1) * (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) *
+             (fE0 - 2. * fE1) * (fE0 - 2. * fE1);
 
   else if (fModebb == 3)
-    fe1mod =
-        p1 * fermi(fZdbb, fE1) * p2 * fermi(fZdbb, fE2) *
-        (2. * p1 * p1 * p2 * p2 + 9. *
-                                      ((fE1 + GetMass(3)) * (fE2 + GetMass(3)) +
-                                       GetMass(3) * GetMass(3)) *
-                                      (p1 * p1 + p2 * p2));
+    fe1mod = p1 * fermi(fZdbb, fE1) * p2 * fermi(fZdbb, fE2) *
+             (2. * p1 * p1 * p2 * p2 +
+              9. * ((fE1 + GetMass(3)) * (fE2 + GetMass(3)) + GetMass(3) * GetMass(3)) * (p1 * p1 + p2 * p2));
 
   else if (fModebb == 7)
-    fe1mod =
-        p1 * fermi(fZdbb, fE1) * p2 * fermi(fZdbb, fE2) *
-        ((fE1 + GetMass(3)) * (fE2 + GetMass(3)) + GetMass(3) * GetMass(3)) *
-        (p1 * p1 + p2 * p2);
+    fe1mod = p1 * fermi(fZdbb, fE1) * p2 * fermi(fZdbb, fE2) *
+             ((fE1 + GetMass(3)) * (fE2 + GetMass(3)) + GetMass(3) * GetMass(3)) * (p1 * p1 + p2 * p2);
 
   else if (fModebb == 10)
     fe1mod = (fE1 + GetMass(3)) * p1 * fermi(fZdbb, fE1) * pow(fE0 - fE1, 5);
@@ -11317,34 +11064,26 @@ float Decay0::fe2_mod() {
   // for fModebb=4,5,6,8,13,14,15,16
 
   float fe2mod = 0.;
-  if (fE2 > fE0 - fE1)
-    return fe2mod;
+  if (fE2 > fE0 - fE1) return fe2mod;
 
   float p2 = sqrt(fE2 * (fE2 + 2. * GetMass(3)));
   if (fModebb == 4)
-    fe2mod =
-        (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * pow(fE0 - fE1 - fE2, 5);
+    fe2mod = (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * pow(fE0 - fE1 - fE2, 5);
   else if (fModebb == 5)
     fe2mod = (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * (fE0 - fE1 - fE2);
   else if (fModebb == 6)
-    fe2mod =
-        (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * pow(fE0 - fE1 - fE2, 3);
+    fe2mod = (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * pow(fE0 - fE1 - fE2, 3);
   else if (fModebb == 8)
-    fe2mod = (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) *
-             pow(fE0 - fE1 - fE2, 7) * pow(fE1 - fE2, 2);
+    fe2mod = (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * pow(fE0 - fE1 - fE2, 7) * pow(fE1 - fE2, 2);
   else if (fModebb == 13)
-    fe2mod =
-        (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * pow(fE0 - fE1 - fE2, 7);
+    fe2mod = (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * pow(fE0 - fE1 - fE2, 7);
   else if (fModebb == 14)
-    fe2mod =
-        (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * pow(fE0 - fE1 - fE2, 2);
+    fe2mod = (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * pow(fE0 - fE1 - fE2, 2);
   else if (fModebb == 15)
-    fe2mod = (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) *
-             pow(fE0 - fE1 - fE2, 5) *
+    fe2mod = (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * pow(fE0 - fE1 - fE2, 5) *
              (9 * pow(fE0 - fE1 - fE2, 2) + 21 * pow(fE2 - fE1, 2));
   else if (fModebb == 16)
-    fe2mod = (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) *
-             pow(fE0 - fE1 - fE2, 5) * pow(fE2 - fE1, 2);
+    fe2mod = (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * pow(fE0 - fE1 - fE2, 5) * pow(fE2 - fE1, 2);
 
   return fe2mod;
 }
@@ -11362,8 +11101,7 @@ float Decay0::fermi(const float &Z, const float &E) {
   complex<double> carg;
 
   dE = E;
-  if (E < 50e-06)
-    dE = 50e-06;
+  if (E < 50e-06) dE = 50e-06;
 
   alfaz = Z / 137.036;
   w = dE / 0.511 + 1.;
@@ -11398,17 +11136,14 @@ void Decay0::beta(float Qbeta, float tcnuc, float thnuc) {
     f = fm * GetRandom();
   } while (f > fe);
 
-  if (fZdtr >= 0.)
-    np = 3;
-  if (fZdtr < 0.)
-    np = 2;
+  if (fZdtr >= 0.) np = 3;
+  if (fZdtr < 0.) np = 2;
 
   particle(np, E, E, 0., pi, 0., twopi, tcnuc, fThnuc);
   return;
 }
 ///************************************************/
-void Decay0::beta1f(float Qbeta, float tcnuc, float thnuc, float c1, float c2,
-                    float c3, float c4) {
+void Decay0::beta1f(float Qbeta, float tcnuc, float thnuc, float c1, float c2, float c3, float c4) {
   // Calculation of the angles and energy of beta particles emitted
   // in beta decay of nucleus. The decay is considered as forbidden;
   // correction factor to the allowed spectrum shape has a form
@@ -11434,17 +11169,14 @@ void Decay0::beta1f(float Qbeta, float tcnuc, float thnuc, float c1, float c2,
     f = fm * GetRandom();
   } while (f > fe);
 
-  if (fZdtr >= 0.)
-    np = 3;
-  if (fZdtr < 0.)
-    np = 2;
+  if (fZdtr >= 0.) np = 3;
+  if (fZdtr < 0.) np = 2;
 
   particle(np, E, E, 0., pi, 0., twopi, tcnuc, fThnuc);
   return;
 }
 ///************************************************/
-void Decay0::beta1fu(float Qbeta, float tcnuc, float thnuc, float c1, float c2,
-                     float c3, float c4) {
+void Decay0::beta1fu(float Qbeta, float tcnuc, float thnuc, float c1, float c2, float c3, float c4) {
   // Calculation of the angles and energy of betas emitted in the decay
   // of nucleus. The decay is considered as 1st-forbidden unique.
   // Its shape is a product of theoretical spectrum shape for allowed decay
@@ -11473,47 +11205,40 @@ void Decay0::beta1fu(float Qbeta, float tcnuc, float thnuc, float c1, float c2,
   fC2 = c2;
   fC3 = c3;
   fC4 = c4;
-  if (fZdtr == 19) { // 39Ar, fQbeta=0.565; 42Ar, Qbeta=0.600
-    double Sl[] = {2.0929,  1.2337,  1.0747,  1.0234,  0.99977, 0.98728,
-                   0.98024, 0.97624, 0.97445, 0.97377, 0.97406, 0.97549,
-                   0.9757,  0.9754,  0.9754,  0.9756,  0.9760};
+  if (fZdtr == 19) {  // 39Ar, fQbeta=0.565; 42Ar, Qbeta=0.600
+    double Sl[] = {2.0929,  1.2337,  1.0747,  1.0234, 0.99977, 0.98728, 0.98024, 0.97624, 0.97445,
+                   0.97377, 0.97406, 0.97549, 0.9757, 0.9754,  0.9754,  0.9756,  0.9760};
     fSlSize = 17;
     for (i = 0; i < fSlSize; i++) {
       fSl[i] = Sl[i];
     }
-  } else if (fZdtr == 20) { // 42K, fQbeta=3.525;
-    double Sl[48] = {2.2248,  1.2634,  1.0851,  1.0275,  1.0008,  0.98693,
-                     0.97884, 0.97426, 0.97213, 0.97128, 0.97138, 0.97276,
-                     0.9731,  0.9728,  0.9728,  0.9731,  0.9735,  0.9740,
-                     0.9745,  0.9750,  0.9756,  0.9762,  0.9768,  0.9774,
-                     0.9780,  0.9794,  0.9808,  0.9821,  0.9834,  0.9846,
-                     0.9859,  0.9870,  0.9882,  0.9903,  0.9924};
+  } else if (fZdtr == 20) {  // 42K, fQbeta=3.525;
+    double Sl[48] = {2.2248,  1.2634,  1.0851,  1.0275, 1.0008, 0.98693, 0.97884, 0.97426, 0.97213,
+                     0.97128, 0.97138, 0.97276, 0.9731, 0.9728, 0.9728,  0.9731,  0.9735,  0.9740,
+                     0.9745,  0.9750,  0.9756,  0.9762, 0.9768, 0.9774,  0.9780,  0.9794,  0.9808,
+                     0.9821,  0.9834,  0.9846,  0.9859, 0.9870, 0.9882,  0.9903,  0.9924};
     fSlSize = 35;
     for (i = 0; i < fSlSize; i++) {
       fSl[i] = Sl[i];
     }
-  } else if (fZdtr == 39) { // 90Sr, fQbeta=0.546;
-    double Sl[48] = {5.6836,  2.0435,  1.3704,  1.1386,  1.0327,  0.97761,
-                     0.94571, 0.92621, 0.91383, 0.90577, 0.89708, 0.89379,
-                     0.89354, 0.89479, 0.89695, 0.89953, 0.90229};
+  } else if (fZdtr == 39) {  // 90Sr, fQbeta=0.546;
+    double Sl[48] = {5.6836,  2.0435,  1.3704,  1.1386,  1.0327,  0.97761, 0.94571, 0.92621, 0.91383,
+                     0.90577, 0.89708, 0.89379, 0.89354, 0.89479, 0.89695, 0.89953, 0.90229};
     fSlSize = 17;
     for (i = 0; i < fSlSize; i++) {
       fSl[i] = Sl[i];
     }
-  } else if (fZdtr == 40) { // 90Y, fQbeta=2.228;
-    double Sl[] = {5.8992,  2.0922,  1.3883,  1.1454,  1.0345,  0.97692,
-                   0.94344, 0.92294, 0.90998, 0.90153, 0.89243, 0.88892,
-                   0.88848, 0.88970, 0.89186, 0.89454, 0.89739, 0.90037,
-                   0.90330, 0.90631, 0.90931, 0.91223, 0.91507, 0.9174,
-                   0.9195,  0.9246,  0.9295,  0.9343,  0.9388,  0.9432};
+  } else if (fZdtr == 40) {  // 90Y, fQbeta=2.228;
+    double Sl[] = {5.8992,  2.0922,  1.3883,  1.1454,  1.0345,  0.97692, 0.94344, 0.92294, 0.90998, 0.90153,
+                   0.89243, 0.88892, 0.88848, 0.88970, 0.89186, 0.89454, 0.89739, 0.90037, 0.90330, 0.90631,
+                   0.90931, 0.91223, 0.91507, 0.9174,  0.9195,  0.9246,  0.9295,  0.9343,  0.9388,  0.9432};
     fSlSize = 30;
     for (i = 0; i < fSlSize; i++) {
       fSl[i] = Sl[i];
     }
-  } else if (fZdtr == 56) { // 137-Cs, Qbeta=0.514 , to level 0.662
-    double Sl[] = {9.3262,  2.8592,  1.6650,  1.2481,  1.0580,  0.95794,
-                   0.89948, 0.86350, 0.84043, 0.82535, 0.80875, 0.80209,
-                   0.80046, 0.80152, 0.80409, 0.80752, 0.81167};
+  } else if (fZdtr == 56) {  // 137-Cs, Qbeta=0.514 , to level 0.662
+    double Sl[] = {9.3262,  2.8592,  1.6650,  1.2481,  1.0580,  0.95794, 0.89948, 0.86350, 0.84043,
+                   0.82535, 0.80875, 0.80209, 0.80046, 0.80152, 0.80409, 0.80752, 0.81167};
     fSlSize = 17;
     for (i = 0; i < fSlSize; i++) {
       fSl[i] = Sl[i];
@@ -11531,16 +11256,13 @@ void Decay0::beta1fu(float Qbeta, float tcnuc, float thnuc, float c1, float c2,
     fe = fbeta1fu.Eval(E);
     f = fm * GetRandom();
   } while (f > fe);
-  if (fZdtr >= 0.)
-    np = 3;
-  if (fZdtr < 0.)
-    np = 2;
+  if (fZdtr >= 0.) np = 3;
+  if (fZdtr < 0.) np = 2;
   particle(np, E, E, 0., pi, 0., twopi, tcnuc, fThnuc);
   return;
 }
 ///************************************************/
-void Decay0::beta2f(float Qbeta, float tcnuc, float thnuc, int kf, float c1,
-                    float c2, float c3, float c4) {
+void Decay0::beta2f(float Qbeta, float tcnuc, float thnuc, int kf, float c1, float c2, float c3, float c4) {
   // Calculation of the angles and energy of beta particles emitted
   // in beta decay of nucleus. The decay is considered as forbidden;
   // correction factor to the allowed spectrum shape has one of a form,
@@ -11570,10 +11292,8 @@ void Decay0::beta2f(float Qbeta, float tcnuc, float thnuc, int kf, float c1,
     fe = fbeta2f.Eval(E);
     f = fm * GetRandom();
   } while (f > fe);
-  if (fZdtr >= 0.)
-    np = 3;
-  if (fZdtr < 0.)
-    np = 2;
+  if (fZdtr >= 0.) np = 3;
+  if (fZdtr < 0.) np = 2;
   particle(np, E, E, 0., pi, 0., twopi, tcnuc, fThnuc);
   return;
 }
@@ -11590,18 +11310,17 @@ void Decay0::nucltransK(float Egamma, float Ebinde, float conve, float convp) {
   float p = (1. + conve + convp) * GetRandom();
 
   if (p <= 1) {
-    particle(1, Egamma, Egamma, 0, pi, 0, twopi, fTclev, fThlev); // gamma
+    particle(1, Egamma, Egamma, 0, pi, 0, twopi, fTclev, fThlev);  // gamma
   } else if (p <= 1 + conve) {
     particle(3, Egamma - Ebinde, Egamma - Ebinde, 0., pi, 0., twopi, fTclev,
-             fThlev);                                       // electron
-    particle(1, Ebinde, Ebinde, 0., pi, 0., twopi, 0., 0.); // gamma
+             fThlev);                                        // electron
+    particle(1, Ebinde, Ebinde, 0., pi, 0., twopi, 0., 0.);  // gamma
   } else
-    pair(Egamma - 2. * GetMass(3)); // e+e- pair
+    pair(Egamma - 2. * GetMass(3));  // e+e- pair
   return;
 }
 ///************************************************/
-void Decay0::nucltransKL(float Egamma, float EbindeK, float conveK,
-                         float EbindeL, float conveL, float convp) {
+void Decay0::nucltransKL(float Egamma, float EbindeK, float conveK, float EbindeL, float conveL, float convp) {
   // ucltransKL chooses one of the three concurrent processes by which
   // the transition from one nuclear state to another is occurred:
   // gamma-ray emission, internal conversion and internal pair creation.
@@ -11611,22 +11330,21 @@ void Decay0::nucltransKL(float Egamma, float EbindeK, float conveK,
   float p = (1. + conveK + conveL + convp) * GetRandom();
 
   if (p <= 1.)
-    particle(1, Egamma, Egamma, 0., pi, 0., twopi, fTclev, fThlev); // gamma
+    particle(1, Egamma, Egamma, 0., pi, 0., twopi, fTclev, fThlev);  // gamma
   else if (p <= 1. + conveK) {
     particle(3, Egamma - EbindeK, Egamma - EbindeK, 0., pi, 0., twopi, fTclev,
-             fThlev);                                       // electron
-    particle(1, EbindeK, EbindeK, 0., pi, 0., twopi, 0, 0); // gamma
+             fThlev);                                        // electron
+    particle(1, EbindeK, EbindeK, 0., pi, 0., twopi, 0, 0);  // gamma
   } else if (p <= 1. + conveK + conveL) {
     particle(3, Egamma - EbindeL, Egamma - EbindeL, 0., pi, 0., twopi, fTclev,
-             fThlev);                                       // electron
-    particle(1, EbindeL, EbindeL, 0., pi, 0., twopi, 0, 0); // gamma
+             fThlev);                                        // electron
+    particle(1, EbindeL, EbindeL, 0., pi, 0., twopi, 0, 0);  // gamma
   } else
     pair(Egamma - 2. * GetMass(3));
   return;
 }
 ///************************************************/
-void Decay0::nucltransKLM(float Egamma, float EbindeK, float conveK,
-                          float EbindeL, float conveL, float EbindeM,
+void Decay0::nucltransKLM(float Egamma, float EbindeK, float conveK, float EbindeL, float conveL, float EbindeM,
                           float conveM, float convp) {
   // nucltransKLM chooses one of the three concurrent processes by which
   // the transition from one nuclear state to another is occurred:
@@ -11644,27 +11362,26 @@ void Decay0::nucltransKLM(float Egamma, float EbindeK, float conveK,
 
   float p = (1. + conveK + conveL + conveM + convp) * GetRandom();
   if (p <= 1.)
-    particle(1, Egamma, Egamma, 0., pi, 0., twopi, fTclev, fThlev); // gamma
+    particle(1, Egamma, Egamma, 0., pi, 0., twopi, fTclev, fThlev);  // gamma
   else if (p <= 1. + conveK) {
     particle(3, Egamma - EbindeK, Egamma - EbindeK, 0., pi, 0., twopi, fTclev,
-             fThlev);                                       // electron
-    particle(1, EbindeK, EbindeK, 0., pi, 0., twopi, 0, 0); // gamma
+             fThlev);                                        // electron
+    particle(1, EbindeK, EbindeK, 0., pi, 0., twopi, 0, 0);  // gamma
   } else if (p <= 1. + conveK + conveL) {
     particle(3, Egamma - EbindeL, Egamma - EbindeL, 0., pi, 0., twopi, fTclev,
-             fThlev);                                       // electron
-    particle(1, EbindeL, EbindeL, 0., pi, 0., twopi, 0, 0); // gamma
+             fThlev);                                        // electron
+    particle(1, EbindeL, EbindeL, 0., pi, 0., twopi, 0, 0);  // gamma
   } else if (p <= 1. + conveK + conveL + conveM) {
     particle(3, Egamma - EbindeM, Egamma - EbindeM, 0., pi, 0., twopi, fTclev,
-             fThlev);                                       // electron
-    particle(1, EbindeM, EbindeM, 0., pi, 0., twopi, 0, 0); // gamma
+             fThlev);                                        // electron
+    particle(1, EbindeM, EbindeM, 0., pi, 0., twopi, 0, 0);  // gamma
   } else
     pair(Egamma - 2. * GetMass(3));
 
   return;
 }
 ///************************************************/
-void Decay0::nucltransKLM_Pb(float Egamma, float EbindeK, float conveK,
-                             float EbindeL, float conveL, float EbindeM,
+void Decay0::nucltransKLM_Pb(float Egamma, float EbindeK, float conveK, float EbindeL, float conveL, float EbindeM,
                              float conveM, float convp) {
   // The same as nucltransKLM but two X rays are emitted after K conversion
   // in deexcitation of 208-Pb in decay 208Tl->208Pb.
@@ -11672,27 +11389,27 @@ void Decay0::nucltransKLM_Pb(float Egamma, float EbindeK, float conveK,
   float p, p1;
   p = (1. + conveK + conveL + conveM + convp) * GetRandom();
   if (p <= 1.)
-    particle(1, Egamma, Egamma, 0., pi, 0., twopi, fTclev, fThlev); // gamma
+    particle(1, Egamma, Egamma, 0., pi, 0., twopi, fTclev, fThlev);  // gamma
   else if (p <= 1. + conveK) {
     particle(3, Egamma - EbindeK, Egamma - EbindeK, 0., pi, 0., twopi, fTclev,
-             fThlev); // electron
+             fThlev);  // electron
     p1 = 100. * GetRandom();
     if (p1 <= 73.9) {
-      particle(1, 0.074, 0.074, 0., pi, 0., twopi, 0, 0); // gamma
-      particle(1, 0.014, 0.014, 0., pi, 0., twopi, 0, 0); // gamma
+      particle(1, 0.074, 0.074, 0., pi, 0., twopi, 0, 0);  // gamma
+      particle(1, 0.014, 0.014, 0., pi, 0., twopi, 0, 0);  // gamma
     } else {
-      particle(1, 0.085, 0.085, 0., pi, 0., twopi, 0, 0); // gamma
-      particle(1, 0.003, 0.003, 0., pi, 0., twopi, 0, 0); // gamma
+      particle(1, 0.085, 0.085, 0., pi, 0., twopi, 0, 0);  // gamma
+      particle(1, 0.003, 0.003, 0., pi, 0., twopi, 0, 0);  // gamma
       // in 4.8% few low energy particles are emitted; they are neglected
     }
   } else if (p <= 1. + conveK + conveL) {
     particle(3, Egamma - EbindeL, Egamma - EbindeL, 0., pi, 0., twopi, fTclev,
-             fThlev);                                       // electron
-    particle(1, EbindeL, EbindeL, 0., pi, 0., twopi, 0, 0); // gamma
+             fThlev);                                        // electron
+    particle(1, EbindeL, EbindeL, 0., pi, 0., twopi, 0, 0);  // gamma
   } else if (p <= 1. + conveK + conveL + conveM) {
     particle(3, Egamma - EbindeM, Egamma - EbindeM, 0., pi, 0., twopi, fTclev,
-             fThlev);                                       // electron
-    particle(1, EbindeM, EbindeM, 0., pi, 0., twopi, 0, 0); // gamma
+             fThlev);                                        // electron
+    particle(1, EbindeM, EbindeM, 0., pi, 0., twopi, 0, 0);  // gamma
   } else
     pair(Egamma - 2. * GetMass(3));
 
@@ -11713,8 +11430,7 @@ void Decay0::pair(float Epair) {
   return;
 }
 ///************************************************/
-void Decay0::tgold(float a, float b, TF1 &fb, float eps, int minmax,
-                   float &xextr, float &fextr) {
+void Decay0::tgold(float a, float b, TF1 &fb, float eps, int minmax, float &xextr, float &fextr) {
   // tgold determines maximum or minimum of the function f(x) in
   // the interval [a,b] by the gold section method.
   float qc = 0.61803395;
@@ -11760,15 +11476,12 @@ complex<double> Decay0::cgamma(complex<double> z) {
   double na = 0., t = 0., x1 = 0., sr = 0., si = 0.;
   int j = 0, k = 0;
 
-  static double a[] = {8.333333333333333e-02, -2.777777777777778e-03,
-                       7.936507936507937e-04, -5.952380952380952e-04,
-                       8.417508417508418e-04, -1.917526917526918e-03,
-                       6.410256410256410e-03, -2.955065359477124e-02,
+  static double a[] = {8.333333333333333e-02, -2.777777777777778e-03, 7.936507936507937e-04, -5.952380952380952e-04,
+                       8.417508417508418e-04, -1.917526917526918e-03, 6.410256410256410e-03, -2.955065359477124e-02,
                        1.796443723688307e-01, -1.39243221690590};
   x = real(z);
   y = imag(z);
-  if (x > 171)
-    return complex<double>(1e308, 0);
+  if (x > 171) return complex<double>(1e308, 0);
   if ((y == 0.0) && (x == (int)x) && (x <= 0.0))
     return complex<double>(1e308, 0);
   else if (x < 0.0) {
@@ -11807,8 +11520,7 @@ complex<double> Decay0::cgamma(complex<double> z) {
     si = -cos(pi * x) * sinh(pi * y);
     q2 = sqrt(sr * sr + si * si);
     th2 = atan(si / sr);
-    if (sr < 0.0)
-      th2 += pi;
+    if (sr < 0.0) th2 += pi;
     gr = log(pi / (q1 * q2)) - gr;
     gi = -th1 - th2 - gi;
   }
@@ -11824,8 +11536,7 @@ float Decay0::divdif(double xtab[50], double xval) {
   int i = 0, j = 0;
   double difval = 0.;
   int N = fSlSize;
-  if (N < 2)
-    return difval;
+  if (N < 2) return difval;
   int arr[] = {2, 10, fSlSize - 1};
   int M = TMath::MinElement(3, arr);
   int mplus = M + 1;
@@ -11863,8 +11574,7 @@ float Decay0::divdif(double xtab[50], double xval) {
   do {
     if (dothat) {
       l = -l;
-      if (l >= 0)
-        l = l + 1;
+      if (l >= 0) l = l + 1;
     }
     isub = ix + l;
     if (0 <= isub && isub <= N) {
@@ -11898,8 +11608,7 @@ float Decay0::divdif(double xtab[50], double xval) {
   // Evaluate the Newton interpolation formula at xval,
   // averaging two values of last difference if extra=true
   double sum = D[mplus - 1];
-  if (extra)
-    sum = 0.5 * (sum + D[M + 1]);
+  if (extra) sum = 0.5 * (sum + D[M + 1]);
 
   j = M - 1;
   for (int l = 1; l <= M; l++) {
@@ -11915,18 +11624,18 @@ float Decay0::GetRandom() { return G4UniformRand(); }
 G4double Decay0::GetMass(int gnp) {
   int pdg = 0;
   if (gnp == 1)
-    pdg = 22; // gamma
+    pdg = 22;  // gamma
   else if (gnp == 2)
-    pdg = -11; // positron
+    pdg = -11;  // positron
   else if (gnp == 3)
-    pdg = 11; // electron
+    pdg = 11;  // electron
   else if (gnp == 47)
-    pdg = 1000020040; // alpha
+    pdg = 1000020040;  // alpha
   fPartDef = G4ParticleTable::GetParticleTable()->FindParticle(pdg);
   double mass = fPartDef->GetPDGMass();
   return mass;
 }
 
-} // namespace RAT
+}  // namespace RAT
 
 #pragma GCC diagnostic pop

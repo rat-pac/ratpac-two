@@ -1,11 +1,10 @@
+#include <G4UIcommand.hh>
+#include <G4UIdirectory.hh>
+#include <G4UIparameter.hh>
 #include <RAT/DBTextLoader.hh>
 #include <RAT/Log.hh>
 #include <RAT/ProcBlock.hh>
 #include <RAT/ProcBlockManager.hh>
-
-#include <G4UIcommand.hh>
-#include <G4UIdirectory.hh>
-#include <G4UIparameter.hh>
 #include <globals.hh>
 
 // Processors
@@ -43,22 +42,23 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   // add processor command
   procCmd = new G4UIcommand("/rat/proc", this);
   procCmd->SetGuidance("Add a processor to the analysis stack");
-  aParam = new G4UIparameter("procname", 's', false); // required
+  aParam = new G4UIparameter("procname", 's', false);  // required
   procCmd->SetParameter(aParam);
 
   // add processor to the end
   procLastCmd = new G4UIcommand("/rat/proclast", this);
-  procLastCmd->SetGuidance("Add a processor to the end of the analysis stack, "
-                           "after command-line processors");
-  aParam = new G4UIparameter("procname", 's', false); // required
+  procLastCmd->SetGuidance(
+      "Add a processor to the end of the analysis stack, "
+      "after command-line processors");
+  aParam = new G4UIparameter("procname", 's', false);  // required
   procLastCmd->SetParameter(aParam);
 
   // set proc parameter command
   setCmd = new G4UIcommand("/rat/procset", this);
   procCmd->SetGuidance("Set parameter for most recent processor");
-  aParam = new G4UIparameter("param", 's', false); // required
+  aParam = new G4UIparameter("param", 's', false);  // required
   setCmd->SetParameter(aParam);
-  aParam = new G4UIparameter("newvalue", 's', false); // required
+  aParam = new G4UIparameter("newvalue", 's', false);  // required
   setCmd->SetParameter(aParam);
 
   // ----------------Create processor allocator table-----------------
@@ -93,10 +93,10 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   // -----------------------------------------------------------------
 
   // Register main block
-  mainBlock = theMainBlock; // convenience pointer since we only process
-                            // events through the main block.  Also lets us
-                            // quickly check if the user has forgotten to close
-                            // an if statement
+  mainBlock = theMainBlock;  // convenience pointer since we only process
+                             // events through the main block.  Also lets us
+                             // quickly check if the user has forgotten to close
+                             // an if statement
   blocks.push(theMainBlock);
 }
 
@@ -105,11 +105,10 @@ ProcBlockManager::~ProcBlockManager() {
   delete procCmd;
 
   // ProcAllocators
-  std::map<std::string, ProcAllocator *>::iterator allocator =
-      procAllocators.begin();
+  std::map<std::string, ProcAllocator *>::iterator allocator = procAllocators.begin();
   while (allocator != procAllocators.end()) {
-    delete allocator->second; // allocator points to pair<>,
-                              // Processor object is the second item in pair
+    delete allocator->second;  // allocator points to pair<>,
+                               // Processor object is the second item in pair
     allocator++;
   }
 
@@ -126,14 +125,11 @@ G4String ProcBlockManager::GetCurrentValue(G4UIcommand *command) {
 void ProcBlockManager::SetNewValue(G4UIcommand *command, G4String newValue) {
   // procCmd
   if (command == procCmd) {
-    if (!DoProcCmd(newValue, false))
-      Log::Die("Unknown processor: " + newValue);
+    if (!DoProcCmd(newValue, false)) Log::Die("Unknown processor: " + newValue);
   } else if (command == procLastCmd) {
-    if (!DoProcCmd(newValue, true))
-      Log::Die("Unknown processor: " + newValue);
+    if (!DoProcCmd(newValue, true)) Log::Die("Unknown processor: " + newValue);
   } else if (command == setCmd) {
     if (lastProc != 0) {
-
       try {
         DoProcSetCmd(newValue);
       } catch (Processor::ParamUnknown &pu) {
@@ -143,8 +139,9 @@ void ProcBlockManager::SetNewValue(G4UIcommand *command, G4String newValue) {
       }
 
     } else
-      Log::Die("ProcBlockManager: "
-               "Cannot use /rat/procset until after /rat/proc");
+      Log::Die(
+          "ProcBlockManager: "
+          "Cannot use /rat/procset until after /rat/proc");
   } else
     Log::Die("ProcBlockManager: Invalid command " + command->GetCommandPath());
 }
@@ -153,8 +150,7 @@ bool ProcBlockManager::DoProcCmd(std::string procname, bool last) {
   // Is this a user processor? (starts with "user")
   if (procname.find("user") == 0) {
     lastProc = construct_user_proc(procname);
-    if (lastProc == 0)
-      return false;
+    if (lastProc == 0) return false;
     // Do we have a processor with this name?
   } else if (procAllocators.count(procname) > 0)
     // If so, ask the appropriate process allocator to create a new one
@@ -180,23 +176,22 @@ bool ProcBlockManager::DoProcCmd(std::string procname, bool last) {
 void ProcBlockManager::DoProcSetCmd(std::string cmdstring) {
   Tokenizer t(cmdstring);
 
-  if (t.Next() != Tokenizer::TYPE_IDENTIFIER)
-    Log::Die("DoProcSetCmd: Invalid param name in /rat/procset " + cmdstring);
+  if (t.Next() != Tokenizer::TYPE_IDENTIFIER) Log::Die("DoProcSetCmd: Invalid param name in /rat/procset " + cmdstring);
   std::string param(t.Token());
 
   try {
     switch (t.Next()) {
-    case Tokenizer::TYPE_INTEGER:
-      lastProc->SetI(param, t.AsInt());
-      break;
-    case Tokenizer::TYPE_DOUBLE:
-      lastProc->SetD(param, t.AsDouble());
-      break;
-    case Tokenizer::TYPE_STRING:
-      lastProc->SetS(param, t.Token());
-      break;
-    default:
-      Log::Die("DoProcSetCmd: Invalid value in /rat/procset " + cmdstring);
+      case Tokenizer::TYPE_INTEGER:
+        lastProc->SetI(param, t.AsInt());
+        break;
+      case Tokenizer::TYPE_DOUBLE:
+        lastProc->SetD(param, t.AsDouble());
+        break;
+      case Tokenizer::TYPE_STRING:
+        lastProc->SetS(param, t.Token());
+        break;
+      default:
+        Log::Die("DoProcSetCmd: Invalid value in /rat/procset " + cmdstring);
     }
   } catch (Processor::ParamUnknown &pu) {
     Log::Die("Parameter unknown: " + pu.param);
@@ -205,4 +200,4 @@ void ProcBlockManager::DoProcSetCmd(std::string cmdstring) {
   }
 }
 
-} // namespace RAT
+}  // namespace RAT

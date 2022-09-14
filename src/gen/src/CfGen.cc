@@ -3,13 +3,7 @@
 
 // See comments in RATCfGen.hh
 
-#include <RAT/CfGen.hh>
-#include <RAT/CfSource.hh>
-
-#include <RAT/Factory.hh>
-#include <RAT/GLG4PosGen.hh>
-#include <RAT/GLG4StringUtil.hh>
-#include <RAT/GLG4TimeGen.hh>
+#include <CLHEP/Vector/LorentzVector.h>
 
 #include <G4Event.hh>
 #include <G4Gamma.hh>
@@ -19,9 +13,12 @@
 #include <G4PrimaryVertex.hh>
 #include <G4ThreeVector.hh>
 #include <G4UnitsTable.hh>
-
-#include <CLHEP/Vector/LorentzVector.h>
-
+#include <RAT/CfGen.hh>
+#include <RAT/CfSource.hh>
+#include <RAT/Factory.hh>
+#include <RAT/GLG4PosGen.hh>
+#include <RAT/GLG4StringUtil.hh>
+#include <RAT/GLG4TimeGen.hh>
 #include <cstring>
 
 #undef DEBUG
@@ -57,8 +54,7 @@ void CfGen::GenerateEvent(G4Event *event) {
   int numberGammas = cfSource.GetNumGamma();
 
 #ifdef DEBUG
-  G4cout << "RAT::CfGen::GenerateEvent: " << numberNeutrons << " neutrons, "
-         << numberGammas << " photons" << G4endl;
+  G4cout << "RAT::CfGen::GenerateEvent: " << numberNeutrons << " neutrons, " << numberGammas << " photons" << G4endl;
 #endif
 
   // For each neutron...
@@ -72,22 +68,18 @@ void CfGen::GenerateEvent(G4Event *event) {
 
     // generate a vertex with a primary particle
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, time);
-    G4PrimaryParticle *particle =
-        new G4PrimaryParticle(neutron, p.px(), p.py(), p.pz());
-    particle->SetMass(
-        neutron->GetPDGMass()); // Apparently this is useful in IBD code.
+    G4PrimaryParticle *particle = new G4PrimaryParticle(neutron, p.px(), p.py(), p.pz());
+    particle->SetMass(neutron->GetPDGMass());  // Apparently this is useful in IBD code.
     vertex->SetPrimary(particle);
     event->AddPrimaryVertex(vertex);
 
 #ifdef DEBUG
     G4cout << "RAT::CfGen::GenerateEvent: "
-           << "Neutron " << i << " of " << numberNeutrons
-           << "    time=" << G4BestUnit(time, "Time")
-           << ", position=" << G4BestUnit(position, "Length")
-           << ", momentum=" << G4BestUnit(p, "Energy") << G4endl;
+           << "Neutron " << i << " of " << numberNeutrons << "    time=" << G4BestUnit(time, "Time")
+           << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy") << G4endl;
 #endif
 
-  } // for each neutron
+  }  // for each neutron
 
   // For each prompt photon...
   for (int i = 0; i < numberGammas; i++) {
@@ -100,22 +92,19 @@ void CfGen::GenerateEvent(G4Event *event) {
 
     // generate a vertex with a primary particle
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, time);
-    G4PrimaryParticle *particle =
-        new G4PrimaryParticle(gamma, p.px(), p.py(), p.pz());
-    particle->SetMass(gamma->GetPDGMass()); // Who knows?  Let's do this the
-                                            // same way as the others.
+    G4PrimaryParticle *particle = new G4PrimaryParticle(gamma, p.px(), p.py(), p.pz());
+    particle->SetMass(gamma->GetPDGMass());  // Who knows?  Let's do this the
+                                             // same way as the others.
     vertex->SetPrimary(particle);
     event->AddPrimaryVertex(vertex);
 
 #ifdef DEBUG
     G4cout << "RAT::CfGen::GenerateEvent: "
-           << "Gamma " << i << " of " << numberGammas
-           << "    time=" << G4BestUnit(time, "Time")
-           << ", position=" << G4BestUnit(position, "Length")
-           << ", momentum=" << G4BestUnit(p, "Energy") << G4endl;
+           << "Gamma " << i << " of " << numberGammas << "    time=" << G4BestUnit(time, "Time")
+           << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy") << G4endl;
 #endif
 
-  } // for each prompt photon
+  }  // for each prompt photon
 }
 
 void CfGen::ResetTime(double offset) {
@@ -123,16 +112,14 @@ void CfGen::ResetTime(double offset) {
   nextTime = eventTime + offset;
 #ifdef DEBUG
   G4cout << "RAT::CfGen::ResetTime:"
-         << " eventTime=" << G4BestUnit(eventTime, "Time")
-         << ", offset=" << G4BestUnit(offset, "Time")
+         << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
          << ", nextTime=" << G4BestUnit(nextTime, "Time") << G4endl;
 #endif
 }
 
 void CfGen::SetState(G4String state) {
 #ifdef DEBUG
-  G4cout << "RAT::CfGen::SetState called with state='" << state << "'"
-         << G4endl;
+  G4cout << "RAT::CfGen::SetState called with state='" << state << "'" << G4endl;
 #endif
 
   // Break the argument to the this generator into sub-strings
@@ -146,11 +133,10 @@ void CfGen::SetState(G4String state) {
 #endif
 
   try {
-
     if (nArgs >= 3) {
       // The last argument is an optional time generator
       delete timeGen;
-      timeGen = 0; // In case of exception in next line
+      timeGen = 0;  // In case of exception in next line
       timeGen = GlobalFactory<GLG4TimeGen>::New(parts[2]);
     }
 
@@ -169,12 +155,10 @@ void CfGen::SetState(G4String state) {
       posGen = GlobalFactory<GLG4PosGen>::New(parts[1]);
     } else {
       G4Exception(__FILE__, "Invalid Parameter", FatalException,
-                  ("CfGen syntax error: '" + state +
-                   "' does not have a position generator")
-                      .c_str());
+                  ("CfGen syntax error: '" + state + "' does not have a position generator").c_str());
     }
 
-    stateStr = state; // Save for later call to GetState()
+    stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
     G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
   }
@@ -186,8 +170,7 @@ void CfGen::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "CfGen error: Cannot set time state, no time generator selected"
-           << G4endl;
+    G4cerr << "CfGen error: Cannot set time state, no time generator selected" << G4endl;
 }
 
 G4String CfGen::GetTimeState() const {
@@ -213,4 +196,4 @@ G4String CfGen::GetPosState() const {
     return G4String("CfGen error: no position generator selected");
 }
 
-} // namespace RAT
+}  // namespace RAT

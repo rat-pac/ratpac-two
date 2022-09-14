@@ -1,5 +1,4 @@
 #include <RAT/FermiFunction.hh>
-
 #include <cmath>
 #include <complex>
 #include <cstdlib>
@@ -7,19 +6,14 @@
 
 namespace RAT {
 
-double Nucl_Beta(int Beta, double Z, double A, double W, double W0, int N,
-                 double vMass) {
+double Nucl_Beta(int Beta, double Z, double A, double W, double W0, int N, double vMass) {
   double Ft = 0.;
   double P = sqrt(pow(W, 2) - 1.);
   double V0 = Screening_Potential(Z, P, Beta);
-  if (W0 < 1. + V0)
-    V0 = 0.;
-  if (W <= 1. + V0)
-    return Ft;
-  if (W >= W0)
-    return Ft;
-  if (Beta == 0)
-    return Ft;
+  if (W0 < 1. + V0) V0 = 0.;
+  if (W <= 1. + V0) return Ft;
+  if (W >= W0) return Ft;
+  if (Beta == 0) return Ft;
 
   for (int k = 1; k <= N + 1; k++) {
     double Lambda = Nucl_Wave(Beta, Z, A, W, k);
@@ -35,7 +29,6 @@ double Nucl_Beta(int Beta, double Z, double A, double W, double W0, int N,
 }
 
 double Nucl_Wave(int Beta, double Z, double A, double W, int k) {
-
   double Wave = 0.;
   double P = sqrt(pow(W, 2) - 1.);
   double V0 = Screening_Potential(Z, P, Beta);
@@ -46,11 +39,9 @@ double Nucl_Wave(int Beta, double Z, double A, double W, int k) {
   double GK = Nucl_Wave_Phase(Beta, Z, A, WPrime, -k, -1);
   double Q = k + 0.5;
   double L = pow(2., k) * exp(GammaLn(Q)) / sqrt(M_PI);
-  double Lambda = (pow(GK, 2) + pow(FK, 2)) * pow(L, 2) / (2. * pow(P, 2)) /
-                  pow((P * R), (2. * k - 2.));
+  double Lambda = (pow(GK, 2) + pow(FK, 2)) * pow(L, 2) / (2. * pow(P, 2)) / pow((P * R), (2. * k - 2.));
 
-  double Coulomb_corr =
-      (PPrime * WPrime) / (P * W) * pow((PPrime / P), 2. * k - 2.);
+  double Coulomb_corr = (PPrime * WPrime) / (P * W) * pow((PPrime / P), 2. * k - 2.);
 
   double Lambda_corr = Nucl_Size(Beta, Z, W, k);
 
@@ -59,18 +50,14 @@ double Nucl_Wave(int Beta, double Z, double A, double W, int k) {
 }
 
 double Nucl_Size(int Beta, double Z, double W, int k) {
-
   double Size = 1.;
   double R = 0.;
 
-  if ((k > 1) || (Beta == 0))
-    return Size;
+  if ((k > 1) || (Beta == 0)) return Size;
 
-  if ((Beta < 0) && (Z < 50.))
-    return Size;
+  if ((Beta < 0) && (Z < 50.)) return Size;
 
-  if ((Beta > 0) && (Z < 80.))
-    return Size;
+  if ((Beta > 0) && (Z < 80.)) return Size;
 
   if (Beta < 0) {
     R = (Z - 50.) * (-25.e-04 - 4e-06 * W * (Z - 50.));
@@ -87,11 +74,11 @@ double Nucl_Mass(double A, double Z) {
 
   double Mass = 0.;
 
-  double av = 15.5;   // MeV
-  double as = 16.8;   // MeV
-  double ac = 0.72;   // MeV
-  double asym = 23.0; // MeV
-  double ap = 34.0;   // MeV
+  double av = 15.5;    // MeV
+  double as = 16.8;    // MeV
+  double ac = 0.72;    // MeV
+  double asym = 23.0;  // MeV
+  double ap = 34.0;    // MeV
 
   double delta = 0.;
   int iZ = (int)Z;
@@ -101,13 +88,10 @@ double Nucl_Mass(double A, double Z) {
   bool evenZ = ((iZ % 2) == 0);
   bool evenN = ((iN % 2) == 0);
 
-  if ((evenZ) && (evenN))
-    delta += ap * pow(A, -0.75);
-  if ((!evenZ) && (!evenN))
-    delta -= ap * pow(A, -0.75);
+  if ((evenZ) && (evenN)) delta += ap * pow(A, -0.75);
+  if ((!evenZ) && (!evenN)) delta -= ap * pow(A, -0.75);
 
-  double BindE =
-      av * A - as * pow(A, 2. / 3.) - ac * Z * (Z - 1.) * pow(A, -1. / 3.);
+  double BindE = av * A - as * pow(A, 2. / 3.) - ac * Z * (Z - 1.) * pow(A, -1. / 3.);
   BindE += delta - asym * pow(A - 2. * Z, 2.) / A;
 
   Mass = Z * m1H + (A - Z) * mn - BindE;
@@ -116,14 +100,12 @@ double Nucl_Mass(double A, double Z) {
 }
 
 double Nucl_Radius(double A) {
-
   double Radius = 0.;
   Radius = (0.002908 * pow(A, (1. / 3.)) - 0.002437 * pow(A, (-1. / 3.)));
   return Radius;
 }
 
 double Nucl_Wave_Phase(int Beta, double Z, double A, double W, int k, int sel) {
-
   const double AlphaConstant = 1. / 137.03599911;
   std::complex<double> Phase_1, Phase_2, Phase;
 
@@ -132,12 +114,10 @@ double Nucl_Wave_Phase(int Beta, double Z, double A, double W, int k, int sel) {
   double P = sqrt(pow(W, 2) - 1.);
   double R = Nucl_Radius(A);
   double Y = Beta * AlphaConstant * Z * W / P;
-  double Factor =
-      pow((2. * P * R), Gamma) * exp(M_PI * Y / 2.) / 2. / R / sqrt(W);
+  double Factor = pow((2. * P * R), Gamma) * exp(M_PI * Y / 2.) / 2. / R / sqrt(W);
 
   Phase_1 = exp(std::complex<double>(0., 2. * P * R));
-  Phase_2 =
-      -(std::complex<double>(k, -Y / W)) / (std::complex<double>(Gamma, Y));
+  Phase_2 = -(std::complex<double>(k, -Y / W)) / (std::complex<double>(Gamma, Y));
   Phase = Phase_1 * Phase_2;
   std::complex<double> Factor_C;
   if ((1. - sel * W) > 0) {
@@ -168,7 +148,6 @@ double Nucl_Wave_Phase(int Beta, double Z, double A, double W, int k, int sel) {
 }
 
 double Screening_Potential(double Z, double p, int Beta) {
-
   /* The Coulomb screening potential comes from a
      parametrization of J.J. Matese and W.R. Thompson,
      Phys. Rev. 150, 846 (1966).
@@ -188,8 +167,7 @@ double Screening_Potential(double Z, double p, int Beta) {
   }
 
   double Vs = 0.;
-  if (p <= 0.)
-    return Vs;
+  if (p <= 0.) return Vs;
   Vs = VTerm * pow(Z, 4. / 3.) * exp(-ATerm / p - BTerm / pow(p, 2));
   Vs *= Beta;
   Vs /= (ElectronMass * 1.e+06);
@@ -197,10 +175,7 @@ double Screening_Potential(double Z, double p, int Beta) {
   return Vs;
 }
 
-std::complex<double> Hyper1F1Norm(std::complex<double> A,
-                                  std::complex<double> B,
-                                  std::complex<double> Z) {
-
+std::complex<double> Hyper1F1Norm(std::complex<double> A, std::complex<double> B, std::complex<double> Z) {
   /*  HyperGeometric 1F1 Normalized function
 
   F = (Sum k = 1, inf) A_k / B_k * Z**k / k!
@@ -260,7 +235,6 @@ double Factorial(int N) {
 }
 
 double HyperGeometric_PQF(double A[], int nA, double B[], int nB, double Z) {
-
   /*  HyperGeometric PQF function.  Performs a decrete summation
 
   PQF = Sum(k=1,inf) (a1 * a2 * an)_k / (b1 * b2 * bn)_k * z^k / k!
@@ -278,13 +252,11 @@ double HyperGeometric_PQF(double A[], int nA, double B[], int nB, double Z) {
 
   // Check if indicies are valid
 
-  if ((nA < 0) || (nB < 0))
-    return F;
+  if ((nA < 0) || (nB < 0)) return F;
 
   // Perform summation up to nK
 
   for (int k = 1; k <= nK; k++) {
-
     for (int i = 0; i < nA; i++) {
       ATerm = ATerm * (A[i] + k - 1.);
     }
@@ -302,10 +274,8 @@ double HyperGeometric_PQF(double A[], int nA, double B[], int nB, double Z) {
 }
 
 double GammaLn(double xx) {
-
-  double cof[6] = {76.18009172947146,   -86.50532032941677,
-                   24.01409824083091,   -1.231739572450155,
-                   .001208650973866179, -.000005395239384953};
+  double cof[6] = {76.18009172947146,  -86.50532032941677,  24.01409824083091,
+                   -1.231739572450155, .001208650973866179, -.000005395239384953};
 
   double stp = 2.5066282746310005;
   double x = xx;
@@ -322,10 +292,8 @@ double GammaLn(double xx) {
 }
 
 std::complex<double> GammaLn_Complex(std::complex<double> xx) {
-
-  double cof[6] = {76.18009172947146,   -86.50532032941677,
-                   24.01409824083091,   -1.231739572450155,
-                   .001208650973866179, -.000005395239384953};
+  double cof[6] = {76.18009172947146,  -86.50532032941677,  24.01409824083091,
+                   -1.231739572450155, .001208650973866179, -.000005395239384953};
 
   double stp = 2.5066282746310005;
   std::complex<double> x = xx;
@@ -344,4 +312,4 @@ std::complex<double> GammaLn_Complex(std::complex<double> xx) {
   return gammln_cpx;
 }
 
-} // namespace RAT
+}  // namespace RAT

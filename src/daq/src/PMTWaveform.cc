@@ -1,4 +1,5 @@
 #include <CLHEP/Random/RandGauss.h>
+
 #include <RAT/Log.hh>
 #include <RAT/PMTPulse.hh>
 #include <RAT/PMTWaveform.hh>
@@ -23,4 +24,4 @@ double PMTWaveform::GetHeight(double currenttime) {
   return height;
 }
 
-} // namespace RAT
+}  // namespace RAT

@@ -2,9 +2,10 @@
 #define __RAT_FitTensorProc__
 
 #if TENSORFLOW_Enabled
+#include <cppflow/cppflow.h>
+
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/Processor.hh>
-#include <cppflow/cppflow.h>
 #include <string>
 
 namespace RAT {
@@ -12,10 +13,10 @@ namespace RAT {
 namespace DS {
 class Root;
 class EV;
-} // namespace DS
+}  // namespace DS
 
 class FitTensorProc : public Processor {
-public:
+ public:
   FitTensorProc();
   virtual ~FitTensorProc() {}
 
@@ -23,17 +24,16 @@ public:
   TVector3 PositionFit(DS::Root *ds, DS::EV *ev);
   TVector3 DirectionFit(DS::Root *ds, DS::EV *ev, TVector3 pos);
 
-  cppflow::tensor CreateProjection(DS::EV *ev, DS::PMTInfo *pmtinfo,
-                                   TVector3 coordinates);
+  cppflow::tensor CreateProjection(DS::EV *ev, DS::PMTInfo *pmtinfo, TVector3 coordinates);
 
-protected:
+ protected:
   double fPower;
   double fRescale;
   cppflow::model *positionModel;
   cppflow::model *directionModel;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif
-#endif // __RAT_FitTensorProc__
+#endif  // __RAT_FitTensorProc__

@@ -20,14 +20,14 @@ namespace RAT {
 class SNgen;
 
 class SNgenMessenger : public G4UImessenger {
-public:
+ public:
   SNgenMessenger(SNgen *);
   ~SNgenMessenger();
 
   void SetNewValue(G4UIcommand *command, G4String newValues);
   G4String GetCurrentValue(G4UIcommand *command);
 
-private:
+ private:
   SNgen *sngen;
 
   G4UIcmdWithADouble *wmaCmd;
@@ -41,6 +41,6 @@ private:
   G4UIcmdWithADouble *ModelCmd;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_SNgenMessenger_hh
+#endif  // RAT_SNgenMessenger_hh

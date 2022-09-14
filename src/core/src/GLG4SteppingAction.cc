@@ -15,6 +15,9 @@
 //  Author: Glenn Horton-Smith, April 7, 2000
 
 #include "RAT/GLG4SteppingAction.hh"
+
+#include <RAT/TrackInfo.hh>
+
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "G4OpticalPhoton.hh"
 #include "G4ParticleChange.hh"
@@ -28,7 +31,6 @@
 #include "RAT/GLG4PrimaryGeneratorAction.hh"
 #include "RAT/GLG4Scint.hh"
 #include "globals.hh"
-#include <RAT/TrackInfo.hh>
 
 GLG4SteppingAction::GLG4SteppingAction() {
   myGenerator = GLG4PrimaryGeneratorAction::GetTheGLG4PrimaryGeneratorAction();
@@ -55,20 +57,16 @@ struct GLG4SteppingAction_time_s {
   }
 };
 
-typedef G4std::map<G4String, GLG4SteppingAction_time_s>
-    GLG4SteppingAction_time_map;
-typedef G4std::map<G4String, GLG4SteppingAction_time_s>::iterator
-    GLG4SteppingAction_time_map_iterator;
+typedef std::map<G4String, GLG4SteppingAction_time_s> GLG4SteppingAction_time_map;
+typedef std::map<G4String, GLG4SteppingAction_time_s>::iterator GLG4SteppingAction_time_map_iterator;
 
 GLG4SteppingAction_time_map GLG4SteppingAction_times;
 G4double GLG4SteppingAction_internal_time = 0.0;
 
 int GLG4SteppingAction_dump_times(void) {
-  for (GLG4SteppingAction_time_map_iterator i =
-           GLG4SteppingAction_times.begin();
-       i != GLG4SteppingAction_times.end(); i++) {
-    G4cout << i->first << ' ' << i->second.sumtime << ' ' << i->second.stepcount
-           << G4endl;
+  for (GLG4SteppingAction_time_map_iterator i = GLG4SteppingAction_times.begin(); i != GLG4SteppingAction_times.end();
+       i++) {
+    G4cout << i->first << ' ' << i->second.sumtime << ' ' << i->second.stepcount << G4endl;
     G4cout.flush();
   }
   return 1;
@@ -82,10 +80,8 @@ const int ncolIlluminationMap = 600;
 G4double widthIlluminationMap = 18.0 * m;
 G4double IlluminationMap[6][nrowIlluminationMap][ncolIlluminationMap][3];
 
-static void updateIlluminationMap(int imap, G4double srow, G4double scol,
-                                  const G4Color *cp) {
-  G4double *mp = IlluminationMap[imap][(int)(srow * nrowIlluminationMap)]
-                                [(int)(scol * ncolIlluminationMap)];
+static void updateIlluminationMap(int imap, G4double srow, G4double scol, const G4Color *cp) {
+  G4double *mp = IlluminationMap[imap][(int)(srow * nrowIlluminationMap)][(int)(scol * ncolIlluminationMap)];
   mp[0] += cp->GetRed();
   mp[1] += cp->GetGreen();
   mp[2] += cp->GetBlue();
@@ -101,8 +97,7 @@ int GLG4SteppingAction_dump_IlluminationMap(void) {
           for (int kcol = 0; kcol < 3; kcol++) {
             G4double v = IlluminationMap[kmap][irow][jcol][kcol];
             if (v > 0.0) {
-              if (v > maxval)
-                maxval = v;
+              if (v > maxval) maxval = v;
               meanval += v;
               nsum++;
             }
@@ -117,9 +112,8 @@ int GLG4SteppingAction_dump_IlluminationMap(void) {
     for (int kmap = 0; kmap < 6; kmap++) {
       static char filename[] = "map#.ppm";
       filename[3] = kmap + '0';
-      G4std::ofstream of(filename);
-      of << "P6\n# Illumination map " << kmap << "\n"
-         << nrowIlluminationMap << ' ' << nrowIlluminationMap << " 255\n";
+      std::ofstream of(filename);
+      of << "P6\n# Illumination map " << kmap << "\n" << nrowIlluminationMap << ' ' << nrowIlluminationMap << " 255\n";
       for (int irow = 0; irow < nrowIlluminationMap; irow++) {
         for (int jcol = 0; jcol < ncolIlluminationMap; jcol++)
           for (int kcol = 0; kcol < 3; kcol++) {
@@ -128,8 +122,7 @@ int GLG4SteppingAction_dump_IlluminationMap(void) {
             if (v < meanval)
               byte = (unsigned char)(128 * v / meanval);
             else
-              byte = (unsigned char)(128.0 + 127.99 * (v - meanval) /
-                                                 (maxval - meanval));
+              byte = (unsigned char)(128.0 + 127.99 * (v - meanval) / (maxval - meanval));
             of.put(byte);
           }
       }
@@ -155,16 +148,13 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
     ++num_zero_steps_in_a_row;
     if (num_zero_steps_in_a_row >= 4) {
       const G4VPhysicalVolume *pv = track->GetVolume();
-      const G4VProcess *lastproc =
-          track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
+      const G4VProcess *lastproc = track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
       G4cerr << "GLG4SteppingAction: Too many zero steps for this track, "
                 "terminating!"
              << " type=" << track->GetDefinition()->GetParticleName()
              << "\n volume=" << (pv != 0 ? pv->GetName() : G4String("NULL"))
-             << " last_process="
-             << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
-             << "\n position=" << track->GetPosition()
-             << " momentum=" << track->GetMomentum() << G4endl;
+             << " last_process=" << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
+             << "\n position=" << track->GetPosition() << " momentum=" << track->GetMomentum() << G4endl;
       track->SetTrackStatus(fStopAndKill);
       num_zero_steps_in_a_row = 0;
     }
@@ -173,26 +163,19 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
 
   // check for very high number of steps
   if (track->GetCurrentStepNumber() % GLG4SteppingAction_MaxStepNumber == 0) {
-    G4cerr << "warning:  step_no=" << track->GetCurrentStepNumber() << "  %  "
-           << GLG4SteppingAction_MaxStepNumber << " == 0 for particle: "
-           << track->GetDefinition()->GetParticleName() << "\n";
+    G4cerr << "warning:  step_no=" << track->GetCurrentStepNumber() << "  %  " << GLG4SteppingAction_MaxStepNumber
+           << " == 0 for particle: " << track->GetDefinition()->GetParticleName() << "\n";
   }
 
   if (track->GetCurrentStepNumber() > GLG4SteppingAction_MaxStepNumber &&
-      !(track->GetDefinition()->GetParticleName() == "mu-" ||
-        track->GetDefinition()->GetParticleName() == "mu+")) {
+      !(track->GetDefinition()->GetParticleName() == "mu-" || track->GetDefinition()->GetParticleName() == "mu+")) {
     const G4VPhysicalVolume *pv = track->GetVolume();
-    const G4VProcess *lastproc =
-        track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
-    G4cerr
-        << "GLG4SteppingAction: Too many steps for this track, terminating!\n"
-        << " step_no=" << track->GetCurrentStepNumber()
-        << " type=" << track->GetDefinition()->GetParticleName()
-        << "\n volume=" << (pv != 0 ? pv->GetName() : G4String("NULL"))
-        << " last_process="
-        << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
-        << "\n position=" << track->GetPosition()
-        << " momentum=" << track->GetMomentum() << G4endl;
+    const G4VProcess *lastproc = track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
+    G4cerr << "GLG4SteppingAction: Too many steps for this track, terminating!\n"
+           << " step_no=" << track->GetCurrentStepNumber() << " type=" << track->GetDefinition()->GetParticleName()
+           << "\n volume=" << (pv != 0 ? pv->GetName() : G4String("NULL"))
+           << " last_process=" << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
+           << "\n position=" << track->GetPosition() << " momentum=" << track->GetMomentum() << G4endl;
     track->SetTrackStatus(fStopAndKill);
   }
 
@@ -233,8 +216,7 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   bool nCap157Gd = false;
   const G4VProcess *myproc = aStep->GetPostStepPoint()->GetProcessDefinedStep();
   G4String nameProcess = "Unknown";
-  if (myproc != 0)
-    nameProcess = myproc->GetProcessName();
+  if (myproc != 0) nameProcess = myproc->GetProcessName();
 
   G4TrackVector *fSecondary = fpSteppingManager->GetfSecondary();
   G4int numSecondaries = fpSteppingManager->GetfN2ndariesAtRestDoIt() +
@@ -242,33 +224,22 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
                          fpSteppingManager->GetfN2ndariesPostStepDoIt();
 
   if (nameProcess == "nCapture") {
-
 #ifdef debug_dicebox158Gd
-    G4cout << G4endl
-           << "=======================BEFORE DICEBOX======================"
-           << G4endl;
+    G4cout << G4endl << "=======================BEFORE DICEBOX======================" << G4endl;
 #endif
 
     if (numSecondaries > 0) {
-
-      for (size_t lp1 = (*fSecondary).size() - numSecondaries;
-           lp1 < (*fSecondary).size(); lp1++) {
-
+      for (size_t lp1 = (*fSecondary).size() - numSecondaries; lp1 < (*fSecondary).size(); lp1++) {
         G4ParticleDefinition *par = (*fSecondary)[lp1]->GetDefinition();
         G4String nameParticle = par->GetParticleName();
 
 #ifdef debug_dicebox158Gd
-        G4cout << "(i,name,pos,momentum,erg,time) : (" << lp1 << ","
-               << par->GetParticleName() << ","
-               << (*fSecondary)[lp1]->GetPosition() << ","
-               << (*fSecondary)[lp1]->GetMomentum() << ","
-               << (*fSecondary)[lp1]->GetKineticEnergy() << ","
-               << (*fSecondary)[lp1]->GetGlobalTime() << ")" << G4endl;
+        G4cout << "(i,name,pos,momentum,erg,time) : (" << lp1 << "," << par->GetParticleName() << ","
+               << (*fSecondary)[lp1]->GetPosition() << "," << (*fSecondary)[lp1]->GetMomentum() << ","
+               << (*fSecondary)[lp1]->GetKineticEnergy() << "," << (*fSecondary)[lp1]->GetGlobalTime() << ")" << G4endl;
 
-        G4cout << "(parentID,trackID,stepID,status) : ("
-               << (*fSecondary)[lp1]->GetParentID() << ","
-               << (*fSecondary)[lp1]->GetTrackID() << ","
-               << (*fSecondary)[lp1]->GetCurrentStepNumber() << ","
+        G4cout << "(parentID,trackID,stepID,status) : (" << (*fSecondary)[lp1]->GetParentID() << ","
+               << (*fSecondary)[lp1]->GetTrackID() << "," << (*fSecondary)[lp1]->GetCurrentStepNumber() << ","
                << (*fSecondary)[lp1]->GetTrackStatus() << ")" << G4endl;
 #endif
         if (nameParticle == "Gd158") {
@@ -281,10 +252,7 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   // If the step is neutron capture on 157Gd, then postpone all of its
   // secondaries except the Gd158. Then we get the new secondaries from dicebox.
   if (nCap157Gd) {
-
-    for (size_t lp1 = (*fSecondary).size() - numSecondaries;
-         lp1 < (*fSecondary).size(); lp1++) {
-
+    for (size_t lp1 = (*fSecondary).size() - numSecondaries; lp1 < (*fSecondary).size(); lp1++) {
       G4ParticleDefinition *particle = (*fSecondary)[lp1]->GetDefinition();
       G4String nameParticle = particle->GetParticleName();
       if (nameParticle != "Gd158") {
@@ -306,28 +274,19 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   }
 
 #ifdef debug_dicebox158Gd
-  const std::vector<const G4Track *> *secondary =
-      aStep->GetSecondaryInCurrentStep();
+  const std::vector<const G4Track *> *secondary = aStep->GetSecondaryInCurrentStep();
   if (nameProcess == "nCapture") {
-
-    G4cout << G4endl
-           << "=======================AFTER DICEBOX======================"
-           << G4endl;
+    G4cout << G4endl << "=======================AFTER DICEBOX======================" << G4endl;
 
     for (size_t lp = 0; lp < (*secondary).size(); lp++) {
-
       G4ParticleDefinition *par = (*secondary)[lp]->GetDefinition();
 
-      G4cout << "(i,name,pos,momentum,erg,time) : (" << lp << ","
-             << par->GetParticleName() << "," << (*secondary)[lp]->GetPosition()
-             << "," << (*secondary)[lp]->GetMomentum() << ","
-             << (*secondary)[lp]->GetKineticEnergy() << ","
-             << (*secondary)[lp]->GetGlobalTime() << ")" << G4endl;
+      G4cout << "(i,name,pos,momentum,erg,time) : (" << lp << "," << par->GetParticleName() << ","
+             << (*secondary)[lp]->GetPosition() << "," << (*secondary)[lp]->GetMomentum() << ","
+             << (*secondary)[lp]->GetKineticEnergy() << "," << (*secondary)[lp]->GetGlobalTime() << ")" << G4endl;
 
-      G4cout << "(parentID,trackID,stepID,status) : ("
-             << (*secondary)[lp]->GetParentID() << ","
-             << (*secondary)[lp]->GetTrackID() << ","
-             << (*secondary)[lp]->GetCurrentStepNumber() << ","
+      G4cout << "(parentID,trackID,stepID,status) : (" << (*secondary)[lp]->GetParentID() << ","
+             << (*secondary)[lp]->GetTrackID() << "," << (*secondary)[lp]->GetCurrentStepNumber() << ","
              << (*secondary)[lp]->GetTrackStatus() << ")" << G4endl;
     }
   }
@@ -347,16 +306,12 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
 
   // check for NULL world volume
   if (track->GetVolume() == NULL) {
-    const G4VProcess *lastproc =
-        track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
+    const G4VProcess *lastproc = track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
     G4cerr << "GLG4SteppingAction: Track in NULL volume, terminating!\n"
-           << " step_no=" << track->GetCurrentStepNumber()
-           << " type=" << track->GetDefinition()->GetParticleName()
+           << " step_no=" << track->GetCurrentStepNumber() << " type=" << track->GetDefinition()->GetParticleName()
            << "\n volume=NULL"
-           << " last_process="
-           << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
-           << "\n position=" << track->GetPosition()
-           << " momentum=" << track->GetMomentum() << G4endl;
+           << " last_process=" << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
+           << "\n position=" << track->GetPosition() << " momentum=" << track->GetMomentum() << G4endl;
     track->SetTrackStatus(fStopAndKill);
   }
 
@@ -368,15 +323,11 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   if (dut > 0.0) {
     G4String key;
     G4String particleName = track->GetDefinition()->GetParticleName();
-    const G4VProcess *preProcess =
-                         aStep->GetPreStepPoint()->GetProcessDefinedStep(),
-                     *postProcess =
-                         aStep->GetPostStepPoint()->GetProcessDefinedStep();
-    if (preProcess)
-      key += preProcess->GetProcessName();
+    const G4VProcess *preProcess = aStep->GetPreStepPoint()->GetProcessDefinedStep(),
+                     *postProcess = aStep->GetPostStepPoint()->GetProcessDefinedStep();
+    if (preProcess) key += preProcess->GetProcessName();
     key += "_";
-    if (postProcess)
-      key += postProcess->GetProcessName();
+    if (postProcess) key += postProcess->GetProcessName();
     GLG4SteppingAction_times[key].sum(dut);
     GLG4SteppingAction_times[particleName].sum(dut);
     key += "_" + particleName;
@@ -391,8 +342,7 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   // do scintillation photons, and also re-emission
   if (fUseGLG4) {
     // invoke scintillation process
-    G4VParticleChange *pParticleChange =
-        GLG4Scint::GenericPostPostStepDoIt(aStep);
+    G4VParticleChange *pParticleChange = GLG4Scint::GenericPostPostStepDoIt(aStep);
     // were any secondaries defined?
     G4int iSecondary = pParticleChange->GetNumberOfSecondaries();
     if (iSecondary > 0) {
@@ -418,14 +368,12 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
 
   // Accumulate step statistics
 
-  RAT::TrackInfo *trackInfo =
-      dynamic_cast<RAT::TrackInfo *>(track->GetUserInformation());
+  RAT::TrackInfo *trackInfo = dynamic_cast<RAT::TrackInfo *>(track->GetUserInformation());
   G4ThreeVector postStepPoint = aStep->GetPostStepPoint()->GetPosition();
 
   if (track->GetDefinition()->GetParticleName() != "opticalphoton") {
-    trackInfo->energyCentroid.Fill(
-        TVector3(postStepPoint.x(), postStepPoint.y(), postStepPoint.z()),
-        aStep->GetTotalEnergyDeposit());
+    trackInfo->energyCentroid.Fill(TVector3(postStepPoint.x(), postStepPoint.y(), postStepPoint.z()),
+                                   aStep->GetTotalEnergyDeposit());
   }
 
   G4VPhysicalVolume *volume = aStep->GetPostStepPoint()->GetPhysicalVolume();
@@ -449,8 +397,7 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
       const G4VisAttributes *att;
       const G4Color *c;
       (((pv = track->GetNextVolume()) || (pv = track->GetVolume())) &&
-       (att = pv->GetLogicalVolume()->GetVisAttributes()) &&
-       (c = &(att->GetColor()))) ||
+       (att = pv->GetLogicalVolume()->GetVisAttributes()) && (c = &(att->GetColor()))) ||
           (c = &defaultcolor);
       updateIlluminationMap(((sx < 0.5) ? 0 : 1), 1.0 - sz, sy, c);
       updateIlluminationMap(((sy < 0.5) ? 2 : 3), 1.0 - sz, sx, c);

@@ -1,16 +1,18 @@
 #ifndef __RAT_Gen_LED__
 #define __RAT_Gen_LED__
 
-#include "GLG4Gen.hh"
 #include <CLHEP/Random/RandGeneral.h>
+
 #include <vector>
+
+#include "GLG4Gen.hh"
 
 class G4ParticleDefinition;
 
 namespace RAT {
 
 class Gen_LED : public GLG4Gen {
-public:
+ public:
   Gen_LED();
   virtual ~Gen_LED();
   virtual void GenerateEvent(G4Event *event);
@@ -29,7 +31,7 @@ public:
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
 
-protected:
+ protected:
   G4String stateStr;
   GLG4TimeGen *timeGen;
 
@@ -40,7 +42,7 @@ protected:
   bool multi_ang_dist_mode;
   bool mono_wl_mode;
   bool unif_mode;
-  bool oneLED; // fire one LED per event?
+  bool oneLED;  // fire one LED per event?
 
   CLHEP::RandGeneral *rand_angle, *rand_wl, *rand_time;
   float angle_min, angle_max, wl_min, wl_max, time_min, time_max;
@@ -52,6 +54,6 @@ protected:
   G4ParticleDefinition *photonDef;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

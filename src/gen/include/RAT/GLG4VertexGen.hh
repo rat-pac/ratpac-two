@@ -10,9 +10,11 @@
  @author G.Horton-Smith, August 3, 2001
 */
 
-#include "globals.hh"
+#include <stdio.h>  // for FILE
+
 #include <G4ThreeVector.hh>
-#include <stdio.h> // for FILE
+
+#include "globals.hh"
 
 class G4Event;
 class G4Track;
@@ -22,14 +24,13 @@ class GLG4PrimaryGeneratorAction;
 
 /** Virtual base class for vertex generators */
 class GLG4VertexGen {
-public:
+ public:
   GLG4VertexGen(const char *arg_dbname = "vertex") : _dbname(arg_dbname){};
   virtual ~GLG4VertexGen(){};
   // Generate and add new vertex to this event.  Position and
   // time of vertex are offset from 0 by dx and dt.  (These
   // are usually derived from GLG4PosGen and GLG4TimeGen.)
-  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx,
-                                     G4double dt) = 0;
+  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G4double dt) = 0;
   // adds vertices.
   virtual void SetState(G4String newValues) = 0;
   // sets filename or other information needed by vertex generator
@@ -48,8 +49,8 @@ public:
   /** Optional method to return minimum energy possible for generator */
   virtual float EMinimum() { return 0; };
 
-protected:
-  G4String _dbname; // used for GLG4param key prefix
+ protected:
+  G4String _dbname;  // used for GLG4param key prefix
 };
 
 /** vertex generator that can generate a primary vertex with one more
@@ -57,11 +58,10 @@ protected:
     Allows for randomly isotropic direction and random transverse polarization
     of spin-1, mass=0 particles */
 class GLG4VertexGen_Gun : public GLG4VertexGen {
-public:
+ public:
   GLG4VertexGen_Gun(const char *arg_dbname = "gun");
   virtual ~GLG4VertexGen_Gun();
-  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx,
-                                     G4double dt);
+  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G4double dt);
   // generates a primary vertex with given particle type, direction, energy,
   // and consistent polarization.
 
@@ -75,14 +75,14 @@ public:
   virtual G4String GetState();
   // returns current state formatted as above
 
-public:
+ public:
   // the following useful static const data should be universally accessable
   // (I copied it from the G4IonTable source code, where it is privatized
   // with no accessor functions.)
   enum { numberOfElements = 110 };
   static const char *theElementNames[numberOfElements];
 
-protected:
+ protected:
   G4ParticleDefinition *_pDef;
   G4ThreeVector _mom;
   G4double _ke;
@@ -96,11 +96,10 @@ protected:
     Allows for randomly isotropic direction and random transverse polarization
     of spin-1, mass=0 particles */
 class GLG4VertexGen_Gun2 : public GLG4VertexGen {
-public:
+ public:
   GLG4VertexGen_Gun2(const char *arg_dbname = "gun2");
   virtual ~GLG4VertexGen_Gun2();
-  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx,
-                                     G4double dt);
+  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G4double dt);
   // generates a primary vertex with given particle type, direction, energy,
   // and consistent polarization.
 
@@ -114,14 +113,14 @@ public:
   virtual G4String GetState();
   // returns current state formatted as above
 
-public:
+ public:
   // the following useful static const data should be universally accessable
   // (I copied it from the G4IonTable source code, where it is privatized
   // with no accessor functions.)
   enum { numberOfElements = 110 };
   static const char *theElementNames[numberOfElements];
 
-protected:
+ protected:
   G4ParticleDefinition *_pDef;
   G4ThreeVector _mom;
   G4double _mom_theta;
@@ -136,11 +135,10 @@ protected:
     The ASCII stream contains information in a HEPEVT-like style.
 */
 class GLG4VertexGen_HEPEvt : public GLG4VertexGen {
-public:
+ public:
   GLG4VertexGen_HEPEvt(const char *arg_dbname = "external");
   virtual ~GLG4VertexGen_HEPEvt();
-  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx,
-                                     G4double dt);
+  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G4double dt);
 
   // Generates a primary vertex based on information from an ASCII stream.
   // The ASCII stream contains information in a HEPEVT style.
@@ -162,18 +160,18 @@ public:
   bool GetUseExternalPos() { return _useExternalPos; };
 
   enum {
-    kIonCodeOffset = 9800000,        // nuclei have codes like 98zzaaa
-    kPDGcodeModulus = 10000000,      // PDG codes are 7 digits long
-    kISTHEP_ParticleForTracking = 1, // only ISTHEP==1 are for tracking
-    kISTHEP_InformatonMin = 100,     // 100 and above are "informatons"
-    kISTHEP_Max = 213                // <= MAXINT / kPDGcodeModulus
+    kIonCodeOffset = 9800000,         // nuclei have codes like 98zzaaa
+    kPDGcodeModulus = 10000000,       // PDG codes are 7 digits long
+    kISTHEP_ParticleForTracking = 1,  // only ISTHEP==1 are for tracking
+    kISTHEP_InformatonMin = 100,      // 100 and above are "informatons"
+    kISTHEP_Max = 213                 // <= MAXINT / kPDGcodeModulus
   };
 
-protected:
+ protected:
   G4String _filename;
   FILE *_file;
   bool _isPipe;
-  bool _useExternalPos; // true to use positions listed in ACCII stream
+  bool _useExternalPos;  // true to use positions listed in ACCII stream
 };
 
 #endif

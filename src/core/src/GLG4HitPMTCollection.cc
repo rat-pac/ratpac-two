@@ -8,6 +8,7 @@
 */
 
 #include "RAT/GLG4HitPMTCollection.hh"
+
 #include <G4ios.hh>
 #include <algorithm>
 
@@ -37,14 +38,12 @@ void GLG4HitPMTCollection::DetectPhoton(GLG4HitPhoton *new_photon) {
     // make a HitPMT with this ID
     fPMT.push_back(new GLG4HitPMT(new_photon->GetPMTID()));
     fPMT[fPMT.size() - 1]->DetectPhoton(new_photon);
-    fHitmap.insert(std::make_pair(new_photon->GetPMTID(),
-                                  (GLG4HitPMT *)fPMT[fPMT.size() - 1]));
+    fHitmap.insert(std::make_pair(new_photon->GetPMTID(), (GLG4HitPMT *)fPMT[fPMT.size() - 1]));
   }
 }
 
 void GLG4HitPMTCollection::SortTimeAscending() {
-  for (size_t i = 0; i < fPMT.size(); i++)
-    fPMT[i]->SortTimeAscending();
+  for (size_t i = 0; i < fPMT.size(); i++) fPMT[i]->SortTimeAscending();
   std::sort(fPMT.begin(), fPMT.end(), Compare_HitPMTPtr_TimeAscending);
 }
 

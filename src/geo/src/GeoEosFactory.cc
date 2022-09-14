@@ -1,5 +1,4 @@
-#include <RAT/GeoEosFactory.hh>
-#include <RAT/GeoTubeFactory.hh>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <G4Ellipsoid.hh>
 #include <G4LogicalBorderSurface.hh>
@@ -11,8 +10,8 @@
 #include <G4UnionSolid.hh>
 #include <G4VPhysicalVolume.hh>
 #include <G4VSolid.hh>
-
-#include <CLHEP/Units/SystemOfUnits.h>
+#include <RAT/GeoEosFactory.hh>
+#include <RAT/GeoTubeFactory.hh>
 
 namespace RAT {
 
@@ -29,16 +28,13 @@ G4VSolid *GeoEosFactory::ConstructSolid(DBLinkPtr table) {
   G4double top_height = table->GetD("top_height");
 
   // Solids for the cylindrical body and ellipical caps
-  G4Tubs *body = new G4Tubs("body", r_min * CLHEP::mm, r_max * CLHEP::mm,
-                            size_z * CLHEP::mm, 0., CLHEP::twopi);
+  G4Tubs *body = new G4Tubs("body", r_min * CLHEP::mm, r_max * CLHEP::mm, size_z * CLHEP::mm, 0., CLHEP::twopi);
 
-  G4Ellipsoid *head =
-      new G4Ellipsoid("head", top_radius * CLHEP::mm, top_radius * CLHEP::mm,
-                      top_height * CLHEP::mm, 0., top_height * CLHEP::mm);
+  G4Ellipsoid *head = new G4Ellipsoid("head", top_radius * CLHEP::mm, top_radius * CLHEP::mm, top_height * CLHEP::mm,
+                                      0., top_height * CLHEP::mm);
 
-  G4Ellipsoid *bot =
-      new G4Ellipsoid("bot", top_radius * CLHEP::mm, top_radius * CLHEP::mm,
-                      top_height * CLHEP::mm, -top_height * CLHEP::mm, 0.0);
+  G4Ellipsoid *bot = new G4Ellipsoid("bot", top_radius * CLHEP::mm, top_radius * CLHEP::mm, top_height * CLHEP::mm,
+                                     -top_height * CLHEP::mm, 0.0);
 
   // Location and rotation of the top cap
   G4ThreeVector *trans = new G4ThreeVector(0., 0., size_z * CLHEP::mm);
@@ -54,10 +50,9 @@ G4VSolid *GeoEosFactory::ConstructSolid(DBLinkPtr table) {
 
   // Add the bottom cap to the (top cap + cylinder) for both the vessel and
   // cavity
-  G4UnionSolid *EosVolume =
-      new G4UnionSolid("eos", EosVolumeP1, bot, *neg_transf);
+  G4UnionSolid *EosVolume = new G4UnionSolid("eos", EosVolumeP1, bot, *neg_transf);
 
   return EosVolume;
 }
 
-} // namespace RAT
+}  // namespace RAT

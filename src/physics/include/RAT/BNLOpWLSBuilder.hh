@@ -11,7 +11,7 @@
 #include <G4VPhysicsConstructor.hh>
 
 class BNLOpWLSBuilder : public G4VPhysicsConstructor {
-public:
+ public:
   BNLOpWLSBuilder() {}
   virtual ~BNLOpWLSBuilder() {}
 
@@ -22,4 +22,4 @@ public:
   void ConstructProcess();
 };
 
-#endif // __BNLOpWLSBuilder__
+#endif  // __BNLOpWLSBuilder__

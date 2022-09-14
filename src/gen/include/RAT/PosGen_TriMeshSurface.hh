@@ -18,9 +18,8 @@ using namespace std;
 namespace RAT {
 
 class PosGen_TriMeshSurface : public GLG4PosGen {
-public:
-  PosGen_TriMeshSurface(const char *arg_dbname = "triMeshSurface")
-      : GLG4PosGen(arg_dbname), totalArea(0.0) {}
+ public:
+  PosGen_TriMeshSurface(const char *arg_dbname = "triMeshSurface") : GLG4PosGen(arg_dbname), totalArea(0.0) {}
 
   void GeneratePosition(G4ThreeVector &argResult);
 
@@ -28,19 +27,19 @@ public:
 
   G4String GetState() const { return state; };
 
-protected:
-  vector<G4ThreeVector> point;  // the first vertex
-  vector<G4ThreeVector> edge0;  // 2nd vertex minus first vertex
-  vector<G4ThreeVector> edge1;  // 3rd vertex minus first vertex
-  vector<G4ThreeVector> normal; // normal vector with vertices counterclockwise
-  vector<double> area;          // area of all triangles up to this one
+ protected:
+  vector<G4ThreeVector> point;   // the first vertex
+  vector<G4ThreeVector> edge0;   // 2nd vertex minus first vertex
+  vector<G4ThreeVector> edge1;   // 3rd vertex minus first vertex
+  vector<G4ThreeVector> normal;  // normal vector with vertices counterclockwise
+  vector<double> area;           // area of all triangles up to this one
   double totalArea;
-  vector<double> thickness; // thickness of volume for each type
-  vector<int> direction;    // direction to extrude
-  vector<int> ntriangles;   // number of triangles of this type
+  vector<double> thickness;  // thickness of volume for each type
+  vector<int> direction;     // direction to extrude
+  vector<int> ntriangles;    // number of triangles of this type
   G4String state;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

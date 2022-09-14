@@ -11,7 +11,7 @@
 class GLG4PrimaryGeneratorAction;
 
 class GLG4SteppingAction : public G4UserSteppingAction {
-public:
+ public:
   static G4bool fUseGLG4;
   GLG4SteppingAction();
   void UserSteppingAction(const G4Step *aStep);
@@ -20,7 +20,7 @@ public:
   // Default is 0, or no time limit.
   static G4double max_global_time;
 
-private:
+ private:
   GLG4PrimaryGeneratorAction *myGenerator;
 };
 

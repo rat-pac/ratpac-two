@@ -24,10 +24,11 @@
 #ifndef __RAT_DS_Root__
 #define __RAT_DS_Root__
 
+#include <TObject.h>
+
 #include <RAT/DS/Calib.hh>
 #include <RAT/DS/EV.hh>
 #include <RAT/DS/MC.hh>
-#include <TObject.h>
 #include <string>
 #include <utility>
 #include <vector>
@@ -36,7 +37,7 @@ namespace RAT {
 namespace DS {
 
 class Root : public TObject {
-public:
+ public:
   Root() : TObject() {}
   virtual ~Root() {}
 
@@ -59,10 +60,9 @@ public:
    */
   virtual int GetLastProcResult(const std::string &procName) const {
     for (int i = procResult.size() - 1; i >= 0; i--) {
-      if (procResult[(unsigned int)i].first == procName)
-        return procResult[(unsigned int)i].second;
+      if (procResult[(unsigned int)i].first == procName) return procResult[(unsigned int)i].second;
     }
-    return -1; // Processor has not been run
+    return -1;  // Processor has not been run
   }
 
   /**
@@ -80,9 +80,7 @@ public:
    * Get the entire list of processor result codes as pairs:
    * (name of processor, result code)
    */
-  virtual std::vector<std::pair<std::string, int>> GetProcResult() const {
-    return procResult;
-  }
+  virtual std::vector<std::pair<std::string, int>> GetProcResult() const { return procResult; }
 
   /**
    * Version number of RAT which created this event.
@@ -93,9 +91,7 @@ public:
    *  increase with new RAT releases.
    */
   virtual std::string GetRatVersion() const { return ratVersion; }
-  virtual void SetRatVersion(std::string _ratVersion) {
-    ratVersion = _ratVersion;
-  }
+  virtual void SetRatVersion(std::string _ratVersion) { ratVersion = _ratVersion; }
 
   /** Monte Carlo information for this event. */
   virtual MC *GetMC() {
@@ -148,7 +144,7 @@ public:
   std::vector<double> user;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

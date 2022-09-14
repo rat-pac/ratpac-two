@@ -26,33 +26,31 @@ struct LAPPDConstructionParams {
   bool invisible;
 
   // Body
-  double glassThickness;    // mm
-  double width;             // mm
-  double photocathodeWidth; // mm
-  double thick;             // mm
+  double glassThickness;     // mm
+  double width;              // mm
+  double photocathodeWidth;  // mm
+  double thick;              // mm
 
   G4Material *glass;
   G4Material *vacuum;
 
   G4OpticalSurface *photocathode;
 
-  double efficiencyCorrection; // default to 1.0 for no correction
+  double efficiencyCorrection;  // default to 1.0 for no correction
 };
 
 class LAPPDConstruction : public PMTConstruction {
-public:
+ public:
   LAPPDConstruction(DBLinkPtr params, G4LogicalVolume *mother);
   virtual ~LAPPDConstruction() {}
 
   virtual G4LogicalVolume *BuildVolume(const std::string &prefix);
   virtual G4VSolid *BuildSolid(const std::string &prefix);
-  virtual G4PVPlacement *PlacePMT(G4RotationMatrix *pmtrot,
-                                  G4ThreeVector pmtpos, const std::string &name,
-                                  G4LogicalVolume *logi_pmt,
-                                  G4VPhysicalVolume *mother_phys,
-                                  bool booleanSolid, int copyNo);
+  virtual G4PVPlacement *PlacePMT(G4RotationMatrix *pmtrot, G4ThreeVector pmtpos, const std::string &name,
+                                  G4LogicalVolume *logi_pmt, G4VPhysicalVolume *mother_phys, bool booleanSolid,
+                                  int copyNo);
 
-protected:
+ protected:
   // physical volumes
   G4PVPlacement *glass_phys;
   G4PVPlacement *vacuum_phys;
@@ -61,6 +59,6 @@ protected:
   LAPPDConstructionParams fParams;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

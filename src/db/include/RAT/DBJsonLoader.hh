@@ -12,7 +12,7 @@ class DBTable;
 
 /* A $#%!! class with static functions to make rootcint happy */
 class DBJsonLoader {
-public:
+ public:
   /** Returns a list of all tables found in JSON text file @p filename. */
   static std::vector<RAT::DBTable *> parse(const std::string &filename);
 
@@ -23,6 +23,6 @@ public:
   static RAT::DBTable *convertTable(json::Value &jsonDoc);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

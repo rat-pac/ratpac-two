@@ -2,8 +2,8 @@
 // Apr 15, 2018
 // almost copy pasted from CfGen.cc
 
-#include "Randomize.hh"
 #include <CLHEP/Vector/LorentzVector.h>
+
 #include <G4Electron.hh>
 #include <G4Event.hh>
 #include <G4Gamma.hh>
@@ -20,6 +20,8 @@
 #include <RAT/GLG4TimeGen.hh>
 #include <RAT/GdGen.hh>
 #include <cstring>
+
+#include "Randomize.hh"
 
 #undef DEBUG
 
@@ -55,8 +57,7 @@ void GdGen::GenerateEvent(G4Event *event) {
   G4double myRand = G4UniformRand();
   G4int indexNow = 0;
   while (1) {
-    if (theCdf[indexNow] > myRand)
-      break;
+    if (theCdf[indexNow] > myRand) break;
     indexNow++;
   }
   int numSecondaries = theMul[indexNow];
@@ -129,16 +130,14 @@ void GdGen::ResetTime(double offset) {
   nextTime = eventTime + offset;
 #ifdef DEBUG
   G4cout << "RAT::GdGen::ResetTime:"
-         << " eventTime=" << G4BestUnit(eventTime, "Time")
-         << ", offset=" << G4BestUnit(offset, "Time")
+         << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
          << ", nextTime=" << G4BestUnit(nextTime, "Time") << G4endl;
 #endif
 }
 
 void GdGen::SetState(G4String state) {
 #ifdef DEBUG
-  G4cout << "RAT::GdGen::SetState called with state='" << state << "'"
-         << G4endl;
+  G4cout << "RAT::GdGen::SetState called with state='" << state << "'" << G4endl;
 #endif
 
   // Break the argument to the this generator into sub-strings
@@ -152,11 +151,10 @@ void GdGen::SetState(G4String state) {
 #endif
 
   try {
-
     if (nArgs >= 3) {
       // The last argument is an optional time generator
       delete timeGen;
-      timeGen = 0; // In case of exception in next line
+      timeGen = 0;  // In case of exception in next line
       timeGen = GlobalFactory<GLG4TimeGen>::New(parts[2]);
     }
 
@@ -175,12 +173,10 @@ void GdGen::SetState(G4String state) {
       posGen = GlobalFactory<GLG4PosGen>::New(parts[1]);
     } else {
       G4Exception(__FILE__, "Invalid Parameter", FatalException,
-                  ("GdGen syntax error: '" + state +
-                   "' does not have a position generator")
-                      .c_str());
+                  ("GdGen syntax error: '" + state + "' does not have a position generator").c_str());
     }
 
-    stateStr = state; // Save for later call to GetState()
+    stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
     G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
   }
@@ -192,8 +188,7 @@ void GdGen::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "GdGen error: Cannot set time state, no time generator selected"
-           << G4endl;
+    G4cerr << "GdGen error: Cannot set time state, no time generator selected" << G4endl;
 }
 
 G4String GdGen::GetTimeState() const {
@@ -219,4 +214,4 @@ G4String GdGen::GetPosState() const {
     return G4String("GdGen error: no position generator selected");
 }
 
-} // namespace RAT
+}  // namespace RAT

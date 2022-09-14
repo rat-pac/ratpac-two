@@ -42,4 +42,4 @@ DS::Root *DSReader::NextEvent() {
     return 0;
 }
 
-} // namespace RAT
+}  // namespace RAT

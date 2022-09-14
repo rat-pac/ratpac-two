@@ -18,27 +18,26 @@
 #ifndef __RAT_VertexGen_Isotope__
 #define __RAT_VertexGen_Isotope__
 
-#include "RAT/DB.hh"
-#include <RAT/GLG4VertexGen.hh>
-#include <RAT/IsotopeMessenger.hh>
-
 #include <G4Event.hh>
 #include <G4ThreeVector.hh>
+#include <RAT/GLG4VertexGen.hh>
+#include <RAT/IsotopeMessenger.hh>
 #include <globals.hh>
 #include <vector>
+
+#include "RAT/DB.hh"
 
 namespace RAT {
 
 class VertexGen_Isotope : public GLG4VertexGen {
-public:
+ public:
   VertexGen_Isotope(const char *arg_dbname = "isotope");
   virtual ~VertexGen_Isotope();
   /** generate and add new vertex to this event.  Position and
    * time of vertex are offset from 0 by dx and dt.  (These
    * are usually derived from GLG4PosGen and GLG4TimeGen.)
    */
-  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx,
-                                     G4double dt);
+  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G4double dt);
   /** set the state for generator. Format: pname specname
    * where pname is the particle name, and specname is the database Isotope name
    */
@@ -57,10 +56,10 @@ public:
   inline double GetIsotopeZ() { return valueZ; };
   inline double GetIsotopeE() { return valueE; };
 
-private:
-  G4String _particle;          // name of the particle type
-  G4ParticleDefinition *_pDef; // particle definition
-  G4String _Isotope;           // name of the Isotope to use
+ private:
+  G4String _particle;           // name of the particle type
+  G4ParticleDefinition *_pDef;  // particle definition
+  G4String _Isotope;            // name of the Isotope to use
 
   double valueE, valueA, valueZ;
 
@@ -73,6 +72,6 @@ private:
   static const double EDEFAULT;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

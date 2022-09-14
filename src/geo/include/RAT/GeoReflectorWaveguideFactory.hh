@@ -5,12 +5,12 @@
 
 namespace RAT {
 class GeoReflectorWaveguideFactory : public GeoFactory {
-public:
+ public:
   GeoReflectorWaveguideFactory() : GeoFactory("reflector_waveguide"){};
 
   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

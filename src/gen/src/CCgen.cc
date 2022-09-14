@@ -12,20 +12,19 @@
 // cross-section.  Some of the code (the flux in particular) is copied
 // from IBDgen.
 
-#include <RAT/CCCrossSec.hh>
-#include <RAT/CCgen.hh>
-#include <RAT/DB.hh>
-
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
-#include <G4ParticleDefinition.hh>
-#include <G4ParticleTable.hh>
-#include <G4ThreeVector.hh>
-#include <Randomize.hh>
 #include <TF1.h>
 #include <TGraph.h>
 #include <TMath.h>
 
+#include <G4ParticleDefinition.hh>
+#include <G4ParticleTable.hh>
+#include <G4ThreeVector.hh>
+#include <RAT/CCCrossSec.hh>
+#include <RAT/CCgen.hh>
+#include <RAT/DB.hh>
+#include <Randomize.hh>
 #include <cmath>
 
 using namespace CLHEP;
@@ -36,8 +35,14 @@ namespace RAT {
 // be used and reads the RATDB entries accordingly.
 
 CCgen::CCgen()
-    : fNuType(""), fNuFlavor(""), fXS(NULL), fNuSpectrum(NULL), fFluxMax(0.),
-      fGenLoaded(false), fSpectrumRndm(0), fDBName("SOLAR") {
+    : fNuType(""),
+      fNuFlavor(""),
+      fXS(NULL),
+      fNuSpectrum(NULL),
+      fFluxMax(0.),
+      fGenLoaded(false),
+      fSpectrumRndm(0),
+      fDBName("SOLAR") {
   // Initialize pointers
   fMassElectron = electron_mass_c2;
 
@@ -51,8 +56,7 @@ CCgen::CCgen()
 void CCgen::LoadGenerator() {
   // Check if the generator is already loaded.
   // If it is, do nothing
-  if (fGenLoaded)
-    return;
+  if (fGenLoaded) return;
   if (fNuType.length() == 0 || fNuFlavor.length() == 0) {
     fGenLoaded = false;
     return;
@@ -124,20 +128,18 @@ void CCgen::LoadGenerator() {
     // Be7 is always a particular case due to its discrete nature
     // The last parameter is set to 1 to disallow interpolations
     if (fNuType == "be7") {
-      fSpectrumRndm = new CLHEP::RandGeneral(&csScaledFluxTbl[0],
-                                             csScaledFluxTbl.size(), 1);
+      fSpectrumRndm = new CLHEP::RandGeneral(&csScaledFluxTbl[0], csScaledFluxTbl.size(), 1);
     } else {
       // set interpolation bit to 0 to allow for interpolations in continuous
       // spectra
-      fSpectrumRndm = new CLHEP::RandGeneral(&csScaledFluxTbl[0],
-                                             csScaledFluxTbl.size(), 0);
+      fSpectrumRndm = new CLHEP::RandGeneral(&csScaledFluxTbl[0], csScaledFluxTbl.size(), 0);
     }
   }
 
   // If it reaches this point without failing then everything should be fine
   fGenLoaded = true;
-  std::cout << "Rate per target for CC of " << fNuType.c_str()
-            << " flux on Li7 is: " << GetRatePerTarget() << std::endl;
+  std::cout << "Rate per target for CC of " << fNuType.c_str() << " flux on Li7 is: " << GetRatePerTarget()
+            << std::endl;
 }
 
 CCgen::~CCgen() {
@@ -167,17 +169,14 @@ CCgen::~CCgen() {
   }
 }
 
-void CCgen::GenerateEvent(const G4ThreeVector &theNeutrino,
-                          G4LorentzVector &nu_incoming,
-                          G4LorentzVector &electron, double &e_nucleus) {
-
+void CCgen::GenerateEvent(const G4ThreeVector &theNeutrino, G4LorentzVector &nu_incoming, G4LorentzVector &electron,
+                          double &e_nucleus) {
   // Check if the generator has been loaded successfully
   // For now just throw something that can be caught at an upper level.
   // Need to define a set of specific exceptions
   if (!fGenLoaded) {
-    G4Exception(
-        "[CCgen]::GenerateEvent", "ArgError", FatalErrorInArgument,
-        "Vertex generation called but it seems that it is not ready yet.");
+    G4Exception("[CCgen]::GenerateEvent", "ArgError", FatalErrorInArgument,
+                "Vertex generation called but it seems that it is not ready yet.");
   }
 
   ///!
@@ -261,7 +260,6 @@ void CCgen::Show() {
 // If we change the neutrino type we should reload the generator
 // to force it to reload the spectra from the database
 void CCgen::SetNuType(const G4String &nutype) {
-
   if (fNuType != nutype) {
     fNuType = nutype;
     fGenLoaded = false;
@@ -274,7 +272,6 @@ void CCgen::SetNuType(const G4String &nutype) {
 // If we change the neutrino flavor we should reload the generator
 // to force it to reload the spectra from the database
 void CCgen::SetNuFlavor(const G4String &nuflavor) {
-
   if (fNuFlavor != nuflavor) {
     fNuFlavor = nuflavor;
     fGenLoaded = false;
@@ -295,9 +292,7 @@ void CCgen::SetDBName(const G4String name) {
 // This function samples the energy spectrum of the chosen neutrino and
 // decides from it the proper energy.
 // Keep in mind that pep is always the same, but be7 is a *very* special case
-G4double CCgen::SampleRecoilEnergy(G4double Enu, int &Transition,
-                                   double &Enucleus) {
-
+G4double CCgen::SampleRecoilEnergy(G4double Enu, int &Transition, double &Enucleus) {
   G4double Te = 0.0;
 
   // Get the shape of the differential cross section.
@@ -335,7 +330,6 @@ G4double CCgen::SampleRecoilEnergy(G4double Enu, int &Transition,
 }
 
 G4double CCgen::SampleRecoilAngle(G4double Enu, G4double Te, int Transition) {
-
   G4double theta = 0;
 
   if (Transition == 0) {
@@ -398,19 +392,15 @@ G4double CCgen::GetRatePerTarget() {
 
     for (G4int ip = 0; ip < fNuSpectrum->GetN() - 1; ++ip) {
       G4double de = fNuSpectrum->GetX()[ip + 1] - fNuSpectrum->GetX()[ip];
-      G4double integ =
-          (0.5 * de) *
-          (fNuSpectrum->GetY()[ip + 1] *
-               fXS->Sigma((fNuSpectrum->GetX())[ip + 1]) +
-           fNuSpectrum->GetY()[ip] * fXS->Sigma((fNuSpectrum->GetX())[ip]));
+      G4double integ = (0.5 * de) * (fNuSpectrum->GetY()[ip + 1] * fXS->Sigma((fNuSpectrum->GetX())[ip + 1]) +
+                                     fNuSpectrum->GetY()[ip] * fXS->Sigma((fNuSpectrum->GetX())[ip]));
       intRate += integ;
     }
   }
-  std::cout << "Interaction rate: " << intRate
-            << " XS norm: " << fXS->CrossSecNorm()
-            << " Total Flux: " << fTotalFlux << std::endl;
+  std::cout << "Interaction rate: " << intRate << " XS norm: " << fXS->CrossSecNorm() << " Total Flux: " << fTotalFlux
+            << std::endl;
   // don't forget the scale factor from the cross section
   // nor the total flux
   return intRate * fXS->CrossSecNorm() * fTotalFlux;
 }
-} // namespace RAT
+}  // namespace RAT

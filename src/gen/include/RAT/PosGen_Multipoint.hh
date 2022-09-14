@@ -20,7 +20,7 @@
 namespace RAT {
 
 class PosGen_Multipoint : public GLG4PosGen {
-public:
+ public:
   /** Create a new position generator.
    *
    *  The default is an empty list, triggering an error if you don't configure
@@ -56,17 +56,15 @@ public:
   /** Return state as string in same format as SetState() */
   G4String GetState() const;
 
-protected:
-  void LoadUniformPoints(unsigned numPoints, double innerRadius,
-                         double outerRadius);
+ protected:
+  void LoadUniformPoints(unsigned numPoints, double innerRadius, double outerRadius);
   void LoadTablePoints(std::string tableName, std::string tableIndex);
 
   enum { MULTIPOINT_TABLE, MULTIPOINT_UNIFORM } MultipointTypeList;
   int fType; /** Type of multipoint generator.  Value must be from above enum.
               */
 
-  std::string
-      fTableName; /** Only set if using table variant of this generator */
+  std::string fTableName; /** Only set if using table variant of this generator */
   std::string fTableIndex;
 
   double fInnerRadius, fOuterRadius;
@@ -75,6 +73,6 @@ protected:
   int fNextPosIndex;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

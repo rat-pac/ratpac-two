@@ -6,6 +6,7 @@
 
   ------------------------------------------------------------------------------*/
 #include "RAT/os_fixes.hpp"
+
 #include "RAT/debug.hpp"
 #include "RAT/string_utilities.hpp"
 

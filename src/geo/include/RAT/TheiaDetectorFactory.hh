@@ -23,15 +23,14 @@
 namespace RAT {
 
 class TheiaDetectorFactory : public DetectorFactory {
-
-public:
+ public:
   TheiaDetectorFactory() {}
   virtual ~TheiaDetectorFactory() {}
 
-protected:
+ protected:
   virtual void DefineDetector(DBLinkPtr detector);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

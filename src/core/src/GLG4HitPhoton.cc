@@ -8,6 +8,7 @@
 */
 
 #include "RAT/GLG4HitPhoton.hh"
+
 #include <CLHEP/Units/PhysicalConstants.h>
 
 using namespace CLHEP;

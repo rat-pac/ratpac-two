@@ -10,7 +10,7 @@ namespace RAT {
 
 // Helper class which reads the attributes stored in a PMTINFO
 class PMTInfoParser {
-public:
+ public:
   PMTInfoParser(DBLinkPtr table, const std::string &mother_name);
   ~PMTInfoParser(){};
 
@@ -33,15 +33,13 @@ public:
   // want to apply it to a vector.
   G4RotationMatrix GetPMTRotation(int i) const;
 
-  const std::vector<double> &GetEfficiencyCorrections() {
-    return fEfficiencyCorrection;
-  }
+  const std::vector<double> &GetEfficiencyCorrections() { return fEfficiencyCorrection; }
 
   const std::vector<double> &GetPMTNoiseRates() { return fNoiseRate; }
 
   const std::vector<int> &GetTypes() { return fType; }
 
-protected:
+ protected:
   G4ThreeVector fLocalOffset;
   std::vector<G4ThreeVector> fPos;
   std::vector<G4ThreeVector> fDir;
@@ -49,5 +47,5 @@ protected:
   std::vector<double> fEfficiencyCorrection;
   std::vector<double> fNoiseRate;
 };
-} // namespace RAT
+}  // namespace RAT
 #endif

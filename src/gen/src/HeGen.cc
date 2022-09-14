@@ -5,6 +5,7 @@
 // Only allowed transition is considered (constant shape function)
 
 #include <CLHEP/Vector/LorentzVector.h>
+
 #include <G4Electron.hh>
 #include <G4Event.hh>
 #include <G4Gamma.hh>
@@ -31,10 +32,10 @@
 /////////////////////////////////////////////////////////////////
 
 // Branching ratio array and Q value array (end point energy)
-G4double qArrHe[2] = {5.264, 7.454}; // MeV
-G4double brArrHe[2] = {0.08, 0.08};  // branching ratio, taking into account the
-                                     // branching to produce neutron
-G4double cdfHe[2] = {0., 0.}; // will be filled later based on branching ratio
+G4double qArrHe[2] = {5.264, 7.454};  // MeV
+G4double brArrHe[2] = {0.08, 0.08};   // branching ratio, taking into account the
+                                      // branching to produce neutron
+G4double cdfHe[2] = {0., 0.};         // will be filled later based on branching ratio
 
 namespace RAT {
 
@@ -61,16 +62,14 @@ HeGen::HeGen() : stateStr(""), isotope(8), posGen(0) {
   Rnuc = 0.5 * fine_structure_const * std::pow(A, 0.33333);
 
   // Electron screening potential in units of electrom mass
-  V0 = 1.13 * fine_structure_const * fine_structure_const *
-       std::pow(std::abs(Z), 1.33333);
+  V0 = 1.13 * fine_structure_const * fine_structure_const * std::pow(std::abs(Z), 1.33333);
 
   // S
   gamma0 = std::sqrt(1. - alphaZ * alphaZ);
 
   // cdf (cumulativ distribution fnction) for branching ratio
   pdfNow = 0.;
-  sumBr = accumulate(std::begin(brArrHe), std::end(brArrHe), 0.,
-                     std::plus<double>());
+  sumBr = accumulate(std::begin(brArrHe), std::end(brArrHe), 0., std::plus<double>());
   for (int j = 0; j < sizeof(brArrHe) / sizeof(brArrHe[0]); j++) {
     pdfNow += brArrHe[j] / sumBr;
     cdfHe[j] = pdfNow;
@@ -83,7 +82,6 @@ HeGen::~HeGen() {
 }
 
 void HeGen::GenerateEvent(G4Event *event) {
-
   // Generate the position of the isotope.  Note that, for now, we
   // don't change the position of the isotope as it decays.
   G4ThreeVector position;
@@ -99,13 +97,12 @@ void HeGen::GenerateEvent(G4Event *event) {
   /////////////////////////////////////////////////////////////////////
 
   for (int i = 0; i < numElectron; i++) {
-
     // time
     double t = 0.0;
     G4double time = NextTime() + t;
 
     // direction random
-    G4double cost = 1. - 2. * G4UniformRand(); // cos theta
+    G4double cost = 1. - 2. * G4UniformRand();  // cos theta
     G4double theta = acos(cost);
     G4double phi = 2. * CLHEP::pi * G4UniformRand();
     G4double px = sin(theta) * cos(phi);
@@ -122,18 +119,16 @@ void HeGen::GenerateEvent(G4Event *event) {
         break;
       }
     }
-    double e0 = qArrHe[idxNow]; // end point energy of beta particle
+    double e0 = qArrHe[idxNow];  // end point energy of beta particle
     SetUpBetaSpectrumSampler(e0);
 
-    double erg = qArrHe[idxNow] *
-                 spectrumSampler->shoot(G4Random::getTheEngine()) * CLHEP::MeV;
+    double erg = qArrHe[idxNow] * spectrumSampler->shoot(G4Random::getTheEngine()) * CLHEP::MeV;
     double restErg = electron->GetPDGMass() * CLHEP::MeV;
     erg = sqrt(erg * erg + erg * 2.0 * restErg);
 
     // create vertex
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, time);
-    G4PrimaryParticle *particle =
-        new G4PrimaryParticle(electron, px * erg, py * erg, pz * erg);
+    G4PrimaryParticle *particle = new G4PrimaryParticle(electron, px * erg, py * erg, pz * erg);
 
     // mass
     particle->SetMass(electron->GetPDGMass());
@@ -150,13 +145,12 @@ void HeGen::GenerateEvent(G4Event *event) {
   /////////////////////////////////////////////////////////////////////
 
   for (int i = 0; i < numNeutron; i++) {
-
     // time
     double t = 0.0;
     G4double time = NextTime() + t;
 
     // direction random
-    G4double cost = 1. - 2. * G4UniformRand(); // cos theta
+    G4double cost = 1. - 2. * G4UniformRand();  // cos theta
     G4double theta = acos(cost);
     G4double phi = 2. * CLHEP::pi * G4UniformRand();
     G4double px = sin(theta) * cos(phi);
@@ -170,8 +164,7 @@ void HeGen::GenerateEvent(G4Event *event) {
 
     // create vertex
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, time);
-    G4PrimaryParticle *particle =
-        new G4PrimaryParticle(neutron, px * erg, py * erg, pz * erg);
+    G4PrimaryParticle *particle = new G4PrimaryParticle(neutron, px * erg, py * erg, pz * erg);
 
     // mass
     particle->SetMass(neutron->GetPDGMass());
@@ -188,19 +181,17 @@ void HeGen::GenerateEvent(G4Event *event) {
   /////////////////////////////////////////////////////////////////////
 
   for (int i = 0; i < numGamma; i++) {
-
     // He8 decays to excited state of Li8 (5.4MeV-BR 8%, 3.21 MeV-BR 8%)
     // and when it decays to these excited state, 50% of the time, it emits
     // neutron
 
     if (G4UniformRand() > 0.5) {
-
       // time
       double t = 0.0;
       G4double time = NextTime() + t;
 
       // direction random
-      G4double cost = 1. - 2. * G4UniformRand(); // cos theta
+      G4double cost = 1. - 2. * G4UniformRand();  // cos theta
       G4double theta = acos(cost);
       G4double phi = 2. * CLHEP::pi * G4UniformRand();
       G4double px = sin(theta) * cos(phi);
@@ -212,8 +203,7 @@ void HeGen::GenerateEvent(G4Event *event) {
 
       // create vertex
       G4PrimaryVertex *vertex = new G4PrimaryVertex(position, time);
-      G4PrimaryParticle *particle =
-          new G4PrimaryParticle(gamma, px * erg, py * erg, pz * erg);
+      G4PrimaryParticle *particle = new G4PrimaryParticle(gamma, px * erg, py * erg, pz * erg);
 
       // add particle to vertex
       vertex->SetPrimary(particle);
@@ -229,16 +219,14 @@ void HeGen::ResetTime(double offset) {
   nextTime = eventTime + offset;
 #ifdef DEBUG
   G4cout << "RAT::HeGen::ResetTime:"
-         << " eventTime=" << G4BestUnit(eventTime, "Time")
-         << ", offset=" << G4BestUnit(offset, "Time")
+         << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
          << ", nextTime=" << G4BestUnit(nextTime, "Time") << G4endl;
 #endif
 }
 
 void HeGen::SetState(G4String state) {
 #ifdef DEBUG
-  G4cout << "RAT::HeGen::SetState called with state='" << state << "'"
-         << G4endl;
+  G4cout << "RAT::HeGen::SetState called with state='" << state << "'" << G4endl;
 #endif
 
   // Break the argument to the this generator into sub-strings
@@ -252,11 +240,10 @@ void HeGen::SetState(G4String state) {
 #endif
 
   try {
-
     if (nArgs >= 3) {
       // The last argument is an optional time generator
       delete timeGen;
-      timeGen = 0; // In case of exception in next line
+      timeGen = 0;  // In case of exception in next line
       timeGen = GlobalFactory<GLG4TimeGen>::New(parts[2]);
     }
 
@@ -275,12 +262,10 @@ void HeGen::SetState(G4String state) {
       posGen = GlobalFactory<GLG4PosGen>::New(parts[1]);
     } else {
       G4Exception(__FILE__, "Invalid Parameter", FatalException,
-                  ("HeGen syntax error: '" + state +
-                   "' does not have a position generator")
-                      .c_str());
+                  ("HeGen syntax error: '" + state + "' does not have a position generator").c_str());
     }
 
-    stateStr = state; // Save for later call to GetState()
+    stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
     G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
   }
@@ -292,8 +277,7 @@ void HeGen::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "HeGen error: Cannot set time state, no time generator selected"
-           << G4endl;
+    G4cerr << "HeGen error: Cannot set time state, no time generator selected" << G4endl;
 }
 
 G4String HeGen::GetTimeState() const {
@@ -332,12 +316,11 @@ void HeGen::SetUpBetaSpectrumSampler(G4double &e0) {
   // end point energy in unit of electron mass
   // recall that qArrHe is in MeV, so divide with e mass in MeV as well
   e0 /= 0.511;
-  G4double e; // Total electron energy in units of electron mass
-  G4double p; // Electron momentum in units of electron mass
-  G4double f; // Spectral shape function
+  G4double e;  // Total electron energy in units of electron mass
+  G4double p;  // Electron momentum in units of electron mass
+  G4double f;  // Spectral shape function
 
   for (G4int ptn = 0; ptn < npti; ptn++) {
-
     // Calculate simple phase space
     e = 1. + e0 * (G4double(ptn) + 0.5) / G4double(npti);
     p = std::sqrt(e * e - 1.);
@@ -363,8 +346,7 @@ G4double HeGen::FermiFunction(G4double &W) {
     Wprime = W + V0;
   } else {
     Wprime = W - V0;
-    if (Wprime <= 1.00001)
-      Wprime = 1.00001;
+    if (Wprime <= 1.00001) Wprime = 1.00001;
   }
 
   G4double p_e = std::sqrt(Wprime * Wprime - 1.);
@@ -378,8 +360,7 @@ G4double HeGen::FermiFunction(G4double &W) {
   G4double factor2 = epieta * std::pow(2 * p_e * Rnuc, 2 * (gamma0 - 1));
 
   // Electron screening factor
-  G4double factor3 =
-      (Wprime / W) * std::sqrt((Wprime * Wprime - 1.) / (W * W - 1.));
+  G4double factor3 = (Wprime / W) * std::sqrt((Wprime * Wprime - 1.) / (W * W - 1.));
 
   return factor1 * factor2 * factor3;
 }
@@ -399,4 +380,4 @@ G4double HeGen::ModSquared(G4double &re, G4double &im) {
   return factor1 * factor4 * factor5 / factor2 / factor3 / factor6;
 }
 
-} // namespace RAT
+}  // namespace RAT

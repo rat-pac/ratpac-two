@@ -1,5 +1,6 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <G4Sphere.hh>
 #include <RAT/GeoSphereFactory.hh>
 
@@ -38,8 +39,7 @@ G4VSolid *GeoSphereFactory::ConstructSolid(DBLinkPtr table) {
   } catch (DBNotFoundError &e) {
   };
 
-  return new G4Sphere(volume_name, r_min, r_max, phi_start, phi_delta,
-                      theta_start, theta_delta);
+  return new G4Sphere(volume_name, r_min, r_max, phi_start, phi_delta, theta_start, theta_delta);
 }
 
-} // namespace RAT
+}  // namespace RAT

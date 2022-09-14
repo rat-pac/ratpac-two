@@ -1,17 +1,17 @@
 #include "RAT/GLG4Gen.hh"
-#include "RAT/GLG4PosGen.hh"
-#include "RAT/GLG4StringUtil.hh"
-#include "RAT/GLG4TimeGen.hh"
-#include "RAT/GLG4VertexGen.hh"
-
-#include <RAT/DB.hh>
-#include <RAT/Factory.hh>
 
 #include <G4Event.hh>
 #include <G4PrimaryParticle.hh>
 #include <G4PrimaryVertex.hh>
 #include <G4ThreeVector.hh>
 #include <G4Track.hh>
+#include <RAT/DB.hh>
+#include <RAT/Factory.hh>
+
+#include "RAT/GLG4PosGen.hh"
+#include "RAT/GLG4StringUtil.hh"
+#include "RAT/GLG4TimeGen.hh"
+#include "RAT/GLG4VertexGen.hh"
 
 using namespace std;
 
@@ -34,9 +34,7 @@ void GLG4Gen_Combo::GenerateEvent(G4Event *event) {
   vertexGen->GeneratePrimaryVertex(event, pos, t0);
 }
 
-void GLG4Gen_Combo::ResetTime(double offset) {
-  nextTime = timeGen->GenerateEventTime() + offset;
-}
+void GLG4Gen_Combo::ResetTime(double offset) { nextTime = timeGen->GenerateEventTime() + offset; }
 
 void GLG4Gen_Combo::SetState(G4String state) {
   state = util_strip_default(state);
@@ -45,26 +43,25 @@ void GLG4Gen_Combo::SetState(G4String state) {
 
   try {
     switch (parts.size()) {
-    case 3:
-      // last is optional time generator
-      delete timeGen;
-      timeGen = 0; // In case of exception in next line
-      timeGen = RAT::GlobalFactory<GLG4TimeGen>::New(parts[2]);
-    case 2:
-      delete vertexGen;
-      vertexGen = 0;
-      vertexGen = RAT::GlobalFactory<GLG4VertexGen>::New(parts[0]);
-      delete posGen;
-      posGen = 0;
-      posGen = RAT::GlobalFactory<GLG4PosGen>::New(parts[1]);
-      break;
-    default:
-      G4Exception(__FILE__, "Invalid Parameter", FatalException,
-                  ("Combo generator syntax error: " + state).c_str());
-      break;
+      case 3:
+        // last is optional time generator
+        delete timeGen;
+        timeGen = 0;  // In case of exception in next line
+        timeGen = RAT::GlobalFactory<GLG4TimeGen>::New(parts[2]);
+      case 2:
+        delete vertexGen;
+        vertexGen = 0;
+        vertexGen = RAT::GlobalFactory<GLG4VertexGen>::New(parts[0]);
+        delete posGen;
+        posGen = 0;
+        posGen = RAT::GlobalFactory<GLG4PosGen>::New(parts[1]);
+        break;
+      default:
+        G4Exception(__FILE__, "Invalid Parameter", FatalException, ("Combo generator syntax error: " + state).c_str());
+        break;
     }
 
-    stateStr = state; // Save for later call to GetState()
+    stateStr = state;  // Save for later call to GetState()
   } catch (RAT::FactoryUnknownID &unknown) {
     G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
   }
@@ -128,10 +125,10 @@ GLG4Gen_DeferTrack::GLG4Gen_DeferTrack(const G4Track *track) {
   G4ThreeVector mom(track->GetMomentum());
   G4ThreeVector pol(track->GetPolarization());
   G4PrimaryParticle *particle;
-  particle = new G4PrimaryParticle(track->GetDefinition(),     // particle code
-                                   mom.x(), mom.y(), mom.z()); // momentum
-  particle->SetPolarization(pol.x(), pol.y(), pol.z());        // polarization
-  particle->SetMass(track->GetDefinition()->GetPDGMass()); // Geant4 is silly.
+  particle = new G4PrimaryParticle(track->GetDefinition(),      // particle code
+                                   mom.x(), mom.y(), mom.z());  // momentum
+  particle->SetPolarization(pol.x(), pol.y(), pol.z());         // polarization
+  particle->SetMass(track->GetDefinition()->GetPDGMass());      // Geant4 is silly.
 
   vertex->SetPrimary(particle);
 
@@ -153,8 +150,7 @@ G4String GLG4Gen_DeferTrack::GetState() const { return G4String(""); }
 
 ////////////////////////////////////////////////////////////////
 
-GLG4Gen_External::GLG4Gen_External()
-    : stateStr(""), timeGen(0), vertexGen(), posGen(0) {}
+GLG4Gen_External::GLG4Gen_External() : stateStr(""), timeGen(0), vertexGen(), posGen(0) {}
 
 GLG4Gen_External::~GLG4Gen_External() {
   delete timeGen;
@@ -174,9 +170,7 @@ void GLG4Gen_External::GenerateEvent(G4Event *event) {
   vertexGen->GeneratePrimaryVertex(event, pos, t0);
 }
 
-void GLG4Gen_External::ResetTime(double offset) {
-  nextTime = timeGen->GenerateEventTime() + offset;
-}
+void GLG4Gen_External::ResetTime(double offset) { nextTime = timeGen->GenerateEventTime() + offset; }
 
 void GLG4Gen_External::SetState(G4String state) {
   state = util_strip_default(state);
@@ -185,55 +179,51 @@ void GLG4Gen_External::SetState(G4String state) {
 
   try {
     switch (parts.size()) {
-    case 3: {
-      delete timeGen;
-      timeGen = 0; // In case of exception in next line
-      timeGen = RAT::GlobalFactory<GLG4TimeGen>::New(parts[1]);
-      delete vertexGen;
-      vertexGen = 0;
-      vertexGen = RAT::GlobalFactory<GLG4VertexGen>::New("HEPEvt");
-      vertexGen->SetState(parts[2]);
-      delete posGen;
-      posGen = 0;
-      if (parts[0].compare("external") == 0) {
-        dynamic_cast<GLG4VertexGen_HEPEvt *>(vertexGen)->SetUseExternalPos(
-            true);
-      } else {
-        posGen = RAT::GlobalFactory<GLG4PosGen>::New(parts[0]);
-        dynamic_cast<GLG4VertexGen_HEPEvt *>(vertexGen)->SetUseExternalPos(
-            false);
+      case 3: {
+        delete timeGen;
+        timeGen = 0;  // In case of exception in next line
+        timeGen = RAT::GlobalFactory<GLG4TimeGen>::New(parts[1]);
+        delete vertexGen;
+        vertexGen = 0;
+        vertexGen = RAT::GlobalFactory<GLG4VertexGen>::New("HEPEvt");
+        vertexGen->SetState(parts[2]);
+        delete posGen;
+        posGen = 0;
+        if (parts[0].compare("external") == 0) {
+          dynamic_cast<GLG4VertexGen_HEPEvt *>(vertexGen)->SetUseExternalPos(true);
+        } else {
+          posGen = RAT::GlobalFactory<GLG4PosGen>::New(parts[0]);
+          dynamic_cast<GLG4VertexGen_HEPEvt *>(vertexGen)->SetUseExternalPos(false);
+        }
+        break;
       }
-      break;
-    }
-    case 2: {
-      delete timeGen;
-      timeGen = 0;
-      timeGen = RAT::GlobalFactory<GLG4TimeGen>::New(parts[1]);
-      delete vertexGen;
-      vertexGen = 0;
-      vertexGen = RAT::GlobalFactory<GLG4VertexGen>::New("HEPEvt");
-      RAT::DBLinkPtr lIO = RAT::DB::Get()->GetLink("IO");
-      G4String filename = lIO->GetS("default_vector_filename");
-      vertexGen->SetState(filename.c_str());
-      delete posGen;
-      posGen = 0;
-      if (parts[0].compare("external") == 0) {
-        dynamic_cast<GLG4VertexGen_HEPEvt *>(vertexGen)->SetUseExternalPos(
-            true);
-      } else {
-        posGen = RAT::GlobalFactory<GLG4PosGen>::New(parts[0]);
-        dynamic_cast<GLG4VertexGen_HEPEvt *>(vertexGen)->SetUseExternalPos(
-            false);
+      case 2: {
+        delete timeGen;
+        timeGen = 0;
+        timeGen = RAT::GlobalFactory<GLG4TimeGen>::New(parts[1]);
+        delete vertexGen;
+        vertexGen = 0;
+        vertexGen = RAT::GlobalFactory<GLG4VertexGen>::New("HEPEvt");
+        RAT::DBLinkPtr lIO = RAT::DB::Get()->GetLink("IO");
+        G4String filename = lIO->GetS("default_vector_filename");
+        vertexGen->SetState(filename.c_str());
+        delete posGen;
+        posGen = 0;
+        if (parts[0].compare("external") == 0) {
+          dynamic_cast<GLG4VertexGen_HEPEvt *>(vertexGen)->SetUseExternalPos(true);
+        } else {
+          posGen = RAT::GlobalFactory<GLG4PosGen>::New(parts[0]);
+          dynamic_cast<GLG4VertexGen_HEPEvt *>(vertexGen)->SetUseExternalPos(false);
+        }
+        break;
       }
-      break;
-    }
-    default:
-      G4Exception(__FILE__, "Invalid Parameter", FatalException,
-                  ("External generator syntax error: " + state).c_str());
-      break;
+      default:
+        G4Exception(__FILE__, "Invalid Parameter", FatalException,
+                    ("External generator syntax error: " + state).c_str());
+        break;
     }
 
-    stateStr = state; // Save for later call to GetState()
+    stateStr = state;  // Save for later call to GetState()
   } catch (RAT::FactoryUnknownID &unknown) {
     G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
   }

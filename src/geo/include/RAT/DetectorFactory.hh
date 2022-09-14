@@ -22,16 +22,14 @@
 #ifndef __RAT_DetectorFactory__
 #define __RAT_DetectorFactory__
 
+#include <RAT/DB.hh>
 #include <map>
 #include <string>
-
-#include <RAT/DB.hh>
 
 namespace RAT {
 
 class DetectorFactory {
-
-public:
+ public:
   DetectorFactory() {}
 
   virtual ~DetectorFactory() {}
@@ -42,7 +40,7 @@ public:
   /// Registers a DetectorFactory under a name
   static void Register(const std::string name, DetectorFactory *factory);
 
-protected:
+ protected:
   /// Map of registered DetectorFactories
   static std::map<const std::string, DetectorFactory *> fFactoryMap;
 
@@ -52,6 +50,6 @@ protected:
   virtual void DefineDetector(DBLinkPtr detector) = 0;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

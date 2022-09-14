@@ -17,10 +17,9 @@ std::string MCPMT::GetCreatorProcess() const {
 
 Float_t MCPMT::GetCharge() const {
   Float_t charge = 0.0;
-  for (unsigned int i = 0; i < photon.size(); i++)
-    charge += photon[i].GetCharge();
+  for (unsigned int i = 0; i < photon.size(); i++) charge += photon[i].GetCharge();
   return charge;
 }
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT

@@ -18,7 +18,7 @@ RunManager::RunManager(ProcBlock *theMainBlock) {
 }
 
 void RunManager::Init() {
-  theRunManager = new G4RunManager; // Manages GEANT4 simulation process
+  theRunManager = new G4RunManager;  // Manages GEANT4 simulation process
 
   // Particle transport and interactions.  Note that this has to be
   // created outside of Gsim, since the physics list must be
@@ -38,4 +38,4 @@ RunManager::~RunManager() {
   delete theVisManager;
 }
 
-} // namespace RAT
+}  // namespace RAT

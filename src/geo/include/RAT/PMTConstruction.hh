@@ -12,10 +12,9 @@ namespace RAT {
 
 // Superclass for building all possible PMT types
 class PMTConstruction {
-public:
+ public:
   // Returns a new PMTConstruction based on the given table
-  static PMTConstruction *NewConstruction(DBLinkPtr params,
-                                          G4LogicalVolume *mother);
+  static PMTConstruction *NewConstruction(DBLinkPtr params, G4LogicalVolume *mother);
 
   PMTConstruction(std::string _name) : name(_name) {}
 
@@ -29,16 +28,14 @@ public:
 
   // Subclass should do any extra PMT placement finalization here e.g. optical
   // surfaces
-  virtual G4PVPlacement *PlacePMT(G4RotationMatrix *pmtrot,
-                                  G4ThreeVector pmtpos, const std::string &name,
-                                  G4LogicalVolume *logi_pmt,
-                                  G4VPhysicalVolume *mother_phys,
-                                  bool booleanSolid, int copyNo) = 0;
+  virtual G4PVPlacement *PlacePMT(G4RotationMatrix *pmtrot, G4ThreeVector pmtpos, const std::string &name,
+                                  G4LogicalVolume *logi_pmt, G4VPhysicalVolume *mother_phys, bool booleanSolid,
+                                  int copyNo) = 0;
 
-protected:
+ protected:
   std::string name;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

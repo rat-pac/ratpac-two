@@ -17,13 +17,12 @@ struct pyhash {
     full_len = len = s.size();
     p = (unsigned char *)s.c_str();
     x = *p << 7;
-    while (--len >= 0)
-      x = (1000003 * x) ^ *p++;
+    while (--len >= 0) x = (1000003 * x) ^ *p++;
     x ^= full_len;
     return x;
   }
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

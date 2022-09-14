@@ -22,7 +22,6 @@
 #define __RAT_CfGen__
 
 #include <RAT/GLG4Gen.hh>
-
 #include <globals.hh>
 
 class G4Event;
@@ -33,7 +32,7 @@ class GLG4PosGen;
 namespace RAT {
 
 class CfGen : public GLG4Gen {
-public:
+ public:
   CfGen();
   virtual ~CfGen();
   virtual void GenerateEvent(G4Event *event);
@@ -48,7 +47,7 @@ public:
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
 
-protected:
+ protected:
   // Generator initialization, specified by the user.
   G4String stateStr;
 
@@ -64,6 +63,6 @@ protected:
   G4ParticleDefinition *gamma;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_CfGen_h
+#endif  // RAT_CfGen_h

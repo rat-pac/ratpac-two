@@ -9,11 +9,11 @@ namespace RAT {
 ///  All errors are mine."
 /// \author Chris Jillings, jillings@snolab.ca
 class WaterBoxConstruction {
-public:
+ public:
   WaterBoxConstruction(){};
   virtual G4LogicalVolume *ConstructLogicalVolume(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

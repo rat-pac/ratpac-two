@@ -13,23 +13,24 @@
 #define __RAT_ThinnableG4Cereknov__
 
 #include <CLHEP/Random/Random.h>
+
 #include <G4Cerenkov.hh>
 
 namespace RAT {
 
 class ThinnableG4Cerenkov : public G4Cerenkov {
-public:
+ public:
   ThinnableG4Cerenkov();
   void SetThinningFactor(double);
   double GetThinningFactor();
   G4VParticleChange *PostStepDoIt(const G4Track &, const G4Step &);
 
-private:
+ private:
   bool should_thin;
   double thinning_factor;
   CLHEP::HepRandom heprandom;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

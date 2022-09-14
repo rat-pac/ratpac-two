@@ -22,18 +22,18 @@
 namespace RAT {
 
 class PDFPMTTime : public PMTTime {
-public:
+ public:
   PDFPMTTime(std::string pmt_model = "");
   virtual ~PDFPMTTime();
 
   /** Returns front end time for hit time. */
   virtual double PickTime(double time) const;
 
-protected:
+ protected:
   std::vector<double> fTime, fTimeProb, fTimeProbCumu;
   double fCableDelay;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

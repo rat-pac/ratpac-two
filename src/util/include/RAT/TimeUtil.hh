@@ -26,9 +26,8 @@ inline TTimeStamp AddNanoseconds(const TTimeStamp &a, const long nanoseconds) {
 // Get time difference (a - b) in nanoseconds.  Note that maximum deltaT is
 // +/-2^63 = 292 years
 inline long TimeDifference(const TTimeStamp &a, const TTimeStamp &b) {
-  return (a.GetSec() - b.GetSec()) * TIME_UTIL_BILLION +
-         (a.GetNanoSec() - b.GetNanoSec());
+  return (a.GetSec() - b.GetSec()) * TIME_UTIL_BILLION + (a.GetNanoSec() - b.GetNanoSec());
 }
-} // namespace RAT
+}  // namespace RAT
 
 #endif

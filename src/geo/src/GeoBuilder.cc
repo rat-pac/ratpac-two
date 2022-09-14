@@ -1,13 +1,10 @@
-#include <RAT/DetectorConstruction.hh>
-#include <RAT/GeoBuilder.hh>
-#include <RAT/Log.hh>
-
 #include <G4SDManager.hh>
-
 #include <RAT/ConeWaveguideFactory.hh>
+#include <RAT/DetectorConstruction.hh>
 #include <RAT/Factory.hh>
 #include <RAT/GeoBoxFactory.hh>
 #include <RAT/GeoBubbleFactory.hh>
+#include <RAT/GeoBuilder.hh>
 #include <RAT/GeoCalibrationStickFactory.hh>
 #include <RAT/GeoCherenkovSourceFactory.hh>
 #include <RAT/GeoConvexLensFactory.hh>
@@ -31,6 +28,7 @@
 #include <RAT/GeoTubeIntersectionFactory.hh>
 #include <RAT/GeoWatchmanShieldFactory.hh>
 #include <RAT/GeoWaterBoxArrayFactory.hh>
+#include <RAT/Log.hh>
 #include <RAT/PMTArrayFactory.hh>
 #include <RAT/PMTCoverageFactory.hh>
 #include <RAT/WLSPCoverFactory.hh>
@@ -75,8 +73,7 @@ GeoBuilder::GeoBuilder() {
   new GeoCalibrationStickFactory();
 
   // Register standard waveguides
-  GlobalFactory<WaveguideFactory>::Register(
-      "cone", new Alloc<WaveguideFactory, ConeWaveguideFactory>);
+  GlobalFactory<WaveguideFactory>::Register("cone", new Alloc<WaveguideFactory, ConeWaveguideFactory>);
 }
 
 G4VPhysicalVolume *GeoBuilder::ConstructAll(std::string geo_tablename) {
@@ -95,7 +92,6 @@ G4VPhysicalVolume *GeoBuilder::ConstructAll(std::string geo_tablename) {
   debug << "GeoBuilder: Starting ConstructAll()\n";
 
   while (geo.size() > 0) {
-
     DBLinkGroup::iterator i_table;
     for (i_table = geo.begin(); i_table != geo.end(); ++i_table) {
       string name = i_table->first;
@@ -123,8 +119,7 @@ G4VPhysicalVolume *GeoBuilder::ConstructAll(std::string geo_tablename) {
       };
 
       if (!enabled) {
-        debug << "GeoBuilder: Removing " << name
-              << " (disabled) from geo list.\n";
+        debug << "GeoBuilder: Removing " << name << " (disabled) from geo list.\n";
         geo.erase(i_table);
         break;
       }
@@ -148,43 +143,36 @@ G4VPhysicalVolume *GeoBuilder::ConstructAll(std::string geo_tablename) {
           try {
             GeoFactory::ConstructWithFactory(type, table);
           } catch (GeoFactoryNotFoundError &e) {
-            Log::Die("GeoBuilder error: Cannot find factory for volume type " +
-                     type);
+            Log::Die("GeoBuilder error: Cannot find factory for volume type " + type);
           }
           debug << "GeoBuilder: Removing " << name << " from geo list.\n";
           geo.erase(i_table);
           break;
-        } else if ((LogVol1 == 0 && geo.count(volume1) == 0) ||
-                   (LogVol2 == 0 && geo.count(volume2) == 0)) {
+        } else if ((LogVol1 == 0 && geo.count(volume1) == 0) || (LogVol2 == 0 && geo.count(volume2) == 0)) {
           // No mother yet to be built
-          Log::Die("GeoBuilder error: Cannot find " + volume1 + " or " +
-                   volume2 + " for " + name);
+          Log::Die("GeoBuilder error: Cannot find " + volume1 + " or " + volume2 + " for " + name);
         }
       } else {
-        if (mother == "" ||
-            GeoFactory::FindMother(mother) != 0) { // Found volume to build
+        if (mother == "" || GeoFactory::FindMother(mother) != 0) {  // Found volume to build
 
           try {
             if (mother == "")
-              world = GeoFactory::ConstructWithFactory(
-                  type, table); // save world volume
+              world = GeoFactory::ConstructWithFactory(type, table);  // save world volume
             else
               GeoFactory::ConstructWithFactory(type, table);
           } catch (GeoFactoryNotFoundError &e) {
-            Log::Die("GeoBuilder error: Cannot find factory for volume type " +
-                     type);
+            Log::Die("GeoBuilder error: Cannot find factory for volume type " + type);
           }
 
           debug << "GeoBuilder: Removing " << name << " from geo list.\n";
           geo.erase(i_table);
           break;
-        } else if (geo.count(mother) == 0) { // No mother yet to be built
-          Log::Die("GeoBuilder error: Cannot find mother volume " + mother +
-                   " for " + name);
+        } else if (geo.count(mother) == 0) {  // No mother yet to be built
+          Log::Die("GeoBuilder error: Cannot find mother volume " + mother + " for " + name);
         }
       }
 
-    } // end for loop looking for next volume to build
+    }  // end for loop looking for next volume to build
 
     // Circular dependency check
     if (i_table == geo.end()) {
@@ -197,12 +185,11 @@ G4VPhysicalVolume *GeoBuilder::ConstructAll(std::string geo_tablename) {
       Log::Die(err);
     }
 
-  } // end loop when all volumes built
+  }  // end loop when all volumes built
 
-  if (world == 0)
-    Log::Die("GeoBuilder error: No world volume defined");
+  if (world == 0) Log::Die("GeoBuilder error: No world volume defined");
 
   return world;
 }
 
-} // namespace RAT
+}  // namespace RAT

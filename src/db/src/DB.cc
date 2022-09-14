@@ -1,4 +1,9 @@
-#include <Byteswap.h> // From ROOT
+#include <Byteswap.h>  // From ROOT
+#include <TPython.h>
+#include <glob.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include <RAT/DB.hh>
 #include <RAT/DBJsonLoader.hh>
 #include <RAT/DBTable.hh>
@@ -6,12 +11,8 @@
 #include <RAT/Log.hh>
 #include <RAT/Rat.hh>
 #include <RAT/json.hh>
-#include <TPython.h>
-#include <glob.h>
 #include <iostream>
 #include <sstream>
-#include <sys/stat.h>
-#include <sys/types.h>
 
 using namespace std;
 
@@ -19,7 +20,7 @@ namespace RAT {
 
 DB *DB::primary(0);
 
-const int maxServerBytes = 200000000; // 200 MB
+const int maxServerBytes = 200000000;  // 200 MB
 
 DB::DB() : server(""), run(1) {
   // Nothing to do
@@ -32,16 +33,14 @@ DB::~DB() {
   // Prevents links from trying to remove themselves from nonexistent
   // databases
   list<DBLink *>::iterator l;
-  for (l = links.begin(); l != links.end(); l++)
-    (*l)->Unlink();
+  for (l = links.begin(); l != links.end(); l++) (*l)->Unlink();
 }
 
 int DB::Load(std::string filename, bool printPath) {
   // Try to get file info assuming the name is literal
   struct stat s;
   if (stat(filename.c_str(), &s) == 0) {
-    if (printPath)
-      cout << "DB: Loading " << filename << "\n";
+    if (printPath) cout << "DB: Loading " << filename << "\n";
     if (S_ISDIR(s.st_mode))
       return LoadAll(filename);
     else
@@ -50,8 +49,7 @@ int DB::Load(std::string filename, bool printPath) {
     // Check through the data directories
     for (auto dir : Rat::ratdb_directories) {
       std::string newfilename = dir + "/" + filename;
-      if (printPath)
-        cout << "DB: Loading " << newfilename << "\n";
+      if (printPath) cout << "DB: Loading " << newfilename << "\n";
       if (stat(newfilename.c_str(), &s) == 0) {
         if (S_ISDIR(s.st_mode))
           return LoadAll(newfilename);
@@ -59,25 +57,22 @@ int DB::Load(std::string filename, bool printPath) {
           return LoadFile(newfilename);
       }
     }
-    Log::Die("DB: Cannot open " + filename +
-             ".\nCheck the correct environment is loaded.");
+    Log::Die("DB: Cannot open " + filename + ".\nCheck the correct environment is loaded.");
   }
 
   Log::Die("DB: Cannot open " + filename);
-  return 0; // Never get here
+  return 0;  // Never get here
 }
 
 int DB::LoadTable(DBTable *table) {
   DBTableKey id(table->GetName(), table->GetIndex());
 
   if (table->IsDefault()) {
-    id.run = 0; // default signifier
+    id.run = 0;  // default signifier
 
     DBTable *oldtable = FindTable(id.name, id.index, id.run);
     if (oldtable) {
-      cerr << "DB: Replacing default " << id.name << "[" << id.index
-           << "] in database.\n"
-           << endl;
+      cerr << "DB: Replacing default " << id.name << "[" << id.index << "] in database.\n" << endl;
     }
 
     tables[id] = table;
@@ -86,9 +81,7 @@ int DB::LoadTable(DBTable *table) {
 
     DBTable *oldtable = FindTable(id.name, id.index, id.run);
     if (oldtable) {
-      cerr << "DB: Replacing user " << id.name << "[" << id.index
-           << "] in database.\n"
-           << endl;
+      cerr << "DB: Replacing user " << id.name << "[" << id.index << "] in database.\n" << endl;
     }
 
     tables[id] = table;
@@ -136,7 +129,7 @@ int DB::LoadFile(std::string filename) {
   vector<DBTable *>::iterator itbl;
 
   for (itbl = contents.begin(); itbl != contents.end(); itbl++) {
-    DBTable *table = (*itbl); // Get rid of iterator mess
+    DBTable *table = (*itbl);  // Get rid of iterator mess
     LoadTable(table);
   }
 
@@ -160,7 +153,7 @@ int DB::LoadAll(std::string dirname, std::string pattern) {
       }
     }
     globfree(&g);
-    return 2; // Success, and folder exists
+    return 2;  // Success, and folder exists
   }
 
   globfree(&g);
@@ -168,8 +161,7 @@ int DB::LoadAll(std::string dirname, std::string pattern) {
 }
 
 int DB::LoadDefaults() {
-  for (auto dir : Rat::ratdb_directories)
-    LoadAll(dir);
+  for (auto dir : Rat::ratdb_directories) LoadAll(dir);
   return 1;
 }
 
@@ -182,16 +174,14 @@ void DB::SetServer(std::string url) {
 
   // Fetch list of names of tables on the server so we can avoid querying it for
   // tables it does not store
-  std::string name_url =
-      dformat("%s/_design/ratdb/_view/name?group=true", server.c_str());
+  std::string name_url = dformat("%s/_design/ratdb/_view/name?group=true", server.c_str());
   std::string contents = downloader.Fetch(name_url);
   json::Reader reader(contents);
   json::Value results;
   try {
     reader.getValue(results);
   } catch (...) {
-    Log::Die(
-        "RATDB: Could not parse JSON response of table name query to server.");
+    Log::Die("RATDB: Could not parse JSON response of table name query to server.");
   }
 
   info << "RATDB: Tables on server include";
@@ -209,13 +199,10 @@ void DB::SetDefaultRun(int _run) { run = _run; }
 
 int DB::GetDefaultRun() const { return run; }
 
-DBLinkPtr DB::GetLink(std::string tblname, std::string index) {
-  return DB::GetLink(tblname, index, this->run);
-}
+DBLinkPtr DB::GetLink(std::string tblname, std::string index) { return DB::GetLink(tblname, index, this->run); }
 
 DBLinkPtr DB::GetLink(std::string tblname, std::string index, int _run) {
-  debug << dformat("DB::GetLink(%s,%s, run=%d)\n", tblname.c_str(),
-                   index.c_str(), _run);
+  debug << dformat("DB::GetLink(%s,%s, run=%d)\n", tblname.c_str(), index.c_str(), _run);
 
   // By using smart pointer here, user does not have to worry about
   // memory management
@@ -232,17 +219,17 @@ DBLinkGroup DB::GetLinkGroup(std::string tblname) {
   // planes
   for (i = tables.begin(); i != tables.end(); i++) {
     DBTableKey id = i->first;
-    if (id.name == tblname)
-      group[id.index] = GetLink(tblname, id.index);
+    if (id.name == tblname) group[id.index] = GetLink(tblname, id.index);
   }
 
   // Also include tables from the server if they are present
   if (tableNamesOnServer.count(tblname) != 0) {
     // Fetch the range of keys corresponding to just this table name
-    std::string url = dformat("%s/_design/ratdb/_view/"
-                              "linkgroup?group=true&startkey=[%%22%s%%22,%%22%%"
-                              "22]&endkey=[%%22%s%%22,{}]",
-                              server.c_str(), tblname.c_str(), tblname.c_str());
+    std::string url = dformat(
+        "%s/_design/ratdb/_view/"
+        "linkgroup?group=true&startkey=[%%22%s%%22,%%22%%"
+        "22]&endkey=[%%22%s%%22,{}]",
+        server.c_str(), tblname.c_str(), tblname.c_str());
     std::string contents = downloader.Fetch(url);
 
     json::Reader reader(contents);
@@ -250,16 +237,14 @@ DBLinkGroup DB::GetLinkGroup(std::string tblname) {
     try {
       reader.getValue(results);
     } catch (...) {
-      Log::Die(
-          "RATDB: Could not parse JSON response when building DBLink group.");
+      Log::Die("RATDB: Could not parse JSON response when building DBLink group.");
     }
     json::Value rows = results["rows"];
     for (unsigned idx = 0; idx < rows.getArraySize(); idx++) {
       json::Value row = rows[idx]["key"];
       // Key is a two element array, with index in entry 1
       std::string index = row[1].cast<string>();
-      if (group.count(index) == 0)
-        group[index] = GetLink(tblname, index);
+      if (group.count(index) == 0) group[index] = GetLink(tblname, index);
     }
   }
 
@@ -267,8 +252,7 @@ DBLinkGroup DB::GetLinkGroup(std::string tblname) {
 }
 
 std::vector<double> unpack_double(const std::string &contents) {
-  Log::Assert(contents.size() % sizeof(double) == 0,
-              "Incorrectly size double array from CouchDB server");
+  Log::Assert(contents.size() % sizeof(double) == 0, "Incorrectly size double array from CouchDB server");
   unsigned len = contents.size() / sizeof(double);
   const char *bytes = contents.c_str();
   std::vector<double> array(len);
@@ -287,8 +271,7 @@ std::vector<double> unpack_double(const std::string &contents) {
 }
 
 std::vector<int> unpack_int(const std::string &contents) {
-  Log::Assert(contents.size() % sizeof(int) == 0,
-              "Incorrectly size int array from CouchDB server");
+  Log::Assert(contents.size() % sizeof(int) == 0, "Incorrectly size int array from CouchDB server");
   unsigned len = contents.size() / sizeof(int);
   const char *bytes = contents.c_str();
   std::vector<int> array(len);
@@ -305,18 +288,14 @@ std::vector<int> unpack_int(const std::string &contents) {
   return array;
 }
 
-std::vector<int> DB::FetchIArray(const std::string &tableID,
-                                 const std::string &fieldname) {
-  std::string url =
-      dformat("%s/%s/%s", server.c_str(), tableID.c_str(), fieldname.c_str());
+std::vector<int> DB::FetchIArray(const std::string &tableID, const std::string &fieldname) {
+  std::string url = dformat("%s/%s/%s", server.c_str(), tableID.c_str(), fieldname.c_str());
   std::string contents = downloader.Fetch(url);
   return unpack_int(contents);
 }
 
-std::vector<double> DB::FetchDArray(const std::string &tableID,
-                                    const std::string &fieldname) {
-  std::string url =
-      dformat("%s/%s/%s", server.c_str(), tableID.c_str(), fieldname.c_str());
+std::vector<double> DB::FetchDArray(const std::string &tableID, const std::string &fieldname) {
+  std::string url = dformat("%s/%s/%s", server.c_str(), tableID.c_str(), fieldname.c_str());
   std::string contents = downloader.Fetch(url);
   return unpack_double(contents);
 }
@@ -326,24 +305,21 @@ DBTable *DB::FindTable(std::string tblname, std::string index, int runNumber) {
   DBTableKey id(tblname, index, runNumber);
   DBTableSet::iterator table = tables.find(id);
 
-  if (table != tables.end())
-    return (*table).second.pointer(); // Found in cache, return now
+  if (table != tables.end()) return (*table).second.pointer();  // Found in cache, return now
 
   // Return if the server does not have tables with this name
   // or if no server has been specified (the set will be empty)
-  if (tableNamesOnServer.count(tblname) == 0)
-    return 0;
+  if (tableNamesOnServer.count(tblname) == 0) return 0;
 
   // Return if we already asked for this table from the server and
   // it did not have it
-  if (tablesNotOnServer.count(id) > 0)
-    return 0;
+  if (tablesNotOnServer.count(id) > 0) return 0;
 
   // 1) Look for table on server
-  std::string url =
-      dformat("%s/_design/ratdb/_view/"
-              "select?key=[%%22%s%%22,%%22%s%%22,%d]&include_docs=true",
-              server.c_str(), tblname.c_str(), index.c_str(), runNumber);
+  std::string url = dformat(
+      "%s/_design/ratdb/_view/"
+      "select?key=[%%22%s%%22,%%22%s%%22,%d]&include_docs=true",
+      server.c_str(), tblname.c_str(), index.c_str(), runNumber);
   std::string contents = downloader.Fetch(url);
 
   // 2) Parse JSON document
@@ -356,16 +332,14 @@ DBTable *DB::FindTable(std::string tblname, std::string index, int runNumber) {
   }
 
   // 3) Copy the fields into a RATDB table
-  Log::Assert(query.getType() == json::TOBJECT,
-              "RATDB:: Server returned non-object JSON document.");
+  Log::Assert(query.getType() == json::TOBJECT, "RATDB:: Server returned non-object JSON document.");
 
-  if (query["rows"].getArraySize() ==
-      0) { // Did not find any matching tables on the server
-    tablesNotOnServer.insert(id); // Remember this result for later
+  if (query["rows"].getArraySize() == 0) {  // Did not find any matching tables on the server
+    tablesNotOnServer.insert(id);           // Remember this result for later
     return 0;
   }
 
-  if (query["rows"].getArraySize() > 1) // Multiple documents?
+  if (query["rows"].getArraySize() > 1)  // Multiple documents?
     Log::Die("RATDB: Multiple documents on server for this run.  Aborting!");
 
   json::Value jsonDoc = query["rows"][(unsigned)0]["doc"];
@@ -380,16 +354,14 @@ DBTable *DB::FindTable(std::string tblname, std::string index, int runNumber) {
     for (unsigned idx = 0; idx < fieldnames.size(); idx++) {
       // Fetch attachment
       const std::string &fieldname = fieldnames[idx];
-      std::string content_type =
-          attachments[fieldname]["content_type"].cast<string>();
+      std::string content_type = attachments[fieldname]["content_type"].cast<string>();
 
       if (content_type == "vnd.rat/array-double") {
         newTable->SetDArrayDeferred(fieldname, this);
       } else if (content_type == "vnd.rat/array-int") {
         newTable->SetIArrayDeferred(fieldname, this);
       } else {
-        Log::Die(dformat("RATDB: Unknown attachment type %s for field %s",
-                         content_type.c_str(), fieldname.c_str()));
+        Log::Die(dformat("RATDB: Unknown attachment type %s for field %s", content_type.c_str(), fieldname.c_str()));
       }
     }
   }
@@ -433,18 +405,16 @@ DBTable *DB::FindTable(std::string tblname, std::string index, int runNumber) {
   tablesFromServer.back().second = true;
   // cerr << "Memory cache = " << serverTableBytes << "\n";
 
-  info << dformat("RATDB: Loaded table %s[%s] from server\n",
-                  newTable->GetName().c_str(), newTable->GetIndex().c_str());
+  info << dformat("RATDB: Loaded table %s[%s] from server\n", newTable->GetName().c_str(),
+                  newTable->GetIndex().c_str());
 
   return newTable;
 }
 
-DBTable *DB::FindOrCreateTable(std::string tblname, std::string index,
-                               int runNumber) {
+DBTable *DB::FindOrCreateTable(std::string tblname, std::string index, int runNumber) {
   DBTable *table = FindTable(tblname, index, runNumber);
 
-  if (table)
-    return table;
+  if (table) return table;
 
   DBTableKey id(tblname, index, -1);
   table = new DBTable(tblname, index);
@@ -457,14 +427,12 @@ DBTable *DB::FindOrCreateTable(std::string tblname, std::string index,
 
 void DB::RemoveLink(DBLink *link) { links.remove(link); }
 
-bool DB::ParseTableName(std::string descriptor, std::string &table,
-                        std::string &index) {
+bool DB::ParseTableName(std::string descriptor, std::string &table, std::string &index) {
   Tokenizer t(descriptor);
 
   try {
     // Get table name
-    if (t.Next() != Tokenizer::TYPE_IDENTIFIER)
-      return 0;
+    if (t.Next() != Tokenizer::TYPE_IDENTIFIER) return 0;
 
     table = t.Token();
 
@@ -480,8 +448,7 @@ bool DB::ParseTableName(std::string descriptor, std::string &table,
         index = t.Token();
 
         // Make sure we got the rest
-        if (t.Next() == Tokenizer::TYPE_SYMBOL && t.Token() == "]" &&
-            t.Next() == Tokenizer::TYPE_EOF)
+        if (t.Next() == Tokenizer::TYPE_SYMBOL && t.Token() == "]" && t.Next() == Tokenizer::TYPE_EOF)
           return 1;
         else
           return 0;
@@ -502,4 +469,4 @@ std::vector<DBTable *> DB::ReadRATDBFile(const std::string &filename) {
   return contents;
 }
 
-} // namespace RAT
+}  // namespace RAT

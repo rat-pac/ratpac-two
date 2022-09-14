@@ -1,15 +1,16 @@
 #ifndef __RAT__
 #define __RAT__
+#include <TStopwatch.h>
+
 #include <RAT/AnyParse.hh>
 #include <RAT/DB.hh>
 #include <RAT/DBMessenger.hh>
-#include <TStopwatch.h>
 #include <set>
 
 namespace RAT {
 
 class Rat {
-protected:
+ protected:
   AnyParse *parser;
   long seed;
   std::string input_filename;
@@ -24,7 +25,7 @@ protected:
   DB *rdb;
   DBMessenger *rdb_messenger;
 
-public:
+ public:
   inline static std::set<std::string> ratdb_directories = {};
   inline static std::set<std::string> model_directories = {};
 
@@ -34,6 +35,6 @@ public:
   void Report();
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

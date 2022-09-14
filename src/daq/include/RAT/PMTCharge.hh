@@ -21,7 +21,7 @@
 namespace RAT {
 
 class PMTCharge {
-public:
+ public:
   PMTCharge() {}
   virtual ~PMTCharge() {}
   /** Returns charge for one photoelectron. */
@@ -31,6 +31,6 @@ public:
   virtual double PDF(double q) const = 0;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

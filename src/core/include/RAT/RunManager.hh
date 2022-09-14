@@ -18,12 +18,12 @@ class Gsim;
 class ProcBlock;
 
 class RunManager {
-public:
+ public:
   RunManager();
   RunManager(ProcBlock *theMainBlock);
   virtual ~RunManager();
 
-protected:
+ protected:
   void Init();
 
   G4RunManager *theRunManager;
@@ -33,6 +33,6 @@ protected:
   G4VisManager *theVisManager;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // __RAT_RunManager__
+#endif  // __RAT_RunManager__

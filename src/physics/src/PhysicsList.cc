@@ -47,8 +47,7 @@ void PhysicsList::ConstructParticle() {
 
 void PhysicsList::ConstructProcess() {
   G4EmParameters *param = G4EmParameters::Instance();
-  param->SetStepFunctionLightIons(this->stepRatioLightIons,
-                                  this->finalRangeLightIons);
+  param->SetStepFunctionLightIons(this->stepRatioLightIons, this->finalRangeLightIons);
   param->SetStepFunctionMuHad(this->stepRatioMuHad, this->finalRangeMuHad);
 
   AddParameterization();
@@ -63,12 +62,10 @@ void PhysicsList::EnableThermalNeutronScattering() {
 
   // Get the elastic scattering process used for neutrons
   G4HadronicProcess *n_elastic_process = NULL;
-  G4ProcessVector *proc_vec =
-      n_definition->GetProcessManager()->GetProcessList();
+  G4ProcessVector *proc_vec = n_definition->GetProcessManager()->GetProcessList();
   for (int i = 0; i < proc_vec->size(); i++) {
     G4VProcess *proc = proc_vec->operator[](i);
-    if (proc->GetProcessSubType() == fHadronElastic &&
-        proc->GetProcessType() == fHadronic) {
+    if (proc->GetProcessSubType() == fHadronElastic && proc->GetProcessType() == fHadronic) {
       n_elastic_process = dynamic_cast<G4HadronicProcess *>(proc);
       break;
     }
@@ -76,19 +73,16 @@ void PhysicsList::EnableThermalNeutronScattering() {
   if (!n_elastic_process) {
     std::cerr << "PhysicsList::EnableThermalNeutronScattering: "
               << " couldn't find hadron elastic scattering process.\n";
-    throw std::runtime_error(std::string("Missing") + " hadron elastic" +
-                             " scattering process in PhysicsList");
+    throw std::runtime_error(std::string("Missing") + " hadron elastic" + " scattering process in PhysicsList");
   }
 
   // Get the "regular" neutron HP elastic scattering model
-  G4HadronicInteraction *n_elastic_hp =
-      G4HadronicInteractionRegistry::Instance()->FindModel("NeutronHPElastic");
+  G4HadronicInteraction *n_elastic_hp = G4HadronicInteractionRegistry::Instance()->FindModel("NeutronHPElastic");
   if (!n_elastic_hp) {
     std::cerr << "PhysicsList::EnableThermalNeutronScattering: "
               << " couldn't find high-precision neutron elastic"
               << " scattering interaction.\n";
-    throw std::runtime_error(std::string("Missing") + " NeutronHPElastic" +
-                             " scattering interaction in PhysicsList");
+    throw std::runtime_error(std::string("Missing") + " NeutronHPElastic" + " scattering interaction in PhysicsList");
   }
 
   // Exclude the thermal scattering region (below 4 eV) from the "regular"
@@ -109,13 +103,11 @@ void PhysicsList::SetOpWLSModel(std::string model) {
   } else if (model == "bnl") {
     this->wlsModel = new BNLOpWLSBuilder();
   } else {
-    std::cerr << "PhysicsList::SetOpWLSModel: Unknown model \"" << model << "\""
-              << std::endl;
+    std::cerr << "PhysicsList::SetOpWLSModel: Unknown model \"" << model << "\"" << std::endl;
     throw std::runtime_error("Unknown WLS model in PhysicsList");
   }
 
-  std::cout << "PhysicsList::SetOpWLSModel: Set WLS model to \"" << model
-            << "\"" << std::endl;
+  std::cout << "PhysicsList::SetOpWLSModel: Set WLS model to \"" << model << "\"" << std::endl;
 
   G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 }
@@ -129,8 +121,7 @@ void PhysicsList::ConstructOpticalProcesses() {
   if (this->IsCerenkovEnabled) {
     cerenkovProcess = new G4Cerenkov();
     cerenkovProcess->SetTrackSecondariesFirst(true);
-    cerenkovProcess->SetMaxNumPhotonsPerStep(
-        this->CerenkovMaxNumPhotonsPerStep);
+    cerenkovProcess->SetMaxNumPhotonsPerStep(this->CerenkovMaxNumPhotonsPerStep);
   }
 
   // Attenuation: RAT's GLG4OpAttenuation
@@ -199,8 +190,7 @@ void PhysicsList::ConstructOpticalProcesses() {
 }
 
 void PhysicsList::AddParameterization() {
-  G4FastSimulationManagerProcess *fastSimulationManagerProcess =
-      new G4FastSimulationManagerProcess();
+  G4FastSimulationManagerProcess *fastSimulationManagerProcess = new G4FastSimulationManagerProcess();
   GetParticleIterator()->reset();
   while ((*GetParticleIterator())()) {
     G4ParticleDefinition *particle = GetParticleIterator()->value();
@@ -211,4 +201,4 @@ void PhysicsList::AddParameterization() {
   }
 }
 
-} // namespace RAT
+}  // namespace RAT

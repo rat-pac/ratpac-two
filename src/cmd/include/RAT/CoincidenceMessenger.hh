@@ -7,9 +7,10 @@
 #ifndef RAT_CoincidenceMessenger_hh
 #define RAT_CoincidenceMessenger_hh
 
+#include <RAT/Coincidence_Gen.hh>
+
 #include "G4String.hh"
 #include "G4UImessenger.hh"
-#include <RAT/Coincidence_Gen.hh>
 
 // Forward declarations
 class G4UIcommand;
@@ -22,14 +23,14 @@ namespace RAT {
 class Coincidence_Gen;
 
 class CoincidenceMessenger : public G4UImessenger {
-public:
+ public:
   CoincidenceMessenger(Coincidence_Gen *);
   ~CoincidenceMessenger();
 
   void SetNewValue(G4UIcommand *command, G4String newValues);
   G4String GetCurrentValue(G4UIcommand *command);
 
-private:
+ private:
   Coincidence_Gen *Co_gen;
 
   G4UIcommand *GenAddCmd;
@@ -41,6 +42,6 @@ private:
   G4UIcmdWithADouble *TimeWinCmd;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_CoincidenceMessenger_hh
+#endif  // RAT_CoincidenceMessenger_hh

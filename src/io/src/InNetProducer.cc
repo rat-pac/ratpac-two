@@ -1,13 +1,3 @@
-#include <RAT/Config.hh>
-#include <RAT/DS/Root.hh>
-#include <RAT/InNetProducer.hh>
-#include <RAT/Log.hh>
-#include <RAT/ProcBlock.hh>
-#include <RAT/SignalHandler.hh>
-
-#include <G4UIcmdWithAnInteger.hh>
-#include <G4UIdirectory.hh>
-
 #include <TMessage.h>
 #include <TMonitor.h>
 #include <TServerSocket.h>
@@ -15,6 +5,14 @@
 #include <TStopwatch.h>
 #include <TSystem.h>
 
+#include <G4UIcmdWithAnInteger.hh>
+#include <G4UIdirectory.hh>
+#include <RAT/Config.hh>
+#include <RAT/DS/Root.hh>
+#include <RAT/InNetProducer.hh>
+#include <RAT/Log.hh>
+#include <RAT/ProcBlock.hh>
+#include <RAT/SignalHandler.hh>
 #include <list>
 
 namespace RAT {
@@ -39,7 +37,7 @@ void InNetProducer::Init() {
   // info message command
   fListenCmd = new G4UIcmdWithAnInteger("/rat/innet/listen", this);
   fListenCmd->SetGuidance("port number to accept connections on");
-  fListenCmd->SetParameterName("port", false); // required
+  fListenCmd->SetParameterName("port", false);  // required
 }
 
 G4String InNetProducer::GetCurrentValue(G4UIcommand * /*command*/) {
@@ -75,9 +73,7 @@ bool InNetProducer::Listen(int port, int event_limit) {
 
   info << "InNet: Listening on port " << port << ".\n";
 
-  while (!error && (event_limit == 0 || event_count < event_limit) &&
-         !SignalHandler::IsTermRequested()) {
-
+  while (!error && (event_limit == 0 || event_count < event_limit) && !SignalHandler::IsTermRequested()) {
     TSocket *newsock = srv->Accept();
     if (newsock == 0) {
       error = true;
@@ -98,12 +94,10 @@ bool InNetProducer::Listen(int port, int event_limit) {
       header.WriteDouble(load);
 
       if (newsock->Send(header) == -1) {
-        warn << "innet: Unable to send header to "
-             << newsock->GetInetAddress().GetHostName() << "\n";
+        warn << "innet: Unable to send header to " << newsock->GetInetAddress().GetHostName() << "\n";
         delete newsock;
       } else {
-        info << "innet: Connection from "
-             << newsock->GetInetAddress().GetHostName() << "\n";
+        info << "innet: Connection from " << newsock->GetInetAddress().GetHostName() << "\n";
         sockets.push_back(newsock);
         monitor.Add(newsock, TMonitor::kRead);
       }
@@ -116,8 +110,7 @@ bool InNetProducer::Listen(int port, int event_limit) {
       Int_t read_result = sockWithData->Recv(msg);
       if (read_result == 0) {
         // Other side closed connection
-        warn << "innet: Host " << sockWithData->GetInetAddress().GetHostName()
-             << " has disconnected\n";
+        warn << "innet: Host " << sockWithData->GetInetAddress().GetHostName() << " has disconnected\n";
         monitor.Remove(sockWithData);
         sockets.remove(sockWithData);
         sockWithData->Close();
@@ -129,11 +122,10 @@ bool InNetProducer::Listen(int port, int event_limit) {
         // Socket has no data to read.  How'd this happen?
         warn << "innet: Socket selected which has no data.\n";
       } else {
-        lastEvent.Start(); // restart timer since we got another event
+        lastEvent.Start();  // restart timer since we got another event
 
         // Stuff event through event loop
-        DS::Root *ds =
-            dynamic_cast<DS::Root *>(msg->ReadObject(DS::Root::Class()));
+        DS::Root *ds = dynamic_cast<DS::Root *>(msg->ReadObject(DS::Root::Class()));
 
         if (ds == 0)
           error = true;
@@ -144,10 +136,8 @@ bool InNetProducer::Listen(int port, int event_limit) {
 
         // Send updated event back to client
         if (sockWithData->SendObject(ds) == -1) {
-
           // Failed to send, shut down the connection
-          warn << "innet: Cannot send event to "
-               << sockWithData->GetInetAddress().GetHostName() << newline;
+          warn << "innet: Cannot send event to " << sockWithData->GetInetAddress().GetHostName() << newline;
           warn << "Closing socket.\n";
           monitor.Remove(sockWithData);
           sockets.remove(sockWithData);
@@ -165,19 +155,17 @@ bool InNetProducer::Listen(int port, int event_limit) {
     // event for 30 seconds, go into a low power mode by sleeping
     // for 500 ms out of every 50 ms.  Once an event comes in we
     // will go back to busy wait.
-    if (lastEvent.RealTime() > 30.0 /*sec*/)
-      gSystem->Sleep(500 /*msec*/);
-    lastEvent.Continue(); // querying the stopwatch stops it
+    if (lastEvent.RealTime() > 30.0 /*sec*/) gSystem->Sleep(500 /*msec*/);
+    lastEvent.Continue();  // querying the stopwatch stops it
   }
 
   // Done, now free up sockets
   std::list<TSocket *>::iterator s;
-  for (s = sockets.begin(); s != sockets.end(); s++)
-    delete *s;
+  for (s = sockets.begin(); s != sockets.end(); s++) delete *s;
 
   delete srv;
 
   return !error;
 }
 
-} // namespace RAT
+}  // namespace RAT

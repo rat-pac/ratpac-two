@@ -4,6 +4,7 @@
 // that are produced by neutron capture on 158Gd
 
 #include "RAT/StackingAction.hh"
+
 #include "G4Electron.hh"
 #include "G4Gamma.hh"
 #include "G4NeutrinoE.hh"
@@ -18,9 +19,7 @@ StackingAction::StackingAction() {}
 StackingAction::~StackingAction() {}
 
 // Classify new tracks
-G4ClassificationOfNewTrack
-StackingAction::ClassifyNewTrack(const G4Track *track) {
-
+G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track *track) {
   G4ParticleDefinition *par = track->GetDefinition();
   G4String nameParticle = par->GetParticleName();
 
@@ -29,15 +28,13 @@ StackingAction::ClassifyNewTrack(const G4Track *track) {
 #ifdef debug_dicebox
 
   if (nameParticle != "opticalphoton" && track->GetParentID() == 1) {
-
     G4cout << "*******************************" << G4endl;
     G4cout << "      Classify new track       " << G4endl;
     G4cout << "*******************************" << G4endl;
 
-    G4cout << "(name, parentID,trackID,stepID,status) : ("
-           << par->GetParticleName() << "," << track->GetParentID() << ","
-           << track->GetTrackID() << "," << track->GetCurrentStepNumber() << ","
-           << track->GetTrackStatus() << ")" << G4endl;
+    G4cout << "(name, parentID,trackID,stepID,status) : (" << par->GetParticleName() << "," << track->GetParentID()
+           << "," << track->GetTrackID() << "," << track->GetCurrentStepNumber() << "," << track->GetTrackStatus()
+           << ")" << G4endl;
   }
 
 #endif
@@ -48,8 +45,7 @@ StackingAction::ClassifyNewTrack(const G4Track *track) {
   // to be removed.
   // GetTrackStatus()==5 is the fPostponeToNextEvent
 
-  if (track->GetTrackStatus() == 5 &&
-      (nameParticle == "gamma" || nameParticle == "e-")) {
+  if (track->GetTrackStatus() == 5 && (nameParticle == "gamma" || nameParticle == "e-")) {
     return fKill;
   } else {
     return fUrgent;

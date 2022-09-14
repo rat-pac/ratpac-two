@@ -7,7 +7,7 @@
 // Generates triggers spaced uniformly in time that are uncorrelated
 // with actual physics events
 class Gen_RandomTrigger : public GLG4Gen {
-public:
+ public:
   Gen_RandomTrigger();
   virtual ~Gen_RandomTrigger();
   virtual void GenerateEvent(G4Event *event);
@@ -20,7 +20,7 @@ public:
   virtual void SetTimeState(G4String state);
   virtual G4String GetTimeState() const;
 
-protected:
+ protected:
   G4String stateStr;
   GLG4TimeGen *timeGen;
 };

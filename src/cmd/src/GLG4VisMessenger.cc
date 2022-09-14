@@ -8,17 +8,16 @@
 //
 
 #include "RAT/GLG4VisMessenger.hh"
-#include "RAT/GLG4VisManager.hh"
+
+#include <sstream>
 
 #include "G4UIcmdWithAString.hh"
 #include "G4UIdirectory.hh"
 #include "G4ViewParameters.hh"
 #include "G4ios.hh"
+#include "RAT/GLG4VisManager.hh"
 #include "globals.hh"
-
 #include "local_g4compat.hh"
-
-#include <sstream>
 
 GLG4VisMessenger::GLG4VisMessenger(GLG4VisManager *pVMan_) : pVMan(pVMan_) {
   // the glg4vis directory
@@ -27,18 +26,15 @@ GLG4VisMessenger::GLG4VisMessenger(GLG4VisManager *pVMan_) : pVMan(pVMan_) {
 
   // the camera reset command
   G4UIcommand *CameraResetCmd = new G4UIcommand("/glg4vis/camera/reset", this);
-  CameraResetCmd->SetGuidance(
-      "Reset to nominal viewing position, up vector, etc. **DEPRECATED**");
+  CameraResetCmd->SetGuidance("Reset to nominal viewing position, up vector, etc. **DEPRECATED**");
 
   // the viewer reset command (same as camera/reset)
   CameraResetCmd = new G4UIcommand("/glg4vis/viewer/reset", this);
-  CameraResetCmd->SetGuidance(
-      "Reset to nominal viewing position, up vector, etc.");
+  CameraResetCmd->SetGuidance("Reset to nominal viewing position, up vector, etc.");
 
   // the glg4vis reset command (same as camera/reset)
   CameraResetCmd = new G4UIcommand("/glg4vis/reset", this);
-  CameraResetCmd->SetGuidance(
-      "Reset to nominal viewing position, up vector, etc.");
+  CameraResetCmd->SetGuidance("Reset to nominal viewing position, up vector, etc.");
 
   // the upvector command
   G4UIcommand *UpVectorCmd = new G4UIcommand("/glg4vis/upvector", this);
@@ -51,9 +47,8 @@ GLG4VisMessenger::GLG4VisMessenger(GLG4VisManager *pVMan_) : pVMan(pVMan_) {
 GLG4VisMessenger::~GLG4VisMessenger() {}
 
 void GLG4VisMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
-
   G4String commandname = command->GetCommandName();
-  G4std::istringstream is(newValues);
+  std::istringstream is(newValues);
 
   G4VViewer *currentViewer = pVMan->GetCurrentViewer();
   if (!currentViewer) {
@@ -79,16 +74,13 @@ void GLG4VisMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
     is >> x >> y >> z;
     if (is.fail()) {
       G4cerr << "GLG4VisMessaneger::SetNewValue: "
-             << "Could not understand arguments, up vector left as "
-             << vp.GetUpVector() << G4endl << G4std::flush;
+             << "Could not understand arguments, up vector left as " << vp.GetUpVector() << G4endl << std::flush;
       return;
     } else {
       vp.SetUpVector(G4Vector3D(x, y, z));
     }
   } else {
-    G4cerr
-        << "GLG4VisMessaneger::SetNewValue: I do not recognize this command: "
-        << commandname << G4endl;
+    G4cerr << "GLG4VisMessaneger::SetNewValue: I do not recognize this command: " << commandname << G4endl;
     return;
   }
 

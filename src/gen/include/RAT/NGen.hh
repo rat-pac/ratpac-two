@@ -22,7 +22,7 @@ class GLG4PosGen;
 namespace RAT {
 
 class NGen : public GLG4Gen {
-public:
+ public:
   NGen();
   virtual ~NGen();
   virtual void GenerateEvent(G4Event *event);
@@ -37,7 +37,7 @@ public:
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
 
-protected:
+ protected:
   // Generator initialization, specified by the user.
   G4String stateStr;
 
@@ -52,7 +52,7 @@ protected:
   G4ParticleDefinition *neutron;
   G4ParticleDefinition *electron;
 
-private:
+ private:
   G4RandGeneral *spectrumSampler;
   virtual void SetUpBetaSpectrumSampler(G4double &e0);
   virtual G4double FermiFunction(G4double &W);
@@ -68,6 +68,6 @@ private:
   G4double pdfNow;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_NGen_h
+#endif  // RAT_NGen_h

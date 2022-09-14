@@ -18,26 +18,25 @@
 #ifndef __RAT_VertexGen_Spectrum__
 #define __RAT_VertexGen_Spectrum__
 
-#include "RAT/DB.hh"
-#include <RAT/GLG4VertexGen.hh>
-
 #include <G4Event.hh>
 #include <G4ThreeVector.hh>
+#include <RAT/GLG4VertexGen.hh>
 #include <globals.hh>
 #include <vector>
+
+#include "RAT/DB.hh"
 
 namespace RAT {
 
 class VertexGen_Spectrum : public GLG4VertexGen {
-public:
+ public:
   VertexGen_Spectrum(const char *arg_dbname = "SPECTRUM");
   virtual ~VertexGen_Spectrum();
   /** generate and add new vertex to this event.  Position and
    * time of vertex are offset from 0 by dx and dt.  (These
    * are usually derived from GLG4PosGen and GLG4TimeGen.)
    */
-  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx,
-                                     G4double dt);
+  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G4double dt);
   /** set the state for generator. Format: pname specname
    * where pname is the particle name, and specname is the database spectrum
    * name
@@ -65,23 +64,22 @@ public:
   /** Return the minimum possible energy */
   virtual float EMinimum();
 
-private:
-  G4String _particle;          // name of the particle type
-  G4ParticleDefinition *_pDef; // particle definition
-  G4String _spectrum;          // name of the spectrum to use
-  DBLinkPtr _lspec;            // link to spectrum entry in database
-  float _emin;                 // valid range for spectrum in MeV
+ private:
+  G4String _particle;           // name of the particle type
+  G4ParticleDefinition *_pDef;  // particle definition
+  G4String _spectrum;           // name of the spectrum to use
+  DBLinkPtr _lspec;             // link to spectrum entry in database
+  float _emin;                  // valid range for spectrum in MeV
   float _emax;
-  std::vector<double> spec_E;   // spectrum energy values
-  std::vector<double> spec_mag; // spectrum magnitude values
-  std::vector<double>
-      spec_cummag; // spectrum cumulative non-normalised magnitude values
-  float Elim_Ulo;  // user applied universal lower limit to energy range
-  float Elim_Uhi;  // user applied universal higher limit to energy range
-  float Elim_Tlo;  // temporary lower energy limit	(applies to one event)
-  float Elim_Thi;  // temporary higher energy limit (applies to one event)
+  std::vector<double> spec_E;       // spectrum energy values
+  std::vector<double> spec_mag;     // spectrum magnitude values
+  std::vector<double> spec_cummag;  // spectrum cumulative non-normalised magnitude values
+  float Elim_Ulo;                   // user applied universal lower limit to energy range
+  float Elim_Uhi;                   // user applied universal higher limit to energy range
+  float Elim_Tlo;                   // temporary lower energy limit	(applies to one event)
+  float Elim_Thi;                   // temporary higher energy limit (applies to one event)
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -3,13 +3,8 @@
 
 // See comments in RATAmBeGen.hh
 
-#include <RAT/AmBeGen.hh>
-#include <RAT/AmBeSource.hh>
-
-#include <RAT/Factory.hh>
-#include <RAT/GLG4PosGen.hh>
-#include <RAT/GLG4StringUtil.hh>
-#include <RAT/GLG4TimeGen.hh>
+#include <CLHEP/Vector/LorentzVector.h>
+#include <CLHEP/Vector/ThreeVector.h>
 
 #include <G4Event.hh>
 #include <G4Gamma.hh>
@@ -19,10 +14,12 @@
 #include <G4PrimaryVertex.hh>
 #include <G4ThreeVector.hh>
 #include <G4UnitsTable.hh>
-
-#include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Vector/ThreeVector.h>
-
+#include <RAT/AmBeGen.hh>
+#include <RAT/AmBeSource.hh>
+#include <RAT/Factory.hh>
+#include <RAT/GLG4PosGen.hh>
+#include <RAT/GLG4StringUtil.hh>
+#include <RAT/GLG4TimeGen.hh>
 #include <cstring>
 
 #undef DEBUG
@@ -58,8 +55,7 @@ void AmBeGen::GenerateEvent(G4Event *event) {
   int numberGammas = ambeSource.GetNumGamma();
 
 #ifdef DEBUG
-  G4cout << "RAT::AmBeGen::GenerateEvent: " << numberNeutrons << " neutrons, "
-         << numberGammas << " photons" << G4endl;
+  G4cout << "RAT::AmBeGen::GenerateEvent: " << numberNeutrons << " neutrons, " << numberGammas << " photons" << G4endl;
 #endif
 
   // For each neutron...
@@ -73,22 +69,18 @@ void AmBeGen::GenerateEvent(G4Event *event) {
 
     // generate a vertex with a primary particle
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, time);
-    G4PrimaryParticle *particle =
-        new G4PrimaryParticle(neutron, p.px(), p.py(), p.pz());
-    particle->SetMass(
-        neutron->GetPDGMass()); // Apparently this is useful in IBD code.
+    G4PrimaryParticle *particle = new G4PrimaryParticle(neutron, p.px(), p.py(), p.pz());
+    particle->SetMass(neutron->GetPDGMass());  // Apparently this is useful in IBD code.
     vertex->SetPrimary(particle);
     event->AddPrimaryVertex(vertex);
 
 #ifdef DEBUG
     G4cout << "RAT::AmBeGen::GenerateEvent: "
-           << "Neutron " << i << " of " << numberNeutrons
-           << "    time=" << G4BestUnit(time, "Time")
-           << ", position=" << G4BestUnit(position, "Length")
-           << ", momentum=" << G4BestUnit(p, "Energy") << G4endl;
+           << "Neutron " << i << " of " << numberNeutrons << "    time=" << G4BestUnit(time, "Time")
+           << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy") << G4endl;
 #endif
 
-  } // for each neutron
+  }  // for each neutron
 
   // For each prompt photon...
   for (int i = 0; i < numberGammas; i++) {
@@ -101,22 +93,19 @@ void AmBeGen::GenerateEvent(G4Event *event) {
 
     // generate a vertex with a primary particle
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, time);
-    G4PrimaryParticle *particle =
-        new G4PrimaryParticle(gamma, p.px(), p.py(), p.pz());
-    particle->SetMass(gamma->GetPDGMass()); // Who knows?  Let's do this the
-                                            // same way as the others.
+    G4PrimaryParticle *particle = new G4PrimaryParticle(gamma, p.px(), p.py(), p.pz());
+    particle->SetMass(gamma->GetPDGMass());  // Who knows?  Let's do this the
+                                             // same way as the others.
     vertex->SetPrimary(particle);
     event->AddPrimaryVertex(vertex);
 
 #ifdef DEBUG
     G4cout << "RAT::AmBeGen::GenerateEvent: "
-           << "Gamma " << i << " of " << numberGammas
-           << "    time=" << G4BestUnit(time, "Time")
-           << ", position=" << G4BestUnit(position, "Length")
-           << ", momentum=" << G4BestUnit(p, "Energy") << G4endl;
+           << "Gamma " << i << " of " << numberGammas << "    time=" << G4BestUnit(time, "Time")
+           << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy") << G4endl;
 #endif
 
-  } // for each prompt photon
+  }  // for each prompt photon
 }
 
 void AmBeGen::ResetTime(double offset) {
@@ -124,16 +113,14 @@ void AmBeGen::ResetTime(double offset) {
   nextTime = eventTime + offset;
 #ifdef DEBUG
   G4cout << "RAT::AmBeGen::ResetTime:"
-         << " eventTime=" << G4BestUnit(eventTime, "Time")
-         << ", offset=" << G4BestUnit(offset, "Time")
+         << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
          << ", nextTime=" << G4BestUnit(nextTime, "Time") << G4endl;
 #endif
 }
 
 void AmBeGen::SetState(G4String state) {
 #ifdef DEBUG
-  G4cout << "RAT::AmBeGen::SetState called with state='" << state << "'"
-         << G4endl;
+  G4cout << "RAT::AmBeGen::SetState called with state='" << state << "'" << G4endl;
 #endif
 
   // Break the argument to the this generator into sub-strings
@@ -147,11 +134,10 @@ void AmBeGen::SetState(G4String state) {
 #endif
 
   try {
-
     if (nArgs >= 2) {
       // The last argument is an optional time generator
       delete timeGen;
-      timeGen = 0; // In case of exception in next line
+      timeGen = 0;  // In case of exception in next line
       timeGen = GlobalFactory<GLG4TimeGen>::New(parts[1]);
     }
 
@@ -162,12 +148,10 @@ void AmBeGen::SetState(G4String state) {
       posGen = GlobalFactory<GLG4PosGen>::New(parts[0]);
     } else {
       G4Exception(__FILE__, "Invalid Parameter", FatalException,
-                  ("AmBeGen syntax error: '" + state +
-                   "' does not have a position generator")
-                      .c_str());
+                  ("AmBeGen syntax error: '" + state + "' does not have a position generator").c_str());
     }
 
-    stateStr = state; // Save for later call to GetState()
+    stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
     G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
   }
@@ -179,8 +163,7 @@ void AmBeGen::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "AmBeGen error: Cannot set time state, no time generator selected"
-           << G4endl;
+    G4cerr << "AmBeGen error: Cannot set time state, no time generator selected" << G4endl;
 }
 
 G4String AmBeGen::GetTimeState() const {
@@ -206,4 +189,4 @@ G4String AmBeGen::GetPosState() const {
     return G4String("AmBeGen error: no position generator selected");
 }
 
-} // namespace RAT
+}  // namespace RAT

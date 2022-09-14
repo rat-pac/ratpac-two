@@ -2,6 +2,7 @@
 #define __RAT_MultiChargeDist__
 
 #include <TGraph.h>
+
 #include <vector>
 
 namespace RAT {
@@ -16,9 +17,8 @@ namespace RAT {
     meanSinglePE, rmsSinglePE: Return the mean and RMS of the 1 pe charge
    distribution.
  */
-std::vector<TGraph *> MultiChargeDist(int maxPE, double qMaxStepSize, int qBins,
-                                      double meanSinglePE);
+std::vector<TGraph *> MultiChargeDist(int maxPE, double qMaxStepSize, int qBins, double meanSinglePE);
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

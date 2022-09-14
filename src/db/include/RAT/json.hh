@@ -52,25 +52,15 @@ typedef union {
 } TData;
 
 // type ids used by Value
-enum Type {
-  TINTEGER,
-  TUINTEGER,
-  TREAL,
-  TBOOL,
-  TSTRING,
-  TOBJECT,
-  TARRAY,
-  TNULL
-};
+enum Type { TINTEGER, TUINTEGER, TREAL, TBOOL, TSTRING, TOBJECT, TARRAY, TNULL };
 
 // JSON Value container class. Basic types (int,uint,real,bool) are stored by
 // value, and structured types are stored by reference.
 class Value {
-
   friend class Reader;
   friend class Writer;
 
-public:
+ public:
   // Default constructs null Value (this is fast)
   inline Value() : refcount(NULL), type(TNULL) {}
 
@@ -79,42 +69,26 @@ public:
 
   // Construct values directly from basic types. These are passed by value and
   // have no refcount.
-  explicit inline Value(TInteger integer) : refcount(NULL), type(TINTEGER) {
-    data.integer = integer;
-  }
-  explicit inline Value(TUInteger uinteger) : refcount(NULL), type(TUINTEGER) {
-    data.uinteger = uinteger;
-  }
-  explicit inline Value(TReal real) : refcount(NULL), type(TREAL) {
-    data.real = real;
-  }
-  explicit inline Value(TBool boolean) : refcount(NULL), type(TBOOL) {
-    data.boolean = boolean;
-  }
+  explicit inline Value(TInteger integer) : refcount(NULL), type(TINTEGER) { data.integer = integer; }
+  explicit inline Value(TUInteger uinteger) : refcount(NULL), type(TUINTEGER) { data.uinteger = uinteger; }
+  explicit inline Value(TReal real) : refcount(NULL), type(TREAL) { data.real = real; }
+  explicit inline Value(TBool boolean) : refcount(NULL), type(TBOOL) { data.boolean = boolean; }
 
   // All these integer types... force them into our types
-  explicit inline Value(unsigned int uinteger)
-      : refcount(NULL), type(TUINTEGER) {
+  explicit inline Value(unsigned int uinteger) : refcount(NULL), type(TUINTEGER) {
     data.uinteger = (TUInteger)uinteger;
   }
-  explicit inline Value(int integer) : refcount(NULL), type(TINTEGER) {
-    data.integer = (TInteger)integer;
-  }
+  explicit inline Value(int integer) : refcount(NULL), type(TINTEGER) { data.integer = (TInteger)integer; }
 
   // Construct structured types. These values are copied into the Value and
   // subsequently passed by reference with refcount.
-  explicit inline Value(TString string)
-      : refcount(new TUInteger(0)), type(TSTRING) {
+  explicit inline Value(TString string) : refcount(new TUInteger(0)), type(TSTRING) {
     data.string = new TString(string);
   }
-  explicit inline Value(TObject object)
-      : refcount(new TUInteger(0)), type(TOBJECT) {
+  explicit inline Value(TObject object) : refcount(new TUInteger(0)), type(TOBJECT) {
     data.object = new TObject(object);
   }
-  explicit inline Value(TArray array)
-      : refcount(new TUInteger(0)), type(TARRAY) {
-    data.array = new TArray(array);
-  }
+  explicit inline Value(TArray array) : refcount(new TUInteger(0)), type(TARRAY) { data.array = new TArray(array); }
 
   // Constructs a JSON array from a vector (assuming the compile type
   // conversions are possible)
@@ -128,10 +102,7 @@ public:
   }
 
   // Copy constructor - preserves structured types and refcount tracking
-  inline Value(const Value &other)
-      : refcount(other.refcount), type(other.type), data(other.data) {
-    incref();
-  }
+  inline Value(const Value &other) : refcount(other.refcount), type(other.type), data(other.data) { incref(); }
 
   // Destructor handles refcount tracking of structured types
   inline ~Value() { decref(); }
@@ -146,13 +117,12 @@ public:
     incref();
     return *this;
   }
-  template <typename T> inline Value &operator=(const T &val) {
+  template <typename T>
+  inline Value &operator=(const T &val) {
     return operator=(Value(val));
   }
 
-  inline Value &operator[](const std::string &key) const {
-    return getMember(key);
-  }
+  inline Value &operator[](const std::string &key) const { return getMember(key); }
   inline Value &operator[](const size_t index) const { return getIndex(index); }
 
   // Initializes the state of the Value to the default for structured types or
@@ -210,16 +180,17 @@ public:
 
   // Templated casting functions (use these when possible / see below for
   // default specializations)
-  template <typename T> inline T cast() const {
-    throw std::runtime_error(
-        "Cannot cast Value to desired type"); // Arbitrary type casts are
-                                              // impossible
+  template <typename T>
+  inline T cast() const {
+    throw std::runtime_error("Cannot cast Value to desired type");  // Arbitrary type casts are
+                                                                    // impossible
   }
 
   // Templated vector constructing method (uses templated casters to convert
   // types)
-  template <typename T> inline std::vector<T> toVector() const {
-    const size_t size = getArraySize(); // will check that we are an array
+  template <typename T>
+  inline std::vector<T> toVector() const {
+    const size_t size = getArraySize();  // will check that we are an array
     std::vector<T> result(size);
     for (size_t i = 0; i < size; i++) {
       result[i] = (*data.array)[i].cast<T>();
@@ -275,7 +246,7 @@ public:
     (*data.array)[index] = value;
   }
 
-protected:
+ protected:
   // Returns a string representing the given type
   static std::string prettyType(Type type);
 
@@ -292,20 +263,17 @@ protected:
 
   // Resets the type of Value of the current type does not match the given Type
   inline void checkTypeReset(Type type_) {
-    if (this->type != type_)
-      reset(TOBJECT);
+    if (this->type != type_) reset(TOBJECT);
   }
 
   // Decreases the refcount of the Value and cleans up if necessary
   inline void decref() {
-    if (refcount && !((*refcount)--))
-      clean();
+    if (refcount && !((*refcount)--)) clean();
   }
 
   // Increases the refcount of the Value if necessary
   inline void incref() {
-    if (refcount)
-      (*refcount)++;
+    if (refcount) (*refcount)++;
   }
 
   // Frees any allocated memory for this object and resets to null
@@ -324,86 +292,90 @@ protected:
 #ifndef __CINT__
 
 // Everything can be cast to a string in one way or another
-template <> inline std::string Value::cast<std::string>() const {
+template <>
+inline std::string Value::cast<std::string>() const {
   switch (type) {
-  case TINTEGER: {
-    std::stringstream out;
-    out << data.integer;
-    return out.str();
-  }
-  case TUINTEGER: {
-    std::stringstream out;
-    out << data.uinteger;
-    return out.str();
-  }
-  case TREAL: {
-    std::stringstream out;
-    out << data.real;
-    return out.str();
-  }
-  case TBOOL:
-    return data.boolean ? "true" : "false";
-  case TNULL:
-    return "null";
-  case TSTRING:
-    return *(data.string);
-  case TARRAY: {
-    std::stringstream out;
-    out << "ARR{" << (void *)data.array << '}';
-    return out.str();
-  }
-  case TOBJECT: {
-    std::stringstream out;
-    out << "ARR{" << (void *)data.object << '}';
-    return out.str();
-  }
-  default:
-    throw std::runtime_error("Value could not be cast to string (forgotten?)");
+    case TINTEGER: {
+      std::stringstream out;
+      out << data.integer;
+      return out.str();
+    }
+    case TUINTEGER: {
+      std::stringstream out;
+      out << data.uinteger;
+      return out.str();
+    }
+    case TREAL: {
+      std::stringstream out;
+      out << data.real;
+      return out.str();
+    }
+    case TBOOL:
+      return data.boolean ? "true" : "false";
+    case TNULL:
+      return "null";
+    case TSTRING:
+      return *(data.string);
+    case TARRAY: {
+      std::stringstream out;
+      out << "ARR{" << (void *)data.array << '}';
+      return out.str();
+    }
+    case TOBJECT: {
+      std::stringstream out;
+      out << "ARR{" << (void *)data.object << '}';
+      return out.str();
+    }
+    default:
+      throw std::runtime_error("Value could not be cast to string (forgotten?)");
   }
 }
 
 // Only integer Values can be cast as ints (typically 32 bits)
-template <> inline int Value::cast<int>() const {
+template <>
+inline int Value::cast<int>() const {
   switch (type) {
-  case TUINTEGER:
-    return data.uinteger; // strictly speaking this is unsafe, but does not lose
-                          // precision
-  case TINTEGER:
-    return data.integer;
-  default:
-    throw std::runtime_error("Cannot cast " + prettyType(type) + " to integer");
+    case TUINTEGER:
+      return data.uinteger;  // strictly speaking this is unsafe, but does not lose
+                             // precision
+    case TINTEGER:
+      return data.integer;
+    default:
+      throw std::runtime_error("Cannot cast " + prettyType(type) + " to integer");
   }
 }
 
 // All numerics can be cast to doubles
-template <> inline double Value::cast<double>() const {
+template <>
+inline double Value::cast<double>() const {
   switch (type) {
-  case TUINTEGER:
-    return data.uinteger;
-  case TINTEGER:
-    return data.integer;
-  case TREAL:
-    return data.real;
-  default:
-    throw std::runtime_error("Cannot cast " + prettyType(type) + " to double");
+    case TUINTEGER:
+      return data.uinteger;
+    case TINTEGER:
+      return data.integer;
+    case TREAL:
+      return data.real;
+    default:
+      throw std::runtime_error("Cannot cast " + prettyType(type) + " to double");
   }
 }
 
 // All Values are true except zero, false, and null
-template <> inline bool Value::cast<bool>() const {
+template <>
+inline bool Value::cast<bool>() const {
   switch (type) {
-  case TUINTEGER:
-    return data.uinteger != 0;
-  case TINTEGER:
-    return data.integer != 0;
-  case TREAL:
-    return data.real != 0.0;
-  case TNULL:
-    return false;
-  case TBOOL:
-    return data.boolean;
-  default:
-    return true;
+    case TUINTEGER:
+      return data.uinteger != 0;
+    case TINTEGER:
+      return data.integer != 0;
+    case TREAL:
+      return data.real != 0.0;
+    case TNULL:
+      return false;
+    case TBOOL:
+      return data.boolean;
+    default:
+      return true;
   }
 }
 
@@ -411,19 +383,19 @@ template <> inline bool Value::cast<bool>() const {
 
 // represents errors in parsing JSON values
 class parser_error : public std::exception {
-public:
+ public:
   parser_error(const int line_, const int pos_, std::string desc);
   virtual ~parser_error() throw();
   virtual const char *what() const throw();
 
-protected:
+ protected:
   const int line, pos;
   std::string desc, pretty;
 };
 
 // parses JSON values from a stream
 class Reader {
-public:
+ public:
   // Reads entire stream into internal buffer immediately
   Reader(std::istream &stream);
 
@@ -435,7 +407,7 @@ public:
   // Returns the next value in the stream
   bool getValue(Value &result);
 
-protected:
+ protected:
   // Positional data in the stream data (gets garbled during parsing)
   char *data, *cur, *lastbr;
   int line;
@@ -454,7 +426,7 @@ protected:
 
 // writes JSON values to a stream
 class Writer {
-public:
+ public:
   // Only writes to the stream when requested
   Writer(std::ostream &stream);
 
@@ -467,7 +439,7 @@ public:
   // enough to how RATDB looks without too much effort.
   void putValue(const Value &value);
 
-protected:
+ protected:
   // The stream to write to
   std::ostream &out;
 
@@ -478,6 +450,6 @@ protected:
   void writeValue(const Value &value, const std::string &depth = "");
 };
 
-} // namespace json
+}  // namespace json
 
 #endif

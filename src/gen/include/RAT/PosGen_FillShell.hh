@@ -14,13 +14,13 @@
 
 namespace RAT {
 class PosGen_FillShell : public GLG4PosGen {
-public:
+ public:
   PosGen_FillShell(const char *arg_dbname = "fillshell");
   virtual void GeneratePosition(G4ThreeVector &argResult);
   void SetState(G4String newValues);
   G4String GetState() const;
 
-protected:
+ protected:
   G4VPhysicalVolume *FindPhysVolume(const std::string vol_name);
   G4ThreeVector pos;
   G4VPhysicalVolume *pVolume;
@@ -29,6 +29,6 @@ protected:
   double ro;
   int max_iterations;
 };
-} // namespace RAT
+}  // namespace RAT
 
 #endif

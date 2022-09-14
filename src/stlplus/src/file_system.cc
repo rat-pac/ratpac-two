@@ -17,14 +17,17 @@
 
   ------------------------------------------------------------------------------*/
 #include "RAT/file_system.hpp"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#include <algorithm>
+
 #include "RAT/debug.hpp"
 #include "RAT/fileio.hpp"
 #include "RAT/os_fixes.hpp"
 #include "RAT/string_utilities.hpp"
-#include <algorithm>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -57,8 +60,7 @@ static const char preferred_separator = '/';
 
 static bool is_separator(char ch) {
   for (int i = 0; separator_set[i]; i++) {
-    if (separator_set[i] == ch)
-      return true;
+    if (separator_set[i] == ch) return true;
   }
   return false;
 }
@@ -79,15 +81,14 @@ static bool path_compare(const std::string &l, const std::string &r) {
 // Internal data structure used to hold the different parts of a filespec
 
 class file_specification {
-private:
-  bool m_relative;     // true = relative, false = absolute
-  std::string m_drive; // drive - drive letter (e.g. "c:") or the path for an
-                       // UNC (e.g. "\\somewhere")
-                       //         empty if not known or on Unix
-  std::vector<std::string>
-      m_path;             // the subdirectory path to follow from the drive
-  std::string m_filename; // the filename
-public:
+ private:
+  bool m_relative;                  // true = relative, false = absolute
+  std::string m_drive;              // drive - drive letter (e.g. "c:") or the path for an
+                                    // UNC (e.g. "\\somewhere")
+                                    //         empty if not known or on Unix
+  std::vector<std::string> m_path;  // the subdirectory path to follow from the drive
+  std::string m_filename;           // the filename
+ public:
   file_specification(void) : m_relative(false) {}
   ~file_specification(void) {}
 
@@ -122,9 +123,7 @@ public:
 
   std::string image(void) const;
   otext &print(otext &str) const { return str << image(); }
-  friend otext &operator<<(otext &str, const file_specification &spec) {
-    return spec.print(str);
-  }
+  friend otext &operator<<(otext &str, const file_specification &spec) { return spec.print(str); }
 };
 
 bool file_specification::initialise_folder(const std::string &folder_spec) {
@@ -152,8 +151,7 @@ bool file_specification::initialise_folder(const std::string &folder_spec) {
         // the path includes the drive so we have the drive info twice
         // need to prepend this absolute path to the spec such that any
         // remaining relative path is still retained
-        if (!is_separator(path[strlen(path) - 1]))
-          spec.insert(2, 1, preferred_separator);
+        if (!is_separator(path[strlen(path) - 1])) spec.insert(2, 1, preferred_separator);
         spec.insert(2, path + 2);
       } else
 #endif
@@ -162,14 +160,12 @@ bool file_specification::initialise_folder(const std::string &folder_spec) {
         spec.insert(2, 1, preferred_separator);
       }
     }
-  } else if (spec.size() >= 2 && is_separator(spec[0]) &&
-             is_separator(spec[1])) {
+  } else if (spec.size() >= 2 && is_separator(spec[0]) && is_separator(spec[1])) {
     // found an UNC prefix
     i = 2;
     // find the end of the prefix by scanning for the next seperator or the end
     // of the spec
-    while (i < spec.size() && !is_separator(spec[i]))
-      i++;
+    while (i < spec.size() && !is_separator(spec[i])) i++;
     m_drive = spec.substr(0, i);
     m_relative = false;
   }
@@ -198,8 +194,7 @@ bool file_specification::initialise_folder(const std::string &folder_spec) {
       // path element terminated by the end of the string
       // discard this element if it is zero length because that represents the
       // trailing /
-      if (i != start)
-        m_path.push_back(spec.substr(start, i - start));
+      if (i != start) m_path.push_back(spec.substr(start, i - start));
     } else if (is_separator(spec[i])) {
       // path element terminated by a separator
       m_path.push_back(spec.substr(start, i - start));
@@ -216,8 +211,7 @@ bool file_specification::initialise_file(const std::string &spec) {
   // remove last element as the file and then treat the rest as a folder
   unsigned i = spec.size();
   while (--i) {
-    if (is_separator(spec[i]))
-      break;
+    if (is_separator(spec[i])) break;
 #ifdef _WIN32
     // on windoze you can say a:fred.txt so the colon separates the path from
     // the filename
@@ -264,21 +258,18 @@ bool file_specification::simplify(void) {
 }
 
 bool file_specification::make_absolute(const std::string &root) {
-  if (absolute())
-    return true;
+  if (absolute()) return true;
   file_specification rootspec;
   rootspec.initialise_folder(root);
   return make_absolute(rootspec);
 }
 
 bool file_specification::make_absolute(const file_specification &rootspec) {
-  if (absolute())
-    return true;
+  if (absolute()) return true;
   DEBUG_ASSERT(rootspec.absolute());
   // now append this's relative path and filename to the root's absolute path
   file_specification result = rootspec;
-  for (unsigned i = 0; i < subpath_size(); i++)
-    result.add_subpath(subpath_element(i));
+  for (unsigned i = 0; i < subpath_size(); i++) result.add_subpath(subpath_element(i));
   result.set_file(file());
   // now the rootspec is the absolute path, so transfer it to this
   *this = result;
@@ -288,22 +279,19 @@ bool file_specification::make_absolute(const file_specification &rootspec) {
 }
 
 bool file_specification::make_relative(const std::string &root) {
-  if (relative())
-    return true;
+  if (relative()) return true;
   file_specification rootspec;
   rootspec.initialise_folder(root);
   return make_relative(rootspec);
 }
 
 bool file_specification::make_relative(const file_specification &rootspec) {
-  if (relative())
-    return true;
+  if (relative()) return true;
   DEBUG_ASSERT(rootspec.absolute());
   // now compare elements of the root with elements of this to find the common
   // path if the drives are different, no conversion can take place, else clear
   // the drive
-  if (!path_compare(drive(), rootspec.drive()))
-    return true;
+  if (!path_compare(drive(), rootspec.drive())) return true;
   set_drive("");
   // first remove leading elements that are identical to the corresponding
   // element in root
@@ -324,8 +312,7 @@ bool file_specification::make_relative(const file_specification &rootspec) {
 
 std::string file_specification::image(void) const {
   std::string result = m_drive;
-  if (absolute())
-    result += preferred_separator;
+  if (absolute()) result += preferred_separator;
   if (!m_path.empty())
     result += vector_to_string(m_path, std::string(1, preferred_separator));
   else if (relative())
@@ -383,8 +370,7 @@ bool file_exists(const std::string &filespec) { return is_file(filespec); }
 
 bool file_readable(const std::string &filespec) {
   // a file is readable if it exists and can be read
-  if (!file_exists(filespec))
-    return false;
+  if (!file_exists(filespec)) return false;
   return access(filespec.c_str(), R_OK) == 0;
 }
 
@@ -392,40 +378,32 @@ bool file_writable(const std::string &filespec) {
   // a file is writable if it exists as a file and is writable or if it doesn't
   // exist but could be created and would be writable
   if (is_present(filespec)) {
-    if (!is_file(filespec))
-      return false;
+    if (!is_file(filespec)) return false;
     return access(filespec.c_str(), W_OK) == 0;
   }
   std::string dir = folder_part(filespec);
-  if (dir.empty())
-    dir = ".";
+  if (dir.empty()) dir = ".";
   return folder_writable(dir);
 }
 
 size_t file_size(const std::string &filespec) {
   struct stat buf;
-  if (!(stat(filespec.c_str(), &buf) == 0))
-    return 0;
+  if (!(stat(filespec.c_str(), &buf) == 0)) return 0;
   return buf.st_size;
 }
 
 bool file_delete(const std::string &filespec) {
-  if (!is_file(filespec))
-    return false;
+  if (!is_file(filespec)) return false;
   return remove(filespec.c_str()) == 0;
 }
 
-bool file_rename(const std::string &old_filespec,
-                 const std::string &new_filespec) {
-  if (!is_file(old_filespec))
-    return false;
+bool file_rename(const std::string &old_filespec, const std::string &new_filespec) {
+  if (!is_file(old_filespec)) return false;
   return rename(old_filespec.c_str(), new_filespec.c_str()) == 0;
 }
 
-bool file_copy(const std::string &old_filespec,
-               const std::string &new_filespec) {
-  if (!is_file(old_filespec))
-    return false;
+bool file_copy(const std::string &old_filespec, const std::string &new_filespec) {
+  if (!is_file(old_filespec)) return false;
   // do an exact copy - to do this, use binary mode
   bool result = true;
   FILE *old_file = fopen(old_filespec.c_str(), "rb");
@@ -435,29 +413,22 @@ bool file_copy(const std::string &old_filespec,
   else if (!new_file)
     result = false;
   else {
-    for (int byte = getc(old_file); byte != EOF; byte = getc(old_file))
-      putc(byte, new_file);
+    for (int byte = getc(old_file); byte != EOF; byte = getc(old_file)) putc(byte, new_file);
   }
-  if (old_file)
-    fclose(old_file);
-  if (new_file)
-    fclose(new_file);
+  if (old_file) fclose(old_file);
+  if (new_file) fclose(new_file);
   return result;
 }
 
-bool file_move(const std::string &old_filespec,
-               const std::string &new_filespec) {
+bool file_move(const std::string &old_filespec, const std::string &new_filespec) {
   // try to move the file by renaming - if that fails then do a copy and delete
   // the original
-  if (file_rename(old_filespec, new_filespec))
-    return true;
-  if (!file_copy(old_filespec, new_filespec))
-    return false;
+  if (file_rename(old_filespec, new_filespec)) return true;
+  if (!file_copy(old_filespec, new_filespec)) return false;
   // I'm not sure what to do if the delete fails - is that an error?
   // I've made it an error and then delete the copy so that the original state
   // is recovered
-  if (file_delete(old_filespec))
-    return true;
+  if (file_delete(old_filespec)) return true;
   file_delete(new_filespec);
   return false;
 }
@@ -474,65 +445,54 @@ const int other_mask = 0007;
 const int non_owner_mask = group_mask | other_mask;
 const int all_mask = owner_mask | group_mask | other_mask;
 const int read_mode_all = read_mode & all_mask;
-const int read_write_mode_owner_read_mode_all =
-    (read_write_mode & owner_mask) | (read_mode & non_owner_mask);
+const int read_write_mode_owner_read_mode_all = (read_write_mode & owner_mask) | (read_mode & non_owner_mask);
 const int read_mode_owner_only = read_mode & owner_mask;
 const int read_write_mode_owner_only = read_write_mode & owner_mask;
 
 bool file_set_mode(const std::string &filespec, int mode) {
-  if (!is_file(filespec))
-    return false;
+  if (!is_file(filespec)) return false;
   return chmod(filespec.c_str(), mode) == 0;
 }
 
 time_t file_created(const std::string &filespec) {
   struct stat buf;
-  if (!(stat(filespec.c_str(), &buf) == 0))
-    return 0;
+  if (!(stat(filespec.c_str(), &buf) == 0)) return 0;
   return buf.st_ctime;
 }
 
 time_t file_modified(const std::string &filespec) {
   struct stat buf;
-  if (!(stat(filespec.c_str(), &buf) == 0))
-    return 0;
+  if (!(stat(filespec.c_str(), &buf) == 0)) return 0;
   return buf.st_mtime;
 }
 
 time_t file_accessed(const std::string &filespec) {
   struct stat buf;
-  if (!(stat(filespec.c_str(), &buf) == 0))
-    return 0;
+  if (!(stat(filespec.c_str(), &buf) == 0)) return 0;
   return buf.st_atime;
 }
 
-std::string create_filespec(const std::string &directory,
-                            const std::string &filename) {
+std::string create_filespec(const std::string &directory, const std::string &filename) {
   std::string result = directory;
   // if directory is empty then no directory part will be added
   // add trailing slash if the directory was specified and does not have a
   // trailing slash
-  if (!result.empty() && !is_separator(result[result.size() - 1]))
-    result += preferred_separator;
+  if (!result.empty() && !is_separator(result[result.size() - 1])) result += preferred_separator;
   // if filename is null or empty, nothing will be added so the path is then a
   // directory path
   result += filename;
   return result;
 }
 
-std::string create_filespec(const std::string &directory,
-                            const std::string &basename,
-                            const std::string &extension) {
+std::string create_filespec(const std::string &directory, const std::string &basename, const std::string &extension) {
   return create_filespec(directory, create_filename(basename, extension));
 }
 
-std::string create_filename(const std::string &basename,
-                            const std::string &extension) {
+std::string create_filename(const std::string &basename, const std::string &extension) {
   std::string name = basename;
   // extension is optional - so the dot is also optional
   if (!extension.empty()) {
-    if (extension[0] != '.')
-      name += '.';
+    if (extension[0] != '.') name += '.';
     name += extension;
   }
   return name;
@@ -549,59 +509,45 @@ bool folder_create(const std::string &directory) {
 #endif
 }
 
-bool folder_exists(const std::string &directory) {
-  return is_folder(directory);
-}
+bool folder_exists(const std::string &directory) { return is_folder(directory); }
 
 bool folder_readable(const std::string &directory) {
   // a folder is readable if it exists and has read access
   std::string dir = directory;
-  if (dir.empty())
-    dir = ".";
-  if (!folder_exists(dir))
-    return false;
+  if (dir.empty()) dir = ".";
+  if (!folder_exists(dir)) return false;
   return access(dir.c_str(), R_OK) == 0;
 }
 
 bool folder_writable(const std::string &directory) {
   // a folder is writable if it exists and has write access
   std::string dir = directory;
-  if (dir.empty())
-    dir = ".";
-  if (!folder_exists(dir))
-    return false;
+  if (dir.empty()) dir = ".";
+  if (!folder_exists(dir)) return false;
   return access(dir.c_str(), W_OK) == 0;
 }
 
 bool folder_delete(const std::string &directory, bool recurse) {
   std::string dir = directory;
-  if (dir.empty())
-    dir = ".";
-  if (!folder_exists(dir))
-    return false;
+  if (dir.empty()) dir = ".";
+  if (!folder_exists(dir)) return false;
   bool result = true;
   // depth-first traversal ensures that directory contents are deleted before
   // trying to delete the directory itself
   if (recurse) {
     std::vector<std::string> subdirectories = folder_subdirectories(dir);
-    for (std::vector<std::string>::size_type d = 0; d < subdirectories.size();
-         ++d)
-      if (!folder_delete(folder_down(dir, subdirectories[d]), true))
-        result = false;
+    for (std::vector<std::string>::size_type d = 0; d < subdirectories.size(); ++d)
+      if (!folder_delete(folder_down(dir, subdirectories[d]), true)) result = false;
     std::vector<std::string> files = folder_files(dir);
     for (std::vector<std::string>::size_type f = 0; f < files.size(); ++f)
-      if (!file_delete(create_filespec(dir, files[f])))
-        result = false;
+      if (!file_delete(create_filespec(dir, files[f]))) result = false;
   }
-  if (rmdir(dir.c_str()) != 0)
-    result = false;
+  if (rmdir(dir.c_str()) != 0) result = false;
   return result;
 }
 
-bool folder_rename(const std::string &old_directory,
-                   const std::string &new_directory) {
-  if (!folder_exists(old_directory))
-    return false;
+bool folder_rename(const std::string &old_directory, const std::string &new_directory) {
+  if (!folder_exists(old_directory)) return false;
   return rename(old_directory.c_str(), new_directory.c_str()) == 0;
 }
 
@@ -612,9 +558,8 @@ bool folder_empty(const std::string &directory) {
   std::string wildcard = create_filespec(dir, "*.*");
   long handle = -1;
   _finddata_t fileinfo;
-  for (bool OK =
-           (handle = _findfirst((char *)wildcard.c_str(), &fileinfo)) != -1;
-       OK; OK = (_findnext(handle, &fileinfo) == 0)) {
+  for (bool OK = (handle = _findfirst((char *)wildcard.c_str(), &fileinfo)) != -1; OK;
+       OK = (_findnext(handle, &fileinfo) == 0)) {
     std::string strentry = fileinfo.name;
     if (strentry.compare(".") != 0 && strentry.compare("..") != 0) {
       result = false;
@@ -639,8 +584,7 @@ bool folder_empty(const std::string &directory) {
 }
 
 bool folder_set_current(const std::string &folder) {
-  if (!folder_exists(folder))
-    return false;
+  if (!folder_exists(folder)) return false;
 #ifdef _WIN32
   // Windose implementation - this returns non-zero for success
   return (SetCurrentDirectory(folder.c_str()) != 0);
@@ -666,8 +610,7 @@ std::string folder_current_full(void) {
 #endif
 }
 
-std::string folder_down(const std::string &directory,
-                        const std::string &subdirectory) {
+std::string folder_down(const std::string &directory, const std::string &subdirectory) {
   file_specification spec;
   spec.initialise_folder(directory);
   spec.add_subpath(subdirectory);
@@ -677,8 +620,7 @@ std::string folder_down(const std::string &directory,
 std::string folder_up(const std::string &directory, unsigned levels) {
   file_specification spec;
   spec.initialise_folder(directory);
-  for (unsigned i = 0; i < levels; i++)
-    spec.add_subpath("..");
+  for (unsigned i = 0; i < levels; i++) spec.add_subpath("..");
   spec.simplify();
   return spec.image();
 }
@@ -695,8 +637,7 @@ std::vector<std::string> folder_all(const std::string &directory) {
   return folder_wildcard(directory, "*", true, true);
 }
 
-std::vector<std::string> folder_wildcard(const std::string &directory,
-                                         const std::string &wild, bool subdirs,
+std::vector<std::string> folder_wildcard(const std::string &directory, const std::string &wild, bool subdirs,
                                          bool files) {
   std::string dir = directory.empty() ? std::string(".") : directory;
   std::vector<std::string> results;
@@ -704,13 +645,11 @@ std::vector<std::string> folder_wildcard(const std::string &directory,
   std::string wildcard = create_filespec(dir, wild);
   long handle = -1;
   _finddata_t fileinfo;
-  for (bool OK =
-           (handle = _findfirst((char *)wildcard.c_str(), &fileinfo)) != -1;
-       OK; OK = (_findnext(handle, &fileinfo) == 0)) {
+  for (bool OK = (handle = _findfirst((char *)wildcard.c_str(), &fileinfo)) != -1; OK;
+       OK = (_findnext(handle, &fileinfo) == 0)) {
     std::string strentry = fileinfo.name;
     if (strentry.compare(".") != 0 && strentry.compare("..") != 0)
-      if ((subdirs && (fileinfo.attrib & _A_SUBDIR)) ||
-          (files && !(fileinfo.attrib & _A_SUBDIR)))
+      if ((subdirs && (fileinfo.attrib & _A_SUBDIR)) || (files && !(fileinfo.attrib & _A_SUBDIR)))
         results.push_back(strentry);
   }
   _findclose(handle);
@@ -721,8 +660,7 @@ std::vector<std::string> folder_wildcard(const std::string &directory,
       std::string strentry = entry->d_name;
       if (strentry.compare(".") != 0 && strentry.compare("..") != 0) {
         std::string subpath = create_filespec(dir, strentry);
-        if (((subdirs && is_folder(subpath)) || (files && is_file(subpath))) &&
-            (match_wildcard(wild, strentry)))
+        if (((subdirs && is_folder(subpath)) || (files && is_file(subpath))) && (match_wildcard(wild, strentry)))
           results.push_back(strentry);
       }
     }
@@ -733,17 +671,14 @@ std::vector<std::string> folder_wildcard(const std::string &directory,
 }
 
 std::string folder_home(void) {
-  if (getenv("HOME"))
-    return std::string(getenv("HOME"));
+  if (getenv("HOME")) return std::string(getenv("HOME"));
 #ifdef _WIN32
   if (getenv("HOMEDRIVE") || getenv("HOMEPATH"))
     return std::string(getenv("HOMEDRIVE")) + std::string(getenv("HOMEPATH"));
   return "C:\\";
 #else
-  if (getenv("USER"))
-    return folder_down("/home", std::string(getenv("USER")));
-  if (getenv("USERNAME"))
-    return folder_down("/home", std::string(getenv("USERNAME")));
+  if (getenv("USER")) return folder_down("/home", std::string(getenv("USER")));
+  if (getenv("USERNAME")) return folder_down("/home", std::string(getenv("USERNAME")));
   return "";
 #endif
 }
@@ -769,63 +704,47 @@ static std::string full_path(const std::string &root, const std::string &path) {
   // in which case just return it
   file_specification spec;
   spec.initialise_folder(path.empty() ? std::string(".") : path);
-  if (spec.absolute())
-    return spec.image();
+  if (spec.absolute()) return spec.image();
   // okay, so the path is relative after all, so we need to combine it with the
   // root path decompose the root path and check whether it is relative
   file_specification rootspec;
   rootspec.initialise_folder(root.empty() ? std::string(".") : root);
-  if (rootspec.relative())
-    rootspec.make_absolute();
+  if (rootspec.relative()) rootspec.make_absolute();
   // Now do the conversion of the path relative to the root
   spec.make_absolute(rootspec);
   return spec.image();
 }
 
-static std::string relative_path(const std::string &root,
-                                 const std::string &path) {
+static std::string relative_path(const std::string &root, const std::string &path) {
   // convert path to a relative path, using the root path as its starting point
   // first convert both paths to full paths relative to CWD
   file_specification rootspec;
   rootspec.initialise_folder(root.empty() ? std::string(".") : root);
-  if (rootspec.relative())
-    rootspec.make_absolute();
+  if (rootspec.relative()) rootspec.make_absolute();
   file_specification spec;
   spec.initialise_folder(path.empty() ? std::string(".") : path);
-  if (spec.relative())
-    spec.make_absolute();
+  if (spec.relative()) spec.make_absolute();
   // now make path spec relative to the root spec
   spec.make_relative(rootspec);
   return spec.image();
 }
 
-std::string folder_to_path(const std::string &path,
-                           const std::string &directory) {
-  return full_path(path, directory);
-}
+std::string folder_to_path(const std::string &path, const std::string &directory) { return full_path(path, directory); }
 
 std::string filespec_to_path(const std::string &path, const std::string &spec) {
-  return create_filespec(folder_to_path(path, folder_part(spec)),
-                         filename_part(spec));
+  return create_filespec(folder_to_path(path, folder_part(spec)), filename_part(spec));
 }
 
-std::string folder_to_path(const std::string &folder) {
-  return folder_to_path(folder_current(), folder);
-}
+std::string folder_to_path(const std::string &folder) { return folder_to_path(folder_current(), folder); }
 
-std::string filespec_to_path(const std::string &filespec) {
-  return filespec_to_path(folder_current(), filespec);
-}
+std::string filespec_to_path(const std::string &filespec) { return filespec_to_path(folder_current(), filespec); }
 
-std::string folder_to_relative_path(const std::string &root,
-                                    const std::string &folder) {
+std::string folder_to_relative_path(const std::string &root, const std::string &folder) {
   return relative_path(root, folder);
 }
 
-std::string filespec_to_relative_path(const std::string &root,
-                                      const std::string &spec) {
-  return create_filespec(folder_to_relative_path(root, folder_part(spec)),
-                         filename_part(spec));
+std::string filespec_to_relative_path(const std::string &root, const std::string &spec) {
+  return create_filespec(folder_to_relative_path(root, folder_part(spec)), filename_part(spec));
 }
 
 std::string folder_to_relative_path(const std::string &folder) {
@@ -838,8 +757,7 @@ std::string filespec_to_relative_path(const std::string &filespec) {
 
 std::string folder_append_separator(const std::string &folder) {
   std::string result = folder;
-  if (!is_separator(result[result.size() - 1]))
-    result += preferred_separator;
+  if (!is_separator(result[result.size() - 1])) result += preferred_separator;
   return result;
 }
 
@@ -852,8 +770,7 @@ std::string basename_part(const std::string &spec) {
   std::string::size_type i = fname.find_last_of('.');
   // observe Unix convention that a dot at the start of a filename is part of
   // the basename, not the extension
-  if (i != 0 && i != std::string::npos)
-    fname.erase(i, fname.size() - i);
+  if (i != 0 && i != std::string::npos) fname.erase(i, fname.size() - i);
   return fname;
 }
 
@@ -863,8 +780,7 @@ std::string filename_part(const std::string &spec) {
   // whole filespec is filename
   unsigned i = spec.size();
   while (i--) {
-    if (is_separator(spec[i]))
-      return spec.substr(i + 1, spec.size() - i - 1);
+    if (is_separator(spec[i])) return spec.substr(i + 1, spec.size() - i - 1);
   }
   return spec;
 }
@@ -887,8 +803,7 @@ std::string folder_part(const std::string &spec) {
   // if there is no separator, remove the whole
   unsigned i = spec.size();
   while (i--) {
-    if (is_separator(spec[i]))
-      return spec.substr(0, i);
+    if (is_separator(spec[i])) return spec.substr(0, i);
   }
   return std::string();
 }
@@ -897,10 +812,8 @@ std::vector<std::string> filespec_elements(const std::string &filespec) {
   file_specification spec;
   spec.initialise_file(filespec);
   std::vector<std::string> result = spec.path();
-  if (!spec.drive().empty())
-    result.insert(result.begin(), spec.drive());
-  if (!spec.file().empty())
-    result.push_back(spec.file());
+  if (!spec.drive().empty()) result.insert(result.begin(), spec.drive());
+  if (!spec.file().empty()) result.push_back(spec.file());
   return result;
 }
 
@@ -908,8 +821,7 @@ std::vector<std::string> folder_elements(const std::string &folder) {
   file_specification spec;
   spec.initialise_folder(folder);
   std::vector<std::string> result = spec.path();
-  if (!spec.drive().empty())
-    result.insert(result.begin(), spec.drive());
+  if (!spec.drive().empty()) result.insert(result.begin(), spec.drive());
   return result;
 }
 
@@ -933,13 +845,11 @@ std::string path_lookup(const std::string &command) {
   return lookup(command, path);
 }
 
-std::string lookup(const std::string &command, const std::string &path,
-                   const std::string &splitter) {
+std::string lookup(const std::string &command, const std::string &path, const std::string &splitter) {
   // first check whether the command is already a path and check whether it
   // exists
   if (!folder_part(command).empty()) {
-    if (file_exists(command))
-      return command;
+    if (file_exists(command)) return command;
   } else {
     // command is just a name - so do path lookup
     std::vector<std::string> paths = split(path, splitter);
@@ -954,9 +864,7 @@ std::string lookup(const std::string &command, const std::string &path,
   // if there is no extension, try recursing on each possible extension
   // TODO iterate through PATHEXT
   if (extension_part(command).empty())
-    return lookup(
-        create_filespec(folder_part(command), basename_part(command), "exe"),
-        path, splitter);
+    return lookup(create_filespec(folder_part(command), basename_part(command), "exe"), path, splitter);
 #endif
   // if path lookup failed, return empty string to indicate error
   return std::string();

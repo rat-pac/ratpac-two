@@ -1,10 +1,11 @@
-#include "RAT/Log.hh"
 #include <G4ThreeVector.hh>
 #include <RAT/DB.hh>
 #include <RAT/DetectorConstruction.hh>
 #include <RAT/LessSimpleDAQProc.hh>
 #include <iostream>
 #include <vector>
+
+#include "RAT/Log.hh"
 using namespace std;
 
 namespace RAT {
@@ -22,8 +23,8 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
   // The time of the PMT hit is that of the first photon.
 
   DS::MC *mc = ds->GetMC();
-  if (ds->ExistEV()) { // there is already a EV branch present
-    ds->PruneEV(); // remove it, otherwise we'll have multiple detector events
+  if (ds->ExistEV()) {  // there is already a EV branch present
+    ds->PruneEV();      // remove it, otherwise we'll have multiple detector events
     // in this physics event ** we really should warn the user what is taking
     // place
   }
@@ -32,9 +33,9 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
   double time, timeTmp;
   int nSubEvents = 0;
   int oldGroup;
-  double postTriggerWindow = 600.; // ns
-  double preTriggerWindow = -200.; // ns
-  double triggerWindow = 200.;     // ns
+  double postTriggerWindow = 600.;  // ns
+  double preTriggerWindow = -200.;  // ns
+  double triggerWindow = 200.;      // ns
   unsigned long triggerThreshold = 6;
   unsigned long hits = 0;
 
@@ -61,7 +62,7 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
     }
   }
   sort(pmtARRAY.begin(),
-       pmtARRAY.end()); // pmt hits sorted as a function of time
+       pmtARRAY.end());  // pmt hits sorted as a function of time
 
   // Second part is to find cluster times. This is important for IBD/ neutron
   // capture
@@ -74,7 +75,6 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
   // cout <<"oooooooooooooooo sorted oooooooooooo" << endl;
 
   for (unsigned long pmtIndex = 0; pmtIndex < pmtARRAY.size(); pmtIndex++) {
-
     time = pmtARRAY[pmtIndex][0];
     oldGroup = 0;
     timeTmp = 0;
@@ -84,13 +84,11 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
     // equal to or greater than the trigger threshold
     hits++;
     // check that the event has passed the trigger threshold
-    if (hits < triggerThreshold)
-      continue;
+    if (hits < triggerThreshold) continue;
     // check that n hits (where n is the trigger threshold)
     // occurred within the trigger window
     double dt = pmtARRAY[pmtIndex][0] - pmtARRAY[hits - triggerThreshold][0];
-    if (dt > triggerWindow)
-      continue;
+    if (dt > triggerWindow) continue;
     // assign the sixth hit in a cluster of length triggerWindow as the trigger
     // (clusterTime is the the time of the 6th hit)
     for (unsigned long jj = 0; jj < clusterTime.size(); jj++) {
@@ -108,8 +106,8 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
     }
     if (oldGroup == 0) {
       if (nSubEvents == 0) {
-        clusterTime.pop_back(); // Remove unrealistic time and provide better
-                                // alternative
+        clusterTime.pop_back();  // Remove unrealistic time and provide better
+                                 // alternative
         clusterTime.push_back(timeTmp);
       } else {
         clusterTime.push_back(timeTmp);
@@ -126,7 +124,6 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
   int goHere;
 
   for (int kk = 0; kk < nSubEvents; kk++) {
-
     DS::EV *ev = ds->AddNewEV();
     DS::PMT *pmt;
 
@@ -137,19 +134,16 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
     }
 
     ev->SetCalibratedTriggerTime((clusterTime[kk]));
-    ev->SetID(kk); // fEventCounter
+    ev->SetID(kk);  // fEventCounter
     //            ev->SetUniqueID(fEventCounter);
 
     fEventCounter += 1;
     totalQ = 0.0;
 
     for (unsigned long pmtIndex = 0; pmtIndex < pmtARRAY.size(); pmtIndex++) {
-
       time = pmtARRAY[pmtIndex][0];
 
-      if (time - clusterTime[kk] < postTriggerWindow &&
-          time - clusterTime[kk] >= preTriggerWindow) {
-
+      if (time - clusterTime[kk] < postTriggerWindow && time - clusterTime[kk] >= preTriggerWindow) {
         /*if (pmtARRAY[pmtIndex][2] != oldID){
          timeTmp = time;
          pmt = ev->AddNewPMT();
@@ -186,7 +180,7 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
           idGroup.push_back(pmtARRAY[pmtIndex][2]);
           tGroup.push_back(pmtARRAY[pmtIndex][0] - clusterTime[kk]);
           qGroup.push_back(pmtARRAY[pmtIndex][1]);
-          isDarkHit.push_back(pmtARRAY[pmtIndex][6]); // is it a dark hit?
+          isDarkHit.push_back(pmtARRAY[pmtIndex][6]);  // is it a dark hit?
         }
 
         // accumulate total q within one subevent
@@ -214,4 +208,4 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
   return Processor::OK;
 }
 
-} // namespace RAT
+}  // namespace RAT

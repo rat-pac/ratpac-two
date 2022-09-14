@@ -1,4 +1,5 @@
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <G4Box.hh>
 #include <G4SubtractionSolid.hh>
 #include <G4Tubs.hh>
@@ -16,17 +17,13 @@ G4VSolid *GeoCheSSVesselFactory::ConstructSolid(DBLinkPtr table) {
   const double size_z = table->GetD("size_z");
   const bool doCavity = table->GetZ("cavity");
   const int pmts = table->GetI("pmts");
-  G4Tubs *cup = new G4Tubs("cup", r_min * CLHEP::mm, r_max * CLHEP::mm,
-                           (size_z + 3.18 / 2.) * CLHEP::mm, 0., CLHEP::twopi);
-  G4Box *flat = new G4Box("flat", 5.0 * CLHEP::mm, size_z * CLHEP::mm,
-                          size_z * CLHEP::mm);
-  G4Box *flat_pmt = new G4Box("flat_pmt", 35.0 * CLHEP::mm, 15.0 * CLHEP::mm,
-                              size_z * CLHEP::mm);
-  G4Box *cavity =
-      new G4Box("cavity", 3.0 * CLHEP::mm, 50. * CLHEP::mm, 50. * CLHEP::mm);
+  G4Tubs *cup =
+      new G4Tubs("cup", r_min * CLHEP::mm, r_max * CLHEP::mm, (size_z + 3.18 / 2.) * CLHEP::mm, 0., CLHEP::twopi);
+  G4Box *flat = new G4Box("flat", 5.0 * CLHEP::mm, size_z * CLHEP::mm, size_z * CLHEP::mm);
+  G4Box *flat_pmt = new G4Box("flat_pmt", 35.0 * CLHEP::mm, 15.0 * CLHEP::mm, size_z * CLHEP::mm);
+  G4Box *cavity = new G4Box("cavity", 3.0 * CLHEP::mm, 50. * CLHEP::mm, 50. * CLHEP::mm);
 
-  G4ThreeVector *trans =
-      new G4ThreeVector(0., 0., (size_z + 3.18 / 2.) * CLHEP::mm);
+  G4ThreeVector *trans = new G4ThreeVector(0., 0., (size_z + 3.18 / 2.) * CLHEP::mm);
   G4RotationMatrix *rotation = new G4RotationMatrix();
   G4Transform3D *transf = new G4Transform3D(*rotation, *trans);
 
@@ -60,8 +57,7 @@ G4VSolid *GeoCheSSVesselFactory::ConstructSolid(DBLinkPtr table) {
   else if (pmts == 2)
     unionVolume0 = new G4UnionSolid("union0", firstVolume, flat, *transf);
   else {
-    std::cout << " GeoCheSSVessel: Number of PMTs must be 0, 1 or 2"
-              << std::endl;
+    std::cout << " GeoCheSSVessel: Number of PMTs must be 0, 1 or 2" << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -78,4 +74,4 @@ G4VSolid *GeoCheSSVesselFactory::ConstructSolid(DBLinkPtr table) {
   return finalVolume;
 }
 
-} // namespace RAT
+}  // namespace RAT

@@ -10,24 +10,23 @@ using namespace std;
 namespace RAT {
 
 G4VPhysicalVolume *GeoSolidFactory::Construct(DBLinkPtr table) {
-  detail << "GeoSolidFactory: Constructing volume " << table->GetIndex()
-         << newline;
+  detail << "GeoSolidFactory: Constructing volume " << table->GetIndex() << newline;
 
   G4VSolid *solid = ConstructSolid(table);
 
   string mother_name = table->GetS("mother");
   G4LogicalVolume *mother;
   if (mother_name == "")
-    mother = 0; // World volume has no mother
+    mother = 0;  // World volume has no mother
   else {
     mother = FindMother(mother_name);
     if (mother == 0)
-      Log::Die("Unable to find mother volume \"" + mother_name + "\" for " +
-               table->GetName() + "[" + table->GetIndex() + "]");
+      Log::Die("Unable to find mother volume \"" + mother_name + "\" for " + table->GetName() + "[" +
+               table->GetIndex() + "]");
   }
 
   G4LogicalVolume *logi = ConstructLogicalVolume(solid, table);
-  SetSensitive(logi, table); // Set sensitive volume if applicable
+  SetSensitive(logi, table);  // Set sensitive volume if applicable
 
   bool replicas = false;
   try {
@@ -44,18 +43,15 @@ G4VPhysicalVolume *GeoSolidFactory::Construct(DBLinkPtr table) {
   return phys;
 }
 
-G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid,
-                                                         DBLinkPtr table) {
+G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid, DBLinkPtr table) {
   string volume_name = table->GetIndex();
   string material_name = table->GetS("material");
   G4LogicalVolume *lv = NULL;
   if (material_name == "G4_Gd") {
     G4NistManager *man = G4NistManager::Instance();
-    lv = new G4LogicalVolume(solid, man->FindOrBuildMaterial("G4_Gd"),
-                             volume_name);
+    lv = new G4LogicalVolume(solid, man->FindOrBuildMaterial("G4_Gd"), volume_name);
   } else {
-    lv = new G4LogicalVolume(solid, G4Material::GetMaterial(material_name),
-                             volume_name);
+    lv = new G4LogicalVolume(solid, G4Material::GetMaterial(material_name), volume_name);
   }
 
   // Create optional skin surface for volume.  For more complex surface
@@ -63,10 +59,8 @@ G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid,
   try {
     string surface_name = table->GetS("surface");
     if (Materials::optical_surface.count(surface_name) == 0)
-      Log::Die("GeoSolidFactory: Error building " + volume_name + ", surface " +
-               surface_name + " does not exist");
-    new G4LogicalSkinSurface(volume_name + "_surface", lv,
-                             Materials::optical_surface[surface_name]);
+      Log::Die("GeoSolidFactory: Error building " + volume_name + ", surface " + surface_name + " does not exist");
+    new G4LogicalSkinSurface(volume_name + "_surface", lv, Materials::optical_surface[surface_name]);
   } catch (DBNotFoundError &e) {
   };
 
@@ -75,14 +69,13 @@ G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid,
 
   try {
     const vector<double> &color = table->GetDArray("color");
-    if (color.size() == 3) // RGB
+    if (color.size() == 3)  // RGB
       vis->SetColour(G4Colour(color[0], color[1], color[2]));
-    else if (color.size() == 4) // RGBA
+    else if (color.size() == 4)  // RGBA
       vis->SetColour(G4Colour(color[0], color[1], color[2], color[3]));
     else
-      warn << "GeoSolidFactory error: " << table->GetName() << "["
-           << table->GetIndex() << "].color must have 3 or 4 components"
-           << newline;
+      warn << "GeoSolidFactory error: " << table->GetName() << "[" << table->GetIndex()
+           << "].color must have 3 or 4 components" << newline;
   } catch (DBNotFoundError &e) {
   };
 
@@ -92,8 +85,8 @@ G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid,
     int optimize = table->GetI("optimize");
     if (optimize == 0) {
       lv->SetOptimisation(false);
-      info << "GeoSolidFactory: Voxelization disabled for " << table->GetName()
-           << "[" << table->GetIndex() << "]" << newline;
+      info << "GeoSolidFactory: Voxelization disabled for " << table->GetName() << "[" << table->GetIndex() << "]"
+           << newline;
     }
   } catch (DBNotFoundError &e) {
   };
@@ -105,8 +98,7 @@ G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid,
     else if (drawstyle == "solid")
       vis->SetForceSolid(true);
     else
-      warn << "GeoSolidFactory error: " << table->GetName() << "["
-           << table->GetIndex()
+      warn << "GeoSolidFactory error: " << table->GetName() << "[" << table->GetIndex()
            << "].drawstyle must be either \"wireframe\" or \"solid\".";
   } catch (DBNotFoundError &e) {
   };
@@ -122,12 +114,11 @@ G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid,
   // Check for invisible flag last
   try {
     int invisible = table->GetI("invisible");
-    if (invisible == 1)
-      lv->SetVisAttributes(G4VisAttributes::GetInvisible());
+    if (invisible == 1) lv->SetVisAttributes(G4VisAttributes::GetInvisible());
   } catch (DBNotFoundError &e) {
   };
 
   return lv;
 }
 
-} // namespace RAT
+}  // namespace RAT

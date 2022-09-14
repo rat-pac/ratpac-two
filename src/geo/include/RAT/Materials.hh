@@ -17,7 +17,7 @@
 namespace RAT {
 
 class Materials {
-public:
+ public:
   // Load all materials into memory
   static void LoadMaterials();
 
@@ -30,26 +30,23 @@ public:
 
   static std::map<std::string, G4OpticalSurface *> optical_surface;
 
-private:
+ private:
   inline static bool BuildMaterial(std::string name, DBLinkPtr ptr);
 
   // Load all entries from OPTICS
   static void LoadOptics();
 
   // Create a MaterialPropertiesTable from an OPTICS index
-  static void BuildMaterialPropertiesTable(G4Material *material,
-                                           DBLinkPtr table);
+  static void BuildMaterialPropertiesTable(G4Material *material, DBLinkPtr table);
 
   // Computes a total abslength/rslength for materials using the SNO+
   // multicomponent GLG4Scint model
-  static void RescaleProperty(DBLinkPtr, G4MaterialPropertiesTable *,
-                              const std::string &);
+  static void RescaleProperty(DBLinkPtr, G4MaterialPropertiesTable *, const std::string &);
   // Load a single material property vector from an OPTICS index by name
   // This handles energy vs. wavelength basis, etc.
-  static G4MaterialPropertyVector *LoadProperty(DBLinkPtr table,
-                                                std::string name);
+  static G4MaterialPropertyVector *LoadProperty(DBLinkPtr table, std::string name);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // __RAT_Materials__
+#endif  // __RAT_Materials__

@@ -5,13 +5,15 @@
 // Copyright 2004, Andy Rushton
 // Renamed to prevent linker collision - (SS)
 
-#include "RAT/format_types.hpp"
+#include <stdarg.h>
+
 #include <cstdlib>
 #include <cstring>
-#include <stdarg.h>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#include "RAT/format_types.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Conversions of Integer types to string
@@ -30,36 +32,28 @@
 // this width For example, using the hash representation of 0 in hex with
 // width=4 gives: 16#0000 - so there's 4 digits in the number part
 
-std::string util_to_string(bool i, unsigned radix = 10,
-                           radix_display_t display = radix_c_style_or_hash,
+std::string util_to_string(bool i, unsigned radix = 10, radix_display_t display = radix_c_style_or_hash,
                            unsigned width = 0) throw();
 
-std::string util_to_string(short i, unsigned radix = 10,
-                           radix_display_t display = radix_c_style_or_hash,
+std::string util_to_string(short i, unsigned radix = 10, radix_display_t display = radix_c_style_or_hash,
                            unsigned width = 0) throw();
 
-std::string util_to_string(unsigned short i, unsigned radix = 10,
-                           radix_display_t display = radix_c_style_or_hash,
+std::string util_to_string(unsigned short i, unsigned radix = 10, radix_display_t display = radix_c_style_or_hash,
                            unsigned width = 0) throw();
 
-std::string util_to_string(int i, unsigned radix = 10,
-                           radix_display_t display = radix_c_style_or_hash,
+std::string util_to_string(int i, unsigned radix = 10, radix_display_t display = radix_c_style_or_hash,
                            unsigned width = 0) throw();
 
-std::string util_to_string(unsigned int i, unsigned radix = 10,
-                           radix_display_t display = radix_c_style_or_hash,
+std::string util_to_string(unsigned int i, unsigned radix = 10, radix_display_t display = radix_c_style_or_hash,
                            unsigned width = 0) throw();
 
-std::string util_to_string(long i, unsigned radix = 10,
-                           radix_display_t display = radix_c_style_or_hash,
+std::string util_to_string(long i, unsigned radix = 10, radix_display_t display = radix_c_style_or_hash,
                            unsigned width = 0) throw();
 
-std::string util_to_string(unsigned long i, unsigned radix = 10,
-                           radix_display_t display = radix_c_style_or_hash,
+std::string util_to_string(unsigned long i, unsigned radix = 10, radix_display_t display = radix_c_style_or_hash,
                            unsigned width = 0) throw();
 
-std::string util_to_string(const void *, unsigned radix = 16,
-                           radix_display_t display = radix_c_style_or_hash,
+std::string util_to_string(const void *, unsigned radix = 16, radix_display_t display = radix_c_style_or_hash,
                            unsigned width = 0) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,10 +66,10 @@ std::string util_to_string(const void *, unsigned radix = 16,
 // Using any other value for the display type causes std::invalid_argument to be
 // thrown
 
-std::string util_to_string(float f, real_display_t display = display_mixed,
-                           unsigned width = 0, unsigned precision = 6) throw();
-std::string util_to_string(double f, real_display_t display = display_mixed,
-                           unsigned width = 0, unsigned precision = 6) throw();
+std::string util_to_string(float f, real_display_t display = display_mixed, unsigned width = 0,
+                           unsigned precision = 6) throw();
+std::string util_to_string(double f, real_display_t display = display_mixed, unsigned width = 0,
+                           unsigned precision = 6) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
 // convert a string to a simple type
@@ -95,8 +89,7 @@ bool util_to_bool(const std::string &value, unsigned radix = 0) throw();
 
 short util_to_short(const std::string &value, unsigned radix = 0) throw();
 
-unsigned short util_to_ushort(const std::string &value,
-                              unsigned radix = 0) throw();
+unsigned short util_to_ushort(const std::string &value, unsigned radix = 0) throw();
 
 int util_to_int(const std::string &value, unsigned radix = 0) throw();
 
@@ -104,8 +97,7 @@ unsigned int util_to_uint(const std::string &value, unsigned radix = 0) throw();
 
 long util_to_long(const std::string &value, unsigned radix = 0) throw();
 
-unsigned long util_to_ulong(const std::string &value,
-                            unsigned radix = 0) throw();
+unsigned long util_to_ulong(const std::string &value, unsigned radix = 0) throw();
 
 void *util_to_void_star(const std::string &value, unsigned radix = 0) throw();
 
@@ -122,17 +114,14 @@ double util_to_double(const std::string &value) throw();
 // splits the string at every occurance of splitter and adds it as a separate
 // string to the return value the splitter is removed a string with no splitter
 // in it will give a single-vector string an empty string gives an empty vector
-std::vector<std::string> util_split(const std::string &str,
-                                    const std::string &splitter = "\n");
+std::vector<std::string> util_split(const std::string &str, const std::string &splitter = "\n");
 
 // the reverse of the above
 // joins the string vector to create a single string with the joiner inserted
 // between the joins Note: the joiner will not be added at the beginning or the
 // end However, there are optional fields to add such prefix and suffix strings
-std::string util_join(const std::vector<std::string> &,
-                      const std::string &joiner = "\n",
-                      const std::string &prefix = "",
-                      const std::string &suffix = "");
+std::string util_join(const std::vector<std::string> &, const std::string &joiner = "\n",
+                      const std::string &prefix = "", const std::string &suffix = "");
 
 // strips leading and trailing characters from s. This function by
 // Glenn Horton-Smith.

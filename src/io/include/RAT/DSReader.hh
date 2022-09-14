@@ -1,24 +1,23 @@
 #ifndef __RAT_DSReader___
 #define __RAT_DSReader___
 
-#include <RAT/DS/Root.hh>
 #include <TChain.h>
 #include <TObject.h>
 #include <TTree.h>
+
+#include <RAT/DS/Root.hh>
 #include <string>
 
 namespace RAT {
 
 // Convenience class for ROOT scripts
 class DSReader : public TObject {
-public:
+ public:
   DSReader(const char *filename);
   virtual ~DSReader();
 
   void Add(const char *filename);
-  void SetBranchStatus(const char *bname, bool status = 1) {
-    T.SetBranchStatus(bname, status);
-  };
+  void SetBranchStatus(const char *bname, bool status = 1) { T.SetBranchStatus(bname, status); };
 
   TTree *GetT() { return &T; };
   TTree *GetRunT() { return &runT; };
@@ -42,6 +41,6 @@ public:
   Long64_t total;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

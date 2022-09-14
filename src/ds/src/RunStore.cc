@@ -13,25 +13,20 @@ RunStore::RunStore() : fReadTree(0), fWriteTree(0) {
 }
 
 RunStore::~RunStore() {
-  for (std::map<int, RunRecord *>::iterator i = fCache.begin();
-       i != fCache.end(); i++) {
+  for (std::map<int, RunRecord *>::iterator i = fCache.begin(); i != fCache.end(); i++) {
     RunRecord *record = i->second;
-    delete record; // deletes attached Run as well
+    delete record;  // deletes attached Run as well
   }
 }
 
-Run *RunStore::InstanceGetRun(Root *ds) {
-  return InstanceGetRun(ds->GetRunID());
-}
+Run *RunStore::InstanceGetRun(Root *ds) { return InstanceGetRun(ds->GetRunID()); }
 
 Run *RunStore::InstanceGetRun(int run) {
   // Check cache first
-  if (fCache.count(run) != 0)
-    return fCache[run]->run;
+  if (fCache.count(run) != 0) return fCache[run]->run;
 
   // No read tree means nowhere else to look
-  if (!fReadTree)
-    return 0;
+  if (!fReadTree) return 0;
 
   // Scan quickly through tree
   // fReadTree->SetBranchStatus("*", 0); //for some reason this segfaults
@@ -44,8 +39,7 @@ Run *RunStore::InstanceGetRun(int run) {
   int i;
   for (i = 0; i < fReadTree->GetEntries(); i++) {
     fReadTree->GetEntry(i);
-    if (fReadRun->GetID() == run)
-      break;
+    if (fReadRun->GetID() == run) break;
   }
 
   fReadTree->SetBranchStatus("*", 1);
@@ -75,12 +69,9 @@ void RunStore::InstanceSetWriteTree(TTree *tree) {
 }
 
 void RunStore::InstanceFlushWriteTree() {
-  if (!fWriteTree)
-    return; // no output tree, nothing to do
+  if (!fWriteTree) return;  // no output tree, nothing to do
 
-  for (std::map<int, RunRecord *>::iterator i = fCache.begin();
-       i != fCache.end(); i++) {
-
+  for (std::map<int, RunRecord *>::iterator i = fCache.begin(); i != fCache.end(); i++) {
     RunRecord *record = i->second;
 
     if (!record->writtenToDisk) {
@@ -110,5 +101,5 @@ void RunStore::InstancePreloadFromTree(TTree *tree, bool writtenToDisk) {
   }
 }
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT

@@ -13,8 +13,7 @@ bool Trajectory::fgDoAppendMuonStepSpecial = false;
 
 Trajectory::Trajectory() : G4Trajectory() { ratTrack = new DS::MCTrack; }
 
-Trajectory::Trajectory(const G4Track *aTrack)
-    : G4Trajectory(aTrack), creatorProcessName("start") {
+Trajectory::Trajectory(const G4Track *aTrack) : G4Trajectory(aTrack), creatorProcessName("start") {
   ratTrack = new DS::MCTrack;
 
   ratTrack->SetID(GetTrackID());
@@ -23,13 +22,10 @@ Trajectory::Trajectory(const G4Track *aTrack)
   ratTrack->SetParticleName(GetParticleName());
 
   const G4VProcess *creatorProcess = aTrack->GetCreatorProcess();
-  if (creatorProcess)
-    creatorProcessName = creatorProcess->GetProcessName();
+  if (creatorProcess) creatorProcessName = creatorProcess->GetProcessName();
   // override with extra TrackInfo if present
-  const TrackInfo *trackInfo =
-      dynamic_cast<TrackInfo *>(aTrack->GetUserInformation());
-  if (trackInfo && trackInfo->GetCreatorProcess() != "")
-    creatorProcessName = trackInfo->GetCreatorProcess();
+  const TrackInfo *trackInfo = dynamic_cast<TrackInfo *>(aTrack->GetUserInformation());
+  if (trackInfo && trackInfo->GetCreatorProcess() != "") creatorProcessName = trackInfo->GetCreatorProcess();
 
   ratTrack->SetLength(0.0);
   ratTrack->SetDepositedEnergy(0.0);
@@ -47,10 +43,8 @@ void Trajectory::AppendStep(const G4Step *aStep) {
 
   // Check if we are storing truncated stepping info for muons
   G4String particleName = aStep->GetTrack()->GetDefinition()->GetParticleName();
-  if (fgDoAppendMuonStepSpecial == true &&
-      (particleName == "mu-" || particleName == "mu+")) {
-    G4String processName =
-        aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
+  if (fgDoAppendMuonStepSpecial == true && (particleName == "mu-" || particleName == "mu+")) {
+    G4String processName = aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
     // would also like to store steps where neutron was created...but not yet
     if (processName == "Transportation") {
       DS::MCTrackStep *ratStep = ratTrack->AddNewMCTrackStep();
@@ -73,14 +67,11 @@ void Trajectory::AppendStep(const G4Step *aStep) {
   FillStep(endPoint, aStep, ratStep, aStep->GetStepLength(), false);
   // Update total track length
   ratTrack->SetLength(ratTrack->GetLength() + ratStep->GetLength());
-  ratTrack->SetDepositedEnergy(ratTrack->GetDepositedEnergy() +
-                               ratStep->GetDepositedEnergy());
-  if (Gsim::GetFillPointCont())
-    G4Trajectory::AppendStep(aStep);
+  ratTrack->SetDepositedEnergy(ratTrack->GetDepositedEnergy() + ratStep->GetDepositedEnergy());
+  if (Gsim::GetFillPointCont()) G4Trajectory::AppendStep(aStep);
 }
 
-void Trajectory::FillStep(const G4StepPoint *point, const G4Step *step,
-                          DS::MCTrackStep *ratStep, double stepLength,
+void Trajectory::FillStep(const G4StepPoint *point, const G4Step *step, DS::MCTrackStep *ratStep, double stepLength,
                           bool isInit) {
   G4StepPoint *startPoint = step->GetPreStepPoint();
 
@@ -104,7 +95,7 @@ void Trajectory::FillStep(const G4StepPoint *point, const G4Step *step,
 
   const G4VProcess *process = point->GetProcessDefinedStep();
   if (process == 0)
-    ratStep->SetProcess(creatorProcessName); // Assume first step
+    ratStep->SetProcess(creatorProcessName);  // Assume first step
   else
     ratStep->SetProcess(process->GetProcessName());
 
@@ -124,12 +115,10 @@ void Trajectory::MergeTrajectory(G4VTrajectory *secondTrajectory) {
   if (secondTraj) {
     for (int i = 1; i < secondTraj->ratTrack->GetMCTrackStepCount(); i++)
       *ratTrack->AddNewMCTrackStep() = *secondTraj->ratTrack->GetMCTrackStep(i);
-    ratTrack->SetLength(ratTrack->GetLength() +
-                        secondTraj->ratTrack->GetLength());
-    ratTrack->SetDepositedEnergy(ratTrack->GetDepositedEnergy() +
-                                 secondTraj->ratTrack->GetDepositedEnergy());
+    ratTrack->SetLength(ratTrack->GetLength() + secondTraj->ratTrack->GetLength());
+    ratTrack->SetDepositedEnergy(ratTrack->GetDepositedEnergy() + secondTraj->ratTrack->GetDepositedEnergy());
     secondTraj->ratTrack->PruneMCTrackStep();
   }
 }
 
-} // namespace RAT
+}  // namespace RAT

@@ -8,22 +8,20 @@
 namespace RAT {
 
 class PrimaryVertexInformation : public G4VUserPrimaryVertexInformation {
-public:
+ public:
   PrimaryVertexInformation(){};
   ~PrimaryVertexInformation(){};
 
-  void Print() const {}; // required for G4VUserPrimaryVertexInformation
+  void Print() const {};  // required for G4VUserPrimaryVertexInformation
 
   /** Parent particles of interaction */
   G4PrimaryParticle *GetParentParticle(int i) { return parents[i]; }
   int GetParentParticleCount() const { return parents.size(); }
-  void AddNewParentParticle(G4PrimaryParticle *part) {
-    parents.push_back(part);
-  }
+  void AddNewParentParticle(G4PrimaryParticle *part) { parents.push_back(part); }
 
-private:
+ private:
   std::vector<G4PrimaryParticle *> parents;
 };
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -11,8 +11,7 @@ void PosGen_TriMeshSurface::GeneratePosition(G4ThreeVector &argResult) {
   // choose a triangle
   double rndm = G4UniformRand() * totalArea;
   int itr = (int)area.size() - 1;
-  while (area[itr - 1] > rndm && itr > 0)
-    itr--;
+  while (area[itr - 1] > rndm && itr > 0) itr--;
   double a0 = G4UniformRand();
   double a1 = G4UniformRand();
   if (a0 + a1 > 1) {
@@ -22,16 +21,14 @@ void PosGen_TriMeshSurface::GeneratePosition(G4ThreeVector &argResult) {
   argResult = point[itr] + a0 * edge0[itr] + a1 * edge1[itr];
   // figure out which type of triangle this is
   int itype = ntriangles.size() - 1;
-  while (ntriangles[itype - 1] > itr && itype > 0)
-    itype--;
+  while (ntriangles[itype - 1] > itr && itype > 0) itype--;
   // if this type has a thickness, add the offset parallel to the normal
   if (thickness[itype] > 0.0) {
     rndm = G4UniformRand() * thickness[itype];
     if (direction[itype] == -1)
       rndm *= -1.0;
     else if (direction[itype] == 0)
-      if (G4UniformRand() < 0.5)
-        rndm *= -1.0;
+      if (G4UniformRand() < 0.5) rndm *= -1.0;
     argResult += rndm * normal[itr];
   }
 }
@@ -53,16 +50,13 @@ void PosGen_TriMeshSurface::SetState(G4String newValues) {
   istringstream is(newValues.c_str());
   string index;
   is >> index;
-  if (is.fail())
-    Log::Die("PosGen_TriMeshSurface: could not parse table index");
+  if (is.fail()) Log::Die("PosGen_TriMeshSurface: could not parse table index");
   double t = 0.0;
   int dir = 0;
   is >> t >> dir;
-  if (t < 0.0)
-    Log::Die("PosGen_TriMeshSurface: thickness must be greater than 0");
+  if (t < 0.0) Log::Die("PosGen_TriMeshSurface: thickness must be greater than 0");
   thickness.push_back(t);
-  if (dir < -1 || dir > 1)
-    Log::Die("PosGen_TriMeshSurface: direction must be -1, 0, or 1");
+  if (dir < -1 || dir > 1) Log::Die("PosGen_TriMeshSurface: direction must be -1, 0, or 1");
   direction.push_back(dir);
   // get the vertices
   DBLinkPtr ltable = DB::Get()->GetLink("TriMeshSurface", index);
@@ -100,4 +94,4 @@ void PosGen_TriMeshSurface::SetState(G4String newValues) {
   }
 }
 
-} // namespace RAT
+}  // namespace RAT

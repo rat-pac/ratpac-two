@@ -5,8 +5,7 @@ namespace RAT {
 
 std::map<const std::string, DetectorFactory *> DetectorFactory::fFactoryMap;
 
-void DetectorFactory::DefineWithFactory(const std::string name,
-                                        DBLinkPtr detector) {
+void DetectorFactory::DefineWithFactory(const std::string name, DBLinkPtr detector) {
   if (fFactoryMap.find(name) != fFactoryMap.end()) {
     fFactoryMap[name]->DefineDetector(detector);
   } else {
@@ -14,9 +13,6 @@ void DetectorFactory::DefineWithFactory(const std::string name,
   }
 }
 
-void DetectorFactory::Register(const std::string name,
-                               DetectorFactory *factory) {
-  fFactoryMap[name] = factory;
-}
+void DetectorFactory::Register(const std::string name, DetectorFactory *factory) { fFactoryMap[name] = factory; }
 
-} // namespace RAT
+}  // namespace RAT

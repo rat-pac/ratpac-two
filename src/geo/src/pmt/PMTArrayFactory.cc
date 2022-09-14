@@ -8,7 +8,6 @@ using namespace std;
 namespace RAT {
 
 G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
-
   string volume_name = table->GetS("index");
   string mother_name = table->GetS("mother");
 
@@ -28,17 +27,15 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
 
   int start_idx, end_idx;
   try {
-    start_idx = table->GetI(
-        "start_idx"); // position in this array to start building pmts
+    start_idx = table->GetI("start_idx");  // position in this array to start building pmts
   } catch (DBNotFoundError &e) {
-    start_idx = 0; // defaults to beginning
+    start_idx = 0;  // defaults to beginning
   }
 
   try {
-    end_idx =
-        table->GetI("end_idx"); // id of the last pmt to build in this array
+    end_idx = table->GetI("end_idx");  // id of the last pmt to build in this array
   } catch (DBNotFoundError &e) {
-    end_idx = pmtinfo_pos.size() - 1; // defaults to whole array
+    end_idx = pmtinfo_pos.size() - 1;  // defaults to whole array
   }
   info << "    start_idx: " << start_idx << "\n";
   info << "    end_idx: " << end_idx << "\n";
@@ -77,10 +74,8 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
 
   if (!orient_manual) {
     const vector<double> &orient_point_array = table->GetDArray("orient_point");
-    if (orient_point_array.size() != 3)
-      Log::Die("PMTFactoryBase error: orient_point must have 3 values");
-    orient_point.set(orient_point_array[0], orient_point_array[1],
-                     orient_point_array[2]);
+    if (orient_point_array.size() != 3) Log::Die("PMTFactoryBase error: orient_point must have 3 values");
+    orient_point.set(orient_point_array[0], orient_point_array[1], orient_point_array[2]);
   }
 
   /*
@@ -91,14 +86,12 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
   } catch (DBNotFoundError &e) { }
   */
 
-  vector<G4ThreeVector> pos(end_idx - start_idx + 1),
-      dir(end_idx - start_idx + 1);
+  vector<G4ThreeVector> pos(end_idx - start_idx + 1), dir(end_idx - start_idx + 1);
   vector<int> ptypes(end_idx - start_idx + 1);
   for (int idx = start_idx, i = 0; idx <= end_idx; idx++, i++) {
     pos[i] = pmtinfo_pos[idx];
     ptypes[i] = pmtinfo_types[idx];
-    if (rescale_radius)
-      pos[i].setMag(new_radius);
+    if (rescale_radius) pos[i].setMag(new_radius);
     pos[i] -= local_offset;
     if (orient_manual) {
       dir[i] = pmtinfo_dir[idx];
@@ -106,12 +99,10 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
       dir[i] = orient_point - pmtinfo_pos[idx];
     }
     dir[i] = dir[i].unit();
-    if (flip)
-      dir[i] = -dir[i];
+    if (flip) dir[i] = -dir[i];
   }
 
-  return ConstructPMTs(table, pos, dir, ptypes,
-                       pmtinfo.GetEfficiencyCorrections(), pmtinfo_noiserates);
+  return ConstructPMTs(table, pos, dir, ptypes, pmtinfo.GetEfficiencyCorrections(), pmtinfo_noiserates);
 }
 
-} // namespace RAT
+}  // namespace RAT

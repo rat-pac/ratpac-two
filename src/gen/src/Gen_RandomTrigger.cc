@@ -1,27 +1,23 @@
 #include "RAT/Gen_RandomTrigger.hh"
-#include "RAT/GLG4StringUtil.hh"
-#include "RAT/GLG4TimeGen.hh"
 
 #include <G4Event.hh>
 #include <RAT/EventInfo.hh>
 #include <RAT/Factory.hh>
 
-Gen_RandomTrigger::Gen_RandomTrigger() : stateStr("") {
-  timeGen = new GLG4TimeGen_Uniform();
-}
+#include "RAT/GLG4StringUtil.hh"
+#include "RAT/GLG4TimeGen.hh"
+
+Gen_RandomTrigger::Gen_RandomTrigger() : stateStr("") { timeGen = new GLG4TimeGen_Uniform(); }
 
 Gen_RandomTrigger::~Gen_RandomTrigger() { delete timeGen; }
 
 void Gen_RandomTrigger::GenerateEvent(G4Event *event) {
-  RAT::EventInfo *exinfo =
-      dynamic_cast<RAT::EventInfo *>(event->GetUserInformation());
+  RAT::EventInfo *exinfo = dynamic_cast<RAT::EventInfo *>(event->GetUserInformation());
   exinfo->extTriggerTime = 0.0;
   exinfo->extTriggerType = 7;
 }
 
-void Gen_RandomTrigger::ResetTime(double offset) {
-  nextTime = timeGen->GenerateEventTime() + offset;
-}
+void Gen_RandomTrigger::ResetTime(double offset) { nextTime = timeGen->GenerateEventTime() + offset; }
 
 void Gen_RandomTrigger::SetTimeState(G4String state) {
   if (timeGen)

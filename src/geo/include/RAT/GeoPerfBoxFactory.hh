@@ -10,11 +10,11 @@
 
 namespace RAT {
 class GeoPerfBoxFactory : public GeoSolidFactory {
-public:
+ public:
   GeoPerfBoxFactory() : GeoSolidFactory("perfbox"){};
   virtual G4VSolid *ConstructSolid(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

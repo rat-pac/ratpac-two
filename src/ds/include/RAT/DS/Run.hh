@@ -8,16 +8,17 @@
 #ifndef __RAT_DS_Run__
 #define __RAT_DS_Run__
 
-#include <RAT/DS/PMTInfo.hh>
 #include <TObject.h>
 #include <TTimeStamp.h>
+
+#include <RAT/DS/PMTInfo.hh>
 #include <vector>
 
 namespace RAT {
 namespace DS {
 
 class Run : public TObject {
-public:
+ public:
   Run() : TObject() {}
   virtual ~Run() {}
 
@@ -31,9 +32,7 @@ public:
 
   /** Run start time */
   virtual TTimeStamp GetStartTime() const { return startTime; }
-  virtual void SetStartTime(const TTimeStamp &_startTime) {
-    startTime = _startTime;
-  }
+  virtual void SetStartTime(const TTimeStamp &_startTime) { startTime = _startTime; }
 
   /** PMT information */
   virtual PMTInfo *GetPMTInfo() {
@@ -59,7 +58,7 @@ public:
   std::vector<PMTInfo> pmtinfo;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

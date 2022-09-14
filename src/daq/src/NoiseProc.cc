@@ -59,21 +59,17 @@ Processor::Result NoiseProc::DSEvent(DS::Root *ds) {
         mcpmt->RemoveMCPhoton(pidx);
       else {
         double hittime = photon->GetHitTime();
-        if (hittime < firsthittime)
-          firsthittime = hittime;
-        if (hittime > lasthittime)
-          lasthittime = hittime;
+        if (hittime < firsthittime) firsthittime = hittime;
+        if (hittime > lasthittime) lasthittime = hittime;
         realHitTimes.push_back(hittime);
       }
     }
   }
 
   // Cap how far forward to look in case of weird geant-4 lifetimes
-  if (lasthittime > fMaxTime)
-    lasthittime = fMaxTime;
+  if (lasthittime > fMaxTime) lasthittime = fMaxTime;
   // And really just in case
-  if (firsthittime < -fMaxTime)
-    firsthittime = -fMaxTime;
+  if (firsthittime < -fMaxTime) firsthittime = -fMaxTime;
   // When there are no hits present in an event:
   if (firsthittime > lasthittime) {
     firsthittime = 0;
@@ -85,26 +81,22 @@ Processor::Result NoiseProc::DSEvent(DS::Root *ds) {
   // Look around real hits or everywhere?
   int totalNoiseHits = 0;
   if (fNearHits) {
-    std::map<double, double> windowMap =
-        FindWindows(realHitTimes, max(abs(fLookback), abs(fLookforward)));
+    std::map<double, double> windowMap = FindWindows(realHitTimes, max(abs(fLookback), abs(fLookforward)));
     if (!windowMap.empty()) {
       for (auto m : windowMap) {
-        totalNoiseHits += GenerateNoiseInWindow(mc, m.first - fLookback,
-                                                m.second + fLookforward,
-                                                pmtinfo, mcpmtObjects);
+        totalNoiseHits +=
+            GenerateNoiseInWindow(mc, m.first - fLookback, m.second + fLookforward, pmtinfo, mcpmtObjects);
       }
     }
   } else {
-    totalNoiseHits +=
-        GenerateNoiseInWindow(mc, noiseBegin, noiseEnd, pmtinfo, mcpmtObjects);
+    totalNoiseHits += GenerateNoiseInWindow(mc, noiseBegin, noiseEnd, pmtinfo, mcpmtObjects);
   }
   mc->SetNumDark(totalNoiseHits);
 
   return Processor::OK;
 }
 
-int NoiseProc::GenerateNoiseInWindow(DS::MC *mc, double noiseBegin,
-                                     double noiseEnd, DS::PMTInfo *pmtinfo,
+int NoiseProc::GenerateNoiseInWindow(DS::MC *mc, double noiseBegin, double noiseEnd, DS::PMTInfo *pmtinfo,
                                      std::map<int, int> mcpmtObjects) {
   // If pmt-by-pmt noise rates are used then we have little choice but to loop
   // through each pmt -- this can be very slow for large numbers of pmts.  If
@@ -133,22 +125,21 @@ int NoiseProc::GenerateNoiseInWindow(DS::MC *mc, double noiseBegin,
     for (int pmtid = 0; pmtid < pmtCount; pmtid++) {
       double NoiseRate = 0;
       switch (fNoiseFlag) {
-      case 1: {
-        const std::string modelName = pmtinfo->GetModelNameByID(pmtid);
-        NoiseRate = fModelNoiseMap[modelName];
-        break;
-      }
-      case 2: {
-        NoiseRate = pmtinfo->GetNoiseRate(pmtid);
-        break;
-      }
-      default:
-        NoiseRate = fDefaultNoiseRate;
+        case 1: {
+          const std::string modelName = pmtinfo->GetModelNameByID(pmtid);
+          NoiseRate = fModelNoiseMap[modelName];
+          break;
+        }
+        case 2: {
+          NoiseRate = pmtinfo->GetNoiseRate(pmtid);
+          break;
+        }
+        default:
+          NoiseRate = fDefaultNoiseRate;
       }
       if (NoiseRate >= 0) {
         double darkCount = NoiseRate * noiseWindowWidth * 1e-9;
-        int idnoiseHits =
-            static_cast<int>(floor(CLHEP::RandPoisson::shoot(darkCount)));
+        int idnoiseHits = static_cast<int>(floor(CLHEP::RandPoisson::shoot(darkCount)));
         for (int ihit = 0; ihit < idnoiseHits; ihit++) {
           if (!mcpmtObjects.count(pmtid)) {
             DS::MCPMT *mcpmt = mc->AddNewMCPMT();
@@ -170,8 +161,7 @@ int NoiseProc::GenerateNoiseInWindow(DS::MC *mc, double noiseBegin,
   return noiseHits;
 }
 
-void NoiseProc::AddNoiseHit(DS::MCPMT *mcpmt, DS::PMTInfo *pmtinfo,
-                            double hittime) {
+void NoiseProc::AddNoiseHit(DS::MCPMT *mcpmt, DS::PMTInfo *pmtinfo, double hittime) {
   DS::MCPhoton *photon = mcpmt->AddNewMCPhoton();
   photon->SetDarkHit(true);
   photon->SetLambda(0.0);
@@ -182,10 +172,8 @@ void NoiseProc::AddNoiseHit(DS::MCPMT *mcpmt, DS::PMTInfo *pmtinfo,
   photon->SetHitTime(hittime);
   // Modify these to check the pmt time and charge model
 
-  photon->SetFrontEndTime(
-      fPMTTime[pmtinfo->GetModel(mcpmt->GetID())]->PickTime(hittime));
-  photon->SetCharge(
-      fPMTCharge[pmtinfo->GetModel(mcpmt->GetID())]->PickCharge());
+  photon->SetFrontEndTime(fPMTTime[pmtinfo->GetModel(mcpmt->GetID())]->PickTime(hittime));
+  photon->SetCharge(fPMTCharge[pmtinfo->GetModel(mcpmt->GetID())]->PickCharge());
   mcpmt->SortMCPhotons();
 
   return;
@@ -195,8 +183,7 @@ void NoiseProc::UpdatePMTModels(DS::PMTInfo *pmtinfo) {
   // This is a bit hacky, but we don't want to keep
   // running this every event, so after the first time it
   // is skipped.
-  if (fPMTTime.size() > 0)
-    return;
+  if (fPMTTime.size() > 0) return;
   const size_t numModels = pmtinfo->GetModelCount();
   fPMTTime.resize(numModels);
   fPMTCharge.resize(numModels);
@@ -222,8 +209,7 @@ void NoiseProc::UpdatePMTModels(DS::PMTInfo *pmtinfo) {
   return;
 }
 
-std::map<double, double> NoiseProc::FindWindows(std::vector<double> &times,
-                                                double window) {
+std::map<double, double> NoiseProc::FindWindows(std::vector<double> &times, double window) {
   // Sort the hit times
   std::sort(times.begin(), times.end());
   // Find the time differences along the times array
@@ -239,8 +225,7 @@ std::map<double, double> NoiseProc::FindWindows(std::vector<double> &times,
   vector<double>::iterator back = times.begin();
   double start = *back;
   double stop = 0;
-  for (vector<double>::iterator forward = next(times.begin());
-       forward < times.end(); ++forward) {
+  for (vector<double>::iterator forward = next(times.begin()); forward < times.end(); ++forward) {
     if ((*forward - *back) > window) {
       stop = *back;
       startStop[start] = stop;
@@ -279,4 +264,4 @@ void NoiseProc::SetI(std::string param, int value) {
     throw ParamUnknown(param);
 }
 
-} // namespace RAT
+}  // namespace RAT

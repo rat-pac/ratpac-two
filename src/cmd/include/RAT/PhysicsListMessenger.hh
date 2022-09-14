@@ -19,7 +19,7 @@ namespace RAT {
 class PhysicsList;
 
 class PhysicsListMessenger : public G4UImessenger {
-public:
+ public:
   PhysicsListMessenger(PhysicsList *physicsList);
   virtual ~PhysicsListMessenger();
 
@@ -28,7 +28,7 @@ public:
 
   PhysicsList *fPhysicsList;
 
-protected:
+ protected:
   G4UIcmdWithAString *fSetOpWLSCmd;
   G4UIcmdWithAnInteger *fSetCerenkovMaxNumPhotonsPerStep;
   G4UIcmdWithABool *fEnableCerenkov;
@@ -36,6 +36,6 @@ protected:
   G4UIcommand *fSetStepFunctionMuHad;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // __RAT_PhysicsListMessenger__
+#endif  // __RAT_PhysicsListMessenger__

@@ -17,18 +17,17 @@
 
 #include "RAT/GLG4BoxSD.hh"
 
+#include <CLHEP/Units/PhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <string.h>  // for memset
+
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
 #include "G4Step.hh"
 #include "G4TouchableHistory.hh"
 #include "G4Track.hh"
 #include "G4ios.hh"
-#include <CLHEP/Units/PhysicalConstants.h>
-#include <CLHEP/Units/SystemOfUnits.h>
-
 #include "local_g4compat.hh"
-
-#include <string.h> // for memset
 
 GLG4BoxSD::GLG4BoxSD(G4String name) : G4VSensitiveDetector(name) {
   eCut = 1.5 * CLHEP::MeV;
@@ -64,22 +63,21 @@ G4bool GLG4BoxSD::ProcessHits(G4Step *aStep, G4TouchableHistory *) {
     iz2 = tmp;
   }
   G4int numseg = iz2 - iz1 + 1;
-  if (iz2 >= nbin)
-    iz2 = nbin - 1;
+  if (iz2 >= nbin) iz2 = nbin - 1;
 
   G4int i;
   if (edep > 0.0)
-    for (i = iz1; i <= iz2; i++) // note "<=" implies numseg segments
+    for (i = iz1; i <= iz2; i++)  // note "<=" implies numseg segments
       h_edep[i] += edep / numseg;
 
   G4ParticleDefinition *pdef = pTrack->GetDefinition();
   if (pdef->GetPDGCharge() == 0) {
     if (e0 > gCut)
-      for (i = iz1; i < iz2; i++) // note "<" for only boundary-crossings
+      for (i = iz1; i < iz2; i++)  // note "<" for only boundary-crossings
         h_ng[i]++;
   } else {
     if (e0 > eCut)
-      for (i = iz1; i < iz2; i++) // note "<" for only boundary-crossings
+      for (i = iz1; i < iz2; i++)  // note "<" for only boundary-crossings
         h_ne[i]++;
   }
 
@@ -89,9 +87,7 @@ G4bool GLG4BoxSD::ProcessHits(G4Step *aStep, G4TouchableHistory *) {
 }
 
 void GLG4BoxSD::EndOfEvent(G4HCofThisEvent *) {
-
-  if (verboseLevel > 0)
-    PrintAll();
+  if (verboseLevel > 0) PrintAll();
 
   if (verboseLevel > -1) {
     G4int sum_ng = 0, sum_ne = 0;
@@ -99,8 +95,8 @@ void GLG4BoxSD::EndOfEvent(G4HCofThisEvent *) {
       sum_ng += h_ng[i];
       sum_ne += h_ne[i];
     }
-    G4cout << GetName() << ":\t" << sum_ng << " neutral-x0,\t" << sum_ne
-           << " charged-x0,\t" << tot_edep / CLHEP::MeV << " MeV\n"
+    G4cout << GetName() << ":\t" << sum_ng << " neutral-x0,\t" << sum_ne << " charged-x0,\t" << tot_edep / CLHEP::MeV
+           << " MeV\n"
            << G4endl;
     G4cout.flush();
   }
@@ -112,7 +108,8 @@ void GLG4BoxSD::DrawAll() {}
 
 // following routine is borrowed from test_radondaq by G. Horton-Smith
 // it dumps histograms in "non-repeating-zeroes" format
-template <class T> static void dump_histo(T *hist, int hlength, int xmin) {
+template <class T>
+static void dump_histo(T *hist, int hlength, int xmin) {
   int i;
   int nrzflag;
 
@@ -144,5 +141,5 @@ void GLG4BoxSD::PrintAll() {
   dump_histo(h_ne, nbin, 0);
   G4cout << "# edep vs. 2*rad.length" << G4endl;
   dump_histo(h_edep, nbin, 0);
-  G4cout << G4endl << G4std::flush;
+  G4cout << G4endl << std::flush;
 }

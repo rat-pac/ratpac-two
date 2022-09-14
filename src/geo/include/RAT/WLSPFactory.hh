@@ -6,12 +6,12 @@
 
 namespace RAT {
 class WLSPFactory : public GeoSolidArrayFactoryBase {
-public:
+ public:
   WLSPFactory() : GeoSolidArrayFactoryBase("wlsp"){};
   using GeoSolidArrayFactoryBase::Construct;
   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -21,10 +21,10 @@ Processor::Result SimpleDAQProc::DSEvent(DS::Root *ds) {
   // The time of the PMT hit is that of the first photon.
 
   DS::MC *mc = ds->GetMC();
-  if (ds->ExistEV()) { // there is already a EV branch present
-    ds->PruneEV(); // remove it, otherwise we'll have multiple detector events
-                   // in this physics event
-                   // we really should warn the user what is taking place
+  if (ds->ExistEV()) {  // there is already a EV branch present
+    ds->PruneEV();      // remove it, otherwise we'll have multiple detector events
+                        // in this physics event
+                        // we really should warn the user what is taking place
   }
   DS::EV *ev = ds->AddNewEV();
 
@@ -51,8 +51,7 @@ Processor::Result SimpleDAQProc::DSEvent(DS::Root *ds) {
       double charge = 0;
 
       for (int i = 0; i < mcpmt->GetMCPhotonCount(); i++) {
-        if (time > mcpmt->GetMCPhoton(i)->GetHitTime())
-          time = mcpmt->GetMCPhoton(i)->GetHitTime();
+        if (time > mcpmt->GetMCPhoton(i)->GetHitTime()) time = mcpmt->GetMCPhoton(i)->GetHitTime();
         charge += mcpmt->GetMCPhoton(i)->GetCharge();
       }
 
@@ -72,4 +71,4 @@ Processor::Result SimpleDAQProc::DSEvent(DS::Root *ds) {
   return Processor::OK;
 }
 
-} // namespace RAT
+}  // namespace RAT

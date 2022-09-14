@@ -13,7 +13,7 @@ class G4VPhysicalVolume;
 namespace RAT {
 
 class DetectorConstruction : public G4VUserDetectorConstruction {
-public:
+ public:
   DetectorConstruction();
   virtual ~DetectorConstruction() {}
 
@@ -27,11 +27,11 @@ public:
 
   static DetectorConstruction *GetDetectorConstruction();
 
-protected:
+ protected:
   static DetectorConstruction *sDetectorConstruction;
   G4VPhysicalVolume *fWorldPhys;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // __RAT_DetectorConstruction__
+#endif  // __RAT_DetectorConstruction__

@@ -28,16 +28,15 @@ class BNLOpWLSData;
 // class TBranch;
 
 class BNLOpWLS : public G4VDiscreteProcess {
-public:
-  BNLOpWLS(const G4String &processName = "OpWLS",
-           G4ProcessType type = fOptical);
+ public:
+  BNLOpWLS(const G4String &processName = "OpWLS", G4ProcessType type = fOptical);
   virtual ~BNLOpWLS();
 
-private:
+ private:
   BNLOpWLS(const BNLOpWLS &right);
   BNLOpWLS &operator=(const BNLOpWLS &right);
 
-public:
+ public:
   // Argument is the energy of the exciting photon
   G4double GetEmEnergy(G4double);
 
@@ -75,7 +74,7 @@ public:
   // Selects the time profile generator
   void UseTimeProfile(const G4String name);
 
-private:
+ private:
   // Is the WLS integral table
   void BuildThePhysicsTable();
 
@@ -85,7 +84,7 @@ private:
 
   BNLOpWLSData *wlsData;
 
-protected:
+ protected:
   G4VWLSTimeGeneratorProfile *WLSTimeGeneratorProfile;
   G4PhysicsTable *theIntegralTable;
   G4PhysicsTable *theQYTable;
@@ -93,13 +92,10 @@ protected:
 
 // Inline methods
 
-inline G4bool
-BNLOpWLS::IsApplicable(const G4ParticleDefinition &aParticleType) {
+inline G4bool BNLOpWLS::IsApplicable(const G4ParticleDefinition &aParticleType) {
   return (&aParticleType == G4OpticalPhoton::OpticalPhoton());
 }
 
-inline G4PhysicsTable *BNLOpWLS::GetIntegralTable() const {
-  return theIntegralTable;
-}
+inline G4PhysicsTable *BNLOpWLS::GetIntegralTable() const { return theIntegralTable; }
 
-#endif // __BNLOpWLS__
+#endif  // __BNLOpWLS__

@@ -11,23 +11,21 @@
 //
 
 #include "RAT/GLG4PMTSD.hh"
-#include "RAT/GLG4VEventAction.hh"
+
+#include <string.h>  // for memset
 
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
 #include "G4Step.hh"
 #include "G4TouchableHistory.hh"
 #include "G4Track.hh"
+#include "G4VSolid.hh"  // for access to solid store
 #include "G4ios.hh"
-
-#include "G4VSolid.hh"      // for access to solid store
-#include "RAT/GLG4Scint.hh" // for doScintilllation and total energy deposition info
+#include "RAT/GLG4Scint.hh"  // for doScintilllation and total energy deposition info
+#include "RAT/GLG4VEventAction.hh"
 #include "Randomize.hh"
 
-#include <string.h> // for memset
-
-GLG4PMTSD::GLG4PMTSD(G4String name, int arg_max_pmts, int arg_pmt_no_offset,
-                     int arg_my_id_pmt_size)
+GLG4PMTSD::GLG4PMTSD(G4String name, int arg_max_pmts, int arg_pmt_no_offset, int arg_my_id_pmt_size)
     : G4VSensitiveDetector(name) {
   max_pmts = arg_max_pmts;
   pmt_no_offset = arg_pmt_no_offset;
@@ -37,8 +35,7 @@ GLG4PMTSD::GLG4PMTSD(G4String name, int arg_max_pmts, int arg_pmt_no_offset,
 }
 
 GLG4PMTSD::~GLG4PMTSD() {
-  if (hit_sum)
-    delete[] hit_sum;
+  if (hit_sum) delete[] hit_sum;
 }
 
 void GLG4PMTSD::Initialize(G4HCofThisEvent *) {
@@ -57,16 +54,12 @@ G4bool GLG4PMTSD::ProcessHits(G4Step *, G4TouchableHistory *) {
 
 // Here is the real "hit" routine, used by GLG4PMTOpticalModel and by
 // ProcessHits It is more efficient in some ways.
-void GLG4PMTSD::SimpleHit(G4int ipmt, G4double time, G4double kineticEnergy,
-                          const G4ThreeVector &hit_position,
-                          const G4ThreeVector &hit_momentum,
-                          const G4ThreeVector &hit_polarization,
-                          G4int iHitPhotonCount, G4int trackID,
-                          G4bool prepulse) {
+void GLG4PMTSD::SimpleHit(G4int ipmt, G4double time, G4double kineticEnergy, const G4ThreeVector &hit_position,
+                          const G4ThreeVector &hit_momentum, const G4ThreeVector &hit_polarization,
+                          G4int iHitPhotonCount, G4int trackID, G4bool prepulse) {
   G4int pmt_index = ipmt - pmt_no_offset;
   if (pmt_index < 0 || pmt_index >= max_pmts) {
-    G4cerr << "Error: GLG4PMTSD::SimpleHit [" << GetName()
-           << "] passed ipmt=" << ipmt << ", but max_pmts=" << max_pmts
+    G4cerr << "Error: GLG4PMTSD::SimpleHit [" << GetName() << "] passed ipmt=" << ipmt << ", but max_pmts=" << max_pmts
            << " and offset=" << pmt_no_offset << " !" << G4endl;
     return;
   }
@@ -78,13 +71,9 @@ void GLG4PMTSD::SimpleHit(G4int ipmt, G4double time, G4double kineticEnergy,
   hit_photon->SetPMTID((int)ipmt);
   hit_photon->SetTime((double)time);
   hit_photon->SetKineticEnergy((double)kineticEnergy);
-  hit_photon->SetPosition((double)hit_position.x(), (double)hit_position.y(),
-                          (double)hit_position.z());
-  hit_photon->SetMomentum((double)hit_momentum.x(), (double)hit_momentum.y(),
-                          (double)hit_momentum.z());
-  hit_photon->SetPolarization((double)hit_polarization.x(),
-                              (double)hit_polarization.y(),
-                              (double)hit_polarization.z());
+  hit_photon->SetPosition((double)hit_position.x(), (double)hit_position.y(), (double)hit_position.z());
+  hit_photon->SetMomentum((double)hit_momentum.x(), (double)hit_momentum.y(), (double)hit_momentum.z());
+  hit_photon->SetPolarization((double)hit_polarization.x(), (double)hit_polarization.y(), (double)hit_polarization.z());
   hit_photon->SetCount(iHitPhotonCount);
   hit_photon->SetTrackID(trackID);
   hit_photon->SetPrepulse(prepulse);

@@ -6,8 +6,10 @@
 
 ------------------------------------------------------------------------------*/
 #include "RAT/multiio.hpp"
-#include "RAT/debug.hpp"
+
 #include <algorithm>
+
+#include "RAT/debug.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Output
@@ -41,8 +43,7 @@ unsigned omtext::add(const otext &str) {
 void omtext::remove(unsigned offset) {
   ombuff *buf = dynamic_cast<ombuff *>(m_buffer);
   DEBUG_ASSERT(buf);
-  if (buf)
-    buf->remove(offset);
+  if (buf) buf->remove(offset);
 }
 
 unsigned omtext::device_count(void) const {
@@ -95,8 +96,7 @@ unsigned imtext::add(const itext &str) {
 void imtext::remove(unsigned offset) {
   imbuff *buf = dynamic_cast<imbuff *>(m_buffer);
   DEBUG_ASSERT(buf);
-  if (buf)
-    buf->remove(offset);
+  if (buf) buf->remove(offset);
 }
 
 unsigned imtext::device_count(void) const {
@@ -121,7 +121,7 @@ const itext &imtext::device_get(unsigned i) const {
 // Output Buffer
 
 ombuff::ombuff(void)
-    : // each sub-device should define its own line-buffer and newline modes
+    :  // each sub-device should define its own line-buffer and newline modes
       obuff(false, otext::binary_mode) {}
 
 unsigned ombuff::add(const otext &str) {
@@ -136,8 +136,7 @@ void ombuff::remove(unsigned offset) {
 
 unsigned ombuff::put(unsigned char ch) {
   unsigned result = 0;
-  for (unsigned i = 0; i < m_devices.size(); i++)
-    result = std::max(result, m_devices[i].put(ch) ? 1u : 0u);
+  for (unsigned i = 0; i < m_devices.size(); i++) result = std::max(result, m_devices[i].put(ch) ? 1u : 0u);
   return result;
 }
 
@@ -151,7 +150,7 @@ const otext &ombuff::device(unsigned i) const { return m_devices[i]; }
 // Input Buffer
 
 imbuff::imbuff(void)
-    : // the individual devices define their own conversion modes
+    :  // the individual devices define their own conversion modes
       ibuff(itext::binary_mode) {}
 
 unsigned imbuff::add(const itext &str) {
@@ -165,14 +164,12 @@ void imbuff::remove(unsigned offset) {
 }
 
 int imbuff::peek(void) {
-  while (!m_devices.empty() && m_devices.begin()->eof())
-    m_devices.erase(m_devices.begin());
+  while (!m_devices.empty() && m_devices.begin()->eof()) m_devices.erase(m_devices.begin());
   return m_devices.empty() ? -1 : m_devices.begin()->peek();
 }
 
 int imbuff::get(void) {
-  while (!m_devices.empty() && m_devices.begin()->eof())
-    m_devices.erase(m_devices.begin());
+  while (!m_devices.empty() && m_devices.begin()->eof()) m_devices.erase(m_devices.begin());
   return m_devices.empty() ? -1 : m_devices.begin()->get();
 }
 

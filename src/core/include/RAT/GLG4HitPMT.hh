@@ -9,9 +9,10 @@
     @author Glenn Horton-Smith, December 2004
 */
 
-#include "GLG4HitPhoton.hh"
 #include <cstddef>
 #include <vector>
+
+#include "GLG4HitPhoton.hh"
 
 /** GLG4HitPMT stores information about a PMT that detected one or more
     photoelectrons.
@@ -33,7 +34,7 @@
 #include <vector>
 
 class GLG4HitPMT {
-public:
+ public:
   GLG4HitPMT(int ID);
   ~GLG4HitPMT();
 
@@ -50,21 +51,18 @@ public:
   static const size_t kApproxMaxIndividualHitPhotonsPerPMT;
   static const double kMergeTime;
 
-private:
+ private:
   int fID;
   std::vector<GLG4HitPhoton *> fPhotons;
 };
 
 /** comparison function for sorting GLG4HitPMT pointers
  */
-inline bool Compare_HitPMTPtr_TimeAscending(const GLG4HitPMT *a,
-                                            const GLG4HitPMT *b) {
+inline bool Compare_HitPMTPtr_TimeAscending(const GLG4HitPMT *a, const GLG4HitPMT *b) {
   // put empties at the end
-  if (!a || a->GetEntries() <= 0)
-    return false;
-  if (!b || b->GetEntries() <= 0)
-    return true;
+  if (!a || a->GetEntries() <= 0) return false;
+  if (!b || b->GetEntries() <= 0) return true;
   return a->GetPhoton(0)->GetTime() < b->GetPhoton(0)->GetTime();
 }
 
-#endif // __GLG4HitPMT_hh__
+#endif  // __GLG4HitPMT_hh__

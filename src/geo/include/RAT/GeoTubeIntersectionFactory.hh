@@ -16,11 +16,11 @@
 
 namespace RAT {
 class GeoTubeIntersectionFactory : public GeoSolidFactory {
-public:
+ public:
   GeoTubeIntersectionFactory() : GeoSolidFactory("tubeinter"){};
   virtual G4VSolid *ConstructSolid(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

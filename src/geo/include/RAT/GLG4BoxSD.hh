@@ -26,7 +26,7 @@ class G4HCofThisEvent;
 class G4TouchableHistory;
 
 class GLG4BoxSD : public G4VSensitiveDetector {
-public:
+ public:
   // member functions
   GLG4BoxSD(G4String name);
   virtual ~GLG4BoxSD();
@@ -46,7 +46,7 @@ public:
   G4double GetECut() { return eCut; }
   G4double GetGCut() { return gCut; }
 
-protected:
+ protected:
   G4double eCut;
   G4double gCut;
   G4double radLength;

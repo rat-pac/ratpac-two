@@ -9,7 +9,7 @@
 #include <G4VPhysicsConstructor.hh>
 
 class G4OpWLSBuilder : public G4VPhysicsConstructor {
-public:
+ public:
   G4OpWLSBuilder() {}
   virtual ~G4OpWLSBuilder() {}
 
@@ -20,4 +20,4 @@ public:
   void ConstructProcess();
 };
 
-#endif // __G4OpWLSBuilder__
+#endif  // __G4OpWLSBuilder__

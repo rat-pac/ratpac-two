@@ -17,12 +17,11 @@ namespace RAT {
 
 static const double ElectronMass = 0.510998918;
 static const double AlphaMass = 3727.42;
-static const double UnitMass = 931.502; // MeV
+static const double UnitMass = 931.502;  // MeV
 
 double GetRandomNumber(double rmin = 0., double rmax = 1.);
 
-double Nucl_Beta(int Beta, double Z, double A, double W, double W0, int N,
-                 double vMass);
+double Nucl_Beta(int Beta, double Z, double A, double W, double W0, int N, double vMass);
 
 double Nucl_Wave(int Beta, double Z, double A, double W, int k);
 
@@ -36,9 +35,7 @@ double Nucl_Wave_Phase(int Beta, double Z, double A, double W, int k, int sel);
 
 double Screening_Potential(double Z, double p, int Beta);
 
-std::complex<double> Hyper1F1Norm(std::complex<double> A,
-                                  std::complex<double> B,
-                                  std::complex<double> Z);
+std::complex<double> Hyper1F1Norm(std::complex<double> A, std::complex<double> B, std::complex<double> Z);
 
 double Factorial(int N);
 
@@ -48,6 +45,6 @@ double GammaLn(double xx);
 
 std::complex<double> GammaLn_Complex(std::complex<double> xx);
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -60,13 +60,14 @@
 #ifndef __RAT_Decay0__
 #define __RAT_Decay0__
 
+#include <complex>
+#include <iostream>
+
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTable.hh"
 #include "RAT/DB.hh"
 #include "Randomize.hh"
 #include "TF1.h"
-#include <complex>
-#include <iostream>
 
 /***************
  GEANT number for particle identification:
@@ -81,10 +82,9 @@ using std::vector;
 namespace RAT {
 
 class Decay0 {
-public:
+ public:
   Decay0();
-  Decay0(const std::string isotope, const int level, const int mode,
-         const float lE, const float hE);
+  Decay0(const std::string isotope, const int level, const int mode, const float lE, const float hE);
   Decay0(const std::string isotope);
   ~Decay0();
 
@@ -94,7 +94,7 @@ public:
   void GenEvent();
   float GetRandom();
   G4ParticleDefinition *fPartDef;
-  double GetMass(int pdg); // get mass of particle from GEANT
+  double GetMass(int pdg);  // get mass of particle from GEANT
 
   ///************************************************/
   /// sampling the energies and angles of electrons in various
@@ -102,8 +102,7 @@ public:
   void bb();
   /// Generation of isotropic emission of particle in the range of
   /// energies and angles
-  void particle(int np, float E1, float E2, float teta1, float teta2,
-                float phi1, float phi2, float tclev, float thlev);
+  void particle(int np, float E1, float E2, float teta1, float teta2, float phi1, float phi2, float tclev, float thlev);
   /// Generation of e+e- pair in zero-approximation to real subroutine for
   ///  internal pair creation: 1) energy of e+ is equal to the energy of e-;
   ///  2) e+ and e- are emitted in the same direction
@@ -117,16 +116,12 @@ public:
   /// simulation of the angles and energy of beta particles
   /// emitted in beta decay of nucleus.
   void beta(float Qbeta, float tcnuc, float thnuc);
-  void beta1f(float Qbeta, float tcnuc, float thnuc, float c1, float c2,
-              float c3, float c4);
-  void beta1fu(float Qbeta, float tcnuc, float thnuc, float c1, float c2,
-               float c3, float c4);
-  void beta2f(float Qbeta, float tcnuc, float thnuc, int kf, float c1, float c2,
-              float c3, float c4);
+  void beta1f(float Qbeta, float tcnuc, float thnuc, float c1, float c2, float c3, float c4);
+  void beta1fu(float Qbeta, float tcnuc, float thnuc, float c1, float c2, float c3, float c4);
+  void beta2f(float Qbeta, float tcnuc, float thnuc, int kf, float c1, float c2, float c3, float c4);
   /// determines maximum or minimum of the function f(x) in the interval [a,b]
   /// by the gold section method.
-  void tgold(float a, float b, TF1 &f, float eps, int nmin, float &xextt,
-             float &fextr);
+  void tgold(float a, float b, TF1 &f, float eps, int nmin, float &xextt, float &fextr);
   ///************************************************/
 
   ///-----------------------------------------------
@@ -208,12 +203,11 @@ public:
   // Conversion electrons are emitted only with one fixed energy
   // (usually with Egamma-E(K)_binding_energy)
   void nucltransK(float Egamma, float Ebinde, float conve, float convp);
-  void nucltransKL(float Egamma, float EbindeK, float conveK, float EbindeL,
-                   float conveL, float convp);
-  void nucltransKLM(float Egamma, float EbindeK, float conveK, float EbindeL,
-                    float conveL, float EbindeM, float conveM, float convp);
-  void nucltransKLM_Pb(float Egamma, float EbindeK, float conveK, float EbindeL,
-                       float conveL, float EbindeM, float conveM, float convp);
+  void nucltransKL(float Egamma, float EbindeK, float conveK, float EbindeL, float conveL, float convp);
+  void nucltransKLM(float Egamma, float EbindeK, float conveK, float EbindeL, float conveL, float EbindeM, float conveM,
+                    float convp);
+  void nucltransKLM_Pb(float Egamma, float EbindeK, float conveK, float EbindeL, float conveL, float EbindeM,
+                       float conveM, float convp);
   ///************************************************/
   Double_t funbeta(Double_t *x, Double_t *par);
   Double_t funbeta1fu(Double_t *x, Double_t *par);
@@ -241,46 +235,43 @@ public:
 
   inline unsigned int GetParentIdx(unsigned int i) { return fPparent.at(i); }
 
-private:
-  double fCutoffWindow; // Time window to restrict coincidence backgrounds
-  bool fHasTimeCutoff;  // Flag to indicate if there is a time cutoff for
-                        // coincidences (-timecut)
-  bool fHasAlphaCut;    // Flag to indicate if the first alpha should be cut out
-                        // (-pure)
-  string fIsotope;      // parent isotope
-  int fLevel;           // daughter energy level
-  int fMode;            // decay mode
-  int fModebb; // decay mode number inside code  (fMode!=fModebb for few modes)
-  int fZdbb; // atomic number of daughter nucleus (Z>0 for b-b- and Z<0 for b+b+
-             // and eb+ processes);
-  int fZdtr; //  atomic number of daughter nucleus (Zdtr>0 for e- and  Zdtr<0
-             //  for e+ particles);
-  float fEbindeK; // binding energy of electron on K-shell (MeV)
-  float fEbindeL; // binding energy of electron on L-shell (MeV)
-  float fEbindeM; // binding energy of electron on M-shell (MeV)
-  float
-      fEbindeK2; // binding energy of electron on K-shell (MeV)  (second decay)
-  float
-      fEbindeL2; // binding energy of electron on L-shell (MeV)  (second decay)
-  float
-      fEbindeM2; // binding energy of electron on M-shell (MeV)  (second decay)
-  float fLoE, fHiE; // limit for spectrum
-  float fTdlev;     // time of decay of level (sec);
-  float fTdnuc;     // time of decay of nucleus (sec);
-  float fTclev; // time of creation of level from which particle will be emitted
-                // (sec);
-  float fThlev; // level halflife (sec).
-  float fThnuc; // nucleus halflife (sec);
-  float fEgamma; // gamma-ray energy (MeV) [=difference in state energies];
-  float fTevst;  // time of event's start (sec);
-  float fQbb;    // energy release in double beta process: difference between
-                 // masses of parent and daughter atoms (MeV);
-  float fQbeta;  // beta energy endpoint (MeV; Qbeta>50 eV);
-  float fEK;     // binding energy of electron on K shell of parent atom (MeV)
-  int fStartbb;  // must be 0 for first call of bb function for a given mode
+ private:
+  double fCutoffWindow;  // Time window to restrict coincidence backgrounds
+  bool fHasTimeCutoff;   // Flag to indicate if there is a time cutoff for
+                         // coincidences (-timecut)
+  bool fHasAlphaCut;     // Flag to indicate if the first alpha should be cut out
+                         // (-pure)
+  string fIsotope;       // parent isotope
+  int fLevel;            // daughter energy level
+  int fMode;             // decay mode
+  int fModebb;           // decay mode number inside code  (fMode!=fModebb for few modes)
+  int fZdbb;             // atomic number of daughter nucleus (Z>0 for b-b- and Z<0 for b+b+
+                         // and eb+ processes);
+  int fZdtr;             //  atomic number of daughter nucleus (Zdtr>0 for e- and  Zdtr<0
+                         //  for e+ particles);
+  float fEbindeK;        // binding energy of electron on K-shell (MeV)
+  float fEbindeL;        // binding energy of electron on L-shell (MeV)
+  float fEbindeM;        // binding energy of electron on M-shell (MeV)
+  float fEbindeK2;       // binding energy of electron on K-shell (MeV)  (second decay)
+  float fEbindeL2;       // binding energy of electron on L-shell (MeV)  (second decay)
+  float fEbindeM2;       // binding energy of electron on M-shell (MeV)  (second decay)
+  float fLoE, fHiE;      // limit for spectrum
+  float fTdlev;          // time of decay of level (sec);
+  float fTdnuc;          // time of decay of nucleus (sec);
+  float fTclev;          // time of creation of level from which particle will be emitted
+                         // (sec);
+  float fThlev;          // level halflife (sec).
+  float fThnuc;          // nucleus halflife (sec);
+  float fEgamma;         // gamma-ray energy (MeV) [=difference in state energies];
+  float fTevst;          // time of event's start (sec);
+  float fQbb;            // energy release in double beta process: difference between
+                         // masses of parent and daughter atoms (MeV);
+  float fQbeta;          // beta energy endpoint (MeV; Qbeta>50 eV);
+  float fEK;             // binding energy of electron on K shell of parent atom (MeV)
+  int fStartbb;          // must be 0 for first call of bb function for a given mode
 
-  float fEbb1, fEbb2; // left and right energy limits for sum of energies of
-                      // emitted e-/e+; other events will be thrown away
+  float fEbb1, fEbb2;  // left and right energy limits for sum of energies of
+                       // emitted e-/e+; other events will be thrown away
 
   /// members used to collect information from data base file
   DBLinkPtr fLdecay;
@@ -298,30 +289,30 @@ private:
   vector<double> fShCorrFactor;
 
   double fSpthe1[4300], fSpthe2[4300], fSpmax, fFe2m;
-  float fE0;      // possible amount of energy released
-  float fE1, fE2; // energy of first and second beta
-public:
+  float fE0;       // possible amount of energy released
+  float fE1, fE2;  // energy of first and second beta
+ public:
   double fSl[48];
   int fSlSize;
-  float fC1, fC2, fC3, fC4; // shape correction factors
-  float fKf;                // degree of forbiddeness for unique spectra
-  int fNbPart;              // current number of last particle in event;
-  double fPmoment[3][100];  // x,y,z components of particle momentum (MeV);
-  double fPtime[100];       // time shift from previous particle time
-  int fNpGeant[100]; // GEANT number for particle identification see above (line
-                     // 23)
+  float fC1, fC2, fC3, fC4;  // shape correction factors
+  float fKf;                 // degree of forbiddeness for unique spectra
+  int fNbPart;               // current number of last particle in event;
+  double fPmoment[3][100];   // x,y,z components of particle momentum (MeV);
+  double fPtime[100];        // time shift from previous particle time
+  int fNpGeant[100];         // GEANT number for particle identification see above (line
+                             // 23)
 
-  unsigned int fCurParentIdx; // Index of the current parent for each particle
-  vector<unsigned int> fPparent; // Index of the parent for each particle.
+  unsigned int fCurParentIdx;     // Index of the current parent for each particle
+  vector<unsigned int> fPparent;  // Index of the parent for each particle.
 
   /************************************************/
   double operator()(double *x, double *par) {
     // to use with GaussLegendreIntegrator
     // function implementation using class data members
     double fe1mod = 0.;
-    double xx; // e2
+    double xx;  // e2
 
-    xx = x[0]; // e2
+    xx = x[0];  // e2
     //   double yy = x[1];//fE1
     par[0] = fE1;
     par[1] = fE0;
@@ -329,57 +320,41 @@ public:
     par[3] = fZdbb;
 
     if (fModebb == 4 && xx < (par[1] - par[0]))
-      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) *
-               fermi(par[3], par[0]) * (xx + par[2]) *
-               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) *
-               pow(par[1] - par[0] - xx, 5);
+      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) * fermi(par[3], par[0]) * (xx + par[2]) *
+               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) * pow(par[1] - par[0] - xx, 5);
 
     if (fModebb == 5 && xx < (par[1] - par[0]))
-      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) *
-               fermi(par[3], par[0]) * (xx + par[2]) *
-               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) *
-               (par[1] - par[0] - xx);
+      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) * fermi(par[3], par[0]) * (xx + par[2]) *
+               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) * (par[1] - par[0] - xx);
 
     if (fModebb == 6 && xx < (par[1] - par[0]))
-      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) *
-               fermi(par[3], par[0]) * (xx + par[2]) *
-               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) *
-               pow(par[1] - par[0] - xx, 3);
+      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) * fermi(par[3], par[0]) * (xx + par[2]) *
+               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) * pow(par[1] - par[0] - xx, 3);
 
     if (fModebb == 8 && xx < (par[1] - par[0]))
-      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) *
-               fermi(par[3], par[0]) * (xx + par[2]) *
-               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) *
-               pow(par[1] - par[0] - xx, 7) * pow(par[0] - xx, 2);
+      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) * fermi(par[3], par[0]) * (xx + par[2]) *
+               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) * pow(par[1] - par[0] - xx, 7) * pow(par[0] - xx, 2);
 
     if (fModebb == 13 && xx < (par[1] - par[0]))
-      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) *
-               fermi(par[3], par[0]) * (xx + par[2]) *
-               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) *
-               pow(par[1] - par[0] - xx, 7);
+      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) * fermi(par[3], par[0]) * (xx + par[2]) *
+               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) * pow(par[1] - par[0] - xx, 7);
     if (fModebb == 14 && xx < (par[1] - par[0]))
-      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) *
-               fermi(par[3], par[0]) * (xx + par[2]) *
-               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) *
-               pow(par[1] - par[0] - xx, 2);
+      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) * fermi(par[3], par[0]) * (xx + par[2]) *
+               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) * pow(par[1] - par[0] - xx, 2);
 
     if (fModebb == 15 && xx < (par[1] - par[0]))
-      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) *
-               fermi(par[3], par[0]) * (xx + par[2]) *
-               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) *
-               pow(par[1] - par[0] - xx, 5) *
+      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) * fermi(par[3], par[0]) * (xx + par[2]) *
+               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) * pow(par[1] - par[0] - xx, 5) *
                (9 * pow(par[1] - par[0] - xx, 2) + 21 * pow(xx - par[0], 2));
 
     if (fModebb == 16 && xx < (par[1] - par[0]))
-      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) *
-               fermi(par[3], par[0]) * (xx + par[2]) *
-               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) *
-               pow(par[1] - par[0] - xx, 5) * pow(xx - par[0], 2);
+      fe1mod = (par[0] + par[2]) * sqrt(par[0] * (par[0] + 2. * par[2])) * fermi(par[3], par[0]) * (xx + par[2]) *
+               sqrt(xx * (xx + 2. * par[2])) * fermi(par[3], xx) * pow(par[1] - par[0] - xx, 5) * pow(xx - par[0], 2);
 
     return fe1mod;
   }
   /************************************************/
 };
-} // namespace RAT
+}  // namespace RAT
 
 #endif

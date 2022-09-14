@@ -14,7 +14,7 @@ namespace RAT {
 
 enum EReactions {
   iBAD = -9999,
-  NullParticle = -2, // for stable particles
+  NullParticle = -2,  // for stable particles
   DecayBeta = +1,
   DecayEC = -1,
   DecayGamma = 0,
@@ -22,21 +22,18 @@ enum EReactions {
 };
 
 class BetaFunction {
-
   enum EBetaFunctionConsts { PartMax = 1000, BrMax = 1000 };
 
-public:
+ public:
   BetaFunction();
   BetaFunction(const std::string Name);
-  BetaFunction(const std::string Name, double Z, double A = 0.,
-               int reaction = DecayBeta, double tau = 0.);
+  BetaFunction(const std::string Name, double Z, double A = 0., int reaction = DecayBeta, double tau = 0.);
   ~BetaFunction();
 
   void Reset();
   void Show();
 
-  void SetTarget(const std::string Name, double Z, double A = 0.,
-                 int reaction = DecayBeta, double tau = 0.);
+  void SetTarget(const std::string Name, double Z, double A = 0., int reaction = DecayBeta, double tau = 0.);
   void SetBranches(double Branch, int Spin, double EndPoint);
   void RemoveBranch(int iBranch);
   void SetGammas(int iBranch, int pid, double energy);
@@ -65,16 +62,13 @@ public:
 
   bool ReadInputFile(const std::string dName);
   bool ReadInputFile(const std::string dName, int iType);
-  bool ReadInputFile(const std::string dName, int iZ, int iA,
-                     int iType = DecayBeta);
+  bool ReadInputFile(const std::string dName, int iZ, int iA, int iType = DecayBeta);
 
   void ErrorLog(int iFlag = -1);
 
   inline void SetFileName(const std::string Name) { inputFileName = Name; }
   inline void SetVerbose(bool iSet = true) { isVerbose = iSet; }
-  inline void SetProbabilityCulmulative(bool iSel = true) {
-    isCulmulative = iSel;
-  }
+  inline void SetProbabilityCulmulative(bool iSel = true) { isCulmulative = iSel; }
 
   inline void SetName(const std::string Name) { TargetName = Name; }
   inline void SetCharge(double Z) { TargetCharge = Z; }
@@ -99,16 +93,15 @@ public:
     std::map<size_t, double>::iterator i = DecayNorm.find(iBranch);
     if (i == DecayNorm.end()) {
       DecayNorm[iBranch] = 1.;
-      return 1.; // We could return DecayNorm[iBranch], but that takes longer.
+      return 1.;  // We could return DecayNorm[iBranch], but that takes longer.
     }
     // Otherwise return DecayNorm[iBranch]... which we already point
     // to with i.
     return (*i).second;
   }
 
-private:
-  static void ThrowParsingException(std::string filename,
-                                    std::string decayName);
+ private:
+  static void ThrowParsingException(std::string filename, std::string decayName);
 
   bool isVerbose;
   bool isCulmulative;
@@ -138,6 +131,6 @@ private:
   double nTime;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // __RAT_BetaFunction__
+#endif  // __RAT_BetaFunction__

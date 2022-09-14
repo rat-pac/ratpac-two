@@ -3,14 +3,6 @@
 
 // See comments in RATDecayChain_Gen.hh
 
-#include <RAT/DecayChain.hh>
-#include <RAT/DecayChain_Gen.hh>
-
-#include <RAT/Factory.hh>
-#include <RAT/GLG4PosGen.hh>
-#include <RAT/GLG4StringUtil.hh>
-#include <RAT/GLG4TimeGen.hh>
-
 #include <G4Alpha.hh>
 #include <G4Electron.hh>
 #include <G4Event.hh>
@@ -20,7 +12,12 @@
 #include <G4PrimaryVertex.hh>
 #include <G4ThreeVector.hh>
 #include <G4UnitsTable.hh>
-
+#include <RAT/DecayChain.hh>
+#include <RAT/DecayChain_Gen.hh>
+#include <RAT/Factory.hh>
+#include <RAT/GLG4PosGen.hh>
+#include <RAT/GLG4StringUtil.hh>
+#include <RAT/GLG4TimeGen.hh>
 #include <cstring>
 
 #undef DEBUG
@@ -44,8 +41,7 @@ DecayChain_Gen::~DecayChain_Gen() {
 void DecayChain_Gen::GenerateEvent(G4Event *event) {
   if (fDecayChain == 0) {
     G4cerr << "RAT::DecayChain_Gen::GenerateEvent: No decay chain found; "
-           << "please use /generator/add decaychain ISOTOPE:POSITION[:TIME]"
-           << G4endl;
+           << "please use /generator/add decaychain ISOTOPE:POSITION[:TIME]" << G4endl;
     return;
   }
 
@@ -59,20 +55,19 @@ void DecayChain_Gen::GenerateEvent(G4Event *event) {
   G4int nPrimaries = fDecayChain->GetNGenerated();
 
 #ifdef DEBUG
-  G4cout << "RAT::DecayChain_Gen::GenerateEvent: " << nPrimaries
-         << " primaries in decay chain " << fDecayChain->GetChainName()
-         << G4endl;
+  G4cout << "RAT::DecayChain_Gen::GenerateEvent: " << nPrimaries << " primaries in decay chain "
+         << fDecayChain->GetChainName() << G4endl;
 #endif
 
   for (G4int iPrimary = 0; iPrimary < nPrimaries; iPrimary++) {
     // particle type
-    G4int pid = fDecayChain->GetEventID(iPrimary); // not the PDG code!
+    G4int pid = fDecayChain->GetEventID(iPrimary);  // not the PDG code!
 
     G4ParticleDefinition *particleDef = 0;
     if (pid >= 100000000) {
       G4int A = (pid - 100000000) / 1000;
       G4int Z = (pid - 100000000) - A * 1000;
-      G4double excitationEnergy = 0.0; // assume all in ground state
+      G4double excitationEnergy = 0.0;  // assume all in ground state
       particleDef = G4IonTable::GetIonTable()->GetIon(Z, A, excitationEnergy);
     } else {
       if (pid == DecayBeta) {
@@ -90,17 +85,14 @@ void DecayChain_Gen::GenerateEvent(G4Event *event) {
     }
 
     // Get the particle's information (momentum and time)
-    DecayChain::ParticleInfo_t particleInfo =
-        fDecayChain->GetParticleInfo(iPrimary);
+    DecayChain::ParticleInfo_t particleInfo = fDecayChain->GetParticleInfo(iPrimary);
     G4double time = NextTime() + fDecayChain->GetEventTime(iPrimary);
 
     // generate a vertex with a primary particle
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, time);
-    G4PrimaryParticle *particle = new G4PrimaryParticle(
-        particleDef, particleInfo.vector.px(), particleInfo.vector.py(),
-        particleInfo.vector.pz());
-    particle->SetMass(
-        particleDef->GetPDGMass()); // Apparently this is useful in IBD code.
+    G4PrimaryParticle *particle = new G4PrimaryParticle(particleDef, particleInfo.vector.px(), particleInfo.vector.py(),
+                                                        particleInfo.vector.pz());
+    particle->SetMass(particleDef->GetPDGMass());  // Apparently this is useful in IBD code.
     vertex->SetPrimary(particle);
     event->AddPrimaryVertex(vertex);
 
@@ -108,13 +100,11 @@ void DecayChain_Gen::GenerateEvent(G4Event *event) {
     G4cout << "RAT::DecayChain_Gen::GenerateEvent: "
            << "Primary " << iPrimary << " of " << nPrimaries << ", pid=" << pid
            << ", name=" << particleDef->GetParticleName() << G4endl;
-    G4cout << "    time=" << G4BestUnit(time, "Time")
-           << ", position=" << G4BestUnit(position, "Length")
-           << ", momentum=" << G4BestUnit(particleInfo.vector, "Energy")
-           << G4endl;
+    G4cout << "    time=" << G4BestUnit(time, "Time") << ", position=" << G4BestUnit(position, "Length")
+           << ", momentum=" << G4BestUnit(particleInfo.vector, "Energy") << G4endl;
 #endif
 
-  } // for each primary
+  }  // for each primary
 }
 
 void DecayChain_Gen::ResetTime(double offset) {
@@ -122,16 +112,14 @@ void DecayChain_Gen::ResetTime(double offset) {
   nextTime = eventTime + offset;
 #ifdef DEBUG
   G4cout << "RAT::DecayChain_Gen::ResetTime:"
-         << " eventTime=" << G4BestUnit(eventTime, "Time")
-         << ", offset=" << G4BestUnit(offset, "Time")
+         << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
          << ", nextTime=" << G4BestUnit(nextTime, "Time") << G4endl;
 #endif
 }
 
 void DecayChain_Gen::SetState(G4String state) {
 #ifdef DEBUG
-  G4cout << "RAT::DecayChain_Gen::SetState called with state='" << state << "'"
-         << G4endl;
+  G4cout << "RAT::DecayChain_Gen::SetState called with state='" << state << "'" << G4endl;
 #endif
 
   // Break the argument to the this generator into sub-strings
@@ -166,7 +154,7 @@ void DecayChain_Gen::SetState(G4String state) {
     if (nArgs >= 3) {
       // The last argument is an optional time generator
       delete timeGen;
-      timeGen = 0; // In case of exception in next line
+      timeGen = 0;  // In case of exception in next line
       timeGen = GlobalFactory<GLG4TimeGen>::New(parts[2]);
     }
 
@@ -183,12 +171,9 @@ void DecayChain_Gen::SetState(G4String state) {
 #ifdef DEBUG
         fDecayChain->SetVerbose(true);
 #endif
-        if (fInMiddle)
-          fDecayChain->SetInMiddleChain(true);
-        if (fInAlphaDecay)
-          fDecayChain->SetAlphaDecayStart(true);
-        if (fInGammaDecay)
-          fDecayChain->SetGammaDecayStart(true);
+        if (fInMiddle) fDecayChain->SetInMiddleChain(true);
+        if (fInAlphaDecay) fDecayChain->SetAlphaDecayStart(true);
+        if (fInGammaDecay) fDecayChain->SetGammaDecayStart(true);
 
         bool found = fDecayChain->ReadInputFile(fDecayChain->GetChainName());
         if (!found) {
@@ -212,12 +197,10 @@ void DecayChain_Gen::SetState(G4String state) {
       posGen = GlobalFactory<GLG4PosGen>::New(parts[1]);
     } else {
       G4Exception(__FILE__, "Invalid Parameter", FatalException,
-                  ("decaychain generator syntax error: '" + state +
-                   "' does not have a position generator")
-                      .c_str());
+                  ("decaychain generator syntax error: '" + state + "' does not have a position generator").c_str());
     }
 
-    stateStr = state; // Save for later call to GetState()
+    stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
     G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
   }
@@ -257,4 +240,4 @@ G4String DecayChain_Gen::GetPosState() const {
     return G4String("DecayChain_Gen error: no pos generator selected");
 }
 
-} // namespace RAT
+}  // namespace RAT

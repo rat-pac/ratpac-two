@@ -21,13 +21,14 @@
 #include <TObject.h>
 #include <TTimeStamp.h>
 #include <TVector3.h>
+
 #include <string>
 
 namespace RAT {
 namespace DS {
 
 class Calib : public TObject {
-public:
+ public:
   Calib() : TObject(), id(-1), name("") {}
   virtual ~Calib() {}
 
@@ -65,7 +66,7 @@ public:
   TVector3 pos;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

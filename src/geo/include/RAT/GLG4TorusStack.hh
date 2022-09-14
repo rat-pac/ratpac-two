@@ -60,23 +60,21 @@
 #include "G4CSGSolid.hh"
 
 class GLG4TorusStack : public G4CSGSolid {
-public:
+ public:
   GLG4TorusStack(const G4String &pName);
 
   virtual ~GLG4TorusStack();
 
-  void SetAllParameters(G4int n,                    // number of Z-segments
-                        const G4double z_edge[],    // n+1 edges of Z-segments
-                        const G4double rho_edge[],  // n+1 dist. from Z-axis
-                        const G4double z_o[],       // tor z-origins (n total)
-                        GLG4TorusStack *inner = 0); // inner TorusStack (opt.)
+  void SetAllParameters(G4int n,                     // number of Z-segments
+                        const G4double z_edge[],     // n+1 edges of Z-segments
+                        const G4double rho_edge[],   // n+1 dist. from Z-axis
+                        const G4double z_o[],        // tor z-origins (n total)
+                        GLG4TorusStack *inner = 0);  // inner TorusStack (opt.)
 
-  void ComputeDimensions(G4VPVParameterisation *p, const G4int n,
-                         const G4VPhysicalVolume *pRep);
+  void ComputeDimensions(G4VPVParameterisation *p, const G4int n, const G4VPhysicalVolume *pRep);
 
-  G4bool CalculateExtent(const EAxis pAxis, const G4VoxelLimits &pVoxelLimit,
-                         const G4AffineTransform &pTransform, G4double &pmin,
-                         G4double &pmax) const;
+  G4bool CalculateExtent(const EAxis pAxis, const G4VoxelLimits &pVoxelLimit, const G4AffineTransform &pTransform,
+                         G4double &pmin, G4double &pmax) const;
 
   G4double GetN() const { return n; }
   G4double GetZEdge(int i) const { return z_edge[i]; }
@@ -90,15 +88,12 @@ public:
 
   G4double DistanceToIn(const G4ThreeVector &p, const G4ThreeVector &v) const;
   G4double DistanceToIn(const G4ThreeVector &p) const;
-  G4double DistanceToOut(const G4ThreeVector &p, const G4ThreeVector &v,
-                         const G4bool calcNorm = G4bool(false),
+  G4double DistanceToOut(const G4ThreeVector &p, const G4ThreeVector &v, const G4bool calcNorm = G4bool(false),
                          G4bool *validNorm = 0, G4ThreeVector *n = 0) const;
   G4double DistanceToOut(const G4ThreeVector &p) const;
 
   // Naming method (pseudo-RTTI : run-time type identification)
-  virtual G4GeometryType GetEntityType() const {
-    return G4String("GLG4TorusStack");
-  }
+  virtual G4GeometryType GetEntityType() const { return G4String("GLG4TorusStack"); }
 
   // Visualisation functions
   void DescribeYourselfTo(G4VGraphicsScene &scene) const;
@@ -108,31 +103,30 @@ public:
   // other generally useful functions -- public so others can use them!
 
   // find first torus intersection -- s == distance from p along v
-  static G4int
-  FindFirstTorusRoot(G4double a,             // swept radius
-                     G4double b,             // cross-section radius
-                     const G4ThreeVector &p, // start point of ray
-                     const G4ThreeVector &v, // direction of ray
-                     G4double smin,          // lower bracket on root
-                     G4double smax,          // upper bracket on root
-                     G4bool fEntering,       // true if looking for out->in
-                     G4double &sout);        // distance to root, if found
+  static G4int FindFirstTorusRoot(G4double a,              // swept radius
+                                  G4double b,              // cross-section radius
+                                  const G4ThreeVector &p,  // start point of ray
+                                  const G4ThreeVector &v,  // direction of ray
+                                  G4double smin,           // lower bracket on root
+                                  G4double smax,           // upper bracket on root
+                                  G4bool fEntering,        // true if looking for out->in
+                                  G4double &sout);         // distance to root, if found
 
   // find first root of arbitrary function in bracketed interval
   class RootFinder {
-  public:
+   public:
     virtual void f_and_Df(G4double x, G4double &f, G4double &Df) = 0;
     //
     // f_and_Df must be overridden by user to be function which sets
     // f and Df to the value of the function and the derivative w.r.t.
     // x of the function, respectively, for a given x
     //
-    int FindRoot(G4double smin,           // lower bound on root
-                 G4double smax,           // uppper bound on root
-                 G4double tol,            // tolerance on root
-                 G4bool fFindFallingRoot, // true == "want dF<0 at root"
-                                          // false == "want dF>0 at root"
-                 G4double &sout);         // returned root
+    int FindRoot(G4double smin,            // lower bound on root
+                 G4double smax,            // uppper bound on root
+                 G4double tol,             // tolerance on root
+                 G4bool fFindFallingRoot,  // true == "want dF<0 at root"
+                                           // false == "want dF>0 at root"
+                 G4double &sout);          // returned root
     //
     // FindRoot returns 1 if root found, 0 if no root found.
     //
@@ -145,26 +139,25 @@ public:
   // a helpful function that doesn't hurt anything to call:
   G4int FindNearestSegment(G4double pr, G4double pz) const;
 
-protected:
-  G4ThreeVectorList *CreateRotatedVertices(const G4AffineTransform &pTransform,
-                                           G4int &noPolygonVertices) const;
+ protected:
+  G4ThreeVectorList *CreateRotatedVertices(const G4AffineTransform &pTransform, G4int &noPolygonVertices) const;
 
   EInside Inside1(const G4ThreeVector &p) const;
 
   void CheckABRho();
 
-  int n;                 // number of Z-segments
-  double *z_edge;        // n+1 edges of Z-segments
-  double *rho_edge;      // n+1 2-d distance from Z-axis at each edge
-  double *z_o;           // z-origins, one for each toroid segment (n total)
-  double *a;             // swept radii, one for each toroid segment (n total)
-  double *b;             // torus radii, one for each toroid segment (n total)
-  double max_rho;        // maxium distance of surface from Z axis
-  double myRadTolerance; // because Geant4.1.0 default is too small
-  static double surfaceTolerance; // in GEANT4.9.0 it is not a global const
-  static double radTolerance;     // in GEANT4.9.0 it is not a global const
-  static double angTolerance;     // in GEANT4.9.0 it is not a global const
-  GLG4TorusStack *inner;          // because G4SubtractionSolid is bad
+  int n;                           // number of Z-segments
+  double *z_edge;                  // n+1 edges of Z-segments
+  double *rho_edge;                // n+1 2-d distance from Z-axis at each edge
+  double *z_o;                     // z-origins, one for each toroid segment (n total)
+  double *a;                       // swept radii, one for each toroid segment (n total)
+  double *b;                       // torus radii, one for each toroid segment (n total)
+  double max_rho;                  // maxium distance of surface from Z axis
+  double myRadTolerance;           // because Geant4.1.0 default is too small
+  static double surfaceTolerance;  // in GEANT4.9.0 it is not a global const
+  static double radTolerance;      // in GEANT4.9.0 it is not a global const
+  static double angTolerance;      // in GEANT4.9.0 it is not a global const
+  GLG4TorusStack *inner;           // because G4SubtractionSolid is bad
 };
 
 #endif

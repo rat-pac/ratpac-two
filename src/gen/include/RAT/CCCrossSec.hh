@@ -29,6 +29,7 @@
 #include <RAT/LinearInterp.hh>
 // ROOT headers
 #include <TGraph.h>
+
 #include <vector>
 
 namespace RAT {
@@ -37,8 +38,7 @@ namespace RAT {
 class CCCrossSecMessenger;
 
 class CCCrossSec {
-
-public:
+ public:
   enum NuEType { nue, nuebar, numu, numubar };
 
   CCCrossSec(const char *flavor = "nue");
@@ -99,15 +99,15 @@ public:
    */
   double CrossSecNorm() const { return 1e-42; };
 
-private:
-  NuEType fReaction;        /// Reaction type
-  std::string fReactionStr; /// String characterizing the reaction type
+ private:
+  NuEType fReaction;         /// Reaction type
+  std::string fReactionStr;  /// String characterizing the reaction type
 
   // Some constants
-  static const double fGf;     /// Fermi constant (GeV^-2)
-  static const double fhbarc;  /// hbar*c (MeV*fm)
-  static const double fhbarc2; /// hbar*c^2(GeV^2 mb)
-  static const double falpha;  /// radiative correction term
+  static const double fGf;      /// Fermi constant (GeV^-2)
+  static const double fhbarc;   /// hbar*c (MeV*fm)
+  static const double fhbarc2;  /// hbar*c^2(GeV^2 mb)
+  static const double falpha;   /// radiative correction term
 
   /**
    * This variable is defined as static (and not const) because it can be
@@ -116,17 +116,15 @@ private:
    */
   static double fsinthetaW2;
 
-  double fMe; /// electron mass
+  double fMe;  /// electron mass
 
-  std::vector<double>
-      fLevels; // Energy of level transitions (mass change + excitation energy)
-  std::vector<double> fLevelTypes; // Type of transition (F = 0, GT = 1)
-  std::vector<double>
-      fNorms; // E_e indepedent normalization factors for each transition
+  std::vector<double> fLevels;      // Energy of level transitions (mass change + excitation energy)
+  std::vector<double> fLevelTypes;  // Type of transition (F = 0, GT = 1)
+  std::vector<double> fNorms;       // E_e indepedent normalization factors for each transition
 
   CCCrossSecMessenger *fMessenger;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

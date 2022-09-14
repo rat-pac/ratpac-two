@@ -12,8 +12,7 @@ class GLG4PosGen;
 
 // Base class for event generators
 class GLG4Gen {
-
-public:
+ public:
   GLG4Gen(){};
   virtual ~GLG4Gen(){};
   virtual void GenerateEvent(G4Event *event) = 0;
@@ -34,14 +33,14 @@ public:
   virtual void SetPosState(G4String /*state*/){};
   virtual G4String GetPosState() const { return ""; };
 
-protected:
+ protected:
   double nextTime;
 };
 
 // Generic generator formed by combining separate time, vertex, and position
 // generators.
 class GLG4Gen_Combo : public GLG4Gen {
-public:
+ public:
   GLG4Gen_Combo();
   virtual ~GLG4Gen_Combo();
   virtual void GenerateEvent(G4Event *event);
@@ -58,7 +57,7 @@ public:
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
 
-protected:
+ protected:
   G4String stateStr;
   GLG4TimeGen *timeGen;
   GLG4VertexGen *vertexGen;
@@ -68,7 +67,7 @@ protected:
 // Creates a one-shot generator used to defer a long-lived track
 // to a later event.
 class GLG4Gen_DeferTrack : public GLG4Gen {
-public:
+ public:
   GLG4Gen_DeferTrack(const G4Track *track);
   virtual ~GLG4Gen_DeferTrack();
   virtual void GenerateEvent(G4Event *event);
@@ -78,7 +77,7 @@ public:
   virtual void SetState(G4String state);
   virtual G4String GetState() const;
 
-protected:
+ protected:
   G4PrimaryVertex *vertex;
 };
 
@@ -86,7 +85,7 @@ protected:
 // input format in comments preceding
 // GLG4VertexGen_HEPEvt::GeneratePrimaryVertex
 class GLG4Gen_External : public GLG4Gen {
-public:
+ public:
   GLG4Gen_External();
   virtual ~GLG4Gen_External();
   virtual void GenerateEvent(G4Event *event);
@@ -103,7 +102,7 @@ public:
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
 
-protected:
+ protected:
   G4String stateStr;
   GLG4TimeGen *timeGen;
   GLG4VertexGen *vertexGen;

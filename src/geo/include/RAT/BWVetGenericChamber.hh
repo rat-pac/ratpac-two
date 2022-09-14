@@ -14,11 +14,9 @@ class G4TouchableHistory;
 
 namespace RAT {
 
-class BWVetGenericChamber
-    : public G4VSensitiveDetector //, public GLG4Configurable
+class BWVetGenericChamber : public G4VSensitiveDetector  //, public GLG4Configurable
 {
-
-public:
+ public:
   BWVetGenericChamber(G4String name);
   virtual ~BWVetGenericChamber();
 
@@ -46,7 +44,7 @@ public:
   std::vector<std::string> _hit_volume;
   /** name of volume of hit */
 
-private:
+ private:
   int fLastEventID;
   int fLastTrackID;
 
@@ -55,6 +53,6 @@ private:
   G4HCofThisEvent *_HCE;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

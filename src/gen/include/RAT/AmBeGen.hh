@@ -21,7 +21,6 @@
 #define __RAT_AmBeGen__
 
 #include <RAT/GLG4Gen.hh>
-
 #include <globals.hh>
 
 class G4Event;
@@ -32,7 +31,7 @@ class GLG4PosGen;
 namespace RAT {
 
 class AmBeGen : public GLG4Gen {
-public:
+ public:
   AmBeGen();
   virtual ~AmBeGen();
   virtual void GenerateEvent(G4Event *event);
@@ -47,7 +46,7 @@ public:
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
 
-protected:
+ protected:
   // Generator initialization, specified by the user.
   G4String stateStr;
 
@@ -60,6 +59,6 @@ protected:
   G4ParticleDefinition *gamma;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_AmBeGen_h
+#endif  // RAT_AmBeGen_h

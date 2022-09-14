@@ -15,7 +15,7 @@
 namespace RAT {
 
 class PosGen_Radial : public GLG4PosGen {
-public:
+ public:
   /** Create a uniform spherical position generator.
   The default sphere is from (0,0,0) the origin.
    */
@@ -34,12 +34,12 @@ public:
   /** Return state as string in same format as SetState() */
   G4String GetState() const;
 
-protected:
+ protected:
   G4ThreeVector fCenter; /*distribution center */
   G4double fMaxRadius;   /**distribution radius*/
   G4ThreeVector fPoint;  // generated point
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

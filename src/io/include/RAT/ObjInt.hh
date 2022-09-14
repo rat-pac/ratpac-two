@@ -7,7 +7,7 @@ namespace RAT {
 
 // TObject wrapper for an integer so you can write it to a file
 class ObjInt : public TObject {
-public:
+ public:
   ObjInt() : TObject() { fVal = 0; };
   ObjInt(int val) : TObject() { fVal = val; };
   ObjInt(const ObjInt &other) : TObject() { fVal = other.fVal; };
@@ -27,10 +27,10 @@ public:
 
   ClassDef(ObjInt, 1);
 
-protected:
+ protected:
   int fVal;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

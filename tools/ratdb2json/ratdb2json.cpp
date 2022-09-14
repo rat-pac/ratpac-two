@@ -8,24 +8,19 @@
 int main(int argc, char **argv) {
   auto parser = new RAT::AnyParse(argc, argv);
   parser->SetHelpLine("[options] inputfile.ratdb");
-  parser->AddArgument("output", "", "o", 1, "Output json file",
-                      RAT::ParseString);
+  parser->AddArgument("output", "", "o", 1, "Output json file", RAT::ParseString);
   parser->AddArgument("verbose", false, "v", 0, "Verbosity", RAT::ParseInt);
   parser->Parse();
 
   json::Value jsontable(json::TOBJECT);
   for (auto &filename : parser->Positionals) {
-    if (parser->GetValue("verbose", false))
-      std::cout << "Reading " << filename << std::endl;
+    if (parser->GetValue("verbose", false)) std::cout << "Reading " << filename << std::endl;
     std::vector<RAT::DBTable *> tables = RAT::DB::ReadRATDBFile(filename);
     for (auto &t : tables) {
       auto tjson = t->GetCompleteJSON();
       std::string name = tjson.getMember("name").getString();
-      std::string index = tjson.isMember("index")
-                              ? tjson.getMember("index").getString()
-                              : "default";
-      if (parser->GetValue("verbose", false))
-        std::cout << " > [" << name << "] (" << index << ")\n";
+      std::string index = tjson.isMember("index") ? tjson.getMember("index").getString() : "default";
+      if (parser->GetValue("verbose", false)) std::cout << " > [" << name << "] (" << index << ")\n";
       if (jsontable.isMember(name)) {
         jsontable.getMember(name).setMember(index, t->GetCompleteJSON());
       } else {

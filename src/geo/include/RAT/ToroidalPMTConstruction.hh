@@ -33,15 +33,15 @@ struct ToroidalPMTConstructionParams {
   double minEnvelopeRadius;
 
   // Body
-  std::vector<double> zEdge;   // n+1
-  std::vector<double> rhoEdge; // n+1
-  std::vector<double> zOrigin; // n
-  double wallThickness;        // mm
+  std::vector<double> zEdge;    // n+1
+  std::vector<double> rhoEdge;  // n+1
+  std::vector<double> zOrigin;  // n
+  double wallThickness;         // mm
 
-  double dynodeRadius;        // mm
-  double dynodeTop;           // mm
-  double photocathode_MINrho; // mm
-  double photocathode_MAXrho; // mm
+  double dynodeRadius;         // mm
+  double dynodeTop;            // mm
+  double photocathode_MINrho;  // mm
+  double photocathode_MAXrho;  // mm
 
   G4Material *exterior;
   G4Material *glass;
@@ -52,29 +52,26 @@ struct ToroidalPMTConstructionParams {
   G4OpticalSurface *mirror;
   G4OpticalSurface *dynode_surface;
 
-  double efficiencyCorrection; // default to 1.0 for no correction
+  double efficiencyCorrection;  // default to 1.0 for no correction
 };
 
 // Construction for PMTs based on GLG4TorusStack
 class ToroidalPMTConstruction : public PMTConstruction {
-public:
+ public:
   ToroidalPMTConstruction(DBLinkPtr params, G4LogicalVolume *mother);
   virtual ~ToroidalPMTConstruction() {}
 
   virtual G4LogicalVolume *BuildVolume(const std::string &prefix);
   virtual G4VSolid *BuildSolid(const std::string &prefix);
-  virtual G4PVPlacement *PlacePMT(G4RotationMatrix *pmtrot,
-                                  G4ThreeVector pmtpos, const std::string &name,
-                                  G4LogicalVolume *logi_pmt,
-                                  G4VPhysicalVolume *mother_phys,
-                                  bool booleanSolid, int copyNo);
+  virtual G4PVPlacement *PlacePMT(G4RotationMatrix *pmtrot, G4ThreeVector pmtpos, const std::string &name,
+                                  G4LogicalVolume *logi_pmt, G4VPhysicalVolume *mother_phys, bool booleanSolid,
+                                  int copyNo);
 
-protected:
+ protected:
   G4VSolid *NewEnvelopeSolid(const std::string &name);
 
-  void CalcInnerParams(GLG4TorusStack *body, std::vector<double> &innerZEdge,
-                       std::vector<double> &innerRhoEdge, int &equatorIndex,
-                       double &zLowestDynode);
+  void CalcInnerParams(GLG4TorusStack *body, std::vector<double> &innerZEdge, std::vector<double> &innerRhoEdge,
+                       int &equatorIndex, double &zLowestDynode);
 
   // phyiscal volumes
   G4PVPlacement *body_phys;
@@ -90,6 +87,6 @@ protected:
   ToroidalPMTConstructionParams fParams;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

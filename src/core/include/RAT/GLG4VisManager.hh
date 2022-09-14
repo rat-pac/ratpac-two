@@ -16,11 +16,10 @@
 #include "G4VisManager.hh"
 
 class GLG4VisManager : public G4VisManager {
-
-public: // With description
+ public:  // With description
   GLG4VisManager();
 
-private:
+ private:
   void RegisterGraphicsSystems();
   void RegisterModelFactories();
 };

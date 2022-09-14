@@ -11,9 +11,9 @@ namespace RAT {
 
 // Holds extra event information inside the G4Event
 class EventInfo : public G4VUserEventInformation {
-public:
+ public:
   EventInfo() {
-    fCalib = new DS::Calib(); // FIXME
+    fCalib = new DS::Calib();  // FIXME
     numScintPhoton = 0;
     numReemitPhoton = 0;
     numCerenkovPhoton = 0;
@@ -72,13 +72,13 @@ public:
   std::map<int, std::vector<int>> Capture158GdIDParentStep;
 
   /**  Vector to store time/photon information */
-  std::vector<G4double> timePhotonID;                  // mfb
-  std::vector<std::vector<G4double>> timePhotonMatrix; // mfb
+  std::vector<G4double> timePhotonID;                   // mfb
+  std::vector<std::vector<G4double>> timePhotonMatrix;  // mfb
 
-protected:
+ protected:
   DS::Calib *fCalib;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

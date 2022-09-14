@@ -19,6 +19,7 @@
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <TH1F.h>
 #include <TMath.h>
+
 #include <vector>
 
 using namespace CLHEP;
@@ -36,11 +37,10 @@ namespace RAT {
 // provided from Geant4/CLHEP
  */
 
-const double RAT::CCCrossSec::fGf = 1.166371e-11;    // Fermi constant (MeV^-2)
-const double RAT::CCCrossSec::fhbarc = hbarc * 1e12; // hbar*c (MeV*fm)
-const double RAT::CCCrossSec::fhbarc2 =
-    fhbarc * fhbarc * 1e-11; // hbar*c^2(MeV^2 mb)
-const double RAT::CCCrossSec::falpha = fine_structure_const; //
+const double RAT::CCCrossSec::fGf = 1.166371e-11;                 // Fermi constant (MeV^-2)
+const double RAT::CCCrossSec::fhbarc = hbarc * 1e12;              // hbar*c (MeV*fm)
+const double RAT::CCCrossSec::fhbarc2 = fhbarc * fhbarc * 1e-11;  // hbar*c^2(MeV^2 mb)
+const double RAT::CCCrossSec::falpha = fine_structure_const;      //
 
 /**
  * The weak mixing angle (\f$ \sin^{2}\theta_{W}\f$) is declared only as static
@@ -57,7 +57,6 @@ CCCrossSec::CCCrossSec(const char *flavor) {
 }
 
 CCCrossSec::~CCCrossSec() {
-
   if (fMessenger != NULL) {
     delete fMessenger;
     fMessenger = NULL;
@@ -72,8 +71,7 @@ void CCCrossSec::Defaults() {
   // /generator/es/xsection/wma
   // fsinthetaW2 = 0.23116; // effective angle PDG 2010
 
-  fMe = (G4ParticleTable::GetParticleTable()->FindParticle("e-"))
-            ->GetPDGMass(); // MeV
+  fMe = (G4ParticleTable::GetParticleTable()->FindParticle("e-"))->GetPDGMass();  // MeV
 
   fLevels.push_back(0.350);
   fLevelTypes.push_back(0);
@@ -103,8 +101,7 @@ double CCCrossSec::Sigma(const double Enu) const {
   // First do the most basic check
   if (Enu < 0) {
     std::stringstream ss;
-    ss << "[CCCrossSec]::Sigma : Invalid neutrino Energy ( Enu = " << Enu
-       << " ).";
+    ss << "[CCCrossSec]::Sigma : Invalid neutrino Energy ( Enu = " << Enu << " ).";
     RAT::Log::Die(ss.str(), 1);
     throw std::invalid_argument("Invalid neutrino energy (" + ss.str() + ").");
   }
@@ -121,10 +118,9 @@ double CCCrossSec::Sigma(const double Enu) const {
 
   double cos2thc = pow(0.97425, 2);
   double coeff = -1.0 * (8.0 * falpha) * fGf * fGf * cos2thc;
-  double units = 0.389379 * 1e6 * 1e-27 *
-                 1e42; // hbar^2c^2 so when multiplied by below, get cm^2 unit
-                       // for cross section. 1e42 is to get into units of 10^-42
-                       // cm^2, which is what is expected
+  double units = 0.389379 * 1e6 * 1e-27 * 1e42;  // hbar^2c^2 so when multiplied by below, get cm^2 unit
+                                                 // for cross section. 1e42 is to get into units of 10^-42
+                                                 // cm^2, which is what is expected
 
   double term[5];
   for (unsigned int n = 0; n < fLevels.size(); n++) {
@@ -136,8 +132,7 @@ double CCCrossSec::Sigma(const double Enu) const {
     if (energy > fMe) {
       double mom = pow((pow(energy, 2) - pow(fMe, 2)), 0.5);
       double expt = -1.0 * (8.0 * TMath::Pi() * falpha) * energy / mom;
-      term[n] = units * coeff * fNorms[n] *
-                (pow(energy, 2) / (TMath::Exp(expt) - 1.0));
+      term[n] = units * coeff * fNorms[n] * (pow(energy, 2) / (TMath::Exp(expt) - 1.0));
       sigma += term[n];
     }
   }
@@ -182,8 +177,7 @@ std::vector<double> CCCrossSec::CalcAllowedNuclearEx(const double Enu) const {
   return allowed_nuclear;
 }
 
-std::vector<double>
-CCCrossSec::GetAllowedTransitionTypes(const double Enu) const {
+std::vector<double> CCCrossSec::GetAllowedTransitionTypes(const double Enu) const {
   std::vector<double> allowed_types;
 
   for (unsigned int n = 0; n < fLevels.size(); n++) {
@@ -213,11 +207,10 @@ std::vector<double> CCCrossSec::CalcdSigmadTNorms(const double Enu) const {
     if (energy > fMe) {
       double mom = pow((pow(energy, 2) - pow(fMe, 2)), 0.5);
       double expt = -1.0 * (8.0 * TMath::Pi() * falpha) * energy / mom;
-      scaled_norms.push_back(fNorms[n] *
-                             (pow(energy, 2) / (TMath::Exp(expt) - 1.0)));
+      scaled_norms.push_back(fNorms[n] * (pow(energy, 2) / (TMath::Exp(expt) - 1.0)));
     }
   }
   return scaled_norms;
 }
 
-} // namespace RAT
+}  // namespace RAT

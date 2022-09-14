@@ -68,32 +68,29 @@
   Last modified: 2000.08.09 (G.H-S.)
 */
 
-#include "globals.hh"
+#include "RAT/GLG4TestSolid.hh"
+
+#include <sstream>
 
 #include "G4AffineTransform.hh"
 #include "G4GeometryTolerance.hh"
 #include "G4VSolid.hh"
 #include "G4VisExtent.hh"
 #include "G4VoxelLimits.hh"
-#include "RAT/GLG4TestSolid.hh"
-
+#include "globals.hh"
 #include "local_g4compat.hh"
-
-#include <sstream>
 
 #define GLG4TESTSOLID_DEBUG 1
 
 // #if defined(__GNUC__) && (__GNUC__ < 3)
 // [rayd] renamed hypot as glg4_hypot, to avoid problems with gcc 2.96
-static inline double glg4_hypot(double x, double y) {
-  return sqrt(x * x + y * y);
-}
+static inline double glg4_hypot(double x, double y) { return sqrt(x * x + y * y); }
 // #endif
 
-static G4std::ostream &myenderr(G4std::ostream &outs) { return outs << G4endl; }
+static std::ostream &myenderr(std::ostream &outs) { return outs << G4endl; }
 
-static G4String MakeErrString(G4std::ostringstream &errstr) {
-  errstr << G4std::ends;
+static G4String MakeErrString(std::ostringstream &errstr) {
+  errstr << std::ends;
   std::string st;
   st = errstr.str();
   const char *cp = st.c_str();
@@ -108,10 +105,9 @@ static G4String MakeErrString(G4std::ostringstream &errstr) {
 static G4VoxelLimits voxel_limit_pencil;
 
 G4String GLG4TestSolid::Test(const G4VSolid &s, G4int npair) {
-  double radTolerance =
-      G4GeometryTolerance::GetInstance()->GetRadialTolerance();
+  double radTolerance = G4GeometryTolerance::GetInstance()->GetRadialTolerance();
 
-  G4std::ostringstream errmsg;
+  std::ostringstream errmsg;
   G4AffineTransform a;
   G4VoxelLimits vl;
   G4double xmin, xmax, ymin, ymax, zmin, zmax;
@@ -126,11 +122,8 @@ G4String GLG4TestSolid::Test(const G4VSolid &s, G4int npair) {
   extent = s.GetExtent();
 
   // check for validity
-  if (xmax < xmin || ymax < ymin || zmax < zmin)
-    errmsg << "CalculateExtent internal inconsistency" << myenderr;
-  if (extent.GetXmax() < extent.GetXmin() ||
-      extent.GetYmax() < extent.GetYmin() ||
-      extent.GetZmax() < extent.GetZmin())
+  if (xmax < xmin || ymax < ymin || zmax < zmin) errmsg << "CalculateExtent internal inconsistency" << myenderr;
+  if (extent.GetXmax() < extent.GetXmin() || extent.GetYmax() < extent.GetYmin() || extent.GetZmax() < extent.GetZmin())
     errmsg << "GetExtent internal inconsistency" << myenderr;
   if (xmax < extent.GetXmin() || xmin > extent.GetXmax())
     errmsg << "CalculateExtent vs. GetExtent incompatibility X" << myenderr;
@@ -138,39 +131,27 @@ G4String GLG4TestSolid::Test(const G4VSolid &s, G4int npair) {
     errmsg << "CalculateExtent vs. GetExtent incompatibility Y" << myenderr;
   if (zmax < extent.GetZmin() || zmin > extent.GetZmax())
     errmsg << "CalculateExtent vs. GetExtent incompatibility Z" << myenderr;
-  if (errmsg.str().size() > 0)
-    return MakeErrString(errmsg);
+  if (errmsg.str().size() > 0) return MakeErrString(errmsg);
 
   // widen extent to encompass all
-  if (xmin < extent.GetXmin())
-    extent.SetXmin(xmin);
-  if (ymin < extent.GetYmin())
-    extent.SetYmin(ymin);
-  if (zmin < extent.GetZmin())
-    extent.SetZmin(zmin);
-  if (xmax > extent.GetXmax())
-    extent.SetXmax(xmax);
-  if (ymax > extent.GetYmax())
-    extent.SetYmax(ymax);
-  if (zmax > extent.GetZmax())
-    extent.SetZmax(zmax);
+  if (xmin < extent.GetXmin()) extent.SetXmin(xmin);
+  if (ymin < extent.GetYmin()) extent.SetYmin(ymin);
+  if (zmin < extent.GetZmin()) extent.SetZmin(zmin);
+  if (xmax > extent.GetXmax()) extent.SetXmax(xmax);
+  if (ymax > extent.GetYmax()) extent.SetYmax(ymax);
+  if (zmax > extent.GetZmax()) extent.SetZmax(zmax);
 
   // check for finiteness
   G4double dx = xmax - xmin;
   G4double dy = ymax - ymin;
   G4double dz = zmax - zmin;
-  if (dx < 0.0 || dx >= kInfinity)
-    errmsg << "Bad X extent" << myenderr;
-  if (dy < 0.0 || dy >= kInfinity)
-    errmsg << "Bad Y extent" << myenderr;
-  if (dz < 0.0 || dz >= kInfinity)
-    errmsg << "Bad Z extent" << myenderr;
-  if (errmsg.str().size() > 0)
-    return MakeErrString(errmsg);
+  if (dx < 0.0 || dx >= kInfinity) errmsg << "Bad X extent" << myenderr;
+  if (dy < 0.0 || dy >= kInfinity) errmsg << "Bad Y extent" << myenderr;
+  if (dz < 0.0 || dz >= kInfinity) errmsg << "Bad Z extent" << myenderr;
+  if (errmsg.str().size() > 0) return MakeErrString(errmsg);
 
   // set myCheckTolerance
-  G4double myCheckTolerance =
-      G4std::max(radTolerance, 1e-6 * G4std::max(dx, G4std::max(dy, dz)));
+  G4double myCheckTolerance = std::max(radTolerance, 1e-6 * std::max(dx, std::max(dy, dz)));
 
   // pick pairs of points
   G4int nerr = 0;
@@ -197,10 +178,9 @@ G4String GLG4TestSolid::Test(const G4VSolid &s, G4int npair) {
     errmsg << TestRay(s, p1, v, myCheckTolerance);
 
     if ((int)errmsg.str().size() > lastpcount) {
-      errmsg << "Above errors going from " << p1 << " to " << p2
-             << "\n\t x=" << p1.x() << "; y=" << p1.y() << "; z=" << p1.z()
-             << "\n\t dx=" << v.x() << ";dy=" << v.y() << ";dz=" << v.z()
-             << "\n\t ipair=" << ipair << "(a)\n"
+      errmsg << "Above errors going from " << p1 << " to " << p2 << "\n\t x=" << p1.x() << "; y=" << p1.y()
+             << "; z=" << p1.z() << "\n\t dx=" << v.x() << ";dy=" << v.y() << ";dz=" << v.z() << "\n\t ipair=" << ipair
+             << "(a)\n"
              << myenderr;
       nerr++;
       lastpcount = errmsg.str().size();
@@ -210,10 +190,9 @@ G4String GLG4TestSolid::Test(const G4VSolid &s, G4int npair) {
     errmsg << TestRay(s, p2, v, myCheckTolerance);
 
     if ((int)errmsg.str().size() > lastpcount) {
-      errmsg << "Above errors going from " << p2 << " to " << p1
-             << "\n\t x=" << p2.x() << "; y=" << p2.y() << "; z=" << p2.z()
-             << "\n\t dx=" << v.x() << ";dy=" << v.y() << ";dz=" << v.z()
-             << "\n\t ipair=" << ipair << "(b)\n"
+      errmsg << "Above errors going from " << p2 << " to " << p1 << "\n\t x=" << p2.x() << "; y=" << p2.y()
+             << "; z=" << p2.z() << "\n\t dx=" << v.x() << ";dy=" << v.y() << ";dz=" << v.z() << "\n\t ipair=" << ipair
+             << "(b)\n"
              << myenderr;
       nerr++;
       lastpcount = errmsg.str().size();
@@ -227,48 +206,46 @@ G4String GLG4TestSolid::Test(const G4VSolid &s, G4int npair) {
   return MakeErrString(errmsg);
 }
 
-G4String GLG4TestSolid::TestRay(const G4VSolid &s, const G4ThreeVector &p,
-                                const G4ThreeVector &v,
+G4String GLG4TestSolid::TestRay(const G4VSolid &s, const G4ThreeVector &p, const G4ThreeVector &v,
                                 G4double myCheckTolerance) {
-  G4std::ostringstream errmsg;
+  std::ostringstream errmsg;
   EInside whereami;
   G4double safe = 0.0;
   G4double dist = 0.0;
 
   whereami = s.Inside(p);
   switch (whereami) {
-  case kOutside:
-    safe = s.DistanceToIn(p);
-    dist = s.DistanceToIn(p, v);
-    // if (safe > p.mag())
-    //   errmsg << "\"safe\" DistanceToIn(p) > p.mag() !" << myenderr;
-    break;
+    case kOutside:
+      safe = s.DistanceToIn(p);
+      dist = s.DistanceToIn(p, v);
+      // if (safe > p.mag())
+      //   errmsg << "\"safe\" DistanceToIn(p) > p.mag() !" << myenderr;
+      break;
 
-  case kInside:
-    safe = s.DistanceToOut(p);
-    if (safe >= kInfinity)
-      errmsg << "\"safe\" DistanceToOut(p) >= kInfinity !" << myenderr;
-    {
-      G4ThreeVector norm;
-      G4bool validNorm;
-      dist = s.DistanceToOut(p, v, true, &validNorm, &norm);
-      // if norm is valid, should have some comp. along incidence vector
-      if (validNorm && norm * v <= 0.0) {
-        errmsg << "DistanceToOut returned norm flagged as valid which "
-                  "points opposite to ray direction vector!"
-               << myenderr;
+    case kInside:
+      safe = s.DistanceToOut(p);
+      if (safe >= kInfinity) errmsg << "\"safe\" DistanceToOut(p) >= kInfinity !" << myenderr;
+      {
+        G4ThreeVector norm;
+        G4bool validNorm;
+        dist = s.DistanceToOut(p, v, true, &validNorm, &norm);
+        // if norm is valid, should have some comp. along incidence vector
+        if (validNorm && norm * v <= 0.0) {
+          errmsg << "DistanceToOut returned norm flagged as valid which "
+                    "points opposite to ray direction vector!"
+                 << myenderr;
+        }
       }
-    }
-    break;
+      break;
 
-  case kSurface:
-    safe = 0.0;
-    dist = 0.0;
-    break;
+    case kSurface:
+      safe = 0.0;
+      dist = 0.0;
+      break;
 
-  default:
-    errmsg << "Invalid return value from Inside!" << myenderr;
-    break;
+    default:
+      errmsg << "Invalid return value from Inside!" << myenderr;
+      break;
   }
 
   // check validity
@@ -276,14 +253,12 @@ G4String GLG4TestSolid::TestRay(const G4VSolid &s, const G4ThreeVector &p,
     errmsg << "DistanceToIn(p,v) < \"safe\" DistanceToIn(p) !"
            << " (dist=" << dist << " safe=" << safe << ")" << myenderr;
 
-  if (errmsg.str().size() > 0)
-    return MakeErrString(errmsg);
+  if (errmsg.str().size() > 0) return MakeErrString(errmsg);
 
   // comput affine transform
   G4RotationMatrix rot;
   G4double rho = glg4_hypot(v.x(), v.y());
-  if (rho > 0.0)
-    rot.rotateZ(-atan2(v.y(), v.x()));
+  if (rho > 0.0) rot.rotateZ(-atan2(v.y(), v.x()));
   rot.rotateY(-atan2(rho, v.z()));
 
   G4AffineTransform a(rot, p);
@@ -292,8 +267,7 @@ G4String GLG4TestSolid::TestRay(const G4VSolid &s, const G4ThreeVector &p,
   G4AffineTransform ai = a.Inverse();
   G4ThreeVector pt = ai.TransformPoint(p);
   G4ThreeVector vt = ai.TransformAxis(v);
-  if (pt.mag() > myCheckTolerance || fabs(vt.mag() - 1.0) > 0.001 ||
-      fabs(vt.z() - 1.0) > 0.001) {
+  if (pt.mag() > myCheckTolerance || fabs(vt.mag() - 1.0) > 0.001 || fabs(vt.z() - 1.0) > 0.001) {
     G4cerr << "ERROR, failed internal test in GLG4TESTSOLID_DEBUG" << myenderr;
     G4cerr.flush();
   }
@@ -303,13 +277,10 @@ G4String GLG4TestSolid::TestRay(const G4VSolid &s, const G4ThreeVector &p,
   G4bool intersect_ce;
   G4double din_ce, dout_ce;
   if (!voxel_limit_pencil.IsLimited()) {
-    voxel_limit_pencil.AddLimit(kXAxis, -8 * myCheckTolerance,
-                                8 * myCheckTolerance);
-    voxel_limit_pencil.AddLimit(kYAxis, -8 * myCheckTolerance,
-                                8 * myCheckTolerance);
+    voxel_limit_pencil.AddLimit(kXAxis, -8 * myCheckTolerance, 8 * myCheckTolerance);
+    voxel_limit_pencil.AddLimit(kYAxis, -8 * myCheckTolerance, 8 * myCheckTolerance);
   }
-  intersect_ce = s.CalculateExtent(kZAxis, voxel_limit_pencil, a.Inverse(),
-                                   din_ce, dout_ce);
+  intersect_ce = s.CalculateExtent(kZAxis, voxel_limit_pencil, a.Inverse(), din_ce, dout_ce);
 
   // check validity
   if (intersect_ce == false) {
@@ -326,8 +297,7 @@ G4String GLG4TestSolid::TestRay(const G4VSolid &s, const G4ThreeVector &p,
     if (whereami == kInside || whereami == kSurface) {
       // if we're inside, expect din_ce <= 0.0 and dout_ce >= dist
       if (din_ce > 0.0) {
-        errmsg << "CalculateExtent range does not include interior point!"
-               << myenderr;
+        errmsg << "CalculateExtent range does not include interior point!" << myenderr;
       }
       if (dist > dout_ce) {
         errmsg << "CalculateExtent range does not include surface point"
@@ -352,8 +322,7 @@ G4String GLG4TestSolid::TestRay(const G4VSolid &s, const G4ThreeVector &p,
       // if we're outside and have no intersection from DistanceToIn
       // but do have an intersection from CalculateExtent,
       // maybe that's okay, but check to make sure
-      if (din_ce < 0.0)
-        din_ce = 0.0;
+      if (din_ce < 0.0) din_ce = 0.0;
       G4double dd = (dout_ce - din_ce) / 32.;
       for (G4double d = din_ce + dd / 2.0; d < dout_ce; d += dd) {
         if (s.Inside(p + d * v) == kInside) {
@@ -366,19 +335,15 @@ G4String GLG4TestSolid::TestRay(const G4VSolid &s, const G4ThreeVector &p,
     //    if (errmsg.str().size() > 0)
     //      return MakeErrString(errmsg);
 
-    if (dist < kInfinity)
-      errmsg << TestAtSurface(s, p + dist * v, myCheckTolerance);
+    if (dist < kInfinity) errmsg << TestAtSurface(s, p + dist * v, myCheckTolerance);
   }
 
   return MakeErrString(errmsg);
 }
 
-G4String GLG4TestSolid::TestAtSurface(const G4VSolid &s,
-                                      const G4ThreeVector &p1,
-                                      G4double myCheckTolerance) {
-  double radTolerance =
-      G4GeometryTolerance::GetInstance()->GetRadialTolerance();
-  G4std::ostringstream errmsg;
+G4String GLG4TestSolid::TestAtSurface(const G4VSolid &s, const G4ThreeVector &p1, G4double myCheckTolerance) {
+  double radTolerance = G4GeometryTolerance::GetInstance()->GetRadialTolerance();
+  std::ostringstream errmsg;
   G4ThreeVector norm;
 
   if (s.Inside(p1) != kSurface) {
@@ -410,45 +375,35 @@ G4String GLG4TestSolid::TestAtSurface(const G4VSolid &s,
   for (int idir = 0; idir <= 1; idir++) {
     G4double disti[3], disto[3];
     if (s.Inside(p1 + 2 * radTolerance * e[idir]) != kSurface) {
-      errmsg << "Moved outside surface traveling perpindicular to normal!"
-             << myenderr;
+      errmsg << "Moved outside surface traveling perpindicular to normal!" << myenderr;
     }
     if (s.Inside(p1 - 2 * radTolerance * e[idir]) != kSurface) {
-      errmsg << "moved outside surface traveling perpindicular to normal!"
-             << myenderr;
+      errmsg << "moved outside surface traveling perpindicular to normal!" << myenderr;
     }
     // find distances to surface for various points near this one
     for (int ioffs = -1; ioffs <= 1; ioffs++) {
       const G4double surfCheckDisplFactor = 8.0;
-      G4ThreeVector pos =
-          p1 + surfCheckDisplFactor * myCheckTolerance * norm +
-          ioffs * surfCheckDisplFactor * myCheckTolerance * e[idir];
+      G4ThreeVector pos = p1 + surfCheckDisplFactor * myCheckTolerance * norm +
+                          ioffs * surfCheckDisplFactor * myCheckTolerance * e[idir];
       if (s.Inside(pos) != kOutside) {
-        errmsg << "Not outside when expected in surface-checking loop"
-               << myenderr;
+        errmsg << "Not outside when expected in surface-checking loop" << myenderr;
       }
       disti[ioffs + 1] = s.DistanceToIn(pos, -norm);
 
       pos = p1 - surfCheckDisplFactor * myCheckTolerance * norm +
             ioffs * surfCheckDisplFactor * myCheckTolerance * e[idir];
       if (s.Inside(pos) != kInside) {
-        errmsg << "Not inside when expected in surface-checking loop"
-               << myenderr;
+        errmsg << "Not inside when expected in surface-checking loop" << myenderr;
       }
       disto[ioffs + 1] = s.DistanceToOut(pos, norm);
       // check these distances for consistency
-      if (fabs(disti[ioffs + 1] - surfCheckDisplFactor * myCheckTolerance) >
-          (ioffs ? 1.5 : 0.25) * myCheckTolerance) {
-        errmsg << "Distance to in just outside surface is " << disti[ioffs + 1]
-               << ", ioffs=" << ioffs << myenderr;
+      if (fabs(disti[ioffs + 1] - surfCheckDisplFactor * myCheckTolerance) > (ioffs ? 1.5 : 0.25) * myCheckTolerance) {
+        errmsg << "Distance to in just outside surface is " << disti[ioffs + 1] << ", ioffs=" << ioffs << myenderr;
       }
-      if (fabs(disto[ioffs + 1] - surfCheckDisplFactor * myCheckTolerance) >
-          (ioffs ? 1.5 : 0.25) * myCheckTolerance) {
-        errmsg << "Distance to out just inside surface is " << disto[ioffs + 1]
-               << ", ioffs=" << ioffs << myenderr;
+      if (fabs(disto[ioffs + 1] - surfCheckDisplFactor * myCheckTolerance) > (ioffs ? 1.5 : 0.25) * myCheckTolerance) {
+        errmsg << "Distance to out just inside surface is " << disto[ioffs + 1] << ", ioffs=" << ioffs << myenderr;
       }
-      if (fabs(disto[ioffs + 1] + disti[ioffs + 1] -
-               2.0 * surfCheckDisplFactor * myCheckTolerance) >
+      if (fabs(disto[ioffs + 1] + disti[ioffs + 1] - 2.0 * surfCheckDisplFactor * myCheckTolerance) >
           0.125 * myCheckTolerance) {
         errmsg << "Sum of disti and disto on opposite sides of surface is"
                   " inconsistent!"
@@ -468,14 +423,12 @@ G4String GLG4TestSolid::TestAtSurface(const G4VSolid &s,
   {
     G4double dist0;
     dist0 = s.DistanceToIn(p1, -norm);
-    if (fabs(dist0) > myCheckTolerance)
-      errmsg << "Failed already-inside test at surface, " << dist0 << myenderr;
+    if (fabs(dist0) > myCheckTolerance) errmsg << "Failed already-inside test at surface, " << dist0 << myenderr;
     //    dist0= s.DistanceToIn(p1 - 2.0*myCheckTolerance*norm, -norm);
     //    if (dist0 != 0.0)
     //	errmsg << "Failed already-inside test inside, " << dist0 << myenderr;
     dist0 = s.DistanceToOut(p1, norm);
-    if (fabs(dist0) > myCheckTolerance)
-      errmsg << "Failed already-outside test at surface, " << dist0 << myenderr;
+    if (fabs(dist0) > myCheckTolerance) errmsg << "Failed already-outside test at surface, " << dist0 << myenderr;
     //    dist0= s.DistanceToOut(p1 + 2.0*myCheckTolerance*norm, norm);
     //    if (dist0 != 0.0)
     //      errmsg << "Failed already-outside test at outside, " << dist0
@@ -483,8 +436,7 @@ G4String GLG4TestSolid::TestAtSurface(const G4VSolid &s,
   }
 
   if (errmsg.str().size() > 0)
-    errmsg << "\t-- TestAtSurface(solid, " << p1 << ", " << myCheckTolerance
-           << ")" << myenderr;
+    errmsg << "\t-- TestAtSurface(solid, " << p1 << ", " << myCheckTolerance << ")" << myenderr;
 
   return MakeErrString(errmsg);
 }
@@ -497,14 +449,12 @@ G4String GLG4TestSolid::TestAtSurface(const G4VSolid &s,
 static unsigned int rndqd32_ulseed = 0;
 static const double rnd2tom32 = 2.32830643654e-10;
 static inline double rndqd32(void) {
-  return ((double)(rndqd32_ulseed = 1664525U * rndqd32_ulseed + 1013904223U) *
-          rnd2tom32);
+  return ((double)(rndqd32_ulseed = 1664525U * rndqd32_ulseed + 1013904223U) * rnd2tom32);
 }
 
 void GLG4TestSolid::ResetRandomPointSeed(G4int newiseed) {
   rndqd32_ulseed = (unsigned int)(newiseed) | 1U;
-  for (int i = 0; i < 37; i++)
-    rndqd32();
+  for (int i = 0; i < 37; i++) rndqd32();
 }
 
 G4ThreeVector GLG4TestSolid::PickRandomPoint(G4VisExtent &ve, G4int itype) {
@@ -521,45 +471,37 @@ G4ThreeVector GLG4TestSolid::PickRandomPoint(G4VisExtent &ve, G4int itype) {
   dz = (ve.GetZmax() - ve.GetZmin());
 
   switch (itype % 3) {
-  case 0: // random in volume
-    rv = G4ThreeVector(rndqd32() * dx + ve.GetXmin(),
-                       rndqd32() * dy + ve.GetYmin(),
-                       rndqd32() * dz + ve.GetZmin());
-    return rv;
-  case 1: // random on surface, same density on all surfaces
-  {
-    G4double axy = dx * dy;
-    G4double a_xy_yz = axy + dy * dz;
-    G4double atot = a_xy_yz + dz * dx;
-    G4double au = atot * rndqd32();
-    if (au < axy)
-      isurf = (au < 0.5 * axy) ? 0 : 3;
-    else if (au < a_xy_yz)
-      isurf = (au < 0.5 * (axy + a_xy_yz)) ? 1 : 4;
-    else
-      isurf = (au < 0.5 * (a_xy_yz + atot)) ? 2 : 5;
-    break;
-  }
-  case 2: // random on random surface, same total probability for each face
-    isurf = (int)(rndqd32() * 6.0);
-    break;
+    case 0:  // random in volume
+      rv = G4ThreeVector(rndqd32() * dx + ve.GetXmin(), rndqd32() * dy + ve.GetYmin(), rndqd32() * dz + ve.GetZmin());
+      return rv;
+    case 1:  // random on surface, same density on all surfaces
+    {
+      G4double axy = dx * dy;
+      G4double a_xy_yz = axy + dy * dz;
+      G4double atot = a_xy_yz + dz * dx;
+      G4double au = atot * rndqd32();
+      if (au < axy)
+        isurf = (au < 0.5 * axy) ? 0 : 3;
+      else if (au < a_xy_yz)
+        isurf = (au < 0.5 * (axy + a_xy_yz)) ? 1 : 4;
+      else
+        isurf = (au < 0.5 * (a_xy_yz + atot)) ? 2 : 5;
+      break;
+    }
+    case 2:  // random on random surface, same total probability for each face
+      isurf = (int)(rndqd32() * 6.0);
+      break;
   }
   switch (isurf % 3) {
-  case 0: // xy
-    rv = G4ThreeVector(rndqd32() * dx + ve.GetXmin(),
-                       rndqd32() * dy + ve.GetYmin(),
-                       (isurf / 3) * dz + ve.GetZmin());
-    break;
-  case 1: // yz
-    rv = G4ThreeVector((isurf / 3) * dx + ve.GetXmin(),
-                       rndqd32() * dy + ve.GetYmin(),
-                       rndqd32() * dz + ve.GetZmin());
-    break;
-  case 2: // zx
-    rv = G4ThreeVector(rndqd32() * dx + ve.GetXmin(),
-                       (isurf / 3) * dy + ve.GetYmin(),
-                       rndqd32() * dz + ve.GetZmin());
-    break;
+    case 0:  // xy
+      rv = G4ThreeVector(rndqd32() * dx + ve.GetXmin(), rndqd32() * dy + ve.GetYmin(), (isurf / 3) * dz + ve.GetZmin());
+      break;
+    case 1:  // yz
+      rv = G4ThreeVector((isurf / 3) * dx + ve.GetXmin(), rndqd32() * dy + ve.GetYmin(), rndqd32() * dz + ve.GetZmin());
+      break;
+    case 2:  // zx
+      rv = G4ThreeVector(rndqd32() * dx + ve.GetXmin(), (isurf / 3) * dy + ve.GetYmin(), rndqd32() * dz + ve.GetZmin());
+      break;
   }
   return rv;
 }

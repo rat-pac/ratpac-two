@@ -11,7 +11,7 @@ class G4UIcommand;
 namespace RAT {
 
 class InROOTProducer : public Producer {
-public:
+ public:
   InROOTProducer();
   InROOTProducer(ProcBlock *block);
   virtual ~InROOTProducer();
@@ -22,13 +22,13 @@ public:
   virtual G4String GetCurrentValue(G4UIcommand *command);
   virtual void SetNewValue(G4UIcommand *command, G4String newValue);
 
-protected:
+ protected:
   void Init();
 
   G4UIcmdWithAString *readCmd;
   G4UIcommand *readDefaultCmd;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

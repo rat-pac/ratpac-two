@@ -10,27 +10,22 @@
 
 namespace RAT {
 
-class MiniSim : public G4UserEventAction,
-                G4UserTrackingAction,
-                G4VUserPrimaryGeneratorAction,
-                G4UserSteppingAction {
-public:
+class MiniSim : public G4UserEventAction, G4UserTrackingAction, G4VUserPrimaryGeneratorAction, G4UserSteppingAction {
+ public:
   MiniSim();
   virtual ~MiniSim();
 
   virtual void BeamOn(int nevents);
 
   // Override these for your simulation needs
-  virtual void
-  GeneratePrimaries(G4Event *argEvent) = 0; // You must override at least this
+  virtual void GeneratePrimaries(G4Event *argEvent) = 0;  // You must override at least this
   virtual void BeginOfEventAction(const G4Event * /*anEvent*/){};
   virtual void EndOfEventAction(const G4Event * /*anEvent*/){};
   virtual void PreUserTrackingAction(const G4Track * /*aTrack*/){};
   virtual void PostUserTrackingAction(const G4Track * /*aTrack*/){};
-  virtual void UserSteppingAction(
-      const G4Step *step); // defaults to running scintillation/reemission
+  virtual void UserSteppingAction(const G4Step *step);  // defaults to running scintillation/reemission
 
-protected:
+ protected:
   virtual void TakeSimControl();
   virtual void ReleaseSimControl();
 
@@ -44,6 +39,6 @@ protected:
   const G4VUserPrimaryGeneratorAction *fOrigPrimaryGeneratorAction;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

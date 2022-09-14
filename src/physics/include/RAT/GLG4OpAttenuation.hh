@@ -25,8 +25,7 @@
 /////////////////////
 
 class GLG4OpAttenuation : public G4OpAbsorption {
-
-private:
+ private:
   //////////////
   // Operators
   //////////////
@@ -36,7 +35,7 @@ private:
   static DummyProcess fgAttenuation;
   static DummyProcess fgScattering;
 
-public: // Without description
+ public:  // Without description
   ////////////////////////////////
   // Constructors and Destructor
   ////////////////////////////////
@@ -60,7 +59,7 @@ public: // Without description
   // Returns the absorption length for bulk absorption of optical
   // photons in media with a specified attenuation length.
 
-public: // With description
+ public:  // With description
   G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
   // This is the method implementing attenuation of optical
   // photons.  Fraction of photons scattered or absorbed is

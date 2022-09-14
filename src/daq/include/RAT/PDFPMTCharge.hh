@@ -27,8 +27,7 @@
 namespace RAT {
 
 class PDFPMTCharge : public PMTCharge {
-
-public:
+ public:
   PDFPMTCharge(std::string pmt_model = "");
   virtual ~PDFPMTCharge();
 
@@ -38,10 +37,10 @@ public:
   /** Value of charge PDF at charge q (not normalized) */
   virtual double PDF(double q) const;
 
-protected:
+ protected:
   std::vector<double> fCharge, fChargeProb, fChargeProbCumu;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

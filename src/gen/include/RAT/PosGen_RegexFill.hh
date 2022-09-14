@@ -5,14 +5,12 @@
 #ifndef __RAT_PosGen_RegexFill__
 #define __RAT_PosGen_RegexFill__
 
-#include <RAT/GLG4PosGen.hh>
-
 #include <G4AffineTransform.hh>
 #include <G4LogicalVolume.hh>
 #include <G4ThreeVector.hh>
 #include <G4VPhysicalVolume.hh>
 #include <G4VSolid.hh>
-
+#include <RAT/GLG4PosGen.hh>
 #include <map>
 #include <utility>
 #include <vector>
@@ -47,7 +45,7 @@ typedef struct {
 } FillVolume;
 
 class PosGen_RegexFill : public GLG4PosGen {
-public:
+ public:
   // Position generator to be called `regexfill`
   PosGen_RegexFill(const char *dbname = "regexfill") : GLG4PosGen(dbname) {}
   virtual ~PosGen_RegexFill() {}
@@ -64,12 +62,11 @@ public:
   // Returns a space separated list of regexes
   virtual G4String GetState() const;
 
-protected:
+ protected:
   // Recursively traverses daughters of mother to find any volume names
   // mathching the regex Adds found volumes to the `found` parameter and
   // calculates all necessary fields of FillVolume
-  static void FindVolumes(G4LogicalVolume *mother, regex_t *re,
-                          std::vector<FillVolume> &found);
+  static void FindVolumes(G4LogicalVolume *mother, regex_t *re, std::vector<FillVolume> &found);
 
   // Arbitrary volume calculations are terribly slow, so cache solids that
   // have been calculated already. G4VSolid lifetime is the same as the
@@ -89,6 +86,6 @@ protected:
   static std::map<G4VSolid *, double> fSolidVolumes;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

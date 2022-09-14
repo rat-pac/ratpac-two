@@ -8,13 +8,13 @@
 namespace RAT {
 
 class ConeWaveguideConstruction {
-public:
+ public:
   ConeWaveguideConstruction(std::string table, std::string index);
   virtual G4VSolid *NewBodySolid(const std::string &name, G4VSolid *fPMTBody);
   virtual double GetHeight();
   virtual G4ThreeVector GetPlacementOffset();
 
-protected:
+ protected:
   double fZTop, fZBottom;
   double fRadiusTop, fRadiusBottom;
   double fInnerRadiusTop, fInnerRadiusBottom;
@@ -22,6 +22,6 @@ protected:
   G4OpticalSurface *fSurface;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

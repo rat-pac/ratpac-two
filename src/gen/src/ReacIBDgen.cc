@@ -34,7 +34,7 @@ ReacIBDgen::ReacIBDgen() {
   // initialize the messenger to adjust isotope parameters in mac files
   messenger = new ReacIBDgenMessenger(this);
 
-  Emin = 1.806; // CHANGED TO MATCH THE ENERGY RANGES IN MARC'S FILE FOR NOW
+  Emin = 1.806;  // CHANGED TO MATCH THE ENERGY RANGES IN MARC'S FILE FOR NOW
   Emax = 14.000;
 }
 
@@ -46,8 +46,7 @@ ReacIBDgen::~ReacIBDgen() {
   }
 }
 
-void ReacIBDgen::GenEvent(const Hep3Vector &nu_dir, HepLorentzVector &neutrino,
-                          HepLorentzVector &positron,
+void ReacIBDgen::GenEvent(const Hep3Vector &nu_dir, HepLorentzVector &neutrino, HepLorentzVector &positron,
                           HepLorentzVector &neutron) {
   float Enu, CosThetaLab;
 
@@ -61,12 +60,11 @@ void ReacIBDgen::GenEvent(const Hep3Vector &nu_dir, HepLorentzVector &neutrino,
 
   // First order correction of positron quantities for finite nucleon mass
   double Ysquared = (DELTA * DELTA - electron_mass_c2 * electron_mass_c2) / 2;
-  double E1 = E0 * (1 - Enu / proton_mass_c2 * (1 - v0 * CosThetaLab)) -
-              Ysquared / proton_mass_c2;
+  double E1 = E0 * (1 - Enu / proton_mass_c2 * (1 - v0 * CosThetaLab)) - Ysquared / proton_mass_c2;
   double p1 = sqrt(E1 * E1 - electron_mass_c2 * electron_mass_c2);
 
   // Compute nu 4-momentum
-  neutrino.setVect(nu_dir * Enu); // MeV (divide by c if need real units)
+  neutrino.setVect(nu_dir * Enu);  // MeV (divide by c if need real units)
   neutrino.setE(Enu);
 
   // Compute positron 4-momentum
@@ -74,7 +72,7 @@ void ReacIBDgen::GenEvent(const Hep3Vector &nu_dir, HepLorentzVector &neutrino,
 
   // Rotation from nu direction to pos direction.
   double theta = acos(CosThetaLab);
-  double phi = 2 * pi * HepUniformRand(); // Random phi
+  double phi = 2 * pi * HepUniformRand();  // Random phi
   Hep3Vector rotation_axis = nu_dir.orthogonal();
   rotation_axis.rotate(phi, nu_dir);
   pos_momentum.rotate(theta, rotation_axis);
@@ -191,8 +189,7 @@ float ReacIBDgen::GetNuEnergy() {
 #ifdef DEBUG
     std::cout << " Random generator test (f):" << std::endl;
     for (int i = 0; i != 20; i++) {
-      std::cout << i << ": " << fGenerate->shoot() * (fhigh - flow) + flow
-                << ", " << std::endl;
+      std::cout << i << ": " << fGenerate->shoot() * (fhigh - flow) + flow << ", " << std::endl;
     }
 
 #endif
@@ -214,8 +211,7 @@ double ReacIBDgen::IBDESpectrum(float x) {
 
   double mElectron = 0.511;
   double XC = CrossSection(x);
-  double EnergyVal =
-      NuReacSpectrum(x) * XC * sqrt(XC * XC - mElectron * mElectron);
+  double EnergyVal = NuReacSpectrum(x) * XC * sqrt(XC * XC - mElectron * mElectron);
 
 #ifdef DEBUG
   std::cout << EnergyVal << " and " << XC << std::endl;
@@ -227,7 +223,6 @@ double ReacIBDgen::IBDESpectrum(float x) {
 }
 
 double ReacIBDgen::CrossSection(float x) {
-
   double mNeutron = 939.565378;
   double mProton = 938.27;
   double mElectron = 0.511;
@@ -244,7 +239,6 @@ double ReacIBDgen::CrossSection(float x) {
 }
 
 float ReacIBDgen::U235ReacSpectrum(const float &x) {
-
   // return the the reactor U235 neutrino flux contribution U235(x)
   float N = 0.;
 
@@ -262,7 +256,6 @@ float ReacIBDgen::U235ReacSpectrum(const float &x) {
 }
 
 float ReacIBDgen::Pu239ReacSpectrum(const float &x) {
-
   // return the reactor Pu239 neutrino flux contribution Pu239(x)
   float N = 0.;
 
@@ -277,7 +270,6 @@ float ReacIBDgen::Pu239ReacSpectrum(const float &x) {
 }
 
 float ReacIBDgen::U238ReacSpectrum(const float &x) {
-
   // return the reactor U238 neutrino flux contribution U238(x)
   float N = 0.;
 
@@ -292,7 +284,6 @@ float ReacIBDgen::U238ReacSpectrum(const float &x) {
 }
 
 float ReacIBDgen::Pu241ReacSpectrum(const float &x) {
-
   // return the the reactor Pu241 Neutrino flux contribution Pu241(x)
   float N = 0.;
 
@@ -307,14 +298,12 @@ float ReacIBDgen::Pu241ReacSpectrum(const float &x) {
 }
 
 float ReacIBDgen::NuReacSpectrum(const float &x) {
-
   // return the sum of the neutrino flux contributions from each reactor isotope
   // for a given value x (energy in MeV)
 
-  float tot = U235ReacSpectrum(x) + Pu239ReacSpectrum(x) + U238ReacSpectrum(x) +
-              Pu241ReacSpectrum(x);
+  float tot = U235ReacSpectrum(x) + Pu239ReacSpectrum(x) + U238ReacSpectrum(x) + Pu241ReacSpectrum(x);
 
   return tot;
 }
 
-} // namespace RAT
+}  // namespace RAT

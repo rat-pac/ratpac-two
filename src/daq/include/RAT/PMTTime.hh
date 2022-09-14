@@ -20,7 +20,7 @@
 namespace RAT {
 
 class PMTTime {
-public:
+ public:
   PMTTime(){};
   virtual ~PMTTime(){};
 
@@ -28,6 +28,6 @@ public:
   virtual double PickTime(double time) const = 0;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

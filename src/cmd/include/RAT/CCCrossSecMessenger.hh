@@ -32,20 +32,20 @@ namespace RAT {
 class CCCrossSec;
 
 class CCCrossSecMessenger : public G4UImessenger {
-public:
+ public:
   CCCrossSecMessenger(CCCrossSec *);
   ~CCCrossSecMessenger();
 
   void SetNewValue(G4UIcommand *command, G4String newValues);
   G4String GetCurrentValue(G4UIcommand *command);
 
-private:
+ private:
   CCCrossSec *fCCXS;
 
   G4UIcmdWithADouble *fWmaCmd;
   G4UIcmdWithAnInteger *fStratCmd;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_CCCrossSecMessenger_hh
+#endif  // RAT_CCCrossSecMessenger_hh

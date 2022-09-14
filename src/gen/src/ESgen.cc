@@ -12,19 +12,18 @@
 // cross-section.  Some of the code (the flux in particular) is copied
 // from IBDgen.
 
-#include <RAT/DB.hh>
-#include <RAT/ESCrossSec.hh>
-#include <RAT/ESgen.hh>
-
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
-#include <G4ParticleDefinition.hh>
-#include <G4ParticleTable.hh>
-#include <G4ThreeVector.hh>
-#include <Randomize.hh>
 #include <TGraph.h>
 #include <TMath.h>
 
+#include <G4ParticleDefinition.hh>
+#include <G4ParticleTable.hh>
+#include <G4ThreeVector.hh>
+#include <RAT/DB.hh>
+#include <RAT/ESCrossSec.hh>
+#include <RAT/ESgen.hh>
+#include <Randomize.hh>
 #include <cmath>
 
 using namespace CLHEP;
@@ -35,8 +34,14 @@ namespace RAT {
 // be used and reads the RATDB entries accordingly.
 
 ESgen::ESgen()
-    : fNuType(""), fNuFlavor(""), fXS(NULL), fNuSpectrum(NULL), fFluxMax(0.),
-      fGenLoaded(false), fSpectrumRndm(0), fDBName("SOLAR") {
+    : fNuType(""),
+      fNuFlavor(""),
+      fXS(NULL),
+      fNuSpectrum(NULL),
+      fFluxMax(0.),
+      fGenLoaded(false),
+      fSpectrumRndm(0),
+      fDBName("SOLAR") {
   // Initialize pointers
   fMassElectron = electron_mass_c2;
 
@@ -50,8 +55,7 @@ ESgen::ESgen()
 void ESgen::LoadGenerator() {
   // Check if the generator is already loaded.
   // If it is, do nothing
-  if (fGenLoaded)
-    return;
+  if (fGenLoaded) return;
   if (fNuType.length() == 0 || fNuFlavor.length() == 0) {
     fGenLoaded = false;
     return;
@@ -100,13 +104,11 @@ void ESgen::LoadGenerator() {
     // Be7 is always a particular case due to its discrete nature
     // The last parameter is set to 1 to disallow interpolations
     if (fNuType == "be7") {
-      fSpectrumRndm =
-          new CLHEP::RandGeneral(&csScaledFluxTbl[0], fFluxTbl.size(), 1);
+      fSpectrumRndm = new CLHEP::RandGeneral(&csScaledFluxTbl[0], fFluxTbl.size(), 1);
     } else {
       // set interpolation bit to 0 to allow for interpolations in continuous
       // spectra
-      fSpectrumRndm =
-          new CLHEP::RandGeneral(&csScaledFluxTbl[0], fFluxTbl.size(), 0);
+      fSpectrumRndm = new CLHEP::RandGeneral(&csScaledFluxTbl[0], fFluxTbl.size(), 0);
     }
   }
 
@@ -131,17 +133,13 @@ ESgen::~ESgen() {
   }
 }
 
-void ESgen::GenerateEvent(const G4ThreeVector &theNeutrino,
-                          G4LorentzVector &nu_incoming,
-                          G4LorentzVector &electron) {
-
+void ESgen::GenerateEvent(const G4ThreeVector &theNeutrino, G4LorentzVector &nu_incoming, G4LorentzVector &electron) {
   // Check if the generator has been loaded successfully
   // For now just throw something that can be caught at an upper level.
   // Need to define a set of specific exceptions
   if (!fGenLoaded) {
-    G4Exception(
-        "[ESgen]::GenerateEvent", "ArgError", FatalErrorInArgument,
-        "Vertex generation called but it seems that it is not ready yet.");
+    G4Exception("[ESgen]::GenerateEvent", "ArgError", FatalErrorInArgument,
+                "Vertex generation called but it seems that it is not ready yet.");
   }
 
   ///!
@@ -171,9 +169,8 @@ void ESgen::GenerateEvent(const G4ThreeVector &theNeutrino,
   // We will only use the neutrino initial momentum as a baseline to add up to
   // the electron direction
 
-  G4double theta_e =
-      acos(sqrt((Te * (fMassElectron + Enu) * (fMassElectron + Enu)) /
-                (2 * fMassElectron * Enu * Enu + Enu * Enu * Te)));
+  G4double theta_e = acos(
+      sqrt((Te * (fMassElectron + Enu) * (fMassElectron + Enu)) / (2 * fMassElectron * Enu * Enu + Enu * Enu * Te)));
 
   G4double tot_Ee = Te + fMassElectron;
   G4double p_e = sqrt(tot_Ee * tot_Ee - fMassElectron * fMassElectron);
@@ -225,7 +222,6 @@ void ESgen::Show() {
 // If we change the neutrino type we should reload the generator
 // to force it to reload the spectra from the database
 void ESgen::SetNuType(const G4String &nutype) {
-
   if (fNuType != nutype) {
     fNuType = nutype;
     fGenLoaded = false;
@@ -238,7 +234,6 @@ void ESgen::SetNuType(const G4String &nutype) {
 // If we change the neutrino flavor we should reload the generator
 // to force it to reload the spectra from the database
 void ESgen::SetNuFlavor(const G4String &nuflavor) {
-
   if (fNuFlavor != nuflavor) {
     fNuFlavor = nuflavor;
     fGenLoaded = false;
@@ -260,15 +255,13 @@ void ESgen::SetDBName(const G4String name) {
 // decides from it the proper energy.
 // Keep in mind that pep is always the same, but be7 is a *very* special case
 G4double ESgen::SampleRecoilEnergy(G4double Enu) {
-
   G4double Te = 0.0;
 
   // Get the shape of the differential cross section.
   TGraph *dsigmadt = fXS->DrawdSigmadT(Enu);
 
   // Interpolate between the discrete points
-  CLHEP::RandGeneral *rndm =
-      new CLHEP::RandGeneral(dsigmadt->GetY(), dsigmadt->GetN(), 0);
+  CLHEP::RandGeneral *rndm = new CLHEP::RandGeneral(dsigmadt->GetY(), dsigmadt->GetN(), 0);
 
   Te = rndm->shoot() * (dsigmadt->GetX())[dsigmadt->GetN() - 1];
   delete rndm;
@@ -329,11 +322,8 @@ G4double ESgen::GetRatePerTarget() {
 
     for (G4int ip = 0; ip < fNuSpectrum->GetN() - 1; ++ip) {
       G4double de = fNuSpectrum->GetX()[ip + 1] - fNuSpectrum->GetX()[ip];
-      G4double integ =
-          (0.5 * de) *
-          (fNuSpectrum->GetY()[ip + 1] *
-               fXS->Sigma((fNuSpectrum->GetX())[ip + 1]) +
-           fNuSpectrum->GetY()[ip] * fXS->Sigma((fNuSpectrum->GetX())[ip]));
+      G4double integ = (0.5 * de) * (fNuSpectrum->GetY()[ip + 1] * fXS->Sigma((fNuSpectrum->GetX())[ip + 1]) +
+                                     fNuSpectrum->GetY()[ip] * fXS->Sigma((fNuSpectrum->GetX())[ip]));
       intRate += integ;
     }
   }
@@ -343,4 +333,4 @@ G4double ESgen::GetRatePerTarget() {
   return intRate * fXS->CrossSecNorm() * fTotalFlux;
 }
 
-} // namespace RAT
+}  // namespace RAT

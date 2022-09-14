@@ -4,9 +4,7 @@
 #include <RAT/G4OpWLSBuilder.hh>
 #include <RAT/Log.hh>
 
-void G4OpWLSBuilder::ConstructParticle() {
-  G4OpticalPhoton::OpticalPhotonDefinition();
-}
+void G4OpWLSBuilder::ConstructParticle() { G4OpticalPhoton::OpticalPhotonDefinition(); }
 
 void G4OpWLSBuilder::ConstructProcess() {
   G4OpWLS *theWLSProcess = new G4OpWLS();

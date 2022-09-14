@@ -45,7 +45,7 @@ namespace RAT {
 class DecayChain;
 
 class DecayChain_Gen : public GLG4Gen {
-public:
+ public:
   DecayChain_Gen();
   virtual ~DecayChain_Gen();
   virtual void GenerateEvent(G4Event *event);
@@ -60,7 +60,7 @@ public:
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
 
-protected:
+ protected:
   // Generator initialization, specified by the user.
   G4String stateStr;
 
@@ -71,11 +71,11 @@ protected:
   // The decay chain for the isotope selected by the user.
   DecayChain *fDecayChain;
 
-  bool fInMiddle;     // to start chain from the isotope;
-  bool fInAlphaDecay; // to have only alpha decay
-  bool fInGammaDecay; // to have only gamma decay
+  bool fInMiddle;      // to start chain from the isotope;
+  bool fInAlphaDecay;  // to have only alpha decay
+  bool fInGammaDecay;  // to have only gamma decay
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

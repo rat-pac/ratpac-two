@@ -8,12 +8,12 @@
 namespace RAT {
 
 class TrackTest : public std::unary_function<TrackNode *, bool> {
-public:
+ public:
   virtual bool operator()(TrackNode *) = 0;
-}; // Common predicates at the end
+};  // Common predicates at the end
 
 class TrackCursor {
-public:
+ public:
   TrackCursor(TrackNode *node, bool verbose = false) {
     fVerbose = verbose;
     Go(node);
@@ -52,8 +52,8 @@ public:
   TrackNode *GoStep(int i);
   TrackNode *GoChild(int i = 0);
   TrackNode *GoTrackChild(int i);
-  TrackNode *GoParent(); // Go to the step in the parent particle where
-                         // this track was made
+  TrackNode *GoParent();  // Go to the step in the parent particle where
+                          // this track was made
 
   // Output
   void Print() const;
@@ -73,7 +73,7 @@ public:
   TrackNode *FindNextParticle(const std::string &particleName);
   // TrackNode *FindNextProcess(std::string process);
 
-protected:
+ protected:
   TrackNode *fCur;
   bool fVerbose;
 };
@@ -83,12 +83,9 @@ protected:
 class TrackTest_Particle : public TrackTest {
   std::string fParticleName;
 
-public:
-  TrackTest_Particle(const std::string &particleName)
-      : fParticleName(particleName){};
-  virtual bool operator()(TrackNode *c) {
-    return fParticleName == c->GetParticleName();
-  };
+ public:
+  TrackTest_Particle(const std::string &particleName) : fParticleName(particleName){};
+  virtual bool operator()(TrackNode *c) { return fParticleName == c->GetParticleName(); };
 };
 
 // class TrackTest_HasProcess : public TrackTest {
@@ -100,6 +97,6 @@ public:
 //   };
 // };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -20,18 +20,14 @@ PDFPMTCharge::PDFPMTCharge(string pmt_model) {
     info << pmt_model << endl;
   }
 
-  if (fCharge.size() != fChargeProb.size())
-    Log::Die("PDFPMTCharge: charge and probability arrays of different length");
-  if (fCharge.size() < 2)
-    Log::Die("PDFPMTCharge: cannot define a PDF with fewer than 2 points");
+  if (fCharge.size() != fChargeProb.size()) Log::Die("PDFPMTCharge: charge and probability arrays of different length");
+  if (fCharge.size() < 2) Log::Die("PDFPMTCharge: cannot define a PDF with fewer than 2 points");
 
   double integral = 0.0;
   fChargeProbCumu = vector<double>(fCharge.size());
   fChargeProbCumu[0] = 0.0;
   for (size_t i = 0; i < fCharge.size() - 1; i++) {
-    integral += (fCharge[i + 1] - fCharge[i]) *
-                (fChargeProb[i] + fChargeProb[i + 1]) /
-                2.0; // trapazoid integration
+    integral += (fCharge[i + 1] - fCharge[i]) * (fChargeProb[i] + fChargeProb[i + 1]) / 2.0;  // trapazoid integration
     fChargeProbCumu[i + 1] = integral;
   }
   for (size_t i = 0; i < fCharge.size(); i++) {
@@ -49,7 +45,7 @@ double PDFPMTCharge::PickCharge() const {
     if (rval <= fChargeProbCumu[i]) {
       return (rval - fChargeProbCumu[i - 1]) * (fCharge[i] - fCharge[i - 1]) /
                  (fChargeProbCumu[i] - fChargeProbCumu[i - 1]) +
-             fCharge[i - 1]; // linear interpolation
+             fCharge[i - 1];  // linear interpolation
     }
   }
   info << "PDFPMTCharge::PickCharge: impossible condition encountered - "
@@ -60,15 +56,14 @@ double PDFPMTCharge::PickCharge() const {
 
 /** Value of charge PDF at charge q */
 double PDFPMTCharge::PDF(double q) const {
-  if (q < fCharge[0])
-    return 0.0; // below defined range
+  if (q < fCharge[0]) return 0.0;  // below defined range
   for (size_t i = 1; i < fCharge.size(); i++) {
     if (q <= fCharge[i]) {
       return (q - fCharge[i - 1]) * (fChargeProb[i] - fChargeProb[i - 1]) /
-             (fCharge[i] - fCharge[i - 1]); // linear interpolation
+             (fCharge[i] - fCharge[i - 1]);  // linear interpolation
     }
   }
-  return 0.0; // above defined range
+  return 0.0;  // above defined range
 }
 
-} // namespace RAT
+}  // namespace RAT

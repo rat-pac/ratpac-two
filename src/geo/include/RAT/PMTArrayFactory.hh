@@ -5,11 +5,11 @@
 
 namespace RAT {
 class PMTArrayFactory : public PMTFactoryBase {
-public:
+ public:
   PMTArrayFactory() : PMTFactoryBase("pmtarray"){};
   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -11,21 +11,17 @@
 #include <G4UIcmdWithADouble.hh>
 #include <G4UIcommand.hh>
 #include <G4UIdirectory.hh>
-
 #include <RAT/VertexGen_FastNeutron.hh>
 
 namespace RAT {
 
-FastNeutronMessenger::FastNeutronMessenger(VertexGen_FastNeutron *e)
-    : fastneutron(e) {
+FastNeutronMessenger::FastNeutronMessenger(VertexGen_FastNeutron *e) : fastneutron(e) {
   // Commands will in a /generator/fastneutron/ directory
   G4UIdirectory *dir = new G4UIdirectory("/generator/fastneutron/");
-  dir->SetGuidance(
-      "Control the physics parameters of the fastneutron selector");
+  dir->SetGuidance("Control the physics parameters of the fastneutron selector");
 
   DCmd = new G4UIcmdWithADouble("/generator/fastneutron/depth", this);
-  DCmd->SetGuidance(
-      "Sets the value of sine-squared theta (the weak mixing angle)");
+  DCmd->SetGuidance("Sets the value of sine-squared theta (the weak mixing angle)");
   DCmd->SetParameterName("valueA", false);
   DCmd->SetDefaultValue(fastneutron->GetDepth());
 
@@ -35,16 +31,16 @@ FastNeutronMessenger::FastNeutronMessenger(VertexGen_FastNeutron *e)
   ECmd->SetDefaultValue(fastneutron->GetEnThreshold());
 
   STCmd = new G4UIcmdWithADouble("/generator/fastneutron/sidewalls", this);
-  STCmd->SetGuidance("Set the location of the incoming fastNeutron. Sidewalls "
-                     "= 1, top-bottom  = 0");
+  STCmd->SetGuidance(
+      "Set the location of the incoming fastNeutron. Sidewalls "
+      "= 1, top-bottom  = 0");
   STCmd->SetParameterName("valueST", false);
   STCmd->SetDefaultValue(fastneutron->GetSideBool());
 }
 
 FastNeutronMessenger::~FastNeutronMessenger() { ; }
 
-void FastNeutronMessenger::SetNewValue(G4UIcommand *command,
-                                       G4String newValue) {
+void FastNeutronMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
   if (command == DCmd) {
     G4double a = DCmd->GetNewDoubleValue(newValue);
     fastneutron->SetDepth(a);
@@ -70,4 +66,4 @@ G4String FastNeutronMessenger::GetCurrentValue(G4UIcommand *command) {
   return G4String("Error: Invalid FastNeutronMessenger \"get\" command");
 }
 
-} // namespace RAT
+}  // namespace RAT

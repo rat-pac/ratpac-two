@@ -1,7 +1,8 @@
 #include "RAT/PolygonOrientation.hh"
 
-#include <G4TwoVector.hh>
 #include <assert.h>
+
+#include <G4TwoVector.hh>
 #include <vector>
 
 namespace RAT {
@@ -30,4 +31,4 @@ int CheckOrientation(std::vector<G4TwoVector> &G4Polygon) {
   return 1;
 }
 
-} // namespace RAT
+}  // namespace RAT

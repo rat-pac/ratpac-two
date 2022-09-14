@@ -6,6 +6,7 @@
 
   ------------------------------------------------------------------------------*/
 #include "RAT/persistent.hpp"
+
 #include "RAT/os_fixes.hpp"
 #include "RAT/smart_ptr.hpp"
 #include "RAT/string_utilities.hpp"
@@ -23,8 +24,7 @@ unsigned char PersistentVersion = 2;
 ////////////////////////////////////////////////////////////////////////////////
 // exceptions
 
-persistent_illegal_type::persistent_illegal_type(
-    const std::string &type) throw()
+persistent_illegal_type::persistent_illegal_type(const std::string &type) throw()
     : std::logic_error(std::string("illegal type: ") + type) {}
 
 persistent_illegal_type::persistent_illegal_type(unsigned short key) throw()
@@ -34,16 +34,14 @@ persistent_illegal_type::~persistent_illegal_type(void) throw() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-persistent_dump_failed::persistent_dump_failed(
-    const std::string &message) throw()
+persistent_dump_failed::persistent_dump_failed(const std::string &message) throw()
     : std::runtime_error(std::string("dump failed: ") + message) {}
 
 persistent_dump_failed::~persistent_dump_failed(void) throw() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-persistent_restore_failed::persistent_restore_failed(
-    const std::string &message) throw()
+persistent_restore_failed::persistent_restore_failed(const std::string &message) throw()
     : std::runtime_error(std::string("restore failed: ") + message) {}
 
 persistent_restore_failed::~persistent_restore_failed(void) throw() {}
@@ -53,7 +51,7 @@ persistent_restore_failed::~persistent_restore_failed(void) throw() {}
 ////////////////////////////////////////////////////////////////////////////////
 
 class dump_context_body {
-public:
+ public:
   typedef std::map<const void *, unsigned> magic_map;
   typedef std::map<std::string, dump_context::callback_data> callback_map;
   typedef std::map<std::string, unsigned short> interface_map;
@@ -67,25 +65,21 @@ public:
   interface_map m_interfaces;
 
   dump_context_body(const otext &_device, unsigned char _version) throw()
-      : m_max_key(0), m_version(_version), m_little_endian(::little_endian()),
-        m_device(_device) {
+      : m_max_key(0), m_version(_version), m_little_endian(::little_endian()), m_device(_device) {
     m_device.set_binary_mode();
     put(_version);
     // map a null pointer onto magic number zero
     m_pointers[0] = 0;
     if (m_version != 1 && m_version != 2)
-      throw persistent_dump_failed(std::string("wrong version: ") +
-                                   to_string(m_version));
+      throw persistent_dump_failed(std::string("wrong version: ") + to_string(m_version));
   }
 
   void put(unsigned char data) throw() {
     if (!m_device.put(data)) {
       if (m_device.error())
-        throw persistent_dump_failed(std::string("output device error: ") +
-                                     m_device.error_string());
+        throw persistent_dump_failed(std::string("output device error: ") + m_device.error_string());
       else
-        throw persistent_dump_failed(
-            std::string("output device error: unknown"));
+        throw persistent_dump_failed(std::string("output device error: unknown"));
     }
   }
 
@@ -107,24 +101,19 @@ public:
     return std::pair<bool, unsigned>(true, found->second);
   }
 
-  unsigned short register_type(const std::type_info &info,
-                               dump_context::dump_callback callback) {
+  unsigned short register_type(const std::type_info &info, dump_context::dump_callback callback) {
     std::string key = info.name();
     unsigned short data = ++m_max_key;
     m_callbacks[key] = std::make_pair(data, callback);
     return data;
   }
 
-  bool is_callback(const std::type_info &info) const {
-    return m_callbacks.find(info.name()) != m_callbacks.end();
-  }
+  bool is_callback(const std::type_info &info) const { return m_callbacks.find(info.name()) != m_callbacks.end(); }
 
-  dump_context::callback_data lookup_type(const std::type_info &info) const
-      throw() {
+  dump_context::callback_data lookup_type(const std::type_info &info) const throw() {
     std::string key = info.name();
     callback_map::const_iterator found = m_callbacks.find(key);
-    if (found == m_callbacks.end())
-      throw persistent_illegal_type(key);
+    if (found == m_callbacks.end()) throw persistent_illegal_type(key);
     return found->second;
   }
 
@@ -135,23 +124,19 @@ public:
     return data;
   }
 
-  bool is_interface(const std::type_info &info) const {
-    return m_interfaces.find(info.name()) != m_interfaces.end();
-  }
+  bool is_interface(const std::type_info &info) const { return m_interfaces.find(info.name()) != m_interfaces.end(); }
 
   unsigned short lookup_interface(const std::type_info &info) const throw() {
     std::string key = info.name();
     interface_map::const_iterator found = m_interfaces.find(key);
-    if (found == m_interfaces.end())
-      throw persistent_illegal_type(key);
+    if (found == m_interfaces.end()) throw persistent_illegal_type(key);
     return found->second;
   }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-dump_context::dump_context(const otext &_device, unsigned char _version) throw()
-    : m_body(0) {
+dump_context::dump_context(const otext &_device, unsigned char _version) throw() : m_body(0) {
   m_body = new dump_context_body(_device, _version);
 }
 
@@ -182,9 +167,7 @@ std::pair<bool, unsigned> dump_context::pointer_map(const void *const pointer) {
   return m_body->pointer_map(pointer);
 }
 
-unsigned short
-dump_context::register_type(const std::type_info &info,
-                            dump_context::dump_callback callback) {
+unsigned short dump_context::register_type(const std::type_info &info, dump_context::dump_callback callback) {
   DEBUG_ASSERT(m_body);
   return m_body->register_type(info, callback);
 }
@@ -194,8 +177,7 @@ bool dump_context::is_callback(const std::type_info &info) const {
   return m_body->is_callback(info);
 }
 
-dump_context::callback_data
-dump_context::lookup_type(const std::type_info &info) const throw() {
+dump_context::callback_data dump_context::lookup_type(const std::type_info &info) const throw() {
   DEBUG_ASSERT(m_body);
   return m_body->lookup_type(info);
 }
@@ -210,16 +192,14 @@ bool dump_context::is_interface(const std::type_info &info) const {
   return m_body->is_interface(info);
 }
 
-unsigned short dump_context::lookup_interface(const std::type_info &info) const
-    throw() {
+unsigned short dump_context::lookup_interface(const std::type_info &info) const throw() {
   DEBUG_ASSERT(m_body);
   return m_body->lookup_interface(info);
 }
 
 void dump_context::register_all(dump_context::installer _installer) {
   DEBUG_ASSERT(m_body);
-  if (_installer)
-    _installer(*this);
+  if (_installer) _installer(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -227,7 +207,7 @@ void dump_context::register_all(dump_context::installer _installer) {
 ////////////////////////////////////////////////////////////////////////////////
 
 class restore_context_body {
-public:
+ public:
   typedef smart_ptr_clone<persistent> persistent_ptr;
   typedef std::map<unsigned, void *> magic_map;
   typedef std::map<unsigned short, restore_context::callback_data> callback_map;
@@ -249,8 +229,7 @@ public:
     // get the dump version and see if we support it
     m_version = (unsigned char)get();
     if (m_version != 1 && m_version != 2)
-      throw persistent_restore_failed(std::string("wrong version: ") +
-                                      to_string(m_version));
+      throw persistent_restore_failed(std::string("wrong version: ") + to_string(m_version));
   }
 
   ~restore_context_body(void) {}
@@ -265,8 +244,7 @@ public:
     int result = m_device.get();
     if (result < 0) {
       if (m_device.error())
-        throw persistent_restore_failed(std::string("input device error: ") +
-                                        m_device.error_string());
+        throw persistent_restore_failed(std::string("input device error: ") + m_device.error_string());
       throw persistent_restore_failed(std::string("premature end of file"));
     }
     return result;
@@ -281,25 +259,19 @@ public:
     return std::pair<bool, void *>(true, found->second);
   }
 
-  void pointer_add(unsigned magic, void *new_pointer) {
-    m_pointers[magic] = new_pointer;
-  }
+  void pointer_add(unsigned magic, void *new_pointer) { m_pointers[magic] = new_pointer; }
 
-  unsigned short register_type(restore_context::create_callback create,
-                               restore_context::restore_callback restore) {
+  unsigned short register_type(restore_context::create_callback create, restore_context::restore_callback restore) {
     unsigned short key = ++m_max_key;
     m_callbacks[key] = std::make_pair(create, restore);
     return key;
   }
 
-  bool is_callback(unsigned short key) const {
-    return m_callbacks.find(key) != m_callbacks.end();
-  }
+  bool is_callback(unsigned short key) const { return m_callbacks.find(key) != m_callbacks.end(); }
 
   restore_context::callback_data lookup_type(unsigned short key) const throw() {
     callback_map::const_iterator found = m_callbacks.find(key);
-    if (found == m_callbacks.end())
-      throw persistent_illegal_type(key);
+    if (found == m_callbacks.end()) throw persistent_illegal_type(key);
     return found->second;
   }
 
@@ -309,14 +281,11 @@ public:
     return key;
   }
 
-  bool is_interface(unsigned short key) const {
-    return m_interfaces.find(key) != m_interfaces.end();
-  }
+  bool is_interface(unsigned short key) const { return m_interfaces.find(key) != m_interfaces.end(); }
 
   const persistent &lookup_interface(unsigned short key) const throw() {
     interface_map::const_iterator found = m_interfaces.find(key);
-    if (found == m_interfaces.end())
-      throw persistent_illegal_type(key);
+    if (found == m_interfaces.end()) throw persistent_illegal_type(key);
     return *(found->second);
   }
 };
@@ -359,9 +328,8 @@ void restore_context::pointer_add(unsigned magic, void *new_pointer) {
   m_body->pointer_add(magic, new_pointer);
 }
 
-unsigned short
-restore_context::register_type(restore_context::create_callback create,
-                               restore_context::restore_callback restore) {
+unsigned short restore_context::register_type(restore_context::create_callback create,
+                                              restore_context::restore_callback restore) {
   DEBUG_ASSERT(m_body);
   return m_body->register_type(create, restore);
 }
@@ -371,8 +339,7 @@ bool restore_context::is_callback(unsigned short key) const {
   return m_body->is_callback(key);
 }
 
-restore_context::callback_data
-restore_context::lookup_type(unsigned short key) const throw() {
+restore_context::callback_data restore_context::lookup_type(unsigned short key) const throw() {
   DEBUG_ASSERT(m_body);
   return m_body->lookup_type(key);
 }
@@ -387,16 +354,14 @@ bool restore_context::is_interface(unsigned short key) const {
   return m_body->is_interface(key);
 }
 
-const persistent &restore_context::lookup_interface(unsigned short key) const
-    throw() {
+const persistent &restore_context::lookup_interface(unsigned short key) const throw() {
   DEBUG_ASSERT(m_body);
   return m_body->lookup_interface(key);
 }
 
 void restore_context::register_all(restore_context::installer _installer) {
   DEBUG_ASSERT(m_body);
-  if (_installer)
-    _installer(*this);
+  if (_installer) _installer(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -405,8 +370,7 @@ void restore_context::register_all(restore_context::installer _installer) {
 // so the macro does nothing in that mode but maps little-endian onto
 // big-endian addressing in big-endian mode
 
-#define INDEX(index)                                                           \
-  ((context.little_endian()) ? (index) : ((bytes) - (index)-1))
+#define INDEX(index) ((context.little_endian()) ? (index) : ((bytes) - (index)-1))
 
 ////////////////////////////////////////////////////////////////////////////////
 // Integer types
@@ -428,50 +392,41 @@ void restore_context::register_all(restore_context::installer _installer) {
 // mind-numbingly stupid...). However, to be able to do anything at all, I've
 // had to assume that a char is 1 byte.
 
-static void dump_unsigned(dump_context &context, size_t bytes,
-                          unsigned char *data) throw() {
+static void dump_unsigned(dump_context &context, size_t bytes, unsigned char *data) throw() {
   // first skip zero bytes - this may reduce the data to zero bytes long
   size_t i = bytes;
-  while (i >= 1 && data[INDEX(i - 1)] == 0)
-    i--;
+  while (i >= 1 && data[INDEX(i - 1)] == 0) i--;
   // put the remaining size
   context.put((unsigned char)i);
   // and put the bytes
-  while (i--)
-    context.put(data[INDEX(i)]);
+  while (i--) context.put(data[INDEX(i)]);
 }
 
-static void dump_signed(dump_context &context, size_t bytes,
-                        unsigned char *data) throw() {
+static void dump_signed(dump_context &context, size_t bytes, unsigned char *data) throw() {
   // first skip all-zero or all-one bytes but only if doing so does not change
   // the sign
   size_t i = bytes;
   if (data[INDEX(i - 1)] < 128) {
     // positive number so discard leading zeros but only if the following byte
     // is positive
-    while (i >= 2 && data[INDEX(i - 1)] == 0 && data[INDEX(i - 2)] < 128)
-      i--;
+    while (i >= 2 && data[INDEX(i - 1)] == 0 && data[INDEX(i - 2)] < 128) i--;
   } else {
     // negative number so discard leading ones but only if the following byte is
     // negative
-    while (i >= 2 && data[INDEX(i - 1)] == 255 && data[INDEX(i - 2)] >= 128)
-      i--;
+    while (i >= 2 && data[INDEX(i - 1)] == 255 && data[INDEX(i - 2)] >= 128) i--;
   }
   // put the remaining size
   context.put((unsigned char)i);
   // and put the bytes
-  while (i--)
-    context.put(data[INDEX(i)]);
+  while (i--) context.put(data[INDEX(i)]);
 }
 
-static void restore_unsigned(restore_context &context, size_t bytes,
-                             unsigned char *data) throw() {
+static void restore_unsigned(restore_context &context, size_t bytes, unsigned char *data) throw() {
   // get the dumped size from the file
   size_t dumped_bytes = (size_t)context.get();
   // zero fill any empty space
   size_t i = bytes;
-  for (; i > dumped_bytes; i--)
-    data[INDEX(i - 1)] = 0;
+  for (; i > dumped_bytes; i--) data[INDEX(i - 1)] = 0;
   // restore the dumped bytes but discard any that don't fit
   // TODO - could detect overflow and throw an exception here
   while (i--) {
@@ -479,14 +434,12 @@ static void restore_unsigned(restore_context &context, size_t bytes,
     if (i < bytes)
       data[INDEX(i)] = (unsigned char)ch;
     else
-      throw persistent_restore_failed(
-          std::string("integer overflow: restoring byte ") + to_string(i) +
-          " of " + to_string(bytes));
+      throw persistent_restore_failed(std::string("integer overflow: restoring byte ") + to_string(i) + " of " +
+                                      to_string(bytes));
   }
 }
 
-static void restore_signed(restore_context &context, size_t bytes,
-                           unsigned char *data) throw() {
+static void restore_signed(restore_context &context, size_t bytes, unsigned char *data) throw() {
   // get the dumped size from the file
   size_t dumped_bytes = (size_t)context.get();
   // restore the dumped bytes but discard any that don't fit
@@ -496,20 +449,17 @@ static void restore_signed(restore_context &context, size_t bytes,
     if (i < bytes)
       data[INDEX(i)] = (unsigned char)ch;
     else
-      throw persistent_restore_failed(
-          std::string("integer overflow: restoring byte ") + to_string(i) +
-          " of " + to_string(bytes));
+      throw persistent_restore_failed(std::string("integer overflow: restoring byte ") + to_string(i) + " of " +
+                                      to_string(bytes));
   }
   // sign extend if the dumped integer was smaller
   if (dumped_bytes < bytes) {
     if (data[INDEX(dumped_bytes - 1)] < 128) {
       // positive so zero fill
-      for (i = dumped_bytes; i < bytes; i++)
-        data[INDEX(i)] = 0;
+      for (i = dumped_bytes; i < bytes; i++) data[INDEX(i)] = 0;
     } else {
       // negative so one fill
-      for (i = dumped_bytes; i < bytes; i++)
-        data[INDEX(i)] = 0xff;
+      for (i = dumped_bytes; i < bytes; i++) data[INDEX(i)] = 0xff;
     }
   }
 }
@@ -518,35 +468,21 @@ static void restore_signed(restore_context &context, size_t bytes,
 // exported functions
 
 // bool is dumped and restored as an unsigned char
-void dump(dump_context &context, const bool &data) throw() {
-  context.put((unsigned char)data);
-}
+void dump(dump_context &context, const bool &data) throw() { context.put((unsigned char)data); }
 
-void restore(restore_context &context, bool &data) throw() {
-  data = context.get() != 0;
-}
+void restore(restore_context &context, bool &data) throw() { data = context.get() != 0; }
 
 // char is dumped and restored as an unsigned char because the signedness of
 // char is not defined and can vary
-void dump(dump_context &context, const char &data) throw() {
-  context.put((unsigned char)data);
-}
+void dump(dump_context &context, const char &data) throw() { context.put((unsigned char)data); }
 
-void restore(restore_context &context, char &data) throw() {
-  data = (char)(unsigned char)context.get();
-}
+void restore(restore_context &context, char &data) throw() { data = (char)(unsigned char)context.get(); }
 
-void dump(dump_context &context, const signed char &data) throw() {
-  context.put((unsigned char)data);
-}
+void dump(dump_context &context, const signed char &data) throw() { context.put((unsigned char)data); }
 
-void restore(restore_context &context, signed char &data) throw() {
-  data = (signed char)(unsigned char)context.get();
-}
+void restore(restore_context &context, signed char &data) throw() { data = (signed char)(unsigned char)context.get(); }
 
-void dump(dump_context &context, const unsigned char &data) throw() {
-  context.put((unsigned char)data);
-}
+void dump(dump_context &context, const unsigned char &data) throw() { context.put((unsigned char)data); }
 
 void restore(restore_context &context, unsigned char &data) throw() {
   data = (signed char)(unsigned char)context.get();
@@ -568,9 +504,7 @@ void restore(restore_context &context, unsigned short &data) throw() {
   restore_unsigned(context, sizeof(unsigned short), (unsigned char *)&data);
 }
 
-void dump(dump_context &context, const int &data) throw() {
-  dump_signed(context, sizeof(int), (unsigned char *)&data);
-}
+void dump(dump_context &context, const int &data) throw() { dump_signed(context, sizeof(int), (unsigned char *)&data); }
 
 void restore(restore_context &context, int &data) throw() {
   restore_signed(context, sizeof(int), (unsigned char *)&data);
@@ -609,34 +543,28 @@ void restore(restore_context &context, unsigned long &data) throw() {
 // the big-endian and little-endian argument applies to multi-word data so
 // this may need reworking by splitting into words and then bytes.
 
-static void dump_float(dump_context &context, size_t bytes,
-                       unsigned char *data) throw() {
+static void dump_float(dump_context &context, size_t bytes, unsigned char *data) throw() {
   size_t i = bytes;
   // put the size
   context.put((unsigned char)i);
   // and put the bytes
-  while (i--)
-    context.put(data[INDEX(i)]);
+  while (i--) context.put(data[INDEX(i)]);
 }
 
-static void restore_float(restore_context &context, size_t bytes,
-                          unsigned char *data) throw() {
+static void restore_float(restore_context &context, size_t bytes, unsigned char *data) throw() {
   // get the dumped size from the file
   size_t dumped_bytes = (size_t)context.get();
   // get the bytes from the file
   size_t i = dumped_bytes;
   while (i--) {
     int ch = context.get();
-    if (i < bytes)
-      data[INDEX(i)] = (unsigned char)ch;
+    if (i < bytes) data[INDEX(i)] = (unsigned char)ch;
   }
   // however, if the dumped size was different I don't know how to map the
   // formats, so give an error
   if (dumped_bytes != bytes)
-    throw persistent_restore_failed(std::string("size mismatch: dumped ") +
-                                    to_string(dumped_bytes) +
-                                    std::string(" bytes, restored ") +
-                                    to_string(bytes) + std::string(" bytes"));
+    throw persistent_restore_failed(std::string("size mismatch: dumped ") + to_string(dumped_bytes) +
+                                    std::string(" bytes, restored ") + to_string(bytes) + std::string(" bytes"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -673,8 +601,7 @@ void dump(dump_context &context, char *&data) throw() {
   if (data && !mapping.first) {
     unsigned size = strlen(data);
     dump(context, size);
-    for (unsigned i = 0; i < size; i++)
-      dump(context, data[i]);
+    for (unsigned i = 0; i < size; i++) dump(context, data[i]);
   }
 }
 
@@ -696,8 +623,7 @@ void restore(restore_context &context, char *&data) throw() {
     size_t size = 0;
     restore(context, size);
     data = new char[size + 1];
-    for (size_t i = 0; i < size; i++)
-      restore(context, data[i]);
+    for (size_t i = 0; i < size; i++) restore(context, data[i]);
     data[size] = '\0';
     // add this pointer to the set of already seen objects
     context.pointer_add(magic, data);
@@ -706,12 +632,8 @@ void restore(restore_context &context, char *&data) throw() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void dump(dump_context &context, const std::string &data) throw() {
-  dump_basic_string(context, data);
-}
+void dump(dump_context &context, const std::string &data) throw() { dump_basic_string(context, data); }
 
-void restore(restore_context &context, std::string &data) throw() {
-  restore_basic_string(context, data);
-}
+void restore(restore_context &context, std::string &data) throw() { restore_basic_string(context, data); }
 
 ////////////////////////////////////////////////////////////////////////////////

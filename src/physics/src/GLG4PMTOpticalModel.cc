@@ -12,8 +12,14 @@
 */
 
 #include "RAT/GLG4PMTOpticalModel.hh"
-#include "RAT/GLG4HitPhoton.hh"
-#include "RAT/GLG4VEventAction.hh"
+
+#include <CLHEP/Units/PhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
+#include <TMath.h>
+
+#include <RAT/Log.hh>
+#include <RAT/PhotonThinning.hh>
+#include <complex>
 
 #include "G4GeometryTolerance.hh"
 #include "G4LogicalBorderSurface.hh"
@@ -25,15 +31,10 @@
 #include "G4UIdirectory.hh"
 #include "G4UnitsTable.hh"
 #include "G4Version.hh"
+#include "RAT/GLG4HitPhoton.hh"
+#include "RAT/GLG4VEventAction.hh"
 #include "Randomize.hh"
-#include <CLHEP/Units/PhysicalConstants.h>
-#include <CLHEP/Units/SystemOfUnits.h>
-
 #include "local_g4compat.hh"
-#include <RAT/Log.hh>
-#include <RAT/PhotonThinning.hh>
-#include <TMath.h>
-#include <complex>
 
 G4UIdirectory *GLG4PMTOpticalModel::fgCmdDir = nullptr;
 
@@ -43,11 +44,10 @@ double GLG4PMTOpticalModel::surfaceTolerance = 0.0;
 // constructor -- also handles all initialization
 // 28-Jul-2006 WGS: Must define a G4Region for Fast Simulations
 // (change from Geant 4.7 to Geant 4.8).
-GLG4PMTOpticalModel::GLG4PMTOpticalModel(
-    G4String modelName, G4Region *envelope_region,
-    G4LogicalVolume *envelope_log, G4OpticalSurface *pc_opsurf,
-    double efficiency_correction, double dynodeTop, double dynodeRadius,
-    double prepulseProb, double photocathode_MINrho, double photocathode_MAXrho)
+GLG4PMTOpticalModel::GLG4PMTOpticalModel(G4String modelName, G4Region *envelope_region, G4LogicalVolume *envelope_log,
+                                         G4OpticalSurface *pc_opsurf, double efficiency_correction, double dynodeTop,
+                                         double dynodeRadius, double prepulseProb, double photocathode_MINrho,
+                                         double photocathode_MAXrho)
     : G4VFastSimulationModel(modelName, envelope_region) {
   surfaceTolerance = G4GeometryTolerance::GetInstance()->GetSurfaceTolerance();
   _verbosity = 0;
@@ -60,20 +60,16 @@ GLG4PMTOpticalModel::GLG4PMTOpticalModel(
   _photocathode_MAXrho = photocathode_MAXrho;
   // get material properties vectors
   // ... material properties of glass
-  G4MaterialPropertiesTable *glass_pt =
-      envelope_log->GetMaterial()->GetMaterialPropertiesTable();
+  G4MaterialPropertiesTable *glass_pt = envelope_log->GetMaterial()->GetMaterialPropertiesTable();
   if (glass_pt == nullptr)
-    G4Exception(__FILE__, "Bad Properties", FatalException,
-                "GLG4PMTOpticalModel: glass lacks a properties table!");
+    G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: glass lacks a properties table!");
 
   _rindex_glass = glass_pt->GetProperty("RINDEX");
   if (_rindex_glass == nullptr)
-    G4Exception(__FILE__, "Bad Properties", FatalException,
-                "GLG4PMTOpticalModel: glass does not have RINDEX!");
+    G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: glass does not have RINDEX!");
 
   _applyCorrection = true;
-  if (_photocathode_MINrho == 0 || _photocathode_MAXrho == 0)
-    _applyCorrection = false;
+  if (_photocathode_MINrho == 0 || _photocathode_MAXrho == 0) _applyCorrection = false;
 
   // ... material properties of photocathode (first get photocathode surface)
   // here we assume that the first daughter volume is the "inner1" volume
@@ -85,8 +81,7 @@ GLG4PMTOpticalModel::GLG4PMTOpticalModel(
   _central_gap_phys = envelope_log->GetDaughter(2);
 
   if (pc_opsurf == nullptr)
-    G4Exception(__FILE__, "Bad Properties", FatalException,
-                "GLG4PMTOpticalModel: no photocathode optical surface!?!");
+    G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: no photocathode optical surface!?!");
   G4MaterialPropertiesTable *pc_pt = pc_opsurf->GetMaterialPropertiesTable();
   if (pc_pt == nullptr)
     G4Exception(__FILE__, "Bad Properties", FatalException,
@@ -95,13 +90,11 @@ GLG4PMTOpticalModel::GLG4PMTOpticalModel(
 
   _rindex_photocathode = pc_pt->GetProperty("RINDEX");
   if (_rindex_photocathode == nullptr)
-    G4Exception(__FILE__, "Bad Properties", FatalException,
-                "GLG4PMTOpticalModel: photocathode does not have RINDEX!");
+    G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: photocathode does not have RINDEX!");
 
   _kindex_photocathode = pc_pt->GetProperty("KINDEX");
   if (_kindex_photocathode == nullptr)
-    G4Exception(__FILE__, "Bad Properties", FatalException,
-                "GLG4PMTOpticalModel: photocathode does not have KINDEX!");
+    G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: photocathode does not have KINDEX!");
 
   _thickness_photocathode = pc_pt->GetProperty("THICKNESS");
   if (_thickness_photocathode == nullptr)
@@ -127,11 +120,12 @@ GLG4PMTOpticalModel::GLG4PMTOpticalModel(
     G4UIcommand *cmd;
 
     cmd = new G4UIcommand("/PMTOpticalModel/verbose", this);
-    cmd->SetGuidance("Set verbose level\n"
-                     " 0 == quiet\n"
-                     " 1 == minimal entrance/exit info\n"
-                     " 2 == +print verbose tracking info\n"
-                     " >= 10  +lots of info on thin photocathode calcs\n");
+    cmd->SetGuidance(
+        "Set verbose level\n"
+        " 0 == quiet\n"
+        " 1 == minimal entrance/exit info\n"
+        " 2 == +print verbose tracking info\n"
+        " >= 10  +lots of info on thin photocathode calcs\n");
     cmd->SetParameter(new G4UIparameter("level", 'i', false));
 
     cmd = new G4UIcommand("/PMTOpticalModel/luxlevel", this);
@@ -158,8 +152,7 @@ GLG4PMTOpticalModel::~GLG4PMTOpticalModel() {
 // IsApplicable() method overriding virtual function of G4VFastSimulationModel
 // returns true if model is applicable to given particle.
 // -- see also Geant4 docs
-G4bool
-GLG4PMTOpticalModel::IsApplicable(const G4ParticleDefinition &particleType) {
+G4bool GLG4PMTOpticalModel::IsApplicable(const G4ParticleDefinition &particleType) {
   return (&particleType == G4OpticalPhoton::OpticalPhotonDefinition());
 }
 
@@ -169,8 +162,7 @@ GLG4PMTOpticalModel::IsApplicable(const G4ParticleDefinition &particleType) {
 G4bool GLG4PMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack) {
   // we trigger if the track position is above the equator
   // or if it is on the equator and heading up
-  if (fastTrack.GetPrimaryTrackLocalPosition().z() > surfaceTolerance)
-    return true;
+  if (fastTrack.GetPrimaryTrackLocalPosition().z() > surfaceTolerance) return true;
   if (fastTrack.GetPrimaryTrackLocalPosition().z() > -surfaceTolerance &&
       fastTrack.GetPrimaryTrackLocalDirection().z() > 0.0)
     return true;
@@ -181,8 +173,7 @@ G4bool GLG4PMTOpticalModel::ModelTrigger(const G4FastTrack &fastTrack) {
 // does the fast simulation for this track.  It is basically a faster but
 // complete tracking code for the two-volume case.  It is a monster.
 // -- see also Geant4 docs and comments below
-void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
-                               G4FastStep &fastStep) {
+void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastStep) {
   // Logic summary:
   //  1) If track is outside the "inner1" vacuum, then track
   //     is advanced to either the inner1/body interface or to the body/outside
@@ -240,12 +231,12 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
   G4ThreeVector posGlobal = fastTrack.GetPrimaryTrack()->GetPosition();
 
   // get weight and time
-  time = fastTrack.GetPrimaryTrack()->GetGlobalTime(); // "global" is correct
+  time = fastTrack.GetPrimaryTrack()->GetGlobalTime();  // "global" is correct
   weight = (G4int)(fastTrack.GetPrimaryTrack()->GetWeight());
 
   // get n_glass, _n2, _k2, etc., for this wavelength
   energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
-  if (energy == _photon_energy) // equal to last energy?
+  if (energy == _photon_energy)  // equal to last energy?
   {
     // use old values
     if (_n1 == 1.0)
@@ -256,12 +247,11 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
     _photon_energy = energy;
     _wavelength = CLHEP::twopi * CLHEP::hbarc / energy;
     n_glass = _rindex_glass->Value(energy);
-    _n1 = n_glass; // just in case we exit before setting _n1
+    _n1 = n_glass;  // just in case we exit before setting _n1
     _n2 = _rindex_photocathode->Value(energy);
     _k2 = _kindex_photocathode->Value(energy);
-    _n3 = 1.0; // just in case we exit before setting _n3
-    _efficiency =
-        _efficiency_photocathode->Value(energy) * _efficiency_correction;
+    _n3 = 1.0;  // just in case we exit before setting _n3
+    _efficiency = _efficiency_photocathode->Value(energy) * _efficiency_correction;
   }
 
   // initialize "whereAmI"
@@ -276,12 +266,10 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
   // print verbose info
   if (_verbosity > 0) {
     G4cout.flush();
-    G4cout << "> Enter GLG4PMTOpticalModel, ipmt=" << ipmt
-           << (whereAmI == kInVacuum ? " vacuum" : " glass") << ", pos=" << pos
-           << ", dir=" << dir << ", weight=" << weight << ", pol=" << pol
-           << ", energy=" << _photon_energy << ", wavelength=" << _wavelength
-           << ", (n1,n3,n2,k2,efficiency)=(" << _n1 << "," << _n3 << "," << _n2
-           << "," << _k2 << "," << _efficiency << ")\n";
+    G4cout << "> Enter GLG4PMTOpticalModel, ipmt=" << ipmt << (whereAmI == kInVacuum ? " vacuum" : " glass")
+           << ", pos=" << pos << ", dir=" << dir << ", weight=" << weight << ", pol=" << pol
+           << ", energy=" << _photon_energy << ", wavelength=" << _wavelength << ", (n1,n3,n2,k2,efficiency)=(" << _n1
+           << "," << _n3 << "," << _n2 << "," << _k2 << "," << _efficiency << ")\n";
   }
   // MFB Import from Watchman
   _rho = sqrt(pow(pos.x(), 2) + pow(pos.y(), 2));
@@ -292,19 +280,17 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
   G4int iloop;
   G4int max_iloop = 100;
   for (iloop = 0; iloop < max_iloop; iloop++) {
-
-    if (whereAmI == kInGlass) { // in the glass
+    if (whereAmI == kInGlass) {  // in the glass
       // advance to next interface
       dist1 = envelope_solid->DistanceToOut(pos, dir);
       dist = _inner1_solid->DistanceToIn(pos, dir);
       if (dist1 < dist) {
         // we hit the envelope outer surface, not the inner surface
         dist = dist1;
-        if (dir.z() < 0.0)            // headed towards equator?
-        {                             // make sure we don't cross the equator
-          dist1 = -pos.z() / dir.z(); // distance to equator
-          if (dist1 < dist)
-            dist = dist1;
+        if (dir.z() < 0.0)             // headed towards equator?
+        {                              // make sure we don't cross the equator
+          dist1 = -pos.z() / dir.z();  // distance to equator
+          if (dist1 < dist) dist = dist1;
         }
         pos += dist * dir;
         time += dist * n_glass / CLHEP::c_light;
@@ -314,18 +300,17 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
       time += dist * n_glass / CLHEP::c_light;
       _n1 = n_glass;
       _n3 = 1.0;
-    } else { // in the "inner1" vacuum
+    } else {  // in the "inner1" vacuum
       // advance to next interface
       dist = _inner1_solid->DistanceToOut(pos, dir);
       if (dist < 0.0) {
         G4cerr << "GLG4PMTOpticalModel::DoIt(): "
-               << "Warning, strangeness detected! inner1->DistanceToOut()="
-               << dist << G4endl;
+               << "Warning, strangeness detected! inner1->DistanceToOut()=" << dist << G4endl;
         dist = 0.0;
       }
       pos += dist * dir;
       time += dist / CLHEP::c_light;
-      if (pos.z() < surfaceTolerance) // we're passing through the equator
+      if (pos.z() < surfaceTolerance)  // we're passing through the equator
         break;
       _n1 = 1.0;
       _n3 = n_glass;
@@ -338,8 +323,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
     // get outward-pointing normal in local coordinates at this position
     norm = _inner1_solid->SurfaceNormal(pos);
     // reverse sign if incident from glass, so normal points into region "3"
-    if (whereAmI == kInGlass)
-      norm *= -1.0; // in principle, this is more efficient than norm= -norm;
+    if (whereAmI == kInGlass) norm *= -1.0;  // in principle, this is more efficient than norm= -norm;
 
     // set _thickness and _cos_theta1
     _thickness = _thickness_photocathode->Value(pos.z());
@@ -347,9 +331,8 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
     if (_cos_theta1 < 0.0) {
       G4cerr << "GLG4PMTOpticalModel::DoIt(): "
              << " The normal points the wrong way!\n"
-             << "  norm: " << norm << G4endl << "  dir:  " << dir << G4endl
-             << "  _cos_theta1:  " << _cos_theta1 << G4endl << "  pos:  " << pos
-             << G4endl << "  whereAmI:  " << (int)(whereAmI) << G4endl
+             << "  norm: " << norm << G4endl << "  dir:  " << dir << G4endl << "  _cos_theta1:  " << _cos_theta1
+             << G4endl << "  pos:  " << pos << G4endl << "  whereAmI:  " << (int)(whereAmI) << G4endl
              << " Reversing normal!" << G4endl;
       _cos_theta1 = -_cos_theta1;
       norm = -norm;
@@ -369,27 +352,22 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
     T = fT_s * E_s2 + fT_p * (1.0 - E_s2);
     R = fR_s * E_s2 + fR_p * (1.0 - E_s2);
     A = 1.0 - (T + R);
-    An = 1.0 - (fT_n + fR_n);          // The absorption at normal incidence
-    collection_eff = _efficiency / An; // net QE = _efficiency for normal inc.
+    An = 1.0 - (fT_n + fR_n);           // The absorption at normal incidence
+    collection_eff = _efficiency / An;  // net QE = _efficiency for normal inc.
 
 #ifdef G4DEBUG
     if (A < 0.0 || A > 1.0 || collection_eff < 0.0 || collection_eff > 1.0) {
       G4cerr << "GLG4PMTOpticalModel::DoIt(): Strange coefficients!\n";
-      G4cout << "T, R, A, An, weight: " << T << " " << R << " " << A << " "
-             << An << " " << weight << G4endl;
-      G4cout << "collection eff, std QE: " << collection_eff << " "
-             << _efficiency << G4endl;
-      G4cout << "========================================================="
-             << G4endl;
-      A = collection_eff = 0.5; // safe values???
+      G4cout << "T, R, A, An, weight: " << T << " " << R << " " << A << " " << An << " " << weight << G4endl;
+      G4cout << "collection eff, std QE: " << collection_eff << " " << _efficiency << G4endl;
+      G4cout << "=========================================================" << G4endl;
+      A = collection_eff = 0.5;  // safe values???
     }
 #endif
 
     collection_eff *= RAT::PhotonThinning::GetFactor();
     if (collection_eff > 1.0)
-      RAT::Log::Die(dformat(
-          "PMT collection efficiency of %f is >1.0! Is thin_factor too big?",
-          collection_eff));
+      RAT::Log::Die(dformat("PMT collection efficiency of %f is >1.0! Is thin_factor too big?", collection_eff));
 
     // Now decide how many pe we make.
     // When weight == 1, probability of a pe is A*collection_eff.
@@ -401,8 +379,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
       if (EfficiencyCorrection[ipmt] >= 0) {
         mean_N_pe *= EfficiencyCorrection[ipmt];
       } else {
-        G4cout << "GLG4PMTOpticalModel[" << GetName()
-               << "] warning: individual efficiency correction for PMT " << ipmt
+        G4cout << "GLG4PMTOpticalModel[" << GetName() << "] warning: individual efficiency correction for PMT " << ipmt
                << " is " << EfficiencyCorrection[ipmt] << ", resetting to 1\n";
       }
     }
@@ -411,12 +388,10 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
     // if the photon was transmitted into the vacuum in the last step, check
     // for prepulsing using the renormalized prepulsing probability
     bool prepulse = false;
-    if (N_pe == 0 && whereAmI == kInVacuum && _prepulseProb > 0.0 &&
-        dir.z() < 0.0) {
+    if (N_pe == 0 && whereAmI == kInVacuum && _prepulseProb > 0.0 && dir.z() < 0.0) {
       double ddist = (_dynodeTop - pos.z()) / dir.z();
       G4ThreeVector posAtDynodeZ = pos + ddist * dir;
-      if (sqrt(pow(posAtDynodeZ.x(), 2) + pow(posAtDynodeZ.y(), 2)) <
-          _dynodeRadius)
+      if (sqrt(pow(posAtDynodeZ.x(), 2) + pow(posAtDynodeZ.y(), 2)) < _dynodeRadius)
         if (G4UniformRand() < _prepulseProb / fT_n) {
           N_pe = 1;
           prepulse = true;
@@ -425,28 +400,22 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
     }
 
     if (N_pe > 0) {
-      if (!_applyCorrection || G4UniformRand() <= _erfProb) // MFB
+      if (!_applyCorrection || G4UniformRand() <= _erfProb)  // MFB
       {
         GLG4HitPhoton *hit_photon = new GLG4HitPhoton();
         hit_photon->SetPMTID((int)ipmt);
         hit_photon->SetTime((double)time);
         hit_photon->SetKineticEnergy((double)energy);
-        hit_photon->SetPosition((double)pos.x(), (double)pos.y(),
-                                (double)pos.z());
-        hit_photon->SetMomentum((double)dir.x(), (double)dir.y(),
-                                (double)dir.z());
-        hit_photon->SetPolarization((double)pol.x(), (double)pol.y(),
-                                    (double)pol.z());
+        hit_photon->SetPosition((double)pos.x(), (double)pos.y(), (double)pos.z());
+        hit_photon->SetMomentum((double)dir.x(), (double)dir.y(), (double)dir.z());
+        hit_photon->SetPolarization((double)pol.x(), (double)pol.y(), (double)pol.z());
         hit_photon->SetCount(N_pe);
         hit_photon->SetTrackID(fastTrack.GetPrimaryTrack()->GetTrackID());
-        hit_photon->SetCreatorProcess(
-            fastTrack.GetPrimaryTrack()->GetCreatorProcess()->GetProcessName());
+        hit_photon->SetCreatorProcess(fastTrack.GetPrimaryTrack()->GetCreatorProcess()->GetProcessName());
         hit_photon->SetPrepulse(prepulse);
         GLG4VEventAction::GetTheHitPMTCollection()->DetectPhoton(hit_photon);
-        if (prepulse)
-          break;
-        if (_verbosity >= 2)
-          G4cout << "GLG4PMTOpticalModel made " << N_pe << " pe\n";
+        if (prepulse) break;
+        if (_verbosity >= 2) G4cout << "GLG4PMTOpticalModel made " << N_pe << " pe\n";
       }
     }
 
@@ -465,25 +434,23 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
     // correct, assuming there are no bugs in the code.)
     if (ranno_absorb < A) {
       weight = 0;
-      if (_verbosity >= 2)
-        G4cout << "GLG4PMTOpticalModel absorbed track\n";
+      if (_verbosity >= 2) G4cout << "GLG4PMTOpticalModel absorbed track\n";
       break;
     }
 
     // reflect or refract the unabsorbed track
-    if (G4UniformRand() < R / (R + T)) { // reflect
+    if (G4UniformRand() < R / (R + T)) {  // reflect
       Reflect(dir, pol, norm);
-      if (_verbosity >= 2)
-        G4cout << "GLG4PMTOpticalModel reflects track\n";
-    } else { // transmit
+      if (_verbosity >= 2) G4cout << "GLG4PMTOpticalModel reflects track\n";
+    } else {  // transmit
       Refract(dir, pol, norm);
       if (whereAmI == kInGlass)
         whereAmI = kInVacuum;
       else
         whereAmI = kInGlass;
       if (_verbosity >= 2)
-        G4cout << "GLG4PMTOpticalModel transmits track, now in "
-               << (whereAmI == kInVacuum ? " vacuum" : " glass") << G4endl;
+        G4cout << "GLG4PMTOpticalModel transmits track, now in " << (whereAmI == kInVacuum ? " vacuum" : " glass")
+               << G4endl;
     }
   }
 
@@ -495,8 +462,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
   if (weight <= 0) {
     fastStep.ProposeTrackStatus(fStopAndKill);
     if (weight < 0) {
-      G4cerr << "GLG4PMTOpticalModel::DoIt(): Logic error, weight = " << weight
-             << G4endl;
+      G4cerr << "GLG4PMTOpticalModel::DoIt(): Logic error, weight = " << weight << G4endl;
     }
   } else {
     // in case multiphoton has been partly absorbed and partly reflected
@@ -510,10 +476,9 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack,
 
   if (_verbosity > 0) {
     G4cout.flush();
-    G4cout << "> Exit GLG4PMTOpticalModel, ipmt=" << ipmt
-           << (whereAmI == kInVacuum ? " vacuum" : " glass") << ", pos=" << pos
-           << ", dir=" << dir << ", weight=" << weight << ", pol=" << pol
-           << ", iloop=" << iloop << "\n";
+    G4cout << "> Exit GLG4PMTOpticalModel, ipmt=" << ipmt << (whereAmI == kInVacuum ? " vacuum" : " glass")
+           << ", pos=" << pos << ", dir=" << dir << ", weight=" << weight << ", pol=" << pol << ", iloop=" << iloop
+           << "\n";
   }
 
   return;
@@ -558,23 +523,22 @@ void GLG4PMTOpticalModel::CalculateCoefficients()
   // else...
 
   // declare the prototypes of some useful functions
-  G4complex carcsin(G4complex theta); // complex sin^-1
+  G4complex carcsin(G4complex theta);  // complex sin^-1
   G4complex gfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj);
   G4complex rfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj);
-  G4complex trfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj,
-                   G4complex tk);
+  G4complex trfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj, G4complex tk);
 
   // declare some useful constants
-  G4complex _n2comp(_n2, -_k2); // complex photocathode refractive index
+  G4complex _n2comp(_n2, -_k2);  // complex photocathode refractive index
   G4complex eta = CLHEP::twopi * _n2comp * _thickness / _wavelength;
-  G4complex zi(0., 1.); // imaginary unit
+  G4complex zi(0., 1.);  // imaginary unit
 
   // declare local variables
 
-  G4complex theta1, theta2, theta3, delta; // geometric parameters
+  G4complex theta1, theta2, theta3, delta;  // geometric parameters
   G4complex r12, r23, t12, t21,
-      t23;              // reflection- and transmission-related terms
-  G4complex ampr, ampt; // relfection and transmission amplitudes
+      t23;               // reflection- and transmission-related terms
+  G4complex ampr, ampt;  // relfection and transmission amplitudes
 
   // first set sines and cosines
   _sin_theta1 = sqrt(1.0 - _cos_theta1 * _cos_theta1);
@@ -588,13 +552,10 @@ void GLG4PMTOpticalModel::CalculateCoefficients()
   _cos_theta3 = sqrt(1.0 - _sin_theta3 * _sin_theta3);
 
   // Determine all angles
-  theta1 = asin(_sin_theta1); // incidence angle
-  theta2 = carcsin((_n1 / _n2comp) *
-                   _sin_theta1); // complex angle in the photocathode
-  theta3 =
-      carcsin((_n2comp / _n3) * sin(theta2)); // angle of refraction into vacuum
-  if (imag(theta3) < 0.)
-    theta3 = conj(theta3); // needed! (sign ambiguity arcsin)
+  theta1 = asin(_sin_theta1);                       // incidence angle
+  theta2 = carcsin((_n1 / _n2comp) * _sin_theta1);  // complex angle in the photocathode
+  theta3 = carcsin((_n2comp / _n3) * sin(theta2));  // angle of refraction into vacuum
+  if (imag(theta3) < 0.) theta3 = conj(theta3);     // needed! (sign ambiguity arcsin)
 
   delta = eta * cos(theta2);
 
@@ -606,10 +567,8 @@ void GLG4PMTOpticalModel::CalculateCoefficients()
   t21 = trfunc(_n2comp, _n1, theta2, theta2, theta1);
   t23 = trfunc(_n2comp, _n3, theta2, theta2, theta3);
 
-  ampr = r12 + (t12 * t21 * r23 * exp(-2. * zi * delta)) /
-                   (1. + r12 * r23 * exp(-2. * zi * delta));
-  ampt =
-      (t12 * t23 * exp(-zi * delta)) / (1. + r12 * r23 * exp(-2. * zi * delta));
+  ampr = r12 + (t12 * t21 * r23 * exp(-2. * zi * delta)) / (1. + r12 * r23 * exp(-2. * zi * delta));
+  ampt = (t12 * t23 * exp(-zi * delta)) / (1. + r12 * r23 * exp(-2. * zi * delta));
 
   // And finally...!
   fR_s = real(ampr * conj(ampr));
@@ -623,10 +582,8 @@ void GLG4PMTOpticalModel::CalculateCoefficients()
   t21 = trfunc(_n2comp, _n1, theta2, theta1, theta2);
   t23 = trfunc(_n2comp, _n3, theta2, theta3, theta2);
 
-  ampr = r12 + (t12 * t21 * r23 * exp(-2. * zi * delta)) /
-                   (1. + r12 * r23 * exp(-2. * zi * delta));
-  ampt =
-      (t12 * t23 * exp(-zi * delta)) / (1. + r12 * r23 * exp(-2. * zi * delta));
+  ampr = r12 + (t12 * t21 * r23 * exp(-2. * zi * delta)) / (1. + r12 * r23 * exp(-2. * zi * delta));
+  ampt = (t12 * t23 * exp(-zi * delta)) / (1. + r12 * r23 * exp(-2. * zi * delta));
 
   // And finally...!
   fR_p = real(ampr * conj(ampr));
@@ -642,10 +599,8 @@ void GLG4PMTOpticalModel::CalculateCoefficients()
   t21 = trfunc(_n2comp, _n1, 0., 0., 0.);
   t23 = trfunc(_n2comp, _n3, 0., 0., 0.);
 
-  ampr = r12 + (t12 * t21 * r23 * exp(-2. * zi * delta)) /
-                   (1. + r12 * r23 * exp(-2. * zi * delta));
-  ampt =
-      (t12 * t23 * exp(-zi * delta)) / (1. + r12 * r23 * exp(-2. * zi * delta));
+  ampr = r12 + (t12 * t21 * r23 * exp(-2. * zi * delta)) / (1. + r12 * r23 * exp(-2. * zi * delta));
+  ampt = (t12 * t23 * exp(-zi * delta)) / (1. + r12 * r23 * exp(-2. * zi * delta));
 
   // And finally...!
   fR_n = real(ampr * conj(ampr));
@@ -653,20 +608,16 @@ void GLG4PMTOpticalModel::CalculateCoefficients()
 
 #ifdef G4DEBUG
   if (_verbosity >= 10) {
-    G4cout << "=> lam, n1, n2: " << _wavelength / nanometer << " " << _n1 << " "
-           << _n2comp << G4endl;
-    G4cout << "=> Angles: " << real(theta1) / degree << " " << theta2 / degree
-           << " " << theta3 / degree << G4endl;
-    G4cout << "Rper, Rpar, Tper, Tpar: " << fR_s << " " << fR_p << " " << fT_s
-           << " " << fT_p;
+    G4cout << "=> lam, n1, n2: " << _wavelength / nanometer << " " << _n1 << " " << _n2comp << G4endl;
+    G4cout << "=> Angles: " << real(theta1) / degree << " " << theta2 / degree << " " << theta3 / degree << G4endl;
+    G4cout << "Rper, Rpar, Tper, Tpar: " << fR_s << " " << fR_p << " " << fT_s << " " << fT_p;
     G4cout << "\nRn, Tn : " << fR_n << " " << fT_n;
-    G4cout << "\n-------------------------------------------------------"
-           << G4endl;
+    G4cout << "\n-------------------------------------------------------" << G4endl;
   }
 #endif
 }
 
-G4complex carcsin(G4complex theta) // complex sin^-1
+G4complex carcsin(G4complex theta)  // complex sin^-1
 {
   G4complex zi(0., 1.);
   G4complex value = (1. / zi) * (log(zi * theta + sqrt(1. - theta * theta)));
@@ -679,34 +630,29 @@ G4complex gfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj) {
 }
 
 G4complex rfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj) {
-  G4complex value =
-      (ni * cos(ti) - nj * cos(tj)) / (ni * cos(ti) + nj * cos(tj));
+  G4complex value = (ni * cos(ti) - nj * cos(tj)) / (ni * cos(ti) + nj * cos(tj));
   return value;
 }
 
-G4complex trfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj,
-                 G4complex tk) {
+G4complex trfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj, G4complex tk) {
   G4complex value = 2. * (ni * cos(ti)) / (ni * cos(tj) + nj * cos(tk));
   return value;
 }
 
 // Reflect() method, used by DoIt()
-void GLG4PMTOpticalModel::Reflect(G4ThreeVector &dir, G4ThreeVector &pol,
-                                  G4ThreeVector &norm) {
+void GLG4PMTOpticalModel::Reflect(G4ThreeVector &dir, G4ThreeVector &pol, G4ThreeVector &norm) {
   dir -= 2. * (dir * norm) * norm;
   pol -= 2. * (pol * norm) * norm;
 }
 
 // Refract() method, used by DoIt()
-void GLG4PMTOpticalModel::Refract(G4ThreeVector &dir, G4ThreeVector &pol,
-                                  G4ThreeVector &norm) {
+void GLG4PMTOpticalModel::Refract(G4ThreeVector &dir, G4ThreeVector &pol, G4ThreeVector &norm) {
   dir = (_cos_theta3 - _cos_theta1 * _n1 / _n3) * norm + (_n1 / _n3) * dir;
   pol = (pol - (pol * dir) * dir).unit();
 }
 
 // user command handling functions
-void GLG4PMTOpticalModel::SetNewValue(G4UIcommand *command,
-                                      G4String newValues) {
+void GLG4PMTOpticalModel::SetNewValue(G4UIcommand *command, G4String newValues) {
   G4String commandName = command->GetCommandName();
   if (commandName == "verbose") {
     _verbosity = strtol((const char *)newValues, nullptr, 0);
@@ -741,8 +687,7 @@ int GLG4PMTOpticalModel::GetPMTID(const G4FastTrack &fastTrack) {
   for (iDepth = 0; iDepth < handle->GetHistoryDepth(); iDepth++) {
     const std::string volName = handle->GetVolume(iDepth)->GetName();
     const size_t envelopeHistory = volName.find("_pmtenv_");
-    if (envelopeHistory != std::string::npos)
-      return handle->GetCopyNumber(iDepth);
+    if (envelopeHistory != std::string::npos) return handle->GetCopyNumber(iDepth);
   }
   RAT::Log::Die("OpticalModelBase::GetPMTID: Cannot decode PMT ID.");
   return -1;

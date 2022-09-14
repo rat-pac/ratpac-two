@@ -17,7 +17,7 @@
 namespace RAT {
 
 class CentroidCalculator {
-public:
+ public:
   /** All accumulators cleared by default in constructor */
   CentroidCalculator() { Reset(); };
 
@@ -32,8 +32,7 @@ public:
   void Fill(const TVector3 &point, double weight = 1.0) {
     fMoment0 += weight;
     fMoment1 += weight * point;
-    TVector3 square(point.X() * point.X(), point.Y() * point.Y(),
-                    point.Z() * point.Z());
+    TVector3 square(point.X() * point.X(), point.Y() * point.Y(), point.Z() * point.Z());
     fMoment2 += weight * square;
   };
 
@@ -49,21 +48,18 @@ public:
 
   /** RMS of each coordinate */
   TVector3 GetRMS() const {
-    TVector3 squareMoment1(fMoment1.X() * fMoment1.X(),
-                           fMoment1.Y() * fMoment1.Y(),
-                           fMoment1.Z() * fMoment1.Z());
+    TVector3 squareMoment1(fMoment1.X() * fMoment1.X(), fMoment1.Y() * fMoment1.Y(), fMoment1.Z() * fMoment1.Z());
     TVector3 temp = fMoment0 * fMoment2 - squareMoment1;
 
-    return TVector3(sqrt(temp.X()), sqrt(temp.Y()), sqrt(temp.Z())) *
-           (1.0 / fMoment0);
+    return TVector3(sqrt(temp.X()), sqrt(temp.Y()), sqrt(temp.Z())) * (1.0 / fMoment0);
   };
 
-protected:
+ protected:
   double fMoment0;
   TVector3 fMoment1;
   TVector3 fMoment2;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

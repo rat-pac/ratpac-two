@@ -1,10 +1,10 @@
+#include <CLHEP/Units/PhysicalConstants.h>
+
+#include <RAT/TrackCursor.hh>
+#include <RAT/TrackNode.hh>
 #include <RAT/dprintf.hpp>
 #include <RAT/string_utilities.hpp>
 #include <iostream>
-
-#include <CLHEP/Units/PhysicalConstants.h>
-#include <RAT/TrackCursor.hh>
-#include <RAT/TrackNode.hh>
 
 using namespace std;
 using namespace CLHEP;
@@ -13,22 +13,19 @@ namespace RAT {
 
 TrackNode *TrackCursor::TrackStart() const {
   TrackNode *cur = fCur;
-  while (!cur->IsTrackStart())
-    cur = cur->GetPrev();
+  while (!cur->IsTrackStart()) cur = cur->GetPrev();
   return cur;
 }
 
 TrackNode *TrackCursor::TrackEnd() const {
   TrackNode *cur = fCur;
-  while (!cur->IsTrackEnd())
-    cur = cur->GetNext();
+  while (!cur->IsTrackEnd()) cur = cur->GetNext();
   return cur;
 }
 
 TrackNode *TrackCursor::Step(int i) const {
   TrackNode *cur = TrackStart();
-  while (cur->GetStepID() != i && !cur->IsTrackEnd())
-    cur = cur->GetNext();
+  while (cur->GetStepID() != i && !cur->IsTrackEnd()) cur = cur->GetNext();
 
   if (cur->GetStepID() == i)
     return cur;
@@ -62,7 +59,7 @@ TrackNode *TrackCursor::TrackChild(int i) const {
   }
 
   if (cur == 0)
-    return 0; // Hit end of list before found child
+    return 0;  // Hit end of list before found child
   else
     return cur->child[i];
 }
@@ -71,7 +68,7 @@ TrackNode *TrackCursor::Parent() const { return TrackStart()->GetPrev(); }
 
 double TrackCursor::TrackLength() const {
   TrackNode *cur = TrackStart();
-  double length = cur->GetLength(); // Should be zero for track start
+  double length = cur->GetLength();  // Should be zero for track start
   while (!cur->IsTrackEnd()) {
     cur = cur->GetNext();
     length += cur->GetLength();
@@ -81,63 +78,54 @@ double TrackCursor::TrackLength() const {
 
 void TrackCursor::Go(TrackNode *node) {
   fCur = node;
-  if (fVerbose)
-    PrintTrack();
+  if (fVerbose) PrintTrack();
 }
 
 TrackNode *TrackCursor::GoTrackStart() {
   TrackNode *newCur = TrackStart();
-  if (newCur != 0)
-    Go(newCur);
+  if (newCur != 0) Go(newCur);
   return newCur;
 }
 
 TrackNode *TrackCursor::GoPrev() {
   TrackNode *newCur = Prev();
-  if (newCur != 0)
-    Go(newCur);
+  if (newCur != 0) Go(newCur);
   return newCur;
 }
 
 TrackNode *TrackCursor::GoNext() {
   TrackNode *newCur = Next();
-  if (newCur != 0)
-    Go(newCur);
+  if (newCur != 0) Go(newCur);
   return newCur;
 }
 
 TrackNode *TrackCursor::GoTrackEnd() {
   TrackNode *newCur = TrackEnd();
-  if (newCur != 0)
-    Go(newCur);
+  if (newCur != 0) Go(newCur);
   return newCur;
 }
 
 TrackNode *TrackCursor::GoStep(int i) {
   TrackNode *newCur = Step(i);
-  if (newCur != 0)
-    Go(newCur);
+  if (newCur != 0) Go(newCur);
   return newCur;
 }
 
 TrackNode *TrackCursor::GoChild(int i) {
   TrackNode *newCur = Child(i);
-  if (newCur != 0)
-    Go(newCur);
+  if (newCur != 0) Go(newCur);
   return newCur;
 }
 
 TrackNode *TrackCursor::GoTrackChild(int i) {
   TrackNode *newCur = TrackChild(i);
-  if (newCur != 0)
-    Go(newCur);
+  if (newCur != 0) Go(newCur);
   return newCur;
 }
 
 TrackNode *TrackCursor::GoParent() {
   TrackNode *newCur = Parent();
-  if (newCur != 0)
-    Go(newCur);
+  if (newCur != 0) Go(newCur);
   return newCur;
 }
 
@@ -166,20 +154,17 @@ std::string TrackCursor::PrintTrackIDs(TrackNode *node) {
 std::string TrackCursor::Print(TrackNode * /*node*/) { return string(""); }
 
 std::string TrackCursor::PrintTrack(TrackNode *node) {
-  if (node == 0)
-    return "null\n";
+  if (node == 0) return "null\n";
 
   TrackCursor cursor(node);
   TrackNode *cur = cursor.GoTrackStart();
   string output;
 
   // Track level information
-  output += dformat("Track %s: %s", PrintTrackIDs(cur).c_str(),
-                    cur->GetParticleName().c_str());
+  output += dformat("Track %s: %s", PrintTrackIDs(cur).c_str(), cur->GetParticleName().c_str());
   TrackNode *parent = cursor.Parent();
   if (parent != 0)
-    output += dformat("  parent: %s(%s)\n", parent->GetParticleName().c_str(),
-                      PrintTrackIDs(parent).c_str());
+    output += dformat("  parent: %s(%s)\n", parent->GetParticleName().c_str(), PrintTrackIDs(parent).c_str());
   else
     output += "\n";
 
@@ -189,20 +174,20 @@ std::string TrackCursor::PrintTrack(TrackNode *node) {
   else
     ecol = "  MeV ";
 
-  output += "------------------------------------------------------------------"
-            "-----------------\n";
-  output += " # |          position                |" + ecol +
-            "|     process    |   subtracks\n";
-  output += "------------------------------------------------------------------"
-            "-----------------\n";
+  output +=
+      "------------------------------------------------------------------"
+      "-----------------\n";
+  output += " # |          position                |" + ecol + "|     process    |   subtracks\n";
+  output +=
+      "------------------------------------------------------------------"
+      "-----------------\n";
 
   // Step information
   while (cur != 0) {
     string id = (cur == node ? "*" : " ") + dformat("%2d. ", cur->GetStepID());
 
-    string pos = dformat("(%6.1f,%6.1f,%6.1f) %10s ", cur->GetEndpoint().x(),
-                         cur->GetEndpoint().y(), cur->GetEndpoint().z(),
-                         cur->GetVolume().c_str());
+    string pos = dformat("(%6.1f,%6.1f,%6.1f) %10s ", cur->GetEndpoint().x(), cur->GetEndpoint().y(),
+                         cur->GetEndpoint().z(), cur->GetVolume().c_str());
 
     string ene;
     if (cur->GetParticleName() == "opticalphoton")
@@ -221,9 +206,8 @@ std::string TrackCursor::PrintTrack(TrackNode *node) {
       others = "->";
       vector<string> otherNames;
       for (unsigned i = 0; i < cur->child.size(); i++)
-        otherNames.push_back(dformat("%s(%s)",
-                                     cur->child[i]->GetParticleName().c_str(),
-                                     PrintTrackIDs(cur->child[i]).c_str()));
+        otherNames.push_back(
+            dformat("%s(%s)", cur->child[i]->GetParticleName().c_str(), PrintTrackIDs(cur->child[i]).c_str()));
 
       others += join(otherNames, ",");
     } else
@@ -241,32 +225,31 @@ TrackNode *TrackCursor::FindNextTrack() {
   // Depth-first iteration through the track tree, visiting intermediate tracks
   // "on the way down"
   if (TrackChildCount() > 0)
-    return GoTrackChild(0); // Next track down tree
+    return GoTrackChild(0);  // Next track down tree
   else
-    return FindNextTrackNoDescend(); // Next track back up (and down another
-                                     // branch perhaps)
+    return FindNextTrackNoDescend();  // Next track back up (and down another
+                                      // branch perhaps)
 }
 
 TrackNode *TrackCursor::FindNextTrackNoDescend() {
   // Depth-first iteration, going back up the tree
   if (Parent() == 0)
-    return 0; // Nothing left
+    return 0;  // Nothing left
   else {
     TrackNode *origChild = TrackStart();
-    fCur = Parent(); // Don't use GoParent() since we don't want to trigger
-                     // verbose output
+    fCur = Parent();  // Don't use GoParent() since we don't want to trigger
+                      // verbose output
 
     int totalChildren = TrackChildCount();
-    int i; // Declare outside so we can break out of loop and keep value
+    int i;  // Declare outside so we can break out of loop and keep value
     for (i = 0; i < totalChildren; i++) {
-      if (TrackChild(i) == origChild)
-        break;
+      if (TrackChild(i) == origChild) break;
     }
 
     if (i + 1 < totalChildren)
-      return GoTrackChild(i + 1); // Done, go down next child branch
+      return GoTrackChild(i + 1);  // Done, go down next child branch
     else
-      return FindNextTrackNoDescend(); // Recurse back up tree
+      return FindNextTrackNoDescend();  // Recurse back up tree
   }
 }
 
@@ -277,16 +260,14 @@ TrackNode *TrackCursor::FindNextTrack(TrackTest *predicate) {
   fVerbose = false;
 
   TrackNode *candidate = FindNextTrack();
-  while (candidate != 0 && !(*predicate)(candidate))
-    candidate = FindNextTrack();
+  while (candidate != 0 && !(*predicate)(candidate)) candidate = FindNextTrack();
 
   fVerbose = verboseRemember;
   if (candidate != 0)
     Go(candidate);
   else {
     Go(origLocation);
-    if (fVerbose)
-      cout << "Unable to find track.  Returned to original location.\n";
+    if (fVerbose) cout << "Unable to find track.  Returned to original location.\n";
   }
 
   return candidate;
@@ -297,4 +278,4 @@ TrackNode *TrackCursor::FindNextParticle(const std::string &particleName) {
   return FindNextTrack(&test);
 }
 
-} // namespace RAT
+}  // namespace RAT

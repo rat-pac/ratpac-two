@@ -26,8 +26,9 @@
 #include <RAT/SignalHandler.hh>
 #include <RAT/TrackingMessenger.hh>
 //#include <getopt.h>
-#include <RAT/Rat.hh>
 #include <TRandom.h>
+
+#include <RAT/Rat.hh>
 #include <string>
 
 namespace RAT {
@@ -49,49 +50,34 @@ std::string get_long_hostname() {
   return std::string(c_hostname);
 }
 
-Rat::Rat(AnyParse *parser, int argc, char **argv)
-    : parser(parser), argc(argc), argv(argv) {
+Rat::Rat(AnyParse *parser, int argc, char **argv) : parser(parser), argc(argc), argv(argv) {
   // Setup a base set of arguments
   this->parser->SetHelpLine("[options] macro1.mac macro2.mac ...");
   // Form is AddArgument(name, default, shortname, length, help, type)
   this->parser->AddArgument("run", 0, "r", 1, "Simulated run number", ParseInt);
-  this->parser->AddArgument("quiet", false, "q", 0,
-                            "Quiet mode, only show warnings", ParseInt);
-  this->parser->AddArgument("verbose", false, "v", 0, "Enable verbose printing",
-                            ParseInt);
-  this->parser->AddArgument("debug", false, "d", 0, "Enable debug printing",
-                            ParseInt);
-  this->parser->AddArgument("version", false, "V", 0,
-                            "Show program version and exit", ParseInt);
-  this->parser->AddArgument("database", "", "b", 1, "URL to database",
-                            ParseString);
+  this->parser->AddArgument("quiet", false, "q", 0, "Quiet mode, only show warnings", ParseInt);
+  this->parser->AddArgument("verbose", false, "v", 0, "Enable verbose printing", ParseInt);
+  this->parser->AddArgument("debug", false, "d", 0, "Enable debug printing", ParseInt);
+  this->parser->AddArgument("version", false, "V", 0, "Show program version and exit", ParseInt);
+  this->parser->AddArgument("database", "", "b", 1, "URL to database", ParseString);
   this->parser->AddArgument("log", "", "l", 1, "Set log filename", ParseString);
-  this->parser->AddArgument("seed", -1, "s", 1, "Set random number seed",
-                            ParseInt);
-  this->parser->AddArgument("input", "", "i", 1, "Set default input filename",
-                            ParseString);
-  this->parser->AddArgument("output", "", "o", 1, "Set default output filename",
-                            ParseString);
-  this->parser->AddArgument("vector", "", "x", 1, "Set default vector filename",
-                            ParseString);
-  this->parser->AddArgument("python", std::vector<std::string>{}, "p", 999,
-                            "Set python processors", ParseString);
-  this->parser->AddArgument("vis", false, "g", 0, "Load G4UI visualization",
-                            ParseInt);
+  this->parser->AddArgument("seed", -1, "s", 1, "Set random number seed", ParseInt);
+  this->parser->AddArgument("input", "", "i", 1, "Set default input filename", ParseString);
+  this->parser->AddArgument("output", "", "o", 1, "Set default output filename", ParseString);
+  this->parser->AddArgument("vector", "", "x", 1, "Set default vector filename", ParseString);
+  this->parser->AddArgument("python", std::vector<std::string>{}, "p", 999, "Set python processors", ParseString);
+  this->parser->AddArgument("vis", false, "g", 0, "Load G4UI visualization", ParseInt);
   // Parser setup and ready to read command line arguments
   this->parser->Parse();
 
-  if (this->parser->GetValue("database", "") != "")
-    RAT::DB::Get()->SetServer(this->parser->GetValue("database", ""));
+  if (this->parser->GetValue("database", "") != "") RAT::DB::Get()->SetServer(this->parser->GetValue("database", ""));
   // Database management
   rdb = DB::Get();
   rdb_messenger = new DBMessenger();
   // Local data management
   if (getenv("RATSHARE") != NULL) {
-    ratdb_directories.insert(static_cast<std::string>(getenv("RATSHARE")) +
-                             "/ratdb");
-    model_directories.insert(static_cast<std::string>(getenv("RATSHARE")) +
-                             "/models");
+    ratdb_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/ratdb");
+    model_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/models");
   }
 }
 
@@ -105,20 +91,14 @@ void Rat::Begin() {
   this->vector_filename = this->parser->GetValue("output", "");
   this->run = this->parser->GetValue("run", 0);
   this->vis = this->parser->GetValue("vis", false);
-  this->python_processors =
-      this->parser->GetValue("python", std::vector<std::string>());
+  this->python_processors = this->parser->GetValue("python", std::vector<std::string>());
 
   // Logging and logfile
   bool debug_log = this->parser->GetValue("debug", false);
-  int display_level = Log::INFO - this->parser->GetValue("quiet", false) +
-                      this->parser->GetValue("verbose", false);
-  int log_level =
-      debug_log || display_level == Log::DEBUG ? Log::DEBUG : Log::DETAIL;
-  std::string logfilename = (std::string("rat.") + get_short_hostname() + "." +
-                             std::to_string(getpid()) + ".log");
-  logfilename = this->parser->GetValue("log", "") != ""
-                    ? this->parser->GetValue("log", "")
-                    : logfilename;
+  int display_level = Log::INFO - this->parser->GetValue("quiet", false) + this->parser->GetValue("verbose", false);
+  int log_level = debug_log || display_level == Log::DEBUG ? Log::DEBUG : Log::DETAIL;
+  std::string logfilename = (std::string("rat.") + get_short_hostname() + "." + std::to_string(getpid()) + ".log");
+  logfilename = this->parser->GetValue("log", "") != "" ? this->parser->GetValue("log", "") : logfilename;
   Log::Init(logfilename, Log::Level(display_level), Log::Level(log_level));
 
   // Start by putting all of the basic rat starting functions here, eventually
@@ -133,8 +113,7 @@ void Rat::Begin() {
   info << "Hostname: " << get_long_hostname() << " PID: " << pid << newline;
 
   time_t start_time = time(nullptr);
-  if (this->seed == -1)
-    this->seed = start_time ^ (pid << 16);
+  if (this->seed == -1) this->seed = start_time ^ (pid << 16);
   detail << "Seeding random number generator: " << this->seed << newline;
   CLHEP::HepRandom::setTheSeed(this->seed);
   // Root ...
@@ -153,21 +132,16 @@ void Rat::Begin() {
   try {
     if (this->input_filename != "") {
       rdb->Set("IO", "", "default_input_filename", this->input_filename);
-      info << "Setting default input file to " << this->input_filename
-           << newline;
+      info << "Setting default input file to " << this->input_filename << newline;
     }
     if (this->output_filename != "") {
-      rdb->Set("IO", "ROOTProc", "default_output_filename",
-               this->output_filename);
-      rdb->Set("IO", "NtupleProc", "default_output_filename",
-               this->output_filename);
-      info << "Setting default output file to " << this->output_filename
-           << newline;
+      rdb->Set("IO", "ROOTProc", "default_output_filename", this->output_filename);
+      rdb->Set("IO", "NtupleProc", "default_output_filename", this->output_filename);
+      info << "Setting default output file to " << this->output_filename << newline;
     }
     if (this->vector_filename != "") {
       rdb->Set("IO", "", "default_vector_filename", this->vector_filename);
-      info << "Setting default vector file to " << this->vector_filename
-           << newline;
+      info << "Setting default vector file to " << this->vector_filename << newline;
     }
 
     // Main analysis block
@@ -197,8 +171,7 @@ void Rat::Begin() {
 
     bool isInteractive = false;
     G4UIExecutive *theSession = nullptr;
-    if (this->vis)
-      theSession = new G4UIExecutive(this->argc, this->argv);
+    if (this->vis) theSession = new G4UIExecutive(this->argc, this->argv);
 
     std::string command = "/control/execute ";
     for (auto &mac : this->parser->Positionals) {
@@ -210,8 +183,7 @@ void Rat::Begin() {
       }
       theUI->ApplyCommand(command + mac);
     }
-    if (this->vis)
-      theSession->SessionStart();
+    if (this->vis) theSession->SessionStart();
     delete theSession;
 
     // Hack to close GLG4sim output file if used
@@ -240,4 +212,4 @@ void Rat::Report() {
   printf("CPU usage: user %8.2f sec\tsys %6.2f sec\n", usertime, systime);
 }
 
-} // namespace RAT
+}  // namespace RAT

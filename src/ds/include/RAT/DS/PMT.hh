@@ -14,7 +14,7 @@ namespace RAT {
 namespace DS {
 
 class PMT : public TObject {
-public:
+ public:
   PMT() : TObject() {}
   virtual ~PMT() {}
 
@@ -32,13 +32,13 @@ public:
 
   ClassDef(PMT, 1);
 
-protected:
+ protected:
   Int_t id;
   Float_t charge;
   Double_t time;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

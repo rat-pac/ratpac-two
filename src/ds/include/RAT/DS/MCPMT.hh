@@ -19,7 +19,7 @@ namespace RAT {
 namespace DS {
 
 class MCPMT : public TObject {
-public:
+ public:
   MCPMT() : TObject() {}
   virtual ~MCPMT() {}
 
@@ -55,7 +55,7 @@ public:
   std::vector<MCPhoton> photon;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

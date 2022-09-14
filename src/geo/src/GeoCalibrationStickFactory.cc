@@ -1,10 +1,7 @@
 #include <CLHEP/Units/SystemOfUnits.h>
 using namespace CLHEP;
 
-#include <RAT/DB.hh>
-#include <RAT/GeoCalibrationStickFactory.hh>
-#include <RAT/Log.hh>
-#include <RAT/Materials.hh>
+#include <math.h>
 
 #include <G4Colour.hh>
 #include <G4LogicalBorderSurface.hh>
@@ -20,7 +17,10 @@ using namespace CLHEP;
 #include <G4UnitsTable.hh>
 #include <G4VPhysicalVolume.hh>
 #include <G4VisAttributes.hh>
-#include <math.h>
+#include <RAT/DB.hh>
+#include <RAT/GeoCalibrationStickFactory.hh>
+#include <RAT/Log.hh>
+#include <RAT/Materials.hh>
 #include <string>
 #include <vector>
 
@@ -47,39 +47,26 @@ G4VPhysicalVolume *GeoCalibrationStickFactory::Construct(DBLinkPtr table) {
   const double sourceCenter = stickLength / 2.0 - sourceThickness / 2.0;
 
   // Main outer tube
-  G4Material *stickMaterial =
-      G4Material::GetMaterial(table->GetS("stick_material"));
+  G4Material *stickMaterial = G4Material::GetMaterial(table->GetS("stick_material"));
   // const vector<double> &sourceColor = table->GetDArray("source_vis_color");
   G4Tubs *stickSolid =
-      new G4Tubs("CalibrationStick_StickSolid", innerDiameter / 2.0,
-                 outerDiameter / 2.0, stickLength / 2.0, 0, twopi);
-  G4LogicalVolume *stickLog =
-      new G4LogicalVolume(stickSolid, stickMaterial, "CalibrationStick_Stick");
+      new G4Tubs("CalibrationStick_StickSolid", innerDiameter / 2.0, outerDiameter / 2.0, stickLength / 2.0, 0, twopi);
+  G4LogicalVolume *stickLog = new G4LogicalVolume(stickSolid, stickMaterial, "CalibrationStick_Stick");
 
   // Place endcap
-  G4Material *bottomMaterial =
-      G4Material::GetMaterial(table->GetS("bottom_material"));
+  G4Material *bottomMaterial = G4Material::GetMaterial(table->GetS("bottom_material"));
   G4Tubs *bottomSolid =
-      new G4Tubs("CalibrationStick_BottomSolid", 0, outerDiameter / 2.0,
-                 bottomThickness / 2.0, 0, twopi);
-  G4LogicalVolume *bottomLog = new G4LogicalVolume(bottomSolid, bottomMaterial,
-                                                   "CalibrationStick_Bottom");
+      new G4Tubs("CalibrationStick_BottomSolid", 0, outerDiameter / 2.0, bottomThickness / 2.0, 0, twopi);
+  G4LogicalVolume *bottomLog = new G4LogicalVolume(bottomSolid, bottomMaterial, "CalibrationStick_Bottom");
   // Source
-  G4Material *sourceMaterial =
-      G4Material::GetMaterial(table->GetS("source_material"));
+  G4Material *sourceMaterial = G4Material::GetMaterial(table->GetS("source_material"));
   G4Tubs *sourceSolid =
-      new G4Tubs("CalibrationStick_SourceSolid", 0, innerDiameter / 2.0,
-                 sourceThickness / 2.0, 0, twopi);
-  G4LogicalVolume *sourceLog = new G4LogicalVolume(sourceSolid, sourceMaterial,
-                                                   "CalibrationStick_Source");
+      new G4Tubs("CalibrationStick_SourceSolid", 0, innerDiameter / 2.0, sourceThickness / 2.0, 0, twopi);
+  G4LogicalVolume *sourceLog = new G4LogicalVolume(sourceSolid, sourceMaterial, "CalibrationStick_Source");
   // Tube is filled with air
-  G4Material *gasMaterial =
-      G4Material::GetMaterial(table->GetS("gas_material"));
-  G4Tubs *gasSolid =
-      new G4Tubs("CalibrationStick_GasSolid", 0, innerDiameter / 2.0,
-                 stickLength / 2.0, 0, twopi);
-  G4LogicalVolume *gasLog =
-      new G4LogicalVolume(gasSolid, gasMaterial, "CalibrationStick_Gas");
+  G4Material *gasMaterial = G4Material::GetMaterial(table->GetS("gas_material"));
+  G4Tubs *gasSolid = new G4Tubs("CalibrationStick_GasSolid", 0, innerDiameter / 2.0, stickLength / 2.0, 0, twopi);
+  G4LogicalVolume *gasLog = new G4LogicalVolume(gasSolid, gasMaterial, "CalibrationStick_Gas");
 
   // Surface properties: Shiny steel?
   // G4OpticalSurface *paintSurface = GetSurface(table->GetS("paint_surface"));
@@ -91,30 +78,25 @@ G4VPhysicalVolume *GeoCalibrationStickFactory::Construct(DBLinkPtr table) {
   G4RotationMatrix *rotation = motherPhys->GetObjectRotation();
   G4ThreeVector position = motherPhys->GetObjectTranslation();
   // second is rotation, first is position
-  position = position +
-             G4ThreeVector(0.0, 0.0, stickLength / 2.0 + bottomThickness) +
-             offset;
+  position = position + G4ThreeVector(0.0, 0.0, stickLength / 2.0 + bottomThickness) + offset;
 
   G4VPhysicalVolume *stickPhys =
-      new G4PVPlacement(rotation, position, "CalibrationStick_Stick", stickLog,
-                        motherPhys, false, 0);
-  G4VPhysicalVolume *bottomPhys = new G4PVPlacement(
-      rotation,
-      position - G4ThreeVector(0, 0, (stickLength + bottomThickness) / 2.0),
-      "CalibrationStick_Bottom", bottomLog, motherPhys, false, 0);
-  G4VPhysicalVolume *sourcePhys = new G4PVPlacement(
-      rotation,
-      position - G4ThreeVector(0, 0, (stickLength / 2.0) - sourcePosition),
-      "CalibrationStick_Source", sourceLog, motherPhys, false, 0);
-  G4VPhysicalVolume *gasPhys = new G4PVPlacement(
-      rotation, position, "CalibrationStick_Gas", gasLog, motherPhys, false, 0);
+      new G4PVPlacement(rotation, position, "CalibrationStick_Stick", stickLog, motherPhys, false, 0);
+  G4VPhysicalVolume *bottomPhys =
+      new G4PVPlacement(rotation, position - G4ThreeVector(0, 0, (stickLength + bottomThickness) / 2.0),
+                        "CalibrationStick_Bottom", bottomLog, motherPhys, false, 0);
+  G4VPhysicalVolume *sourcePhys =
+      new G4PVPlacement(rotation, position - G4ThreeVector(0, 0, (stickLength / 2.0) - sourcePosition),
+                        "CalibrationStick_Source", sourceLog, motherPhys, false, 0);
+  G4VPhysicalVolume *gasPhys =
+      new G4PVPlacement(rotation, position, "CalibrationStick_Gas", gasLog, motherPhys, false, 0);
 
   // Set visuals
   SetVis(stickLog, table->GetDArray("stick_color"));
   SetVis(bottomLog, table->GetDArray("bottom_color"));
   SetVis(sourceLog, table->GetDArray("source_color"));
 
-  return NULL; // This function should probably be void, fixme
+  return NULL;  // This function should probably be void, fixme
 }
 
 // G4OpticalSurface* GeoCherenkovSourceFactory::GetSurface(string surface_name)
@@ -124,16 +106,14 @@ G4VPhysicalVolume *GeoCalibrationStickFactory::Construct(DBLinkPtr table) {
 //     return Materials::optical_surface[surface_name];
 // }
 
-void GeoCalibrationStickFactory::SetVis(G4LogicalVolume *volume,
-                                        std::vector<double> color) {
+void GeoCalibrationStickFactory::SetVis(G4LogicalVolume *volume, std::vector<double> color) {
   G4VisAttributes *att = GetColor(color);
   att->SetForceSolid(true);
   volume->SetVisAttributes(att);
 }
 
 // This really should be available to all factories
-G4VisAttributes *
-GeoCalibrationStickFactory::GetColor(std::vector<double> color) {
+G4VisAttributes *GeoCalibrationStickFactory::GetColor(std::vector<double> color) {
   if (color.size() == 4) {
     return new G4VisAttributes(G4Color(color[0], color[1], color[2], color[3]));
   } else if (color.size() == 3) {
@@ -143,4 +123,4 @@ GeoCalibrationStickFactory::GetColor(std::vector<double> color) {
   }
 }
 
-} // namespace RAT
+}  // namespace RAT

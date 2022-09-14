@@ -17,7 +17,7 @@
 namespace RAT {
 
 class PosGen_Line : public GLG4PosGen {
-public:
+ public:
   /** Create a new position generator.
    *
    *  The default line segment is from (0,0,0) to (0,0,0), i.e. a point
@@ -37,11 +37,11 @@ public:
   /** Return state as string in same format as SetState() */
   G4String GetState() const;
 
-protected:
+ protected:
   G4ThreeVector fPoint1; /**< Endpoint 1 of line */
   G4ThreeVector fPoint2; /**< Endpoint 2 of line */
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

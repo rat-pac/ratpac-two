@@ -1,7 +1,6 @@
 //-*- c++ -*-
 template <class NumType>
-void LinearInterp<NumType>::Set(int _npoints, const NumType _x[],
-                                const NumType _y[]) {
+void LinearInterp<NumType>::Set(int _npoints, const NumType _x[], const NumType _y[]) {
   npoints = _npoints;
   x.resize(npoints);
   y.resize(npoints);
@@ -27,9 +26,9 @@ int LinearInterp<NumType>::LowerElement(const NumType xeval) const {
   else if (npoints == 1)
     throw RangeError(x[0], x[0], xeval);
   if (x[npoints - 1] <= xeval)
-    throw RangeError(x[0], x[npoints - 1], xeval); // xeval above upper limit
+    throw RangeError(x[0], x[npoints - 1], xeval);  // xeval above upper limit
   else if (x[0] > xeval)
-    throw RangeError(x[0], x[npoints - 1], xeval); // xeval below lower limit
+    throw RangeError(x[0], x[npoints - 1], xeval);  // xeval below lower limit
 
   // Binary search to find the largest element <= xeval
   int i = 0, j = npoints - 1;

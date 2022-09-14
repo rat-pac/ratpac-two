@@ -25,7 +25,7 @@
 namespace RAT {
 
 class Digitizer {
-public:
+ public:
   Digitizer(){};
   virtual ~Digitizer(){};
   Digitizer(std::string);
@@ -33,22 +33,21 @@ public:
   virtual void SetDigitizerType(std::string);
   virtual void AddChannel(int ich, PMTWaveform wfm);
 
-  std::string fDigitName; // Digitizer type
-  int fNBits;             // N bits of the digitizer
-  double fVhigh;          // Upper dynamic range
-  double fVlow;           // Lower dynamic range
-  double fSamplingRate;   // Sampling rate in GHz
-  int fNSamples;          // Total number of samples per digitized trace
-  std::map<UShort_t, std::vector<UShort_t>>
-      fDigitWaveForm; // Channel:Digitized waveform for each channel
+  std::string fDigitName;                                    // Digitizer type
+  int fNBits;                                                // N bits of the digitizer
+  double fVhigh;                                             // Upper dynamic range
+  double fVlow;                                              // Lower dynamic range
+  double fSamplingRate;                                      // Sampling rate in GHz
+  int fNSamples;                                             // Total number of samples per digitized trace
+  std::map<UShort_t, std::vector<UShort_t>> fDigitWaveForm;  // Channel:Digitized waveform for each channel
 
-protected:
+ protected:
   DBLinkPtr fLdaq;
 
-  double fOffset;    // Digitizer offset
-  double fNoiseAmpl; // Electronic noise width
+  double fOffset;     // Digitizer offset
+  double fNoiseAmpl;  // Electronic noise width
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

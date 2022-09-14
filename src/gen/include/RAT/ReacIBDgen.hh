@@ -2,6 +2,7 @@
 #define __RAT_ReacIBDgen__
 
 #include <CLHEP/Random/Randomize.h>
+
 #include <G4LorentzVector.hh>
 #include <G4ThreeVector.hh>
 #include <RAT/LinearInterp.hh>
@@ -13,7 +14,7 @@ class ReacIBDgenMessenger;
 
 // Generate inverse beta decay event
 class ReacIBDgen {
-public:
+ public:
   ReacIBDgen();
   ~ReacIBDgen();
 
@@ -29,8 +30,8 @@ public:
   //    Returns 4-momentum vectors for neutrino and resulting positron
   //    and neutron.  Neutrino energy and positron direction drawn from
   //    GenInteraction() distribution.
-  void GenEvent(const G4ThreeVector &nu_dir, G4LorentzVector &neutrino,
-                G4LorentzVector &positron, G4LorentzVector &neutron);
+  void GenEvent(const G4ThreeVector &nu_dir, G4LorentzVector &neutrino, G4LorentzVector &positron,
+                G4LorentzVector &neutron);
 
   // Generate random inverse beta decay interaction
   //
@@ -82,7 +83,7 @@ public:
   // a square root factor with the cross section and electron mass.
   double IBDESpectrum(float x);
 
-protected:
+ protected:
   double Emax;
   double Emin;
   double U238Amp;
@@ -96,6 +97,6 @@ protected:
   static const double Pu241DEFAULT;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -2,6 +2,7 @@
 #define __RAT_SimulatedAnnealing__
 
 #include <TRandom.h>
+
 #include <cfloat>
 #include <cmath>
 #include <iostream>
@@ -10,13 +11,13 @@
 namespace RAT {
 
 class Minimizable {
-public:
+ public:
   virtual double operator()(double *args) = 0;
 };
 
-template <int D> class SimulatedAnnealing {
-
-protected:
+template <int D>
+class SimulatedAnnealing {
+ protected:
   double temp;
 
   Minimizable *funk;
@@ -24,7 +25,7 @@ protected:
   double simplex[D + 1][D], val[D + 1];
   double global_best_pt[D], global_best_val;
 
-public:
+ public:
   SimulatedAnnealing(Minimizable *funk_) : funk(funk_) {}
 
   ~SimulatedAnnealing() {}
@@ -51,9 +52,8 @@ public:
     }
   }
 
-protected:
-  inline double replace_project(const double (&offset)[D],
-                                const double (&by)[D], const double factor,
+ protected:
+  inline double replace_project(const double (&offset)[D], const double (&by)[D], const double factor,
                                 double (&into)[D]) {
     for (size_t j = 0; j < D; j++) {
       into[j] = offset[j] + factor * by[j];
@@ -69,7 +69,6 @@ protected:
   }
 
   void amoeba(int *iter) {
-
     // best, worst, and next worst points
     size_t i_best, i_worst, i_nextworst;
     double val_best, val_worst, val_nextworst;
@@ -79,14 +78,13 @@ protected:
     const double rho = -0.5;
     const double sigma = 0.5;
 
-    double centroid[D]; // centroid of all but worst
-    double dworst[D];   // vector from worst to centroid
-    double try_pt[D];   // temporary vector for test point
+    double centroid[D];  // centroid of all but worst
+    double dworst[D];    // vector from worst to centroid
+    double try_pt[D];    // temporary vector for test point
 
     // std::cout << "*******************************\n";
 
     for (; *iter > 0;) {
-
       // find best, worst, nextworst (can optomize a lot of this later)
       i_best = i_worst = i_nextworst = -1;
       val_best = DBL_MAX, val_worst = val_nextworst = -DBL_MAX;
@@ -115,8 +113,7 @@ protected:
       for (size_t j = 0; j < D; j++) {
         centroid[j] = 0.0;
         for (size_t i = 0; i <= D; i++) {
-          if (i == i_worst)
-            continue;
+          if (i == i_worst) continue;
           centroid[j] += simplex[i][j];
         }
         centroid[j] /= D;
@@ -151,19 +148,16 @@ protected:
         (*iter)--;
       } else {
         // reflection didn't work so well, try contracting
-        const double val_con =
-            replace_project(centroid, dworst, rho, simplex[i_worst]);
+        const double val_con = replace_project(centroid, dworst, rho, simplex[i_worst]);
         val[i_worst] = val_con;
         // std::cout << "\tCon: " << val_con << "\n";
         if (val_con + temp * log(gRandom->Rndm()) >= val_worst) {
           // contracting didn't replace worst
           // we're near the minimum, so shrink towards best
           for (size_t i = 0; i <= D; i++) {
-            if (i == i_best)
-              continue;
+            if (i == i_best) continue;
             for (size_t j = 0; j < D; j++) {
-              simplex[i][j] =
-                  (1.0 - sigma) * simplex[i_best][j] + sigma * simplex[i][j];
+              simplex[i][j] = (1.0 - sigma) * simplex[i_best][j] + sigma * simplex[i][j];
             }
             val[i] = (*funk)(simplex[i]);
             // std::cout << "\tShr: " << val[i] << "\n";
@@ -178,6 +172,6 @@ protected:
   }
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -5,12 +5,12 @@
 
 namespace RAT {
 class GeoReflectorFactory : public GeoFactory {
-public:
+ public:
   GeoReflectorFactory() : GeoFactory("reflector"){};
 
   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

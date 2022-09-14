@@ -19,4 +19,4 @@ std::string strip(const std::string &s, const std::string &stripchars) {
 
 std::string strip_default(const std::string &s) { return strip(s, " \t\""); }
 
-} // namespace RAT
+}  // namespace RAT

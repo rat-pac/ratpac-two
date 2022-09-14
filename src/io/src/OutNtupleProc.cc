@@ -1,9 +1,3 @@
-#include <iostream>
-#include <numeric>
-#include <sstream>
-#include <string>
-#include <vector>
-
 #include <TFile.h>
 #include <TTimeStamp.h>
 #include <TTree.h>
@@ -18,6 +12,11 @@
 #include <RAT/DS/Run.hh>
 #include <RAT/DS/RunStore.hh>
 #include <RAT/OutNtupleProc.hh>
+#include <iostream>
+#include <numeric>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace RAT {
 
@@ -136,8 +135,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 
   DS::MC *mc = ds->GetMC();
   TTimeStamp mcTTS = mc->GetUTC();
-  ULong64_t mctime = static_cast<ULong64_t>(mcTTS.GetSec()) * stonano +
-                     static_cast<ULong64_t>(mcTTS.GetNanoSec());
+  ULong64_t mctime = static_cast<ULong64_t>(mcTTS.GetSec()) * stonano + static_cast<ULong64_t>(mcTTS.GetNanoSec());
   mcpcount = mc->GetMCParticleCount();
   for (int pid = 0; pid < mcpcount; pid++) {
     DS::MCParticle *particle = mc->GetMCParticle(pid);
@@ -250,8 +248,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         fitvalues["u_" + name] = new double(dir.X());
         fitvalues["v_" + name] = new double(dir.Y());
         fitvalues["w_" + name] = new double(dir.Z());
-        fitvalids["validdirection_" + name] =
-            new bool(fit->GetValidDirection());
+        fitvalids["validdirection_" + name] = new bool(fit->GetValidDirection());
       }
       if (fit->GetEnableEnergy()) {
         fitvalues["energy_" + name] = new double(fit->GetEnergy());
@@ -351,8 +348,7 @@ OutNtupleProc::~OutNtupleProc() {
     // Converting to unix time
     ULong64_t stonano = 1000000000;
     TTimeStamp rootTime = runBranch->GetStartTime();
-    runTime = static_cast<ULong64_t>(rootTime.GetSec()) * stonano +
-              static_cast<ULong64_t>(rootTime.GetNanoSec());
+    runTime = static_cast<ULong64_t>(rootTime.GetSec()) * stonano + static_cast<ULong64_t>(rootTime.GetNanoSec());
     macro = Log::GetMacro();
     metaTree->Fill();
     metaTree->Write();
@@ -414,4 +410,4 @@ void OutNtupleProc::SetI(std::string param, int value) {
     options.untriggered = value ? true : false;
   }
 }
-} // namespace RAT
+}  // namespace RAT

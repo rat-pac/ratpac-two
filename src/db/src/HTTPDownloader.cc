@@ -13,8 +13,7 @@ HTTPDownloader::~HTTPDownloader() { Disconnect(); }
 
 void HTTPDownloader::Disconnect() {
 #if __HAS_CURL
-  if (handle)
-    curl_easy_cleanup(handle);
+  if (handle) curl_easy_cleanup(handle);
 #endif
 
   handle = 0;
@@ -22,13 +21,11 @@ void HTTPDownloader::Disconnect() {
 
 #ifdef __HAS_CURL
 /* Callback function for curl */
-static size_t curl_write_func(void *ptr, size_t size, size_t nmemb,
-                              void *stream) {
+static size_t curl_write_func(void *ptr, size_t size, size_t nmemb, void *stream) {
   std::ostringstream *doc = static_cast<std::ostringstream *>(stream);
   char *data = static_cast<char *>(ptr);
 
-  for (size_t i = 0; i < size * nmemb; i++)
-    (*doc) << data[i];
+  for (size_t i = 0; i < size * nmemb; i++) (*doc) << data[i];
 
   return size * nmemb;
 }
@@ -61,7 +58,7 @@ std::string HTTPDownloader::Fetch(const std::string &url) {
   /////////
 
   curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
-  contents.str(""); // clear contents
+  contents.str("");  // clear contents
 
   curl_easy_perform(handle);
 
@@ -74,8 +71,7 @@ std::string HTTPDownloader::Fetch(const std::string &url) {
 
 void HTTPDownloader::SetCurlOpts() {
 #if __HAS_CURL
-  if (Log::GetDisplayLevel() >= Log::DEBUG)
-    curl_easy_setopt(handle, CURLOPT_VERBOSE, 0);
+  if (Log::GetDisplayLevel() >= Log::DEBUG) curl_easy_setopt(handle, CURLOPT_VERBOSE, 0);
   curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 1);
   curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
   curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, &curl_write_func);
@@ -85,4 +81,4 @@ void HTTPDownloader::SetCurlOpts() {
 #endif
 }
 
-} // namespace RAT
+}  // namespace RAT

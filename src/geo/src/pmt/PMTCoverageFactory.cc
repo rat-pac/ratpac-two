@@ -1,5 +1,6 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <RAT/Log.hh>
 #include <RAT/PMTCoverageFactory.hh>
 #include <vector>
@@ -10,9 +11,9 @@ namespace RAT {
 
 G4VPhysicalVolume *PMTCoverageFactory::Construct(DBLinkPtr table) {
   G4double coverage = 0.0, pmtRadius = 0.0,
-           pmtDiameter; // coverage is percent solid angle
-                        // pmt radius is distance pmt to center
-                        // pmt geometry diameter
+           pmtDiameter;  // coverage is percent solid angle
+                         // pmt radius is distance pmt to center
+                         // pmt geometry diameter
   try {
     coverage = table->GetD("coverage");
     pmtRadius = table->GetD("rescale_radius");
@@ -30,8 +31,7 @@ G4VPhysicalVolume *PMTCoverageFactory::Construct(DBLinkPtr table) {
   // a feature people wanted ported.  Logic by MW. Wrapper CDT.
   int Ncosbins, Nphibins, Npmt;
 
-  G4double num_pmt =
-      16 * pmtRadius * pmtRadius * coverage / pmtDiameter / pmtDiameter;
+  G4double num_pmt = 16 * pmtRadius * pmtRadius * coverage / pmtDiameter / pmtDiameter;
   Ncosbins = int(sqrt(num_pmt / CLHEP::pi));
   Nphibins = int(sqrt(num_pmt * CLHEP::pi));
   Npmt = Ncosbins * Nphibins;
@@ -60,14 +60,13 @@ G4VPhysicalVolume *PMTCoverageFactory::Construct(DBLinkPtr table) {
 
   vector<G4ThreeVector> pos(Npmt), dir(Npmt);
   vector<double> individual_noise_rates(Npmt, 0.0);
-  vector<int> type(Npmt, 0);           // FIXME make macro settable perhaps
-  vector<double> effi_corr(Npmt, 1.0); // FIXME make macro settable perhaps
+  vector<int> type(Npmt, 0);            // FIXME make macro settable perhaps
+  vector<double> effi_corr(Npmt, 1.0);  // FIXME make macro settable perhaps
   for (int i = 0; i < Npmt; i++) {
     pos[i].set(xpmt[i], ypmt[i], zpmt[i]);
     dir[i].set(-xpmt[i], -ypmt[i], zpmt[i]);
   }
 
-  return ConstructPMTs(table, pos, dir, type, effi_corr,
-                       individual_noise_rates);
+  return ConstructPMTs(table, pos, dir, type, effi_corr, individual_noise_rates);
 }
-} // namespace RAT
+}  // namespace RAT

@@ -1,5 +1,6 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <G4Box.hh>
 #include <G4Polycone.hh>
 #include <G4SubtractionSolid.hh>
@@ -14,8 +15,7 @@ namespace RAT {
 G4VPhysicalVolume *WLSPFactory::Construct(DBLinkPtr table) {
   string volume_name = table->GetIndex();
   const vector<double> &size = table->GetDArray("size");
-  G4VSolid *box = new G4Box(volume_name, size[0] * CLHEP::mm,
-                            size[1] * CLHEP::mm, size[2] * CLHEP::mm);
+  G4VSolid *box = new G4Box(volume_name, size[0] * CLHEP::mm, size[1] * CLHEP::mm, size[2] * CLHEP::mm);
 
   G4int numZPlanes;
 
@@ -33,10 +33,10 @@ G4VPhysicalVolume *WLSPFactory::Construct(DBLinkPtr table) {
 
   numZPlanes = G4int(z.size());
 
-  if ((z.size() != r_max.size()) || (z.size() != r_min.size()) ||
-      (r_max.size() != r_min.size())) {
-    Log::Die("GeoRevolutionFactory::ConstructSolid: Tables z, r_max and r_min "
-             "must all be same size for 'revolve'.");
+  if ((z.size() != r_max.size()) || (z.size() != r_min.size()) || (r_max.size() != r_min.size())) {
+    Log::Die(
+        "GeoRevolutionFactory::ConstructSolid: Tables z, r_max and r_min "
+        "must all be same size for 'revolve'.");
   }
 
   // Optional parameters
@@ -67,14 +67,12 @@ G4VPhysicalVolume *WLSPFactory::Construct(DBLinkPtr table) {
 
   G4Polycone *rev;
   if (solid)
-    rev = new G4Polycone(volume_name, phi_start, phi_delta, numZPlanes, r_array,
-                         z_array);
+    rev = new G4Polycone(volume_name, phi_start, phi_delta, numZPlanes, r_array, z_array);
   else
-    rev = new G4Polycone(volume_name, phi_start, phi_delta, numZPlanes, z_array,
-                         r_min_array, r_array);
+    rev = new G4Polycone(volume_name, phi_start, phi_delta, numZPlanes, z_array, r_min_array, r_array);
 
   box = new G4SubtractionSolid(volume_name, box, rev);
   return GeoSolidArrayFactoryBase::Construct(box, table);
   // return box;
 }
-} // namespace RAT
+}  // namespace RAT

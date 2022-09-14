@@ -1,13 +1,14 @@
 #ifndef __RAT_VertexGen_CRY__
 #define __RAT_VertexGen_CRY__
 
-#include "RAT/DB.hh"
-#include <RAT/GLG4VertexGen.hh>
+#include <TTimeStamp.h>
 
 #include <G4Event.hh>
 #include <G4ThreeVector.hh>
-#include <TTimeStamp.h>
+#include <RAT/GLG4VertexGen.hh>
 #include <globals.hh>
+
+#include "RAT/DB.hh"
 
 class CRYGenerator;
 namespace RAT {
@@ -15,13 +16,13 @@ namespace RAT {
 class CRYGenMessenger;
 // Generate inverse beta decay event
 class VertexGen_CRY : public GLG4VertexGen {
-public:
+ public:
   VertexGen_CRY(const char *arg_dbname = "cry");
   void GeneratePrimaryVertex(G4Event *, G4ThreeVector &, G4double);
   void SetState(G4String newValues);
   G4String GetState();
 
-private:
+ private:
   CRYGenerator *generator;
   bool returnNeutrons;
   bool returnProtons;
@@ -38,6 +39,6 @@ private:
   TTimeStamp startTime;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

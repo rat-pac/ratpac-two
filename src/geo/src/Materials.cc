@@ -1,5 +1,6 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <G4NistManager.hh>
 #include <G4OpticalSurface.hh>
 #include <G4SurfaceProperty.hh>
@@ -40,10 +41,7 @@ void Materials::LoadOpticalSurfaces() {
   DBLinkGroup lOptics = DB::Get()->GetLinkGroup("OPTICS");
   for (DBLinkGroup::iterator iv = lOptics.begin(); iv != lOptics.end(); iv++) {
     G4Material *mat = G4Material::GetMaterial(iv->first.c_str());
-    Log::Assert(
-        mat,
-        dformat("Materials::LoadOpticalSurfaces: Missing material for entry %s",
-                iv->first.c_str()));
+    Log::Assert(mat, dformat("Materials::LoadOpticalSurfaces: Missing material for entry %s", iv->first.c_str()));
 
     // Load the photocathodes
     bool isPhotocathode = false;
@@ -54,7 +52,7 @@ void Materials::LoadOpticalSurfaces() {
 
     if (isPhotocathode) {
       G4OpticalSurface *pc = new G4OpticalSurface(iv->first.c_str());
-      pc->SetType(dielectric_metal); // Ignored if RINDEX is defined
+      pc->SetType(dielectric_metal);  // Ignored if RINDEX is defined
       pc->SetMaterialPropertiesTable(mat->GetMaterialPropertiesTable());
       optical_surface[pc->GetName()] = pc;
     }
@@ -66,11 +64,10 @@ void Materials::LoadOpticalSurfaces() {
     } catch (DBNotFoundError &e) {
     }
 
-    Log::Assert(
-        !(isOpticalSurface && isPhotocathode),
-        dformat("Materials::LoadOpticalSurfaces: Entry %s is defined as both "
-                "\"photocathode\" and \"surface\", must be one or the other.",
-                iv->first.c_str()));
+    Log::Assert(!(isOpticalSurface && isPhotocathode),
+                dformat("Materials::LoadOpticalSurfaces: Entry %s is defined as both "
+                        "\"photocathode\" and \"surface\", must be one or the other.",
+                        iv->first.c_str()));
 
     if (isOpticalSurface) {
       // Surface properties
@@ -84,9 +81,7 @@ void Materials::LoadOpticalSurfaces() {
         if (opticalSurfaceModels.find(name) != opticalSurfaceModels.end()) {
           model = opticalSurfaceModels[name];
         } else {
-          Log::Die(dformat(
-              "Materials::LoadOpticalSurfaces: Invalid surface model %s",
-              name.c_str()));
+          Log::Die(dformat("Materials::LoadOpticalSurfaces: Invalid surface model %s", name.c_str()));
         }
       } catch (DBNotFoundError &e) {
       }
@@ -96,9 +91,7 @@ void Materials::LoadOpticalSurfaces() {
         if (opticalSurfaceFinishes.find(name) != opticalSurfaceFinishes.end()) {
           finish = opticalSurfaceFinishes[name];
         } else {
-          Log::Die(dformat(
-              "Materials::LoadOpticalSurfaces: Invalid surface finish %s",
-              name.c_str()));
+          Log::Die(dformat("Materials::LoadOpticalSurfaces: Invalid surface finish %s", name.c_str()));
         }
       } catch (DBNotFoundError &e) {
       }
@@ -108,9 +101,7 @@ void Materials::LoadOpticalSurfaces() {
         if (opticalSurfaceTypes.find(name) != opticalSurfaceTypes.end()) {
           type = opticalSurfaceTypes[name];
         } else {
-          Log::Die(
-              dformat("Materials::LoadOpticalSurfaces: Invalid surface type %s",
-                      name.c_str()));
+          Log::Die(dformat("Materials::LoadOpticalSurfaces: Invalid surface type %s", name.c_str()));
         }
       } catch (DBNotFoundError &e) {
       }
@@ -215,8 +206,7 @@ void Materials::ConstructMaterials() {
       // Step backwards to make sure that the iterator will point to the right
       // place
       --i;
-      info << "[" << namedb << "] found and removed from construction queue"
-           << newline;
+      info << "[" << namedb << "] found and removed from construction queue" << newline;
     }
     // BuildMaterial(namedb,table);
   }
@@ -232,9 +222,7 @@ void Materials::ConstructMaterials() {
       std::string namedb = *i;
       G4Material *addmatptr = nist_db->FindOrBuildMaterial(namedb);
       if (addmatptr) {
-        info << "[" << namedb
-             << "] found in NISTDB and removed from construction queue"
-             << newline;
+        info << "[" << namedb << "] found in NISTDB and removed from construction queue" << newline;
         queue.erase(i);
         --i;
       }
@@ -249,8 +237,7 @@ void Materials::ConstructMaterials() {
     if (BuildMaterial(namedb, table)) {
       queue.erase(i);
       --i;
-      info << "[" << namedb << "] found and removed from construction queue"
-           << newline;
+      info << "[" << namedb << "] found and removed from construction queue" << newline;
     }
   }
 
@@ -313,9 +300,7 @@ bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
     pressure = CLHEP::STP_Pressure;
   }
 
-  G4Material *tempptr =
-      new G4Material(namedb, densitydb, nelementsdb + nmaterialsdb, state,
-                     temperature, pressure);
+  G4Material *tempptr = new G4Material(namedb, densitydb, nelementsdb + nmaterialsdb, state, temperature, pressure);
 
   string formula = "GOOD";
   try {
@@ -348,7 +333,7 @@ bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
 
     if (elemname.size() != elemprop.size()) {
       G4cout << "Death...oh Materials material reader, "
-             << " how you have forsaken me" << G4endl; // fixme tk
+             << " how you have forsaken me" << G4endl;  // fixme tk
       exit(-1);
     }
 
@@ -363,7 +348,7 @@ bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
 
     if (elemname.size() != elemprop.size()) {
       G4cout << "Death...oh Materials material reader, "
-             << "how you have forsaken me" << G4endl; // fixme tk
+             << "how you have forsaken me" << G4endl;  // fixme tk
       exit(-1);
     }
 
@@ -381,10 +366,8 @@ bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
       if (addmatptr != nullptr) {
         tempptr->AddMaterial(addmatptr, elemprop[i]);
       } else {
-        G4MaterialTable *tmp_table =
-            (G4MaterialTable *)tempptr->GetMaterialTable();
-        std::vector<G4Material *>::iterator it =
-            tmp_table->begin() + tempptr->GetIndex();
+        G4MaterialTable *tmp_table = (G4MaterialTable *)tempptr->GetMaterialTable();
+        std::vector<G4Material *>::iterator it = tmp_table->begin() + tempptr->GetIndex();
         delete tempptr;
         tmp_table->erase(it);
         return false;
@@ -395,8 +378,7 @@ bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
   return true;
 }
 
-G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table,
-                                                  std::string name) {
+G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table, std::string name) {
   int wavelength_opt = 0;
   try {
     std::string optstring = table->GetS(name + "_option");
@@ -417,8 +399,7 @@ G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table,
     val1 = table->GetDArray(name + "_value1");
     val2 = table->GetDArray(name + "_value2");
   } catch (DBNotFoundError &e) {
-    G4cout << "Could not read property " << name << " of " << table->GetIndex()
-           << G4endl;
+    G4cout << "Could not read property " << name << " of " << table->GetIndex() << G4endl;
     return nullptr;
   }
 
@@ -448,8 +429,7 @@ G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table,
       if (E_value != 0.0) {
         double lam = E_value;
         E_value = CLHEP::twopi * CLHEP::hbarc / (lam * CLHEP::nanometer);
-        if (wavelength_opt == 2)
-          p_value *= lam / E_value;
+        if (wavelength_opt == 2) p_value *= lam / E_value;
       } else {
         G4cerr << "Materials property vector zero wavelength!\n";
       }
@@ -460,8 +440,7 @@ G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table,
   return pv;
 }
 
-void Materials::BuildMaterialPropertiesTable(G4Material *material,
-                                             DBLinkPtr table) {
+void Materials::BuildMaterialPropertiesTable(G4Material *material, DBLinkPtr table) {
   // Bail if the MPT already exists
   if (material->GetMaterialPropertiesTable() != nullptr) {
     return;
@@ -483,18 +462,13 @@ void Materials::BuildMaterialPropertiesTable(G4Material *material,
   // Loop over DB fields containing material (optical) properties
   for (vector<std::string>::iterator i = props.begin(); i != props.end(); i++) {
     // Handle const properties
-    if (*i == "LIGHT_YIELD" || *i == "dEdxCOEFF" || *i == "WLSTIMECONSTANT" ||
-        *i == "WLSMEANNUMBERPHOTONS" || *i == "FASTTIMECONSTANT" ||
-        *i == "SLOWTIMECONSTANT" || *i == "YIELDRATIO" ||
-        *i == "RESOLUTIONSCALE" || *i == "WLSFASTTIMECONSTANT" ||
-        *i == "WLSSLOWTIMECONSTANT" || *i == "WLSYIELDRATIO" ||
-        *i == "WLSRESOLUTIONSCALE" || *i == "WLSSCINTILLATIONYIELD" ||
-        *i == "SCINTILLATIONYIELD" || *i == "LAMBERTIAN_REFLECTION" ||
-        *i == "LAMBERTIAN_FORWARD" || *i == "LAMBERTIAN_BACKWARD" ||
-        *i == "ELECTRICFIELD" || *i == "TOTALNUM_INT_SITES" ||
-        *i == "MIEHG_FORWARD" || *i == "MIEHG_BACKWARD" ||
-        *i == "MIEHG_FORWARD_RATIO" || *i == "TOTALNUM_INT_SITES" ||
-        *i == "NUM_COMP" || *i == "SCINT_RISE_TIME" ||
+    if (*i == "LIGHT_YIELD" || *i == "dEdxCOEFF" || *i == "WLSTIMECONSTANT" || *i == "WLSMEANNUMBERPHOTONS" ||
+        *i == "FASTTIMECONSTANT" || *i == "SLOWTIMECONSTANT" || *i == "YIELDRATIO" || *i == "RESOLUTIONSCALE" ||
+        *i == "WLSFASTTIMECONSTANT" || *i == "WLSSLOWTIMECONSTANT" || *i == "WLSYIELDRATIO" ||
+        *i == "WLSRESOLUTIONSCALE" || *i == "WLSSCINTILLATIONYIELD" || *i == "SCINTILLATIONYIELD" ||
+        *i == "LAMBERTIAN_REFLECTION" || *i == "LAMBERTIAN_FORWARD" || *i == "LAMBERTIAN_BACKWARD" ||
+        *i == "ELECTRICFIELD" || *i == "TOTALNUM_INT_SITES" || *i == "MIEHG_FORWARD" || *i == "MIEHG_BACKWARD" ||
+        *i == "MIEHG_FORWARD_RATIO" || *i == "TOTALNUM_INT_SITES" || *i == "NUM_COMP" || *i == "SCINT_RISE_TIME" ||
         *i == "SCINT_RISE_TIMEalpha") {
       mpt->AddConstProperty(i->c_str(), table->GetD(*i), true);
       continue;
@@ -526,15 +500,13 @@ void Materials::BuildMaterialPropertiesTable(G4Material *material,
   RescaleProperty(table, mpt, "RSLENGTH");
 }
 
-void Materials::RescaleProperty(DBLinkPtr dbTable,
-                                G4MaterialPropertiesTable *propertiesTable,
+void Materials::RescaleProperty(DBLinkPtr dbTable, G4MaterialPropertiesTable *propertiesTable,
                                 const std::string &property) {
   vector<double> scalings;
   try {
     scalings = dbTable->GetDArray(property + "_SCALING");
   } catch (DBNotFoundError &e) {
-    detail << "No scaling for " + property + " for " + dbTable->GetIndex()
-           << newline;
+    detail << "No scaling for " + property + " for " + dbTable->GetIndex() << newline;
     return;
   }
   vector<double> reciprocalSum;
@@ -542,19 +514,16 @@ void Materials::RescaleProperty(DBLinkPtr dbTable,
   for (size_t iScale = 0; iScale < scalings.size(); iScale++) {
     stringstream propertyName;
     propertyName << property << iScale;
-    G4MaterialPropertyVector *current =
-        propertiesTable->GetProperty(propertyName.str().c_str());
-    if (current == NULL) // No guarantee this component has this property
+    G4MaterialPropertyVector *current = propertiesTable->GetProperty(propertyName.str().c_str());
+    if (current == NULL)  // No guarantee this component has this property
       continue;
     if (reciprocalSum.empty()) {
       reciprocalSum.resize(current->GetVectorLength(), 0.0);
       energies.resize(current->GetVectorLength(), -1.0);
     } else if (reciprocalSum.size() != current->GetVectorLength())
-      Log::Die("Optics::RescaleProperty: " + property +
-               " components are different length arrays.");
+      Log::Die("Optics::RescaleProperty: " + property + " components are different length arrays.");
 
-    current->ScaleVector(
-        1.0, 1.0 / scalings[iScale]); // Scale the values (not energy)
+    current->ScaleVector(1.0, 1.0 / scalings[iScale]);  // Scale the values (not energy)
     for (size_t bin = 0; bin < current->GetVectorLength(); bin++) {
       reciprocalSum[bin] += 1.0 / (*current)[bin];
       energies[bin] = current->Energy(bin);
@@ -620,13 +589,9 @@ void Materials::LoadOptics() {
       Log::Die("Materials: Error loading COMPONENTS property.");
     }
 
-    Log::Assert(
-        components.size() == fractions.size(),
-        "Materials: COMPONENTS and COMPONENT_FRACTIONS length mismatch");
-    double total_fractions =
-        std::accumulate(fractions.begin(), fractions.end(), 0.0);
-    Log::Assert(total_fractions < 1.01 && total_fractions > 0.99,
-                "Materials: Component fractions must sum to 1");
+    Log::Assert(components.size() == fractions.size(), "Materials: COMPONENTS and COMPONENT_FRACTIONS length mismatch");
+    double total_fractions = std::accumulate(fractions.begin(), fractions.end(), 0.0);
+    Log::Assert(total_fractions < 1.01 && total_fractions > 0.99, "Materials: Component fractions must sum to 1");
 
     G4Material *material = G4Material::GetMaterial(name);
     Log::Assert(material, "Materials: Unable to locate primary material");
@@ -638,14 +603,10 @@ void Materials::LoadOptics() {
     // scattering, which is combined into a single scattering length
     mpt->AddConstProperty("NCOMPONENTS", components.size(), true);
 
-    const std::vector<G4MaterialPropertyVector *> &materialPropertyVector =
-        mpt->GetProperties();
-    const std::vector<G4String> &materialPropertyNames =
-        mpt->GetMaterialPropertyNames();
-    const std::vector<G4String> &materialConstPropertyNames =
-        mpt->GetMaterialConstPropertyNames();
-    const std::vector<std::pair<G4double, G4bool>>
-        &materialConstPropertyVector = mpt->GetConstProperties();
+    const std::vector<G4MaterialPropertyVector *> &materialPropertyVector = mpt->GetProperties();
+    const std::vector<G4String> &materialPropertyNames = mpt->GetMaterialPropertyNames();
+    const std::vector<G4String> &materialConstPropertyNames = mpt->GetMaterialConstPropertyNames();
+    const std::vector<std::pair<G4double, G4bool>> &materialConstPropertyVector = mpt->GetConstProperties();
 
     for (size_t i = 0; i < components.size(); i++) {
       std::string compname = components[i];
@@ -654,8 +615,7 @@ void Materials::LoadOptics() {
       ss << "FRACTION" << i + 1;
       mpt->AddConstProperty(ss.str().c_str(), fraction, true);
 
-      G4cout << " - Component " << i << ": " << compname << " ("
-             << 100.0 * fraction << "%)" << G4endl;
+      G4cout << " - Component " << i << ": " << compname << " (" << 100.0 * fraction << "%)" << G4endl;
 
       G4Material *component = G4Material::GetMaterial(compname);
       Log::Assert(material, "Materials: Unable to locate component material");
@@ -683,12 +643,10 @@ void Materials::LoadOptics() {
         //// std::string pname = it->first;
         G4String pname = cptPropertyNames.at(propid);
         G4MaterialPropertyVector *propertyVector = cptProperties.at(propid);
-        if (pname.find("REEMITWAVEFORM") != std::string::npos ||
-            pname.find("SCINTILLATION_WLS") != std::string::npos ||
+        if (pname.find("REEMITWAVEFORM") != std::string::npos || pname.find("SCINTILLATION_WLS") != std::string::npos ||
             pname.find("ABSLENGTH") != std::string::npos) {
-          Log::Assert(std::find(materialPropertyNames.begin(),
-                                materialPropertyNames.end(),
-                                pname) == materialPropertyNames.end(),
+          Log::Assert(std::find(materialPropertyNames.begin(), materialPropertyNames.end(), pname) ==
+                          materialPropertyNames.end(),
                       "Materials: Composite material cannot contain the same "
                       "properties as components");
           //// Log::Assert(mpm->find(pname) == mpm->end(),
@@ -709,8 +667,7 @@ void Materials::LoadOptics() {
               absorption_coeff_y = new G4double[entries];
               for (size_t ientry = 0; ientry < entries; ientry++) {
                 absorption_coeff_x[ientry] = propertyVector->Energy(ientry);
-                absorption_coeff_y[ientry] =
-                    fraction / propertyVector->Value(ientry);
+                absorption_coeff_y[ientry] = fraction / propertyVector->Value(ientry);
               }
             }
           }
@@ -727,9 +684,8 @@ void Materials::LoadOptics() {
           //// Log::Assert(mpm->find(pname) == mpm->end(),
           ////             "Materials: Composite material cannot contain the
           /// same properties as components");
-          Log::Assert(std::find(materialPropertyNames.begin(),
-                                materialPropertyNames.end(),
-                                pname) == materialPropertyNames.end(),
+          Log::Assert(std::find(materialPropertyNames.begin(), materialPropertyNames.end(), pname) ==
+                          materialPropertyNames.end(),
                       "Materials: Composite material cannot contain the same "
                       "properties as components");
           if (!rayleigh_coeff_x) {
@@ -739,8 +695,7 @@ void Materials::LoadOptics() {
             rayleigh_coeff_y = new G4double[entries];
             for (G4int ientry = 0; ientry < entries; ientry++) {
               rayleigh_coeff_x[ientry] = propertyVector->Energy(ientry);
-              rayleigh_coeff_y[ientry] =
-                  fraction / propertyVector->Value(ientry);
+              rayleigh_coeff_y[ientry] = fraction / propertyVector->Value(ientry);
             }
           }
 
@@ -768,16 +723,14 @@ void Materials::LoadOptics() {
           //// Log::Assert(mpmc->find(name) == mpmc->end(),
           ////             "Materials: Composite material cannot contain the
           /// same properties as components");
-          Log::Assert(std::find(materialConstPropertyNames.begin(),
-                                materialConstPropertyNames.end(),
-                                name) == materialConstPropertyNames.end(),
+          Log::Assert(std::find(materialConstPropertyNames.begin(), materialConstPropertyNames.end(), name) ==
+                          materialConstPropertyNames.end(),
                       "Materials: Composite material cannot contain the same "
                       "properties as components");
           G4cout << compname << " has " << cname << G4endl;
           std::stringstream ss2;
           ss2 << cname << i + 1;
-          mpt->AddConstProperty(ss2.str().c_str(),
-                                cptConstProperties.at(propid).first);
+          mpt->AddConstProperty(ss2.str().c_str(), cptConstProperties.at(propid).first);
         }
       }
     }
@@ -796,4 +749,4 @@ void Materials::LoadOptics() {
   }
 }
 
-} // namespace RAT
+}  // namespace RAT

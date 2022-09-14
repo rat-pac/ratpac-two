@@ -12,26 +12,24 @@ namespace RAT {
 CCCrossSecMessenger::CCCrossSecMessenger(CCCrossSec *e) : fCCXS(e) {
   // Commands will go in a /generator/cc/ directory
   G4UIdirectory *dir = new G4UIdirectory("/generator/cc/xsection/");
-  dir->SetGuidance(
-      "Control the physics parameters of the charged current generator");
+  dir->SetGuidance("Control the physics parameters of the charged current generator");
 
   fWmaCmd = new G4UIcmdWithADouble("/generator/cc/xsection/wma", this);
-  fWmaCmd->SetGuidance(
-      "Sets the value of sine-squared theta (the weak mixing angle)");
+  fWmaCmd->SetGuidance("Sets the value of sine-squared theta (the weak mixing angle)");
   fWmaCmd->SetParameterName("sin2th", false);
 
   fStratCmd = new G4UIcmdWithAnInteger("/generator/cc/xsection/strategy", this);
-  fStratCmd->SetGuidance(
-      "Sets the strategy for the CC cross section calculation.");
+  fStratCmd->SetGuidance("Sets the strategy for the CC cross section calculation.");
   fStratCmd->SetGuidance("Usage: /generator/cc/xsection/strategy strat");
   fStratCmd->SetGuidance("Options:");
   fStratCmd->SetGuidance("  1 : Original routine from QSNO::PNuE (Bahcall).");
+  fStratCmd->SetGuidance("  2 : Improved routine from QSNO::PNuE (without rad. corrections).");
   fStratCmd->SetGuidance(
-      "  2 : Improved routine from QSNO::PNuE (without rad. corrections).");
-  fStratCmd->SetGuidance("  3 : Improved routine from QSNO::PNuE (with rad. "
-                         "corrections - analytical).");
-  fStratCmd->SetGuidance("  4 (default) : Improved routine from QSNO::PNuE "
-                         "(with rad. corrections - table).");
+      "  3 : Improved routine from QSNO::PNuE (with rad. "
+      "corrections - analytical).");
+  fStratCmd->SetGuidance(
+      "  4 (default) : Improved routine from QSNO::PNuE "
+      "(with rad. corrections - table).");
   fStratCmd->SetParameter(new G4UIparameter("strat", 'i', false));
 
   //
@@ -62,4 +60,4 @@ G4String CCCrossSecMessenger::GetCurrentValue(G4UIcommand *command) {
   return G4String("Error: Invalid CCCrossSecMessenger \"get\" command");
 }
 
-} // namespace RAT
+}  // namespace RAT

@@ -1,15 +1,13 @@
-#include <RAT/DSWriter.hh>
-
 #include <TObjString.h>
 
 #include <RAT/DS/RunStore.hh>
+#include <RAT/DSWriter.hh>
 #include <RAT/Log.hh>
 #include <RAT/ObjInt.hh>
 
 namespace RAT {
 
-DSWriter::DSWriter(const char *filename, bool update, int autosave)
-    : fFilename(filename) {
+DSWriter::DSWriter(const char *filename, bool update, int autosave) : fFilename(filename) {
   fBranchDS = new DS::Root();
   fBranchRun = new DS::Run();
 
@@ -18,8 +16,7 @@ DSWriter::DSWriter(const char *filename, bool update, int autosave)
     fRunTree = (TTree *)fFile->Get("runT");
 
     if (fRunTree) {
-      DS::RunStore::PreloadFromTree(fRunTree,
-                                    true /* already written to disk */);
+      DS::RunStore::PreloadFromTree(fRunTree, true /* already written to disk */);
     } else {
       // make new runTree now
       fRunTree = new TTree("runT", "RAT Run Tree");
@@ -82,10 +79,10 @@ void DSWriter::WriteStatus(int _status) {
 void DSWriter::Close() {
   if (fFile) {
     if (fFile->IsWritable()) {
-      fFile->cd(); // In case another ROOT file has been opened recently
+      fFile->cd();  // In case another ROOT file has been opened recently
       fTree->Write();
       fRunTree->Write();
-      fFile->Close(); // also deletes TTree and TObjString?
+      fFile->Close();  // also deletes TTree and TObjString?
     } else {
       warn << "DSWriter: ROOT closed the TFile before we could write!  You "
               "probably lost data.\n";
@@ -98,4 +95,4 @@ void DSWriter::Close() {
   fFile = 0;
 }
 
-} // namespace RAT
+}  // namespace RAT

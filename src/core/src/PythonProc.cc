@@ -1,14 +1,13 @@
-#include <RAT/PythonProc.hh>
 #include <TPython.h>
 #include <TRegexp.h>
+
+#include <RAT/PythonProc.hh>
 
 namespace RAT {
 
 int PythonProc::fgProcCounter = 0;
 
-PythonProc::PythonProc() : Processor("python") {
-  fPyProcName = dformat("proc_%i", fgProcCounter++);
-}
+PythonProc::PythonProc() : Processor("python") { fPyProcName = dformat("proc_%i", fgProcCounter++); }
 
 PythonProc::~PythonProc() {
   std::string cmd = fPyProcName + ".finish()";
@@ -36,8 +35,7 @@ void PythonProc::SetS(std::string param, std::string value) {
     }
 
     unsigned int npop = parts.size() - module_parts;
-    for (unsigned int i = 0; i < npop; i++)
-      parts.pop_back();
+    for (unsigned int i = 0; i < npop; i++) parts.pop_back();
 
     if (module_parts > 0) {
       std::string cmd = "import " + join(parts, ".");
@@ -46,8 +44,7 @@ void PythonProc::SetS(std::string param, std::string value) {
 
     // Add final paretheses if initialization arguments not given
     std::string cmd = fPyProcName + " = " + value;
-    if (cmd[cmd.size() - 1] != ')')
-      cmd += "()";
+    if (cmd[cmd.size() - 1] != ')') cmd += "()";
 
     TPython::Exec(cmd.c_str());
     // Update name of this processor to include Python class
@@ -65,9 +62,8 @@ Processor::Result PythonProc::DSEvent(DS::Root *ds) {
   std::string cmd = fPyProcName + ".dsevent(ds)";
   // First cast to int since that is supported by TPyResult
   int result = TPython::Eval(cmd.c_str());
-  if (result == -1)
-    Log::Die("Python exception.");
+  if (result == -1) Log::Die("Python exception.");
   return (Processor::Result)result;
 }
 
-} // namespace RAT
+}  // namespace RAT

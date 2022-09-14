@@ -20,10 +20,11 @@
 
 #include <CLHEP/Random/RandGeneral.h>
 #include <CLHEP/Vector/LorentzVector.h>
+#include <TF1.h>
+
 #include <G4LorentzVector.hh>
 #include <G4ThreeVector.hh>
 #include <RAT/LinearInterp.hh>
-#include <TF1.h>
 
 /// Forward declarations.
 class TGraph;
@@ -35,7 +36,7 @@ namespace RAT {
 class CCCrossSec;
 
 class CCgen {
-public:
+ public:
   CCgen();
   ~CCgen();
 
@@ -51,8 +52,8 @@ public:
    * used). \param[out] electron Outgoing electron direction (lab coordinates).
    * \return 4-momentum vectors for resulting electron.
    */
-  void GenerateEvent(const G4ThreeVector &nu_dir, G4LorentzVector &neutrino,
-                     G4LorentzVector &electron, double &e_nucleus);
+  void GenerateEvent(const G4ThreeVector &nu_dir, G4LorentzVector &neutrino, G4LorentzVector &electron,
+                     double &e_nucleus);
 
   /**
    * Setter for the flux to use.
@@ -110,7 +111,7 @@ public:
    */
   void SetDBName(const G4String name);
 
-private:
+ private:
   /** Private member for load the database and cross-section data. */
   void LoadGenerator();
 
@@ -131,7 +132,7 @@ private:
   /** Sampler of recoil electron angle from the differential cross section. */
   G4double SampleRecoilAngle(G4double Enu, G4double Te, int Transition);
 
-protected:
+ protected:
   /** Private method to check if generator is loaded. */
   inline G4bool GetGenLoaded() { return fGenLoaded; };
 
@@ -194,6 +195,6 @@ protected:
   G4String fDBName;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -19,24 +19,20 @@
 
 #include "RAT/GLG4TorusStack.hh"
 
-#include "G4AffineTransform.hh"
-#include "G4VoxelLimits.hh"
-
-#include "G4VPVParameterisation.hh"
-
-#include "meshdefs.hh"
-
-#include "G4GeometryTolerance.hh"
-#include "G4Polyhedron.hh"
-#include "G4VGraphicsScene.hh"
-#include "G4Version.hh"
-#include "G4VisExtent.hh"
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
-#include "G4ios.hh" // for G4cerr
-
+#include "G4AffineTransform.hh"
+#include "G4GeometryTolerance.hh"
+#include "G4Polyhedron.hh"
+#include "G4VGraphicsScene.hh"
+#include "G4VPVParameterisation.hh"
+#include "G4Version.hh"
+#include "G4VisExtent.hh"
+#include "G4VoxelLimits.hh"
+#include "G4ios.hh"  // for G4cerr
 #include "local_g4compat.hh"
+#include "meshdefs.hh"
 
 // debugging
 #ifdef DEBUG_GLG4TorusStack
@@ -50,9 +46,7 @@
 static inline double square(double x) { return x * x; }
 // #if defined(__GNUC__) && (__GNUC__ < 3)
 // [rayd] renamed hypot as glg4_hypot, to avoid problems with gcc 2.96
-static inline double glg4_hypot(double x, double y) {
-  return sqrt(x * x + y * y);
-}
+static inline double glg4_hypot(double x, double y) { return sqrt(x * x + y * y); }
 // #endif
 
 // another helpful function
@@ -76,12 +70,11 @@ GLG4TorusStack::GLG4TorusStack(const G4String &pName) : G4CSGSolid(pName) {
   angTolerance = geoTolerance->GetAngularTolerance();
 }
 
-void GLG4TorusStack::SetAllParameters(
-    G4int n_,                 // number of Z-segments
-    const G4double z_edge_[], // n+1 edges of Z-segments
-    const double rho_edge_[], // n+1 dist. from Z-axis
-    const G4double z_o_[],    // z-origins (n total)
-    GLG4TorusStack *inner_)   // inner TorusStack to subtract
+void GLG4TorusStack::SetAllParameters(G4int n_,                  // number of Z-segments
+                                      const G4double z_edge_[],  // n+1 edges of Z-segments
+                                      const double rho_edge_[],  // n+1 dist. from Z-axis
+                                      const G4double z_o_[],     // z-origins (n total)
+                                      GLG4TorusStack *inner_)    // inner TorusStack to subtract
 {
   int i;
   int n_increasing;
@@ -95,8 +88,7 @@ void GLG4TorusStack::SetAllParameters(
     delete[] b;
     n = 0;
   }
-  if (n_ <= 0)
-    return;
+  if (n_ <= 0) return;
 
   // allocate new memory for arrays
   n = n_;
@@ -113,8 +105,7 @@ void GLG4TorusStack::SetAllParameters(
       z_edge[i] = z_edge_[i];
       rho_edge[i] = rho_edge_[i];
       z_o[i] = z_o_[i];
-      if (z_edge_[i + 1] >= z_edge_[i])
-        n_increasing++;
+      if (z_edge_[i + 1] >= z_edge_[i]) n_increasing++;
     }
     z_edge[n] = z_edge_[n];
     rho_edge[n] = rho_edge_[n];
@@ -123,8 +114,7 @@ void GLG4TorusStack::SetAllParameters(
       z_edge[i] = z_edge_[n - i];
       rho_edge[i] = rho_edge_[n - i];
       z_o[i] = z_o_[n - 1 - i];
-      if (z_edge_[i + 1] <= z_edge_[i])
-        n_increasing++;
+      if (z_edge_[i + 1] <= z_edge_[i]) n_increasing++;
     }
     z_edge[n] = z_edge_[0];
     rho_edge[n] = rho_edge_[0];
@@ -140,28 +130,24 @@ void GLG4TorusStack::SetAllParameters(
   // set a[] and b[].  Also check z_o for validity and set max_rho
   max_rho = rho_edge[n];
   for (i = 0; i < n; i++) {
-    if (rho_edge[i] > max_rho)
-      max_rho = rho_edge[i];
+    if (rho_edge[i] > max_rho) max_rho = rho_edge[i];
     if ((z_o[i] > z_edge[i]) && (z_o[i] < z_edge[i + 1])) {
       G4Exception(__FILE__, "Invalid Parameter", FatalException,
                   "Error in GLG4TorusStack::SetAllParameters - "
                   "z_edge[i] < z_o[i] < z_edge[i+1] NOT ALLOWED!"
                   " (Please subdivide your TorusStack)");
     }
-    if (rho_edge[i] == rho_edge[i + 1]) { // cylinder -- special case!
+    if (rho_edge[i] == rho_edge[i + 1]) {  // cylinder -- special case!
       a[i] = rho_edge[i];
       b[i] = 0.0;
     } else {
-      a[i] = (((z_edge[i + 1] - z_edge[i]) *
-               (z_edge[i + 1] + z_edge[i] - 2 * z_o[i]) /
-               (rho_edge[i + 1] - rho_edge[i])) +
-              (rho_edge[i + 1] + rho_edge[i])) /
-             2.0;
+      a[i] =
+          (((z_edge[i + 1] - z_edge[i]) * (z_edge[i + 1] + z_edge[i] - 2 * z_o[i]) / (rho_edge[i + 1] - rho_edge[i])) +
+           (rho_edge[i + 1] + rho_edge[i])) /
+          2.0;
       b[i] = sqrt(square(z_edge[i] - z_o[i]) + square(rho_edge[i] - a[i]));
-      if (rho_edge[i] < a[i] + radTolerance &&
-          rho_edge[i + 1] < a[i] + radTolerance) {
-        if (rho_edge[i] < a[i] - radTolerance ||
-            rho_edge[i + 1] < a[i] - radTolerance) {
+      if (rho_edge[i] < a[i] + radTolerance && rho_edge[i + 1] < a[i] + radTolerance) {
+        if (rho_edge[i] < a[i] - radTolerance || rho_edge[i + 1] < a[i] - radTolerance) {
           b[i] = -b[i];
         } else {
           G4cerr << "Warning: ambiguous toroid segment curvature in "
@@ -173,7 +159,7 @@ void GLG4TorusStack::SetAllParameters(
   }
 
   // set myRadTolerance
-  myRadTolerance = G4std::max(radTolerance, angTolerance * max_rho);
+  myRadTolerance = std::max(radTolerance, angTolerance * max_rho);
 
   // check consistency of derived a and b values with specified radii
   CheckABRho();
@@ -200,7 +186,6 @@ void GLG4TorusStack::CheckABRho() {
   // informational message any time such a change is made if G4DEBUG is defined.
 
   for (int i = 0; i < n; i++) {
-
     // check validity of rho_edges given derived a[i] values
     if (b[i] > 0) {
       // make sure both rho_edges are >= a[i]
@@ -208,14 +193,12 @@ void GLG4TorusStack::CheckABRho() {
         if (fabs(a[i] - rho_edge[i]) > max_rho * 1e-3 + radTolerance)
           G4cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
                     "rho_edge["
-                 << i << "]: old " << rho_edge[i] << ", new " << a[i]
-                 << " (1)\n";
+                 << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (1)\n";
 #ifdef G4DEBUG
         else
           G4cerr << "Debug info: GLG4TorusStack making small adjustment to "
                     "rho_edge["
-                 << i << "]: old " << rho_edge[i] << ", new " << a[i]
-                 << " (1a)\n";
+                 << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (1a)\n";
 #endif
         // valid intercept is on other side of a[i]
         rho_edge[i] = a[i] + (a[i] - rho_edge[i]);
@@ -224,14 +207,12 @@ void GLG4TorusStack::CheckABRho() {
         if (fabs(a[i] - rho_edge[i + 1]) > max_rho * 1e-3 + radTolerance)
           G4cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
                     "rho_edge["
-                 << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i]
-                 << " (2)\n";
+                 << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (2)\n";
 #ifdef G4DEBUG
         else
           G4cerr << "Debug info: GLG4TorusStack making small adjustment to "
                     "rho_edge["
-                 << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i]
-                 << " (2a)\n";
+                 << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (2a)\n";
 #endif
         // valid intercept is on other side of a[i]
         rho_edge[i + 1] = a[i] + (a[i] - rho_edge[i + 1]);
@@ -242,14 +223,12 @@ void GLG4TorusStack::CheckABRho() {
         if (fabs(a[i] - rho_edge[i]) > max_rho * 1e-3 + radTolerance)
           G4cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
                     "rho_edge["
-                 << i << "]: old " << rho_edge[i] << ", new " << a[i]
-                 << " (3)\n";
+                 << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (3)\n";
 #ifdef G4DEBUG
         else
           G4cerr << "Debug info: GLG4TorusStack making small adjustment to "
                     "rho_edge["
-                 << i << "]: old " << rho_edge[i] << ", new " << a[i]
-                 << " (3a)\n";
+                 << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (3a)\n";
 #endif
         // valid intercept is on other side of a[i]
         rho_edge[i] = a[i] - (rho_edge[i] - a[i]);
@@ -258,14 +237,12 @@ void GLG4TorusStack::CheckABRho() {
         if (fabs(a[i] - rho_edge[i + 1]) > max_rho * 1e-3 + radTolerance)
           G4cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
                     "rho_edge["
-                 << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i]
-                 << " (4)\n";
+                 << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (4)\n";
 #ifdef G4DEBUG
         else
           G4cerr << "Debug info: GLG4TorusStack making small adjustment to "
                     "rho_edge["
-                 << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i]
-                 << " (4a)\n";
+                 << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (4a)\n";
 #endif
         // valid intercept is on other side of a[i]
         rho_edge[i + 1] = a[i] - (rho_edge[i + 1] - a[i]);
@@ -279,8 +256,7 @@ void GLG4TorusStack::CheckABRho() {
 // Dispatch to parameterisation for replication mechanism dimension
 // computation & modification.
 
-void GLG4TorusStack::ComputeDimensions(G4VPVParameterisation *, const G4int,
-                                       const G4VPhysicalVolume *) {
+void GLG4TorusStack::ComputeDimensions(G4VPVParameterisation *, const G4int, const G4VPhysicalVolume *) {
   G4cerr << "Warning: ComputeDimensions is not defined for GLG4TorusStack. "
             "It shouldn't be called.\n";
   // but note that G4Polycone just silently ignores calls to ComputeDimensions!
@@ -296,7 +272,7 @@ void GLG4TorusStack::ComputeDimensions(G4VPVParameterisation *, const G4int,
 
 // the function a TorusFunc to return distance to root
 class GLG4TorusStack_TorusFunc : public GLG4TorusStack::RootFinder {
-public:
+ public:
   G4double rr, ru, uu, z, w;
   G4double a, b;
   void f_and_Df(G4double s, G4double &f, G4double &Df) {
@@ -312,15 +288,14 @@ public:
   }
 };
 
-G4int GLG4TorusStack::FindFirstTorusRoot(
-    G4double a,             // swept radius
-    G4double b,             // radius of torus section
-    const G4ThreeVector &p, // start point relative to torus centroid
-    const G4ThreeVector &v, // direction vector
-    G4double smin,          // lower bracket on root
-    G4double smax,          // upper bracket on root
-    G4bool fEntering,       // true if looking for out->in crossing
-    G4double &sout)         // distance to root, if found
+G4int GLG4TorusStack::FindFirstTorusRoot(G4double a,              // swept radius
+                                         G4double b,              // radius of torus section
+                                         const G4ThreeVector &p,  // start point relative to torus centroid
+                                         const G4ThreeVector &v,  // direction vector
+                                         G4double smin,           // lower bracket on root
+                                         G4double smax,           // upper bracket on root
+                                         G4bool fEntering,        // true if looking for out->in crossing
+                                         G4double &sout)          // distance to root, if found
 {
   GLG4TorusStack_TorusFunc tfunc;
 
@@ -332,7 +307,7 @@ G4int GLG4TorusStack::FindFirstTorusRoot(
   tfunc.a = a;
   tfunc.b = b;
 
-  if (b == 0.0) { // special case: cylinder
+  if (b == 0.0) {  // special case: cylinder
     if (tfunc.uu == 0.0 && tfunc.ru == 0.0)
       return 0;
     else {
@@ -342,40 +317,40 @@ G4int GLG4TorusStack::FindFirstTorusRoot(
       G4double B = 2.0 * tfunc.ru;
       G4double C = (tfunc.rr - square(a));
       if (A == 0.0)
-        sout = -C / B; // tangent -- only one root
+        sout = -C / B;  // tangent -- only one root
       else {
         C = B * B - 4 * A * C;
-        if (C < 0.0) // no intersection
+        if (C < 0.0)  // no intersection
           return 0;
-        else { // two roots
+        else {  // two roots
           C = sqrt(C);
           B /= 2 * A;
           C /= 2 * A;
           if (fEntering)
-            sout = -B - C; // want first root if looking for entrance point
+            sout = -B - C;  // want first root if looking for entrance point
           else
-            sout = -B + C; // want second root if looking for exit point
+            sout = -B + C;  // want second root if looking for exit point
         }
       }
       return (sout >= smin && sout <= smax) ? 1 : 0;
     }
   }
-  if (a == 0.0) { // special case: sphere
+  if (a == 0.0) {  // special case: sphere
     // solve quadratic Q = t**2 + B*t + C = 0
     // Q > 0 <==> outside; Q < 0 <==> inside
     G4double B = 2.0 * (tfunc.ru + tfunc.z * tfunc.w);
     G4double C = (tfunc.rr + square(tfunc.z) - square(b));
     C = B * B - 4 * C;
-    if (C < 0.0) // no intersection
+    if (C < 0.0)  // no intersection
       return 0;
-    else { // two roots
+    else {  // two roots
       C = sqrt(C);
       B /= 2.;
       C /= 2.;
       if (fEntering)
-        sout = -B - C; // want first root if looking for entrance
+        sout = -B - C;  // want first root if looking for entrance
       else
-        sout = -B + C; // want second root if looking for exit
+        sout = -B + C;  // want second root if looking for exit
     }
     return (sout >= smin && sout <= smax) ? 1 : 0;
   }
@@ -387,8 +362,7 @@ G4int GLG4TorusStack::FindFirstTorusRoot(
 
 // RootFinder::FindRoot finds the lowest root in a given range using
 // Newton's method and bisection
-int GLG4TorusStack::RootFinder::FindRoot(G4double smin, G4double smax,
-                                         G4double tol, G4bool fFindFallingRoot,
+int GLG4TorusStack::RootFinder::FindRoot(G4double smin, G4double smax, G4double tol, G4bool fFindFallingRoot,
                                          G4double &sout) {
   G4double f1, Df1, f2, Df2, s, f, Df, oldds;
   bool ok_to_retry = true;
@@ -405,14 +379,13 @@ int GLG4TorusStack::RootFinder::FindRoot(G4double smin, G4double smax,
     oldds = (smax - smin) / 64.0;
     while (!(sign * Df1 > 0.0 && sign * f1 < 0.0)) {
       smin += oldds;
-      if (smin >= smax)
-        return 0;
+      if (smin >= smax) return 0;
       f_and_Df(smin, f1, Df1);
     }
   }
 
   // root-finding loop
-retry: // will retry at most once
+retry:  // will retry at most once
   s = smin;
   f = f1;
   Df = Df1;
@@ -421,7 +394,7 @@ retry: // will retry at most once
     G4double ds = -f / Df;
     G4double stry = s + ds;
     if ((G4double)stry == (G4double)s) {
-      oldds = 0.0; // done if correction is too small for machine precision
+      oldds = 0.0;  // done if correction is too small for machine precision
       break;
     }
     if (stry <= smin || stry >= smax || fabs(ds) > 0.5 * oldds) {
@@ -442,14 +415,14 @@ retry: // will retry at most once
       s = stry;
     }
     f_and_Df(s, f, Df);
-    if (samesign(f1, f)) { // update lower bound
+    if (samesign(f1, f)) {  // update lower bound
       // only update lower bound if have clearly valid bracket of root
       if (!samesign(f1, f2)) {
         smin = s;
         f1 = f;
         Df1 = Df;
       }
-    } else { // update upper bound
+    } else {  // update upper bound
       smax = s;
       f2 = f;
       Df2 = Df;
@@ -461,19 +434,15 @@ retry: // will retry at most once
   if ((samesign(f1, f2)) || (oldds > tol)) {
     // do not have clearly valid bracket of root.  Maybe there is no root!
     // if both derivatives point in same direction, assume no root
-    if (samesign(Df1, Df2))
-      return 0;
+    if (samesign(Df1, Df2)) return 0;
     // the following code is rarely called!
     // scan for the minimum using 640 divisions of the interval
-    G4double ds =
-        (smax - smin) /
-        640.0; // we need plenty of steps in order to ensure the boundary is
-               // found otherwise we will obtain a strangely shaped PMT
+    G4double ds = (smax - smin) / 640.0;  // we need plenty of steps in order to ensure the boundary is
+                                          // found otherwise we will obtain a strangely shaped PMT
     for (s = smin + 0.5 * ds; s < smax; s += ds) {
       f_and_Df(s, f, Df);
-      if (!samesign(f1, f) &&
-          !samesign(Df1, Df)) // the distance AND the derivative must change in
-                              // order for this to be a boundary crossing
+      if (!samesign(f1, f) && !samesign(Df1, Df))  // the distance AND the derivative must change in
+                                                   // order for this to be a boundary crossing
         break;
     }
     if (ok_to_retry && !samesign(f1, f)) {
@@ -481,12 +450,12 @@ retry: // will retry at most once
       f2 = f;
       Df2 = Df;
       ok_to_retry = false;
-      goto retry; // found a bracket, so try again! (Infinite loop impossible)
+      goto retry;  // found a bracket, so try again! (Infinite loop impossible)
     }
-    return 0; // function entirely on one side!
+    return 0;  // function entirely on one side!
   }
 
-  return 1; // found the root!
+  return 1;  // found the root!
 }
 
 // ---------------------------------------------------------------------------
@@ -504,8 +473,7 @@ G4int GLG4TorusStack::FindInOrderedList(double z_lu, const double *z, int n) {
   }
 #endif
 
-  if (z_lu < z[0] || z_lu >= z[n - 1])
-    return -1;
+  if (z_lu < z[0] || z_lu >= z[n - 1]) return -1;
 
   a = 0;
   b = n - 1;
@@ -537,16 +505,14 @@ G4int GLG4TorusStack::FindNearestSegment(G4double pr, G4double pz) const {
 
   if (i0 == 0 && pr - rho_edge[0] < -(pz - z_edge[0])) {
     distmin = pz - z_edge[0];
-    imin = -1; // maybe nearest flat bottom surface
-    if (distmin <= surfaceTolerance)
-      return imin; // on or below flat bottom surface
+    imin = -1;                                     // maybe nearest flat bottom surface
+    if (distmin <= surfaceTolerance) return imin;  // on or below flat bottom surface
   }
 
   if (i0 == n - 1 && pr - rho_edge[n] < (pz - z_edge[n])) {
     distmin = z_edge[n] - pz;
-    imin = n; // maybe nearest flat top surface
-    if (distmin <= surfaceTolerance)
-      return imin; // on or above flat top surface
+    imin = n;                                      // maybe nearest flat top surface
+    if (distmin <= surfaceTolerance) return imin;  // on or above flat top surface
   }
 
   // check bounding cylinder of this region
@@ -575,8 +541,7 @@ G4int GLG4TorusStack::FindNearestSegment(G4double pr, G4double pz) const {
   G4double dist2min = distmin * distmin;
   for (i = i0 + 1; i < n; i++) {
     G4double dz = fabs(pz - z_edge[i]);
-    if (dz > distmin)
-      break;
+    if (dz > distmin) break;
     G4double r1, r2, dr;
     if (rho_edge[i] < rho_edge[i + 1]) {
       r1 = rho_edge[i];
@@ -601,8 +566,7 @@ G4int GLG4TorusStack::FindNearestSegment(G4double pr, G4double pz) const {
   // check edges below
   for (i = i0 - 1; i >= 0; i--) {
     G4double dz = fabs(pz - z_edge[i + 1]);
-    if (dz > distmin)
-      break;
+    if (dz > distmin) break;
     G4double r1, r2, dr;
     if (rho_edge[i] < rho_edge[i + 1]) {
       r1 = rho_edge[i];
@@ -633,16 +597,14 @@ G4int GLG4TorusStack::FindNearestSegment(G4double pr, G4double pz) const {
 // ---------------------------------------------------------------------------
 
 // Calculate extent under transform and specified limit
-G4bool GLG4TorusStack::CalculateExtent(const EAxis pAxis,
-                                       const G4VoxelLimits &pVoxelLimit,
-                                       const G4AffineTransform &pTransform,
-                                       G4double &pMin, G4double &pMax) const {
+G4bool GLG4TorusStack::CalculateExtent(const EAxis pAxis, const G4VoxelLimits &pVoxelLimit,
+                                       const G4AffineTransform &pTransform, G4double &pMin, G4double &pMax) const {
   G4int i, noEntries, noBetweenSections4;
   G4bool existsAfterClip = false;
 
   // Calculate rotated vertex coordinates
   G4ThreeVectorList *vertices;
-  G4int noPolygonVertices; // will be 4
+  G4int noPolygonVertices;  // will be 4
   vertices = CreateRotatedVertices(pTransform, noPolygonVertices);
 
   pMin = +kInfinity;
@@ -671,10 +633,9 @@ G4bool GLG4TorusStack::CalculateExtent(const EAxis pAxis,
     // If point inside then we are confident that the solid completely
     // envelopes the clipping volume. Hence set min/max extents according
     // to clipping volume extents along the specified axis.
-    G4ThreeVector clipCentre(
-        (pVoxelLimit.GetMinXExtent() + pVoxelLimit.GetMaxXExtent()) * 0.5,
-        (pVoxelLimit.GetMinYExtent() + pVoxelLimit.GetMaxYExtent()) * 0.5,
-        (pVoxelLimit.GetMinZExtent() + pVoxelLimit.GetMaxZExtent()) * 0.5);
+    G4ThreeVector clipCentre((pVoxelLimit.GetMinXExtent() + pVoxelLimit.GetMaxXExtent()) * 0.5,
+                             (pVoxelLimit.GetMinYExtent() + pVoxelLimit.GetMaxYExtent()) * 0.5,
+                             (pVoxelLimit.GetMinZExtent() + pVoxelLimit.GetMaxZExtent()) * 0.5);
 
     if (Inside(pTransform.Inverse().TransformPoint(clipCentre)) != kOutside) {
       existsAfterClip = true;
@@ -693,8 +654,7 @@ G4bool GLG4TorusStack::CalculateExtent(const EAxis pAxis,
 EInside GLG4TorusStack::Inside(const G4ThreeVector &p) const {
   EInside in = Inside1(p);
 
-  if (in == kOutside)
-    return in;
+  if (in == kOutside) return in;
 
   // check inner solid, if there is one
   if (inner) {
@@ -716,24 +676,21 @@ EInside GLG4TorusStack::Inside1(const G4ThreeVector &p) const {
 
   // see if z is outside
   if (p.z() <= z_edge[0] + myRadTolerance / 2.) {
-    if (p.z() < z_edge[0] - myRadTolerance / 2. || in == kSurface)
-      return in = kOutside;
+    if (p.z() < z_edge[0] - myRadTolerance / 2. || in == kSurface) return in = kOutside;
     in = kSurface;
     i = 0;
   } else if (p.z() >= z_edge[n] - myRadTolerance / 2.) {
-    if (p.z() > z_edge[n] + myRadTolerance / 2. || in == kSurface)
-      return in = kOutside;
+    if (p.z() > z_edge[n] + myRadTolerance / 2. || in == kSurface) return in = kOutside;
     in = kSurface;
     i = n - 1;
   } else
-    i = FindInOrderedList(p.z(), z_edge, n + 1); // find z in table
+    i = FindInOrderedList(p.z(), z_edge, n + 1);  // find z in table
 
   // 2-d distance from axis
   G4double rp = glg4_hypot(p.x(), p.y());
 
   // early decision -- 2*wider tolerance for safety
-  if (rp > G4std::max(rho_edge[i], rho_edge[i + 1]) + myRadTolerance)
-    return in = kOutside;
+  if (rp > std::max(rho_edge[i], rho_edge[i + 1]) + myRadTolerance) return in = kOutside;
 
   // detailed check
   G4double drtor;
@@ -741,8 +698,7 @@ EInside GLG4TorusStack::Inside1(const G4ThreeVector &p) const {
     drtor = rp - a[i];
   } else {
     if ((b[i] > 0.0) ? (rp >= a[i]) : (rp <= a[i])) {
-      drtor =
-          0.5 * ((square(rp - a[i]) + square(p.z() - z_o[i])) / b[i] - b[i]);
+      drtor = 0.5 * ((square(rp - a[i]) + square(p.z() - z_o[i])) / b[i] - b[i]);
     } else {
       drtor = 0.5 * (square(p.z() - z_o[i]) / b[i] - b[i]);
     }
@@ -782,25 +738,24 @@ G4ThreeVector GLG4TorusStack::SurfaceNormal(const G4ThreeVector &p) const {
   G4int i = FindNearestSegment(pr, pz);
 
   // set normal
-  if (i == -1) { // bottom surface
+  if (i == -1) {  // bottom surface
     norm = G4ThreeVector(0.0, 0.0, -1.0);
-  } else if (i == n) { // top surface
+  } else if (i == n) {  // top surface
     norm = G4ThreeVector(0.0, 0.0, +1.0);
-  } else if (pr == 0.0) { // point is on z-axis -- it is silly!
+  } else if (pr == 0.0) {  // point is on z-axis -- it is silly!
     norm = G4ThreeVector(0.0, 0.0, +1.0);
-  } else if (b[i] == 0.0) { // cylindrical surface
+  } else if (b[i] == 0.0) {  // cylindrical surface
     norm = G4ThreeVector(p.x() / pr, p.y() / pr, 0.0);
-  } else { // toroidal surface
+  } else {  // toroidal surface
     G4double dz = pz - z_o[i];
     G4double dr = pr - a[i];
     G4double nrm = glg4_hypot(dz, dr);
-    if (nrm == 0.0) { // point is at center of toroid x-section -- ok
+    if (nrm == 0.0) {  // point is at center of toroid x-section -- ok
       norm = G4ThreeVector(p.x() / pr, p.y() / pr, 0.0);
-    } else { // this is the usual case
-      norm = G4ThreeVector(p.x() * dr / (pr * nrm), p.y() * dr / (pr * nrm),
-                           dz / nrm);
+    } else {  // this is the usual case
+      norm = G4ThreeVector(p.x() * dr / (pr * nrm), p.y() * dr / (pr * nrm), dz / nrm);
     }
-    if (b[i] < 0.0) // handle concave surface
+    if (b[i] < 0.0)  // handle concave surface
       norm = -norm;
     if ((b[i] < 0.0) != (dr < 0.0)) {
       G4cout.flush();
@@ -820,8 +775,7 @@ G4ThreeVector GLG4TorusStack::SurfaceNormal(const G4ThreeVector &p) const {
 // - if there is an inner solid, assumes it is completely contained in main
 //   except possibly at flat ends (z_edge[0] and z_edge[n])
 
-G4double GLG4TorusStack::DistanceToIn(const G4ThreeVector &p,
-                                      const G4ThreeVector &v) const {
+G4double GLG4TorusStack::DistanceToIn(const G4ThreeVector &p, const G4ThreeVector &v) const {
   G4double dist_to_in = kInfinity;
   DEBUG_GLG4TorusStack(dist_to_in = 1.01e100;)
 
@@ -833,8 +787,7 @@ G4double GLG4TorusStack::DistanceToIn(const G4ThreeVector &p,
       if (Inside1(p + dist_to_in * v) == kInside)
         return dist_to_in;
       else {
-        DEBUG_GLG4TorusStack(
-            return 1.02e100;) return kInfinity; // no intersection
+        DEBUG_GLG4TorusStack(return 1.02e100;) return kInfinity;  // no intersection
       }
     }
   }
@@ -844,7 +797,7 @@ G4double GLG4TorusStack::DistanceToIn(const G4ThreeVector &p,
   G4int iedge, idir;
 
   // find where we are in z
-  if (p.z() > z_edge[n] - surfaceTolerance) { // above top of torus stack
+  if (p.z() > z_edge[n] - surfaceTolerance) {  // above top of torus stack
     if (v.z() >= 0.0) {
       DEBUG_GLG4TorusStack(return 1.03e100;) return kInfinity;
     }
@@ -857,7 +810,7 @@ G4double GLG4TorusStack::DistanceToIn(const G4ThreeVector &p,
     iedge = 0;
     idir = +1;
   } else {
-    iedge = FindInOrderedList(p.z(), z_edge, n + 1); // find z in table
+    iedge = FindInOrderedList(p.z(), z_edge, n + 1);  // find z in table
     idir = (v.z() >= 0.0) ? +1 : -1;
   }
 
@@ -873,28 +826,24 @@ G4double GLG4TorusStack::DistanceToIn(const G4ThreeVector &p,
   }
 
   // check for intersection with flat end -- early exit if so
-  if (p.z() > z_edge[n] - surfaceTolerance && v.z() < 0.0 &&
-      square(rho_edge[n]) >= rmin2) {
+  if (p.z() > z_edge[n] - surfaceTolerance && v.z() < 0.0 && square(rho_edge[n]) >= rmin2) {
     G4double distZ = (z_edge[n] - p.z()) / v.z();
     G4ThreeVector pi = p + distZ * v;
     if (square(pi.x()) + square(pi.y()) <= square(rho_edge[n])) {
       if (inner == NULL || inner->Inside1(pi) == kOutside) {
         dist_to_in = distZ;
-        if (dist_to_in < myRadTolerance)
-          dist_to_in = 0.0;
+        if (dist_to_in < myRadTolerance) dist_to_in = 0.0;
         return dist_to_in;
       }
     }
   }
-  if (p.z() < z_edge[0] + surfaceTolerance && v.z() > 0.0 &&
-      square(rho_edge[0]) >= rmin2) {
+  if (p.z() < z_edge[0] + surfaceTolerance && v.z() > 0.0 && square(rho_edge[0]) >= rmin2) {
     G4double distZ = (z_edge[0] - p.z()) / v.z();
     G4ThreeVector pi = p + distZ * v;
     if (square(pi.x()) + square(pi.y()) <= square(rho_edge[0])) {
       if (inner == NULL || inner->Inside1(pi) == kOutside) {
         dist_to_in = distZ;
-        if (dist_to_in < myRadTolerance)
-          dist_to_in = 0.0;
+        if (dist_to_in < myRadTolerance) dist_to_in = 0.0;
         return dist_to_in;
       }
     }
@@ -903,61 +852,54 @@ G4double GLG4TorusStack::DistanceToIn(const G4ThreeVector &p,
   // loop checking for intersections
   G4double tmin = (rv2 > 0.0) ? (-rpv / rv2) : (0.0);
   for (; iedge < n && iedge >= 0; iedge += idir) {
-    G4double r_out2 = square(G4std::max(rho_edge[iedge], rho_edge[iedge + 1]));
-    if (rmin2 > r_out2)
-      continue;
+    G4double r_out2 = square(std::max(rho_edge[iedge], rho_edge[iedge + 1]));
+    if (rmin2 > r_out2) continue;
     G4double tup, tdown;
     if (v.z() == 0.0) {
-      tdown =
-          (p.z() == z_edge[iedge]) ? 0.0 : (z_edge[iedge] - p.z()) * kInfinity;
-      tup = (p.z() == z_edge[iedge + 1])
-                ? 0.0
-                : (z_edge[iedge + 1] - p.z()) * kInfinity;
+      tdown = (p.z() == z_edge[iedge]) ? 0.0 : (z_edge[iedge] - p.z()) * kInfinity;
+      tup = (p.z() == z_edge[iedge + 1]) ? 0.0 : (z_edge[iedge + 1] - p.z()) * kInfinity;
     } else {
       tdown = (z_edge[iedge] - p.z()) / v.z();
       tup = (z_edge[iedge + 1] - p.z()) / v.z();
     }
-    if (((tdown < tmin) ^ (tup < tmin)) // closest approach is inside
-        || rp2 + (2 * rpv + rv2 * tdown) * tdown <= r_out2 // inside at bottom
-        || rp2 + (2 * rpv + rv2 * tup) * tup <= r_out2) {  // inside at top
+    if (((tdown < tmin) ^ (tup < tmin))                     // closest approach is inside
+        || rp2 + (2 * rpv + rv2 * tdown) * tdown <= r_out2  // inside at bottom
+        || rp2 + (2 * rpv + rv2 * tup) * tup <= r_out2) {   // inside at top
       // track passes through outer bounding cylinder of this segment
       G4double s;
       G4int nroots;
       G4double s1, s2;
-      if (tup < tdown) { // set lower and upper brackets
+      if (tup < tdown) {  // set lower and upper brackets
         s1 = tup - myRadTolerance;
         s2 = tdown + myRadTolerance;
       } else {
         s1 = tdown - myRadTolerance;
         s2 = tup + myRadTolerance;
       }
-      if (s1 < myRadTolerance) // clip minimum distance of root
-        s1 = -myRadTolerance;  // "-" to include all of surface
+      if (s1 < myRadTolerance)  // clip minimum distance of root
+        s1 = -myRadTolerance;   // "-" to include all of surface
       if (rv2 > 0.0) {
         s = tmin + sqrt(tmin * tmin + (r_out2 - rp2) / rv2) + myRadTolerance;
-        if (s1 < s && s2 > s)
-          s2 = s; // clip maximum distance of root
+        if (s1 < s && s2 > s) s2 = s;  // clip maximum distance of root
       }
-      nroots = FindFirstTorusRoot(
-          a[iedge], // swept radius
-          b[iedge], // cross-section radius
-          G4ThreeVector(p.x(), p.y(), p.z() - z_o[iedge]), // start
-          v,                                               // ray direction
-          s1, s2, true,
-          s);           // returned root
-      if (nroots > 0) { // found the intersection!
+      nroots = FindFirstTorusRoot(a[iedge],                                         // swept radius
+                                  b[iedge],                                         // cross-section radius
+                                  G4ThreeVector(p.x(), p.y(), p.z() - z_o[iedge]),  // start
+                                  v,                                                // ray direction
+                                  s1, s2, true,
+                                  s);  // returned root
+      if (nroots > 0) {                // found the intersection!
         dist_to_in = s;
         break;
       }
-    } // end of exact intercept for track through bounding cyl
-  }   // end of edge scan
+    }  // end of exact intercept for track through bounding cyl
+  }    // end of edge scan
 
   // don't bother checking to see if intercept is inside
   // subtracted (inner) volume, since that should only happen on ends
 
   // all done
-  if (dist_to_in < myRadTolerance)
-    dist_to_in = 0.0;
+  if (dist_to_in < myRadTolerance) dist_to_in = 0.0;
   return dist_to_in;
 }
 
@@ -976,23 +918,21 @@ G4double GLG4TorusStack::DistanceToIn(const G4ThreeVector &p) const {
   // find index of region containing nearest point on surface
   G4int i = FindNearestSegment(pr, pz);
 
-  if (i == -1) { // bottom surface
+  if (i == -1) {  // bottom surface
     safe = z_edge[0] - pz;
-  } else if (i == n) { // top surface
+  } else if (i == n) {  // top surface
     safe = pz - z_edge[n];
   } else {
-    safe = pr - G4std::max(rho_edge[i], rho_edge[i + 1]);
+    safe = pr - std::max(rho_edge[i], rho_edge[i + 1]);
   }
 
-  if (safe < 0.0)
-    safe = 0.0;
+  if (safe < 0.0) safe = 0.0;
 
   // if we're inside both the exterior and the inner solid,
   // then use the safe DistanceToOut of inner solid.
   if (safe == 0.0 && inner != NULL && inner->Inside1(p) == kInside) {
     safe = inner->DistanceToOut(p);
-    if (safe < 0.0)
-      safe = 0.0;
+    if (safe < 0.0) safe = 0.0;
   }
 
   return safe;
@@ -1000,10 +940,8 @@ G4double GLG4TorusStack::DistanceToIn(const G4ThreeVector &p) const {
 
 // Calculate distance to surface of shape from `inside', allowing for tolerance
 
-G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p,
-                                       const G4ThreeVector &v,
-                                       const G4bool calcNorm, G4bool *validNorm,
-                                       G4ThreeVector *norm) const {
+G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVector &v, const G4bool calcNorm,
+                                       G4bool *validNorm, G4ThreeVector *norm) const {
   G4double dist_to_out = kInfinity;
 
   // do we have an inner solid to consider?
@@ -1043,17 +981,15 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p,
     return 0.0;
   }
   if (p.z() >= z_edge[n] - 0.5 * myRadTolerance) {
-    if (v.z() >= 0.0)
-      return 0.0;
+    if (v.z() >= 0.0) return 0.0;
     iedge = n - 1;
     idir = -1;
   } else if (p.z() <= z_edge[0] + 0.5 * myRadTolerance) {
-    if (v.z() <= 0.0)
-      return 0.0;
+    if (v.z() <= 0.0) return 0.0;
     iedge = 0;
     idir = +1;
   } else {
-    iedge = FindInOrderedList(p.z(), z_edge, n + 1); // find z in table
+    iedge = FindInOrderedList(p.z(), z_edge, n + 1);  // find z in table
     idir = (v.z() >= 0.0) ? +1 : -1;
   }
 
@@ -1072,7 +1008,7 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p,
   // loop checking for intersections with sides
   G4double tmin = (rv2 > 0) ? (-rpv / rv2) : 0.0;
   for (; iedge < n && iedge >= 0; iedge += idir) {
-    G4double r_in2 = square(G4std::min(rho_edge[iedge], rho_edge[iedge + 1]));
+    G4double r_in2 = square(std::min(rho_edge[iedge], rho_edge[iedge + 1]));
     G4double tup, tdown;
     if (v.z() == 0.0) {
       tdown = 0.0;
@@ -1081,41 +1017,38 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p,
       tdown = (z_edge[iedge] - p.z()) / v.z();
       tup = (z_edge[iedge + 1] - p.z()) / v.z();
     }
-    if (rp2 + (2 * rpv + rv2 * tdown) * tdown >= r_in2   // outside at bottom
-        || rp2 + (2 * rpv + rv2 * tup) * tup >= r_in2) { // outside at top
+    if (rp2 + (2 * rpv + rv2 * tdown) * tdown >= r_in2    // outside at bottom
+        || rp2 + (2 * rpv + rv2 * tup) * tup >= r_in2) {  // outside at top
       // track passes through inner bounding cylinder of this segment
       G4double s;
       G4int nroots;
       G4double s1, s2;
-      if (tup < tdown) { // set lower and upper brackets
+      if (tup < tdown) {  // set lower and upper brackets
         s1 = tup;
         s2 = tdown;
       } else {
         s1 = tdown;
         s2 = tup;
       }
-      if (s1 < myRadTolerance) // clip minimum distance of root
-        s1 = -myRadTolerance;  // "-" to include all of surface
+      if (s1 < myRadTolerance)  // clip minimum distance of root
+        s1 = -myRadTolerance;   // "-" to include all of surface
       if (rv2 > 0.0) {
-        s = tmin + sqrt(tmin * tmin + (max_rho * max_rho - rp2) / rv2) +
-            myRadTolerance;
-        if (s1 < s && s2 > s)
-          s2 = s; // clip maximum distance of root
+        s = tmin + sqrt(tmin * tmin + (max_rho * max_rho - rp2) / rv2) + myRadTolerance;
+        if (s1 < s && s2 > s) s2 = s;  // clip maximum distance of root
       }
-      nroots = FindFirstTorusRoot(
-          a[iedge], // swept radius
-          b[iedge], // cross-section radius
-          G4ThreeVector(p.x(), p.y(), p.z() - z_o[iedge]), // start
-          v,                                               // ray direction
-          s1, s2, false,
-          s);           // returned root
-      if (nroots > 0) { // found the intersection!
+      nroots = FindFirstTorusRoot(a[iedge],                                         // swept radius
+                                  b[iedge],                                         // cross-section radius
+                                  G4ThreeVector(p.x(), p.y(), p.z() - z_o[iedge]),  // start
+                                  v,                                                // ray direction
+                                  s1, s2, false,
+                                  s);  // returned root
+      if (nroots > 0) {                // found the intersection!
         dist_to_out = s;
         isurface = iedge;
         break;
       }
-    } // end of exact intercept for track through bounding cyl
-  }   // end of edge scan
+    }  // end of exact intercept for track through bounding cyl
+  }    // end of edge scan
 
   // check for intersection with flat end
   if (v.z() > 0.0) {
@@ -1151,23 +1084,22 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p,
       G4double pr, pz;
       pz = psurf.z();
       pr = glg4_hypot(psurf.x(), psurf.y());
-      if (pr == 0.0) { // point is on z-axis -- it is silly!
+      if (pr == 0.0) {  // point is on z-axis -- it is silly!
         *norm = G4ThreeVector(0.0, 0.0, +1.0);
         *validNorm = false;
-      } else if (b[isurface] == 0.0) { // cylindrical surface
+      } else if (b[isurface] == 0.0) {  // cylindrical surface
         *norm = G4ThreeVector(psurf.x() / pr, psurf.y() / pr, 0.0);
         *validNorm = true;
-      } else { // toroidal surface
+      } else {  // toroidal surface
         G4double dz = pz - z_o[isurface];
         G4double dr = pr - a[isurface];
         G4double nrm = glg4_hypot(dz, dr);
-        if (nrm == 0.0) { // point is at center of toroid x-section -- ok
+        if (nrm == 0.0) {  // point is at center of toroid x-section -- ok
           *norm = G4ThreeVector(psurf.x() / pr, psurf.y() / pr, 0.0);
-        } else { // this is the usual case
-          *norm = G4ThreeVector(psurf.x() * dr / (pr * nrm),
-                                psurf.y() * dr / (pr * nrm), dz / nrm);
+        } else {  // this is the usual case
+          *norm = G4ThreeVector(psurf.x() * dr / (pr * nrm), psurf.y() * dr / (pr * nrm), dz / nrm);
         }
-        if (b[isurface] < 0.0) // handle concave surface
+        if (b[isurface] < 0.0)  // handle concave surface
           *norm = -*norm;
         *validNorm = true; /* (b[isurface] > 0.0); */
         if (dr != 0.0 && (b[isurface] < 0.0) != (dr < 0.0)) {
@@ -1175,8 +1107,7 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p,
           G4cerr << "Warning from GLG4TorusStack::DistanceToOut (surface "
                     "normal calculation): position inconsistent with "
                     "concavity\n\tb[isurface]="
-                 << b[isurface] << " but a[isurface]=" << a[isurface]
-                 << " and pr=" << pr << G4endl;
+                 << b[isurface] << " but a[isurface]=" << a[isurface] << " and pr=" << pr << G4endl;
           G4cerr.flush();
         }
       }
@@ -1186,16 +1117,14 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p,
       G4cerr << "Warning from GLG4TorusStack::DistanceToOut: I have calculated "
                 "a normal that is antiparallel to the momentum vector!  I must "
                 "have done something wrong! isurface="
-             << isurface << " a[isurface]=" << a[isurface]
-             << " b[isurface]=" << b[isurface] << " v=" << v
+             << isurface << " a[isurface]=" << a[isurface] << " b[isurface]=" << b[isurface] << " v=" << v
              << " norm=" << (*norm) << G4endl;
       *norm = -*norm;
       G4cerr.flush();
     }
   }
 
-  if (dist_to_out < myRadTolerance)
-    dist_to_out = 0.0;
+  if (dist_to_out < myRadTolerance) dist_to_out = 0.0;
   return dist_to_out;
 }
 
@@ -1210,16 +1139,15 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p) const {
   // find index of region containing nearest point on surface
   G4int i = FindNearestSegment(pr, pz);
 
-  if (i == -1) { // bottom surface
+  if (i == -1) {  // bottom surface
     safe = pz - z_edge[0];
-  } else if (i == n) { // top surface
+  } else if (i == n) {  // top surface
     safe = z_edge[n] - pz;
   } else {
-    safe = G4std::min(rho_edge[i], rho_edge[i + 1]) - pr;
+    safe = std::min(rho_edge[i], rho_edge[i + 1]) - pr;
   }
 
-  if (safe < 0.0)
-    safe = 0.0;
+  if (safe < 0.0) safe = 0.0;
 
   // if we're safely inside the exterior solid,
   // and we have an inner solid,
@@ -1227,10 +1155,8 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p) const {
   // use minimum safe distance
   if (safe > 0.0 && inner != NULL) {
     G4double safe2 = inner->DistanceToIn(p);
-    if (safe2 < 0.0)
-      safe2 = 0.0;
-    if (safe2 < safe)
-      safe = safe2;
+    if (safe2 < 0.0) safe2 = 0.0;
+    if (safe2 < safe) safe = safe2;
   }
 
   return safe;
@@ -1246,13 +1172,11 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p) const {
 // Note:
 //  Caller has deletion resposibility
 //
-G4ThreeVectorList *
-GLG4TorusStack::CreateRotatedVertices(const G4AffineTransform &pTransform,
-                                      G4int &noPolygonVertices) const {
+G4ThreeVectorList *GLG4TorusStack::CreateRotatedVertices(const G4AffineTransform &pTransform,
+                                                         G4int &noPolygonVertices) const {
   G4ThreeVectorList *vertices;
   G4ThreeVector vertex0, vertex1, vertex2, vertex3;
-  G4double meshAngle, meshRMax, crossAngle, cosCrossAngle, sinCrossAngle,
-      sAngle;
+  G4double meshAngle, meshRMax, crossAngle, cosCrossAngle, sinCrossAngle, sAngle;
   G4double rMaxX, rMaxY;
   G4int crossSection, noCrossSections;
 
@@ -1302,43 +1226,33 @@ GLG4TorusStack::CreateRotatedVertices(const G4AffineTransform &pTransform,
 
 void GLG4TorusStack::DescribeYourselfTo(G4VGraphicsScene &scene) const {
 #if (G4VERSION_NUMBER <= 700)
-  scene.AddThis(*this); // function was named AddThis for a long time...
+  scene.AddThis(*this);  // function was named AddThis for a long time...
 #else
-  scene.AddSolid(*this); // renamed to AddSolid in Geant4 7.01
+  scene.AddSolid(*this);  // renamed to AddSolid in Geant4 7.01
 #endif
 }
 
 G4VisExtent GLG4TorusStack::GetExtent() const {
   // Define the sides of the box into which the GLG4TorusStack instance would
   // fit.
-  return G4VisExtent(-max_rho, max_rho, -max_rho, max_rho, z_edge[0],
-                     z_edge[n]);
+  return G4VisExtent(-max_rho, max_rho, -max_rho, max_rho, z_edge[0], z_edge[n]);
 }
 
 // ================================================================
 
 class GLG4PolyhedronTorusStack : public G4Polyhedron {
-public:
-  GLG4PolyhedronTorusStack(const G4int n, const G4double z_edge[],
-                           const G4double rho_edge[], const G4double z_o[],
-                           const G4double a[], const G4double b[],
-                           const G4int inner_n, const G4double inner_z_edge[],
-                           const G4double inner_rho_edge[],
-                           const G4double inner_z_o[], const G4double inner_a[],
+ public:
+  GLG4PolyhedronTorusStack(const G4int n, const G4double z_edge[], const G4double rho_edge[], const G4double z_o[],
+                           const G4double a[], const G4double b[], const G4int inner_n, const G4double inner_z_edge[],
+                           const G4double inner_rho_edge[], const G4double inner_z_o[], const G4double inner_a[],
                            const G4double inner_b[]);
-  static G4int MakeSegment(G4double rho0, G4double rho1, G4double z0,
-                           G4double z1, G4double z_o, G4double a, G4double b,
+  static G4int MakeSegment(G4double rho0, G4double rho1, G4double z0, G4double z1, G4double z_o, G4double a, G4double b,
                            G4int ns, G4double rr[], G4double zz[]);
-  virtual G4Visible &operator=(const G4Visible &from) {
-    return G4Visible::operator=(from);
-  }
+  virtual G4Visible &operator=(const G4Visible &from) { return G4Visible::operator=(from); }
 };
 
-G4int GLG4PolyhedronTorusStack::MakeSegment(G4double rho0, G4double rho1,
-                                            G4double z0, G4double z1,
-                                            G4double z_o, G4double a,
-                                            G4double b, G4int ns, G4double rr[],
-                                            G4double zz[]) {
+G4int GLG4PolyhedronTorusStack::MakeSegment(G4double rho0, G4double rho1, G4double z0, G4double z1, G4double z_o,
+                                            G4double a, G4double b, G4int ns, G4double rr[], G4double zz[]) {
   G4int j;
 
   j = 0;
@@ -1349,18 +1263,16 @@ G4int GLG4PolyhedronTorusStack::MakeSegment(G4double rho0, G4double rho1,
   } else {
     double dz = fabs(z0 - z1);
     double dr = fabs(rho0 - rho1);
-    double fac = (dr + dz) / fabs(b) / 1.5; // crude apx to arc length/(pi/2)
+    double fac = (dr + dz) / fabs(b) / 1.5;  // crude apx to arc length/(pi/2)
     if (fac < 1.0) {
       ns = (int)((ns - 1.5) * fac + 1.5);
-      if (ns < 2)
-        ns = 2;
+      if (ns < 2) ns = 2;
     }
     if (dz > dr) {
       for (G4int k = 0; k < ns; k++) {
         zz[j] = z0 + k / (double)ns * (z1 - z0);
         G4double dtmp = 1.0 - square((zz[j] - z_o) / b);
-        if (dtmp < 0.0)
-          dtmp = 0.0;
+        if (dtmp < 0.0) dtmp = 0.0;
         rr[j] = a + b * sqrt(dtmp);
         j++;
       }
@@ -1368,8 +1280,7 @@ G4int GLG4PolyhedronTorusStack::MakeSegment(G4double rho0, G4double rho1,
       for (G4int k = 0; k < ns; k++) {
         rr[j] = rho0 + k / (double)ns * (rho1 - rho0);
         G4double dtmp = 1.0 - square((rr[j] - a) / b);
-        if (dtmp < 0.0)
-          dtmp = 0.0;
+        if (dtmp < 0.0) dtmp = 0.0;
         zz[j] = z_o + fabs(b) * sqrt(dtmp) * (z0 > z_o ? +1 : -1);
         j++;
       }
@@ -1379,12 +1290,11 @@ G4int GLG4PolyhedronTorusStack::MakeSegment(G4double rho0, G4double rho1,
   return j;
 }
 
-GLG4PolyhedronTorusStack::GLG4PolyhedronTorusStack(
-    const G4int n, const G4double z_edge[], const G4double rho_edge[],
-    const G4double z_o[], const G4double a[], const G4double b[],
-    const G4int inner_n, const G4double inner_z_edge[],
-    const G4double inner_rho_edge[], const G4double inner_z_o[],
-    const G4double inner_a[], const G4double inner_b[])
+GLG4PolyhedronTorusStack::GLG4PolyhedronTorusStack(const G4int n, const G4double z_edge[], const G4double rho_edge[],
+                                                   const G4double z_o[], const G4double a[], const G4double b[],
+                                                   const G4int inner_n, const G4double inner_z_edge[],
+                                                   const G4double inner_rho_edge[], const G4double inner_z_o[],
+                                                   const G4double inner_a[], const G4double inner_b[])
 /***********************************************************************
  *                                                                     *
  * Name: GLG4PolyhedronTorusStack                                      *
@@ -1405,40 +1315,36 @@ GLG4PolyhedronTorusStack::GLG4PolyhedronTorusStack(
 
   if (n <= 0) {
     G4cerr << "Error: bad parameters in GLG4PolyhedronTorusStack!" << G4endl;
-    G4Exception(__FILE__, "Invalid Parameter", FatalException,
-                "GLG4PolyhedronTorusStack: bad parameters!");
+    G4Exception(__FILE__, "Invalid Parameter", FatalException, "GLG4PolyhedronTorusStack: bad parameters!");
   }
 
   //   P R E P A R E   T W O   P O L Y L I N E S
 
   G4int ns = GetNumberOfRotationSteps() / 4 + 2;
-  G4int np1 = n * ns + 3; // ns steps for each segment + 1, plus one on each end
+  G4int np1 = n * ns + 3;  // ns steps for each segment + 1, plus one on each end
   G4int np2 = (inner_n == 0) ? 1 : (inner_n)*ns + 3;
 
   G4double *zz, *rr;
   zz = new G4double[np1 + np2];
   rr = new G4double[np1 + np2];
   if (!zz || !rr) {
-    G4Exception(__FILE__, "Out of memory", FatalException,
-                "Out of memory in GLG4PolyhedronTorusStack!");
+    G4Exception(__FILE__, "Out of memory", FatalException, "Out of memory in GLG4PolyhedronTorusStack!");
   }
 
   zz[0] = z_edge[0];
-  rr[0] = (inner_n == 0) ? 0.0 : inner_rho_edge[0]; // closes end
+  rr[0] = (inner_n == 0) ? 0.0 : inner_rho_edge[0];  // closes end
   int i, j;
   for (i = 0, j = 1; i < n; i++) {
-    j += MakeSegment(rho_edge[i], rho_edge[i + 1], z_edge[i], z_edge[i + 1],
-                     z_o[i], a[i], b[i], ns, rr + j, zz + j);
+    j += MakeSegment(rho_edge[i], rho_edge[i + 1], z_edge[i], z_edge[i + 1], z_o[i], a[i], b[i], ns, rr + j, zz + j);
   }
   zz[j] = z_edge[n];
   rr[j] = rho_edge[n];
   j++;
   if (j >= np1 - 1) {
-    G4Exception(__FILE__, "WTF", FatalException,
-                "Logic error in GLG4PolyhedronTorusStack, memory corrupted!");
+    G4Exception(__FILE__, "WTF", FatalException, "Logic error in GLG4PolyhedronTorusStack, memory corrupted!");
   }
   zz[j] = z_edge[n];
-  rr[j] = (inner_n == 0) ? 0.0 : inner_rho_edge[inner_n]; // closes end
+  rr[j] = (inner_n == 0) ? 0.0 : inner_rho_edge[inner_n];  // closes end
   j++;
   np1 = j;
   // generate inner surface
@@ -1448,10 +1354,8 @@ GLG4PolyhedronTorusStack::GLG4PolyhedronTorusStack(
     np1--;
   } else {
     for (i = inner_n - 1; i >= 0; i--) {
-      if (inner_z_edge[i + 1] > z_edge[n] || inner_z_edge[i] < z_edge[0])
-        continue;
-      j += MakeSegment(inner_rho_edge[i + 1], inner_rho_edge[i],
-                       inner_z_edge[i + 1], inner_z_edge[i], inner_z_o[i],
+      if (inner_z_edge[i + 1] > z_edge[n] || inner_z_edge[i] < z_edge[0]) continue;
+      j += MakeSegment(inner_rho_edge[i + 1], inner_rho_edge[i], inner_z_edge[i + 1], inner_z_edge[i], inner_z_o[i],
                        inner_a[i], inner_b[i], ns, rr + j, zz + j);
     }
     zz[j] = zz[0];
@@ -1459,8 +1363,7 @@ GLG4PolyhedronTorusStack::GLG4PolyhedronTorusStack(
     j++;
   }
   if (j - np1 > np2) {
-    G4Exception(__FILE__, "WTF", FatalException,
-                "Logic error 2 in GLG4PolyhedronTorusStack, memory corrupted!");
+    G4Exception(__FILE__, "WTF", FatalException, "Logic error 2 in GLG4PolyhedronTorusStack, memory corrupted!");
   }
   np2 = j - np1;
 
@@ -1477,11 +1380,9 @@ GLG4PolyhedronTorusStack::GLG4PolyhedronTorusStack(
 
 G4Polyhedron *GLG4TorusStack::CreatePolyhedron() const {
   if (inner == NULL) {
-    return new GLG4PolyhedronTorusStack(n, z_edge, rho_edge, z_o, a, b, 0, NULL,
-                                        NULL, NULL, NULL, NULL);
+    return new GLG4PolyhedronTorusStack(n, z_edge, rho_edge, z_o, a, b, 0, NULL, NULL, NULL, NULL, NULL);
   } else {
-    return new GLG4PolyhedronTorusStack(
-        n, z_edge, rho_edge, z_o, a, b, inner->n, inner->z_edge,
-        inner->rho_edge, inner->z_o, inner->a, inner->b);
+    return new GLG4PolyhedronTorusStack(n, z_edge, rho_edge, z_o, a, b, inner->n, inner->z_edge, inner->rho_edge,
+                                        inner->z_o, inner->a, inner->b);
   }
 }

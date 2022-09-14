@@ -1,9 +1,10 @@
-#include <RAT/BNLOpWLSData.hh>
 #include <TFile.h>
 #include <TLeaf.h>
 #include <TTree.h>
-#include <iostream>
 #include <sys/stat.h>
+
+#include <RAT/BNLOpWLSData.hh>
+#include <iostream>
 #include <vector>
 
 using namespace std;
@@ -12,8 +13,7 @@ BNLOpWLSData::BNLOpWLSData(string fname) { SetExEmData(fname); }
 
 BNLOpWLSData::~BNLOpWLSData() {}
 
-void *BNLOpWLSData::GetPointerToValue(TBranch *theBranch, int entry,
-                                      const char *name) {
+void *BNLOpWLSData::GetPointerToValue(TBranch *theBranch, int entry, const char *name) {
   theBranch->GetEntry(entry);
   TLeaf *theLeaf = theBranch->GetLeaf(name);
   return theLeaf->GetValuePointer();
@@ -52,14 +52,11 @@ void BNLOpWLSData::SetExEmData(string fname) {
     theIntegral = 0;
 
     // I should get these in a different way...
-    ExWavelength.push_back(
-        *(double *)(GetPointerToValue(ExBranch, i, ExBranch->GetName())));
+    ExWavelength.push_back(*(double *)(GetPointerToValue(ExBranch, i, ExBranch->GetName())));
 
-    EmWavelengths = *(
-        vector<double> *)(GetPointerToValue(EmBranch, i, EmBranch->GetName()));
+    EmWavelengths = *(vector<double> *)(GetPointerToValue(EmBranch, i, EmBranch->GetName()));
 
-    EmIntensities = *(vector<double> *)(GetPointerToValue(
-        IntenBranch, i, IntenBranch->GetName()));
+    EmIntensities = *(vector<double> *)(GetPointerToValue(IntenBranch, i, IntenBranch->GetName()));
 
     // Load the data into slots 1, 2, and 3.
     theData.push_back(ExWavelength);

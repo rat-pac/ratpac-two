@@ -48,20 +48,20 @@ namespace RAT {
 class ESCrossSec;
 
 class ESCrossSecMessenger : public G4UImessenger {
-public:
+ public:
   ESCrossSecMessenger(ESCrossSec *);
   ~ESCrossSecMessenger();
 
   void SetNewValue(G4UIcommand *command, G4String newValues);
   G4String GetCurrentValue(G4UIcommand *command);
 
-private:
+ private:
   ESCrossSec *fESXS;
 
   G4UIcmdWithADouble *fWmaCmd;
   G4UIcmdWithAnInteger *fStratCmd;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_ESCrossSecMessenger_hh
+#endif  // RAT_ESCrossSecMessenger_hh

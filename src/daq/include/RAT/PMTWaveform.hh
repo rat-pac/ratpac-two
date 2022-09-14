@@ -1,15 +1,16 @@
 #ifndef __RAT_PMTWaveform__
 #define __RAT_PMTWaveform__
 
-#include <RAT/PMTPulse.hh>
 #include <TGraph.h>
 #include <TObject.h>
+
+#include <RAT/PMTPulse.hh>
 #include <vector>
 
 namespace RAT {
 
 class PMTWaveform {
-public:
+ public:
   PMTWaveform();
   virtual ~PMTWaveform();
   virtual double GetHeight(double time);
@@ -17,6 +18,6 @@ public:
   std::vector<PMTPulse *> fPulse;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

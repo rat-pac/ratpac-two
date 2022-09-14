@@ -22,14 +22,12 @@ class G4VoxelLimits;
 class G4AffineTransform;
 
 class GLG4TestSolid {
-public:
+ public:
   static G4String Test(const G4VSolid &s, G4int npair);
 
-  static G4String TestRay(const G4VSolid &s, const G4ThreeVector &p,
-                          const G4ThreeVector &v, G4double checkTolerance);
+  static G4String TestRay(const G4VSolid &s, const G4ThreeVector &p, const G4ThreeVector &v, G4double checkTolerance);
 
-  static G4String TestAtSurface(const G4VSolid &s, const G4ThreeVector &p1,
-                                G4double checkTolerance);
+  static G4String TestAtSurface(const G4VSolid &s, const G4ThreeVector &p1, G4double checkTolerance);
 
   static void ResetRandomPointSeed(G4int newiseed);
 

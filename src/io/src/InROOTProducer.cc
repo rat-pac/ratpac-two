@@ -1,3 +1,10 @@
+#include <TChain.h>
+#include <TFile.h>
+#include <TString.h>
+#include <assert.h>
+
+#include <G4UIcmdWithAString.hh>
+#include <G4UIdirectory.hh>
 #include <RAT/DB.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/RunStore.hh>
@@ -5,15 +12,6 @@
 #include <RAT/Log.hh>
 #include <RAT/ProcBlock.hh>
 #include <RAT/SignalHandler.hh>
-
-#include <G4UIcmdWithAString.hh>
-#include <G4UIdirectory.hh>
-
-#include <TChain.h>
-#include <TFile.h>
-#include <TString.h>
-
-#include <assert.h>
 
 namespace RAT {
 
@@ -36,7 +34,7 @@ void InROOTProducer::Init() {
 
   readCmd = new G4UIcmdWithAString("/rat/inroot/read", this);
   readCmd->SetGuidance("name of input file");
-  readCmd->SetParameterName("filename", false); // required
+  readCmd->SetParameterName("filename", false);  // required
 
   readDefaultCmd = new G4UIcommand("/rat/inroot/read_default", this);
   readDefaultCmd->SetGuidance("read from IO.default_input_filename");
@@ -59,8 +57,7 @@ void InROOTProducer::SetNewValue(G4UIcommand *command, G4String newValue) {
       size_t size = newValue.size();
 
       // Trim extraneous quotation marks to avoid confusing people
-      if (size >= 2 && newValue[(size_t)0] == '\"' &&
-          newValue[size - 1] == '\"')
+      if (size >= 2 && newValue[(size_t)0] == '\"' && newValue[size - 1] == '\"')
         filename = newValue.substr(1, size - 2);
       else
         filename = newValue;
@@ -78,8 +75,7 @@ void InROOTProducer::SetNewValue(G4UIcommand *command, G4String newValue) {
 bool InROOTProducer::ReadEvents(G4String filename) {
   // Setup
   TChain tree("T");
-  if (!tree.Add(filename.c_str()))
-    return false;
+  if (!tree.Add(filename.c_str())) return false;
 
   info << "InROOT: Reading from " << filename << "\n";
 
@@ -96,7 +92,7 @@ bool InROOTProducer::ReadEvents(G4String filename) {
     if (ftemp->Get("runT")) {
       runTree.Add(filename.c_str());
       DS::RunStore::SetReadTree(&runTree);
-    } // else, no runT, so don't register runTree with RunStore
+    }  // else, no runT, so don't register runTree with RunStore
 
     // delete ftemp;
   }
@@ -122,4 +118,4 @@ bool InROOTProducer::ReadEvents(G4String filename) {
   return true;
 }
 
-} // namespace RAT
+}  // namespace RAT

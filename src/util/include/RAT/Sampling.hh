@@ -16,9 +16,8 @@ namespace RAT {
     double integralValue = G4UniformRand()*pofv->GetMaxValue();
     double sample = pofv->GetEnergy(integralValue);
  */
-G4PhysicsOrderedFreeVector *
-Integrate_MPV_to_POFV(G4MaterialPropertyVector *inputVector);
+G4PhysicsOrderedFreeVector *Integrate_MPV_to_POFV(G4MaterialPropertyVector *inputVector);
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

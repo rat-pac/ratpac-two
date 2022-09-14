@@ -17,29 +17,28 @@ void DBMessenger::Init(DB *dbToUse) {
 
   // load database file command
   loadCmd = new G4UIcmdWithAString("/rat/db/load", this);
-  loadCmd->SetParameterName("filename", false); // required
+  loadCmd->SetParameterName("filename", false);  // required
   loadCmd->SetGuidance("Load a file into the database");
 
   // set database attribute
   setCmd = new G4UIcommand("/rat/db/set", this);
   G4UIparameter *aParam;
-  aParam = new G4UIparameter("table", 's', false); // required
+  aParam = new G4UIparameter("table", 's', false);  // required
   setCmd->SetParameter(aParam);
-  aParam = new G4UIparameter("field", 's', false); // required
+  aParam = new G4UIparameter("field", 's', false);  // required
   setCmd->SetParameter(aParam);
-  aParam = new G4UIparameter("newvalue", 's', false); // required
+  aParam = new G4UIparameter("newvalue", 's', false);  // required
   setCmd->SetParameter(aParam);
 
   // connect to server command
   serverCmd = new G4UIcmdWithAString("/rat/db/server", this);
-  serverCmd->SetParameterName("server_url", false); // required
+  serverCmd->SetParameterName("server_url", false);  // required
   serverCmd->SetGuidance("Connect to CouchDB database");
 
   // set default run in database
   runCmd = new G4UIcmdWithAnInteger("/rat/db/run", this);
-  runCmd->SetParameterName("run", false); // required
-  runCmd->SetGuidance(
-      "Set the run number to use when loading database constants");
+  runCmd->SetParameterName("run", false);  // required
+  runCmd->SetGuidance("Set the run number to use when loading database constants");
 }
 
 DBMessenger::~DBMessenger() {
@@ -54,11 +53,8 @@ G4String DBMessenger::GetCurrentValue(G4UIcommand * /*unused*/) {
 }
 
 void DBMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
-  G4ApplicationState state =
-      G4StateManager::GetStateManager()->GetCurrentState();
-  if (state != G4State_PreInit)
-    Log::Die("Error: Cannot call " + command->GetCommandPath() +
-             " after /run/initialize.");
+  G4ApplicationState state = G4StateManager::GetStateManager()->GetCurrentState();
+  if (state != G4State_PreInit) Log::Die("Error: Cannot call " + command->GetCommandPath() + " after /run/initialize.");
 
   if (command == loadCmd) {
     Load(newValue);
@@ -80,12 +76,9 @@ void DBMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
     warn << "Invalid DB command\n";
 }
 
-void DBMessenger::Load(std::string filename) {
-  db->Load(filename, true /*printPath*/);
-}
+void DBMessenger::Load(std::string filename) { db->Load(filename, true /*printPath*/); }
 
-void DBMessenger::Set(std::string tbl_descriptor, std::string field,
-                      std::string val) {
+void DBMessenger::Set(std::string tbl_descriptor, std::string field, std::string val) {
   string table;
   string index;
 
@@ -93,36 +86,36 @@ void DBMessenger::Set(std::string tbl_descriptor, std::string field,
     // Just need to figure out value now
     json::Reader reader(val);
     json::Value jval;
-    reader.getValue(jval); // will throw parser_error and abort if malformed
+    reader.getValue(jval);  // will throw parser_error and abort if malformed
 
     if (field[field.length() - 1] == ']') {
       size_t idx = atoi(field.substr(field.rfind("[") + 1).c_str());
       switch (jval.getType()) {
-      case json::TINTEGER:
-      case json::TUINTEGER:
-      case json::TREAL:
-      case json::TBOOL:
-      case json::TSTRING:
-      case json::TOBJECT:
-      case json::TARRAY:
-        DB::Get()->SetArrayIndex(table, index, field, idx, jval);
-        break;
-      case json::TNULL:
-        Log::Die("DB: Null value not supported in RATDB");
+        case json::TINTEGER:
+        case json::TUINTEGER:
+        case json::TREAL:
+        case json::TBOOL:
+        case json::TSTRING:
+        case json::TOBJECT:
+        case json::TARRAY:
+          DB::Get()->SetArrayIndex(table, index, field, idx, jval);
+          break;
+        case json::TNULL:
+          Log::Die("DB: Null value not supported in RATDB");
       }
     } else {
       switch (jval.getType()) {
-      case json::TINTEGER:
-      case json::TUINTEGER:
-      case json::TREAL:
-      case json::TBOOL:
-      case json::TSTRING:
-      case json::TOBJECT:
-      case json::TARRAY:
-        DB::Get()->Set(table, index, field, jval);
-        break;
-      case json::TNULL:
-        Log::Die("DB: Null value not supported in RATDB");
+        case json::TINTEGER:
+        case json::TUINTEGER:
+        case json::TREAL:
+        case json::TBOOL:
+        case json::TSTRING:
+        case json::TOBJECT:
+        case json::TARRAY:
+          DB::Get()->Set(table, index, field, jval);
+          break;
+        case json::TNULL:
+          Log::Die("DB: Null value not supported in RATDB");
       }
     }
     info << "DB: Setting " << table << "[" << index << "]"
@@ -143,4 +136,4 @@ void DBMessenger::Run(int run) {
   db->SetDefaultRun(run);
 }
 
-} // namespace RAT
+}  // namespace RAT

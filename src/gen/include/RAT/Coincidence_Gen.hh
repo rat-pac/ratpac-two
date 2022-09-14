@@ -33,7 +33,7 @@ namespace RAT {
 class CoincidenceMessenger;
 
 class Coincidence_Gen : public GLG4Gen {
-public:
+ public:
   Coincidence_Gen();
   virtual ~Coincidence_Gen();
   virtual void GenerateEvent(G4Event *event);
@@ -94,7 +94,7 @@ public:
   virtual void SetExponentials(G4String state);
   virtual void SetExpoForceWindow(G4bool state);
 
-protected:
+ protected:
   /** Generator initialization, specified by the user */
   G4String stateStr;
   /** limit the maximum number of extra generators to 5
@@ -136,6 +136,6 @@ protected:
   CoincidenceMessenger *messenger;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -14,14 +14,14 @@ class G4UIcommand;
 class GLG4Gen;
 
 class GLG4PrimaryGeneratorMessenger : public G4UImessenger {
-public:
+ public:
   GLG4PrimaryGeneratorMessenger(GLG4PrimaryGeneratorAction *myGun);
   ~GLG4PrimaryGeneratorMessenger();
 
   void SetNewValue(G4UIcommand *command, G4String newValues);
   G4String GetCurrentValue(G4UIcommand *command);
 
-private:
+ private:
   GLG4PrimaryGeneratorAction *myAction;
 
   G4UIcommand *ListCmd;

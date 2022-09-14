@@ -1,12 +1,12 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
-#include <RAT/GeoRevArrayFactory.hh>
-#include <RAT/Log.hh>
-#include <RAT/PMTConstruction.hh>
 
 #include <G4Orb.hh>
 #include <G4Polycone.hh>
 #include <G4SubtractionSolid.hh>
+#include <RAT/GeoRevArrayFactory.hh>
+#include <RAT/Log.hh>
+#include <RAT/PMTConstruction.hh>
 #include <vector>
 
 using namespace std;
@@ -14,7 +14,6 @@ using namespace std;
 namespace RAT {
 
 G4VPhysicalVolume *GeoRevArrayFactory::Construct(DBLinkPtr table) {
-
   string volume_name = table->GetIndex();
 
   G4int numZPlanes;
@@ -25,10 +24,10 @@ G4VPhysicalVolume *GeoRevArrayFactory::Construct(DBLinkPtr table) {
 
   numZPlanes = G4int(z.size());
 
-  if ((z.size() != r_max.size()) || (z.size() != r_min.size()) ||
-      (r_max.size() != r_min.size())) {
-    Log::Die("GeoRevArrayFactory::ConstructSolid: Tables z, r_max and r_min "
-             "must all be same size for 'revolve'.");
+  if ((z.size() != r_max.size()) || (z.size() != r_min.size()) || (r_max.size() != r_min.size())) {
+    Log::Die(
+        "GeoRevArrayFactory::ConstructSolid: Tables z, r_max and r_min "
+        "must all be same size for 'revolve'.");
   }
 
   // Optional parameters
@@ -81,30 +80,24 @@ G4VPhysicalVolume *GeoRevArrayFactory::Construct(DBLinkPtr table) {
     r_min_array[i] = fabs(r_min[i]) * CLHEP::mm;
   }
 
-  G4VSolid *BaseSolid =
-      new G4Polycone("temp_lg_1", phi_start, phi_delta, numZPlanes, z_array,
-                     r_min_array, r_array);
+  G4VSolid *BaseSolid = new G4Polycone("temp_lg_1", phi_start, phi_delta, numZPlanes, z_array, r_min_array, r_array);
 
   if ((s_cut_r > 0) && (rescale_r > 0)) {
-    G4VSolid *sphere_cutter =
-        new G4Orb("temp_sphere", s_cut_r); // This is the cut out piece
+    G4VSolid *sphere_cutter = new G4Orb("temp_sphere", s_cut_r);  // This is the cut out piece
 
     G4RotationMatrix *sphererot = new G4RotationMatrix();
 
     G4ThreeVector spherepos(0.0, 0.0, -1 * rescale_r);
 
-    BaseSolid = new G4SubtractionSolid(volume_name, BaseSolid, sphere_cutter,
-                                       sphererot, spherepos);
+    BaseSolid = new G4SubtractionSolid(volume_name, BaseSolid, sphere_cutter, sphererot, spherepos);
   }
 
   if (preflip) {
-    G4RotationMatrix *fliprot =
-        new G4RotationMatrix(G4ThreeVector(1, 0, 0), CLHEP::pi);
-    BaseSolid = new G4DisplacedSolid(volume_name + "flipped", BaseSolid,
-                                     fliprot, G4ThreeVector(0, 0, 0));
+    G4RotationMatrix *fliprot = new G4RotationMatrix(G4ThreeVector(1, 0, 0), CLHEP::pi);
+    BaseSolid = new G4DisplacedSolid(volume_name + "flipped", BaseSolid, fliprot, G4ThreeVector(0, 0, 0));
   }
 
   return GeoSolidArrayFactoryBase::Construct(BaseSolid, table);
 }
 
-} // namespace RAT
+}  // namespace RAT

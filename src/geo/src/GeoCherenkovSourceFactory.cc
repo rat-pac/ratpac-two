@@ -1,10 +1,7 @@
 #include <CLHEP/Units/SystemOfUnits.h>
 using namespace CLHEP;
 
-#include <RAT/DB.hh>
-#include <RAT/GeoCherenkovSourceFactory.hh>
-#include <RAT/Log.hh>
-#include <RAT/Materials.hh>
+#include <math.h>
 
 #include <G4Colour.hh>
 #include <G4LogicalBorderSurface.hh>
@@ -20,7 +17,10 @@ using namespace CLHEP;
 #include <G4UnitsTable.hh>
 #include <G4VPhysicalVolume.hh>
 #include <G4VisAttributes.hh>
-#include <math.h>
+#include <RAT/DB.hh>
+#include <RAT/GeoCherenkovSourceFactory.hh>
+#include <RAT/Log.hh>
+#include <RAT/Materials.hh>
 #include <string>
 #include <vector>
 
@@ -34,8 +34,7 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   const string motherName = table->GetS("mother");
 
   // Acrylic properties
-  G4Material *sourceMaterial =
-      G4Material::GetMaterial(table->GetS("source_material"));
+  G4Material *sourceMaterial = G4Material::GetMaterial(table->GetS("source_material"));
   const vector<double> &sourceColor = table->GetDArray("source_vis_color");
 
   // Acrylic neck
@@ -49,36 +48,29 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   const double ballId = table->GetD("ball_id");
 
   // Decay chamber
-  G4Material *decayChamberMaterial = G4Material::GetMaterial(
-      table->GetS("decay_chamber_material")); // inside the decay chamber
-  const vector<double> &decayChamberColor =
-      table->GetDArray("decay_chamber_vis_color");
+  G4Material *decayChamberMaterial =
+      G4Material::GetMaterial(table->GetS("decay_chamber_material"));  // inside the decay chamber
+  const vector<double> &decayChamberColor = table->GetDArray("decay_chamber_vis_color");
 
   // Black paint layer
-  G4Material *blackPaintMaterial =
-      G4Material::GetMaterial(table->GetS("black_paint_material"));
+  G4Material *blackPaintMaterial = G4Material::GetMaterial(table->GetS("black_paint_material"));
   const double blackPaintThickness = table->GetD("black_paint_thickness");
-  const vector<double> &blackPaintColor =
-      table->GetDArray("black_paint_vis_color");
+  const vector<double> &blackPaintColor = table->GetDArray("black_paint_vis_color");
 
   // White paint layer
-  G4Material *whitePaintMaterial =
-      G4Material::GetMaterial(table->GetS("white_paint_material"));
+  G4Material *whitePaintMaterial = G4Material::GetMaterial(table->GetS("white_paint_material"));
   const double whitePaintThickness = table->GetD("white_paint_thickness");
-  const vector<double> &whitePaintColor =
-      table->GetDArray("white_paint_vis_color");
+  const vector<double> &whitePaintColor = table->GetDArray("white_paint_vis_color");
 
   // Surface properties
   G4OpticalSurface *paintSurface = GetSurface(table->GetS("paint_surface"));
 
   // Neck sleeve
-  G4Material *sleeveMaterial =
-      G4Material::GetMaterial(table->GetS("sleeve_material"));
+  G4Material *sleeveMaterial = G4Material::GetMaterial(table->GetS("sleeve_material"));
   const vector<double> &sleeveColor = table->GetDArray("sleeve_vis_color");
 
   // PMT window
-  G4Material *windowMaterial =
-      G4Material::GetMaterial(table->GetS("window_material"));
+  G4Material *windowMaterial = G4Material::GetMaterial(table->GetS("window_material"));
   const double windowThickness = table->GetD("window_thickness");
   const double windowOd1 = table->GetD("window_od1");
   const double windowOd1Len = table->GetD("window_od1_len");
@@ -87,8 +79,7 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   const vector<double> &windowColor = table->GetDArray("window_vis_color");
 
   // Gas inlet/outlet tubes
-  G4Material *tubeMaterial =
-      G4Material::GetMaterial(table->GetS("tube_material"));
+  G4Material *tubeMaterial = G4Material::GetMaterial(table->GetS("tube_material"));
   const double tubeId = table->GetD("tube_id");
   const double tubeOd = table->GetD("tube_od");
   const double tubeLength = table->GetD("tube_length");
@@ -97,8 +88,7 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   const vector<double> &tubeColor = table->GetDArray("tube_vis_color");
 
   // Can stuff
-  G4Material *canMaterial =
-      G4Material::GetMaterial(table->GetS("can_material"));
+  G4Material *canMaterial = G4Material::GetMaterial(table->GetS("can_material"));
   const double canOd1 = table->GetD("can_od1");
   const double canOd1Len = table->GetD("can_od1_len");
   const double canOd2 = table->GetD("can_od2");
@@ -132,196 +122,149 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
 
   // Constructs the sleeveSolid - aluminium sleeve in the neck - to be placed in
   // world
-  G4Tubs *sleeveSolid = new G4Tubs(volumeName + "SleeveSolid", 0, neckId / 2.0,
-                                   neckIdLen / 2.0, 0, twopi);
+  G4Tubs *sleeveSolid = new G4Tubs(volumeName + "SleeveSolid", 0, neckId / 2.0, neckIdLen / 2.0, 0, twopi);
 
   // Construct windowSolid - to be placed in sleeveSolid
-  G4Tubs *window1 = new G4Tubs(volumeName + "window1", 0, windowOd1 / 2.0,
-                               (windowOd1Len + windowOd2Len) / 2, 0, twopi);
-  G4Tubs *window2 = new G4Tubs(volumeName + "window2", 0, windowOd2 / 2.0,
-                               (windowOd2Len) / 2, 0, twopi);
-  G4ThreeVector win2Offset(
-      0.0, 0.0, (windowOd1Len + windowOd2Len) / 2.0 - windowOd2Len / 2.0);
-  G4UnionSolid *windowFilled = new G4UnionSolid(
-      volumeName + "WindowFilled", window1, window2, NULL, win2Offset);
+  G4Tubs *window1 = new G4Tubs(volumeName + "window1", 0, windowOd1 / 2.0, (windowOd1Len + windowOd2Len) / 2, 0, twopi);
+  G4Tubs *window2 = new G4Tubs(volumeName + "window2", 0, windowOd2 / 2.0, (windowOd2Len) / 2, 0, twopi);
+  G4ThreeVector win2Offset(0.0, 0.0, (windowOd1Len + windowOd2Len) / 2.0 - windowOd2Len / 2.0);
+  G4UnionSolid *windowFilled = new G4UnionSolid(volumeName + "WindowFilled", window1, window2, NULL, win2Offset);
   double knockoutThickness = windowOd1Len + windowOd2Len - windowThickness;
-  G4Tubs *windowKnockout =
-      new G4Tubs(volumeName + "WindowKnockout", 0, pmtRadius,
-                 (knockoutThickness) / 2.0, 0, twopi); // leave room for the pmt
-  G4ThreeVector windowKnockoutPos(
-      0.0, 0.0, (windowOd1Len + windowOd2Len) / 2.0 - knockoutThickness / 2.0);
+  G4Tubs *windowKnockout = new G4Tubs(volumeName + "WindowKnockout", 0, pmtRadius, (knockoutThickness) / 2.0, 0,
+                                      twopi);  // leave room for the pmt
+  G4ThreeVector windowKnockoutPos(0.0, 0.0, (windowOd1Len + windowOd2Len) / 2.0 - knockoutThickness / 2.0);
   G4SubtractionSolid *windowSolid =
-      new G4SubtractionSolid(volumeName + "WindowSolid", windowFilled,
-                             windowKnockout, NULL, windowKnockoutPos);
+      new G4SubtractionSolid(volumeName + "WindowSolid", windowFilled, windowKnockout, NULL, windowKnockoutPos);
 
   // Position of window relative to neck sleeve origin
-  G4ThreeVector windowPos(
-      0.0, 0.0, (windowOd1Len + windowOd2Len) / 2.0 - neckIdLen / 2.0);
+  G4ThreeVector windowPos(0.0, 0.0, (windowOd1Len + windowOd2Len) / 2.0 - neckIdLen / 2.0);
 
   // Construct the gas inlet/outlet tubes - to be placed in world
-  G4Tubs *tubeSolid = new G4Tubs(volumeName + "Tube", 0.0, tubeOd / 2.0,
-                                 tubeLength / 2.0, 0, twopi);
-  G4Tubs *pipeSolid =
-      new G4Tubs(volumeName + "Tube", tubeId / 2.0, tubeOd / 2.0,
-                 tubeLength / 2.0, 0, twopi); // to be placed inside tube
+  G4Tubs *tubeSolid = new G4Tubs(volumeName + "Tube", 0.0, tubeOd / 2.0, tubeLength / 2.0, 0, twopi);
+  G4Tubs *pipeSolid = new G4Tubs(volumeName + "Tube", tubeId / 2.0, tubeOd / 2.0, tubeLength / 2.0, 0,
+                                 twopi);  // to be placed inside tube
   G4RotationMatrix *inletRot = new G4RotationMatrix();
   inletRot->rotateY(0.0);
   inletRot->rotateX(tubeRot / 180.0 * pi);
   inletRot->rotateZ(0.0);
-  G4ThreeVector inletPos(0.0, tubeOffset + neckId / 2.0,
-                         neckStartZ + neckIdLen / 2.0);
+  G4ThreeVector inletPos(0.0, tubeOffset + neckId / 2.0, neckStartZ + neckIdLen / 2.0);
   G4RotationMatrix *outletRot = new G4RotationMatrix();
   outletRot->rotateY(0.0);
   outletRot->rotateX(-tubeRot / 180.0 * pi);
   outletRot->rotateZ(0.0);
-  G4ThreeVector outletPos(0.0, -tubeOffset - neckId / 2.0,
-                          neckStartZ + neckIdLen / 2.0);
+  G4ThreeVector outletPos(0.0, -tubeOffset - neckId / 2.0, neckStartZ + neckIdLen / 2.0);
 
   // Construct the sourceSolid - the bulk of acrylic - to be placed in world
   G4Tubs *sourceOuterNeck =
-      new G4Tubs(volumeName + "SourceOuterNeck", canOd1 / 2.0, neckOd / 2.0,
-                 neckOdLen / 2.0, 0, twopi);
-  G4Tubs *sourceInnerNeck = new G4Tubs(volumeName + "SourceInnerNeck", 0.0,
-                                       neckOd / 2.0, neckIdLen / 2.0, 0, twopi);
+      new G4Tubs(volumeName + "SourceOuterNeck", canOd1 / 2.0, neckOd / 2.0, neckOdLen / 2.0, 0, twopi);
+  G4Tubs *sourceInnerNeck = new G4Tubs(volumeName + "SourceInnerNeck", 0.0, neckOd / 2.0, neckIdLen / 2.0, 0, twopi);
   G4ThreeVector outerOffset(0.0, 0.0, neckOdLen - neckIdLen);
   G4UnionSolid *sourceNeck =
-      new G4UnionSolid(volumeName + "SourceNeck", sourceInnerNeck,
-                       sourceOuterNeck, NULL, outerOffset);
+      new G4UnionSolid(volumeName + "SourceNeck", sourceInnerNeck, sourceOuterNeck, NULL, outerOffset);
   G4Orb *sourceBall = new G4Orb(volumeName + "SourceBall", ballOd / 2.0);
-  G4UnionSolid *sourceFilledNeck = new G4UnionSolid(
-      volumeName + "SourceFilled", sourceBall, sourceNeck, NULL, neckPos);
-  G4SubtractionSolid *sourceFilledTubes =
-      new G4SubtractionSolid(volumeName + "SourceFilledTubes", sourceFilledNeck,
-                             sleeveSolid, NULL, neckPos); // remove PMT volume
-  G4SubtractionSolid *sourceFilledOutlet = new G4SubtractionSolid(
-      volumeName + "SourceFilledOutlet", sourceFilledTubes, tubeSolid, inletRot,
-      inletPos); // remove inlet volume
-  G4SubtractionSolid *sourceSolid = new G4SubtractionSolid(
-      volumeName + "SourceSolid", sourceFilledOutlet, tubeSolid, outletRot,
-      outletPos); // remove outlet volume
+  G4UnionSolid *sourceFilledNeck = new G4UnionSolid(volumeName + "SourceFilled", sourceBall, sourceNeck, NULL, neckPos);
+  G4SubtractionSolid *sourceFilledTubes = new G4SubtractionSolid(volumeName + "SourceFilledTubes", sourceFilledNeck,
+                                                                 sleeveSolid, NULL, neckPos);  // remove PMT volume
+  G4SubtractionSolid *sourceFilledOutlet =
+      new G4SubtractionSolid(volumeName + "SourceFilledOutlet", sourceFilledTubes, tubeSolid, inletRot,
+                             inletPos);  // remove inlet volume
+  G4SubtractionSolid *sourceSolid =
+      new G4SubtractionSolid(volumeName + "SourceSolid", sourceFilledOutlet, tubeSolid, outletRot,
+                             outletPos);  // remove outlet volume
 
   // Construct the blackPaintSolid - to be placed in sourceSolid
-  G4Orb *paintOverlap =
-      new G4Orb(volumeName + "BlackPaintOverlap", ballId / 2.0);
-  G4SubtractionSolid *blackPaintTubes =
-      new G4SubtractionSolid(volumeName + "blackPaintTubes", paintOverlap,
-                             sleeveSolid, NULL, neckPos); // remove PMT volume
-  G4SubtractionSolid *blackPaintOutlet = new G4SubtractionSolid(
-      volumeName + "blackPaintOutlet", blackPaintTubes, tubeSolid, inletRot,
-      inletPos); // remove inlet volume
-  G4SubtractionSolid *blackPaintSolid = new G4SubtractionSolid(
-      volumeName + "blackPaintSolid", blackPaintOutlet, tubeSolid, outletRot,
-      outletPos); // remove outlet volume
+  G4Orb *paintOverlap = new G4Orb(volumeName + "BlackPaintOverlap", ballId / 2.0);
+  G4SubtractionSolid *blackPaintTubes = new G4SubtractionSolid(volumeName + "blackPaintTubes", paintOverlap,
+                                                               sleeveSolid, NULL, neckPos);  // remove PMT volume
+  G4SubtractionSolid *blackPaintOutlet =
+      new G4SubtractionSolid(volumeName + "blackPaintOutlet", blackPaintTubes, tubeSolid, inletRot,
+                             inletPos);  // remove inlet volume
+  G4SubtractionSolid *blackPaintSolid =
+      new G4SubtractionSolid(volumeName + "blackPaintSolid", blackPaintOutlet, tubeSolid, outletRot,
+                             outletPos);  // remove outlet volume
 
   // Construct the whitePaintSolid - to be placed in blackPaintSolid
-  G4Orb *tpbOverlap = new G4Orb(volumeName + "WhitePaintOverlap",
-                                ballId / 2.0 - blackPaintThickness);
-  G4SubtractionSolid *whitePaintTubes =
-      new G4SubtractionSolid(volumeName + "whitePaintTubes", tpbOverlap,
-                             sleeveSolid, NULL, neckPos); // remove PMT volume
-  G4SubtractionSolid *whitePaintOutlet = new G4SubtractionSolid(
-      volumeName + "whitePaintOutlet", whitePaintTubes, tubeSolid, inletRot,
-      inletPos); // remove inlet volume
-  G4SubtractionSolid *whitePaintSolid = new G4SubtractionSolid(
-      volumeName + "whitePaintSolid", whitePaintOutlet, tubeSolid, outletRot,
-      outletPos); // remove outlet volume
+  G4Orb *tpbOverlap = new G4Orb(volumeName + "WhitePaintOverlap", ballId / 2.0 - blackPaintThickness);
+  G4SubtractionSolid *whitePaintTubes = new G4SubtractionSolid(volumeName + "whitePaintTubes", tpbOverlap, sleeveSolid,
+                                                               NULL, neckPos);  // remove PMT volume
+  G4SubtractionSolid *whitePaintOutlet =
+      new G4SubtractionSolid(volumeName + "whitePaintOutlet", whitePaintTubes, tubeSolid, inletRot,
+                             inletPos);  // remove inlet volume
+  G4SubtractionSolid *whitePaintSolid =
+      new G4SubtractionSolid(volumeName + "whitePaintSolid", whitePaintOutlet, tubeSolid, outletRot,
+                             outletPos);  // remove outlet volume
 
   // Constructs the decayChamberSolid - this is the He+Li8 - to be placed in
   // whitePaintSolid
   G4Orb *decayChamberOverlap =
-      new G4Orb(volumeName + "DecayChamberOverlap",
-                ballId / 2.0 - blackPaintThickness - whitePaintThickness);
-  G4SubtractionSolid *decayChamberTubes = new G4SubtractionSolid(
-      volumeName + "DecayChamberTubes", decayChamberOverlap, sleeveSolid, NULL,
-      neckPos); // remove PMT volume
-  G4SubtractionSolid *decayChamberOutlet = new G4SubtractionSolid(
-      volumeName + "DecayChamberOutlet", decayChamberTubes, tubeSolid, inletRot,
-      inletPos); // remove inlet volume
+      new G4Orb(volumeName + "DecayChamberOverlap", ballId / 2.0 - blackPaintThickness - whitePaintThickness);
+  G4SubtractionSolid *decayChamberTubes =
+      new G4SubtractionSolid(volumeName + "DecayChamberTubes", decayChamberOverlap, sleeveSolid, NULL,
+                             neckPos);  // remove PMT volume
+  G4SubtractionSolid *decayChamberOutlet =
+      new G4SubtractionSolid(volumeName + "DecayChamberOutlet", decayChamberTubes, tubeSolid, inletRot,
+                             inletPos);  // remove inlet volume
   G4SubtractionSolid *decayChamberSolid = new G4SubtractionSolid(
-      volumeName + "DecayChamberSolid", decayChamberOutlet, tubeSolid,
-      outletRot, outletPos); // remove outlet volume
+      volumeName + "DecayChamberSolid", decayChamberOutlet, tubeSolid, outletRot, outletPos);  // remove outlet volume
 
   // Construct the can solid... carefully (+1.0 fudge factors included where
   // necessary) - to be placed in world
   double canHalflen = (canOd1Len + canOd2Len + canOd3Len + canOd4Len) / 2.0;
   // OD1 is the biggest so build it first and remove other pieces
-  G4Tubs *canTube =
-      new G4Tubs(volumeName + "CanTube", 0, canOd1 / 2.0, canHalflen, 0, twopi);
+  G4Tubs *canTube = new G4Tubs(volumeName + "CanTube", 0, canOd1 / 2.0, canHalflen, 0, twopi);
   // remove outer 2
-  G4Tubs *canRmO2 = new G4Tubs(volumeName + "CanRmO2", canOd2 / 2.0,
-                               canOd1 / 2.0 + 1.0, canOd2Len / 2.0, 0, twopi);
+  G4Tubs *canRmO2 = new G4Tubs(volumeName + "CanRmO2", canOd2 / 2.0, canOd1 / 2.0 + 1.0, canOd2Len / 2.0, 0, twopi);
   G4ThreeVector rmO2Pos(0, 0, canOd1Len + canOd2Len / 2.0 - canHalflen);
-  G4SubtractionSolid *canSans2 = new G4SubtractionSolid(
-      volumeName + "CanSans2", canTube, canRmO2, NULL, rmO2Pos);
+  G4SubtractionSolid *canSans2 = new G4SubtractionSolid(volumeName + "CanSans2", canTube, canRmO2, NULL, rmO2Pos);
   // remove outer 3
   G4Tubs *canRmO3 =
-      new G4Tubs(volumeName + "CanRmO3", canOd3 / 2.0, canOd1 / 2.0 + 1.0,
-                 canOd3Len / 2.0 + 1.0, 0, twopi);
-  G4ThreeVector rmO3Pos(0, 0,
-                        canOd1Len + canOd2Len + canOd3Len / 2.0 - canHalflen);
-  G4SubtractionSolid *canSans2Sans3 = new G4SubtractionSolid(
-      volumeName + "CanSans2Sans3", canSans2, canRmO3, NULL, rmO3Pos);
+      new G4Tubs(volumeName + "CanRmO3", canOd3 / 2.0, canOd1 / 2.0 + 1.0, canOd3Len / 2.0 + 1.0, 0, twopi);
+  G4ThreeVector rmO3Pos(0, 0, canOd1Len + canOd2Len + canOd3Len / 2.0 - canHalflen);
+  G4SubtractionSolid *canSans2Sans3 =
+      new G4SubtractionSolid(volumeName + "CanSans2Sans3", canSans2, canRmO3, NULL, rmO3Pos);
   // remove outer 4
   G4Tubs *canRmO4 =
-      new G4Tubs(volumeName + "CanRmO4", canOd4 / 2.0, canOd1 / 2.0 + 1.0,
-                 canOd4Len / 2.0 + 1.0, 0, twopi);
+      new G4Tubs(volumeName + "CanRmO4", canOd4 / 2.0, canOd1 / 2.0 + 1.0, canOd4Len / 2.0 + 1.0, 0, twopi);
   G4ThreeVector rmO4Pos(0, 0, canHalflen - canOd4Len / 2.0 + 1.0);
-  G4SubtractionSolid *canFilled = new G4SubtractionSolid(
-      volumeName + "CanFilled", canSans2Sans3, canRmO4, NULL, rmO4Pos);
+  G4SubtractionSolid *canFilled =
+      new G4SubtractionSolid(volumeName + "CanFilled", canSans2Sans3, canRmO4, NULL, rmO4Pos);
   // remove inner 1
-  G4Tubs *canRmI1 = new G4Tubs(volumeName + "CanRmI1", 0, canId1 / 2.0,
-                               canId1Len / 2.0 + 1.0, 0, twopi);
+  G4Tubs *canRmI1 = new G4Tubs(volumeName + "CanRmI1", 0, canId1 / 2.0, canId1Len / 2.0 + 1.0, 0, twopi);
   G4ThreeVector rmI1Pos(0, 0, canId1Len / 2.0 - canHalflen);
-  G4SubtractionSolid *canFilledSans1 = new G4SubtractionSolid(
-      volumeName + "CanFilledSans1", canFilled, canRmI1, NULL, rmI1Pos);
+  G4SubtractionSolid *canFilledSans1 =
+      new G4SubtractionSolid(volumeName + "CanFilledSans1", canFilled, canRmI1, NULL, rmI1Pos);
   // remove inner 2
-  G4Tubs *canRmI2 = new G4Tubs(volumeName + "CanRmI2", 0, canId2 / 2.0,
-                               canId2Len / 2.0 + 1.0, 0, twopi);
+  G4Tubs *canRmI2 = new G4Tubs(volumeName + "CanRmI2", 0, canId2 / 2.0, canId2Len / 2.0 + 1.0, 0, twopi);
   G4ThreeVector rmI2Pos(0, 0, canId1Len + canId2Len / 2.0 - canHalflen + 1.0);
   G4SubtractionSolid *canFilledSans1Sans2 =
-      new G4SubtractionSolid(volumeName + "CanFilledSans1Sans2", canFilledSans1,
-                             canRmI2, NULL, rmI2Pos);
+      new G4SubtractionSolid(volumeName + "CanFilledSans1Sans2", canFilledSans1, canRmI2, NULL, rmI2Pos);
   // remove inner 3
-  G4Tubs *canRmI3 = new G4Tubs(volumeName + "CanRmI3", 0, canId3 / 2.0,
-                               canId3Len / 2.0, 0, twopi);
+  G4Tubs *canRmI3 = new G4Tubs(volumeName + "CanRmI3", 0, canId3 / 2.0, canId3Len / 2.0, 0, twopi);
   G4ThreeVector rmI3Pos(0, 0, canHalflen - canId4Len - canId3Len / 2.0);
   G4SubtractionSolid *canFilledSans1Sans2Sans3 =
-      new G4SubtractionSolid(volumeName + "CanFilledSans1Sans2Sans3",
-                             canFilledSans1Sans2, canRmI3, NULL, rmI3Pos);
+      new G4SubtractionSolid(volumeName + "CanFilledSans1Sans2Sans3", canFilledSans1Sans2, canRmI3, NULL, rmI3Pos);
   // remove inner 4
-  G4Tubs *canRmI4 = new G4Tubs(volumeName + "CanRmI4", 0, canId4 / 2.0,
-                               canId4Len / 2.0 + 1, 0, twopi);
+  G4Tubs *canRmI4 = new G4Tubs(volumeName + "CanRmI4", 0, canId4 / 2.0, canId4Len / 2.0 + 1, 0, twopi);
   G4ThreeVector rmI4Pos(0, 0, canHalflen - canId4Len / 2.0);
   G4SubtractionSolid *canSolid =
-      new G4SubtractionSolid(volumeName + "CanFilledSans1Sans2Sans3",
-                             canFilledSans1Sans2Sans3, canRmI4, NULL, rmI4Pos);
+      new G4SubtractionSolid(volumeName + "CanFilledSans1Sans2Sans3", canFilledSans1Sans2Sans3, canRmI4, NULL, rmI4Pos);
 
   // Position of the can relative to the decay chamber origin
   G4ThreeVector canPos(0.0, 0.0, neckStartZ + neckIdLen + canHalflen);
 
   // Bind constructed solids to their materials
-  G4LogicalVolume *canLog =
-      new G4LogicalVolume(canSolid, canMaterial, volumeName + "_Can");
-  G4LogicalVolume *sourceLog =
-      new G4LogicalVolume(sourceSolid, sourceMaterial, volumeName + "_Acrylic");
-  G4LogicalVolume *inletTubeLog = new G4LogicalVolume(
-      tubeSolid, decayChamberMaterial, volumeName + "_InletTube");
-  G4LogicalVolume *inletPipeLog =
-      new G4LogicalVolume(pipeSolid, tubeMaterial, volumeName + "_InletPipe");
-  G4LogicalVolume *outletTubeLog = new G4LogicalVolume(
-      tubeSolid, decayChamberMaterial, volumeName + "_OutletTube");
-  G4LogicalVolume *outletPipeLog =
-      new G4LogicalVolume(pipeSolid, tubeMaterial, volumeName + "_OutletPipe");
-  G4LogicalVolume *sleeveLog =
-      new G4LogicalVolume(sleeveSolid, sleeveMaterial, volumeName + "_Sleeve");
-  G4LogicalVolume *windowLog =
-      new G4LogicalVolume(windowSolid, windowMaterial, volumeName + "_Window");
-  G4LogicalVolume *blackPaintLog = new G4LogicalVolume(
-      blackPaintSolid, blackPaintMaterial, volumeName + "_BlackPaint");
-  G4LogicalVolume *whitePaintLog = new G4LogicalVolume(
-      whitePaintSolid, whitePaintMaterial, volumeName + "_WhitePaint");
-  G4LogicalVolume *decayChamberLog = new G4LogicalVolume(
-      decayChamberSolid, decayChamberMaterial, volumeName + "_DecayChamber");
+  G4LogicalVolume *canLog = new G4LogicalVolume(canSolid, canMaterial, volumeName + "_Can");
+  G4LogicalVolume *sourceLog = new G4LogicalVolume(sourceSolid, sourceMaterial, volumeName + "_Acrylic");
+  G4LogicalVolume *inletTubeLog = new G4LogicalVolume(tubeSolid, decayChamberMaterial, volumeName + "_InletTube");
+  G4LogicalVolume *inletPipeLog = new G4LogicalVolume(pipeSolid, tubeMaterial, volumeName + "_InletPipe");
+  G4LogicalVolume *outletTubeLog = new G4LogicalVolume(tubeSolid, decayChamberMaterial, volumeName + "_OutletTube");
+  G4LogicalVolume *outletPipeLog = new G4LogicalVolume(pipeSolid, tubeMaterial, volumeName + "_OutletPipe");
+  G4LogicalVolume *sleeveLog = new G4LogicalVolume(sleeveSolid, sleeveMaterial, volumeName + "_Sleeve");
+  G4LogicalVolume *windowLog = new G4LogicalVolume(windowSolid, windowMaterial, volumeName + "_Window");
+  G4LogicalVolume *blackPaintLog = new G4LogicalVolume(blackPaintSolid, blackPaintMaterial, volumeName + "_BlackPaint");
+  G4LogicalVolume *whitePaintLog = new G4LogicalVolume(whitePaintSolid, whitePaintMaterial, volumeName + "_WhitePaint");
+  G4LogicalVolume *decayChamberLog =
+      new G4LogicalVolume(decayChamberSolid, decayChamberMaterial, volumeName + "_DecayChamber");
 
   // Assemble the PMT
   //    Initialise(volumeName, windowMaterial); //FIXME - what is this material
@@ -336,11 +279,9 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   //    //Necessary naming for PMTOpticalModel
   //
   //    //Calculate where to put and how to place the PMT
-  G4ThreeVector pmtPos(0, 0,
-                       pmtHeight / 2.0 - neckIdLen / 2.0 + windowThickness);
-  G4ThreeVector pmtDir(
-      0.0, 0.0,
-      1.0); // N.B. convention is pointing the end opposite the sensitive end
+  G4ThreeVector pmtPos(0, 0, pmtHeight / 2.0 - neckIdLen / 2.0 + windowThickness);
+  G4ThreeVector pmtDir(0.0, 0.0,
+                       1.0);  // N.B. convention is pointing the end opposite the sensitive end
   //    CorrectPMTPosAndDir(DU::PMTInfo::CALIB, pmtPos, pmtDir);
   //    //Stole this math from N16 source factory
   //    double yAngle = (-1.0)*atan2(pmtDir.x(), pmtDir.z());
@@ -390,15 +331,14 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   G4ThreeVector position = motherPhys->GetObjectTranslation();
   // second is rotation, first is position
 
-  new G4PVPlacement(rotation, canPos + position, volumeName + "_Can", canLog,
-                    motherPhys, false, 0); // can placed in mother
+  new G4PVPlacement(rotation, canPos + position, volumeName + "_Can", canLog, motherPhys, false,
+                    0);  // can placed in mother
   //
-  G4VPhysicalVolume *sleevePhys = new G4PVPlacement(
-      rotation, neckPos + position, volumeName + "_Sleeve", sleeveLog,
-      motherPhys, false, 0); // housing placed in mother
-  /*G4VPhysicalVolume *windowPhys =*/new G4PVPlacement(
-      NULL, windowPos, volumeName + "_Window", windowLog, sleevePhys, false,
-      0); // window placed in light shield
+  G4VPhysicalVolume *sleevePhys = new G4PVPlacement(rotation, neckPos + position, volumeName + "_Sleeve", sleeveLog,
+                                                    motherPhys, false, 0);  // housing placed in mother
+  /*G4VPhysicalVolume *windowPhys =*/new G4PVPlacement(NULL, windowPos, volumeName + "_Window", windowLog, sleevePhys,
+                                                       false,
+                                                       0);  // window placed in light shield
   // Here is the code to place the PMT in the volume with the right copy number.
   // fEnvelope[0]->GetLogicalVolume() is a bit odd, but gets the envelope
   // logical volume for the previously constructed PMT from the
@@ -407,39 +347,30 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   //    pmtName, fEnvelope[0]->GetLogicalVolume(), sleevePhys, false, pmtLcn);
   //    //pmt placed in housing
   //
-  G4VPhysicalVolume *inletTubePhys =
-      new G4PVPlacement(inletRot, inletPos, volumeName + "_InletTube",
-                        inletTubeLog, motherPhys, false, 0); // placed in mother
-  /*G4VPhysicalVolume *inletPipePhys =*/new G4PVPlacement(
-      NULL, zero, volumeName + "_InletPipe", inletPipeLog, inletTubePhys, false,
-      0); // placed in inletTube
-  G4VPhysicalVolume *outletTubePhys = new G4PVPlacement(
-      outletRot, outletPos, volumeName + "_OutletTube", outletTubeLog,
-      motherPhys, false, 0); // placed in mother
-  /*G4VPhysicalVolume *outletPipePhys =*/new G4PVPlacement(
-      NULL, zero, volumeName + "_OutletPipe", outletPipeLog, outletTubePhys,
-      false, 0); // placed in outletTube
+  G4VPhysicalVolume *inletTubePhys = new G4PVPlacement(inletRot, inletPos, volumeName + "_InletTube", inletTubeLog,
+                                                       motherPhys, false, 0);  // placed in mother
+  /*G4VPhysicalVolume *inletPipePhys =*/new G4PVPlacement(NULL, zero, volumeName + "_InletPipe", inletPipeLog,
+                                                          inletTubePhys, false,
+                                                          0);  // placed in inletTube
+  G4VPhysicalVolume *outletTubePhys = new G4PVPlacement(outletRot, outletPos, volumeName + "_OutletTube", outletTubeLog,
+                                                        motherPhys, false, 0);  // placed in mother
+  /*G4VPhysicalVolume *outletPipePhys =*/new G4PVPlacement(NULL, zero, volumeName + "_OutletPipe", outletPipeLog,
+                                                           outletTubePhys, false, 0);  // placed in outletTube
 
-  G4VPhysicalVolume *sourcePhys =
-      new G4PVPlacement(rotation, position, volumeName + "_Acrylic", sourceLog,
-                        motherPhys, false, 0); // placed in mother
-  G4VPhysicalVolume *blackPaintPhys =
-      new G4PVPlacement(NULL, zero, volumeName + "_BlackPaint", blackPaintLog,
-                        sourcePhys, false, 0); // placed inside source
-  G4VPhysicalVolume *whitePaintPhys =
-      new G4PVPlacement(NULL, zero, volumeName + "_WhitePaint", whitePaintLog,
-                        blackPaintPhys, false, 0); // placed inside black paint
-  G4VPhysicalVolume *decayChamberPhys = new G4PVPlacement(
-      NULL, zero, volumeName + "_DecayChamber", decayChamberLog, whitePaintPhys,
-      false, 0); // placed inside white paint
+  G4VPhysicalVolume *sourcePhys = new G4PVPlacement(rotation, position, volumeName + "_Acrylic", sourceLog, motherPhys,
+                                                    false, 0);  // placed in mother
+  G4VPhysicalVolume *blackPaintPhys = new G4PVPlacement(NULL, zero, volumeName + "_BlackPaint", blackPaintLog,
+                                                        sourcePhys, false, 0);  // placed inside source
+  G4VPhysicalVolume *whitePaintPhys = new G4PVPlacement(NULL, zero, volumeName + "_WhitePaint", whitePaintLog,
+                                                        blackPaintPhys, false, 0);  // placed inside black paint
+  G4VPhysicalVolume *decayChamberPhys = new G4PVPlacement(NULL, zero, volumeName + "_DecayChamber", decayChamberLog,
+                                                          whitePaintPhys, false, 0);  // placed inside white paint
 
   // Apply surface roughness to layers both directions
-  new G4LogicalBorderSurface(volumeName + "DecayChamberToTpb", decayChamberPhys,
-                             whitePaintPhys, paintSurface);
-  new G4LogicalBorderSurface(volumeName + "TpbToDecayChamber", whitePaintPhys,
-                             decayChamberPhys, paintSurface);
+  new G4LogicalBorderSurface(volumeName + "DecayChamberToTpb", decayChamberPhys, whitePaintPhys, paintSurface);
+  new G4LogicalBorderSurface(volumeName + "TpbToDecayChamber", whitePaintPhys, decayChamberPhys, paintSurface);
 
-  return NULL; // This function should probably be void, fixme
+  return NULL;  // This function should probably be void, fixme
 }
 
 G4OpticalSurface *GeoCherenkovSourceFactory::GetSurface(string surface_name) {
@@ -448,8 +379,7 @@ G4OpticalSurface *GeoCherenkovSourceFactory::GetSurface(string surface_name) {
   return Materials::optical_surface[surface_name];
 }
 
-G4VisAttributes *
-GeoCherenkovSourceFactory::GetColor(std::vector<double> color) {
+G4VisAttributes *GeoCherenkovSourceFactory::GetColor(std::vector<double> color) {
   if (color.size() == 4) {
     return new G4VisAttributes(G4Color(color[0], color[1], color[2], color[3]));
   } else if (color.size() == 3) {
@@ -459,4 +389,4 @@ GeoCherenkovSourceFactory::GetColor(std::vector<double> color) {
   }
 }
 
-} // namespace RAT
+}  // namespace RAT

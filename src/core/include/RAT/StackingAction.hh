@@ -10,7 +10,7 @@
 #include "globals.hh"
 
 class StackingAction : public G4UserStackingAction {
-public:
+ public:
   StackingAction();
   virtual ~StackingAction();
 

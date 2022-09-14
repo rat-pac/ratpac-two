@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11...3.14)
 project(ratpac VERSION 1.0.1
-                DESCRIPTION "Watchman RAT-PAC"
+                DESCRIPTION "RAT-PAC"
                 LANGUAGES C CXX)
 
 ###########################################################
@@ -48,7 +48,7 @@ if(DEFINED ENV{CRYLIB})
 endif()
 
 set(TENSORFLOW_Enabled 0)
-find_library(TENSORFLOW_LIBRARIES tensorflow)
+find_library(TENSORFLOW_LIBRARIES tensorflow NO_DEFAULT_PATH)
 if(TENSORFLOW_LIBRARIES)
   message(STATUS "Compiling with Tensorflow")
   set(TENSORFLOW_Enabled 1)

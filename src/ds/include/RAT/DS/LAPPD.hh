@@ -8,14 +8,15 @@
 #ifndef __RAT_DS_LAPPD__
 #define __RAT_DS_LAPPD__
 
-#include <RAT/DS/LAPPDHit.hh>
 #include <Rtypes.h>
+
+#include <RAT/DS/LAPPDHit.hh>
 
 namespace RAT {
 namespace DS {
 
 class LAPPD : public TObject {
-public:
+ public:
   LAPPD() : TObject() {}
   virtual ~LAPPD() {}
 
@@ -42,14 +43,14 @@ public:
 
   ClassDef(LAPPD, 1);
 
-protected:
+ protected:
   Int_t id;
   std::vector<LAPPDHit> hits;
   Float_t totalcharge;
   Float_t totaltime;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

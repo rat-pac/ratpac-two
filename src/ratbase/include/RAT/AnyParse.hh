@@ -10,18 +10,18 @@ namespace RAT {
 enum ConvertType { ParseInt, ParseDouble, ParseString };
 
 class AnyParse {
-public:
+ public:
   AnyParse(){};
   AnyParse(int argc, char **argv);
 
-  template <typename T> void SetValue(const std::string &key, T value) {
+  template <typename T>
+  void SetValue(const std::string &key, T value) {
     Arguments[key] = value;
   }
 
   template <typename T>
-  void AddArgument(const std::string &key, T value,
-                   const std::string &shortname, int nargs,
-                   const std::string help, ConvertType cv) {
+  void AddArgument(const std::string &key, T value, const std::string &shortname, int nargs, const std::string help,
+                   ConvertType cv) {
     this->shortName[shortname] = key;
     this->reverseShortName[key] = shortname;
     this->help[key] = help;
@@ -33,8 +33,7 @@ public:
   template <typename T>
   T GetValue(const std::string &key, T defaultValue) const {
     auto iterator = this->Arguments.find(key);
-    if (iterator == this->Arguments.end())
-      return defaultValue;
+    if (iterator == this->Arguments.end()) return defaultValue;
     return std::any_cast<T>(iterator->second);
   }
 
@@ -55,5 +54,5 @@ public:
   std::map<std::string, int> nargs;
 };
 
-} // namespace RAT
+}  // namespace RAT
 #endif

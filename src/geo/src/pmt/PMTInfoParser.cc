@@ -1,18 +1,15 @@
-#include <RAT/PMTInfoParser.hh>
-
 #include <G4Material.hh>
 #include <G4SDManager.hh>
 #include <RAT/GeoFactory.hh>
 #include <RAT/Materials.hh>
+#include <RAT/PMTInfoParser.hh>
 #include <string>
 
 using namespace std;
 
 namespace RAT {
 
-PMTInfoParser::PMTInfoParser(DBLinkPtr lpos_table,
-                             const std::string &mother_name) {
-
+PMTInfoParser::PMTInfoParser(DBLinkPtr lpos_table, const std::string &mother_name) {
   // These positions are in global coordinates and are stored in global
   // coordinates
   try {
@@ -34,8 +31,7 @@ PMTInfoParser::PMTInfoParser(DBLinkPtr lpos_table,
     const vector<double> &dir_x = lpos_table->GetDArray("dir_x");
     const vector<double> &dir_y = lpos_table->GetDArray("dir_y");
     const vector<double> &dir_z = lpos_table->GetDArray("dir_z");
-    Log::Assert(fPos.size() == dir_x.size() && fPos.size() == dir_y.size() &&
-                    fPos.size() == dir_z.size(),
+    Log::Assert(fPos.size() == dir_x.size() && fPos.size() == dir_y.size() && fPos.size() == dir_z.size(),
                 "PMTInfoParser: PMTINFO arrays must be same length!");
     fDir.resize(fPos.size());
     for (size_t i = 0; i < fPos.size(); i++) {
@@ -43,38 +39,33 @@ PMTInfoParser::PMTInfoParser(DBLinkPtr lpos_table,
       fDir[i] = fDir[i].unit();
     }
   } catch (DBNotFoundError &e) {
-    warn << "PMTInfoParser: PMTINFO does not specify direction information"
-         << endl;
+    warn << "PMTInfoParser: PMTINFO does not specify direction information" << endl;
     fDir.resize(0);
   }
 
   // Logical type of PMT (e.g. normal, veto, etc)
   try {
-    fType = lpos_table->GetIArray("type"); // functional type (e.g. inner, veto,
-                                           // etc. - arbitrary integers)
-    Log::Assert(fPos.size() == fType.size(),
-                "PMTInfoParser: PMTINFO arrays must be same length!");
+    fType = lpos_table->GetIArray("type");  // functional type (e.g. inner, veto,
+                                            // etc. - arbitrary integers)
+    Log::Assert(fPos.size() == fType.size(), "PMTInfoParser: PMTINFO arrays must be same length!");
   } catch (DBNotFoundError &e) {
     fType.resize(fPos.size());
-    fill(fType.begin(), fType.end(), -1); // defaults to type -1 if unspecified
+    fill(fType.begin(), fType.end(), -1);  // defaults to type -1 if unspecified
   }
 
   // Individual PMT efficiency correction
   try {
-    fEfficiencyCorrection = lpos_table->GetDArray(
-        "efficiency"); // individual PMT efficiency corrections
-    Log::Assert(fPos.size() == fEfficiencyCorrection.size(),
-                "PMTInfoParser: PMTINFO arrays must be same length!");
+    fEfficiencyCorrection = lpos_table->GetDArray("efficiency");  // individual PMT efficiency corrections
+    Log::Assert(fPos.size() == fEfficiencyCorrection.size(), "PMTInfoParser: PMTINFO arrays must be same length!");
   } catch (DBNotFoundError &e) {
     fEfficiencyCorrection.resize(fPos.size());
     fill(fEfficiencyCorrection.begin(), fEfficiencyCorrection.end(),
-         1.0); // defaults to 1.0
+         1.0);  // defaults to 1.0
   }
 
   try {
     fNoiseRate = lpos_table->GetDArray("noise_rate");
-    Log::Assert(fPos.size() == fNoiseRate.size(),
-                "PMTInfoParser: PMTINFO arrays must be same length!");
+    Log::Assert(fPos.size() == fNoiseRate.size(), "PMTInfoParser: PMTINFO arrays must be same length!");
   } catch (DBNotFoundError &e) {
     fNoiseRate.resize(fPos.size());
     fill(fNoiseRate.begin(), fNoiseRate.end(), 0.0);
@@ -82,13 +73,9 @@ PMTInfoParser::PMTInfoParser(DBLinkPtr lpos_table,
 
   // Find mother volume
   G4LogicalVolume *log_mother = GeoFactory::FindMother(mother_name);
-  if (log_mother == 0)
-    Log::Die("PMTParser: PMT mother logical volume " + mother_name +
-             " not found");
+  if (log_mother == 0) Log::Die("PMTParser: PMT mother logical volume " + mother_name + " not found");
   G4VPhysicalVolume *phys_mother = GeoFactory::FindPhysMother(mother_name);
-  if (phys_mother == 0)
-    Log::Die("PMTParser: PMT mother physical volume " + mother_name +
-             " not found");
+  if (phys_mother == 0) Log::Die("PMTParser: PMT mother physical volume " + mother_name + " not found");
 
   // PMTINFO is always in global coordinates - so calculate the local offset
   // first
@@ -114,4 +101,4 @@ G4RotationMatrix PMTInfoParser::GetPMTRotation(int i) const {
   return rot;
 }
 
-} // namespace RAT
+}  // namespace RAT

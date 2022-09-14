@@ -18,13 +18,14 @@
 #ifndef __RAT_PruneProc__
 #define __RAT_PruneProc__
 
-#include "Processor.hh"
 #include <vector>
+
+#include "Processor.hh"
 
 namespace RAT {
 
 class PruneProc : public Processor {
-public:
+ public:
   /** Create a new prune processor which prunes nothing by default. */
   PruneProc();
 
@@ -58,7 +59,7 @@ public:
    */
   bool GetPruneState(std::string item);
 
-protected:
+ protected:
   bool mc;                   /**< Cut Monte Carlo information entirely */
   bool mc_particle;          /**< Cut Monte Carlo particles? */
   bool mc_track;             /**< Cut Monte Carlo tracks?  True even if only
@@ -86,6 +87,6 @@ protected:
   std::vector<std::string> track_cut;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -20,28 +20,27 @@
 #ifndef __RAT_VertexGen_FastNeutron__
 #define __RAT_VertexGen_FastNeutron__
 
-#include <RAT/DB.hh>
-#include <RAT/FastNeutronMessenger.hh>
-#include <RAT/GLG4VertexGen.hh>
+#include <TF1.h>
+#include <TF2.h>
 
 #include <G4Event.hh>
 #include <G4ThreeVector.hh>
-#include <TF1.h>
-#include <TF2.h>
+#include <RAT/DB.hh>
+#include <RAT/FastNeutronMessenger.hh>
+#include <RAT/GLG4VertexGen.hh>
 #include <globals.hh>
 #include <vector>
 
 namespace RAT {
 class VertexGen_FastNeutron : public GLG4VertexGen {
-public:
+ public:
   VertexGen_FastNeutron(const char *arg_dbname = "fastneutron");
   virtual ~VertexGen_FastNeutron();
   /** generate and add new vertex to this event.  Position and
    * time of vertex are offset from 0 by dx and dt.  (These
    * are usually derived from GLG4PosGen and GLG4TimeGen.)
    */
-  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx,
-                                     G4double dt);
+  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G4double dt);
   /** set the state for generator. Format: pname specname
    * where pname is the particle name, and specname is the database FastNeutron
    * name
@@ -61,18 +60,17 @@ public:
   inline double GetEnThreshold() { return valueE; };
   inline double GetSideBool() { return valueSB; };
 
-  void GetMeiHimeParameters(double depth, double emin, double &cosTheta,
-                            double &neutronEnergy);
+  void GetMeiHimeParameters(double depth, double emin, double &cosTheta, double &neutronEnergy);
   void LoadTangHortonSmithCosTheta(double depth);
 
   double GetRandomMuonCosTheta();
 
   double evalIntegral(TF2 *func1, double x, double e_tmp);
 
-private:
-  G4String _particle;      // name of the particle type
-  G4ParticleDefinition *n; // particle definition
-  G4String _FastNeutron;   // name of the FastNeutron to use
+ private:
+  G4String _particle;       // name of the particle type
+  G4ParticleDefinition *n;  // particle definition
+  G4String _FastNeutron;    // name of the FastNeutron to use
 
   double valueD, valueE, valueSB;
   bool loadedTangHortonSmith;
@@ -84,6 +82,6 @@ private:
   TF1 *funcMuonCosTheta;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -29,16 +29,14 @@ void AnyParse::Parse() {
       remainingArgs = nargs[key];
       subArguments.clear();
       // If something takes no additional arguments then it is a switch
-      if (remainingArgs == 0)
-        this->SetValue(key, true);
+      if (remainingArgs == 0) this->SetValue(key, true);
     } else if (arg.rfind("-", 0) == 0) {
       arg.erase(0, 1);
       key = this->shortName[arg];
       // selection = Arguments[key];
       remainingArgs = nargs[key];
       subArguments.clear();
-      if (remainingArgs == 0)
-        this->SetValue(key, true);
+      if (remainingArgs == 0) this->SetValue(key, true);
     } else {
       // Collect the arguments for the selected key up to nargs
       if (remainingArgs > 1) {
@@ -62,14 +60,12 @@ void AnyParse::Parse() {
           ConvertType cv = this->Conversion[key];
           if (cv == ParseInt) {
             std::vector<int> vint;
-            std::transform(subArguments.begin(), subArguments.end(),
-                           std::back_inserter(vint),
+            std::transform(subArguments.begin(), subArguments.end(), std::back_inserter(vint),
                            [&](std::string s) { return stoi(s); });
             this->SetValue(key, vint);
           } else if (cv == ParseDouble) {
             std::vector<double> vdouble;
-            std::transform(subArguments.begin(), subArguments.end(),
-                           std::back_inserter(vdouble),
+            std::transform(subArguments.begin(), subArguments.end(), std::back_inserter(vdouble),
                            [&](std::string s) { return stod(s); });
             this->SetValue(key, vdouble);
           } else
@@ -85,8 +81,7 @@ void AnyParse::Parse() {
 void AnyParse::Help() {
   // Usage
   std::cout << "usage: ";
-  std::cout << this->ExecutableName << " " << this->HelpLine << std::endl
-            << std::endl;
+  std::cout << this->ExecutableName << " " << this->HelpLine << std::endl << std::endl;
   // Options
   std::cout << "options:" << std::endl;
   for (auto &[key, value] : this->help) {
@@ -97,4 +92,4 @@ void AnyParse::Help() {
   std::exit(EXIT_SUCCESS);
 }
 
-} // namespace RAT
+}  // namespace RAT

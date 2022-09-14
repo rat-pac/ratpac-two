@@ -54,13 +54,11 @@ Processor::Result TrueDAQProc::DSEvent(DS::Root *ds) {
 
   bool hasPositron = false;
   bool hasNeutron = false;
-  bool isIBD = false; // IBD events
-  bool isDecay =
-      false; // Coincidence decays like BiPos, this doesn't do anything now
-  bool isSingle = true; // Default, everything else and stuff that doesn't fit
+  bool isIBD = false;    // IBD events
+  bool isDecay = false;  // Coincidence decays like BiPos, this doesn't do anything now
+  bool isSingle = true;  // Default, everything else and stuff that doesn't fit
   // Loop over primary particles to determine what type of event this is
-  for (int imcparticle = 0; imcparticle < mc->GetMCParticleCount();
-       imcparticle++) {
+  for (int imcparticle = 0; imcparticle < mc->GetMCParticleCount(); imcparticle++) {
     DS::MCParticle *mcparticle = mc->GetMCParticle(imcparticle);
     if (mcparticle->GetPDGCode() == -11) {
       hasPositron = true;
@@ -94,8 +92,7 @@ Processor::Result TrueDAQProc::DSEvent(DS::Root *ds) {
     // Ignore triggering on secondaries unless a decay is involved and always
     // ignore opticalphotons
     DS::MCTrack *mctrack = mc->GetMCTrack(imctrack);
-    if ((mctrack->GetParentID() != 0 && !isDecay) ||
-        mctrack->GetPDGCode() == 0) {
+    if ((mctrack->GetParentID() != 0 && !isDecay) || mctrack->GetPDGCode() == 0) {
       continue;
     }
     mcParticleCount++;
@@ -104,19 +101,16 @@ Processor::Result TrueDAQProc::DSEvent(DS::Root *ds) {
     // on hits but for now we'll be dumb and just trigger on the highest energy
     // step associated with primary particles IBD requires annoying checks to
     // maintain order in event structre
-    if (isSingle || (isIBD && !foundPositron && !foundNeutron &&
-                     mctrack->GetPDGCode() == -11)) {
+    if (isSingle || (isIBD && !foundPositron && !foundNeutron && mctrack->GetPDGCode() == -11)) {
       double prevKE = mctrack->GetMCTrackStep(0)->GetKE();
-      for (int imctrackstep = 0; imctrackstep < mctrack->GetMCTrackStepCount();
-           imctrackstep++) {
+      for (int imctrackstep = 0; imctrackstep < mctrack->GetMCTrackStepCount(); imctrackstep++) {
         DS::MCTrackStep *mctrackstep = mctrack->GetMCTrackStep(imctrackstep);
 
         // If step is most energetic, set variables. If gamma, look at delta KE
         // to see what Compton e- energy is so that we don't have to descend the
         // tracks
         if (mctrackstep->GetDepositedEnergy() > mostEnergeticStepEnergy ||
-            (mctrack->GetPDGCode() == 22 &&
-             (prevKE - mctrackstep->GetKE()) > mostEnergeticStepEnergy)) {
+            (mctrack->GetPDGCode() == 22 && (prevKE - mctrackstep->GetKE()) > mostEnergeticStepEnergy)) {
           mostEnergeticStepEnergy = mctrackstep->GetDepositedEnergy();
           if (mctrack->GetPDGCode() == 22) {
             mostEnergeticStepEnergy = prevKE - mctrackstep->GetKE();
@@ -140,8 +134,7 @@ Processor::Result TrueDAQProc::DSEvent(DS::Root *ds) {
     // For IBD, store neutron track index if it comes before the positron.
     // foundNeutron stays off since that's to indicate we're ready to build that
     // "ev"
-    if (isIBD && !foundPositron && !foundNeutron &&
-        mctrack->GetPDGCode() == 2112 && mctrack->GetParentID() == 0) {
+    if (isIBD && !foundPositron && !foundNeutron && mctrack->GetPDGCode() == 2112 && mctrack->GetParentID() == 0) {
       neutronTrackIndex = imctrack;
     }
     // For IBD, if we haven't found the positron track, then we continue looping
@@ -161,41 +154,27 @@ Processor::Result TrueDAQProc::DSEvent(DS::Root *ds) {
     TVector3 dir(0, 0, 0);
     // For IBD, if we've found the positron, now we take the neutron capture
     // position (last step)
-    if (isIBD && foundPositron && !foundNeutron &&
-        mctrack->GetPDGCode() == 2112 && mctrack->GetParentID() == 0) {
-      tt = mctrack->GetMCTrackStep(mctrack->GetMCTrackStepCount() - 1)
-               ->GetGlobalTime();
-      vertex = mctrack->GetMCTrackStep(mctrack->GetMCTrackStepCount() - 1)
-                   ->GetEndpoint();
+    if (isIBD && foundPositron && !foundNeutron && mctrack->GetPDGCode() == 2112 && mctrack->GetParentID() == 0) {
+      tt = mctrack->GetMCTrackStep(mctrack->GetMCTrackStepCount() - 1)->GetGlobalTime();
+      vertex = mctrack->GetMCTrackStep(mctrack->GetMCTrackStepCount() - 1)->GetEndpoint();
       // No direction associated with a capture so *shrug*
-      dir = mctrack->GetMCTrackStep(mctrack->GetMCTrackStepCount() - 1)
-                ->GetMomentum()
-                .Unit();
+      dir = mctrack->GetMCTrackStep(mctrack->GetMCTrackStepCount() - 1)->GetMomentum().Unit();
       foundNeutron = true;
     }
 
     // For "singles", if we have all the MCParticles, we know the most energetic
     // step from a primary. Do same for IBD prompt positron
     if ((isSingle && mcParticleCount == mc->GetMCParticleCount()) ||
-        (isIBD && foundPositron && mctrack->GetPDGCode() == -11 &&
-         mctrack->GetParentID() == 0)) {
-      tt = mc->GetMCTrack(mostEnergeticStepTrackIndex)
-               ->GetMCTrackStep(mostEnergeticStepStepIndex)
-               ->GetGlobalTime();
-      vertex = mc->GetMCTrack(mostEnergeticStepTrackIndex)
-                   ->GetMCTrackStep(mostEnergeticStepStepIndex)
-                   ->GetEndpoint();
+        (isIBD && foundPositron && mctrack->GetPDGCode() == -11 && mctrack->GetParentID() == 0)) {
+      tt = mc->GetMCTrack(mostEnergeticStepTrackIndex)->GetMCTrackStep(mostEnergeticStepStepIndex)->GetGlobalTime();
+      vertex = mc->GetMCTrack(mostEnergeticStepTrackIndex)->GetMCTrackStep(mostEnergeticStepStepIndex)->GetEndpoint();
       // This assumes forward scattering if most energetic step is from gamma.
       // We take the displacement vector from the previous indexed step since if
       // we lost all our energy in this step, we won't have a momentum and also
       // this was the direction of travel as the energy was deposited, since we
       // save the step endpoints
-      dir = (mc->GetMCTrack(mostEnergeticStepTrackIndex)
-                 ->GetMCTrackStep(mostEnergeticStepStepIndex)
-                 ->GetEndpoint() -
-             mc->GetMCTrack(mostEnergeticStepTrackIndex)
-                 ->GetMCTrackStep(mostEnergeticStepStepIndex - 1)
-                 ->GetEndpoint())
+      dir = (mc->GetMCTrack(mostEnergeticStepTrackIndex)->GetMCTrackStep(mostEnergeticStepStepIndex)->GetEndpoint() -
+             mc->GetMCTrack(mostEnergeticStepTrackIndex)->GetMCTrackStep(mostEnergeticStepStepIndex - 1)->GetEndpoint())
                 .Unit();
     }
 
@@ -207,23 +186,18 @@ Processor::Result TrueDAQProc::DSEvent(DS::Root *ds) {
       for (int jmctrack = 0; jmctrack < mc->GetMCTrackCount(); jmctrack++) {
         DS::MCTrack *mctrack2 = mc->GetMCTrack(jmctrack);
         double initTime = mctrack2->GetMCTrackStep(0)->GetGlobalTime();
-        double finalTime =
-            mctrack2->GetMCTrackStep(mctrack2->GetMCTrackStepCount() - 1)
-                ->GetGlobalTime();
-        bool allInWindow =
-            initTime >= lastTrigger + fTriggerWindow + fTriggerLockout &&
-            initTime < tt + fTriggerWindow + fTriggerLockout &&
-            finalTime >= lastTrigger + fTriggerWindow + fTriggerLockout &&
-            finalTime < tt + fTriggerWindow + fTriggerLockout;
+        double finalTime = mctrack2->GetMCTrackStep(mctrack2->GetMCTrackStepCount() - 1)->GetGlobalTime();
+        bool allInWindow = initTime >= lastTrigger + fTriggerWindow + fTriggerLockout &&
+                           initTime < tt + fTriggerWindow + fTriggerLockout &&
+                           finalTime >= lastTrigger + fTriggerWindow + fTriggerLockout &&
+                           finalTime < tt + fTriggerWindow + fTriggerLockout;
         bool allOutWindow =
             (initTime < lastTrigger + fTriggerWindow + fTriggerLockout &&
              finalTime < lastTrigger + fTriggerWindow + fTriggerLockout) ||
-            (initTime > tt + fTriggerWindow + fTriggerLockout &&
-             finalTime > tt + fTriggerWindow + fTriggerLockout);
+            (initTime > tt + fTriggerWindow + fTriggerLockout && finalTime > tt + fTriggerWindow + fTriggerLockout);
 
         // Ignore optical photons and stuff that's entirely out of the window
-        if (mctrack2->GetPDGCode() == 0 ||
-            mctrack2->GetParticleName() == "opticalphoton" || allOutWindow) {
+        if (mctrack2->GetPDGCode() == 0 || mctrack2->GetParticleName() == "opticalphoton" || allOutWindow) {
           continue;
         }
 
@@ -233,17 +207,13 @@ Processor::Result TrueDAQProc::DSEvent(DS::Root *ds) {
         // Otherwise we have to step through the tracks and find the inwindow
         // bits
         else {
-          for (int jmctrackstep = 0;
-               jmctrackstep < mctrack2->GetMCTrackStepCount(); jmctrackstep++) {
-            DS::MCTrackStep *mctrackstep2 =
-                mctrack2->GetMCTrackStep(jmctrackstep);
+          for (int jmctrackstep = 0; jmctrackstep < mctrack2->GetMCTrackStepCount(); jmctrackstep++) {
+            DS::MCTrackStep *mctrackstep2 = mctrack2->GetMCTrackStep(jmctrackstep);
             // If time of MCStep is after previous trigger window ends and
             // before current trigger window ends, count as deposited in this
             // event
-            if (mctrackstep2->GetGlobalTime() >=
-                    lastTrigger + fTriggerWindow + fTriggerLockout &&
-                mctrackstep2->GetGlobalTime() <
-                    tt + fTriggerWindow + fTriggerLockout) {
+            if (mctrackstep2->GetGlobalTime() >= lastTrigger + fTriggerWindow + fTriggerLockout &&
+                mctrackstep2->GetGlobalTime() < tt + fTriggerWindow + fTriggerLockout) {
               energy += mctrackstep2->GetDepositedEnergy();
             }
           }
@@ -288,8 +258,6 @@ void TrueDAQProc::SetD(std::string param, double value) {
   }
 }
 
-void TrueDAQProc::SetI(std::string param, int value) {
-  throw ParamUnknown(param);
-}
+void TrueDAQProc::SetI(std::string param, int value) { throw ParamUnknown(param); }
 
-} // namespace RAT
+}  // namespace RAT

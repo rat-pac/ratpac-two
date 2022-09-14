@@ -1,14 +1,14 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <G4Box.hh>
 #include <G4Sphere.hh>
 #include <G4SubtractionSolid.hh>
 #include <G4Tubs.hh>
 #include <G4UnionSolid.hh>
 #include <RAT/GeoPerfSphereFactory.hh>
-#include <vector>
-
 #include <RAT/UnionSolidArray.hh>
+#include <vector>
 
 using namespace std;
 
@@ -47,8 +47,7 @@ G4VSolid *GeoPerfSphereFactory::ConstructSolid(DBLinkPtr table) {
   };
   //  end optional parms
 
-  G4VSolid *base_sphere = new G4Sphere(volume_name, r_min, r_max, phi_start,
-                                       phi_delta, theta_start, theta_delta);
+  G4VSolid *base_sphere = new G4Sphere(volume_name, r_min, r_max, phi_start, phi_delta, theta_start, theta_delta);
 
   // Read Solid positions
   string pos_table_name = table->GetS("pos_table");
@@ -71,9 +70,8 @@ G4VSolid *GeoPerfSphereFactory::ConstructSolid(DBLinkPtr table) {
     G4double cutter_r2 = r_max;
     G4double size_z_hole = (cutter_r2 - cutter_r1) * 1.02;
 
-    G4VSolid *hole_cutter =
-        new G4Tubs("temp_" + ::to_string(holeID), 0.0, r_hole, size_z_hole, 0.0,
-                   CLHEP::twopi); // the hole cutter
+    G4VSolid *hole_cutter = new G4Tubs("temp_" + ::to_string(holeID), 0.0, r_hole, size_z_hole, 0.0,
+                                       CLHEP::twopi);  // the hole cutter
 
     G4ThreeVector solidpos(pos_x[holeID], pos_y[holeID], pos_z[holeID]);
     solidpos.setMag((cutter_r1 + cutter_r2) / 2.0);
@@ -85,13 +83,11 @@ G4VSolid *GeoPerfSphereFactory::ConstructSolid(DBLinkPtr table) {
     // rotation required to point in direction of soliddir
 
     double angle_y = (-1.0) * atan2(soliddir.x(), soliddir.z());
-    double angle_x = atan2(soliddir.y(), sqrt(soliddir.x() * soliddir.x() +
-                                              soliddir.z() * soliddir.z()));
+    double angle_x = atan2(soliddir.y(), sqrt(soliddir.x() * soliddir.x() + soliddir.z() * soliddir.z()));
     solidrot->rotateY(angle_y);
     solidrot->rotateX(angle_x);
 
-    holes[holeID] = new G4DisplacedSolid(volume_name + ::to_string(holeID),
-                                         hole_cutter, solidrot, solidpos);
+    holes[holeID] = new G4DisplacedSolid(volume_name + ::to_string(holeID), hole_cutter, solidrot, solidpos);
   }
 
   G4VSolid *hole_union = MakeUnionSolidArray("hole_union", holes);
@@ -99,4 +95,4 @@ G4VSolid *GeoPerfSphereFactory::ConstructSolid(DBLinkPtr table) {
   return new G4SubtractionSolid(volume_name + "_cut", base_sphere, hole_union);
 }
 
-} // namespace RAT
+}  // namespace RAT

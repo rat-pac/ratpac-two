@@ -25,15 +25,15 @@
 
 namespace RAT {
 class GeoCherenkovSourceFactory : public GeoFactory {
-public:
+ public:
   GeoCherenkovSourceFactory() : GeoFactory("CherenkovSource"){};
   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
 
-protected:
+ protected:
   static G4VisAttributes *GetColor(std::vector<double> color);
   G4OpticalSurface *GetSurface(std::string surface_name);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // __RAT_GeoCherenkovSourceFactory__
+#endif  // __RAT_GeoCherenkovSourceFactory__

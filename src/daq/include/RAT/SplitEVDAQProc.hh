@@ -12,15 +12,14 @@
 namespace RAT {
 
 class SplitEVDAQProc : public Processor {
-
-public:
+ public:
   SplitEVDAQProc();
   virtual ~SplitEVDAQProc(){};
   virtual Processor::Result DSEvent(DS::Root *ds);
   void SetD(std::string param, double value);
   void SetI(std::string param, int value);
 
-protected:
+ protected:
   PMTWaveform GenerateWaveforms(DS::MCPMT *mcpmt);
 
   int fEventCounter;
@@ -50,6 +49,6 @@ protected:
   double fPMTPulseMean;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

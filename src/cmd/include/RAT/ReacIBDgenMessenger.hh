@@ -20,7 +20,7 @@ namespace RAT {
 class ReacIBDgen;
 
 class ReacIBDgenMessenger : public G4UImessenger {
-public:
+ public:
   // ReacIBDgenMessenger(ReacIBDgen*);
   ReacIBDgenMessenger(ReacIBDgen *);
   ~ReacIBDgenMessenger();
@@ -28,7 +28,7 @@ public:
   void SetNewValue(G4UIcommand *command, G4String newValues);
   G4String GetCurrentValue(G4UIcommand *command);
 
-private:
+ private:
   ReacIBDgen *reacibdgen;
 
   G4UIcmdWithADouble *U235AmpCmd;
@@ -37,6 +37,6 @@ private:
   G4UIcmdWithADouble *Pu241AmpCmd;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_ReacIBDgenMessenger_hh
+#endif  // RAT_ReacIBDgenMessenger_hh

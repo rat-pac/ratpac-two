@@ -32,11 +32,10 @@ namespace RAT {
 // in the code, which are different from the ones
 // provided from Geant4/CLHEP
  */
-const double RAT::ESCrossSec::fGf = 1.166371e-5;     // Fermi constant (GeV^-2)
-const double RAT::ESCrossSec::fhbarc = hbarc * 1e12; // hbar*c (MeV*fm)
-const double RAT::ESCrossSec::fhbarc2 =
-    fhbarc * fhbarc * 1e-5; // hbar*c^2(GeV^2 mb)
-const double RAT::ESCrossSec::falpha = fine_structure_const; //
+const double RAT::ESCrossSec::fGf = 1.166371e-5;                 // Fermi constant (GeV^-2)
+const double RAT::ESCrossSec::fhbarc = hbarc * 1e12;             // hbar*c (MeV*fm)
+const double RAT::ESCrossSec::fhbarc2 = fhbarc * fhbarc * 1e-5;  // hbar*c^2(GeV^2 mb)
+const double RAT::ESCrossSec::falpha = fine_structure_const;     //
 
 /**
  * Some other static constants that are valid for all instances of the class.
@@ -77,9 +76,8 @@ void ESCrossSec::Defaults() {
   // /generator/es/xsection/wma
   // fsinthetaW2 = 0.23116; // effective angle PDG 2010
 
-  fMe = (G4ParticleTable::GetParticleTable()->FindParticle("e-"))
-            ->GetPDGMass();                                  // MeV
-  fSigmaOverMe = 2 * fGf * fGf * fMe * 1.0e9 * fhbarc2 / pi; // 10^-42 cm^2/MeV
+  fMe = (G4ParticleTable::GetParticleTable()->FindParticle("e-"))->GetPDGMass();  // MeV
+  fSigmaOverMe = 2 * fGf * fGf * fMe * 1.0e9 * fhbarc2 / pi;                      // 10^-42 cm^2/MeV
 
   // Default calculation strategy
   // Can be set by messenger
@@ -108,7 +106,7 @@ void ESCrossSec::Defaults() {
 
 // fL(): add by y.t. 14-JAN-2003
 double ESCrossSec::fL(const double x) const {
-  int istep = 1000; // should not be hard corded??
+  int istep = 1000;  // should not be hard corded??
 
   double dstep = x / istep;
   double sum = 0.0;
@@ -133,8 +131,7 @@ double ESCrossSec::Sigma(const double Enu) const {
   }
   if (Enu < 0) {
     std::stringstream ss;
-    ss << "ESCrossSec::Sigma : Invalid neutrino Energy ( Enu = " << Enu
-       << " ).";
+    ss << "ESCrossSec::Sigma : Invalid neutrino Energy ( Enu = " << Enu << " ).";
     // -- Die throws an exception...
     RAT::Log::Die(ss.str(), 1);
   }
@@ -150,8 +147,7 @@ double ESCrossSec::Sigma(const double Enu) const {
     const double gR2 = fgR * fgR;
     const double gLR = fgL * fgR;
 
-    sigma = (gL2 + gR2) * Temax -
-            (gR2 / Enu + gLR * fMe / (2.0 * Enu * Enu)) * Temax * Temax +
+    sigma = (gL2 + gR2) * Temax - (gR2 / Enu + gLR * fMe / (2.0 * Enu * Enu)) * Temax * Temax +
             (gR2 / (3.0 * Enu * Enu)) * Temax * Temax * Temax;
 
     sigma = sigma * fSigmaOverMe;
@@ -164,16 +160,14 @@ double ESCrossSec::Sigma(const double Enu) const {
     /////////////////////////////////////////////////////////////
     const int k = ((int)(Enu / fEnuStepTot) - 1);
     // Different than 1,2 or 3 --> Table
-    if (fRadiativeCorrection != 3 && fRadiativeCorrection != 2 &&
-        fExistTableTot && k >= 0 && k < fNDataTot - 1) {
+    if (fRadiativeCorrection != 3 && fRadiativeCorrection != 2 && fExistTableTot && k >= 0 && k < fNDataTot - 1) {
       if (fExistTableTot) {
         // interpolate by a straight line
         sigma = fTableTot_e(Enu);
       } else {
         // Currently no support for nuebar and numubar in tables. Should never
         // reach here but have functionality to default to in place anyway.
-        warn << "ESCrossSec::Sigma : " << fReactionStr
-             << " not supported with Radiative correction strategy "
+        warn << "ESCrossSec::Sigma : " << fReactionStr << " not supported with Radiative correction strategy "
              << fRadiativeCorrection << " !!"
              << " Computing analytically instead." << newline;
 
@@ -199,10 +193,9 @@ double ESCrossSec::Sigma(const double Enu) const {
   std::stringstream ss;
   ss << "ESCrossSec::Sigma : Reached end of function while calculating Sigma. "
         "Something is wrong with the calculation.\n";
-  ss << "ESCrossSec::Sigma : Current parameters : Calculation Strategy : [ "
-     << fRadiativeCorrection << " ], Reaction : [ " << fReactionStr << " ].\n";
-  ss << "ESCrossSec::Sigma : Enu : [ " << Enu << " ], TeMax  : [ " << Temax
-     << " ].";
+  ss << "ESCrossSec::Sigma : Current parameters : Calculation Strategy : [ " << fRadiativeCorrection
+     << " ], Reaction : [ " << fReactionStr << " ].\n";
+  ss << "ESCrossSec::Sigma : Enu : [ " << Enu << " ], TeMax  : [ " << Temax << " ].";
   RAT::Log::Die(ss.str(), 1);
   throw;
 }
@@ -269,14 +262,12 @@ double ESCrossSec::dSigmadT(const double Enu, const double Te) const {
       warn << "[ESCrossSec]::dSigmadT : Got invalid values for variables k_i: "
               "k1 "
            << k1 << " k2 " << k2 << newline;
-      warn << "[ESCrossSec]::dSigmadT : Enu : [ " << Enu << " ], Te  : [ " << Te
-           << " ] "
+      warn << "[ESCrossSec]::dSigmadT : Enu : [ " << Enu << " ], Te  : [ " << Te << " ] "
            << " fEnuStepDif : " << fEnuStepDif << "\n\n"
            << newline;
 
-      Log::Die(
-          "[ESCrossSec]::dSigmadT : Got invalid values for variables k_i: k1 " +
-          util_to_string(k1) + " k2 " + util_to_string(k2));
+      Log::Die("[ESCrossSec]::dSigmadT : Got invalid values for variables k_i: k1 " + util_to_string(k1) + " k2 " +
+               util_to_string(k2));
     }
 
     double e1 = fEnuStepDif * (double)(k1 + 1);
@@ -304,8 +295,7 @@ double ESCrossSec::dSigmadT(const double Enu, const double Te) const {
      */
 
     // Check indexes against table entries
-    if (fExistTableDif && k1 >= 0 && k1 < fNDataDif - 1 && k2 >= 0 &&
-        k2 < fNDataDif - 1) {
+    if (fExistTableDif && k1 >= 0 && k1 < fNDataDif - 1 && k2 >= 0 && k2 < fNDataDif - 1) {
       // Get the closest points of \f$\frac{d\sigma}{dT}\f$
       if (fReaction == nue || fReaction == numu) {
         sig_e1_t1 = fTableDif[k1 * fNDataDif + k2];
@@ -315,11 +305,9 @@ double ESCrossSec::dSigmadT(const double Enu, const double Te) const {
       } else {
         // Should never reach here if table does not exist. Instead should use
         // analytic calculations below.
-        warn << "[ESCrossSec]::dSigmadT : " << fReactionStr
-             << " not supported with Radiative correction strategy "
+        warn << "[ESCrossSec]::dSigmadT : " << fReactionStr << " not supported with Radiative correction strategy "
              << fRadiativeCorrection << " !!" << newline;
-        Log::Die("[ESCrossSec]::dSigmadT : " + fReactionStr +
-                 " not supported with Radiative correction strategy " +
+        Log::Die("[ESCrossSec]::dSigmadT : " + fReactionStr + " not supported with Radiative correction strategy " +
                  util_to_string(fRadiativeCorrection) + " !!");
       }
     }
@@ -328,9 +316,8 @@ double ESCrossSec::dSigmadT(const double Enu, const double Te) const {
     // If table exists
     // If diff. cross-sections are valid
     // If recoil energy is inside table limits.
-    if (fRadiativeCorrection != 3 && fRadiativeCorrection != 2 &&
-        fExistTableDif && sig_e1_t1 > 0.0 && sig_e1_t2 > 0.0 &&
-        sig_e2_t1 > 0.0 && sig_e2_t2 > 0.0 &&
+    if (fRadiativeCorrection != 3 && fRadiativeCorrection != 2 && fExistTableDif && sig_e1_t1 > 0.0 &&
+        sig_e1_t2 > 0.0 && sig_e2_t1 > 0.0 && sig_e2_t2 > 0.0 &&
         (fRadiativeCorrection == 4 || (Te > Te1 && Te < Te2))) {
       // Interpolate from the table.
       double r1 = (sig_e1_t2 - sig_e1_t1) / (t2 - t1) * (Te - t1) + sig_e1_t1;
@@ -343,19 +330,14 @@ double ESCrossSec::dSigmadT(const double Enu, const double Te) const {
       double x = sqrt(1.0 + 2.0 * fMe / Te);
       double z = Te / Enu;
       double el = sqrt(E * E - fMe * fMe);
-      double IT =
-          1.0 / 6.0 *
-          (1.0 / 3.0 +
-           (3.0 - x * x) * (0.5 * x * log((x + 1.0) / (x - 1.0)) - 1.0));
+      double IT = 1.0 / 6.0 * (1.0 / 3.0 + (3.0 - x * x) * (0.5 * x * log((x + 1.0) / (x - 1.0)) - 1.0));
 
       // FIXME : Correct this otherwise the maximum won't be for Te = Temax
       // To avoid log(-1.0e15) in fm,fpz,fpm when Te = Temax
       if (1.0 - z - fMe / (E + el) <= 0.0) {
 #ifdef RATDEBUG
-        debug << "[ESCrossSec]::dSigmadT :  warning: 1.0-z-fMe/(E+el) = "
-              << 1.0 - z - fMe / (E + el) << newline;
-        debug << "[ESCrossSec]::dSigmadT : Enu = " << Enu << " Te = " << Te
-              << newline;
+        debug << "[ESCrossSec]::dSigmadT :  warning: 1.0-z-fMe/(E+el) = " << 1.0 - z - fMe / (E + el) << newline;
+        debug << "[ESCrossSec]::dSigmadT : Enu = " << Enu << " Te = " << Te << newline;
 #endif
         return 0.0;
       }
@@ -380,8 +362,7 @@ double ESCrossSec::dSigmadT(const double Enu, const double Te) const {
           gr = -pnc * kappa * fsinthetaW2;
 
         } else {
-          warn << "[ESCrossSec]::dSigmadT : " << fReactionStr
-               << " not supported with Radiative correction strategy "
+          warn << "[ESCrossSec]::dSigmadT : " << fReactionStr << " not supported with Radiative correction strategy "
                << fRadiativeCorrection
                << ". Computing analytically without radiative corrections "
                   "instead."
@@ -405,37 +386,27 @@ double ESCrossSec::dSigmadT(const double Enu, const double Te) const {
       // Calculate corrections for strategy 3, 4 when outside bounds
       if (fRadiativeCorrection != 2) {
         fm = (E / el * log((E + el) / fMe) - 1.0) *
-                 (2.0 * log(1.0 - z - fMe / (E + el)) - log(1.0 - z) -
-                  0.5 * log(z) - 5.0 / 12.0) +
-             0.5 * (fL(z) - fL(el / E)) - 0.5 * log(1.0 - z) * log(1.0 - z) -
-             (11.0 / 12.0 + 0.5 * z) * log(1.0 - z) +
-             z * (log(z) + 0.5 * log(2.0 * Enu / fMe)) -
-             (31.0 / 18.0 + 1.0 / 12.0 * log(z)) * el / E - 11.0 / 12.0 * z +
-             z * z / 24.0;
+                 (2.0 * log(1.0 - z - fMe / (E + el)) - log(1.0 - z) - 0.5 * log(z) - 5.0 / 12.0) +
+             0.5 * (fL(z) - fL(el / E)) - 0.5 * log(1.0 - z) * log(1.0 - z) - (11.0 / 12.0 + 0.5 * z) * log(1.0 - z) +
+             z * (log(z) + 0.5 * log(2.0 * Enu / fMe)) - (31.0 / 18.0 + 1.0 / 12.0 * log(z)) * el / E -
+             11.0 / 12.0 * z + z * z / 24.0;
 
         fpz = (E / el * log((E + el) / fMe) - 1.0) *
                   ((1.0 - z) * (1.0 - z) *
-                       (2.0 * log(1.0 - z - fMe / (E + el)) - log(1.0 - z) -
-                        0.5 * log(z) - 2.0 / 3.0) -
+                       (2.0 * log(1.0 - z - fMe / (E + el)) - log(1.0 - z) - 0.5 * log(z) - 2.0 / 3.0) -
                    0.5 * (z * z * log(z) + 1.0 - z)) -
               0.5 * (1.0 - z) * (1.0 - z) *
-                  (log(1.0 - z) * log(1.0 - z) +
-                   el / E * (fL(1.0 - z) - log(z) * log(1.0 - z))) +
-              log(1.0 - z) * (z * z / 2.0 * log(z) +
-                              (1.0 - z) / 3.0 * (2.0 * z - 1.0 / 2.0)) -
-              0.5 * z * z * fL(1.0 - z) - z * (1.0 - 2.0 * z) / 3.0 * log(z) -
-              z * (1.0 - z) / 6.0 -
+                  (log(1.0 - z) * log(1.0 - z) + el / E * (fL(1.0 - z) - log(z) * log(1.0 - z))) +
+              log(1.0 - z) * (z * z / 2.0 * log(z) + (1.0 - z) / 3.0 * (2.0 * z - 1.0 / 2.0)) -
+              0.5 * z * z * fL(1.0 - z) - z * (1.0 - 2.0 * z) / 3.0 * log(z) - z * (1.0 - z) / 6.0 -
               el / E / 12.0 * (log(z) + (1.0 - z) * (115.0 - 109.0 * z) / 6.0);
 
-        fpm = (E / el * log((E + el) / fMe) - 1.0) * 2.0 *
-              log(1.0 - z - fMe / (E + el));
+        fpm = (E / el * log((E + el) / fMe) - 1.0) * 2.0 * log(1.0 - z - fMe / (E + el));
       }
 
-      double dsigma_dT =
-          2.0 * fGf * fGf * fMe / pi *
-          (gl * gl * (1.0 + falpha / pi * fm) +
-           gr * gr * ((1.0 - z) * (1.0 - z) + falpha / pi * fpz) -
-           gr * gl * fMe / Enu * z * (1.0 + falpha / pi * fpm));
+      double dsigma_dT = 2.0 * fGf * fGf * fMe / pi *
+                         (gl * gl * (1.0 + falpha / pi * fm) + gr * gr * ((1.0 - z) * (1.0 - z) + falpha / pi * fpz) -
+                          gr * gl * fMe / Enu * z * (1.0 + falpha / pi * fpm));
 
       return dsigma_dT * fhbarc2 * 1.0e9;
     }
@@ -446,18 +417,15 @@ double ESCrossSec::dSigmadT(const double Enu, const double Te) const {
        << newline;
   warn << "[ESCrossSec]::dSigmadT > Current parameters : Calculation Strategy "
           ": [ "
-       << fRadiativeCorrection << " ], Reaction : [ " << fReactionStr << " ] "
+       << fRadiativeCorrection << " ], Reaction : [ " << fReactionStr << " ] " << newline;
+  warn << "[ESCrossSec]::dSigmadT > Enu : [ " << Enu << " ], Te  : [ " << Te << " ], TeMax  : [ " << Temax << " ] "
        << newline;
-  warn << "[ESCrossSec]::dSigmadT > Enu : [ " << Enu << " ], Te  : [ " << Te
-       << " ], TeMax  : [ " << Temax << " ] " << newline;
-  warn << "[ESCrossSec]::dSigmadT > k1 : " << k1 << " k2 : " << k2
-       << " fEnuStepDif : " << fEnuStepDif << newline;
+  warn << "[ESCrossSec]::dSigmadT > k1 : " << k1 << " k2 : " << k2 << " fEnuStepDif : " << fEnuStepDif << newline;
   Log::Die("Failed calculation of dSigmadT.");
   return 0.0;
 }
 
-double ESCrossSec::IntegraldSigmadT(const double Enu, const double T1,
-                                    const double T2) const {
+double ESCrossSec::IntegraldSigmadT(const double Enu, const double T1, const double T2) const {
   // Integrate dSigma/dT of Enu from T1 to T2
   const int nbins = 1000;
   double Tstep = (T2 - T1) / nbins;
@@ -501,8 +469,7 @@ double ESCrossSec::dSigmadCosTh(const double Enu, const double CosTh) const {
   double Denom = meEnu * meEnu - Enu2 * mu2;
   double T = (2.0 * Enu2 * mu2 * fMe) / Denom;
   double dsigdT = dSigmadT(Enu, T);
-  double dSdCosT =
-      dsigdT * fMe * 4.0 * meEnu * meEnu * Enu2 * mu / (Denom * Denom);
+  double dSdCosT = dsigdT * fMe * 4.0 * meEnu * meEnu * Enu2 * mu / (Denom * Denom);
 
   return dSdCosT;
 }
@@ -534,8 +501,7 @@ void ESCrossSec::LoadTablesDB() {
 
     fNDataTot = linkdb->GetI("NData");
     fEnuStepTot = linkdb->GetD("EStep");
-    fTableTot_e.Set(linkdb->GetDArray("data_enu"),
-                    linkdb->GetDArray("data_xsec"));
+    fTableTot_e.Set(linkdb->GetDArray("data_enu"), linkdb->GetDArray("data_xsec"));
     fExistTableTot = true;
   } catch (DBNotFoundError &) {
     RAT::warn << "ESCrossSec: Table ESXS[" << tblname
@@ -586,8 +552,7 @@ void ESCrossSec::SetReaction(const std::string &rstr) {
     fReactionStr = rstr;
     fReaction = nuebar;
   } else {
-    warn << "ESCrossSec::SetReaction > Unknown reaction [ " << rstr << " ]."
-         << newline;
+    warn << "ESCrossSec::SetReaction > Unknown reaction [ " << rstr << " ]." << newline;
     throw std::invalid_argument("Unknown reaction " + rstr);
   }
 
@@ -611,16 +576,14 @@ void ESCrossSec::SetSinThetaW(const double &sintw) {
 
 TGraph *ESCrossSec::DrawdSigmadT(const double Enu) const {
 #ifdef RATDEBUG
-  debug << "[ESCrossSec]::DrawdSigmadT : Sampling Enu=" << Enu << " MeV."
-        << newline;
+  debug << "[ESCrossSec]::DrawdSigmadT : Sampling Enu=" << Enu << " MeV." << newline;
 #endif
 
   TGraph *g = new TGraph();
   const int npoints = 1024;
   const double xstep = Enu / npoints;
 #ifdef RATDEBUG
-  debug << "[ESCrossSec]::DrawdSigmadT : Sampling data: xstep= " << xstep
-        << " MeV. " << newline;
+  debug << "[ESCrossSec]::DrawdSigmadT : Sampling data: xstep= " << xstep << " MeV. " << newline;
 #endif
 
   for (int ip = 0; ip < npoints; ++ip) {
@@ -630,4 +593,4 @@ TGraph *ESCrossSec::DrawdSigmadT(const double Enu) const {
   }
   return g;
 }
-} // namespace RAT
+}  // namespace RAT

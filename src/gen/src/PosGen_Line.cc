@@ -5,8 +5,7 @@
 
 namespace RAT {
 
-PosGen_Line::PosGen_Line(const char *arg_dbname)
-    : GLG4PosGen(arg_dbname), fPoint1(0., 0., 0.), fPoint2(0., 0., 0.) {}
+PosGen_Line::PosGen_Line(const char *arg_dbname) : GLG4PosGen(arg_dbname), fPoint1(0., 0., 0.), fPoint2(0., 0., 0.) {}
 
 void PosGen_Line::GeneratePosition(G4ThreeVector &argResult) {
   G4ThreeVector diff = fPoint2 - fPoint1;
@@ -44,9 +43,8 @@ void PosGen_Line::SetState(G4String newValues) {
 }
 
 G4String PosGen_Line::GetState() const {
-  return util_dformat("%ld\t%ld\t%ld -> %ld\t%ld\t%ld", fPoint1.x(),
-                      fPoint1.y(), fPoint1.z(), fPoint2.x(), fPoint2.y(),
+  return util_dformat("%ld\t%ld\t%ld -> %ld\t%ld\t%ld", fPoint1.x(), fPoint1.y(), fPoint1.z(), fPoint2.x(), fPoint2.y(),
                       fPoint2.z());
 }
 
-} // namespace RAT
+}  // namespace RAT

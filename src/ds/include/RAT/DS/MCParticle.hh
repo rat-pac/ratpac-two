@@ -13,13 +13,14 @@
 
 #include <TObject.h>
 #include <TVector3.h>
+
 #include <string>
 
 namespace RAT {
 namespace DS {
 
 class MCParticle : public TObject {
-public:
+ public:
   MCParticle() : TObject() {}
   virtual ~MCParticle() {}
 
@@ -33,9 +34,7 @@ public:
   virtual void SetPDGCode(Int_t _pdgcode) { pdgcode = _pdgcode; }
 
   virtual const std::string &GetParticleName() const { return particleName; }
-  virtual void SetParticleName(const std::string &_particleName) {
-    particleName = _particleName;
-  }
+  virtual void SetParticleName(const std::string &_particleName) { particleName = _particleName; }
 
   /** Initial time of particle (ns). */
   virtual Double_t GetTime() const { return t; }
@@ -88,7 +87,7 @@ public:
   std::string particleName;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

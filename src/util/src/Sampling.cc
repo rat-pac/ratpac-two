@@ -2,10 +2,8 @@
 
 namespace RAT {
 
-G4PhysicsOrderedFreeVector *
-Integrate_MPV_to_POFV(G4MaterialPropertyVector *inputVector) {
-  G4PhysicsOrderedFreeVector *aPhysicsOrderedFreeVector =
-      new G4PhysicsOrderedFreeVector();
+G4PhysicsOrderedFreeVector *Integrate_MPV_to_POFV(G4MaterialPropertyVector *inputVector) {
+  G4PhysicsOrderedFreeVector *aPhysicsOrderedFreeVector = new G4PhysicsOrderedFreeVector();
 
   // Retrieve the first intensity point in vector
   // of (photon momentum, intensity) pairs
@@ -14,7 +12,6 @@ Integrate_MPV_to_POFV(G4MaterialPropertyVector *inputVector) {
   G4double currentIN = (*inputVector)[i];
 
   if (currentIN >= 0.0) {
-
     // Create first (photon momentum, Scintillation
     // Integral pair
 
@@ -51,4 +48,4 @@ Integrate_MPV_to_POFV(G4MaterialPropertyVector *inputVector) {
   return aPhysicsOrderedFreeVector;
 }
 
-} // namespace RAT
+}  // namespace RAT

@@ -43,7 +43,7 @@
 #pragma link C++ class RAT::HTTPDownloader + ;
 #pragma link C++ class RAT::DBFieldCallback + ;
 
-#endif // __CINT__
+#endif  // __CINT__
 
 #ifdef __MAKECINT__
 

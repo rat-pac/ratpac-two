@@ -20,7 +20,7 @@
 namespace RAT {
 
 class DBTable {
-public:
+ public:
   /** Create new empty table. */
   DBTable();
 
@@ -51,9 +51,7 @@ public:
   /** Returns true if validity range flags this as a default-plane table. */
   bool IsDefault() const { return (run_begin == 0) && (run_end == 0); };
   /** Returns true if this table is valid for the run given */
-  bool IsValidRun(const int run) {
-    return (run >= run_begin) && (run <= run_end);
-  };
+  bool IsValidRun(const int run) { return (run >= run_begin) && (run <= run_end); };
 
   /** Set run range for which this table is valid.  Begin and end are
    * inclusive*/
@@ -179,7 +177,8 @@ public:
    *  Provided as a convenience to the DBLink implementation.  Fetches
    *  field based on type of @p T.
    */
-  template <typename T> inline T Get(const std::string &name) const;
+  template <typename T>
+  inline T Get(const std::string &name) const;
 
   /** Set any type that is convertable to a json::Value */
   template <typename T>
@@ -188,16 +187,12 @@ public:
   }
 
   /** Set a deferred integer array field that will be fetched on demand */
-  void SetIArrayDeferred(std::string name, DBFieldCallback *callback) {
-    iatbl_deferred[name] = callback;
-  };
+  void SetIArrayDeferred(std::string name, DBFieldCallback *callback) { iatbl_deferred[name] = callback; };
 
   /** Set a deferred double array field that will be fetched on demand */
-  void SetDArrayDeferred(std::string name, DBFieldCallback *callback) {
-    datbl_deferred[name] = callback;
-  };
+  void SetDArrayDeferred(std::string name, DBFieldCallback *callback) { datbl_deferred[name] = callback; };
 
-protected:
+ protected:
   std::string tblname; /**< Name of table */
   std::string index;   /**< Index of table */
   int run_begin;       /**< First run in which this table is valid */
@@ -217,11 +212,13 @@ protected:
 };
 
 /* Specialization of the above Get<> template */
-template <> inline int DBTable::Get<int>(const std::string &name) const {
+template <>
+inline int DBTable::Get<int>(const std::string &name) const {
   return GetI(name);
 }
 
-template <> inline double DBTable::Get<double>(const std::string &name) const {
+template <>
+inline double DBTable::Get<double>(const std::string &name) const {
   return GetD(name);
 }
 
@@ -230,51 +227,46 @@ inline std::string DBTable::Get<std::string>(const std::string &name) const {
   return GetS(name);
 }
 
-template <> inline bool RAT::DBTable::Get<bool>(const std::string &name) const {
+template <>
+inline bool RAT::DBTable::Get<bool>(const std::string &name) const {
   return GetZ(name);
 }
 
 template <>
-inline std::vector<int>
-RAT::DBTable::Get<std::vector<int>>(const std::string &name) const {
+inline std::vector<int> RAT::DBTable::Get<std::vector<int>>(const std::string &name) const {
   return GetIArray(name);
 }
 
 template <>
-inline std::vector<double>
-RAT::DBTable::Get<std::vector<double>>(const std::string &name) const {
+inline std::vector<double> RAT::DBTable::Get<std::vector<double>>(const std::string &name) const {
   return GetDArray(name);
 }
 
 template <>
-inline std::vector<std::string>
-RAT::DBTable::Get<std::vector<std::string>>(const std::string &name) const {
+inline std::vector<std::string> RAT::DBTable::Get<std::vector<std::string>>(const std::string &name) const {
   return GetSArray(name);
 }
 
 template <>
-inline std::vector<bool>
-RAT::DBTable::Get<std::vector<bool>>(const std::string &name) const {
+inline std::vector<bool> RAT::DBTable::Get<std::vector<bool>>(const std::string &name) const {
   return GetZArray(name);
 }
 
 template <>
-inline json::Value
-RAT::DBTable::Get<json::Value>(const std::string &name) const {
+inline json::Value RAT::DBTable::Get<json::Value>(const std::string &name) const {
   return GetJSON(name);
 }
 
 /** Exception: Field not found in RATDB */
 class DBNotFoundError {
-public:
+ public:
   /** Create new exception.
    *
    *  @param _table  Name of table in which field could not be found
    *  @param _index  Index of table in which field could not be found
    *  @param _field  Name of field which could not be found
    */
-  DBNotFoundError(const std::string &_table, const std::string &_index,
-                  const std::string &_field)
+  DBNotFoundError(const std::string &_table, const std::string &_index, const std::string &_field)
       : table(_table), index(_index), field(_field){};
 
   /** Compare if @p other has the same table, index and field as @p this. */
@@ -292,7 +284,7 @@ public:
    that exception.
  */
 class DBWrongTypeError : public DBNotFoundError {
-public:
+ public:
   /** Create new exception.
    *
    *  @param _table  Name of table in which field could not be found with
@@ -303,24 +295,20 @@ public:
    *  @param _requestedType DBTable::FieldType requested
    *  @param _actualType DBTable::FieldType actually present in database
    */
-  DBWrongTypeError(const std::string &_table, const std::string &_index,
-                   const std::string &_field,
-                   RAT::DBTable::FieldType _requestedType,
-                   RAT::DBTable::FieldType _actualType)
-      : DBNotFoundError(_table, _index, _field), requestedType(_requestedType),
-        actualType(_actualType){};
+  DBWrongTypeError(const std::string &_table, const std::string &_index, const std::string &_field,
+                   RAT::DBTable::FieldType _requestedType, RAT::DBTable::FieldType _actualType)
+      : DBNotFoundError(_table, _index, _field), requestedType(_requestedType), actualType(_actualType){};
 
   /** Compare if @p other has the same table, index and field as @p this. */
   bool operator==(const DBWrongTypeError &other) const {
-    return table == other.table && index == other.index &&
-           field == other.field && requestedType == other.requestedType &&
-           actualType == other.actualType;
+    return table == other.table && index == other.index && field == other.field &&
+           requestedType == other.requestedType && actualType == other.actualType;
   }
 
   RAT::DBTable::FieldType requestedType;
   RAT::DBTable::FieldType actualType;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

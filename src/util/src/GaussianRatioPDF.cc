@@ -35,4 +35,4 @@ Double_t GaussianRatioPDF(Double_t *x, Double_t *par) {
   return par[0] * val;
 }
 
-} // namespace RAT
+}  // namespace RAT

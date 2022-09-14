@@ -14,7 +14,7 @@ class ProcBlock;
 class UserProcManager;
 
 class ProcBlockManager : public G4UImessenger {
-public:
+ public:
   ProcBlockManager(ProcBlock *theMainBlock);
   virtual ~ProcBlockManager();
 
@@ -27,8 +27,8 @@ public:
   virtual void DoProcSetCmd(std::string cmdstring);
   // if, endif, loops?
 
-protected:
-  ProcBlock *mainBlock; // Convenience, non-NULL when we are at the main
+ protected:
+  ProcBlock *mainBlock;  // Convenience, non-NULL when we are at the main
   // block in analysis construction
   std::stack<ProcBlock *> blocks;
   std::map<std::string, ProcAllocator *> procAllocators;
@@ -41,6 +41,6 @@ protected:
   G4UIcommand *setCmd;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

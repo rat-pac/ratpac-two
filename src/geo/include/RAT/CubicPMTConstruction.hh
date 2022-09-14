@@ -26,10 +26,10 @@ struct CubicPMTConstructionParams {
   bool invisible;
 
   // Body
-  double caseThickness;     // mm
-  double glassThickness;    // mm
-  double pmtWidth;          // mm
-  double photocathodeWidth; // mm
+  double caseThickness;      // mm
+  double glassThickness;     // mm
+  double pmtWidth;           // mm
+  double photocathodeWidth;  // mm
 
   G4Material *outerCase;
   G4Material *glass;
@@ -38,23 +38,21 @@ struct CubicPMTConstructionParams {
   G4OpticalSurface *photocathode;
   G4OpticalSurface *mirror;
 
-  double efficiencyCorrection; // default to 1.0 for no correction
+  double efficiencyCorrection;  // default to 1.0 for no correction
 };
 
 class CubicPMTConstruction : public PMTConstruction {
-public:
+ public:
   CubicPMTConstruction(DBLinkPtr params, G4LogicalVolume *mother);
   virtual ~CubicPMTConstruction() {}
 
   virtual G4LogicalVolume *BuildVolume(const std::string &prefix);
   virtual G4VSolid *BuildSolid(const std::string &prefix);
-  virtual G4PVPlacement *PlacePMT(G4RotationMatrix *pmtrot,
-                                  G4ThreeVector pmtpos, const std::string &name,
-                                  G4LogicalVolume *logi_pmt,
-                                  G4VPhysicalVolume *mother_phys,
-                                  bool booleanSolid, int copyNo);
+  virtual G4PVPlacement *PlacePMT(G4RotationMatrix *pmtrot, G4ThreeVector pmtpos, const std::string &name,
+                                  G4LogicalVolume *logi_pmt, G4VPhysicalVolume *mother_phys, bool booleanSolid,
+                                  int copyNo);
 
-protected:
+ protected:
   // physical volumes
   G4PVPlacement *glass_phys;
   G4PVPlacement *vacuum_phys;
@@ -63,6 +61,6 @@ protected:
   CubicPMTConstructionParams fParams;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

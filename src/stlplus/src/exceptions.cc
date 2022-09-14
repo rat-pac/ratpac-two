@@ -7,6 +7,7 @@
   ------------------------------------------------------------------------------*/
 
 #include "RAT/exceptions.hpp"
+
 #include "RAT/debug.hpp"
 #include "RAT/fileio.hpp"
 
@@ -32,8 +33,7 @@ end_dereference::~end_dereference(void) throw() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-wrong_object::wrong_object(const std::string &description) throw()
-    : std::logic_error("wrong object: " + description) {
+wrong_object::wrong_object(const std::string &description) throw() : std::logic_error("wrong object: " + description) {
   DEBUG_TRACE;
   DEBUG_STACKDUMP(std::string(what()));
 }

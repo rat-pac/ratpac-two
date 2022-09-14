@@ -1,4 +1,5 @@
 #include <CLHEP/Units/PhysicalConstants.h>
+
 #include <G4Cons.hh>
 #include <G4LogicalBorderSurface.hh>
 #include <G4LogicalSkinSurface.hh>
@@ -27,62 +28,49 @@ void ConeWaveguideFactory::SetTable(std::string table, std::string index) {
     fSurface = 0;
   else {
     fSurface = Materials::optical_surface[surface];
-    if (!fSurface)
-      Log::Die("ConeWaveguideFactory: Unable to locate surface " + surface);
+    if (!fSurface) Log::Die("ConeWaveguideFactory: Unable to locate surface " + surface);
   }
 }
 
-G4LogicalVolume *ConeWaveguideFactory::Construct(const std::string &name,
-                                                 G4LogicalVolume * /*mother*/,
+G4LogicalVolume *ConeWaveguideFactory::Construct(const std::string &name, G4LogicalVolume * /*mother*/,
                                                  bool invisible) {
   double OuterRadiusTop = fRadiusTop + 1.0;
   double OuterRadiusBottom = fRadiusBottom + 1.0;
-  G4VSolid *cone_solid_in = new G4Cons(
-      name + "_solid_in", fInnerRadiusTop, fRadiusTop, fInnerRadiusBottom,
-      fRadiusBottom, (fZTop - fZBottom) / 2.0, 0.0, CLHEP::twopi);
-  G4VSolid *cone_solid_out = new G4Cons(
-      name + "_solid_out", fRadiusTop, OuterRadiusTop, fRadiusBottom,
-      OuterRadiusBottom, (fZTop - fZBottom) / 2.0, 0.0, CLHEP::twopi);
+  G4VSolid *cone_solid_in = new G4Cons(name + "_solid_in", fInnerRadiusTop, fRadiusTop, fInnerRadiusBottom,
+                                       fRadiusBottom, (fZTop - fZBottom) / 2.0, 0.0, CLHEP::twopi);
+  G4VSolid *cone_solid_out = new G4Cons(name + "_solid_out", fRadiusTop, OuterRadiusTop, fRadiusBottom,
+                                        OuterRadiusBottom, (fZTop - fZBottom) / 2.0, 0.0, CLHEP::twopi);
   G4VSolid *cone_solid_whole =
-      new G4Cons(name + "_solid_whole", fInnerRadiusTop, OuterRadiusTop + 1.0,
-                 fInnerRadiusBottom, OuterRadiusBottom + 1.0,
-                 (fZTop - fZBottom) / 2.0, 0.0, CLHEP::twopi);
+      new G4Cons(name + "_solid_whole", fInnerRadiusTop, OuterRadiusTop + 1.0, fInnerRadiusBottom,
+                 OuterRadiusBottom + 1.0, (fZTop - fZBottom) / 2.0, 0.0, CLHEP::twopi);
   if (fPMTBody) {
     cone_solid_in->SetName(name + "_in");
-    cone_solid_in = new G4SubtractionSolid(name, cone_solid_in, fPMTBody, 0,
-                                           -GetPlacementOffset());
+    cone_solid_in = new G4SubtractionSolid(name, cone_solid_in, fPMTBody, 0, -GetPlacementOffset());
     cone_solid_out->SetName(name + "_out");
-    cone_solid_out = new G4SubtractionSolid(name, cone_solid_out, fPMTBody, 0,
-                                            -GetPlacementOffset());
+    cone_solid_out = new G4SubtractionSolid(name, cone_solid_out, fPMTBody, 0, -GetPlacementOffset());
     cone_solid_whole->SetName(name + "_full");
-    cone_solid_whole = new G4SubtractionSolid(name, cone_solid_whole, fPMTBody,
-                                              0, -GetPlacementOffset());
+    cone_solid_whole = new G4SubtractionSolid(name, cone_solid_whole, fPMTBody, 0, -GetPlacementOffset());
   }
 
-  G4LogicalVolume *cone_logi_in =
-      new G4LogicalVolume(cone_solid_in, fMaterial, name + "_logi_in");
-  G4LogicalVolume *cone_logi_out =
-      new G4LogicalVolume(cone_solid_out, fMaterial, name + "_logi_out");
-  G4LogicalVolume *cone_logi_whole =
-      new G4LogicalVolume(cone_solid_whole, fMaterial, name + "_logi_whole");
+  G4LogicalVolume *cone_logi_in = new G4LogicalVolume(cone_solid_in, fMaterial, name + "_logi_in");
+  G4LogicalVolume *cone_logi_out = new G4LogicalVolume(cone_solid_out, fMaterial, name + "_logi_out");
+  G4LogicalVolume *cone_logi_whole = new G4LogicalVolume(cone_solid_whole, fMaterial, name + "_logi_whole");
 
   G4ThreeVector no_offset(0, 0, 0);
-  G4PVPlacement *in_phys =
-      new G4PVPlacement(0,               // no rotation
-                        no_offset,       // puts face equator in right place
-                        cone_logi_in,    // the logical volume
-                        name + "_in",    // a name for this physical volume
-                        cone_logi_whole, // the mother volume
-                        false,           // no boolean ops
-                        0);              // copy number
-  G4PVPlacement *out_phys =
-      new G4PVPlacement(0,               // no rotation
-                        no_offset,       // puts face equator in right place
-                        cone_logi_out,   // the logical volume
-                        name + "_out",   // a name for this physical volume
-                        cone_logi_whole, // the mother volume
-                        false,           // no boolean ops
-                        0);              // copy number
+  G4PVPlacement *in_phys = new G4PVPlacement(0,                 // no rotation
+                                             no_offset,         // puts face equator in right place
+                                             cone_logi_in,      // the logical volume
+                                             name + "_in",      // a name for this physical volume
+                                             cone_logi_whole,   // the mother volume
+                                             false,             // no boolean ops
+                                             0);                // copy number
+  G4PVPlacement *out_phys = new G4PVPlacement(0,                // no rotation
+                                              no_offset,        // puts face equator in right place
+                                              cone_logi_out,    // the logical volume
+                                              name + "_out",    // a name for this physical volume
+                                              cone_logi_whole,  // the mother volume
+                                              false,            // no boolean ops
+                                              0);               // copy number
 
   if (fSurface) {
     new G4LogicalBorderSurface(name + "_surface1", in_phys, out_phys, fSurface);
@@ -106,8 +94,6 @@ G4ThreeVector ConeWaveguideFactory::GetPlacementOffset() {
 
 double ConeWaveguideFactory::GetZTop() { return fZTop; }
 
-double ConeWaveguideFactory::GetRadius() {
-  return std::max(fRadiusTop, fRadiusBottom);
-}
+double ConeWaveguideFactory::GetRadius() { return std::max(fRadiusTop, fRadiusBottom); }
 
-} // namespace RAT
+}  // namespace RAT

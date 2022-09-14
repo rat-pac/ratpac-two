@@ -1,11 +1,10 @@
+#include <TMessage.h>
+
 #include <RAT/Config.hh>
 #include <RAT/Log.hh>
 #include <RAT/OutNetProc.hh>
-
 #include <RAT/string_utilities.hpp>
 #include <vector>
-
-#include <TMessage.h>
 
 using namespace std;
 
@@ -13,12 +12,10 @@ namespace RAT {
 
 // utility func
 std::string to_string(const TSocket *socket) {
-  return dformat("%s:%d", socket->GetInetAddress().GetHostName(),
-                 socket->GetPort());
+  return dformat("%s:%d", socket->GetInetAddress().GetHostName(), socket->GetPort());
 }
 
-OutNetProc::OutNetProc()
-    : Processor("outnet"), fSocket(0), fVersionCheck(true) {}
+OutNetProc::OutNetProc() : Processor("outnet"), fSocket(0), fVersionCheck(true) {}
 
 OutNetProc::~OutNetProc() { delete fSocket; }
 
@@ -47,8 +44,7 @@ Processor::Result OutNetProc::DSEvent(DS::Root *ds) {
   // Send event for processing
 send_event:
   while (retries >= 0 && fSocket->SendObject(ds) == -1) {
-    warn << "outnet: Cannot send event to " << to_string(fSocket)
-         << ".  Searching for server\n";
+    warn << "outnet: Cannot send event to " << to_string(fSocket) << ".  Searching for server\n";
 
     // Find a new server
     PickServer(fHostlist);
@@ -76,15 +72,14 @@ send_event:
     if (retries > 0) {
       PickServer(fHostlist);
       retries--;
-      goto send_event; // OMG, I am going to programmer hell.
+      goto send_event;  // OMG, I am going to programmer hell.
     }
   }
 
   if (read_result > 0) {
     // It did work! Get message
     // Extract updated DS object from message
-    DS::Root *newDS =
-        dynamic_cast<DS::Root *>(msg->ReadObject(DS::Root::Class()));
+    DS::Root *newDS = dynamic_cast<DS::Root *>(msg->ReadObject(DS::Root::Class()));
 
     if (newDS == 0)
       Log::Die("outnet: Aborting run due to network error.");
@@ -107,8 +102,7 @@ void OutNetProc::PickServer(std::vector<std::string> &hostlist) {
 
   for (unsigned i = 0; i < hostlist.size(); i++) {
     std::vector<std::string> parts = split(hostlist[i], ":");
-    if (parts.size() != 2)
-      throw ParamInvalid("host", "host needs two parts - host:port");
+    if (parts.size() != 2) throw ParamInvalid("host", "host needs two parts - host:port");
 
     std::string host = parts[0];
 
@@ -125,12 +119,10 @@ void OutNetProc::PickServer(std::vector<std::string> &hostlist) {
       minPort = to_int(portParts[0]);
       maxPort = to_int(portParts[1]);
     } else
-      throw ParamInvalid("host",
-                         "port specifier should be integer or min-max range");
+      throw ParamInvalid("host", "port specifier should be integer or min-max range");
 
     // Try all specified ports on host
     for (int port = minPort; port < maxPort + 1; port++) {
-
       double load;
       int svnVersion;
       TSocket *socket = Connect(host, port, load, svnVersion);
@@ -150,17 +142,15 @@ void OutNetProc::PickServer(std::vector<std::string> &hostlist) {
 
   if (minLoadSocket) {
     info << "outnet: Using server " << to_string(minLoadSocket) << "\n";
-    info << dformat(
-        "outnet: Local GIT = %s, Remote GIT = %s, Remote load = %1.2f\n",
-        RATVERSION.c_str(), minLoadGITVersion, minLoad);
+    info << dformat("outnet: Local GIT = %s, Remote GIT = %s, Remote load = %1.2f\n", RATVERSION.c_str(),
+                    minLoadGITVersion, minLoad);
     fSocket = minLoadSocket;
   } else {
     throw ParamInvalid("host", "Could not locate a suitable server!");
   }
 }
 
-TSocket *OutNetProc::Connect(std::string host, int port, double &load,
-                             int &svnVersion) {
+TSocket *OutNetProc::Connect(std::string host, int port, double &load, int &svnVersion) {
   TSocket *socket = new TSocket(host.c_str(), port);
 
   if (socket->IsValid()) {
@@ -169,8 +159,7 @@ TSocket *OutNetProc::Connect(std::string host, int port, double &load,
     Int_t read_result = socket->Recv(msg);
 
     if (read_result == 0) {
-      warn << "outnet: Host " << to_string(socket)
-           << " has disconnected while receiving header.\n";
+      warn << "outnet: Host " << to_string(socket) << " has disconnected while receiving header.\n";
       delete socket;
       delete msg;
       return 0;
@@ -182,8 +171,7 @@ TSocket *OutNetProc::Connect(std::string host, int port, double &load,
       return 0;
     } else if (read_result == -4) {
       // Socket has no data to read.  How'd this happen?
-      warn << "outnet: No data read while receiving header from"
-           << to_string(socket) << ".\n";
+      warn << "outnet: No data read while receiving header from" << to_string(socket) << ".\n";
 
       delete socket;
       delete msg;
@@ -194,10 +182,8 @@ TSocket *OutNetProc::Connect(std::string host, int port, double &load,
       delete msg;
 
       if (fVersionCheck && svnVersion != RATVERSION) {
-        warn << "outnet: Host " << to_string(socket)
-             << " is running RAT SVN version " << svnVersion << ".\n";
-        warn << "outnet: Does not match local SVN version " << RATVERSION
-             << ".\n";
+        warn << "outnet: Host " << to_string(socket) << " is running RAT SVN version " << svnVersion << ".\n";
+        warn << "outnet: Does not match local SVN version " << RATVERSION << ".\n";
         warn << "Include /rat/procset versioncheck 0 in your macro to skip "
                 "this test.\n";
         socket->Close();
@@ -215,4 +201,4 @@ TSocket *OutNetProc::Connect(std::string host, int port, double &load,
   }
 }
 
-} // namespace RAT
+}  // namespace RAT

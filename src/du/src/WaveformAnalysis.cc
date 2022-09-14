@@ -7,9 +7,7 @@ WaveformAnalysis::WaveformAnalysis() { INVALID = 9999; }
 
 WaveformAnalysis::~WaveformAnalysis() {}
 
-double WaveformAnalysis::CalculatePedestal(std::vector<UShort_t> wfm,
-                                           UShort_t low_window,
-                                           UShort_t high_window) {
+double WaveformAnalysis::CalculatePedestal(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window) {
   /*
   Calculate the baseline in the window between low - high samples.
   */
@@ -23,9 +21,7 @@ double WaveformAnalysis::CalculatePedestal(std::vector<UShort_t> wfm,
   return pedestal;
 }
 
-double WaveformAnalysis::Interpolate(double voltage1, double voltage2,
-                                     double voltage_crossing,
-                                     double time_step) {
+double WaveformAnalysis::Interpolate(double voltage1, double voltage2, double voltage_crossing, double time_step) {
   /*
   Linearly interpolate between two samples
   */
@@ -36,14 +32,12 @@ double WaveformAnalysis::Interpolate(double voltage1, double voltage2,
   return dt;
 }
 
-void WaveformAnalysis::GetPeak(std::vector<UShort_t> wfm, double dy,
-                               double pedestal, double &peak,
+void WaveformAnalysis::GetPeak(std::vector<UShort_t> wfm, double dy, double pedestal, double &peak,
                                UShort_t &peak_sample) {
   /*
   Calculate the peak (in mV) and the corresponding sample.
   */
   for (size_t i = 0; i < wfm.size(); i++) {
-
     double voltage = (wfm[i] - pedestal) * dy;
 
     // Downward going pulse
@@ -54,9 +48,8 @@ void WaveformAnalysis::GetPeak(std::vector<UShort_t> wfm, double dy,
   }
 }
 
-UShort_t WaveformAnalysis::GetThresholdCrossing(
-    std::vector<UShort_t> wfm, double dy, double pedestal, double peak,
-    UShort_t peak_sample, double cfd_fraction, UShort_t lookback) {
+UShort_t WaveformAnalysis::GetThresholdCrossing(std::vector<UShort_t> wfm, double dy, double pedestal, double peak,
+                                                UShort_t peak_sample, double cfd_fraction, UShort_t lookback) {
   /*
    */
   UShort_t threshold_crossing_sample = 0;
@@ -64,7 +57,6 @@ UShort_t WaveformAnalysis::GetThresholdCrossing(
 
   // Start at the peak and scan backwards
   for (UShort_t i = peak_sample; i > peak_sample - lookback; i--) {
-
     double voltage = (wfm[i] - pedestal) * dy;
 
     if (voltage > voltage_crossing) {
@@ -74,18 +66,14 @@ UShort_t WaveformAnalysis::GetThresholdCrossing(
 
     // Reached the begining of the waveform
     // returned an invalid value
-    if (i == 0)
-      return INVALID;
+    if (i == 0) return INVALID;
   }
 
   return threshold_crossing_sample;
 }
 
-double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm,
-                                       UShort_t low_window,
-                                       UShort_t high_window, double dy,
-                                       double sampling_rate,
-                                       double cfd_fraction, UShort_t lookback) {
+double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window, double dy,
+                                       double sampling_rate, double cfd_fraction, UShort_t lookback) {
   /*
   Apply constant-fraction discriminator to digitized PMT waveforms.
   */
@@ -98,10 +86,10 @@ double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm,
   UShort_t peak_sample = 0;
   GetPeak(wfm, dy, pedestal, peak, peak_sample);
 
-  UShort_t threshold_crossing_sample = GetThresholdCrossing(
-      wfm, dy, pedestal, peak, peak_sample, cfd_fraction, lookback);
+  UShort_t threshold_crossing_sample =
+      GetThresholdCrossing(wfm, dy, pedestal, peak, peak_sample, cfd_fraction, lookback);
 
-  double time_step = 1.0 / sampling_rate; // in ns
+  double time_step = 1.0 / sampling_rate;  // in ns
 
   // Interpolate between the two samples
   // where the CFD threshold is crossed
@@ -114,4 +102,4 @@ double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm,
 
   return tcdf;
 }
-} // namespace RAT
+}  // namespace RAT

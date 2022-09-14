@@ -13,12 +13,13 @@
 #ifndef __RAT_DS_MC__
 #define __RAT_DS_MC__
 
+#include <TObject.h>
+#include <TTimeStamp.h>
+
 #include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/MCParticle.hh>
 #include <RAT/DS/MCSummary.hh>
 #include <RAT/DS/MCTrack.hh>
-#include <TObject.h>
-#include <TTimeStamp.h>
 #include <algorithm>
 #include <vector>
 
@@ -26,7 +27,7 @@ namespace RAT {
 namespace DS {
 
 class MC : public TObject {
-public:
+ public:
   MC() : TObject() {}
   virtual ~MC() {}
 
@@ -36,13 +37,11 @@ public:
    * Used for filtering the MCTrack list by particle type.
    */
   class ParticleNameEqualityFunctor {
-  public:
+   public:
     ParticleNameEqualityFunctor(std::string _name) : name(_name) {}
-    bool operator()(MCTrack &_track) {
-      return _track.GetParticleName() == this->name;
-    }
+    bool operator()(MCTrack &_track) { return _track.GetParticleName() == this->name; }
 
-  private:
+   private:
     std::string name;
   };
 
@@ -134,7 +133,7 @@ public:
   std::vector<MCPMT> pmt;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

@@ -6,16 +6,16 @@
 namespace RAT {
 
 class SimpleDAQProc : public Processor {
-public:
+ public:
   SimpleDAQProc();
   virtual ~SimpleDAQProc(){};
   virtual Processor::Result DSEvent(DS::Root *ds);
 
-protected:
+ protected:
   int fEventCounter;
   std::vector<double> fSPECharge;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

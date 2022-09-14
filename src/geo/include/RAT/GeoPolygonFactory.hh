@@ -5,11 +5,11 @@
 
 namespace RAT {
 class GeoPolygonFactory : public GeoSolidFactory {
-public:
+ public:
   GeoPolygonFactory() : GeoSolidFactory("polygon"){};
   virtual G4VSolid *ConstructSolid(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

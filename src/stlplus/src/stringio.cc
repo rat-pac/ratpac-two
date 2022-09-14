@@ -6,6 +6,7 @@
 
   ------------------------------------------------------------------------------*/
 #include "RAT/stringio.hpp"
+
 #include "RAT/debug.hpp"
 #include "RAT/os_fixes.hpp"
 
@@ -54,12 +55,8 @@ const std::string &istext::get_string(void) const {
 
 isbuff::isbuff(const std::string &d) : m_data(d), m_index(0) {}
 
-int isbuff::peek(void) {
-  return m_index >= m_data.size() ? -1 : (int)(unsigned char)m_data[m_index];
-}
+int isbuff::peek(void) { return m_index >= m_data.size() ? -1 : (int)(unsigned char)m_data[m_index]; }
 
-int isbuff::get(void) {
-  return m_index >= m_data.size() ? -1 : (int)(unsigned char)m_data[m_index++];
-}
+int isbuff::get(void) { return m_index >= m_data.size() ? -1 : (int)(unsigned char)m_data[m_index++]; }
 
 ////////////////////////////////////////////////////////////////////////////////

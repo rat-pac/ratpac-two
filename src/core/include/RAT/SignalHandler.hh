@@ -30,7 +30,7 @@
 namespace RAT {
 
 class SignalHandler {
-public:
+ public:
   /** Initialize signal handler.
    *
    *  After this call, this class will catch SIGINT.
@@ -55,7 +55,7 @@ public:
    */
   static void SigInt();
 
-private:
+ private:
   /** This class cannot be instantiated. */
   SignalHandler(){/* Do nothing */};
 
@@ -63,6 +63,6 @@ private:
   static bool sigintPending;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

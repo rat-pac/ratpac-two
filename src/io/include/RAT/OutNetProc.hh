@@ -1,16 +1,16 @@
 #ifndef __RAT_OutNetProc__
 #define __RAT_OutNetProc__
 
+#include <TSocket.h>
+
 #include <RAT/Processor.hh>
 #include <globals.hh>
 #include <vector>
 
-#include <TSocket.h>
-
 namespace RAT {
 
 class OutNetProc : public Processor {
-public:
+ public:
   OutNetProc();
   virtual ~OutNetProc();
 
@@ -26,7 +26,7 @@ public:
   // default is assumed
   virtual void SetI(std::string param, int value);
 
-protected:
+ protected:
   void PickServer(std::vector<std::string> &hostlist);
   TSocket *Connect(std::string host, int port, double &load, int &svnVersion);
 
@@ -35,6 +35,6 @@ protected:
   std::vector<std::string> fHostlist;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -4,10 +4,9 @@
 // 04-Jan-2006 WGS: Drag this code into the 21st century: use CLHEP,
 // use strings, use STL.
 
-#include <RAT/BetaFunction.hh>
-
 #include <CLHEP/Vector/LorentzVector.h>
 
+#include <RAT/BetaFunction.hh>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -19,7 +18,7 @@ namespace RAT {
 static const double N_A = 6.022e+23;
 
 class DecayChain {
-public:
+ public:
   // Structure to hold (particle ID, four-vector):
   typedef struct {
     int ID;
@@ -33,8 +32,7 @@ public:
   void Reset();
   void Show();
 
-  void AddElement(const std::string Name, int iLocation = 1,
-                  int iDecay = DecayBeta, double tau = 1., double wt = 1.);
+  void AddElement(const std::string Name, int iLocation = 1, int iDecay = DecayBeta, double tau = 1., double wt = 1.);
   void RemoveElement(int iBranch);
 
   void SetElementName(int iBranch, const std::string Name);
@@ -51,15 +49,9 @@ public:
   int GetElementDecay(int iBranch);
   double GetElementWt(int iBranch);
   double GetLifetime(int iBranch);
-  inline void SetInMiddleChain(bool inMiddle = false) {
-    fInMiddleChain = inMiddle;
-  };
-  inline void SetAlphaDecayStart(bool alphaStart = false) {
-    fAlphaDecayStart = alphaStart;
-  };
-  inline void SetGammaDecayStart(bool gammaStart = false) {
-    fGammaDecayStart = gammaStart;
-  };
+  inline void SetInMiddleChain(bool inMiddle = false) { fInMiddleChain = inMiddle; };
+  inline void SetAlphaDecayStart(bool alphaStart = false) { fAlphaDecayStart = alphaStart; };
+  inline void SetGammaDecayStart(bool gammaStart = false) { fGammaDecayStart = gammaStart; };
 
   void GenerateDecayElement(int iBranch);
   void GenerateDecayElement(const std::string iElement);
@@ -97,13 +89,9 @@ public:
   inline void SetFileName(const std::string Name) { inputFileName = Name; }
   inline void SetChainName(const std::string Name) { ChainName = Name; }
   inline void SetEquilibrium(bool iEq = true) { isEquilibrium = iEq; };
-  inline void SelectParent(const std::string iElement = "ALL") {
-    oneParent = iElement;
-  }
+  inline void SelectParent(const std::string iElement = "ALL") { oneParent = iElement; }
   inline void SetNGenerated(int nP) { NumberOfParticles = nP; };
-  inline void IncludeDaughter(bool iSelect = true) {
-    CreateDaughter = iSelect;
-  };
+  inline void IncludeDaughter(bool iSelect = true) { CreateDaughter = iSelect; };
 
   inline bool GetEquilibrium() { return isEquilibrium; };
 
@@ -114,21 +102,17 @@ public:
   inline const std::string GetFileName() { return inputFileName; };
   inline const std::string GetChainName() { return ChainName; };
 
-private:
-  inline void SetParentName(int iParent, const std::string name) {
-    ParentName[iParent] = name;
-  }
-  inline void SetDaughterName(int iDaughter, const std::string name) {
-    DaughterName[iDaughter] = name;
-  }
+ private:
+  inline void SetParentName(int iParent, const std::string name) { ParentName[iParent] = name; }
+  inline void SetDaughterName(int iDaughter, const std::string name) { DaughterName[iDaughter] = name; }
 
-private:
+ private:
   bool isVerbose;
   bool isEquilibrium;
   bool isChainElement;
-  bool fInMiddleChain;   // to start chain at the isotope defined in *.mac
-  bool fAlphaDecayStart; // to start chain at the isotope with alpha decay
-  bool fGammaDecayStart; // to start chain at the isotope with gamma decay
+  bool fInMiddleChain;    // to start chain at the isotope defined in *.mac
+  bool fAlphaDecayStart;  // to start chain at the isotope with alpha decay
+  bool fGammaDecayStart;  // to start chain at the isotope with gamma decay
 
   std::string ChainName;
 
@@ -159,6 +143,6 @@ private:
   std::map<size_t, ParticleInfo_t> theParticleInfo;
 };
 
-} // end namespace RAT
+}  // end namespace RAT
 
 #endif

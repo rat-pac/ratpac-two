@@ -2,6 +2,7 @@
 #define __RAT_GaussianRatioPDF__
 
 #include <TMath.h>
+
 #include <cmath>
 
 namespace RAT {
@@ -19,6 +20,6 @@ namespace RAT {
 
 Double_t GaussianRatioPDF(Double_t *x, Double_t *par);
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

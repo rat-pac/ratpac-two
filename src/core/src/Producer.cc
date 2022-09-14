@@ -11,4 +11,4 @@ ProcBlock *Producer::GetMainBlock() { return mainBlock; }
 
 void Producer::SetMainBlock(ProcBlock *block) { mainBlock = block; }
 
-} // namespace RAT
+}  // namespace RAT

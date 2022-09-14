@@ -5,12 +5,12 @@
 
 namespace RAT {
 class GeoTubeArrayFactory : public GeoSolidArrayFactoryBase {
-public:
+ public:
   GeoTubeArrayFactory() : GeoSolidArrayFactoryBase("tubearray"){};
   using GeoSolidArrayFactoryBase::Construct;
   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

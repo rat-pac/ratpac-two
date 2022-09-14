@@ -23,7 +23,7 @@ namespace RAT {
 namespace DS {
 
 class MCPhoton : public TObject {
-public:
+ public:
   MCPhoton() : TObject(), isDarkHit(false) {}
   virtual ~MCPhoton() {}
 
@@ -33,9 +33,7 @@ public:
 
   /** Time of pulse arriving at front-end electronics. */
   virtual Double_t GetFrontEndTime() const { return frontEndTime; }
-  virtual void SetFrontEndTime(Double_t _frontEndTime) {
-    frontEndTime = _frontEndTime;
-  }
+  virtual void SetFrontEndTime(Double_t _frontEndTime) { frontEndTime = _frontEndTime; }
 
   /** Location of photon hit in local PMT coordinates (mm). */
   virtual TVector3 GetPosition() const { return pos; }
@@ -76,12 +74,8 @@ public:
   virtual void SetProcess(const std::string &_process) { process = _process; }
 
   /** Operator overload **/
-  bool operator<(const MCPhoton &mcp) const {
-    return (frontEndTime < mcp.frontEndTime);
-  }
-  bool operator>(const MCPhoton &mcp) const {
-    return (frontEndTime > mcp.frontEndTime);
-  }
+  bool operator<(const MCPhoton &mcp) const { return (frontEndTime < mcp.frontEndTime); }
+  bool operator>(const MCPhoton &mcp) const { return (frontEndTime > mcp.frontEndTime); }
 
   ClassDef(MCPhoton, 3)
 
@@ -98,7 +92,7 @@ public:
   std::string process;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

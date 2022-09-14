@@ -22,10 +22,10 @@
 #include <config.h>
 #endif
 
+#include <stdio.h>
+
 #include "getopt.h"
 #include "getopt_int.h"
-
-#include <stdio.h>
 
 /* Comment out all this code if we are using the GNU C Library, and are not
    actually compiling the library itself.  This code is part of the GNU C
@@ -57,13 +57,12 @@
 // version where available
 namespace RAT {
 
-int getopt_long(int argc, char *const *argv, const char *options,
-                const struct option *long_options, int *opt_index) __THROW {
+int getopt_long(int argc, char *const *argv, const char *options, const struct option *long_options,
+                int *opt_index) __THROW {
   return _getopt_internal(argc, argv, options, long_options, opt_index, 0);
 }
 
-int _getopt_long_r(int argc, char *const *argv, const char *options,
-                   const struct option *long_options, int *opt_index,
+int _getopt_long_r(int argc, char *const *argv, const char *options, const struct option *long_options, int *opt_index,
                    struct _getopt_data *d) {
   return _getopt_internal_r(argc, argv, options, long_options, opt_index, 0, d);
 }
@@ -73,16 +72,14 @@ int _getopt_long_r(int argc, char *const *argv, const char *options,
    but does match a short option, it is parsed as a short option
    instead.  */
 
-int getopt_long_only(int argc, char *const *argv, const char *options,
-                     const struct option *long_options,
+int getopt_long_only(int argc, char *const *argv, const char *options, const struct option *long_options,
                      int *opt_index) __THROW {
   return _getopt_internal(argc, argv, options, long_options, opt_index, 1);
 }
 
-int _getopt_long_only_r(int argc, char *const *argv, const char *options,
-                        const struct option *long_options, int *opt_index,
-                        struct _getopt_data *d) {
+int _getopt_long_only_r(int argc, char *const *argv, const char *options, const struct option *long_options,
+                        int *opt_index, struct _getopt_data *d) {
   return _getopt_internal_r(argc, argv, options, long_options, opt_index, 1, d);
 }
 
-} // namespace RAT
+}  // namespace RAT

@@ -5,21 +5,20 @@
 
 #include <RAT/VertexGen_CRY.hh>
 // #include <RAT/CRYGenMessenger.hh>
-#include <RAT/DB.hh>
-#include <RAT/EventInfo.hh>
-
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+#include <TTimeStamp.h>
+
 #include <G4ParticleDefinition.hh>
 #include <G4ParticleTable.hh>
 #include <G4ThreeVector.hh>
+#include <RAT/DB.hh>
+#include <RAT/EventInfo.hh>
 #include <Randomize.hh>
-#include <TTimeStamp.h>
 #include <string>
 
 namespace RAT {
-VertexGen_CRY::VertexGen_CRY(const char *arg_dbname)
-    : GLG4VertexGen(arg_dbname) {
+VertexGen_CRY::VertexGen_CRY(const char *arg_dbname) : GLG4VertexGen(arg_dbname) {
   // messenger
   DBLinkPtr crydb = DB::Get()->GetLink("CRY");
   // Types of secondary particles
@@ -33,8 +32,8 @@ VertexGen_CRY::VertexGen_CRY(const char *arg_dbname)
   nParticlesMin = crydb->GetI("nParticlesMin");
   nParticlesMax = crydb->GetI("nParticlesMax");
   // Detector parameters
-  altitude = crydb->GetD("altitude"); // Only allow 0, 2100, 11300
-  latitude = crydb->GetD("latitude"); // -90 to 90
+  altitude = crydb->GetD("altitude");  // Only allow 0, 2100, 11300
+  latitude = crydb->GetD("latitude");  // -90 to 90
   date = crydb->GetS("date");
   // Lateral size of interest (meters)
   // Particles are return from a square plane of n x n meters, where n can
@@ -45,8 +44,7 @@ VertexGen_CRY::VertexGen_CRY(const char *arg_dbname)
   setupString.append("returnNeutrons " + std::to_string(returnNeutrons) + " ");
   setupString.append("returnProtons " + std::to_string(returnProtons) + " ");
   setupString.append("returnGammas " + std::to_string(returnGammas) + " ");
-  setupString.append("returnElectrons " + std::to_string(returnElectrons) +
-                     " ");
+  setupString.append("returnElectrons " + std::to_string(returnElectrons) + " ");
   setupString.append("returnMuons " + std::to_string(returnMuons) + " ");
   setupString.append("returnPions " + std::to_string(returnPions) + " ");
   setupString.append("nParticlesMin " + std::to_string(nParticlesMin) + " ");
@@ -68,16 +66,14 @@ VertexGen_CRY::VertexGen_CRY(const char *arg_dbname)
   int year = stoi(date.substr(0, date.find("-")));
   startTime.Set(year, month, day, 0, 0, 0, 0, 1, 0);
 }
-void VertexGen_CRY::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx,
-                                          G4double dt) {
+void VertexGen_CRY::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, G4double dt) {
   int nParticles = 0;
   std::vector<CRYParticle *> *cryvector = new std::vector<CRYParticle *>;
   // Now the interesting bit
   generator->genEvent(cryvector);
-  double timeSimulated = generator->timeSimulated(); // In seconds
+  double timeSimulated = generator->timeSimulated();  // In seconds
   int seconds = static_cast<int>(floor(timeSimulated));
-  int nanoseconds =
-      static_cast<int>((timeSimulated - floor(timeSimulated)) * 1e9);
+  int nanoseconds = static_cast<int>((timeSimulated - floor(timeSimulated)) * 1e9);
   TTimeStamp eventTime;
   eventTime.SetSec(startTime.GetSec() + seconds);
   eventTime.SetNanoSec(nanoseconds);
@@ -98,8 +94,7 @@ void VertexGen_CRY::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx,
     double time = cryparticle->t();
     G4ThreeVector showerPosition(x, y, z);
     // construct a 4-momentum
-    G4ParticleDefinition *pdef =
-        G4ParticleTable::GetParticleTable()->FindParticle(PDGid);
+    G4ParticleDefinition *pdef = G4ParticleTable::GetParticleTable()->FindParticle(PDGid);
     double mass = pdef->GetPDGMass();
     double norm = sqrt(u * u + v * v + w * w);
     double totalEnergy = ke + mass;
@@ -109,8 +104,7 @@ void VertexGen_CRY::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx,
     G4ThreeVector position = dx + showerPosition;
     // Geant-4 Particle
     G4PrimaryVertex *vertex = new G4PrimaryVertex(position, time);
-    G4PrimaryParticle *g4particle =
-        new G4PrimaryParticle(pdef, px, py, pz, totalEnergy);
+    G4PrimaryParticle *g4particle = new G4PrimaryParticle(pdef, px, py, pz, totalEnergy);
     vertex->SetPrimary(g4particle);
     event->AddPrimaryVertex(vertex);
   }
@@ -128,4 +122,4 @@ G4String VertexGen_CRY::GetState() {
   return returnvalue;
 }
 
-} // namespace RAT
+}  // namespace RAT

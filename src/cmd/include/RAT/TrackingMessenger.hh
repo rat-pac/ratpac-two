@@ -10,14 +10,14 @@
 namespace RAT {
 
 class TrackingMessenger : public G4UImessenger {
-public:
+ public:
   TrackingMessenger();
   ~TrackingMessenger();
 
   G4String GetCurrentValue(G4UIcommand *command);
   void SetNewValue(G4UIcommand *command, G4String newValue);
 
-protected:
+ protected:
   G4UIcmdWithABool *FillPointContCmd;
   G4UIcmdWithAString *storeParticleTrajCmd;
   G4UIcmdWithAString *discardParticleTrajCmd;
@@ -26,6 +26,6 @@ protected:
   G4UIcmdWithABool *storeOpticalTrackIDCmd;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

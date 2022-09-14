@@ -17,8 +17,7 @@ class GLG4PosGen;
 namespace RAT {
 
 class GdGen : public GLG4Gen {
-
-public:
+ public:
   GdGen();
   virtual ~GdGen();
 
@@ -32,7 +31,7 @@ public:
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
 
-protected:
+ protected:
   // Generator initialization, specified by the user.
   G4String stateStr;
 
@@ -53,6 +52,6 @@ protected:
   int theMax;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_GdGen_h
+#endif  // RAT_GdGen_h

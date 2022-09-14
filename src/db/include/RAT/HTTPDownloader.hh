@@ -19,7 +19,7 @@ typedef void CURL;
 namespace RAT {
 
 class HTTPDownloader {
-public:
+ public:
   HTTPDownloader();
   ~HTTPDownloader();
 
@@ -30,7 +30,7 @@ public:
   /** Fetch the file at the given url */
   std::string Fetch(const std::string &url);
 
-protected:
+ protected:
   void SetCurlOpts();
 
   CURL *handle;
@@ -38,6 +38,6 @@ protected:
   std::ostringstream contents;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

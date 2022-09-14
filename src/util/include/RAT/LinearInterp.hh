@@ -5,15 +5,12 @@
 
 namespace RAT {
 
-template <class NumType> class LinearInterp {
-public:
+template <class NumType>
+class LinearInterp {
+ public:
   LinearInterp() { npoints = 0; };
-  LinearInterp(int _npoints, const NumType _x[], const NumType _y[]) {
-    Set(_npoints, _x, _y);
-  };
-  LinearInterp(const std::vector<NumType> &_x, const std::vector<NumType> &_y) {
-    Set(_x, _y);
-  };
+  LinearInterp(int _npoints, const NumType _x[], const NumType _y[]) { Set(_npoints, _x, _y); };
+  LinearInterp(const std::vector<NumType> &_x, const std::vector<NumType> &_y) { Set(_x, _y); };
 
   void Set(int _npoints, const NumType _x[], const NumType _y[]);
   void Set(const std::vector<NumType> &_x, const std::vector<NumType> &_y) {
@@ -29,7 +26,7 @@ public:
   int Points() { return npoints; };
 
   class RangeError {
-  public:
+   public:
     RangeError(const NumType _xlow, const NumType _xhigh, const NumType _xeval)
         : xlow(_xlow), xhigh(_xhigh), xeval(_xeval){/* no-op */};
     bool operator==(const RangeError &other) const {
@@ -38,7 +35,7 @@ public:
     NumType xlow, xhigh, xeval;
   };
 
-protected:
+ protected:
   int LowerElement(const NumType xeval) const;
 
   int npoints;
@@ -47,6 +44,6 @@ protected:
 
 #include "../LinearInterp.icc"
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

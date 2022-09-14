@@ -1,3 +1,5 @@
+#include <TVector3.h>
+
 #include <RAT/DS/EV.hh>
 #include <RAT/DS/FitResult.hh>
 #include <RAT/DS/PMT.hh>
@@ -6,7 +8,6 @@
 #include <RAT/DS/RunStore.hh>
 #include <RAT/FitCentroidProc.hh>
 #include <RAT/Processor.hh>
-#include <TVector3.h>
 #include <cmath>
 #include <string>
 
@@ -57,4 +58,4 @@ Processor::Result FitCentroidProc::Event(DS::Root *ds, DS::EV *ev) {
   return Processor::OK;
 }
 
-} // namespace RAT
+}  // namespace RAT

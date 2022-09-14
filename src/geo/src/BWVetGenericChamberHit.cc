@@ -4,6 +4,7 @@
 //
 
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <G4Circle.hh>
 #include <G4Colour.hh>
 #include <G4VVisManager.hh>
@@ -23,9 +24,7 @@ BWVetGenericChamberHit::BWVetGenericChamberHit(G4int i, G4double t) {
 
 BWVetGenericChamberHit::~BWVetGenericChamberHit() { ; }
 
-BWVetGenericChamberHit::BWVetGenericChamberHit(
-    const BWVetGenericChamberHit &right)
-    : G4VHit() {
+BWVetGenericChamberHit::BWVetGenericChamberHit(const BWVetGenericChamberHit &right) : G4VHit() {
   id = right.id;
   time = right.time;
   pos = right.pos;
@@ -33,8 +32,7 @@ BWVetGenericChamberHit::BWVetGenericChamberHit(
   pLogV = right.pLogV;
 }
 
-const BWVetGenericChamberHit &
-BWVetGenericChamberHit::operator=(const BWVetGenericChamberHit &right) {
+const BWVetGenericChamberHit &BWVetGenericChamberHit::operator=(const BWVetGenericChamberHit &right) {
   id = right.id;
   time = right.time;
   pos = right.pos;
@@ -43,10 +41,7 @@ BWVetGenericChamberHit::operator=(const BWVetGenericChamberHit &right) {
   return *this;
 }
 
-int BWVetGenericChamberHit::operator==(
-    const BWVetGenericChamberHit & /*right*/) const {
-  return 0;
-}
+int BWVetGenericChamberHit::operator==(const BWVetGenericChamberHit & /*right*/) const { return 0; }
 
 void BWVetGenericChamberHit::Draw() {
   G4VVisManager *pVVisManager = G4VVisManager::GetConcreteInstance();
@@ -54,8 +49,7 @@ void BWVetGenericChamberHit::Draw() {
     G4Transform3D trans(rot.inverse(), pos);
     G4VisAttributes attribs;
     const G4VisAttributes *pVA = pLogV->GetVisAttributes();
-    if (pVA)
-      attribs = *pVA;
+    if (pVA) attribs = *pVA;
     G4Colour colour(0., 1., 1.);
     attribs.SetColour(colour);
     attribs.SetForceSolid(true);
@@ -65,9 +59,7 @@ void BWVetGenericChamberHit::Draw() {
 
 void BWVetGenericChamberHit::Print() {
   int deb = 0;
-  if (deb != 0)
-    G4cout << "  BWVetGenericChamber[" << id << "] " << time / CLHEP::ns
-           << " (nsec)" << G4endl;
+  if (deb != 0) G4cout << "  BWVetGenericChamber[" << id << "] " << time / CLHEP::ns << " (nsec)" << G4endl;
 }
 
-} // namespace RAT
+}  // namespace RAT

@@ -9,42 +9,39 @@
 // GLG4PrimaryGeneratorAction
 ////////////////////////////////////////////////////////////////
 
-#include "G4VUserPrimaryGeneratorAction.hh" // for user primary vertex gen.
-#include "GLG4GenList.hh"
 #include <TTimeStamp.h>
+
+#include "G4VUserPrimaryGeneratorAction.hh"  // for user primary vertex gen.
+#include "GLG4GenList.hh"
 
 class GLG4PrimaryGeneratorMessenger;
 class G4Event;
 class G4Track;
 
 class GLG4PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
-public:
+ public:
   GLG4PrimaryGeneratorAction();
   ~GLG4PrimaryGeneratorAction();
 
   void AddGenerator(GLG4Gen *gen);
   void ClearGenerators(void);
-  void GeneratePrimaries(G4Event *argEvent); // generate primary particles
+  void GeneratePrimaries(G4Event *argEvent);  // generate primary particles
 
   void SetRunUTC(const TTimeStamp &_utc) { runUTC = _utc; };
   TTimeStamp GetRunUTC() const { return runUTC; };
 
   double GetUniversalTime() { return myUniversalTime; }
 
-  double GetUniversalTimeSincePriorEvent() {
-    return myUniversalTimeSincePriorEvent;
-  }
+  double GetUniversalTimeSincePriorEvent() { return myUniversalTimeSincePriorEvent; }
 
   double GetEventWindow() { return myEventWindow; }
   void SetEventWindow(double argEventWindow);
 
-  static GLG4PrimaryGeneratorAction *GetTheGLG4PrimaryGeneratorAction() {
-    return theGLG4PrimaryGeneratorAction;
-  }
+  static GLG4PrimaryGeneratorAction *GetTheGLG4PrimaryGeneratorAction() { return theGLG4PrimaryGeneratorAction; }
 
   void DeferTrackToLaterEvent(const G4Track *track);
 
-protected:
+ protected:
   GLG4PrimaryGeneratorMessenger *myMessenger;
 
   TTimeStamp runUTC;

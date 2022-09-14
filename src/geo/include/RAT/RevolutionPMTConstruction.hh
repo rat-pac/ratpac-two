@@ -17,18 +17,18 @@ namespace RAT {
 struct RevolutionPMTConstructionParams {
   RevolutionPMTConstructionParams() {
     invisible = false;
-    efficiencyCorrection = 1.0; // default to 1.0 for no correction
+    efficiencyCorrection = 1.0;  // default to 1.0 for no correction
     photocathode_MINrho = 0.0;
     photocathode_MAXrho = 0.0;
   };
 
   bool invisible;
 
-  double dynodeRadius;        // mm
-  double dynodeTop;           // mm
-  double dynodeHeight;        // mm
-  double photocathode_MINrho; // mm
-  double photocathode_MAXrho; // mm
+  double dynodeRadius;         // mm
+  double dynodeTop;            // mm
+  double dynodeHeight;         // mm
+  double photocathode_MINrho;  // mm
+  double photocathode_MAXrho;  // mm
 
   std::vector<double> rInner, zInner, rEdge, zEdge;
 
@@ -46,19 +46,17 @@ struct RevolutionPMTConstructionParams {
 
 // Construction for PMTs based on G4Polycon
 class RevolutionPMTConstruction : public PMTConstruction {
-public:
+ public:
   RevolutionPMTConstruction(DBLinkPtr params, G4LogicalVolume *mother);
   virtual ~RevolutionPMTConstruction() {}
 
   virtual G4LogicalVolume *BuildVolume(const std::string &prefix);
   virtual G4VSolid *BuildSolid(const std::string &prefix);
-  virtual G4PVPlacement *PlacePMT(G4RotationMatrix *pmtrot,
-                                  G4ThreeVector pmtpos, const std::string &name,
-                                  G4LogicalVolume *logi_pmt,
-                                  G4VPhysicalVolume *mother_phys,
-                                  bool booleanSolid, int copyNo);
+  virtual G4PVPlacement *PlacePMT(G4RotationMatrix *pmtrot, G4ThreeVector pmtpos, const std::string &name,
+                                  G4LogicalVolume *logi_pmt, G4VPhysicalVolume *mother_phys, bool booleanSolid,
+                                  int copyNo);
 
-protected:
+ protected:
   G4LogicalVolume *body_log;
 
   G4PVPlacement *inner1_phys;
@@ -69,6 +67,6 @@ protected:
   RevolutionPMTConstructionParams fParams;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

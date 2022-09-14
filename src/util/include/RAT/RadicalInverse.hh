@@ -17,6 +17,6 @@ inline double RadicalInverse(int n, int base) {
   return val;
 }
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif
