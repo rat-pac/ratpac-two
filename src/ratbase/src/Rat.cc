@@ -1,19 +1,15 @@
+#include <TRandom.h>
 #include <sys/resource.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
-//
+
 #include <G4UIExecutive.hh>
 #include <G4UImanager.hh>
 #include <G4UItcsh.hh>
 #include <G4UIterminal.hh>
 #include <G4VisExecutive.hh>
-#include <Randomize.hh>
-#include <globals.hh>
-//
-//// time.h must come after Randomize.hh on RedHat 7.3
-#include <time.h>
-//
 #include <RAT/Config.hh>
 #include <RAT/InNetProducer.hh>
 #include <RAT/InROOTProducer.hh>
@@ -22,13 +18,12 @@
 #include <RAT/ProcBlock.hh>
 #include <RAT/ProcBlockManager.hh>
 #include <RAT/PythonProc.hh>
+#include <RAT/Rat.hh>
 #include <RAT/RunManager.hh>
 #include <RAT/SignalHandler.hh>
 #include <RAT/TrackingMessenger.hh>
-//#include <getopt.h>
-#include <TRandom.h>
-
-#include <RAT/Rat.hh>
+#include <Randomize.hh>
+#include <globals.hh>
 #include <string>
 
 namespace RAT {
@@ -116,7 +111,7 @@ void Rat::Begin() {
   if (this->seed == -1) this->seed = start_time ^ (pid << 16);
   detail << "Seeding random number generator: " << this->seed << newline;
   CLHEP::HepRandom::setTheSeed(this->seed);
-  // Root ...
+  // Root ... should not be used
   gRandom->SetSeed(this->seed);
 
   int dbstatus = rdb->LoadDefaults();

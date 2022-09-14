@@ -10,9 +10,7 @@ add_library(util OBJECT
         src/Sampling.cc
         src/SilenceRooFitBanner.cc
         src/SimpsIntegral.cc
-        src/StringUtil.cc
-        src/getopt.cc
-        src/getopt1.cc)
+        src/StringUtil.cc)
 
 # Set our include directories
 target_include_directories(util PUBLIC
