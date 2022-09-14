@@ -7,7 +7,6 @@ namespace RAT {
 class GeoPolyArrayFactory : public GeoSolidArrayFactoryBase {
  public:
   GeoPolyArrayFactory() : GeoSolidArrayFactoryBase("polygonarray"){};
-  using GeoSolidArrayFactoryBase::Construct;
   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
 };
 

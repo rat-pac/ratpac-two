@@ -11,8 +11,6 @@
 #include <RAT/Log.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 std::map<std::string, GeoFactory *> GeoFactory::fFactoryMap;
@@ -27,13 +25,13 @@ G4VPhysicalVolume *GeoFactory::ConstructWithFactory(const std::string &name, DBL
 }
 
 GeoFactory::GeoFactory(const std::string &name) {
-  cout << "Registering " << name << endl;
+  std::cout << "Registering " << name << std::endl;
   GeoFactory::Register(name, this);
 }
 
 void GeoFactory::SetSensitive(G4LogicalVolume *logi, DBLinkPtr table) {
   try {
-    string sensitive_detector = table->GetS("sensitive_detector");
+    std::string sensitive_detector = table->GetS("sensitive_detector");
     G4SDManager *sdman = G4SDManager::GetSDMpointer();
     G4VSensitiveDetector *sd = sdman->FindSensitiveDetector(sensitive_detector);
     if (sd)
@@ -47,7 +45,7 @@ void GeoFactory::SetSensitive(G4LogicalVolume *logi, DBLinkPtr table) {
 G4LogicalVolume *GeoFactory::FindMother(const std::string mother_name) {
   G4LogicalVolumeStore *store = G4LogicalVolumeStore::GetInstance();
 
-  for (vector<G4LogicalVolume *>::iterator i_volume = store->begin(); i_volume != store->end(); ++i_volume) {
+  for (std::vector<G4LogicalVolume *>::iterator i_volume = store->begin(); i_volume != store->end(); ++i_volume) {
     G4LogicalVolume *testvolume = *i_volume;
     // Cast to G4String to avoid ambiguious overload
     if (testvolume->GetName() == G4String(mother_name)) return testvolume;
@@ -59,7 +57,7 @@ G4LogicalVolume *GeoFactory::FindMother(const std::string mother_name) {
 G4VPhysicalVolume *GeoFactory::FindPhysMother(const std::string mother_name) {
   G4PhysicalVolumeStore *store = G4PhysicalVolumeStore::GetInstance();
 
-  for (vector<G4VPhysicalVolume *>::iterator i_volume = store->begin(); i_volume != store->end(); ++i_volume) {
+  for (std::vector<G4VPhysicalVolume *>::iterator i_volume = store->begin(); i_volume != store->end(); ++i_volume) {
     G4VPhysicalVolume *testvolume = *i_volume;
     // Cast to G4String to avoid ambiguious overload
     if (testvolume->GetName() == G4String(mother_name)) return testvolume;
@@ -70,13 +68,13 @@ G4VPhysicalVolume *GeoFactory::FindPhysMother(const std::string mother_name) {
 
 G4VPhysicalVolume *GeoFactory::ConstructPhysicalVolume(G4LogicalVolume *logi, G4LogicalVolume *mother,
                                                        DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
   G4VPhysicalVolume *pv;
 
   // optional orienation and rotation, default is neither
   G4RotationMatrix *rotation = new G4RotationMatrix();
   try {
-    const vector<double> &orientvector = table->GetDArray("orientation");
+    const std::vector<double> &orientvector = table->GetDArray("orientation");
     G4ThreeVector soliddir;
     double angle_y = 0;
     double angle_x = 0;
@@ -93,7 +91,7 @@ G4VPhysicalVolume *GeoFactory::ConstructPhysicalVolume(G4LogicalVolume *logi, G4
   };
 
   try {
-    const vector<double> &rotvector = table->GetDArray("rotation");
+    const std::vector<double> &rotvector = table->GetDArray("rotation");
     rotation->rotateX(rotvector[0] * CLHEP::deg);
     rotation->rotateY(rotvector[1] * CLHEP::deg);
     rotation->rotateZ(rotvector[2] * CLHEP::deg);
@@ -103,7 +101,7 @@ G4VPhysicalVolume *GeoFactory::ConstructPhysicalVolume(G4LogicalVolume *logi, G4
   // optional, default is position at center
   G4ThreeVector position(0.0, 0.0, 0.0);
   try {
-    const vector<double> &posvector = table->GetDArray("position");
+    const std::vector<double> &posvector = table->GetDArray("position");
     position.setX(posvector[0] * CLHEP::mm);
     position.setY(posvector[1] * CLHEP::mm);
     position.setZ(posvector[2] * CLHEP::mm);
@@ -130,11 +128,11 @@ G4VPhysicalVolume *GeoFactory::ConstructPhysicalVolume(G4LogicalVolume *logi, G4
 
 G4VPhysicalVolume *GeoFactory::ConstructPhysicalReplica(G4LogicalVolume *logi, G4LogicalVolume *mother,
                                                         DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
   G4VPhysicalVolume *pv;
 
   int replicas = table->GetI("replicas");
-  string axis_str = table->GetS("replica_axis");
+  std::string axis_str = table->GetS("replica_axis");
   EAxis axis = kXAxis;
 
   if (axis_str == "x")

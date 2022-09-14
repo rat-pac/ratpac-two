@@ -28,7 +28,7 @@ namespace RAT {
 double AmBeSource::massNeutron = 0.;  // allocate storage for static variable
 
 AmBeSource::AmBeSource() {
-  // Verify that all maps and vectors are empty.
+  // Verify that all std::maps and std::vectors are empty.
   Nneutron = 0;
   Ngamma = 0;
   neutronE.clear();
@@ -95,9 +95,9 @@ AmBeSource::AmBeSource() {
   //
   for (int nn = 0; nn < Nneutron; nn++) {
     double neutronKE = fGenerate->shoot() * (fhigh - flow) + flow;
-    // 	  G4cout << "neutronKE = " << neutronKE*CLHEP::MeV << G4endl;
+    // 	  std::cout << "neutronKE = " << neutronKE*CLHEP::MeV << std::endl;
     double energy = massNeutron + neutronKE;
-    // 	  G4cout << "energy = " << energy*CLHEP::MeV << G4endl;
+    // 	  std::cout << "energy = " << energy*CLHEP::MeV << std::endl;
     // Generate momentum direction uniformly in phi and cos(theta).
     double phi = CLHEP::RandFlat::shoot(0., M_PI);
     double cosTheta = CLHEP::RandFlat::shoot(-1., 1.);

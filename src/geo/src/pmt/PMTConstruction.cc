@@ -14,8 +14,6 @@
 #include <RAT/ToroidalPMTConstruction.hh>
 #include <algorithm>
 
-using namespace std;
-
 namespace RAT {
 
 PMTConstruction *PMTConstruction::NewConstruction(DBLinkPtr table, G4LogicalVolume *mother) {

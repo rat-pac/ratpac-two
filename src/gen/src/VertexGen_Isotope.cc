@@ -54,14 +54,14 @@ void VertexGen_Isotope::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx,
 void VertexGen_Isotope::SetState(G4String newValues) {
   if (newValues.length() == 0) {
     // print help and current state
-    G4cout << "Current state of this VertexGen_Isotope:\n"
-           << " \"" << GetState() << "\"\n"
-           << G4endl;
-    G4cout << "Format of argument to VertexGen_Isotope::SetState: \n"
-           << " \"pname  specname  (Elo Ehi)\"\n"
-           << " pname = particle name \n"
-           << " specname = Isotope name as given in ratdb \n"
-           << " Elo Ehi = optional limits on energy range of generated particles " << G4endl;
+    std::cout << "Current state of this VertexGen_Isotope:\n"
+              << " \"" << GetState() << "\"\n"
+              << std::endl;
+    std::cout << "Format of argument to VertexGen_Isotope::SetState: \n"
+              << " \"pname  specname  (Elo Ehi)\"\n"
+              << " pname = particle name \n"
+              << " specname = Isotope name as given in ratdb \n"
+              << " Elo Ehi = optional limits on energy range of generated particles " << std::endl;
     return;
   }
 
@@ -90,17 +90,17 @@ void VertexGen_Isotope::SetState(G4String newValues) {
         if (elementName == GLG4VertexGen_Gun::theElementNames[Z - 1]) break;
         if (Z <= GLG4VertexGen_Gun::numberOfElements) {
           newTestGunG4Code = G4IonTable::GetIonTable()->GetIon(Z, A, 0.0);
-          G4cout << " Isotope Vertex: Setting ion with A = " << A << " Z = " << Z << G4endl;
+          std::cout << " Isotope Vertex: Setting ion with A = " << A << " Z = " << Z << std::endl;
         }
       }
     }
     if (newTestGunG4Code == NULL) {
-      G4cerr << "Isotope Vertex: Could not find particle type " << pname << " defaulting to electron " << G4endl;
+      std::cerr << "Isotope Vertex: Could not find particle type " << pname << " defaulting to electron " << std::endl;
       _particle = "e-";
       return;
     }
   } else {
-    G4cout << "Isotope Vertex: Setting particle = " << pname << G4endl;
+    std::cout << "Isotope Vertex: Setting particle = " << pname << std::endl;
   }
   // so store the name and the particle definition
   _particle = pname;
@@ -113,11 +113,11 @@ void VertexGen_Isotope::SetState(G4String newValues) {
   //        DBLinkPtr lspec = DB::Get()->GetLink("Isotope", specname);
   //        if(lspec){
   //            _Isotope = specname;
-  //            G4cout << "Isotope Vertex: Setting Isotope " << specname <<
-  //            G4endl;
+  //            std::cout << "Isotope Vertex: Setting Isotope " << specname <<
+  //            std::endl;
   //        }else{
-  //            G4cerr << "Could not find Isotope " << specname << " using
-  //            default, flat Isotope " << G4endl;
+  //            std::cerr << "Could not find Isotope " << specname << " using
+  //            default, flat Isotope " << std::endl;
   //        }
 
   // finally ready to initialise the Isotope!
@@ -138,7 +138,7 @@ G4String VertexGen_Isotope::GetState() {
 
 void VertexGen_Isotope::SetIsotopeA(double IBDAm) {
   if ((IBDAm < 0.) || (IBDAm > 400.)) {
-    G4cerr << "Set your IBD Amplitude between 0 and 400." << G4endl;
+    std::cerr << "Set your IBD Amplitude between 0 and 400." << std::endl;
     return;
   }
   valueA = IBDAm;
@@ -146,7 +146,7 @@ void VertexGen_Isotope::SetIsotopeA(double IBDAm) {
 
 void VertexGen_Isotope::SetIsotopeZ(double IBDAm) {
   if ((IBDAm < 0.) || (IBDAm > 400.)) {
-    G4cerr << "Set your IBD Amplitude between 0 and 400." << G4endl;
+    std::cerr << "Set your IBD Amplitude between 0 and 400." << std::endl;
     return;
   }
   valueZ = IBDAm;
@@ -154,7 +154,7 @@ void VertexGen_Isotope::SetIsotopeZ(double IBDAm) {
 
 void VertexGen_Isotope::SetIsotopeE(double IBDAm) {
   if ((IBDAm < 0.) || (IBDAm > 400.)) {
-    G4cerr << "Set your IBD Amplitude between 0 and 400." << G4endl;
+    std::cerr << "Set your IBD Amplitude between 0 and 400." << std::endl;
     return;
   }
   valueE = IBDAm;

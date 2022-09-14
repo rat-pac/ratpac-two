@@ -55,7 +55,8 @@ void AmBeGen::GenerateEvent(G4Event *event) {
   int numberGammas = ambeSource.GetNumGamma();
 
 #ifdef DEBUG
-  G4cout << "RAT::AmBeGen::GenerateEvent: " << numberNeutrons << " neutrons, " << numberGammas << " photons" << G4endl;
+  std::cout << "RAT::AmBeGen::GenerateEvent: " << numberNeutrons << " neutrons, " << numberGammas << " photons"
+            << std::endl;
 #endif
 
   // For each neutron...
@@ -75,9 +76,10 @@ void AmBeGen::GenerateEvent(G4Event *event) {
     event->AddPrimaryVertex(vertex);
 
 #ifdef DEBUG
-    G4cout << "RAT::AmBeGen::GenerateEvent: "
-           << "Neutron " << i << " of " << numberNeutrons << "    time=" << G4BestUnit(time, "Time")
-           << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy") << G4endl;
+    std::cout << "RAT::AmBeGen::GenerateEvent: "
+              << "Neutron " << i << " of " << numberNeutrons << "    time=" << G4BestUnit(time, "Time")
+              << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy")
+              << std::endl;
 #endif
 
   }  // for each neutron
@@ -100,9 +102,10 @@ void AmBeGen::GenerateEvent(G4Event *event) {
     event->AddPrimaryVertex(vertex);
 
 #ifdef DEBUG
-    G4cout << "RAT::AmBeGen::GenerateEvent: "
-           << "Gamma " << i << " of " << numberGammas << "    time=" << G4BestUnit(time, "Time")
-           << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy") << G4endl;
+    std::cout << "RAT::AmBeGen::GenerateEvent: "
+              << "Gamma " << i << " of " << numberGammas << "    time=" << G4BestUnit(time, "Time")
+              << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy")
+              << std::endl;
 #endif
 
   }  // for each prompt photon
@@ -112,25 +115,25 @@ void AmBeGen::ResetTime(double offset) {
   double eventTime = timeGen->GenerateEventTime();
   nextTime = eventTime + offset;
 #ifdef DEBUG
-  G4cout << "RAT::AmBeGen::ResetTime:"
-         << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
-         << ", nextTime=" << G4BestUnit(nextTime, "Time") << G4endl;
+  std::cout << "RAT::AmBeGen::ResetTime:"
+            << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
+            << ", nextTime=" << G4BestUnit(nextTime, "Time") << std::endl;
 #endif
 }
 
 void AmBeGen::SetState(G4String state) {
 #ifdef DEBUG
-  G4cout << "RAT::AmBeGen::SetState called with state='" << state << "'" << G4endl;
+  std::cout << "RAT::AmBeGen::SetState called with state='" << state << "'" << std::endl;
 #endif
 
-  // Break the argument to the this generator into sub-strings
+  // Break the argument to the this generator into sub-std::strings
   // separated by ":".
   state = util_strip_default(state);
   std::vector<std::string> parts = util_split(state, ":");
   size_t nArgs = parts.size();
 
 #ifdef DEBUG
-  G4cout << "RAT::AmBeGen::SetState: nArgs=" << nArgs << G4endl;
+  std::cout << "RAT::AmBeGen::SetState: nArgs=" << nArgs << std::endl;
 #endif
 
   try {
@@ -153,7 +156,7 @@ void AmBeGen::SetState(G4String state) {
 
     stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
-    G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
+    std::cerr << "Unknown generator \"" << unknown.id << "\"" << std::endl;
   }
 }
 
@@ -163,7 +166,7 @@ void AmBeGen::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "AmBeGen error: Cannot set time state, no time generator selected" << G4endl;
+    std::cerr << "AmBeGen error: Cannot set time state, no time generator selected" << std::endl;
 }
 
 G4String AmBeGen::GetTimeState() const {
@@ -177,9 +180,9 @@ void AmBeGen::SetPosState(G4String state) {
   if (posGen)
     posGen->SetState(state);
   else
-    G4cerr << "AmBeGen error: Cannot set position state, no position generator "
-              "selected"
-           << G4endl;
+    std::cerr << "AmBeGen error: Cannot set position state, no position generator "
+                 "selected"
+              << std::endl;
 }
 
 G4String AmBeGen::GetPosState() const {

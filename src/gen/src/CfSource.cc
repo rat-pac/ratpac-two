@@ -15,10 +15,10 @@
 #include <G4ParticleDefinition.hh>
 #include <RAT/CfSource.hh>
 #include <cmath>
-#include <cstring>
 #include <fstream>  // file I/O
 #include <iomanip>  // format manipulation
 #include <iostream>
+#include <string>
 #include <vector>
 
 #undef DEBUG
@@ -32,7 +32,7 @@ double CfSource::massNeutron = 0.;  // allocate storage for static variable
 CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
   // Cf252
   if (Isotope == 252) {
-    // Verify that all maps and vectors are empty.
+    // Verify that all std::maps and std::vectors are empty.
     Nneutron = 0;
     Ngamma = 0;
     neutronE.clear();

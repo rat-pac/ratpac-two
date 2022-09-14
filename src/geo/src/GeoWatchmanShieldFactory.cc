@@ -15,12 +15,10 @@
 #include <RAT/Materials.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 G4VPhysicalVolume *GeoWatchmanShieldFactory::Construct(DBLinkPtr table) {
-  string volumeName = table->GetIndex();
+  std::string volumeName = table->GetIndex();
 
   // Get references to the mother volume
   G4LogicalVolume *motherLog = FindMother(table->GetS("mother"));
@@ -28,12 +26,12 @@ G4VPhysicalVolume *GeoWatchmanShieldFactory::Construct(DBLinkPtr table) {
 
   // Get positions and orientations of all PMTs
   DBLinkPtr pmtinfo = DB::Get()->GetLink(table->GetS("pmtinfo_table"));
-  vector<G4double> pmtX = pmtinfo->GetDArray("x");
-  vector<G4double> pmtY = pmtinfo->GetDArray("y");
-  vector<G4double> pmtZ = pmtinfo->GetDArray("z");
-  vector<G4double> pmtU = pmtinfo->GetDArray("dir_x");
-  vector<G4double> pmtV = pmtinfo->GetDArray("dir_y");
-  vector<G4double> pmtW = pmtinfo->GetDArray("dir_z");
+  std::vector<G4double> pmtX = pmtinfo->GetDArray("x");
+  std::vector<G4double> pmtY = pmtinfo->GetDArray("y");
+  std::vector<G4double> pmtZ = pmtinfo->GetDArray("z");
+  std::vector<G4double> pmtU = pmtinfo->GetDArray("dir_x");
+  std::vector<G4double> pmtV = pmtinfo->GetDArray("dir_y");
+  std::vector<G4double> pmtW = pmtinfo->GetDArray("dir_z");
   G4int innerStart = table->GetI("inner_start");
   G4int innerLen = table->GetI("inner_len");
   G4int vetoStart = table->GetI("veto_start");
@@ -71,7 +69,7 @@ G4VPhysicalVolume *GeoWatchmanShieldFactory::Construct(DBLinkPtr table) {
   // built, or pointing to defined orient_point options
   bool inner_orient_manual = false;
   try {
-    string inner_orient_str = table->GetS("orientation_inner");
+    std::string inner_orient_str = table->GetS("orientation_inner");
     if (inner_orient_str == "manual")
       inner_orient_manual = true;
     else if (inner_orient_str == "point")
@@ -83,7 +81,7 @@ G4VPhysicalVolume *GeoWatchmanShieldFactory::Construct(DBLinkPtr table) {
 
   bool veto_orient_manual = false;
   try {
-    string veto_orient_str = table->GetS("orientation_veto");
+    std::string veto_orient_str = table->GetS("orientation_veto");
     if (veto_orient_str == "manual")
       veto_orient_manual = true;
     else if (veto_orient_str == "point")
@@ -119,7 +117,7 @@ G4VPhysicalVolume *GeoWatchmanShieldFactory::Construct(DBLinkPtr table) {
       orient.set(pmtU[i], pmtV[i], pmtW[i]);
     else {
       G4ThreeVector orient_point;
-      vector<double> orient_point_array;
+      std::vector<double> orient_point_array;
       orient_point_array = table->GetDArray("orient_point_inner");
       if (orient_point_array.size() != 3) Log::Die("GeoBuilder error: orient_point_inner must have 3 values");
       orient_point.set(orient_point_array[0], orient_point_array[1], orient_point_array[2]);
@@ -135,8 +133,8 @@ G4VPhysicalVolume *GeoWatchmanShieldFactory::Construct(DBLinkPtr table) {
     rotation->rotateX(angle_x);
     rotation->rotateZ(angle_z);
     G4VPhysicalVolume *backPhys = new G4PVPlacement(rotation, position, innerBackLog,
-                                                    volumeName + "_back_" + ::to_string(i), motherLog, false, i);
-    new G4LogicalBorderSurface(volumeName + "_back_" + ::to_string(i) + "_border", motherPhys, backPhys,
+                                                    volumeName + "_back_" + std::to_string(i), motherLog, false, i);
+    new G4LogicalBorderSurface(volumeName + "_back_" + std::to_string(i) + "_border", motherPhys, backPhys,
                                innerBackSurface);
   }
 
@@ -148,7 +146,7 @@ G4VPhysicalVolume *GeoWatchmanShieldFactory::Construct(DBLinkPtr table) {
       orient.set(pmtU[i], pmtV[i], pmtW[i]);
     else {
       G4ThreeVector orient_point;
-      vector<double> orient_point_array;
+      std::vector<double> orient_point_array;
       orient_point_array = table->GetDArray("orient_point_veto");
       if (orient_point_array.size() != 3) Log::Die("GeoBuilder error: orient_point_veto must have 3 values");
       orient_point.set(orient_point_array[0], orient_point_array[1], orient_point_array[2]);
@@ -163,9 +161,9 @@ G4VPhysicalVolume *GeoWatchmanShieldFactory::Construct(DBLinkPtr table) {
     rotation->rotateY(angle_y);
     rotation->rotateX(angle_x);
     rotation->rotateZ(angle_z);
-    G4VPhysicalVolume *backPhys =
-        new G4PVPlacement(rotation, position, vetoBackLog, volumeName + "_back_" + ::to_string(i), motherLog, false, i);
-    new G4LogicalBorderSurface(volumeName + "_back_" + ::to_string(i) + "_border", motherPhys, backPhys,
+    G4VPhysicalVolume *backPhys = new G4PVPlacement(rotation, position, vetoBackLog,
+                                                    volumeName + "_back_" + std::to_string(i), motherLog, false, i);
+    new G4LogicalBorderSurface(volumeName + "_back_" + std::to_string(i) + "_border", motherPhys, backPhys,
                                vetoBackSurface);
   }
 
@@ -228,7 +226,7 @@ G4VPhysicalVolume *GeoWatchmanShieldFactory::Construct(DBLinkPtr table) {
                 // anything.
 }
 
-G4OpticalSurface *GeoWatchmanShieldFactory::GetSurface(string surface_name) {
+G4OpticalSurface *GeoWatchmanShieldFactory::GetSurface(std::string surface_name) {
   if (Materials::optical_surface.count(surface_name) == 0)
     Log::Die("error: surface " + surface_name + " does not exist");
   return Materials::optical_surface[surface_name];
@@ -244,7 +242,7 @@ G4VisAttributes *GeoWatchmanShieldFactory::GetVisAttributes(DBLinkPtr table) {
   G4VisAttributes *vis = new G4VisAttributes();
 
   try {
-    const vector<double> &color = table->GetDArray("color");
+    const std::vector<double> &color = table->GetDArray("color");
     if (color.size() == 3)  // RGB
       vis->SetColour(G4Colour(color[0], color[1], color[2]));
     else if (color.size() == 4)  // RGBA
@@ -256,7 +254,7 @@ G4VisAttributes *GeoWatchmanShieldFactory::GetVisAttributes(DBLinkPtr table) {
   };
 
   try {
-    string drawstyle = table->GetS("drawstyle");
+    std::string drawstyle = table->GetS("drawstyle");
     if (drawstyle == "wireframe")
       vis->SetForceWireframe(true);
     else if (drawstyle == "solid")

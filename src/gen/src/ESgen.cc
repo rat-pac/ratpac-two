@@ -26,8 +26,6 @@
 #include <Randomize.hh>
 #include <cmath>
 
-using namespace CLHEP;
-
 namespace RAT {
 
 // This class is a helper to take care of the type of spectrum that is going to
@@ -43,7 +41,7 @@ ESgen::ESgen()
       fSpectrumRndm(0),
       fDBName("SOLAR") {
   // Initialize pointers
-  fMassElectron = electron_mass_c2;
+  fMassElectron = CLHEP::electron_mass_c2;
 
   // Load the default generator
   // Later, depending on the options passed this can be reloaded
@@ -154,8 +152,8 @@ void ESgen::GenerateEvent(const G4ThreeVector &theNeutrino, G4LorentzVector &nu_
   // Updated sampler (orders of magnitude faster)
   // Given the neutrino energy, use the differential cross section
   // shape and sample from it.
-  Enu = SampleNuEnergy() * MeV;
-  Te = SampleRecoilEnergy(Enu) * MeV;
+  Enu = SampleNuEnergy() * CLHEP::MeV;
+  Te = SampleRecoilEnergy(Enu) * CLHEP::MeV;
 
   // from the incoming neutrino we have already the initial direction.
   // The final electron direction will follow that.
@@ -165,7 +163,7 @@ void ESgen::GenerateEvent(const G4ThreeVector &theNeutrino, G4LorentzVector &nu_
   // - the energy of the neutrino
   // - the recoil energy of the electron
 
-  // build the 4-momentum vector of the neutrino
+  // build the 4-momentum std::vector of the neutrino
   // We will only use the neutrino initial momentum as a baseline to add up to
   // the electron direction
 
@@ -176,7 +174,7 @@ void ESgen::GenerateEvent(const G4ThreeVector &theNeutrino, G4LorentzVector &nu_
   G4double p_e = sqrt(tot_Ee * tot_Ee - fMassElectron * fMassElectron);
 
   // We have theta. Now randomly generate phi
-  G4double phi_e = twopi * G4UniformRand();
+  G4double phi_e = CLHEP::twopi * G4UniformRand();
 
   // This is the incoming neutrino information
   nu_incoming.setVect(theNeutrino * Enu);
@@ -214,8 +212,8 @@ void ESgen::Reset() {
 }
 
 void ESgen::Show() {
-  G4cout << "Elastic Scattering Settings:\n";
-  G4cout << "NuType : " << fNuType.c_str() << "\n";
+  std::cout << "Elastic Scattering Settings:\n";
+  std::cout << "NuType : " << fNuType.c_str() << "\n";
 }
 
 //

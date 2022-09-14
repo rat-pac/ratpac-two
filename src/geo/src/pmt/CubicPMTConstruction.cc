@@ -9,8 +9,6 @@
 #include <RAT/Materials.hh>
 #include <algorithm>
 
-using namespace std;
-
 namespace RAT {
 
 CubicPMTConstruction::CubicPMTConstruction(DBLinkPtr table, G4LogicalVolume *mother) : PMTConstruction("cubic") {
@@ -29,7 +27,7 @@ CubicPMTConstruction::CubicPMTConstruction(DBLinkPtr table, G4LogicalVolume *mot
   fParams.outerCase = G4Material::GetMaterial(table->GetS("case_material"));
   fParams.glass = G4Material::GetMaterial(table->GetS("glass_material"));
   fParams.vacuum = G4Material::GetMaterial(table->GetS("pmt_vacuum_material"));
-  string pc_surface_name = table->GetS("photocathode_surface");
+  std::string pc_surface_name = table->GetS("photocathode_surface");
   fParams.photocathode = Materials::optical_surface[pc_surface_name];
   fParams.mirror = Materials::optical_surface[table->GetS("mirror_surface")];
 
@@ -43,7 +41,7 @@ CubicPMTConstruction::CubicPMTConstruction(DBLinkPtr table, G4LogicalVolume *mot
   } catch (DBNotFoundError &e) {
   }
 
-  string pmt_model = table->GetS("index");
+  std::string pmt_model = table->GetS("index");
   Log::Assert(fParams.pmtWidth > 0, "CubicPMTConstruction: " + pmt_model + " width must be postive");
   Log::Assert(fParams.photocathodeWidth > 0,
               "CubicPMTConstruction: " + pmt_model + " photocathode width must be postive");
@@ -135,7 +133,7 @@ G4LogicalVolume *CubicPMTConstruction::BuildVolume(const std::string &prefix) {
   return log_pmt;
 }
 
-G4VSolid *CubicPMTConstruction::BuildSolid(const string &name) {
+G4VSolid *CubicPMTConstruction::BuildSolid(const std::string &name) {
   G4Box *body = new G4Box(name, fParams.pmtWidth, fParams.pmtWidth, fParams.pmtWidth);
   return body;
 }

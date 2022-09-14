@@ -9,8 +9,6 @@
 #include <RAT/Materials.hh>
 #include <algorithm>
 
-using namespace std;
-
 namespace RAT {
 
 LAPPDConstruction::LAPPDConstruction(DBLinkPtr table, G4LogicalVolume *mother) : PMTConstruction("lappd") {
@@ -27,7 +25,7 @@ LAPPDConstruction::LAPPDConstruction(DBLinkPtr table, G4LogicalVolume *mother) :
   // Materials
   fParams.glass = G4Material::GetMaterial(table->GetS("glass_material"));
   fParams.vacuum = G4Material::GetMaterial(table->GetS("pmt_vacuum_material"));
-  string pc_surface_name = table->GetS("photocathode_surface");
+  std::string pc_surface_name = table->GetS("photocathode_surface");
   fParams.photocathode = Materials::optical_surface[pc_surface_name];
 
   if (fParams.photocathode == 0)
@@ -40,7 +38,7 @@ LAPPDConstruction::LAPPDConstruction(DBLinkPtr table, G4LogicalVolume *mother) :
   } catch (DBNotFoundError &e) {
   }
 
-  string pmt_model = table->GetS("index");
+  std::string pmt_model = table->GetS("index");
   Log::Assert(fParams.width > 0, "LAPPDConstruction: " + pmt_model + " width must be postive");
   Log::Assert(fParams.thick > 0, "LAPPDConstruction: " + pmt_model + " thick must be postive");
   Log::Assert(fParams.glassThickness > 0, "LAPPDConstruction: " + pmt_model + " glass thickness must be postive");
@@ -108,7 +106,7 @@ G4LogicalVolume *LAPPDConstruction::BuildVolume(const std::string &prefix) {
   return log_pmt;
 }
 
-G4VSolid *LAPPDConstruction::BuildSolid(const string &name) {
+G4VSolid *LAPPDConstruction::BuildSolid(const std::string &name) {
   G4Box *body = new G4Box(name, fParams.width, fParams.width, fParams.thick);
   return body;
 }

@@ -5,8 +5,6 @@
 #include <RAT/PMTCoverageFactory.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 G4VPhysicalVolume *PMTCoverageFactory::Construct(DBLinkPtr table) {
@@ -36,11 +34,11 @@ G4VPhysicalVolume *PMTCoverageFactory::Construct(DBLinkPtr table) {
   Nphibins = int(sqrt(num_pmt * CLHEP::pi));
   Npmt = Ncosbins * Nphibins;
 
-  info << "PMTCoverageFactory: Generated " << Npmt << "PMTs" << endl;
+  info << "PMTCoverageFactory: Generated " << Npmt << "PMTs" << newline;
 
-  vector<double> xpmt(Npmt);
-  vector<double> ypmt(Npmt);
-  vector<double> zpmt(Npmt);
+  std::vector<double> xpmt(Npmt);
+  std::vector<double> ypmt(Npmt);
+  std::vector<double> zpmt(Npmt);
 
   G4double dphi = CLHEP::twopi / Nphibins;
   G4double dz = 2.0 / Ncosbins;
@@ -52,16 +50,13 @@ G4VPhysicalVolume *PMTCoverageFactory::Construct(DBLinkPtr table) {
       xpmt[i * Nphibins + j] = pmtRadius * sqrt(1 - z * z) * cos(phi);
       ypmt[i * Nphibins + j] = pmtRadius * sqrt(1 - z * z) * sin(phi);
       zpmt[i * Nphibins + j] = pmtRadius * z;
-      //      cout<<"pmt location"<<i*Nphibins+j<<" "<<xpmt[i*Nphibins+j]<<"
-      //      "<<ypmt[i*Nphibins+j]<<" "<<zpmt[i*Nphibins+j]<<endl; cout <<
-      //      "z,phi  " << z << " " << phi << endl;
     }
   }
 
-  vector<G4ThreeVector> pos(Npmt), dir(Npmt);
-  vector<double> individual_noise_rates(Npmt, 0.0);
-  vector<int> type(Npmt, 0);            // FIXME make macro settable perhaps
-  vector<double> effi_corr(Npmt, 1.0);  // FIXME make macro settable perhaps
+  std::vector<G4ThreeVector> pos(Npmt), dir(Npmt);
+  std::vector<double> individual_noise_rates(Npmt, 0.0);
+  std::vector<int> type(Npmt, 0);            // FIXME make macro settable perhaps
+  std::vector<double> effi_corr(Npmt, 1.0);  // FIXME make macro settable perhaps
   for (int i = 0; i < Npmt; i++) {
     pos[i].set(xpmt[i], ypmt[i], zpmt[i]);
     dir[i].set(-xpmt[i], -ypmt[i], zpmt[i]);

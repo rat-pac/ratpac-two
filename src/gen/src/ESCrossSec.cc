@@ -18,8 +18,6 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
-using namespace CLHEP;
-
 namespace RAT {
 
 /**
@@ -32,10 +30,10 @@ namespace RAT {
 // in the code, which are different from the ones
 // provided from Geant4/CLHEP
  */
-const double RAT::ESCrossSec::fGf = 1.166371e-5;                 // Fermi constant (GeV^-2)
-const double RAT::ESCrossSec::fhbarc = hbarc * 1e12;             // hbar*c (MeV*fm)
-const double RAT::ESCrossSec::fhbarc2 = fhbarc * fhbarc * 1e-5;  // hbar*c^2(GeV^2 mb)
-const double RAT::ESCrossSec::falpha = fine_structure_const;     //
+const double RAT::ESCrossSec::fGf = 1.166371e-5;                     // Fermi constant (GeV^-2)
+const double RAT::ESCrossSec::fhbarc = CLHEP::hbarc * 1e12;          // hbar*c (MeV*fm)
+const double RAT::ESCrossSec::fhbarc2 = fhbarc * fhbarc * 1e-5;      // hbar*c^2(GeV^2 mb)
+const double RAT::ESCrossSec::falpha = CLHEP::fine_structure_const;  //
 
 /**
  * Some other static constants that are valid for all instances of the class.
@@ -266,8 +264,8 @@ double ESCrossSec::dSigmadT(const double Enu, const double Te) const {
            << " fEnuStepDif : " << fEnuStepDif << "\n\n"
            << newline;
 
-      Log::Die("[ESCrossSec]::dSigmadT : Got invalid values for variables k_i: k1 " + util_to_string(k1) + " k2 " +
-               util_to_string(k2));
+      Log::Die("[ESCrossSec]::dSigmadT : Got invalid values for variables k_i: k1 " + std::to_string(k1) + " k2 " +
+               std::to_string(k2));
     }
 
     double e1 = fEnuStepDif * (double)(k1 + 1);
@@ -308,7 +306,7 @@ double ESCrossSec::dSigmadT(const double Enu, const double Te) const {
         warn << "[ESCrossSec]::dSigmadT : " << fReactionStr << " not supported with Radiative correction strategy "
              << fRadiativeCorrection << " !!" << newline;
         Log::Die("[ESCrossSec]::dSigmadT : " + fReactionStr + " not supported with Radiative correction strategy " +
-                 util_to_string(fRadiativeCorrection) + " !!");
+                 std::to_string(fRadiativeCorrection) + " !!");
       }
     }
 

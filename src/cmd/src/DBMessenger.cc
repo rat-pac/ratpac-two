@@ -5,8 +5,6 @@
 #include <RAT/DBTextLoader.hh>
 #include <RAT/Log.hh>
 
-using namespace std;
-
 namespace RAT {
 
 void DBMessenger::Init(DB *dbToUse) {
@@ -59,8 +57,8 @@ void DBMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
   if (command == loadCmd) {
     Load(newValue);
   } else if (command == setCmd) {
-    istringstream args(newValue);
-    string tbl_descriptor, field, value;
+    std::istringstream args(newValue);
+    std::string tbl_descriptor, field, value;
     args >> tbl_descriptor >> field >> value;
 
     Set(tbl_descriptor, field, value);
@@ -79,8 +77,8 @@ void DBMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
 void DBMessenger::Load(std::string filename) { db->Load(filename, true /*printPath*/); }
 
 void DBMessenger::Set(std::string tbl_descriptor, std::string field, std::string val) {
-  string table;
-  string index;
+  std::string table;
+  std::string index;
 
   if (DB::ParseTableName(tbl_descriptor, table, index)) {
     // Just need to figure out value now

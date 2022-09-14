@@ -38,17 +38,17 @@ void PosGen_TriMeshSurface::SetState(G4String newValues) {
   // complain if there are no arguments
   newValues = strip_default(newValues);
   if (newValues.length() == 0) {
-    G4cout << "Current state of this PosGen_TriMeshSurface:\n"
-           << "\"" << GetState() << "\"\n"
-           << G4endl;
-    G4cout << "Format of arguments to run PosGen_TriMeshSurface: \n"
-              "\"tableIndex optionalThickness_mm optionalDirection\""
-           << G4endl;
+    std::cout << "Current state of this PosGen_TriMeshSurface:\n"
+              << "\"" << GetState() << "\"\n"
+              << std::endl;
+    std::cout << "Format of arguments to run PosGen_TriMeshSurface: \n"
+                 "\"tableIndex optionalThickness_mm optionalDirection\""
+              << std::endl;
     return;
   }
   // read the new values
-  istringstream is(newValues.c_str());
-  string index;
+  std::istringstream is(newValues.c_str());
+  std::string index;
   is >> index;
   if (is.fail()) Log::Die("PosGen_TriMeshSurface: could not parse table index");
   double t = 0.0;
@@ -60,9 +60,9 @@ void PosGen_TriMeshSurface::SetState(G4String newValues) {
   direction.push_back(dir);
   // get the vertices
   DBLinkPtr ltable = DB::Get()->GetLink("TriMeshSurface", index);
-  const vector<double> &x = ltable->GetDArray("x");
-  const vector<double> &y = ltable->GetDArray("y");
-  const vector<double> &z = ltable->GetDArray("z");
+  const std::vector<double> &x = ltable->GetDArray("x");
+  const std::vector<double> &y = ltable->GetDArray("y");
+  const std::vector<double> &z = ltable->GetDArray("z");
   // check for consistency
   if (x.size() != y.size() || y.size() != z.size())
     Log::Die("PosGen_TriMeshSurface: x, y, and z not the same length");

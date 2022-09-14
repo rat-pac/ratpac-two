@@ -117,11 +117,9 @@ template<typename T> const T& minimum(const T& l, const T& r) {return l < r ? l 
 ////////////////////////////////////////////////////////////////////////////////
 
 // problem in gcc pre-v3 where the sub-namespaces in std aren't present
-// this mean that the statement "using namespace std::rel_ops" created an error because the namespace didn't exist
 
 // I've done a fix here that creates an empty namespace for this case, but I
 // do *not* try to move the contents of std::rel_ops into namespace std
-// This fix only works if you use "using namespace std::rel_ops" to bring in the template relational operators (e.g. != defined i.t.o. ==)
 
 #if defined(__GNUC__)
 namespace std

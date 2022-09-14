@@ -32,24 +32,6 @@
 #include "G4ios.hh"
 #include "Randomize.hh"
 
-using CLHEP::twopi;
-
-/////////////////////////
-// Class Implementation
-/////////////////////////
-
-//////////////
-// Operators
-//////////////
-
-// GLG4Scint::operator=(const GLG4Scint &right)
-// {
-// }
-
-////////////////
-// static data members
-////////////////
-
 std::vector<GLG4Scint *> GLG4Scint::fMasterVectorOfGLG4Scint;
 // top level of scintillation command
 G4UIdirectory *GLG4Scint::fGLG4ScintDir = 0;
@@ -476,7 +458,7 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
       G4double cost = 1. - 2. * G4UniformRand();
       G4double sint = sqrt(1. - cost * cost);  // FIXED BUG from G4Scint
 
-      G4double phi = twopi * G4UniformRand();
+      G4double phi = CLHEP::twopi * G4UniformRand();
       G4double sinp = sin(phi);
       G4double cosp = cos(phi);
 
@@ -496,7 +478,7 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
 
       G4ThreeVector perp = photonMomentum.cross(photonPolarization);
 
-      phi = twopi * G4UniformRand();
+      phi = CLHEP::twopi * G4UniformRand();
       sinp = sin(phi);
       cosp = cos(phi);
 

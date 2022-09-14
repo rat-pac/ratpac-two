@@ -25,7 +25,7 @@ class G4UImessenger;  // for G4ProcessTable.hh
 
 GLG4DeferTrackProc::GLG4DeferTrackProc(const G4String &aName) : G4VProcess(aName) {
   if (verboseLevel > 0) {
-    G4cout << GetProcessName() << " is created " << G4endl;
+    std::cout << GetProcessName() << " is created " << std::endl;
   }
 
   _generator = GLG4PrimaryGeneratorAction::GetTheGLG4PrimaryGeneratorAction();

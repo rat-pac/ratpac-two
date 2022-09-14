@@ -8,14 +8,12 @@
 #include <fstream>
 #include <iostream>
 
-using namespace CLHEP;
-
 namespace RAT {
 
 //#define DEBUG
 
 // Additional constants
-const double DELTA = neutron_mass_c2 - proton_mass_c2;
+const double DELTA = CLHEP::neutron_mass_c2 - CLHEP::proton_mass_c2;
 
 // We start with the Reactor Isotope components given in Marc Bergevin's
 // original IBDgenerator file
@@ -46,8 +44,8 @@ ReacIBDgen::~ReacIBDgen() {
   }
 }
 
-void ReacIBDgen::GenEvent(const Hep3Vector &nu_dir, HepLorentzVector &neutrino, HepLorentzVector &positron,
-                          HepLorentzVector &neutron) {
+void ReacIBDgen::GenEvent(const CLHEP::Hep3Vector &nu_dir, CLHEP::HepLorentzVector &neutrino,
+                          CLHEP::HepLorentzVector &positron, CLHEP::HepLorentzVector &neutron) {
   float Enu, CosThetaLab;
 
   // Pick energy of neutrino and relative direction of positron
@@ -55,25 +53,25 @@ void ReacIBDgen::GenEvent(const Hep3Vector &nu_dir, HepLorentzVector &neutrino, 
 
   // Zero'th order approximation of positron quantities (infinite nucleon mass)
   double E0 = Enu - DELTA;
-  double p0 = sqrt(E0 * E0 - electron_mass_c2 * electron_mass_c2);
+  double p0 = sqrt(E0 * E0 - CLHEP::electron_mass_c2 * CLHEP::electron_mass_c2);
   double v0 = p0 / E0;
 
   // First order correction of positron quantities for finite nucleon mass
-  double Ysquared = (DELTA * DELTA - electron_mass_c2 * electron_mass_c2) / 2;
-  double E1 = E0 * (1 - Enu / proton_mass_c2 * (1 - v0 * CosThetaLab)) - Ysquared / proton_mass_c2;
-  double p1 = sqrt(E1 * E1 - electron_mass_c2 * electron_mass_c2);
+  double Ysquared = (DELTA * DELTA - CLHEP::electron_mass_c2 * CLHEP::electron_mass_c2) / 2;
+  double E1 = E0 * (1 - Enu / CLHEP::proton_mass_c2 * (1 - v0 * CosThetaLab)) - Ysquared / CLHEP::proton_mass_c2;
+  double p1 = sqrt(E1 * E1 - CLHEP::electron_mass_c2 * CLHEP::electron_mass_c2);
 
   // Compute nu 4-momentum
   neutrino.setVect(nu_dir * Enu);  // MeV (divide by c if need real units)
   neutrino.setE(Enu);
 
   // Compute positron 4-momentum
-  Hep3Vector pos_momentum(p1 * nu_dir);
+  CLHEP::Hep3Vector pos_momentum(p1 * nu_dir);
 
   // Rotation from nu direction to pos direction.
   double theta = acos(CosThetaLab);
-  double phi = 2 * pi * HepUniformRand();  // Random phi
-  Hep3Vector rotation_axis = nu_dir.orthogonal();
+  double phi = CLHEP::twopi * CLHEP::HepUniformRand();  // Random phi
+  CLHEP::Hep3Vector rotation_axis = nu_dir.orthogonal();
   rotation_axis.rotate(phi, nu_dir);
   pos_momentum.rotate(theta, rotation_axis);
 
@@ -82,19 +80,19 @@ void ReacIBDgen::GenEvent(const Hep3Vector &nu_dir, HepLorentzVector &neutrino, 
 
   // Compute neutron 4-momentum
   neutron.setVect(neutrino.vect() - positron.vect());
-  neutron.setE(sqrt(neutron.vect().mag2() + neutron_mass_c2 * neutron_mass_c2));
+  neutron.setE(sqrt(neutron.vect().mag2() + CLHEP::neutron_mass_c2 * CLHEP::neutron_mass_c2));
 }
 
 void ReacIBDgen::GenInteraction(float &E, float &CosThetaLab) {
   // Pick E from the reactor spectrum and cos(theta) uniformly
 
   E = GetNuEnergy();
-  CosThetaLab = -1.0 + 2.0 * HepUniformRand();
+  CosThetaLab = -1.0 + 2.0 * CLHEP::HepUniformRand();
 }
 
 void ReacIBDgen::SetU235Amplitude(double U235Am) {
   if ((U235Am < 0.) || (U235Am > 1.)) {
-    G4cerr << "Set your U235 Amplitude between 0 and 1." << G4endl;
+    std::cerr << "Set your U235 Amplitude between 0 and 1." << std::endl;
     return;
   }
   U235Amp = U235Am;
@@ -109,7 +107,7 @@ void ReacIBDgen::Reset() {
 
 void ReacIBDgen::SetU238Amplitude(double U238Am) {
   if ((U238Am < 0.) || (U238Am > 1.)) {
-    G4cerr << "Set your U238 Amplitude between 0 and 1." << G4endl;
+    std::cerr << "Set your U238 Amplitude between 0 and 1." << std::endl;
     return;
   }
   U238Amp = U238Am;
@@ -117,7 +115,7 @@ void ReacIBDgen::SetU238Amplitude(double U238Am) {
 
 void ReacIBDgen::SetPu239Amplitude(double Pu239Am) {
   if ((Pu239Am < 0.) || (Pu239Am > 1.)) {
-    G4cerr << "Set your Pu239 Amplitude between 0 and 1." << G4endl;
+    std::cerr << "Set your Pu239 Amplitude between 0 and 1." << std::endl;
     return;
   }
   Pu239Amp = Pu239Am;
@@ -125,7 +123,7 @@ void ReacIBDgen::SetPu239Amplitude(double Pu239Am) {
 
 void ReacIBDgen::SetPu241Amplitude(double Pu241Am) {
   if ((Pu241Am < 0.) || (Pu241Am > 1.)) {
-    G4cerr << "Set your Pu241 Amplitude between 0 and 1." << G4endl;
+    std::cerr << "Set your Pu241 Amplitude between 0 and 1." << std::endl;
     return;
   }
   Pu241Amp = Pu241Am;

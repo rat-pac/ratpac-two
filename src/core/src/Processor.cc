@@ -1,8 +1,6 @@
 #include <RAT/Processor.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 // Default implementations

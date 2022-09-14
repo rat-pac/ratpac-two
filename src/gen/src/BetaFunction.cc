@@ -2,9 +2,9 @@
 #include <RAT/BetaFunction.hh>
 #include <RAT/FermiFunction.hh>
 #include <Randomize.hh>
-#include <cstring>
 #include <globals.hh>
 #include <iostream>
+#include <string>
 
 namespace RAT {
 

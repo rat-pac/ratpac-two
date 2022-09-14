@@ -19,7 +19,7 @@
 #include <RAT/GLG4PosGen.hh>
 #include <RAT/GLG4StringUtil.hh>
 #include <RAT/GLG4TimeGen.hh>
-#include <cstring>
+#include <string>
 
 #undef DEBUG
 
@@ -54,7 +54,8 @@ void CfGen::GenerateEvent(G4Event *event) {
   int numberGammas = cfSource.GetNumGamma();
 
 #ifdef DEBUG
-  G4cout << "RAT::CfGen::GenerateEvent: " << numberNeutrons << " neutrons, " << numberGammas << " photons" << G4endl;
+  std::cout << "RAT::CfGen::GenerateEvent: " << numberNeutrons << " neutrons, " << numberGammas << " photons"
+            << std::endl;
 #endif
 
   // For each neutron...
@@ -74,9 +75,10 @@ void CfGen::GenerateEvent(G4Event *event) {
     event->AddPrimaryVertex(vertex);
 
 #ifdef DEBUG
-    G4cout << "RAT::CfGen::GenerateEvent: "
-           << "Neutron " << i << " of " << numberNeutrons << "    time=" << G4BestUnit(time, "Time")
-           << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy") << G4endl;
+    std::cout << "RAT::CfGen::GenerateEvent: "
+              << "Neutron " << i << " of " << numberNeutrons << "    time=" << G4BestUnit(time, "Time")
+              << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy")
+              << std::endl;
 #endif
 
   }  // for each neutron
@@ -99,9 +101,10 @@ void CfGen::GenerateEvent(G4Event *event) {
     event->AddPrimaryVertex(vertex);
 
 #ifdef DEBUG
-    G4cout << "RAT::CfGen::GenerateEvent: "
-           << "Gamma " << i << " of " << numberGammas << "    time=" << G4BestUnit(time, "Time")
-           << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy") << G4endl;
+    std::cout << "RAT::CfGen::GenerateEvent: "
+              << "Gamma " << i << " of " << numberGammas << "    time=" << G4BestUnit(time, "Time")
+              << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy")
+              << std::endl;
 #endif
 
   }  // for each prompt photon
@@ -111,25 +114,25 @@ void CfGen::ResetTime(double offset) {
   double eventTime = timeGen->GenerateEventTime();
   nextTime = eventTime + offset;
 #ifdef DEBUG
-  G4cout << "RAT::CfGen::ResetTime:"
-         << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
-         << ", nextTime=" << G4BestUnit(nextTime, "Time") << G4endl;
+  std::cout << "RAT::CfGen::ResetTime:"
+            << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
+            << ", nextTime=" << G4BestUnit(nextTime, "Time") << std::endl;
 #endif
 }
 
 void CfGen::SetState(G4String state) {
 #ifdef DEBUG
-  G4cout << "RAT::CfGen::SetState called with state='" << state << "'" << G4endl;
+  std::cout << "RAT::CfGen::SetState called with state='" << state << "'" << std::endl;
 #endif
 
-  // Break the argument to the this generator into sub-strings
+  // Break the argument to the this generator into sub-std::strings
   // separated by ":".
   state = util_strip_default(state);
   std::vector<std::string> parts = util_split(state, ":");
   size_t nArgs = parts.size();
 
 #ifdef DEBUG
-  G4cout << "RAT::CfGen::SetState: nArgs=" << nArgs << G4endl;
+  std::cout << "RAT::CfGen::SetState: nArgs=" << nArgs << std::endl;
 #endif
 
   try {
@@ -146,7 +149,7 @@ void CfGen::SetState(G4String state) {
       isotope = util_to_int(parts[0]);
 
       if (isotope != 252) {
-        G4cerr << "RAT::CfGen::SetState: Only cf 252 is supported" << G4endl;
+        std::cerr << "RAT::CfGen::SetState: Only cf 252 is supported" << std::endl;
       }
 
       // The second argument is a position generator.
@@ -160,7 +163,7 @@ void CfGen::SetState(G4String state) {
 
     stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
-    G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
+    std::cerr << "Unknown generator \"" << unknown.id << "\"" << std::endl;
   }
 }
 
@@ -170,7 +173,7 @@ void CfGen::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "CfGen error: Cannot set time state, no time generator selected" << G4endl;
+    std::cerr << "CfGen error: Cannot set time state, no time generator selected" << std::endl;
 }
 
 G4String CfGen::GetTimeState() const {
@@ -184,9 +187,9 @@ void CfGen::SetPosState(G4String state) {
   if (posGen)
     posGen->SetState(state);
   else
-    G4cerr << "CfGen error: Cannot set position state, no position generator "
-              "selected"
-           << G4endl;
+    std::cerr << "CfGen error: Cannot set position state, no position generator "
+                 "selected"
+              << std::endl;
 }
 
 G4String CfGen::GetPosState() const {

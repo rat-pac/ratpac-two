@@ -4,8 +4,6 @@
 #include <RAT/SimpleDAQProc.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 SimpleDAQProc::SimpleDAQProc() : Processor("simpledaq") {

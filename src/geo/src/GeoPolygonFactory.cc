@@ -8,17 +8,15 @@
 #include <RAT/PolygonOrientation.hh>
 #include <RAT/TubeFacetSolid.hh>
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *GeoPolygonFactory::ConstructSolid(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
   G4double size_z = table->GetD("size_z") * CLHEP::mm;  // half thickness of plate
-  string poly_table_name = table->GetS("poly_table");
+  std::string poly_table_name = table->GetS("poly_table");
   DBLinkPtr lpoly_table = DB::Get()->GetLink(poly_table_name);
-  const vector<G4double> &vertex_pnts_x = lpoly_table->GetDArray("x");
-  const vector<G4double> &vertex_pnts_y = lpoly_table->GetDArray("y");
+  const std::vector<G4double> &vertex_pnts_x = lpoly_table->GetDArray("x");
+  const std::vector<G4double> &vertex_pnts_y = lpoly_table->GetDArray("y");
 
   // Optional parameters
   G4double scale_fac = 1.0;
@@ -37,7 +35,7 @@ G4VSolid *GeoPolygonFactory::ConstructSolid(DBLinkPtr table) {
 
   G4double poly_max = 0.0 * CLHEP::mm;
   G4double poly_max_tmp = 0.0 * CLHEP::mm;
-  vector<G4TwoVector> g4Polygon;
+  std::vector<G4TwoVector> g4Polygon;
   for (G4int i = 0; i < G4int(vertex_pnts_x.size()); ++i) {
     g4Polygon.push_back(G4TwoVector(vertex_pnts_x[i] * CLHEP::mm, vertex_pnts_y[i] * CLHEP::mm));
     poly_max_tmp = sqrt((vertex_pnts_x[i] * CLHEP::mm * vertex_pnts_x[i] * CLHEP::mm) +

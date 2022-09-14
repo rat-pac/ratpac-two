@@ -4,12 +4,10 @@
 #include <G4Sphere.hh>
 #include <RAT/GeoSphereFactory.hh>
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *GeoSphereFactory::ConstructSolid(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
   G4double r_max = table->GetD("r_max") * CLHEP::mm;
 
   // Optional parameters

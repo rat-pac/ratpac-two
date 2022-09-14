@@ -12,8 +12,6 @@
 #include <RAT/ToroidalPMTConstruction.hh>
 #include <algorithm>
 
-using namespace std;
-
 namespace RAT {
 
 ToroidalPMTConstruction::ToroidalPMTConstruction(DBLinkPtr table, G4LogicalVolume *mother)
@@ -51,9 +49,9 @@ ToroidalPMTConstruction::ToroidalPMTConstruction(DBLinkPtr table, G4LogicalVolum
   fParams.glass = G4Material::GetMaterial(table->GetS("glass_material"));
   fParams.dynode = G4Material::GetMaterial(table->GetS("dynode_material"));
   fParams.vacuum = G4Material::GetMaterial(table->GetS("pmt_vacuum_material"));
-  string pc_surface_name = table->GetS("photocathode_surface");
+  std::string pc_surface_name = table->GetS("photocathode_surface");
   fParams.photocathode = Materials::optical_surface[pc_surface_name];
-  string mirror_surface_name = table->GetS("mirror_surface");
+  std::string mirror_surface_name = table->GetS("mirror_surface");
   fParams.mirror = Materials::optical_surface[mirror_surface_name];
   fParams.dynode_surface = Materials::optical_surface[table->GetS("dynode_surface")];
 
@@ -72,9 +70,9 @@ ToroidalPMTConstruction::ToroidalPMTConstruction(DBLinkPtr table, G4LogicalVolum
   // Setup for waveguide
   fWaveguideFactory = 0;
   try {
-    string waveguide = table->GetS("waveguide");
-    string waveguide_desc = table->GetS("waveguide_desc");
-    string waveguide_table, waveguide_index;
+    std::string waveguide = table->GetS("waveguide");
+    std::string waveguide_desc = table->GetS("waveguide_desc");
+    std::string waveguide_table, waveguide_index;
     if (!DB::ParseTableName(waveguide_desc, waveguide_table, waveguide_index))
       Log::Die(
           "PMTFactoryBase: Waveguide descriptor name is not a valid RATDB "
@@ -288,7 +286,7 @@ G4LogicalVolume *ToroidalPMTConstruction::BuildVolume(const std::string &prefix)
   return log_pmt;
 }
 
-G4VSolid *ToroidalPMTConstruction::BuildSolid(const string &_name) {
+G4VSolid *ToroidalPMTConstruction::BuildSolid(const std::string &_name) {
   GLG4TorusStack *body = new GLG4TorusStack(_name);
   body->SetAllParameters(fParams.zOrigin.size(), &fParams.zEdge[0], &fParams.rhoEdge[0], &fParams.zOrigin[0]);
   return body;

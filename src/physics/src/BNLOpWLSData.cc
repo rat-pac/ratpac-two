@@ -7,9 +7,7 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
-
-BNLOpWLSData::BNLOpWLSData(string fname) { SetExEmData(fname); }
+BNLOpWLSData::BNLOpWLSData(std::string fname) { SetExEmData(fname); }
 
 BNLOpWLSData::~BNLOpWLSData() {}
 
@@ -19,12 +17,12 @@ void *BNLOpWLSData::GetPointerToValue(TBranch *theBranch, int entry, const char 
   return theLeaf->GetValuePointer();
 }
 
-void BNLOpWLSData::SetExEmData(string fname) {
+void BNLOpWLSData::SetExEmData(std::string fname) {
   // Check file is there
   struct stat buffer;
   if (stat(fname.c_str(), &buffer) != 0) {
-    cout << "BNLOpWLS::SetExEmData: Warning: Could not find Ex/Em data file "
-         << "for BNLOpWLS model" << endl;
+    std::cout << "BNLOpWLS::SetExEmData: Warning: Could not find Ex/Em data file "
+              << "for BNLOpWLS model" << std::endl;
     return;
   }
 
@@ -40,10 +38,10 @@ void BNLOpWLSData::SetExEmData(string fname) {
 
   ExEmData.clear();
 
-  vector<double> ExWavelength;
-  vector<double> EmWavelengths;
-  vector<double> EmIntensities;
-  vector<vector<double>> theData;
+  std::vector<double> ExWavelength;
+  std::vector<double> EmWavelengths;
+  std::vector<double> EmIntensities;
+  std::vector<std::vector<double>> theData;
   double theIntegral;
 
   for (int i = 0; i < nEntries; i++) {
@@ -54,9 +52,9 @@ void BNLOpWLSData::SetExEmData(string fname) {
     // I should get these in a different way...
     ExWavelength.push_back(*(double *)(GetPointerToValue(ExBranch, i, ExBranch->GetName())));
 
-    EmWavelengths = *(vector<double> *)(GetPointerToValue(EmBranch, i, EmBranch->GetName()));
+    EmWavelengths = *(std::vector<double> *)(GetPointerToValue(EmBranch, i, EmBranch->GetName()));
 
-    EmIntensities = *(vector<double> *)(GetPointerToValue(IntenBranch, i, IntenBranch->GetName()));
+    EmIntensities = *(std::vector<double> *)(GetPointerToValue(IntenBranch, i, IntenBranch->GetName()));
 
     // Load the data into slots 1, 2, and 3.
     theData.push_back(ExWavelength);

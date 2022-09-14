@@ -9,18 +9,16 @@
 #include <RAT/PMTConstruction.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 G4VPhysicalVolume *GeoRevArrayFactory::Construct(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
 
   G4int numZPlanes;
 
-  const vector<double> &z = table->GetDArray("z");
-  const vector<double> &r_max = table->GetDArray("r_max");
-  const vector<double> &r_min = table->GetDArray("r_min");
+  const std::vector<double> &z = table->GetDArray("z");
+  const std::vector<double> &r_max = table->GetDArray("r_max");
+  const std::vector<double> &r_min = table->GetDArray("r_min");
 
   numZPlanes = G4int(z.size());
 

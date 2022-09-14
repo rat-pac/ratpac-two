@@ -1,4 +1,3 @@
-// VertexGen_Decay0.cc
 // See notes in Decay0.hh, COPYING.decay0
 #include <CLHEP/Units/SystemOfUnits.h>
 
@@ -17,12 +16,6 @@
 #include <Randomize.hh>
 #include <sstream>
 
-using CLHEP::MeV;
-using CLHEP::ns;
-using CLHEP::s;
-using std::ostringstream;
-
-#define std std
 namespace RAT {
 
 VertexGen_Decay0::VertexGen_Decay0(const char *arg_dbname)
@@ -54,7 +47,7 @@ void VertexGen_Decay0::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, 
 #ifdef RATDEBUG
   info << "VertexGen_Decay0::GeneratePrimaryVertex : Received parents [Z,A] :: "
           "1=["
-       << Z1 << "," << A1 << "] :: 2=[" << Z2 << "," << A2 << "]" << endl;
+       << Z1 << "," << A1 << "] :: 2=[" << Z2 << "," << A2 << "]" << newline;
 #endif
   G4ParticleDefinition *particleDef1 = theIonTable->GetIon(Z1, A1, 0);
   // Add the parent isotope information (stationary, no excitation)
@@ -70,7 +63,7 @@ void VertexGen_Decay0::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, 
   nParticles = fDecay0->GetNbPart();
 
 #ifdef RATDEBUG
-  info << "VertexGen_Decay0::GeneratePrimaryVertex : Got " << nParticles << " particles." << endl;
+  info << "VertexGen_Decay0::GeneratePrimaryVertex : Got " << nParticles << " particles." << newline;
 #endif
   for (G4int j = 0; j < nParticles; j++) {
     partCode = fDecay0->GetNpGeant(j + 1);
@@ -81,15 +74,15 @@ void VertexGen_Decay0::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, 
     time = fDecay0->GetPtime(j + 1);
 
     // Create primary particle
-    G4PrimaryParticle *particle =
-        new G4PrimaryParticle(theParticleTable->FindParticle(particleName), px * MeV, py * MeV, pz * MeV);
+    G4PrimaryParticle *particle = new G4PrimaryParticle(theParticleTable->FindParticle(particleName), px * CLHEP::MeV,
+                                                        py * CLHEP::MeV, pz * CLHEP::MeV);
     // Don't set relative time of particle as each particle has its own vertex
     // and time is set there (don't do it twice!)
     particle->SetProperTime(0);
 
     // Generate the vertex with the creation time and position
     // of this particular particle
-    G4PrimaryVertex *vertex = new G4PrimaryVertex(dx, time * s + dt);
+    G4PrimaryVertex *vertex = new G4PrimaryVertex(dx, time * CLHEP::s + dt);
 
     // Add particle to vertex
     vertex->SetPrimary(particle);
@@ -110,7 +103,7 @@ void VertexGen_Decay0::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, 
     else
       val = 0;
     info << "VertexGen_Decay0::GeneratePrimaryVertex : Particle " << j << " has parent " << fDecay0->GetParentIdx(j)
-         << " (old eval :" << val << ")" << endl;
+         << " (old eval :" << val << ")" << newline;
 #endif
     if (fDecay0->GetParentIdx(j) == 1) {
       vertinfo->AddNewParentParticle(parent2);
@@ -176,7 +169,7 @@ void VertexGen_Decay0::SetState(G4String newValues) {
          << "\n   5-8: Majoron(s) with spectral index SI:\n"
          << "     SI=1 - old M of Gelmini-Roncadelli\n"
          << "     SI=2 - bulk M of Mohapatra\n"
-         << "     SI=3 - double M, vector M, charged M\n"
+         << "     SI=3 - double M, std::vector M, charged M\n"
          << "     SI=7\n";
 
     info << "Format of argument to VertexGen_Decay0::SetState: background and "
@@ -276,7 +269,7 @@ void VertexGen_Decay0::SetState(G4String newValues) {
            << "\n   5-8: Majoron(s) with spectral index SI:\n"
            << "     SI=1 - old M of Gelmini-Roncadelli\n"
            << "     SI=2 - bulk M of Mohapatra\n"
-           << "     SI=3 - double M, vector M, charged M\n"
+           << "     SI=3 - double M, std::vector M, charged M\n"
            << "     SI=7\n";
       Log::Die("VertexGen_Decay0: choose a mode from 1 to 16");
     }
@@ -319,13 +312,13 @@ void VertexGen_Decay0::SetState(G4String newValues) {
     fType = type;
     // argument : [ISOTOPE]
     G4String isotope;
-    vector<double> tim;
+    std::vector<double> tim;
     is >> isotope;
     if (is.fail() || isotope.length() == 0) {
       Log::Die("VertexGen_Decay0: Incorrect vertex setting " + newValues);
     }
 #ifdef RATDEBUG
-    info << "VertexGen_Decay0::SetState : Parsing isotope [" << isotope << "]" << endl;
+    info << "VertexGen_Decay0::SetState : Parsing isotope [" << isotope << "]" << newline;
 #endif
     fIsotopeRawIn = isotope;
     // Strip the isotope name
@@ -350,11 +343,11 @@ void VertexGen_Decay0::SetState(G4String newValues) {
     }
   } else if (type == "time_cut") {
     double tcut;
-    string units;
+    std::string units;
     double unit_value = 1.0;
     is >> tcut;
     if (is.fail()) {
-      ostringstream msg;
+      std::ostringstream msg;
       msg << "VertexGen_Decay0: Failed to set the time window cut. Unknown "
              "state input ["
           << newValues << "]";
@@ -364,7 +357,7 @@ void VertexGen_Decay0::SetState(G4String newValues) {
     is >> units;
     if (is.fail() || units.size() == 0) {
       // No units were specified. Assume ns
-      warn << "VertexGen_Decay0: No time cut units were specified. Assuming ns." << endl;
+      warn << "VertexGen_Decay0: No time cut units were specified. Assuming ns." << newline;
     } else {
       unit_value = G4UnitDefinition::GetValueOf(units);
     }
@@ -372,7 +365,7 @@ void VertexGen_Decay0::SetState(G4String newValues) {
     tcut *= unit_value;
 
     if (fDecay0 == 0) {
-      ostringstream msg;
+      std::ostringstream msg;
       msg << "VertexGen_Decay0: Attempting to set a time cut without a valid "
              "Decay0 generator.";
       Log::Die(msg.str());
@@ -380,11 +373,11 @@ void VertexGen_Decay0::SetState(G4String newValues) {
       warn << "VertexGen_Decay0: WARNING: Setting a coincidence decay time "
               "cutoff time, without having passed the \"-timecut\" suffix with "
               "the isotope name."
-           << endl;
+           << newline;
     }
     info << "VertexGen_Decay0: Setting the coincidence cutoff time window in "
             "Decay0 to "
-         << " (" << tcut / ns << " ns )." << newline;
+         << " (" << tcut / CLHEP::ns << " ns )." << newline;
 
     fDecay0->SetCutoffWindow(tcut);
   } else {
@@ -464,29 +457,29 @@ void VertexGen_Decay0::GetParentAZ(G4int &A1, G4int &Z1, G4int &A2, G4int &Z2) {
 ///************************************************/
 
 void VertexGen_Decay0::StripIsotopeSuffix() {
-  vector<string> suffixes;
+  std::vector<std::string> suffixes;
   suffixes.push_back("-pure");
   suffixes.push_back("-timecut");
 
   fIsotope = fIsotopeRawIn;
   size_t pos = 0;
 
-  if ((pos = fIsotope.find(suffixes.at(0))) != string::npos) {
+  if ((pos = fIsotope.find(suffixes.at(0))) != std::string::npos) {
     debug << "VertexGen_Decay0::StripIsotopeSuffix : Found \"" << suffixes.at(0)
-          << "\" suffix. Flagging it to eliminate initial alpha." << endl;
+          << "\" suffix. Flagging it to eliminate initial alpha." << newline;
     fHasAlphaCut = true;
     fIsotope = fIsotope.erase(pos, suffixes.at(0).length());
   }
 
-  if ((pos = fIsotope.find(suffixes.at(1))) != string::npos) {
+  if ((pos = fIsotope.find(suffixes.at(1))) != std::string::npos) {
     debug << "VertexGen_Decay0::StripIsotopeSuffix : Found \"" << suffixes.at(1)
-          << "\" suffix. Flagging it to enable coincidence time cutoff." << endl;
+          << "\" suffix. Flagging it to enable coincidence time cutoff." << newline;
     fHasTimeCutoff = true;
     fIsotope = fIsotope.erase(pos, suffixes.at(1).length());
   }
 
 #ifdef RATDEBUG
-  debug << "VertexGen_Decay0::StripIsotopeSuffix : Final isotope name : " << fIsotope << endl;
+  debug << "VertexGen_Decay0::StripIsotopeSuffix : Final isotope name : " << fIsotope << newline;
 #endif
 }
 

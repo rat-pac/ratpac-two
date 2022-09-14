@@ -11,10 +11,6 @@
 #include <RAT/VertexGen_WIMP.hh>
 #include <Randomize.hh>
 
-#include "TMath.h"
-
-using namespace TMath;
-
 namespace RAT {
 VertexGen_WIMP::VertexGen_WIMP(const char *arg_dbname) : GLG4VertexGen(arg_dbname) {}
 
@@ -48,12 +44,12 @@ void VertexGen_WIMP::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, G4
 void VertexGen_WIMP::SetState(G4String newValues) {
   if (newValues.length() == 0) {
     // print help and current state
-    G4cout << "Current state of this VertexGen_WIMP:\n"
-           << " \"" << GetState() << "\"\n"
-           << G4endl;
-    G4cout << "Format of argument to VertexGen_WIMP::SetState: \n"
-              " \"nucleus_name WIMP_mass_in_GeV\"\n"
-           << G4endl;
+    std::cout << "Current state of this VertexGen_WIMP:\n"
+              << " \"" << GetState() << "\"\n"
+              << std::endl;
+    std::cout << "Format of argument to VertexGen_WIMP::SetState: \n"
+                 " \"nucleus_name WIMP_mass_in_GeV\"\n"
+              << std::endl;
     return;
   }
 
@@ -79,32 +75,33 @@ G4String VertexGen_WIMP::GetState() { return dformat("%s\t%f", fNucleusName.c_st
 double VertexGen_WIMP::Helmff(double E, double mA) {
   if (E * mA == 0) return 1;
   // hbar c in MeV*fm
-  const double hbarcnuc = TMath::Hbar() * TMath::C() / TMath::Qe() * 1e9;
+  const double hbarcnuc = -CLHEP::hbarc / CLHEP::electron_charge * 1e9;
   double A = (double)fNucleus->GetBaryonNumber();
 
-  double ra = Sqrt((1.23 * pow(A, 1. / 3) - .6) * (1.23 * pow(A, 1. / 3) - .6) + 7. / 3 * Pi() * Pi() * .52 * .52 - 5);
-  double qs = Sqrt(2 * E * mA) / hbarcnuc;
-  double qr = Sqrt(2 * E * mA) * ra / hbarcnuc;
+  double ra = sqrt((1.23 * pow(A, 1. / 3) - .6) * (1.23 * pow(A, 1. / 3) - .6) +
+                   7. / 3 * CLHEP::pi * CLHEP::pi * .52 * .52 - 5);
+  double qs = sqrt(2 * E * mA) / hbarcnuc;
+  double qr = sqrt(2 * E * mA) * ra / hbarcnuc;
 
-  return 9 * ((Sin(qr) - qr * Cos(qr)) / pow(qr, 3)) * ((Sin(qr) - qr * Cos(qr)) / pow(qr, 3)) * Exp(-qs * qs);
+  return 9 * ((sin(qr) - qr * cos(qr)) / pow(qr, 3)) * ((sin(qr) - qr * cos(qr)) / pow(qr, 3)) * exp(-qs * qs);
 }
 
 // Eq. (19) of C. Savage, G. Gelmini, P. Gondolo, K. Freese, JCAP 0904:010, 2009
 double VertexGen_WIMP::VelIntegral(double vmin, double v0, double vE, double vesc) {
   if (v0 == 0) {
-    G4cout << "VertexGen_WIMP error: zero most likely WIMP velocity relative "
-              "to the Milky Way. Returning -1\n";
+    std::cout << "VertexGen_WIMP error: zero most likely WIMP velocity relative "
+                 "to the Milky Way. Returning -1\n";
     return -1;
   }
   double xmin = vmin / v0, xE = vE / v0, xesc = vesc / v0;
   if (xesc < xE)
-    G4cout << "VertexGen_WIMP warning (we are not escaping the galaxy): our "
-              "velocity is "
-           << vE << ", the local Milky Way escape velocity is " << vesc << ". The results will be unphysical.\n";
+    std::cout << "VertexGen_WIMP warning (we are not escaping the galaxy): our "
+                 "velocity is "
+              << vE << ", the local Milky Way escape velocity is " << vesc << ". The results will be unphysical.\n";
   // no extragalactic WIMPs
   if (xesc + xE <= xmin) return 0;
   // normal case: we're looking where we expect a good signal
-  if (xmin <= Abs(xesc - xE)) {
+  if (xmin <= abs(xesc - xE)) {
     // the ref. above lists this math. possible case, which is unphysical (we'd
     // be flying out of the galaxy)
     if (xesc <= xE) return 1 / vE;

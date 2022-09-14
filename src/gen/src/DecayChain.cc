@@ -4,8 +4,8 @@
 #include <RAT/FermiFunction.hh>
 #include <Randomize.hh>
 #include <cmath>
-#include <cstring>
 #include <iostream>
+#include <string>
 
 #undef DEBUG
 

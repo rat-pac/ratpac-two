@@ -3,27 +3,25 @@
 #include <RAT/PMTInfoParser.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
-  string volume_name = table->GetS("index");
-  string mother_name = table->GetS("mother");
+  std::string volume_name = table->GetS("index");
+  std::string mother_name = table->GetS("mother");
 
   info << "PMTArrayFactory: Constructing volume " + volume_name << newline;
 
-  string pos_table_name = table->GetS("pos_table");
+  std::string pos_table_name = table->GetS("pos_table");
   DBLinkPtr lpos_table = DB::Get()->GetLink(pos_table_name);
 
   PMTInfoParser pmtinfo(lpos_table, mother_name);
 
-  const vector<G4ThreeVector> &pmtinfo_pos = pmtinfo.GetPMTLocations();
-  const vector<G4ThreeVector> &pmtinfo_dir = pmtinfo.GetPMTDirections();
+  const std::vector<G4ThreeVector> &pmtinfo_pos = pmtinfo.GetPMTLocations();
+  const std::vector<G4ThreeVector> &pmtinfo_dir = pmtinfo.GetPMTDirections();
   const G4ThreeVector local_offset = pmtinfo.GetLocalOffset();
-  const vector<double> &pmtinfo_noiserates = pmtinfo.GetPMTNoiseRates();
+  const std::vector<double> &pmtinfo_noiserates = pmtinfo.GetPMTNoiseRates();
 
-  const vector<int> &pmtinfo_types = pmtinfo.GetTypes();
+  const std::vector<int> &pmtinfo_types = pmtinfo.GetTypes();
 
   int start_idx, end_idx;
   try {
@@ -58,11 +56,11 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
   }
 
   // Orientation of PMTs
-  vector<double> dir_x, dir_y, dir_z;
+  std::vector<double> dir_x, dir_y, dir_z;
   G4ThreeVector orient_point;
   bool orient_manual = false;
   try {
-    string orient_str = table->GetS("orientation");
+    std::string orient_str = table->GetS("orientation");
     if (orient_str == "manual")
       orient_manual = true;
     else if (orient_str == "point")
@@ -73,7 +71,7 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
   }
 
   if (!orient_manual) {
-    const vector<double> &orient_point_array = table->GetDArray("orient_point");
+    const std::vector<double> &orient_point_array = table->GetDArray("orient_point");
     if (orient_point_array.size() != 3) Log::Die("PMTFactoryBase error: orient_point must have 3 values");
     orient_point.set(orient_point_array[0], orient_point_array[1], orient_point_array[2]);
   }
@@ -86,8 +84,8 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
   } catch (DBNotFoundError &e) { }
   */
 
-  vector<G4ThreeVector> pos(end_idx - start_idx + 1), dir(end_idx - start_idx + 1);
-  vector<int> ptypes(end_idx - start_idx + 1);
+  std::vector<G4ThreeVector> pos(end_idx - start_idx + 1), dir(end_idx - start_idx + 1);
+  std::vector<int> ptypes(end_idx - start_idx + 1);
   for (int idx = start_idx, i = 0; idx <= end_idx; idx++, i++) {
     pos[i] = pmtinfo_pos[idx];
     ptypes[i] = pmtinfo_types[idx];

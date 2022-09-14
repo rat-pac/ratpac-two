@@ -9,12 +9,10 @@
 
 #include "G4IntersectionSolid.hh"
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *GeoConvexLensFactory::ConstructSolid(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
   G4double R1 = table->GetD("R1") * CLHEP::mm;
   G4double thickness = table->GetD("thickness") * CLHEP::mm;
 

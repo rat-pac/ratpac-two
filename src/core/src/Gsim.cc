@@ -367,7 +367,7 @@ void Gsim::PostUserTrackingAction(const G4Track *aTrack) {
 
   if (trackInfo) {
     // Fill the energy loss by volume map
-    for (std::map<string, double>::iterator it = trackInfo->energyLoss.begin(); it != trackInfo->energyLoss.end();
+    for (std::map<std::string, double>::iterator it = trackInfo->energyLoss.begin(); it != trackInfo->energyLoss.end();
          it++) {
       eventInfo->energyLoss[it->first] = it->second;
     }

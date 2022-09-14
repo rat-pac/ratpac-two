@@ -6,12 +6,10 @@
 #include <RAT/Materials.hh>
 #include <sstream>
 
-using namespace std;
-
 namespace RAT {
 
-string ConvertIntToString(int i) {
-  stringstream sstream;
+std::string ConvertIntToString(int i) {
+  std::stringstream sstream;
   sstream << i;
   return sstream.str();
 }
@@ -19,8 +17,8 @@ string ConvertIntToString(int i) {
 G4VPhysicalVolume *GeoSurfaceFactory::Construct(DBLinkPtr table) {
   detail << "GeoSurfaceFactory: Constructing border " << table->GetIndex() << newline;
 
-  string border_name = table->GetIndex();
-  string volume1_name, volume2_name;
+  std::string border_name = table->GetIndex();
+  std::string volume1_name, volume2_name;
 
   bool isArray1 = false, isArray2 = false;
   try {
@@ -29,8 +27,8 @@ G4VPhysicalVolume *GeoSurfaceFactory::Construct(DBLinkPtr table) {
     Log::Die("Unable to find the first volume");
   };
   RAT::DBLinkPtr table1 = DB::Get()->GetLink("GEO", volume1_name);
-  string type1 = table1->GetS("type");
-  if (type1.find("array") != string::npos || type1.find("wlsp") != string::npos) isArray1 = true;
+  std::string type1 = table1->GetS("type");
+  if (type1.find("array") != std::string::npos || type1.find("wlsp") != std::string::npos) isArray1 = true;
 
   try {
     volume2_name = table->GetS("volume2");
@@ -38,8 +36,8 @@ G4VPhysicalVolume *GeoSurfaceFactory::Construct(DBLinkPtr table) {
     Log::Die("Unable to find the second volume");
   };
   DBLinkPtr table2 = DB::Get()->GetLink("GEO", volume2_name);
-  string type2 = table2->GetS("type");
-  if (type2.find("array") != string::npos || type1.find("wlsp") != string::npos) isArray2 = true;
+  std::string type2 = table2->GetS("type");
+  if (type2.find("array") != std::string::npos || type1.find("wlsp") != std::string::npos) isArray2 = true;
 
   G4VPhysicalVolume *Phys1, *Phys2;
   G4int counter = 0;
@@ -73,7 +71,7 @@ G4VPhysicalVolume *GeoSurfaceFactory::Construct(DBLinkPtr table) {
     //     if (!Phys2) Log::Die(volume2_name+" not found");
 
     try {
-      string surface_name = table->GetS("surface");
+      std::string surface_name = table->GetS("surface");
       if (Materials::optical_surface.count(surface_name) == 0)
         Log::Die("GeoSurfaceFactory: Error building " + border_name + ", surface " + surface_name + " does not exist");
       new G4LogicalBorderSurface("interface" + volume1_name + "_" + volume2_name, Phys1, Phys2,

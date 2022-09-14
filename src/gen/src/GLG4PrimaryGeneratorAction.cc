@@ -7,7 +7,6 @@
 // GLG4PrimaryGeneratorAction
 ////////////////////////////////////////////////////////////////
 
-// include files (boring)
 #include "RAT/GLG4PrimaryGeneratorAction.hh"
 
 #include <CLHEP/Units/PhysicalConstants.h>
@@ -108,7 +107,7 @@ void GLG4PrimaryGeneratorAction::AddGenerator(GLG4Gen *gen) {
   needReset = true;
 }
 void GLG4PrimaryGeneratorAction::ClearGenerators(void) {
-  RAT::warn << "Clearing all event generators!" << endl;
+  RAT::warn << "Clearing all event generators!" << newline;
   myGenList.clear();
   needReset = true;
 }

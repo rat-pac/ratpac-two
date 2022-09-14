@@ -6,12 +6,10 @@
 #include <G4UnionSolid.hh>
 #include <RAT/GeoCheSSVesselFactory.hh>
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *GeoCheSSVesselFactory::ConstructSolid(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
   const double r_min = 0.;
   const double r_max = table->GetD("r_max");
   const double size_z = table->GetD("size_z");

@@ -7,7 +7,6 @@ namespace RAT {
 class GeoSolidArrayFactoryBase : public GeoFactory {
  public:
   GeoSolidArrayFactoryBase(const std::string &name) : GeoFactory(name){};
-  using GeoFactory::Construct;
 
  protected:
   virtual G4VPhysicalVolume *Construct(G4VSolid *BaseSolid, DBLinkPtr table);

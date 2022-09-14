@@ -3,11 +3,9 @@
 #include <RAT/PDFPMTCharge.hh>
 #include <Randomize.hh>
 
-using namespace std;
-
 namespace RAT {
 
-PDFPMTCharge::PDFPMTCharge(string pmt_model) {
+PDFPMTCharge::PDFPMTCharge(std::string pmt_model) {
   DBLinkPtr model = DB::Get()->GetLink("PMTCHARGE", pmt_model);
 
   fCharge = model->GetDArray("charge");
@@ -15,16 +13,16 @@ PDFPMTCharge::PDFPMTCharge(string pmt_model) {
 
   info << "Setting up PDF PMTCharge model for ";
   if (pmt_model == "") {
-    info << "DEFAULT" << endl;
+    info << "DEFAULT" << newline;
   } else {
-    info << pmt_model << endl;
+    info << pmt_model << newline;
   }
 
   if (fCharge.size() != fChargeProb.size()) Log::Die("PDFPMTCharge: charge and probability arrays of different length");
   if (fCharge.size() < 2) Log::Die("PDFPMTCharge: cannot define a PDF with fewer than 2 points");
 
   double integral = 0.0;
-  fChargeProbCumu = vector<double>(fCharge.size());
+  fChargeProbCumu = std::vector<double>(fCharge.size());
   fChargeProbCumu[0] = 0.0;
   for (size_t i = 0; i < fCharge.size() - 1; i++) {
     integral += (fCharge[i + 1] - fCharge[i]) * (fChargeProb[i] + fChargeProb[i + 1]) / 2.0;  // trapazoid integration
@@ -50,7 +48,7 @@ double PDFPMTCharge::PickCharge() const {
   }
   info << "PDFPMTCharge::PickCharge: impossible condition encountered - "
           "returning highest defined charge"
-       << endl;
+       << newline;
   return fCharge[fCharge.size() - 1];
 }
 

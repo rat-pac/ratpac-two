@@ -13,10 +13,8 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
-bool check_intersect(G4ThreeVector newpos, vector<G4ThreeVector> &pos, float radius) {
+bool check_intersect(G4ThreeVector newpos, std::vector<G4ThreeVector> &pos, float radius) {
   for (unsigned i = 0; i < pos.size(); i++) {
     if ((newpos - pos[i]).mag() < (2 * radius)) return true;  // info << "Intersect " << i << " " << j << newline;
   }
@@ -25,11 +23,11 @@ bool check_intersect(G4ThreeVector newpos, vector<G4ThreeVector> &pos, float rad
 }
 
 G4VPhysicalVolume *GeoBubbleFactory::Construct(DBLinkPtr table) {
-  string name = table->GetIndex();
+  std::string name = table->GetIndex();
   info << "GeoBubbleFactory: Constructing volume " << name << " (yay bubbles!)" << newline;
 
   // Mother volume properties
-  string mother_name = table->GetS("mother");
+  std::string mother_name = table->GetS("mother");
   G4LogicalVolume *logi_mother = FindMother(mother_name);
 
   if (logi_mother == 0)
@@ -43,10 +41,10 @@ G4VPhysicalVolume *GeoBubbleFactory::Construct(DBLinkPtr table) {
   float radius_mean = table->GetD("radius_mean");
   float radius_sigma = table->GetD("radius_sigma");
 
-  vector<G4ThreeVector> pos;
+  std::vector<G4ThreeVector> pos;
 
   for (int i = 0; i < count; i++) {
-    string bubble_name = name + dformat("%d", i);
+    std::string bubble_name = name + dformat("%d", i);
     float radius = G4RandGauss::shoot(radius_mean, radius_sigma) * CLHEP::mm;
     if (radius < 0) radius = 0.001 * radius_mean * CLHEP::mm;
 

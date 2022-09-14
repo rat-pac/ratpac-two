@@ -6,8 +6,6 @@
 #include <RAT/string_utilities.hpp>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 // utility func

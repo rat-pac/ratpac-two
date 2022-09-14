@@ -6,8 +6,6 @@
 #include <RAT/PosGen_RegexFill.hh>
 #include <Randomize.hh>
 
-using namespace std;
-
 namespace RAT {
 
 void PosGen_RegexFill::SetState(G4String regex) {
@@ -15,7 +13,7 @@ void PosGen_RegexFill::SetState(G4String regex) {
 
   regex_t re;
   if (regcomp(&re, regex, REG_EXTENDED | REG_NOSUB) != 0) {
-    Log::Die("PosGen_RegexFill::SetState: the string \"" + regex + "\" is not a valid regex!");
+    Log::Die("PosGen_RegexFill::SetState: the std::string \"" + regex + "\" is not a valid regex!");
   }
 
   G4VPhysicalVolume *worldPhys =
@@ -37,7 +35,7 @@ void PosGen_RegexFill::SetState(G4String regex) {
   for (size_t i = fVolumeCumu.size(); i < fVolumes.size(); i++) {
     info << fVolumes[i].phys->GetName() << ", ";
   }
-  info << endl;
+  info << newline;
 
   fVolumeCumu.resize(fVolumes.size());
   fVolumeCumu[0] = fVolumes[0].solidVolume;
@@ -46,7 +44,7 @@ void PosGen_RegexFill::SetState(G4String regex) {
   }
 }
 
-void PosGen_RegexFill::FindVolumes(G4LogicalVolume *mother, regex_t *re, vector<FillVolume> &found) {
+void PosGen_RegexFill::FindVolumes(G4LogicalVolume *mother, regex_t *re, std::vector<FillVolume> &found) {
   for (int i = 0; i < mother->GetNoDaughters(); i++) {
     G4VPhysicalVolume *daughterPhys = mother->GetDaughter(i);
     G4LogicalVolume *daughterLog = daughterPhys->GetLogicalVolume();
@@ -70,7 +68,7 @@ void PosGen_RegexFill::FindVolumes(G4LogicalVolume *mother, regex_t *re, vector<
         // subtract off daughter volume from total volume
         vol.solidVolume -= GetVolume(grandSolid);
         // store granddaughter solid and tx from daughter->granddaughter frame
-        vol.daughters.push_back(make_pair(grandSolid, grandTransform.Inverse()));
+        vol.daughters.push_back(std::make_pair(grandSolid, grandTransform.Inverse()));
       }
 
       // use GEANT4 to calculate a bounding box of the solid in the solid's

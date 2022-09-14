@@ -74,17 +74,12 @@
  1 - gamma   2 - positron   3 - electron   47 - alpha
 **************/
 
-// using namespace std;
-using std::complex;
-using std::string;
-using std::vector;
-
 namespace RAT {
 
 class Decay0 {
  public:
   Decay0();
-  Decay0(const std::string isotope, const int level, const int mode, const float lE, const float hE);
+  Decay0(const std::string isotope, const int level, const int mode, const double lE, const double hE);
   Decay0(const std::string isotope);
   ~Decay0();
 
@@ -92,7 +87,7 @@ class Decay0 {
   void GenBackgTest();
   void GenBBDeex();
   void GenEvent();
-  float GetRandom();
+  double GetRandom();
   G4ParticleDefinition *fPartDef;
   double GetMass(int pdg);  // get mass of particle from GEANT
 
@@ -102,26 +97,27 @@ class Decay0 {
   void bb();
   /// Generation of isotropic emission of particle in the range of
   /// energies and angles
-  void particle(int np, float E1, float E2, float teta1, float teta2, float phi1, float phi2, float tclev, float thlev);
+  void particle(int np, double E1, double E2, double teta1, double teta2, double phi1, double phi2, double tclev,
+                double thlev);
   /// Generation of e+e- pair in zero-approximation to real subroutine for
   ///  internal pair creation: 1) energy of e+ is equal to the energy of e-;
   ///  2) e+ and e- are emitted in the same direction
-  void pair(float Epair);
+  void pair(double Epair);
   /// probability distribution for energy of e-/e+ in doublebeta decay
-  float fe1_mod();
-  float fe2_mod();
+  double fe1_mod();
+  double fe2_mod();
   /// Function to calculate the traditional function of Fermi in
   /// theory of beta decay to take into account the Coulomb correction
-  float fermi(const float &Z, const float &E);
+  double fermi(const double &Z, const double &E);
   /// simulation of the angles and energy of beta particles
   /// emitted in beta decay of nucleus.
-  void beta(float Qbeta, float tcnuc, float thnuc);
-  void beta1f(float Qbeta, float tcnuc, float thnuc, float c1, float c2, float c3, float c4);
-  void beta1fu(float Qbeta, float tcnuc, float thnuc, float c1, float c2, float c3, float c4);
-  void beta2f(float Qbeta, float tcnuc, float thnuc, int kf, float c1, float c2, float c3, float c4);
+  void beta(double Qbeta, double tcnuc, double thnuc);
+  void beta1f(double Qbeta, double tcnuc, double thnuc, double c1, double c2, double c3, double c4);
+  void beta1fu(double Qbeta, double tcnuc, double thnuc, double c1, double c2, double c3, double c4);
+  void beta2f(double Qbeta, double tcnuc, double thnuc, int kf, double c1, double c2, double c3, double c4);
   /// determines maximum or minimum of the function f(x) in the interval [a,b]
   /// by the gold section method.
-  void tgold(float a, float b, TF1 &f, float eps, int nmin, float &xextt, float &fextr);
+  void tgold(double a, double b, TF1 &f, double eps, int nmin, double &xextt, double &fextr);
   ///************************************************/
 
   ///-----------------------------------------------
@@ -202,12 +198,12 @@ class Decay0 {
   // gamma-ray emission, internal conversion and internal pair creation.
   // Conversion electrons are emitted only with one fixed energy
   // (usually with Egamma-E(K)_binding_energy)
-  void nucltransK(float Egamma, float Ebinde, float conve, float convp);
-  void nucltransKL(float Egamma, float EbindeK, float conveK, float EbindeL, float conveL, float convp);
-  void nucltransKLM(float Egamma, float EbindeK, float conveK, float EbindeL, float conveL, float EbindeM, float conveM,
-                    float convp);
-  void nucltransKLM_Pb(float Egamma, float EbindeK, float conveK, float EbindeL, float conveL, float EbindeM,
-                       float conveM, float convp);
+  void nucltransK(double Egamma, double Ebinde, double conve, double convp);
+  void nucltransKL(double Egamma, double EbindeK, double conveK, double EbindeL, double conveL, double convp);
+  void nucltransKLM(double Egamma, double EbindeK, double conveK, double EbindeL, double conveL, double EbindeM,
+                    double conveM, double convp);
+  void nucltransKLM_Pb(double Egamma, double EbindeK, double conveK, double EbindeL, double conveL, double EbindeM,
+                       double conveM, double convp);
   ///************************************************/
   Double_t funbeta(Double_t *x, Double_t *par);
   Double_t funbeta1fu(Double_t *x, Double_t *par);
@@ -215,8 +211,8 @@ class Decay0 {
   Double_t funbeta2f(Double_t *x, Double_t *par);
   //************************************************/
   // cernlib functions:
-  complex<double> cgamma(complex<double> z);
-  float divdif(double xtab[50], double xval);
+  std::complex<double> cgamma(std::complex<double> z);
+  double divdif(double xtab[50], double xval);
   ///************************************************/
 
   inline int GetNbPart() { return fNbPart; };
@@ -241,7 +237,7 @@ class Decay0 {
                          // coincidences (-timecut)
   bool fHasAlphaCut;     // Flag to indicate if the first alpha should be cut out
                          // (-pure)
-  string fIsotope;       // parent isotope
+  std::string fIsotope;  // parent isotope
   int fLevel;            // daughter energy level
   int fMode;             // decay mode
   int fModebb;           // decay mode number inside code  (fMode!=fModebb for few modes)
@@ -249,61 +245,61 @@ class Decay0 {
                          // and eb+ processes);
   int fZdtr;             //  atomic number of daughter nucleus (Zdtr>0 for e- and  Zdtr<0
                          //  for e+ particles);
-  float fEbindeK;        // binding energy of electron on K-shell (MeV)
-  float fEbindeL;        // binding energy of electron on L-shell (MeV)
-  float fEbindeM;        // binding energy of electron on M-shell (MeV)
-  float fEbindeK2;       // binding energy of electron on K-shell (MeV)  (second decay)
-  float fEbindeL2;       // binding energy of electron on L-shell (MeV)  (second decay)
-  float fEbindeM2;       // binding energy of electron on M-shell (MeV)  (second decay)
-  float fLoE, fHiE;      // limit for spectrum
-  float fTdlev;          // time of decay of level (sec);
-  float fTdnuc;          // time of decay of nucleus (sec);
-  float fTclev;          // time of creation of level from which particle will be emitted
+  double fEbindeK;       // binding energy of electron on K-shell (MeV)
+  double fEbindeL;       // binding energy of electron on L-shell (MeV)
+  double fEbindeM;       // binding energy of electron on M-shell (MeV)
+  double fEbindeK2;      // binding energy of electron on K-shell (MeV)  (second decay)
+  double fEbindeL2;      // binding energy of electron on L-shell (MeV)  (second decay)
+  double fEbindeM2;      // binding energy of electron on M-shell (MeV)  (second decay)
+  double fLoE, fHiE;     // limit for spectrum
+  double fTdlev;         // time of decay of level (sec);
+  double fTdnuc;         // time of decay of nucleus (sec);
+  double fTclev;         // time of creation of level from which particle will be emitted
                          // (sec);
-  float fThlev;          // level halflife (sec).
-  float fThnuc;          // nucleus halflife (sec);
-  float fEgamma;         // gamma-ray energy (MeV) [=difference in state energies];
-  float fTevst;          // time of event's start (sec);
-  float fQbb;            // energy release in double beta process: difference between
+  double fThlev;         // level halflife (sec).
+  double fThnuc;         // nucleus halflife (sec);
+  double fEgamma;        // gamma-ray energy (MeV) [=difference in state energies];
+  double fTevst;         // time of event's start (sec);
+  double fQbb;           // energy release in double beta process: difference between
                          // masses of parent and daughter atoms (MeV);
-  float fQbeta;          // beta energy endpoint (MeV; Qbeta>50 eV);
-  float fEK;             // binding energy of electron on K shell of parent atom (MeV)
+  double fQbeta;         // beta energy endpoint (MeV; Qbeta>50 eV);
+  double fEK;            // binding energy of electron on K shell of parent atom (MeV)
   int fStartbb;          // must be 0 for first call of bb function for a given mode
 
-  float fEbb1, fEbb2;  // left and right energy limits for sum of energies of
-                       // emitted e-/e+; other events will be thrown away
+  double fEbb1, fEbb2;  // left and right energy limits for sum of energies of
+                        // emitted e-/e+; other events will be thrown away
 
   /// members used to collect information from data base file
   DBLinkPtr fLdecay;
-  vector<int> fLevelE;
-  vector<int> fTrans;
-  vector<int> fDaughterZ;
-  vector<double> fHLifeTime;
-  vector<double> fProbDecay;
-  vector<double> fProbBeta;
-  vector<double> fEndPoint;
-  vector<double> fProbAlpha;
-  vector<double> fEnAlpha;
-  vector<double> fProbEC;
-  vector<double> fEnGamma;
-  vector<double> fShCorrFactor;
+  std::vector<int> fLevelE;
+  std::vector<int> fTrans;
+  std::vector<int> fDaughterZ;
+  std::vector<double> fHLifeTime;
+  std::vector<double> fProbDecay;
+  std::vector<double> fProbBeta;
+  std::vector<double> fEndPoint;
+  std::vector<double> fProbAlpha;
+  std::vector<double> fEnAlpha;
+  std::vector<double> fProbEC;
+  std::vector<double> fEnGamma;
+  std::vector<double> fShCorrFactor;
 
   double fSpthe1[4300], fSpthe2[4300], fSpmax, fFe2m;
-  float fE0;       // possible amount of energy released
-  float fE1, fE2;  // energy of first and second beta
+  double fE0;       // possible amount of energy released
+  double fE1, fE2;  // energy of first and second beta
  public:
   double fSl[48];
   int fSlSize;
-  float fC1, fC2, fC3, fC4;  // shape correction factors
-  float fKf;                 // degree of forbiddeness for unique spectra
-  int fNbPart;               // current number of last particle in event;
-  double fPmoment[3][100];   // x,y,z components of particle momentum (MeV);
-  double fPtime[100];        // time shift from previous particle time
-  int fNpGeant[100];         // GEANT number for particle identification see above (line
-                             // 23)
+  double fC1, fC2, fC3, fC4;  // shape correction factors
+  double fKf;                 // degree of forbiddeness for unique spectra
+  int fNbPart;                // current number of last particle in event;
+  double fPmoment[3][100];    // x,y,z components of particle momentum (MeV);
+  double fPtime[100];         // time shift from previous particle time
+  int fNpGeant[100];          // GEANT number for particle identification see above (line
+                              // 23)
 
-  unsigned int fCurParentIdx;     // Index of the current parent for each particle
-  vector<unsigned int> fPparent;  // Index of the parent for each particle.
+  unsigned int fCurParentIdx;          // Index of the current parent for each particle
+  std::vector<unsigned int> fPparent;  // Index of the parent for each particle.
 
   /************************************************/
   double operator()(double *x, double *par) {

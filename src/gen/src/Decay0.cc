@@ -14,9 +14,9 @@
 #include <algorithm>
 #include <cmath>
 #include <complex>
-#include <cstring>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #include "Math/AdaptiveIntegratorMultiDim.h"
 #include "Math/AllIntegrationTypes.h"
@@ -33,16 +33,6 @@
 #include "TF1.h"
 #include "TF2.h"
 #include "TMath.h"
-
-// Replaced the existing using namespace std by explicit using statements to
-// reduce the risk of variable shadowing
-using std::max;
-using std::ostringstream;
-
-using CLHEP::ns;
-using CLHEP::pi;
-using CLHEP::s;
-using CLHEP::twopi;
 
 namespace RAT {
 
@@ -75,9 +65,9 @@ Double_t Decay0::funbeta1f(Double_t *x, Double_t *par) {
   Double_t funbeta1f = 0.;
 
   if (xx > 0) {
-    float all = sqrt(xx * (xx + 2. * par[1])) * (xx + par[1]) * pow(par[0] - xx, 2) * fermi(par[2], xx);
-    float w = xx / par[1] + 1.;
-    float cf = 1. + fC1 / w + fC2 * w + fC3 * w * w + fC4 * w * w * w;
+    double all = sqrt(xx * (xx + 2. * par[1])) * (xx + par[1]) * pow(par[0] - xx, 2) * fermi(par[2], xx);
+    double w = xx / par[1] + 1.;
+    double cf = 1. + fC1 / w + fC2 * w + fC3 * w * w + fC4 * w * w * w;
     funbeta1f = all * cf;
   }
   return funbeta1f;
@@ -114,12 +104,12 @@ Double_t Decay0::funbeta2f(Double_t *x, Double_t *par) {
   Double_t funbeta2f = 0.;
   if (xx > 0) {
     // allowed spectrum
-    float all = sqrt(xx * (xx + 2. * par[1])) * (xx + par[1]) * pow(par[0] - xx, 2) * fermi(par[2], xx);
+    double all = sqrt(xx * (xx + 2. * par[1])) * (xx + par[1]) * pow(par[0] - xx, 2) * fermi(par[2], xx);
     // correction factor
-    float w = xx / par[1] + 1.;
-    float pel = sqrt(w * w - 1.);
-    float pnu = (par[0] - xx) / par[1];
-    float cf = 1.;
+    double w = xx / par[1] + 1.;
+    double pel = sqrt(w * w - 1.);
+    double pnu = (par[0] - xx) / par[1];
+    double cf = 1.;
     if (fKf == 1) cf = pel * pel + fC1 * pnu * pnu;
     if (fKf == 2) cf = pow(pel, 4) + fC1 * pel * pel * pnu * pnu + fC2 * pow(pnu, 4);
     if (fKf == 3) cf = pow(pel, 6) + fC1 * pow(pel, 4) * pnu * pnu + fC2 * pel * pel * pow(pnu, 4) + fC3 * pow(pnu, 6);
@@ -134,22 +124,21 @@ Double_t Decay0::funbeta2f(Double_t *x, Double_t *par) {
 ///************************************************/
 Decay0::Decay0() : fHasTimeCutoff(false), fHasAlphaCut(false), fIsotope("") {
   // Set the default time cutoff to what was used in the past
-  fCutoffWindow = 500.0 * ns;
+  fCutoffWindow = 500.0 * CLHEP::ns;
 }
 ///************************************************/
-Decay0::Decay0(const std::string isotope, const int level, const int mode, const float lE, const float hE) {
+Decay0::Decay0(const std::string isotope, const int level, const int mode, const double lE, const double hE) {
   fLevel = level;
   fIsotope = isotope;
   fMode = mode;
   fLoE = lE;
   fHiE = hE;
 #ifdef DEBUG
-  info << "In RAT::Decay0::Decay0(), isotope = " << isotope << " level= " << fLevel << std::endl;
-  info << "                          bb-mode= " << fMode << " energy range (" << fLoE << ", " << fHiE << ")"
-       << std::endl;
+  info << "In RAT::Decay0::Decay0(), isotope = " << isotope << " level= " << fLevel << newline;
+  info << "                          bb-mode= " << fMode << " energy range (" << fLoE << ", " << fHiE << ")" << newline;
 #endif
   // Set the default time cutoff to what was used in the past
-  fCutoffWindow = 500.0 * ns;
+  fCutoffWindow = 500.0 * CLHEP::ns;
 
   fHasTimeCutoff = false;
   fHasAlphaCut = false;
@@ -158,10 +147,10 @@ Decay0::Decay0(const std::string isotope, const int level, const int mode, const
 Decay0::Decay0(const std::string isotope) {
   fIsotope = isotope;
 #ifdef DEBUG
-  info << "In RAT::Decay0::Decay0(), isotope = " << isotope << std::endl;
+  info << "In RAT::Decay0::Decay0(), isotope = " << isotope << newline;
 #endif
   // Set the default time cutoff to what was used in the past
-  fCutoffWindow = 500.0 * ns;
+  fCutoffWindow = 500.0 * CLHEP::ns;
   fHasTimeCutoff = false;
   fHasAlphaCut = false;
   fCurParentIdx = 0;
@@ -217,7 +206,7 @@ void Decay0::GenBBTest() {
   fLevelE = fLdecay->GetIArray("LevelE");
   fTrans = fLdecay->GetIArray("Trans");
 
-  float El = fLevelE[fLevel] / 1000;
+  double El = fLevelE[fLevel] / 1000;
 
   if (fLevel == 8 && fIsotope == "Ru96") fEK = 0.003;
   if (fLevel == 9 && fIsotope == "Ru96") fEK = 0.002;
@@ -264,12 +253,12 @@ void Decay0::GenBBTest() {
 
 ///************************************************/
 void Decay0::GenBackgTest() {
-  info << "Decay0::GenBackgTest : Isotope name: " << fIsotope << endl;
-  info << "Decay0::GenBackgTest : Checked suffixes: " << endl;
+  info << "Decay0::GenBackgTest : Isotope name: " << fIsotope << newline;
+  info << "Decay0::GenBackgTest : Checked suffixes: " << newline;
   info << "Decay0::GenBackgTest : [PURE]    : " << ((fHasAlphaCut) ? "true" : "false") << newline;
   info << "Decay0::GenBackgTest : [TIMECUT] : " << ((fHasTimeCutoff) ? "true" : "false") << newline;
   if (fHasTimeCutoff) {
-    info << "Decay0::GenBackgTest : Current time cutoff set to " << GetCutoffWindow() / ns << " ns." << endl;
+    info << "Decay0::GenBackgTest : Current time cutoff set to " << GetCutoffWindow() / CLHEP::ns << " ns." << newline;
   }
   fLdecay = DB::Get()->GetLink("Decay0Backg", fIsotope);
   try {
@@ -277,7 +266,7 @@ void Decay0::GenBackgTest() {
   } catch (DBNotFoundError &e) {
     Log::Die("Decay0: can't find isotope " + fIsotope);
   }
-  info << "Decay0::GenBackgTest : Loading data for isotope: " << fIsotope << endl;
+  info << "Decay0::GenBackgTest : Loading data for isotope: " << fIsotope << newline;
   try {
     fEbindeK = fLdecay->GetD("EbindeK");
   } catch (DBNotFoundError &e) {
@@ -331,7 +320,7 @@ void Decay0::GenBackgTest() {
 
   if (fHasAlphaCut) {
     if (fProbDecay.size() != 2) {
-      ostringstream msg;
+      std::ostringstream msg;
       msg << "Decay0::GenBackgTest : Requested \"-pure\" suffix on a decay "
              "with "
           << fProbDecay.size() << " parents! (2 expected).";
@@ -374,13 +363,13 @@ void Decay0::GenEvent() {
   fTevst = 0.;
   fTclev = 0.;
   fThlev = 0.;
-  float tcnuc = 0.;
+  double tcnuc = 0.;
   fTdnuc = tcnuc - fThnuc / log(2.) * log(GetRandom());
   fTevst = fTdnuc;
   fNbPart = 0;
   fCurParentIdx = 0;
   fPparent.clear();
-  float pdecay, pbeta, p;
+  double pdecay, pbeta, p;
 
   if (fIsotope == "Ac228")
     Ac228();
@@ -407,7 +396,7 @@ void Decay0::GenEvent() {
     else
       fEgamma = fEbindeM;  // EC-M 16.2%
 
-    particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
+    particle(1, fEgamma, fEgamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
     fThlev = 32.e-12;
     nucltransK(fEnGamma[0], fEbindeK, 8.5e-3, 4.3e-4);
   } else if (fIsotope == "Bi210")
@@ -422,24 +411,24 @@ void Decay0::GenEvent() {
       fThnuc = fHLifeTime[1];
       if (fHasTimeCutoff) {
         double time = tcnuc - fThnuc / log(2.) * log(GetRandom());
-        while (time > GetCutoffWindow() / s)  // Time cut off here
+        while (time > GetCutoffWindow() / CLHEP::s)  // Time cut off here
           time = tcnuc - fThnuc / log(2.) * log(GetRandom());
         fTdnuc = time;
       } else {
         fTdnuc = tcnuc - fThnuc / log(2.) * log(GetRandom());
       }
       fCurParentIdx++;  // Increment the parent, since this is the decay from Po
-      particle(47, fEnAlpha[5], fEnAlpha[5], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[5], fEnAlpha[5], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       fPtime[fNbPart0 + 1] = fPtime[fNbPart0 + 1] + fTdnuc;
     }
   } else if (fIsotope == "Bi212Tl208") {
     // Only 212Bi alpha-decay to 208Tl.
     bool next400 = false, next328 = false;
-    float palfa;
+    double palfa;
 
     palfa = 100. * GetRandom();    // 212Bi alpha-decay
     if (palfa <= fProbAlpha[0]) {  // 1.10%
-      particle(47, fEnAlpha[0], fEnAlpha[0], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[0], fEnAlpha[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       p = 100. * GetRandom();
       if (p <= 5.) {
         nucltransK(0.493, 0.086, 2.8e-2, 0.);
@@ -451,7 +440,7 @@ void Decay0::GenEvent() {
         next328 = true;
       }
     } else if (palfa <= fProbAlpha[1]) {  // 0.15%
-      particle(47, fEnAlpha[1], fEnAlpha[1], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[1], fEnAlpha[1], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       p = 100. * GetRandom();
       if (p <= 68.) {
         nucltransK(0.474, 0.086, 0.14, 0.);
@@ -463,13 +452,13 @@ void Decay0::GenEvent() {
         next328 = true;
       }
     } else if (palfa <= fProbAlpha[2]) {  // 1.67%
-      particle(47, fEnAlpha[2], fEnAlpha[2], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[2], fEnAlpha[2], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       next328 = true;
     } else if (palfa <= fProbAlpha[3]) {  // 69.88%
-      particle(47, fEnAlpha[3], fEnAlpha[3], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[3], fEnAlpha[3], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       next400 = true;
     } else {  // 27.20%
-      particle(47, fEnAlpha[4], fEnAlpha[4], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[4], fEnAlpha[4], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     }
 
     if (next328) {
@@ -512,7 +501,7 @@ void Decay0::GenEvent() {
       if (fHasTimeCutoff) {
         // There is a time cutoff
         double time = tcnuc - fThnuc / log(2.) * log(GetRandom());
-        while (time > GetCutoffWindow() / s)  // 500ns cut off here
+        while (time > GetCutoffWindow() / CLHEP::s)  // 500ns cut off here
           time = tcnuc - fThnuc / log(2.) * log(GetRandom());
         fTdnuc = time;
       }
@@ -628,19 +617,19 @@ void Decay0::GenEvent() {
   else if (fIsotope == "Kr81") {
     // NDS 79(1996)447 and ENSDF at NNDC site on 9.12.2007).
     // VIT, 9.12.2007.
-    float pklm;
+    double pklm;
     pdecay = 100. * GetRandom();
 
     if (pdecay <= fProbDecay[0]) {
       // capture from only K shell is supposed
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       fThlev = 9.7e-12;
       nucltransKLM(fEnGamma[0], fEbindeK, 7.3e-3, fEbindeL, 7.8e-4, fEbindeM, 2.6e-4, 0.);
     } else {
       pklm = 100. * GetRandom();
-      if (pklm <= 84.73) particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
-      if (pklm > 84.73 && pklm <= 97.44) particle(1, fEbindeL, fEbindeL, 0., pi, 0., twopi, 0, 0);
-      if (pklm > 97.44) particle(1, fEbindeM, fEbindeM, 0., pi, 0., twopi, 0, 0);
+      if (pklm <= 84.73) particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
+      if (pklm > 84.73 && pklm <= 97.44) particle(1, fEbindeL, fEbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
+      if (pklm > 97.44) particle(1, fEbindeM, fEbindeM, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     }
   } else if (fIsotope == "Kr85") {
     // NDS 62(1991)271 and ENSDF at NNDC site on 9.12.2007).
@@ -667,7 +656,7 @@ void Decay0::GenEvent() {
     // decay branches - 0.001%, deexcitation process - 0.001%.
     // VIT, 16.04.1998.
     // VIT, 1.04.2007, updated to NDS 107(2006)1393.
-    particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0.,
+    particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0.,
              0.);  // 100% EC to Cr54
     fThlev = 7.9e-12;
     nucltransK(fEnGamma[0], fEbindeK, 2.4e-4, 0.);
@@ -683,7 +672,7 @@ void Decay0::GenEvent() {
     if (pdecay <= fProbDecay[1]) {
       fThlev = 3.63e-12;
       if (pdecay <= fProbDecay[0])
-        particle(1, 0.001, fEbindeK, 0., pi, 0., twopi, 0, 0);
+        particle(1, 0.001, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       else {
         fThlev = 3.63e-12;
         beta1f(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
@@ -717,7 +706,7 @@ void Decay0::GenEvent() {
   else if (fIsotope == "Pb214")
     Pb214();
   else if (fIsotope == "Po212") {
-    particle(47, fEnAlpha[0], fEnAlpha[0], 0., pi, 0., twopi, 0, 0);
+    particle(47, fEnAlpha[0], fEnAlpha[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
   } else if (fIsotope == "Po214")
     Po214();
   else if (fIsotope == "Ra228")
@@ -738,7 +727,7 @@ void Decay0::GenEvent() {
     // "Table of Isotopes", 7th ed., 1978, update to NDS 82(1997)379.
     // VIT, 9.08.1993, 22.10.1995, 26.10.2006.
     // Change from the allowed shape to the 1st forbidden unique
-    // with empirical correction from:
+    // with emCLHEP::pirical correction from:
     // H.H.Hansen, Appl. Rad. Isot. 34(1983)1241
     beta1fu(fEndPoint[0], 0., 0., fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
   } else if (fIsotope == "Ta182")
@@ -804,9 +793,9 @@ void Decay0::GenEvent() {
       if (p <= 27.7) {
         pair(0.739);
       } else {
-        particle(3, 1.743, 1.743, 0., pi, 0., twopi, fTclev,
-                 fThlev);                                          // electron
-        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);  // gamma
+        particle(3, 1.743, 1.743, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev,
+                 fThlev);                                                        // electron
+        particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);  // gamma
       }
     } else
       beta1fu(fEndPoint[1], 0., 0., fShCorrFactor[4], fShCorrFactor[5], fShCorrFactor[6], fShCorrFactor[7]);
@@ -930,8 +919,8 @@ void Decay0::bb() {
   // modes of double beta decay without Primakoff-Rosen approximation.
   // fStartbb  - must be =0 for first call of bb for a given mode;
 
-  float Edlevel = fLevelE[fLevel] / 1000.;
-  float phi1, phi2;
+  double Edlevel = fLevelE[fLevel] / 1000.;
+  double phi1, phi2;
 
   if (fZdbb >= 0) fE0 = fQbb - Edlevel;
   if (fZdbb < 0) fE0 = fQbb - Edlevel - 4. * GetMass(3);
@@ -940,19 +929,19 @@ void Decay0::bb() {
     fE0 = fQbb - Edlevel - fEK - 2. * GetMass(3);
   else if (fModebb == 9) {
     fE0 = fQbb - Edlevel - fEK - 2. * GetMass(3);
-    particle(2, fE0, fE0, 0., pi, 0., twopi, 0., 0.);
-    particle(1, fEK, fEK, 0., pi, 0., twopi, 0., 0.);
+    particle(2, fE0, fE0, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
+    particle(1, fEK, fEK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
     return;
   } else if (fModebb == 11) {
     fE0 = fQbb - Edlevel - 2. * fEK;
-    particle(1, fE0, fE0, 0., pi, 0., twopi, 0., 0.);
-    particle(1, fEK, fEK, 0., pi, 0., twopi, 0., 0.);
-    particle(1, fEK, fEK, 0., pi, 0., twopi, 0., 0.);
+    particle(1, fE0, fE0, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
+    particle(1, fEK, fEK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
+    particle(1, fEK, fEK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
     return;
   } else if (fModebb == 12) {
     fE0 = fQbb - Edlevel - 2. * fEK;
-    particle(1, fEK, fEK, 0., pi, 0., twopi, 0., 0.);
-    particle(1, fEK, fEK, 0., pi, 0., twopi, 0., 0.);
+    particle(1, fEK, fEK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
+    particle(1, fEK, fEK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
     return;
   }
   if (fStartbb == 0) {
@@ -967,8 +956,8 @@ void Decay0::bb() {
       fSpthe1[i] = 0.;
       if ((fModebb >= 1 && fModebb <= 3) || fModebb == 7 || fModebb == 10) fSpthe1[i] = fe1_mod();
 
-      float elow = max(1e-4, fEbb1 - fE1 + 1e-4);
-      float ehigh = max(1e-4, fEbb2 - fE1 + 1e-4);
+      double elow = std::max(1e-4, fEbb1 - fE1 + 1e-4);
+      double ehigh = std::max(1e-4, fEbb2 - fE1 + 1e-4);
 
       if (((fModebb >= 4 && fModebb <= 6) || fModebb == 8 || (fModebb >= 13 && fModebb <= 16)) && fE1 < fE0) {
         TF1 f1("f1", this, 0, fE0, 4, "Decay0");
@@ -984,7 +973,7 @@ void Decay0::bb() {
     return;
   }
   // printf("starting the generation\n");
-  float re2s, re2f;
+  double re2s, re2f;
   int k, ke2s, ke2f;
   do {
     if (fModebb == 10)
@@ -998,10 +987,10 @@ void Decay0::bb() {
   if ((fModebb >= 1 && fModebb <= 3) || fModebb == 7)
     fE2 = fE0 - fE1;
   else if ((fModebb >= 4 && fModebb <= 6) || fModebb == 8 || (fModebb >= 13 && fModebb <= 16)) {
-    re2s = max(float(0.0), fEbb1 - fE1);
+    re2s = std::max(double(0.0), fEbb1 - fE1);
     re2f = fEbb2 - fE1;
-    float f2max = -1.;
-    ke2s = (int)(max(1., re2s * 1000.));
+    double f2max = -1.;
+    ke2s = (int)(std::max(1., re2s * 1000.));
     ke2f = (int)(round(re2f * 1000.));
 
     for (int ke2 = ke2s; ke2 <= ke2f; ke2++) {
@@ -1016,20 +1005,20 @@ void Decay0::bb() {
     } while (f2max * GetRandom() > fFe2m);
   } else if (fModebb == 10) {
     // energy of X-ray is fixed; no angular correlation
-    particle(2, fE1, fE1, 0., pi, 0., twopi, 0., 0.);
-    particle(1, fEK, fEK, 0., pi, 0., twopi, 0., 0.);
+    particle(2, fE1, fE1, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
+    particle(1, fEK, fEK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
     return;
   }
-  float p1 = sqrt(fE1 * (fE1 + 2. * GetMass(3)));
-  float p2 = sqrt(fE2 * (fE2 + 2. * GetMass(3)));
-  float b1 = p1 / (fE1 + GetMass(3));
-  float b2 = p2 / (fE2 + GetMass(3));
+  double p1 = sqrt(fE1 * (fE1 + 2. * GetMass(3)));
+  double p2 = sqrt(fE2 * (fE2 + 2. * GetMass(3)));
+  double b1 = p1 / (fE1 + GetMass(3));
+  double b2 = p2 / (fE2 + GetMass(3));
 
-  float a, b, c;
+  double a, b, c;
   a = 1.;
   b = -b1 * b2;
   c = 0.;
-  float w1, w2;
+  double w1, w2;
   if (fModebb == 2)
     b = b1 * b2;
   else if (fModebb == 3) {
@@ -1050,14 +1039,14 @@ void Decay0::bb() {
     a = 9. * pow(fE0 - fE1 - fE2, 2) + 21. * pow(fE2 - fE1, 2);
     b = -b1 * b2 * (9. * pow(fE0 - fE1 - fE2, 2) - 7. * pow(fE2 - fE1, 2));
   }
-  float ctet, stet1, stet2, ctet1, ctet2;
-  float romaxt = a + abs(b) + c;
+  double ctet, stet1, stet2, ctet1, ctet2;
+  double romaxt = a + abs(b) + c;
 
   do {
-    phi1 = twopi * GetRandom();
+    phi1 = CLHEP::twopi * GetRandom();
     ctet1 = 1. - 2. * GetRandom();
     stet1 = sqrt(1. - ctet1 * ctet1);
-    phi2 = twopi * GetRandom();
+    phi2 = CLHEP::twopi * GetRandom();
     ctet2 = 1. - 2. * GetRandom();
     stet2 = sqrt(1. - ctet2 * ctet2);
     ctet = ctet1 * ctet2 + stet1 * stet2 * cos(phi1 - phi2);
@@ -1090,7 +1079,7 @@ void Decay0::Ti48low() {
   // 2b-decay of Ca48 to ground and excited 0+ and 2+ levels of Ti48
   // ("Table of Isotopes", 7th ed., 1978).
   // levelE:[0,984,2421]
-  float p;
+  double p;
   bool next = false;
 
   if (fLevel == 2) {  // 2421.
@@ -1116,7 +1105,7 @@ void Decay0::Fe58low() {
   // 2b-decay of Ni58 to ground and excited 0+ and 2+ levels of Fe58
   // ("Table of Isotopes", 7th ed., 1978).
   // levelE:[0,811,1675],
-  float p;
+  double p;
   bool next = false;
 
   if (fLevel == 2) {  // 1675
@@ -1141,9 +1130,9 @@ void Decay0::Se76low() {
   // 2b-decay of Ge76 to ground and excited 0+ and 2+ levels of Se76
   // levelE:[0,559,1122,1216],
   int npg563 = 0, npg559 = 0;
-  float p;
-  float cg = 1.;
-  float cK = 2.0e-3;
+  double p;
+  double cg = 1.;
+  double cK = 2.0e-3;
   bool next = false;
 
   if (fLevel == 3) {  // 1216
@@ -1162,11 +1151,11 @@ void Decay0::Se76low() {
     fEgamma = fEnGamma[2];
     p = (cg + cK) * GetRandom();
     if (p <= cg) {
-      particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
+      particle(1, fEgamma, fEgamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       npg563 = fNbPart;
     } else {
-      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
     }
     next = true;
   }
@@ -1175,28 +1164,28 @@ void Decay0::Se76low() {
     fEgamma = fEnGamma[3];
     p = (cg + cK) * GetRandom();
     if (p < cg) {
-      particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
+      particle(1, fEgamma, fEgamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       npg559 = fNbPart;
     } else {
-      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
     }
     // Angular correlation between gammas 559 and 563 keV, L.Pandola + VIT
     if (npg559 != 0 && npg563 != 0) {
-      float p559 = sqrt(pow(fPmoment[0][npg559], 2) + pow(fPmoment[1][npg559], 2) + pow(fPmoment[2][npg559], 2));
-      float p563 = sqrt(pow(fPmoment[0][npg563], 2) + pow(fPmoment[1][npg563], 2) + pow(fPmoment[2][npg563], 2));
+      double p559 = sqrt(pow(fPmoment[0][npg559], 2) + pow(fPmoment[1][npg559], 2) + pow(fPmoment[2][npg559], 2));
+      double p563 = sqrt(pow(fPmoment[0][npg563], 2) + pow(fPmoment[1][npg563], 2) + pow(fPmoment[2][npg563], 2));
       // Coefficients in formula 1+a2*ctet**2+a4*ctet**4 are from: R.D.Evans,
       //"The Atomic Nucleus", Krieger Publ. Comp., 1985, p. 240, 0(2)2(2)0
       // cascade.
-      float ctet, stet1, stet2, ctet1, ctet2;
-      float phi1, phi2;
-      float a2 = -3.0;
-      float a4 = 4.0;
+      double ctet, stet1, stet2, ctet1, ctet2;
+      double phi1, phi2;
+      double a2 = -3.0;
+      double a4 = 4.0;
       do {
-        phi1 = twopi * GetRandom();
+        phi1 = CLHEP::twopi * GetRandom();
         ctet1 = 1. - 2. * GetRandom();
         stet1 = sqrt(1. - ctet1 * ctet1);
-        phi2 = twopi * GetRandom();
+        phi2 = CLHEP::twopi * GetRandom();
         ctet2 = 1. - 2. * GetRandom();
         stet2 = sqrt(1. - ctet2 * ctet2);
         ctet = ctet1 * ctet2 + stet1 * stet2 * cos(phi1 - phi2);
@@ -1221,7 +1210,7 @@ void Decay0::Ge74low() {
 
   if (fLevel == 2) {  // 1204
     fThlev = 6.0e-12;
-    float p = 100. * GetRandom();
+    double p = 100. * GetRandom();
     if (p < 34) {
       nucltransK(fEnGamma[0], fEbindeK, 1.9e-4, 0.1e-4);
       return;
@@ -1242,7 +1231,7 @@ void Decay0::Kr82low() {
   // 2b-decay of Se82 to ground and excited 0+ and 2+ levels of Kr82
   // levelE:[0,776,1475],
   bool next = false;
-  float p;
+  double p;
 
   if (fLevel == 2) {  // 1475
     p = 100. * GetRandom();
@@ -1270,7 +1259,7 @@ void Decay0::Mo96low() {
   // and  NDS 109(2008)2501.
   // levelE:[0,778,1148,1498,1626,2096,2426,2623,2700,2713],
   bool next778 = false, next1148 = false, next1498 = false, next1626 = false;
-  float p;
+  double p;
 
   if (fLevel == 9) {  // 2713
     nucltransK(fEnGamma[0], fEbindeK, 5.9e-1, 0.);
@@ -1440,23 +1429,23 @@ void Decay0::Ru100low() {
   // 2b-decay of Mo100 to ground and excited 0+ and 2+ levels of Ru100
   // levelE:[0,540,1130,1362,1741],
   int npg591 = 0, npg540 = 0;
-  float cg, cK, p;
+  double cg, cK, p;
   bool next540 = false, next1130 = false, next1362 = false;
-  float ctet, stet1, stet2, ctet1, ctet2;
+  double ctet, stet1, stet2, ctet1, ctet2;
 
   if (fLevel == 4) {  // 1741
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 0.05) {
-      particle(3, fEnGamma[0] - fEbindeK, fEnGamma[0] - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
+      particle(3, fEnGamma[0] - fEbindeK, fEnGamma[0] - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       return;
     } else if (p <= 59.00) {
       nucltransK(fEnGamma[1], fEbindeK, 6.2e-4, 0.1e-4);
       next540 = true;
     } else if (p <= 59.03) {
-      particle(3, fEnGamma[2] - fEbindeK, fEnGamma[2] - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
+      particle(3, fEnGamma[2] - fEbindeK, fEnGamma[2] - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       next1130 = true;
     } else {
       nucltransK(fEnGamma[3], fEbindeK, 1.3e-2, 0.);
@@ -1478,8 +1467,8 @@ void Decay0::Ru100low() {
     fThlev = 0.;
     p = 100. * GetRandom();
     if (p <= 0.02) {
-      particle(3, 1.130 - fEbindeK, 1.130 - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
+      particle(3, 1.130 - fEbindeK, 1.130 - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       return;
     } else {
       // nucltransK(0.591,fEbindeK,3.3e-3,0.);
@@ -1488,11 +1477,11 @@ void Decay0::Ru100low() {
       cK = 3.3e-3;
       p = GetRandom() * (cg + cK);
       if (p <= cg) {
-        particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(1, fEgamma, fEgamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
         npg591 = fNbPart;
       } else {
-        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
+        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       }
     }
     next540 = true;
@@ -1505,26 +1494,26 @@ void Decay0::Ru100low() {
     cK = 4.4e-3;
     p = GetRandom() * (cg + cK);
     if (p <= cg) {
-      particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
+      particle(1, fEgamma, fEgamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       npg540 = fNbPart;
     } else {
-      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
+      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     }
     if (npg591 != 0 && npg540 != 0) {
-      float p591 = sqrt(pow(fPmoment[0][npg591], 2) + pow(fPmoment[1][npg591], 2) + pow(fPmoment[2][npg591], 2));
-      float p540 = sqrt(pow(fPmoment[0][npg540], 2) + pow(fPmoment[1][npg540], 2) + pow(fPmoment[2][npg540], 2));
+      double p591 = sqrt(pow(fPmoment[0][npg591], 2) + pow(fPmoment[1][npg591], 2) + pow(fPmoment[2][npg591], 2));
+      double p540 = sqrt(pow(fPmoment[0][npg540], 2) + pow(fPmoment[1][npg540], 2) + pow(fPmoment[2][npg540], 2));
       // Coefficients in formula 1+a2*ctet**2+a4*ctet**4 are from:
       // R.D.Evans, "The Atomic Nucleus", Krieger Publ. Comp.,
       // 1985, p.240, 0(2)2(2)0 cascade.
-      float a2 = -3.0;
-      float a4 = 4.0;
-      float phi1, phi2;
+      double a2 = -3.0;
+      double a4 = 4.0;
+      double phi1, phi2;
       do {
-        phi1 = twopi * GetRandom();
+        phi1 = CLHEP::twopi * GetRandom();
         ctet1 = 1. - 2. * GetRandom();
         stet1 = sqrt(1. - ctet1 * ctet1);
-        phi2 = twopi * GetRandom();
+        phi2 = CLHEP::twopi * GetRandom();
         ctet2 = 1. - 2. * GetRandom();
         stet2 = sqrt(1. - ctet2 * ctet2);
         ctet = ctet1 * ctet2 + stet1 * stet2 * cos(phi1 - phi2);
@@ -1546,7 +1535,7 @@ void Decay0::Pd106low() {
   // 2b-decay of Cd106 to ground and excited 0+ and 2+ levels of Pd106
   // levelE:[0,512,1128,1134,1562,1706],
   bool next1128 = false, next1134 = false, next512 = false;
-  float p;
+  double p;
 
   if (fLevel == 5) {  // 1706
     fThlev = 0.;
@@ -1580,8 +1569,8 @@ void Decay0::Pd106low() {
     fThlev = 6.8e-12;
     p = 100. * GetRandom();
     if (p <= 5.7e-2) {
-      particle(3, 1.110, 1.110, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+      particle(3, 1.110, 1.110, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       return;
     } else {
       nucltransK(fEnGamma[6], fEbindeK, 3.2e-3, 0.);
@@ -1611,7 +1600,7 @@ void Decay0::Sn116low() {
   // 2b-decay of Cd116 to ground and excited 0+ and 2+ levels of Sn116
   // levelE:[0,1294,1757,2027,2112,2225],
   bool next1294 = false, next1757 = false;
-  float p;
+  double p;
   fThlev = 0.;
 
   if (fLevel == 5) {  // 2225
@@ -1644,8 +1633,8 @@ void Decay0::Sn116low() {
   if (fLevel == 2 || next1757) {  // 1757
     p = 100. * GetRandom();
     if (p <= 0.29) {
-      particle(3, 1.757 - fEbindeK, 1.757 - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+      particle(3, 1.757 - fEbindeK, 1.757 - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       return;
     } else {
       nucltransK(fEnGamma[6], fEbindeK, 9.0e-3, 0.);
@@ -1663,7 +1652,7 @@ void Decay0::Cd112low() {
   // Subroutine describes the deexcitation process in Cd112 nucleus after
   // 2b-decay of Sn112 to ground 0+ and excited 2+ levels of Cd112
   // levelE:[0,618,1224,1312,1433,1469,1871],
-  float p;
+  double p;
   bool next618 = false, next1224 = false, next1312 = false, next1469 = false;
 
   if (fLevel == 6) {  // 1871
@@ -1702,16 +1691,16 @@ void Decay0::Cd112low() {
       if (p <= 3.8) {
         pair(0.411);
       } else {
-        particle(3, 1.406, 1.406, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+        particle(3, 1.406, 1.406, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       }
       return;
     } else if (p <= 39.36) {
       nucltransK(fEnGamma[6], fEbindeK, 1.8e-3, 0.);
       next618 = true;
     } else if (p <= 60.61) {
-      particle(3, 0.182, 0.182, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+      particle(3, 0.182, 0.182, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       next1224 = true;
     } else {
       nucltransK(fEnGamma[7], fEbindeK, 7.6e-1, 0.);
@@ -1737,8 +1726,8 @@ void Decay0::Cd112low() {
       if (p <= 0.4) {
         pair(0.202);
       } else {
-        particle(3, 1.197, 1.197, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+        particle(3, 1.197, 1.197, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       }
       return;
     } else {
@@ -1758,7 +1747,7 @@ void Decay0::Te124low() {
   // 2b-decay of Sn124 to ground and excited 0+ and 2+ levels of Te124.
   // levelE:[0,603,1326,1657,1883,2039,2092,2153,2182],
   bool next603 = false, next1657 = false, next1326 = false;
-  float p;
+  double p;
 
   if (fLevel == 8) {  // 2182
     fThlev = 0.;
@@ -1825,16 +1814,16 @@ void Decay0::Te124low() {
       if (p <= 21.89) {
         pair(0.861);
       } else {
-        particle(3, 1.851, 1.851, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+        particle(3, 1.851, 1.851, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       }
       return;
     } else if (p <= 99.93) {
       nucltransK(fEnGamma[13], fEbindeK, 6.0e-3, 0.);
       next1326 = true;
     } else {
-      particle(3, 0.194, 0.194, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+      particle(3, 0.194, 0.194, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       next1657 = true;
     }
   }
@@ -1846,8 +1835,8 @@ void Decay0::Te124low() {
       if (p <= 10.68) {
         pair(0.636);
       } else {
-        particle(3, 1.626, 1.626, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+        particle(3, 1.626, 1.626, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       }
       return;
     } else {
@@ -1877,7 +1866,7 @@ void Decay0::Xe130low() {
   // Subroutine describes the deexcitation process in Xe130 nucleus after
   // 2b-decay of Te130 to ground 0+ and excited 2+ levels of Xe130
   // levelE:[0,536,1122,1794],
-  float p;
+  double p;
   bool next536 = false, next1122 = false;
 
   if (fLevel == 3) {  // 1794
@@ -1888,8 +1877,8 @@ void Decay0::Xe130low() {
       if (p <= 12.7) {
         pair(0.772);
       } else {
-        particle(3, 1.759, 1.759, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+        particle(3, 1.759, 1.759, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       }
       return;
     } else if (p <= 86.3) {
@@ -1923,7 +1912,7 @@ void Decay0::Ba136low() {
   // of Xe136 or Ce136 to ground and excited 0+ and 2+ levels of Ba136
   // levelE:[0,819,1551,1579,2080,2129,2141,2223,2315,2400],
   bool next819 = false, next1551 = false;
-  float p;
+  double p;
 
   if (fLevel == 9) {  // 2400
     fThlev = 0.;
@@ -2007,7 +1996,7 @@ void Decay0::Sm148low() {
   // of Nd148 to ground and excited 0+ and 2+ levels of Sm148
   // levelE:[0,550,1455],
   bool next550 = false;
-  float p;
+  double p;
   if (fLevel == 2) {  // 1455
     fThlev = 0.6e-12;
     p = 100. * GetRandom();
@@ -2031,7 +2020,7 @@ void Decay0::Sm150low() {
   // of Nd150 to ground and excited 0+ and 2+ levels of Sm150
   // levelE:[0,334,740,1046,1194,1256],
   bool next334 = false, next740 = false, next1046 = false;
-  float p;
+  double p;
 
   if (fLevel == 5) {  // 1256
     fThlev = 0.;
@@ -2086,8 +2075,8 @@ void Decay0::Sm150low() {
     fThlev = 20.e-12;
     p = 100. * GetRandom();
     if (p <= 1.33) {
-      particle(3, 0.740 - fEbindeK, 0.740 - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+      particle(3, 0.740 - fEbindeK, 0.740 - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       return;
     } else {
       nucltransK(fEnGamma[11], fEbindeK, 2.0e-2, 0.);
@@ -2105,25 +2094,25 @@ void Decay0::At214() {
   // NDS 99(2003)649 and ENSDF at NNDC site on 9.12.2007).
   // Simulated together with decay of Bi214
   fThnuc = 558.e-9;
-  float tcnuc = 0.;
+  double tcnuc = 0.;
   fTdnuc = tcnuc - fThnuc / log(2.) * log(GetRandom());
   fTclev = 0.;
   fThlev = 0.;
-  float palpha = 100. * GetRandom();
+  double palpha = 100. * GetRandom();
   if (palpha <= 0.32) {
-    particle(47, 8.267, 8.267, 0., pi, 0., twopi, 0, 0);
+    particle(47, 8.267, 8.267, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     nucltransK(0.563, 0.091, 8.6e-2, 0.);
     return;
   } else if (palpha <= 0.90) {
-    particle(47, 8.478, 8.478, 0., pi, 0., twopi, 0, 0);
+    particle(47, 8.478, 8.478, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     nucltransK(0.348, 0.091, 7.9e-2, 0.);
     return;
   } else if (palpha <= 1.05) {
-    particle(47, 8.505, 8.505, 0., pi, 0., twopi, 0, 0);
+    particle(47, 8.505, 8.505, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     nucltransK(0.320, 0.091, 3.9e-1, 0.);
     return;
   } else {
-    particle(47, 8.819, 8.819, 0., pi, 0., twopi, 0, 0);
+    particle(47, 8.819, 8.819, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     return;
   }
 }
@@ -2131,50 +2120,50 @@ void Decay0::At214() {
 void Decay0::Po214() {
   // Nucl. Data Sheets 55(1988)665).
   // Alpha decay to excited level 1097.7 keV of Pb210 is neglected (6e-5%).
-  float tcnuc = 0.;
+  double tcnuc = 0.;
   fThnuc = 164.3e-6;
   fTdnuc = tcnuc - fThnuc / log(2.) * log(GetRandom());
-  float palpha = 100. * GetRandom();
+  double palpha = 100. * GetRandom();
   if (palpha <= 0.0104) {
-    particle(47, 6.902, 6.902, 0., pi, 0., twopi, 0, 0);
+    particle(47, 6.902, 6.902, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     nucltransK(0.800, 0.088, 1.1e-2, 0.);
     return;
   } else {
-    particle(47, 7.687, 7.687, 0., pi, 0., twopi, 0, 0);
+    particle(47, 7.687, 7.687, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     return;
   }
 }
 ///-----------------------------------------------
 void Decay0::Rn218() {
   // NDS 76(1995)127 and ENSDF at NNDC site on 9.12.2007.
-  float tcnuc = 0.;
+  double tcnuc = 0.;
   fThnuc = 35.e-3;
   fTdnuc = tcnuc - fThnuc / log(2.) * log(GetRandom());
   fTclev = 0.;
-  float palpha = 100. * GetRandom();
+  double palpha = 100. * GetRandom();
   if (palpha <= 0.127) {
-    particle(47, 6.532, 6.532, 0., pi, 0., twopi, 0, 0);
+    particle(47, 6.532, 6.532, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     fThlev = 0.;
     nucltransK(0.609, 0.093, 2.1e-2, 0.);
     return;
   } else {
-    particle(47, 7.130, 7.130, 0., pi, 0., twopi, 0, 0);
+    particle(47, 7.130, 7.130, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     return;
   }
 }
 ///-----------------------------------------------
 void Decay0::Ra222() {
   // NDS 107(2006)1027 and ENSDF at NNDC site on 9.12.2007
-  float tcnuc = 0.;
+  double tcnuc = 0.;
   fThnuc = 36.17;
   fTdnuc = tcnuc - fThnuc / log(2.) * log(GetRandom());
   fTclev = 0.;
   fThlev = 0.;
   bool next653 = false, next324 = false;
-  float palpha, p;
+  double palpha, p;
   palpha = 100. * GetRandom();
   if (palpha <= 0.0042) {
-    particle(47, 5.734, 5.734, 0., pi, 0., twopi, 0, 0);
+    particle(47, 5.734, 5.734, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     p = 100. * GetRandom();
     if (p <= 66.35) {
       nucltransK(0.840, 0.098, 2.9e-2, 0.);
@@ -2184,7 +2173,7 @@ void Decay0::Ra222() {
       next324 = true;
     }
   } else if (palpha <= 0.0083) {
-    particle(47, 5.776, 5.776, 0., pi, 0., twopi, 0, 0);
+    particle(47, 5.776, 5.776, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     p = 100. * GetRandom();
     if (p <= 96.75) {
       nucltransK(0.473, 0.098, 1.0e-2, 0.);
@@ -2194,13 +2183,13 @@ void Decay0::Ra222() {
       next653 = true;
     }
   } else if (palpha <= 0.0124) {
-    particle(47, 5.917, 5.917, 0., pi, 0., twopi, 0, 0);
+    particle(47, 5.917, 5.917, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     next653 = true;
   } else if (palpha <= 3.0635) {
-    particle(47, 6.240, 6.240, 0., pi, 0., twopi, 0, 0);
+    particle(47, 6.240, 6.240, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     next324 = true;
   } else {
-    particle(47, 6.559, 6.559, 0., pi, 0., twopi, 0, 0);
+    particle(47, 6.559, 6.559, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     return;
   }
 
@@ -2239,7 +2228,7 @@ void Decay0::Ac228() {
   bool next1175 = false, next1039 = false, next1286 = false, next1245 = false;
   bool next1451 = false, next562 = false, next1143 = false, next1638 = false;
   bool next1588 = false, next1702 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {  // 0.06%
@@ -3026,7 +3015,7 @@ void Decay0::As79() {
   //  Model for scheme of As79+Se79m decay
   // ("Table of Isotopes", 8th ed.,1998 and Nucl. Data Sheets 96(2002)1).
   bool next572 = false, next528 = false, next365 = false, next96 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -3115,7 +3104,7 @@ void Decay0::Be11() {
   // 11Be (using JANIS) alpha energies calculated by JEFF-Q-Values and given
   // states
 
-  float pbeta, palpha, p;
+  double pbeta, palpha, p;
   bool next2125 = false, next5020 = false, next7286 = false, next2895 = false;
   fZdtr = fDaughterZ[0];
 
@@ -3128,10 +3117,10 @@ void Decay0::Be11() {
     palpha = 100. * GetRandom();
     if (palpha <= fProbAlpha[0]) {
       // alpha decay to 7Li ground state
-      particle(47, fEnAlpha[0], fEnAlpha[0], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[0], fEnAlpha[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     } else {
       // alpha decay to 7Li first exited state + de-excitation
-      particle(47, fEnAlpha[1], fEnAlpha[1], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[1], fEnAlpha[1], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       nucltransK(0.478, fEbindeK, 0, 0);
     }
   } else if (pbeta <= fProbBeta[1]) {
@@ -3224,7 +3213,7 @@ void Decay0::Bi207() {
   // K, L and M X-rays and K and L Auger electrons are emitted.
   // VIT, 7.07.1995, 22.10.1995, 11.09.2005, 3.10.2005.
   bool next57 = false, next898 = false;
-  float pdecay, p, cg = 1.;
+  double pdecay, p, cg = 1.;
   int npe570 = 0, npe1064 = 0, npg570 = 0, npg1064 = 0, np570 = 0, np1064 = 0;
   double cK = 0., cL = 0., cM = 0., cp = 0., a2 = 0., a4 = 0.;
 
@@ -3257,15 +3246,15 @@ void Decay0::Bi207() {
     if (calc) {
       p = GetRandom() * (cg + cK + cL + cM + cp);
       if (p <= cg)
-        particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(1, fEgamma, fEgamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       else if (p <= cg + cK) {
-        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
         PbAtShell(88);
       } else if (p <= cg + cK + cL) {
-        particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
         PbAtShell(15);
       } else if (p <= cg + cK + cL + cM) {
-        particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
         PbAtShell(3);
       } else
         pair(fEgamma - 1.022);
@@ -3284,18 +3273,18 @@ void Decay0::Bi207() {
     cK = 9.42e-2, cL = 2.47e-2, cM = 0.73e-2;
     p = GetRandom() * (cg + cK + cL + cM);
     if (p <= cg) {
-      particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
+      particle(1, fEgamma, fEgamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       npg1064 = fNbPart;
     } else if (p <= cg + cK) {
-      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
+      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       npe1064 = fNbPart;
       PbAtShell(88);
     } else if (p <= cg + cK + cL) {
-      particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi, fTclev, fThlev);
+      particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       npe1064 = fNbPart;
       PbAtShell(15);
     } else {
-      particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., pi, 0., twopi, fTclev, fThlev);
+      particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       npe1064 = fNbPart;
       PbAtShell(3);
     }
@@ -3321,12 +3310,12 @@ void Decay0::Bi207() {
       cL = 0.34e-2;
       p = GetRandom() * (cg + cK + cL);
       if (p <= cg)
-        particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(1, fEgamma, fEgamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       else if (p <= cg + cK) {
-        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
         PbAtShell(88);
       } else {
-        particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
         PbAtShell(15);
       }
       return;
@@ -3337,15 +3326,15 @@ void Decay0::Bi207() {
       cM = 0.0151;
       p = GetRandom() * (cg + cK + cL + cM);
       if (p <= cg)
-        particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(1, fEgamma, fEgamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       else if (p <= cg + cK) {
-        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
         PbAtShell(88);
       } else if (p <= cg + cK + cL) {
-        particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
         PbAtShell(15);
       } else {
-        particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
         PbAtShell(3);
       }
       next57 = true;
@@ -3359,18 +3348,18 @@ void Decay0::Bi207() {
     cM = 0.15e-2;
     p = GetRandom() * (cg + cK + cL + cM);
     if (p <= cg) {
-      particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
+      particle(1, fEgamma, fEgamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       npg570 = fNbPart;
     } else if (p <= cg + cK) {
-      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
+      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       npe570 = fNbPart;
       PbAtShell(88);
     } else if (p <= cg + cK + cL) {
-      particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., pi, 0., twopi, fTclev, fThlev);
+      particle(3, fEgamma - fEbindeL, fEgamma - fEbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       npe570 = fNbPart;
       PbAtShell(15);
     } else {
-      particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., pi, 0., twopi, fTclev, fThlev);
+      particle(3, fEgamma - fEbindeM, fEgamma - fEbindeM, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       npe570 = fNbPart;
       PbAtShell(3);
     }
@@ -3397,16 +3386,16 @@ void Decay0::Bi207() {
     np570 = npe570;
   } else
     return;
-  float phi1, phi2;
-  float p2, p4;
-  float ctet, stet1, stet2, ctet1, ctet2;
-  float p1064 = sqrt(pow(fPmoment[0][np1064], 2) + pow(fPmoment[1][np1064], 2) + pow(fPmoment[2][np1064], 2));
-  float p570 = sqrt(pow(fPmoment[0][np570], 2) + pow(fPmoment[1][np570], 2) + pow(fPmoment[2][np570], 2));
+  double phi1, phi2;
+  double p2, p4;
+  double ctet, stet1, stet2, ctet1, ctet2;
+  double p1064 = sqrt(pow(fPmoment[0][np1064], 2) + pow(fPmoment[1][np1064], 2) + pow(fPmoment[2][np1064], 2));
+  double p570 = sqrt(pow(fPmoment[0][np570], 2) + pow(fPmoment[1][np570], 2) + pow(fPmoment[2][np570], 2));
   do {
-    phi1 = twopi * GetRandom();
+    phi1 = CLHEP::twopi * GetRandom();
     ctet1 = 1. - 2. * GetRandom();
     stet1 = sqrt(1. - ctet1 * ctet1);
-    phi2 = twopi * GetRandom();
+    phi2 = CLHEP::twopi * GetRandom();
     ctet2 = 1. - 2. * GetRandom();
     stet2 = sqrt(1. - ctet2 * ctet2);
     ctet = ctet1 * ctet2 + stet1 * stet2 * cos(phi1 - phi2);
@@ -3426,19 +3415,19 @@ void Decay0::Bi207() {
 void Decay0::Bi210() {
   // "Table of Isotopes", 7th ed., 1978).
   // VIT, 14.08.1992, 22.10.1995; 30.10.2006.
-  // Update to NDS 99(2003)949 and empirical correction
+  // Update to NDS 99(2003)949 and emCLHEP::pirical correction
   // to the beta shape, VIT, 28.10.2006.
-  float pdecay, palfa;
+  double pdecay, palfa;
   pdecay = 100. * GetRandom();
   if (pdecay <= fProbDecay[0]) {
     palfa = 100. * GetRandom();
     if (palfa <= fProbAlpha[0]) {
-      particle(47, fEnAlpha[0], fEnAlpha[0], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[0], fEnAlpha[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       fThlev = 4.e-12;
       nucltransK(fEnGamma[0], fEbindeK, 3.9e-1, 0.);
       return;
     } else {
-      particle(47, fEnAlpha[1], fEnAlpha[1], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[1], fEnAlpha[1], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       fThlev = 3.e-9;
       nucltransK(fEnGamma[1], fEbindeK, 1.6e-1, 0.);
       return;
@@ -3452,13 +3441,13 @@ void Decay0::Bi212() {
   // Beta-alfa decays to 208Pb  are not considered (p=0.014%).
   // VIT, 4.08.1992, 22.10.1995.
   bool next400 = false, next328 = false, next727 = false;
-  float pdecay, p, palfa, pbeta;
+  double pdecay, p, palfa, pbeta;
 
   pdecay = 100 * GetRandom();
   if (pdecay <= fProbDecay[0]) {  // 36% alfa to 208Tl
     palfa = 100. * GetRandom();
     if (palfa <= fProbAlpha[0]) {  // 1.10%
-      particle(47, fEnAlpha[0], fEnAlpha[0], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[0], fEnAlpha[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       p = 100. * GetRandom();
       if (p <= 5.) {
         nucltransK(fEnGamma[0], fEbindeK, 2.8e-2, 0.);
@@ -3471,7 +3460,7 @@ void Decay0::Bi212() {
         next328 = true;
       }
     } else if (palfa <= fProbAlpha[1]) {  // 0.15%
-      particle(47, fEnAlpha[1], fEnAlpha[1], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[1], fEnAlpha[1], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       p = 100. * GetRandom();
       if (p <= 68.) {
         nucltransK(fEnGamma[3], fEbindeK, 0.14, 0.);
@@ -3484,13 +3473,13 @@ void Decay0::Bi212() {
         next328 = true;
       }
     } else if (palfa <= fProbAlpha[2]) {  // 1.67%
-      particle(47, fEnAlpha[2], fEnAlpha[2], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[2], fEnAlpha[2], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       next328 = true;
     } else if (palfa <= fProbAlpha[3]) {  // 69.88%
-      particle(47, fEnAlpha[3], fEnAlpha[3], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[3], fEnAlpha[3], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       next400 = true;
     } else {  // 27.20%
-      particle(47, fEnAlpha[4], fEnAlpha[4], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[4], fEnAlpha[4], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       return;
     }
 
@@ -3525,8 +3514,8 @@ void Decay0::Bi212() {
       beta(fEndPoint[1], 0., 0.);
       p = 100 * GetRandom();
       if (p <= 35.) {
-        particle(3, 1.708, 1.708, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0, 0);
+        particle(3, 1.708, 1.708, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK2, fEbindeK2, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
         return;
       } else {
         nucltransK(fEnGamma[11], fEbindeK2, 7.0e-3, 0.);
@@ -3590,20 +3579,20 @@ void Decay0::Bi214() {
   bool next2448 = false, next2266 = false, next2209 = false, next2204 = false;
   bool next2119 = false, next2088 = false, next2011 = false, next2017 = false;
   bool next1995 = false, next1847 = false;
-  float p, pdecay, palfa;
+  double p, pdecay, palfa;
 
   pdecay = 100. * GetRandom();
   if (pdecay <= fProbDecay[0]) {  // 0.021% alfa to 210Tl
     palfa = 100. * GetRandom();
     if (palfa <= fProbAlpha[0]) {  // 5.86%
-      particle(47, fEnAlpha[0], fEnAlpha[0], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[0], fEnAlpha[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       nucltransK(fEnGamma[0], fEbindeK, 1.3, 0.);
       next630 = true;
     } else if (palfa <= fProbAlpha[1]) {  // 54.50%
-      particle(47, fEnAlpha[1], fEnAlpha[1], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[1], fEnAlpha[1], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       next630 = true;
     } else {  // 39.64%
-      particle(47, fEnAlpha[2], fEnAlpha[2], 0., pi, 0., twopi, 0, 0);
+      particle(47, fEnAlpha[2], fEnAlpha[2], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       return;
     }
     if (next630) {
@@ -3611,7 +3600,7 @@ void Decay0::Bi214() {
       return;
     }
   } else {  // 99.979% beta to 214Po
-    float pbeta = 100. * GetRandom();
+    double pbeta = 100. * GetRandom();
     if (pbeta <= fProbBeta[0]) {
       beta(fEndPoint[0], 0., 0.);
       nucltransK(fEnGamma[2], fEbindeK2, 4.0e-4, 8.0e-4);
@@ -4348,8 +4337,8 @@ void Decay0::Bi214() {
       if (p <= 0.27) {
         p = 100. * GetRandom();
         if (p <= 95.08) {
-          particle(3, 1.923, 1.923, 0., pi, 0., twopi, fTclev, fThlev);
-          particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0, 0);
+          particle(3, 1.923, 1.923, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+          particle(1, fEbindeK2, fEbindeK2, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
         } else
           pair(0.995);
         return;
@@ -4499,8 +4488,8 @@ void Decay0::Bi214() {
       if (p <= 28.05) {
         p = 100. * GetRandom();
         if (p <= 99.63) {
-          particle(3, 1.322, 1.322, 0., pi, 0., twopi, fTclev, fThlev);
-          particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0., 0.);
+          particle(3, 1.322, 1.322, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+          particle(1, fEbindeK2, fEbindeK2, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
         } else
           pair(0.393);
 
@@ -4541,11 +4530,11 @@ void Decay0::Bi214() {
 void Decay0::Sc48() {
   // "Table of Isotopes", 8 ed.,1996 + NDS 68(1993)1.
   // VIT, 7.05.1998; 13.08.2007 update to NDS 107(2006)1747.
-  float tcnuc = 0.;
+  double tcnuc = 0.;
   fThnuc = 1.57212e5;
   fTdnuc = tcnuc - fThnuc / log(2.) * log(GetRandom());
   bool next = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   fZdtr = fDaughterZ[1];
@@ -4585,7 +4574,7 @@ void Decay0::Co60() {
   // L.Pandola + VIT, 18.10.2006;
   // 2nd forbidden unique shape for beta decay to 1333 keV level,
   // VIT, 27.10.2006.
-  float phi1, phi2, pbeta, p;
+  double phi1, phi2, pbeta, p;
   int npg1173 = 0, npg1333 = 0;
   bool next1333 = false;
 
@@ -4599,14 +4588,14 @@ void Decay0::Co60() {
       return;
     } else if (p <= 99.992449) {
       fEgamma = fEnGamma[1];
-      float cg = 1., cK = 1.7e-4, cp = 6.2e-6;
+      double cg = 1., cK = 1.7e-4, cp = 6.2e-6;
       p = GetRandom() * (cg + cK + cp);
       if (p <= cg) {
-        particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
+        particle(1, fEgamma, fEgamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
         npg1173 = fNbPart;
       } else if (p <= cg + cK) {
-        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+        particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       } else {
         pair(fEgamma - 1.022);
       }
@@ -4630,21 +4619,21 @@ void Decay0::Co60() {
   if (next1333) {
     fThlev = 0.9e-12;
     fEgamma = fEnGamma[5];
-    float cg = 1., cK = 1.3e-4, cp = 3.4e-5;
+    double cg = 1., cK = 1.3e-4, cp = 3.4e-5;
     p = GetRandom() * (cg + cK + cp);
     if (p <= cg) {
-      particle(1, fEgamma, fEgamma, 0., pi, 0., twopi, fTclev, fThlev);
+      particle(1, fEgamma, fEgamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
       npg1333 = fNbPart;
     } else if (p <= cg + cK) {
-      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+      particle(3, fEgamma - fEbindeK, fEgamma - fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
     } else {
       pair(fEgamma - 1.022);
     }
   }
   if (npg1333 != 0 && npg1173 != 0) {
-    float p1333 = sqrt(pow(fPmoment[0][npg1333], 2) + pow(fPmoment[1][npg1333], 2) + pow(fPmoment[2][npg1333], 2));
-    float p1173 = sqrt(pow(fPmoment[0][npg1173], 2) + pow(fPmoment[1][npg1173], 2) + pow(fPmoment[2][npg1173], 2));
+    double p1333 = sqrt(pow(fPmoment[0][npg1333], 2) + pow(fPmoment[1][npg1333], 2) + pow(fPmoment[2][npg1333], 2));
+    double p1173 = sqrt(pow(fPmoment[0][npg1173], 2) + pow(fPmoment[1][npg1173], 2) + pow(fPmoment[2][npg1173], 2));
     // Coefficients in formula 1+a2*ctet**2+a4*ctet**4 are from:
     // R.D.Evans, "The Atomic Nucleus", Krieger Publ. Comp., 1985,
     // p. 240 (4(2)2(2)0 cascade).
@@ -4652,14 +4641,14 @@ void Decay0::Co60() {
     // 1+a2*p2+a4*p4, a2=0.1020, a4=0.0091
     // in K.Siegbahn, "Alpha-, Beta- and Gamma-Ray Spectroscopy",
     // North-Holland Publ. Comp., 1968, p. 1033.
-    float ctet, stet1, stet2, ctet1, ctet2;
-    float a2 = 1. / 8.;
-    float a4 = 1. / 24.;
+    double ctet, stet1, stet2, ctet1, ctet2;
+    double a2 = 1. / 8.;
+    double a4 = 1. / 24.;
     do {
-      phi1 = twopi * GetRandom();
+      phi1 = CLHEP::twopi * GetRandom();
       ctet1 = 1. - 2. * GetRandom();
       stet1 = sqrt(1. - ctet1 * ctet1);
-      phi2 = twopi * GetRandom();
+      phi2 = CLHEP::twopi * GetRandom();
       ctet2 = 1. - 2. * GetRandom();
       stet2 = sqrt(1. - ctet2 * ctet2);
       ctet = ctet1 * ctet2 + stet1 * stet2 * cos(phi1 - phi2);
@@ -4676,7 +4665,7 @@ void Decay0::Co60() {
 void Decay0::Cs136() {
   // "Table of Isotopes", 8th ed.,1996 and Nucl. Data Sheets 95(2002)837).
   // VIT, 11.09.2002.
-  float pbeta, p;
+  double pbeta, p;
   bool next1867 = false, next2054 = false, next2140 = false, next2207 = false;
   bool next2031 = false, next819 = false;
 
@@ -4788,19 +4777,19 @@ void Decay0::Cs136() {
 void Decay0::Eu147() {
   // "Table of Isotopes", 7th ed., 1978.
   // VIT, 10.03.1996.
-  float pdecay, p;
+  double pdecay, p;
   bool next799 = false, next197 = false, next121 = false;
 
   pdecay = 100. * GetRandom();
   if (pdecay <= fProbDecay[0]) {
-    particle(47, fEnAlpha[0], fEnAlpha[0], 0., pi, 0., twopi, 0, 0);
+    particle(47, fEnAlpha[0], fEnAlpha[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     return;
   } else if (pdecay <= fProbDecay[1]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     nucltransK(fEnGamma[1], fEbindeK, 5.0e-4, 0.8e-4);
     next197 = true;
   } else if (pdecay <= fProbDecay[2]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     p = 100. * GetRandom();
     if (p <= 31.) {
       nucltransK(fEnGamma[2], fEbindeK, 5.0e-4, 0.7e-4);
@@ -4810,11 +4799,11 @@ void Decay0::Eu147() {
       next799 = true;
     }
   } else if (pdecay <= fProbDecay[3]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     nucltransK(fEnGamma[4], fEbindeK, 5.5e-4, 0.6e-4);
     next121 = true;
   } else if (pdecay <= fProbDecay[4]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     p = 100. * GetRandom();
     if (p <= 24.) {
       nucltransK(fEnGamma[5], fEbindeK, 5.5e-4, 0.5e-4);
@@ -4824,7 +4813,7 @@ void Decay0::Eu147() {
       next197 = true;
     }
   } else if (pdecay <= fProbDecay[5]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     p = 100. * GetRandom();
     if (p <= 22.8) {
       nucltransK(fEnGamma[7], fEbindeK, 5.5e-4, 0.5e-4);
@@ -4837,7 +4826,7 @@ void Decay0::Eu147() {
       next197 = true;
     }
   } else if (pdecay <= fProbDecay[6]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     p = 100. * GetRandom();
     if (p <= 15.) {
       nucltransK(fEnGamma[10], fEbindeK, 7.5e-4, 0.1e-4);
@@ -4847,7 +4836,7 @@ void Decay0::Eu147() {
       next799 = true;
     }
   } else if (pdecay <= fProbDecay[7]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     p = 100. * GetRandom();
     if (p <= 62.5) {
       nucltransK(fEnGamma[12], fEbindeK, 4.3e-3, 0.1e-4);
@@ -4860,7 +4849,7 @@ void Decay0::Eu147() {
       next197 = true;
     }
   } else if (pdecay <= fProbDecay[8]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     p = 100. * GetRandom();
     if (p <= 40.) {
       nucltransK(fEnGamma[15], fEbindeK, 1.1e-3, 0.1e-4);
@@ -4870,7 +4859,7 @@ void Decay0::Eu147() {
       next121 = true;
     }
   } else if (pdecay <= fProbDecay[9]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     p = 100. * GetRandom();
     if (p <= 57.) {
       nucltransK(fEnGamma[17], fEbindeK, 1.3e-3, 0.);
@@ -4880,7 +4869,7 @@ void Decay0::Eu147() {
       next197 = true;
     }
   } else if (pdecay <= fProbDecay[10]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     p = 100. * GetRandom();
     if (p <= 45.) {
       nucltransK(fEnGamma[19], fEbindeK, 1.5e-3, 0.);
@@ -4890,26 +4879,26 @@ void Decay0::Eu147() {
       next197 = true;
     }
   } else if (pdecay <= fProbDecay[11]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     next799 = true;
   } else if (pdecay <= fProbDecay[12]) {
     p = 100. * GetRandom();
     if (p <= 99.4)
-      particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+      particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     else
       beta(fEndPoint[0], 0., 0.);
     next197 = true;
   } else if (pdecay <= fProbDecay[13]) {
     p = 100. * GetRandom();
     if (p <= 99.5)
-      particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+      particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     else
       beta(fEndPoint[1], 0., 0.);
     next121 = true;
   } else {
     p = 100. * GetRandom();
     if (p <= 99.3)
-      particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+      particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     else
       beta(fEndPoint[2], 0., 0.);
   }
@@ -4955,15 +4944,15 @@ void Decay0::Eu152() {
   bool next1048 = false, next963 = false, next931 = false, next810 = false;
   bool next755 = false, next707 = false, next685 = false, next615 = false;
   bool next366 = false, next344 = false, next122 = false;
-  float pdecay, pbeta, pKLM, pec, p;
+  double pdecay, pbeta, pKLM, pec, p;
 
   pdecay = 100. * GetRandom();
   if (pdecay <= fProbDecay[0]) {  //  EC to 152Sm
     // approximate electron capture from K (82%), L (14%) or M (4%) shell
     pKLM = 100. * GetRandom();
-    if (pKLM <= 82.) particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
-    if (pKLM > 82. && pKLM <= 96.) particle(1, fEbindeL, fEbindeL, 0., pi, 0., twopi, 0, 0);
-    if (pKLM > 96.) particle(1, fEbindeM, fEbindeM, 0., pi, 0., twopi, 0, 0);
+    if (pKLM <= 82.) particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
+    if (pKLM > 82. && pKLM <= 96.) particle(1, fEbindeL, fEbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
+    if (pKLM > 96.) particle(1, fEbindeM, fEbindeM, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
 
     pec = 100. * GetRandom();
     if (pec <= fProbEC[0]) {
@@ -5284,8 +5273,8 @@ void Decay0::Eu152() {
       fThlev = 6.2e-12;
       p = 100. * GetRandom();
       if (p <= 1.43) {
-        particle(3, 0.638, 0.638, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
+        particle(3, 0.638, 0.638, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
         return;
       } else {
         nucltransK(fEnGamma[76], fEbindeK, 9.5e-3, 0.);
@@ -5476,15 +5465,15 @@ void Decay0::Eu152() {
       fThlev = 0.;
       p = 100. * GetRandom();
       if (p <= 0.88) {
-        particle(3, 0.998, 0.998, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0, 0);
+        particle(3, 0.998, 0.998, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK2, fEbindeK2, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
         return;
       } else if (p <= 65.79) {
         nucltransK(fEnGamma[116], fEbindeK2, 6.0e-3, 0.);
         next344 = true;
       } else if (p <= 83.77) {
-        particle(3, 0.383, 0.383, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0, 0);
+        particle(3, 0.383, 0.383, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK2, fEbindeK2, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
         next615 = true;
       } else {
         nucltransK(fEnGamma[117], fEbindeK2, 1.4e-0, 0.);
@@ -5517,8 +5506,8 @@ void Decay0::Eu152() {
       fThlev = 37.e-12;
       p = 100. * GetRandom();
       if (p <= 11.35) {
-        particle(3, 0.565, 0.565, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0, 0);
+        particle(3, 0.565, 0.565, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK2, fEbindeK2, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
         return;
       } else {
         nucltransK(fEnGamma[123], fEbindeK2, 8.3e-2, 0.);
@@ -5544,11 +5533,11 @@ void Decay0::Eu154() {
   bool next1182 = false, next1136 = false, next1128 = false, next1048 = false;
   bool next996 = false, next815 = false, next718 = false, next681 = false;
   bool next371 = false, next123 = false;
-  float pdecay, pbeta, p;
+  double pdecay, pbeta, p;
 
   pdecay = 100. * GetRandom();
   if (pdecay <= fProbDecay[0]) {  // 0.020% EC to 154Sm
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     if (pdecay <= 0.005) {
       fThlev = 172.e-12;
       nucltransK(fEnGamma[1], fEbindeK, 2.7e-1, 0.);
@@ -5995,15 +5984,15 @@ void Decay0::Eu154() {
     if (next1296) {
       p = 100. * GetRandom();
       if (p <= 0.73) {
-        particle(3, 1.245, 1.245, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0, 0);
+        particle(3, 1.245, 1.245, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK2, fEbindeK2, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
         return;
       } else if (p <= 73.72) {
         nucltransK(fEnGamma[115], fEbindeK2, 2.2e-3, 0.);
         next123 = true;
       } else if (p <= 74.45) {
-        particle(3, 0.565, 0.565, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0, 0);
+        particle(3, 0.565, 0.565, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK2, fEbindeK2, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
         next681 = true;
       } else if (p <= 78.83) {
         nucltransK(fEnGamma[116], fEbindeK2, 1.6e-2, 0.);
@@ -6081,15 +6070,15 @@ void Decay0::Eu154() {
     if (next1182) {
       p = 100. * GetRandom();
       if (p <= 0.21) {
-        particle(3, 1.132, 1.132, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0, 0);
+        particle(3, 1.132, 1.132, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK2, fEbindeK2, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
         return;
       } else if (p <= 84.00) {
         nucltransK(fEnGamma[134], fEbindeK2, 2.5e-3, 0.);
         next123 = true;
       } else if (p <= 84.84) {
-        particle(3, 0.451, 0.451, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0, 0);
+        particle(3, 0.451, 0.451, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK2, fEbindeK2, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
         next681 = true;
       } else {
         nucltransK(fEnGamma[135], fEbindeK2, 3.3e-2, 0.);
@@ -6186,8 +6175,8 @@ void Decay0::Eu154() {
       fThlev = 4.0e-12;
       p = 100. * GetRandom();
       if (p <= 2.06) {
-        particle(3, 0.631, 0.631, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0, 0);
+        particle(3, 0.631, 0.631, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK2, fEbindeK2, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
         return;
       } else {
         nucltransK(fEnGamma[157], fEbindeK2, 1.1e-2, 0.);
@@ -6210,12 +6199,12 @@ void Decay0::Eu154() {
 void Decay0::Gd146() {
   // "Table of Isotopes", 7th ed., 1978.
   // VIT, 10.03.1996.
-  float pdecay, p;
+  double pdecay, p;
   bool next385 = false, next230 = false, next115 = false;
 
   pdecay = 100. * GetRandom();
   if (pdecay <= fProbDecay[0]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     p = 100. * GetRandom();
     if (p <= 36.) {
       nucltransK(fEnGamma[1], fEbindeK, 1.8e-2, 0.);
@@ -6225,18 +6214,18 @@ void Decay0::Gd146() {
       next385 = true;
     }
   } else if (pdecay <= fProbDecay[1]) {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     nucltransK(fEnGamma[3], fEbindeK, 1.0e-2, 0.);
     return;
   } else if (pdecay <= fProbDecay[2]) {
     p = 100. * GetRandom();
     if (p <= 99.91)
-      particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+      particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     else
       beta(fEndPoint[0], 0., 0.);
     next385 = true;
   } else {
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     next230 = true;
   }
   if (next385) {
@@ -6268,7 +6257,7 @@ void Decay0::Gd146() {
 void Decay0::I126() {
   // J.Katakura et al.,Nucl.Data Sheets 97(2002)765).
   // VIT, 25.11.2003.
-  float pdecay, pbeta, p, pec;
+  double pdecay, pbeta, p, pec;
   bool next666 = false, next389 = false;
 
   pdecay = 100. * GetRandom();
@@ -6298,7 +6287,7 @@ void Decay0::I126() {
       return;
     }
   } else if (pdecay <= fProbDecay[1]) {  // 51.692% EC    to 126Te
-    particle(1, fEbindeK2, fEbindeK2, 0., pi, 0., twopi, 0, 0);
+    particle(1, fEbindeK2, fEbindeK2, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     pec = 100. * GetRandom();
     if (pec <= fProbEC[0]) {  // 0.014%
       p = 100. * GetRandom();
@@ -6349,7 +6338,7 @@ void Decay0::I133() {
   // VIT, 13.12.2003.
   bool next1386 = false, next1052 = false, next911 = false, next875 = false;
   bool next680 = false, next530 = false, next263 = false, next233 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -6547,7 +6536,7 @@ void Decay0::I134() {
   bool next3314 = false, next2654 = false, next2588 = false, next2548 = false;
   bool next2408 = false, next2353 = false, next2302 = false, next2272 = false;
   bool next2137 = false, next1920 = false, next1731 = false, next1614 = false, next847 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -6848,7 +6837,7 @@ void Decay0::I135() {
   bool next1781 = false, next1678 = false, next1565 = false, next1544 = false;
   bool next1458 = false, next1448 = false, next1260 = false, next1132 = false;
   bool next527 = false, next288 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -7235,15 +7224,15 @@ void Decay0::K40() {
   // in accordance with H.Daniel, RMP 40(1968)659 and
   // W.H.Kelly et al., Nucl. Phys. 11(1959)492
 
-  float pdecay = 100. * GetRandom();
+  double pdecay = 100. * GetRandom();
   if (pdecay <= fProbDecay[0]) {
     beta2f(fEndPoint[0], 0., 0., 3, fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
   } else if (pdecay <= fProbDecay[1]) {  // 10.660% ec 40Ar(1461)
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     fThlev = 1.12e-12;
     nucltransK(fEnGamma[1], fEbindeK, 3.0e-5, 7.3e-5);
   } else if (pdecay <= fProbDecay[2]) {  // 0.199% ec 40Ar(gs)
-    particle(1, fEnGamma[0], fEnGamma[0], 0., pi, 0., twopi, 0, 0);
+    particle(1, fEnGamma[0], fEnGamma[0], 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
   } else {  // 0.001% b+ 40Ar(gs)
     fZdtr = fDaughterZ[1];
     beta(fEndPoint[1], 0., 0.);
@@ -7256,7 +7245,7 @@ void Decay0::K42() {
   // with additional information from ToI-1978 and ToI-1998.
   // VIT, 31.03.2006; 29.10.2006.
   bool next2753 = false, next2424 = false, next1525 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -7285,8 +7274,8 @@ void Decay0::K42() {
       if (p <= 90.) {
         pair(0.815);
       } else {
-        particle(3, 1.833, 1.833, 0., pi, 0., twopi, fTclev, fThlev);
-        particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
+        particle(3, 1.833, 1.833, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+        particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
       }
       return;
     } else {
@@ -7335,7 +7324,7 @@ void Decay0::Pa234m() {
   // to the 1st forbidden with exp. corr.).
   bool next927 = false, next852 = false, next849 = false, next810 = false;
   bool next786 = false, next143 = false, next43 = false;
-  float pdecay, pbeta, p;
+  double pdecay, pbeta, p;
 
   pdecay = 100. * GetRandom();
   if (pdecay <= fProbDecay[0]) {  // IT to Pa234
@@ -7353,8 +7342,8 @@ void Decay0::Pa234m() {
       nucltransK(fEnGamma[2], fEbindeK, 5.5e-2, 0.);
       next786 = true;
     } else if (p <= 99.9) {
-      particle(3, 0.120, 0.120, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+      particle(3, 0.120, 0.120, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       next810 = true;
     } else {
       nucltransK(fEnGamma[3], fEbindeK, 8.8e-1, 0.);
@@ -7429,8 +7418,8 @@ void Decay0::Pa234m() {
   if (next810) {
     p = 100. * GetRandom();
     if (p <= 63.0) {
-      particle(3, 0.694, 0.694, 0., pi, 0., twopi, fTclev, fThlev);
-      particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+      particle(3, 0.694, 0.694, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);
+      particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       return;
     } else {
       nucltransK(fEnGamma[16], fEbindeK, 1.9e-2, 0.);
@@ -7463,7 +7452,7 @@ void Decay0::Pb211() {
   // VIT, 14.08.1992, 22.10.1995;
   // VIT, 31.10.2006 (updated to NDS 103(2004)183)
   bool next1014 = false, next767 = false, next405 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -7582,7 +7571,7 @@ void Decay0::Pb212() {
   // "Table of Isotopes", 7th ed., 1978.
   // VIT, 5.08.1992, 22.10.1995.
   bool next239 = false, next115 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -7625,7 +7614,7 @@ void Decay0::Pb214() {
   // conversion from K, L, M shells is introduced.
   bool next534 = false, next377 = false, next352 = false, next295 = false;
   bool next259 = false, next63 = false, next53 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= 0.034) {
@@ -7737,7 +7726,7 @@ void Decay0::Pb214() {
 ///^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 void Decay0::Ra228() {
   // NDS 80(1997)723 and ENSDF database at NNDC site on 8.08.2007.
-  float pbeta, p;
+  double pbeta, p;
   bool next202 = false, next67 = false;
 
   pbeta = 100. * GetRandom();
@@ -7778,7 +7767,7 @@ void Decay0::Rh106() {
   // not higher 2.002 MeV, 99.32% of decay
   // VIT, 17.12.1995.
   bool next1562 = false, next1134 = false, next1128 = false, next512 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -7852,7 +7841,7 @@ void Decay0::Sb125() {
   // VIT, 13.02.2010.
   bool next539 = false, next525 = false, next463 = false, next444 = false;
   bool next321 = false, next145 = false, next35 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -8040,7 +8029,7 @@ void Decay0::Sb126() {
   bool next2840 = false, next2812 = false, next2766 = false, next2515 = false;
   bool next2497 = false, next2396 = false, next2218 = false, next1776 = false;
   bool next1362 = false, next667 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -8201,7 +8190,7 @@ void Decay0::Sb133() {
   bool next2332 = false, next2211 = false, next2024 = false, next1913 = false;
   bool next1729 = false, next1640 = false, next1501 = false, next1265 = false;
   bool next1096 = false, next334 = false, next308 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -8388,7 +8377,7 @@ void Decay0::Ta182() {
   bool next1488 = false, next1443 = false, next1374 = false, next1331 = false;
   bool next1289 = false, next1257 = false, next1221 = false, next329 = false;
   bool next100 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -8594,7 +8583,7 @@ void Decay0::Te133() {
   bool next1333 = false, next1313 = false, next1307 = false, next1240 = false;
   bool next915 = false, next913 = false, next787 = false, next720 = false;
   bool next312 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -9376,7 +9365,7 @@ void Decay0::Te133m() {
   bool next1729 = false, next1707 = false, next1704 = false, next1647 = false;
   bool next1634 = false, next1560 = false, next1516 = false, next1455 = false;
   bool next1307 = false, next915 = false, next913 = false, next312 = false;
-  float pdecay, pbeta, p;
+  double pdecay, pbeta, p;
 
   pdecay = 100. * GetRandom();
   if (pdecay <= fProbDecay[0]) {  // 17.5% IT to 133Te(g.s.)
@@ -10202,7 +10191,7 @@ void Decay0::Te134() {
   // VIT, 7.10.2002.
   bool next923 = false, next847 = false, next645 = false, next210 = false;
   bool next181 = false, next79 = false, next44 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -10328,7 +10317,7 @@ void Decay0::Th234() {
   // 108(2007)681 and ENSDF database at NNDC site on 8.08.2007.
   // VIT, 8.08.2007.
   bool next167 = false, next103 = false, next74 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();
   if (pbeta <= fProbBeta[0]) {
@@ -10399,7 +10388,7 @@ void Decay0::Tl208() {
   //     also were added: LM conversion electrons;
   //     more complex emission of X rays emitted in K-conversion.
   bool next3708 = false, next3475 = false, next3198 = false, next2615 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();  // 82.5% beta decay to 133I
   if (pbeta <= fProbBeta[0]) {
@@ -10542,7 +10531,7 @@ void Decay0::Xe133() {
   // "Table of Isotopes", 8th ed., 1996.
   // VIT, 18.08.1997. Updated 5.12.2003 in accordance with NDS 75(1995)491.
   bool next161 = false, next81 = false;
-  float pbeta, p;
+  double pbeta, p;
 
   pbeta = 100. * GetRandom();  // 82.5% beta decay to 133I
   if (pbeta <= fProbBeta[0]) {
@@ -10589,7 +10578,7 @@ void Decay0::Xe135() {
   // Yu.V.Sergeenkov et al.,Nucl.Data Sheets 84 (1998) 115.
   // VIT, 9.10.2002.
   bool next608 = false, next408 = false, next250 = false;
-  float pbeta, p;
+  double pbeta, p;
   pbeta = 100. * GetRandom();
 
   if (pbeta <= fProbBeta[0]) {
@@ -10670,16 +10659,16 @@ void Decay0::Y88() {
   //  VIT, 12.11.2006 (update to NDS 105(2005)419 and change
   //  of beta+ spectrum shape)
   bool next2734 = false, next1836 = false;
-  float pdecay, p;
+  double pdecay, p;
 
   pdecay = 100. * GetRandom();
   if (pdecay <= fProbDecay[0]) {
-    particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+    particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
     fThlev = 0.14e-9;
     nucltransK(fEnGamma[0], fEbindeK, 8.5e-4, 0.);
     next2734 = true;
   } else if (pdecay <= fProbDecay[1]) {
-    particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+    particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
     fThlev = 0.13e-12;
     p = 100. * GetRandom();
     if (p <= 25.) {
@@ -10690,10 +10679,10 @@ void Decay0::Y88() {
       next1836 = true;
     }
   } else if (pdecay <= fProbDecay[2]) {
-    particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+    particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
     next2734 = true;
   } else if (pdecay <= fProbDecay[3]) {
-    particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0., 0.);
+    particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
     next1836 = true;
   } else {  // b+ to Sr88
     beta2f(fEndPoint[0], 0., 0., 1, fShCorrFactor[0], fShCorrFactor[1], fShCorrFactor[2], fShCorrFactor[3]);
@@ -10720,14 +10709,14 @@ void Decay0::Y88() {
 ///^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 void Decay0::Zn65() {
   // NDS 69(1993)209 and NNDC online corrections on 28.03.2007).
-  float pec, p;
+  double pec, p;
 
   pec = 100. * GetRandom();
   if (pec <= fProbEC[0]) {
     pair(0.329);  // beta+ decay to g.s. of 65-Cu
     return;
   } else {  // X ray after EC to 65-Cu
-    particle(1, fEbindeK, fEbindeK, 0., pi, 0., twopi, 0, 0);
+    particle(1, fEbindeK, fEbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);
     if (pec <= fProbEC[1]) {
       fThlev = 0.285e-12;
       p = 100. * GetRandom();
@@ -10749,7 +10738,7 @@ void Decay0::Nb96() {
   // NDS 68(1993)165 and ENSDF at NNDC site on 13.11.2007).
   // VIT, 7.05.1998; update 13.11.2007.
   fThnuc = 8.406e4;
-  float tcnuc = 0.;
+  double tcnuc = 0.;
   fTdnuc = tcnuc - fThnuc / log(2.) * log(GetRandom());
   fTclev = 0.;
   fThlev = 0.;
@@ -10757,7 +10746,7 @@ void Decay0::Nb96() {
   bool next2755 = false, next2441 = false, next2439 = false, next2219 = false;
   bool next1978 = false, next1870 = false, next1628 = false, next1626 = false;
   bool next1498 = false, next778 = false;
-  float pbeta, p;
+  double pbeta, p;
   pbeta = 100. * GetRandom();
   if (pbeta <= 0.024) {
     beta(0.212, 0., 0.);
@@ -10914,9 +10903,9 @@ void Decay0::Nb96() {
 ///************************************************/
 /// Additional functions
 ///************************************************/
-void Decay0::particle(int np, float E1, float E2, float teta1, float teta2, float phi1, float phi2, float tclev,
-                      float thlev) {
-  // Generation of isotropic emission of particle in the range of  energies and
+void Decay0::particle(int np, double E1, double E2, double teta1, double teta2, double phi1, double phi2, double tclev,
+                      double thlev) {
+  // Generation of isotroCLHEP::pic emission of particle in the range of  energies and
   // angles. E1,E2       - range of kinetic energy of particle (MeV);
   // teta1,teta2 - range of teta angle (radians);
   // phi1,phi2   - range of phi  angle (radians);
@@ -10934,18 +10923,18 @@ void Decay0::particle(int np, float E1, float E2, float teta1, float teta2, floa
   }
 
   fNpGeant[fNbPart] = np;
-  float pmass = GetMass(np);
-  float phi = phi1 + (phi2 - phi1) * GetRandom();
+  double pmass = GetMass(np);
+  double phi = phi1 + (phi2 - phi1) * GetRandom();
 
-  float ctet1 = 1.;
-  float ctet2 = -1.;
+  double ctet1 = 1.;
+  double ctet2 = -1.;
   double p;
-  float E, ctet;
+  double E, ctet;
   if (teta1 != 0.) ctet1 = cos(teta1);
-  if (teta2 != pi) ctet2 = cos(teta2);
+  if (teta2 != CLHEP::pi) ctet2 = cos(teta2);
 
   ctet = ctet1 + (ctet2 - ctet1) * GetRandom();
-  float stet = sqrt(1. - ctet * ctet);
+  double stet = sqrt(1. - ctet * ctet);
   E = E1;
   if (E1 != E2) E = E1 + (E2 - E1) * GetRandom();
 
@@ -10971,24 +10960,24 @@ void Decay0::PbAtShell(int KLMenergy) {
   // 88 (hole in K-shell), 15 (in L-shell) and 3 (in M-shell).
   // VIT, 7.07.1995, 22.10.1995.
 
-  float p;
+  double p;
   int Lhole = 0, Mhole = 0;
   bool gonext = false;
   if (KLMenergy == 88) {
     p = 100 * GetRandom();
     if (p <= 22.) {
-      particle(1, 0.085, 0.085, 0., pi, 0., twopi, 0., 0.);
+      particle(1, 0.085, 0.085, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       Mhole = Mhole + 1;
       for (int i = 1; i <= Mhole; i++) {
-        particle(1, 0.003, 0.003, 0., pi, 0., twopi, 0., 0.);
+        particle(1, 0.003, 0.003, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       }
       return;
     } else {
       p = 100 * GetRandom();
       if (p <= 96.)
-        particle(1, 0.073, 0.073, 0., pi, 0., twopi, 0., 0.);
+        particle(1, 0.073, 0.073, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       else {
-        particle(3, 0.058, 0.058, 0., pi, 0., twopi, 0., 0.);
+        particle(3, 0.058, 0.058, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
         Lhole = Lhole + 1;
       }
     }
@@ -11003,9 +10992,9 @@ void Decay0::PbAtShell(int KLMenergy) {
     for (int i = 1; i <= Lhole; i++) {
       p = 100 * GetRandom();
       if (p <= 40.)
-        particle(1, 0.012, 0.012, 0., pi, 0., twopi, 0., 0.);
+        particle(1, 0.012, 0.012, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
       else {
-        particle(3, 0.009, 0.009, 0., pi, 0., twopi, 0., 0.);
+        particle(3, 0.009, 0.009, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
         Mhole = Mhole + 1;
       }
       Mhole = Mhole + 1;
@@ -11018,24 +11007,24 @@ void Decay0::PbAtShell(int KLMenergy) {
   }
   if (gonext) {
     for (int i = 1; i <= Mhole; i++) {
-      particle(1, 0.003, 0.003, 0., pi, 0., twopi, 0., 0.);
+      particle(1, 0.003, 0.003, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);
     }
     return;
   }
   return;
 }
 ///************************************************/
-float Decay0::fe1_mod() {
+double Decay0::fe1_mod() {
   // probability distribution for energy of first e-/e+ for
   //  fModebb=1,2,3,7,10 in the doublebeta model
 
-  float fe1mod = 0.;
+  double fe1mod = 0.;
   if (fE1 > fE0) return fe1mod;
 
   fE2 = fE0 - fE1;
 
-  float p1 = sqrt(fE1 * (fE1 + 2. * GetMass(3)));
-  float p2 = sqrt(fE2 * (fE2 + 2. * GetMass(3)));
+  double p1 = sqrt(fE1 * (fE1 + 2. * GetMass(3)));
+  double p2 = sqrt(fE2 * (fE2 + 2. * GetMass(3)));
 
   if (fModebb == 1)
     fe1mod = (fE1 + GetMass(3)) * p1 * fermi(fZdbb, fE1) * (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2);
@@ -11059,14 +11048,14 @@ float Decay0::fe1_mod() {
   return fe1mod;
 }
 ///************************************************/
-float Decay0::fe2_mod() {
+double Decay0::fe2_mod() {
   // probability distribution for energy of second e-
   // for fModebb=4,5,6,8,13,14,15,16
 
-  float fe2mod = 0.;
+  double fe2mod = 0.;
   if (fE2 > fE0 - fE1) return fe2mod;
 
-  float p2 = sqrt(fE2 * (fE2 + 2. * GetMass(3)));
+  double p2 = sqrt(fE2 * (fE2 + 2. * GetMass(3)));
   if (fModebb == 4)
     fe2mod = (fE2 + GetMass(3)) * p2 * fermi(fZdbb, fE2) * pow(fE0 - fE1 - fE2, 5);
   else if (fModebb == 5)
@@ -11088,7 +11077,7 @@ float Decay0::fe2_mod() {
   return fe2mod;
 }
 ///************************************************/
-float Decay0::fermi(const float &Z, const float &E) {
+double Decay0::fermi(const double &Z, const double &E) {
   // Function fermi calculates the traditional function of Fermi
   // in theory of beta decay to take into account the Coulomb correction
   // to the shape of electron/positron energy spectrum.
@@ -11096,9 +11085,9 @@ float Decay0::fermi(const float &Z, const float &E) {
   //  E - kinetic energy of particle (MeV; E>50 eV).
   //  fermif - value of correction factor (without normalization -
   //           constant factors are removed - for MC simulation).
-  float dE, alfaz, w, y, g, fermif;
+  double dE, alfaz, w, y, g, fermif;
   double p;
-  complex<double> carg;
+  std::complex<double> carg;
 
   dE = E;
   if (E < 50e-06) dE = 50e-06;
@@ -11109,13 +11098,13 @@ float Decay0::fermi(const float &Z, const float &E) {
   y = alfaz * w / p;
   g = sqrt(1. - alfaz * alfaz);
 
-  carg = complex<double>(g, y);
-  fermif = pow(p, (2. * g - 2.)) * exp(pi * y + 2. * log(abs(cgamma(carg))));
+  carg = std::complex<double>(g, y);
+  fermif = pow(p, (2. * g - 2.)) * exp(CLHEP::pi * y + 2. * log(abs(cgamma(carg))));
 
   return fermif;
 }
 ///************************************************/
-void Decay0::beta(float Qbeta, float tcnuc, float thnuc) {
+void Decay0::beta(double Qbeta, double tcnuc, double thnuc) {
   // Calculation of the angles and energy of beta particles emitted
   // in the beta decay of nucleus. The decay is considered as allowed.
   // Only Coulomb correction to the shape of energy spectrum is taken into
@@ -11125,7 +11114,7 @@ void Decay0::beta(float Qbeta, float tcnuc, float thnuc) {
   fThnuc = thnuc;
 
   TF1 fbeta("funbeta", this, &Decay0::funbeta, 0, Qbeta, 3);
-  float em = 0., fm = 0., E = 0., fe = 0., f = 0.;
+  double em = 0., fm = 0., E = 0., fe = 0., f = 0.;
   int np;
 
   tgold(50.e-6, Qbeta, fbeta, 0.001 * Qbeta, 2, em, fm);
@@ -11139,15 +11128,15 @@ void Decay0::beta(float Qbeta, float tcnuc, float thnuc) {
   if (fZdtr >= 0.) np = 3;
   if (fZdtr < 0.) np = 2;
 
-  particle(np, E, E, 0., pi, 0., twopi, tcnuc, fThnuc);
+  particle(np, E, E, 0., CLHEP::pi, 0., CLHEP::twopi, tcnuc, fThnuc);
   return;
 }
 ///************************************************/
-void Decay0::beta1f(float Qbeta, float tcnuc, float thnuc, float c1, float c2, float c3, float c4) {
+void Decay0::beta1f(double Qbeta, double tcnuc, double thnuc, double c1, double c2, double c3, double c4) {
   // Calculation of the angles and energy of beta particles emitted
   // in beta decay of nucleus. The decay is considered as forbidden;
   // correction factor to the allowed spectrum shape has a form
-  // typical for empirical corrections:
+  // tyCLHEP::pical for emCLHEP::pirical corrections:
   // cf(e)=(1+c1/w+c2*w+c3*w**2+c4*w**3), w=e/GetMass(3)+1.
   // VIT, 30.07.1992; 15.10.1995; 31.03.2006
 
@@ -11158,7 +11147,7 @@ void Decay0::beta1f(float Qbeta, float tcnuc, float thnuc, float c1, float c2, f
   fC3 = c3;
   fC4 = c4;
   TF1 fbeta1f("funbeta1f", this, &Decay0::funbeta1f, 0, fQbeta, 3);
-  float em = 0., fm = 0., E = 0., fe = 0., f = 0.;
+  double em = 0., fm = 0., E = 0., fe = 0., f = 0.;
   int np = 0;
 
   tgold(50.e-6, fQbeta, fbeta1f, 0.001 * fQbeta, 2, em, fm);
@@ -11172,11 +11161,11 @@ void Decay0::beta1f(float Qbeta, float tcnuc, float thnuc, float c1, float c2, f
   if (fZdtr >= 0.) np = 3;
   if (fZdtr < 0.) np = 2;
 
-  particle(np, E, E, 0., pi, 0., twopi, tcnuc, fThnuc);
+  particle(np, E, E, 0., CLHEP::pi, 0., CLHEP::twopi, tcnuc, fThnuc);
   return;
 }
 ///************************************************/
-void Decay0::beta1fu(float Qbeta, float tcnuc, float thnuc, float c1, float c2, float c3, float c4) {
+void Decay0::beta1fu(double Qbeta, double tcnuc, double thnuc, double c1, double c2, double c3, double c4) {
   // Calculation of the angles and energy of betas emitted in the decay
   // of nucleus. The decay is considered as 1st-forbidden unique.
   // Its shape is a product of theoretical spectrum shape for allowed decay
@@ -11185,7 +11174,7 @@ void Decay0::beta1fu(float Qbeta, float tcnuc, float thnuc, float c1, float c2, 
   // where lambda2 is the Coulomb function calculated in BJ'1969,
   // and pel and pnu are impulses of electron and neutrino:
   // pel=sqrt(w**2-1), pnu=(Qbeta-e)/GetMass(3) , w=e/GetMass(3)+1;
-  // 2. empirical correction   cf2(e)=(1+c1/w+c2*w+c3*w**2+c4*w**3).
+  // 2. emCLHEP::pirical correction   cf2(e)=(1+c1/w+c2*w+c3*w**2+c4*w**3).
   // Values of the "lambda2" Coulomb function for some Zdtr values from:
   // H.Behrens, J.Janecke, "Numerical tables for beta-decay and electron
   // capture", Berlin, Springer-Verlag, 1969.
@@ -11246,8 +11235,8 @@ void Decay0::beta1fu(float Qbeta, float tcnuc, float thnuc, float c1, float c2, 
   }
 
   TF1 fbeta1fu("funbeta1fu", this, &Decay0::funbeta1fu, 50.e-6, fQbeta, 3);
-  float em = 0., fm = 0., E, fe = 0.;
-  float f;
+  double em = 0., fm = 0., E, fe = 0.;
+  double f;
   int np;
 
   tgold(50.e-6, fQbeta, fbeta1fu, 0.001 * fQbeta, 2, em, fm);
@@ -11258,15 +11247,15 @@ void Decay0::beta1fu(float Qbeta, float tcnuc, float thnuc, float c1, float c2, 
   } while (f > fe);
   if (fZdtr >= 0.) np = 3;
   if (fZdtr < 0.) np = 2;
-  particle(np, E, E, 0., pi, 0., twopi, tcnuc, fThnuc);
+  particle(np, E, E, 0., CLHEP::pi, 0., CLHEP::twopi, tcnuc, fThnuc);
   return;
 }
 ///************************************************/
-void Decay0::beta2f(float Qbeta, float tcnuc, float thnuc, int kf, float c1, float c2, float c3, float c4) {
+void Decay0::beta2f(double Qbeta, double tcnuc, double thnuc, int kf, double c1, double c2, double c3, double c4) {
   // Calculation of the angles and energy of beta particles emitted
   // in beta decay of nucleus. The decay is considered as forbidden;
   // correction factor to the allowed spectrum shape has one of a form,
-  // typical for unique k-forbidden spectra:
+  // tyCLHEP::pical for unique k-forbidden spectra:
   // k=1: cf(e)=pel**2+c1*       pnu**2,
   // k=2: cf(e)=pel**4+c1*pel**2*pnu**2+c2*       pnu**4,
   // k=3: cf(e)=pel**6+c1*pel**4*pnu**2+c2*pel**2*pnu**4+c3*       pnu**6,
@@ -11284,7 +11273,7 @@ void Decay0::beta2f(float Qbeta, float tcnuc, float thnuc, int kf, float c1, flo
   fC3 = c3;
   fC4 = c4;
   TF1 fbeta2f("funbeta2f", this, &Decay0::funbeta2f, 0, fQbeta, 3);
-  float em = 0., fm = 0., E = 0., fe = 0., f = 0.;
+  double em = 0., fm = 0., E = 0., fe = 0., f = 0.;
   int np = 0;
   tgold(50.e-6, fQbeta, fbeta2f, 0.001 * fQbeta, 2, em, fm);
   do {
@@ -11294,11 +11283,11 @@ void Decay0::beta2f(float Qbeta, float tcnuc, float thnuc, int kf, float c1, flo
   } while (f > fe);
   if (fZdtr >= 0.) np = 3;
   if (fZdtr < 0.) np = 2;
-  particle(np, E, E, 0., pi, 0., twopi, tcnuc, fThnuc);
+  particle(np, E, E, 0., CLHEP::pi, 0., CLHEP::twopi, tcnuc, fThnuc);
   return;
 }
 ///************************************************/
-void Decay0::nucltransK(float Egamma, float Ebinde, float conve, float convp) {
+void Decay0::nucltransK(double Egamma, double Ebinde, double conve, double convp) {
   // nucltransK chooses one of the three concurrent processes by which
   // the transition from one nuclear state to another is occurred:
   // gamma-ray emission, internal conversion and internal pair creation.
@@ -11307,45 +11296,45 @@ void Decay0::nucltransK(float Egamma, float Ebinde, float conve, float convp) {
   // Ebinde - binding energy of electron (MeV);
   // conve  - internal electron conversion coefficient [=Nelectron/Ngamma];
   // convp  - pair conversion coefficient [=Npair/Ngamma];
-  float p = (1. + conve + convp) * GetRandom();
+  double p = (1. + conve + convp) * GetRandom();
 
   if (p <= 1) {
-    particle(1, Egamma, Egamma, 0, pi, 0, twopi, fTclev, fThlev);  // gamma
+    particle(1, Egamma, Egamma, 0, CLHEP::pi, 0, CLHEP::twopi, fTclev, fThlev);  // gamma
   } else if (p <= 1 + conve) {
-    particle(3, Egamma - Ebinde, Egamma - Ebinde, 0., pi, 0., twopi, fTclev,
-             fThlev);                                        // electron
-    particle(1, Ebinde, Ebinde, 0., pi, 0., twopi, 0., 0.);  // gamma
+    particle(3, Egamma - Ebinde, Egamma - Ebinde, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev,
+             fThlev);                                                      // electron
+    particle(1, Ebinde, Ebinde, 0., CLHEP::pi, 0., CLHEP::twopi, 0., 0.);  // gamma
   } else
     pair(Egamma - 2. * GetMass(3));  // e+e- pair
   return;
 }
 ///************************************************/
-void Decay0::nucltransKL(float Egamma, float EbindeK, float conveK, float EbindeL, float conveL, float convp) {
+void Decay0::nucltransKL(double Egamma, double EbindeK, double conveK, double EbindeL, double conveL, double convp) {
   // ucltransKL chooses one of the three concurrent processes by which
   // the transition from one nuclear state to another is occurred:
   // gamma-ray emission, internal conversion and internal pair creation.
   // Conversion electrons are emitted with two fixed energies:
   // (Egamma-E(K)_binding_energy and Egamma-E(L)_binding_energy).
   // VIT, 5.07.1995.
-  float p = (1. + conveK + conveL + convp) * GetRandom();
+  double p = (1. + conveK + conveL + convp) * GetRandom();
 
   if (p <= 1.)
-    particle(1, Egamma, Egamma, 0., pi, 0., twopi, fTclev, fThlev);  // gamma
+    particle(1, Egamma, Egamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);  // gamma
   else if (p <= 1. + conveK) {
-    particle(3, Egamma - EbindeK, Egamma - EbindeK, 0., pi, 0., twopi, fTclev,
-             fThlev);                                        // electron
-    particle(1, EbindeK, EbindeK, 0., pi, 0., twopi, 0, 0);  // gamma
+    particle(3, Egamma - EbindeK, Egamma - EbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev,
+             fThlev);                                                      // electron
+    particle(1, EbindeK, EbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);  // gamma
   } else if (p <= 1. + conveK + conveL) {
-    particle(3, Egamma - EbindeL, Egamma - EbindeL, 0., pi, 0., twopi, fTclev,
-             fThlev);                                        // electron
-    particle(1, EbindeL, EbindeL, 0., pi, 0., twopi, 0, 0);  // gamma
+    particle(3, Egamma - EbindeL, Egamma - EbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev,
+             fThlev);                                                      // electron
+    particle(1, EbindeL, EbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);  // gamma
   } else
     pair(Egamma - 2. * GetMass(3));
   return;
 }
 ///************************************************/
-void Decay0::nucltransKLM(float Egamma, float EbindeK, float conveK, float EbindeL, float conveL, float EbindeM,
-                          float conveM, float convp) {
+void Decay0::nucltransKLM(double Egamma, double EbindeK, double conveK, double EbindeL, double conveL, double EbindeM,
+                          double conveM, double convp) {
   // nucltransKLM chooses one of the three concurrent processes by which
   // the transition from one nuclear state to another is occurred:
   // gamma-ray emission, internal conversion and internal pair creation.
@@ -11360,85 +11349,85 @@ void Decay0::nucltransKLM(float Egamma, float EbindeK, float conveK, float Ebind
   // conveM  - internal conversion coeff [=Nelectron/Ngamma] from M-shell;
   // convp   - pair conversion coefficient [=Npair/Ngamma];
 
-  float p = (1. + conveK + conveL + conveM + convp) * GetRandom();
+  double p = (1. + conveK + conveL + conveM + convp) * GetRandom();
   if (p <= 1.)
-    particle(1, Egamma, Egamma, 0., pi, 0., twopi, fTclev, fThlev);  // gamma
+    particle(1, Egamma, Egamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);  // gamma
   else if (p <= 1. + conveK) {
-    particle(3, Egamma - EbindeK, Egamma - EbindeK, 0., pi, 0., twopi, fTclev,
-             fThlev);                                        // electron
-    particle(1, EbindeK, EbindeK, 0., pi, 0., twopi, 0, 0);  // gamma
+    particle(3, Egamma - EbindeK, Egamma - EbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev,
+             fThlev);                                                      // electron
+    particle(1, EbindeK, EbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);  // gamma
   } else if (p <= 1. + conveK + conveL) {
-    particle(3, Egamma - EbindeL, Egamma - EbindeL, 0., pi, 0., twopi, fTclev,
-             fThlev);                                        // electron
-    particle(1, EbindeL, EbindeL, 0., pi, 0., twopi, 0, 0);  // gamma
+    particle(3, Egamma - EbindeL, Egamma - EbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev,
+             fThlev);                                                      // electron
+    particle(1, EbindeL, EbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);  // gamma
   } else if (p <= 1. + conveK + conveL + conveM) {
-    particle(3, Egamma - EbindeM, Egamma - EbindeM, 0., pi, 0., twopi, fTclev,
-             fThlev);                                        // electron
-    particle(1, EbindeM, EbindeM, 0., pi, 0., twopi, 0, 0);  // gamma
+    particle(3, Egamma - EbindeM, Egamma - EbindeM, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev,
+             fThlev);                                                      // electron
+    particle(1, EbindeM, EbindeM, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);  // gamma
   } else
     pair(Egamma - 2. * GetMass(3));
 
   return;
 }
 ///************************************************/
-void Decay0::nucltransKLM_Pb(float Egamma, float EbindeK, float conveK, float EbindeL, float conveL, float EbindeM,
-                             float conveM, float convp) {
+void Decay0::nucltransKLM_Pb(double Egamma, double EbindeK, double conveK, double EbindeL, double conveL,
+                             double EbindeM, double conveM, double convp) {
   // The same as nucltransKLM but two X rays are emitted after K conversion
   // in deexcitation of 208-Pb in decay 208Tl->208Pb.
   // VIT, 4.02.2009.
-  float p, p1;
+  double p, p1;
   p = (1. + conveK + conveL + conveM + convp) * GetRandom();
   if (p <= 1.)
-    particle(1, Egamma, Egamma, 0., pi, 0., twopi, fTclev, fThlev);  // gamma
+    particle(1, Egamma, Egamma, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev, fThlev);  // gamma
   else if (p <= 1. + conveK) {
-    particle(3, Egamma - EbindeK, Egamma - EbindeK, 0., pi, 0., twopi, fTclev,
+    particle(3, Egamma - EbindeK, Egamma - EbindeK, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev,
              fThlev);  // electron
     p1 = 100. * GetRandom();
     if (p1 <= 73.9) {
-      particle(1, 0.074, 0.074, 0., pi, 0., twopi, 0, 0);  // gamma
-      particle(1, 0.014, 0.014, 0., pi, 0., twopi, 0, 0);  // gamma
+      particle(1, 0.074, 0.074, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);  // gamma
+      particle(1, 0.014, 0.014, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);  // gamma
     } else {
-      particle(1, 0.085, 0.085, 0., pi, 0., twopi, 0, 0);  // gamma
-      particle(1, 0.003, 0.003, 0., pi, 0., twopi, 0, 0);  // gamma
+      particle(1, 0.085, 0.085, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);  // gamma
+      particle(1, 0.003, 0.003, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);  // gamma
       // in 4.8% few low energy particles are emitted; they are neglected
     }
   } else if (p <= 1. + conveK + conveL) {
-    particle(3, Egamma - EbindeL, Egamma - EbindeL, 0., pi, 0., twopi, fTclev,
-             fThlev);                                        // electron
-    particle(1, EbindeL, EbindeL, 0., pi, 0., twopi, 0, 0);  // gamma
+    particle(3, Egamma - EbindeL, Egamma - EbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev,
+             fThlev);                                                      // electron
+    particle(1, EbindeL, EbindeL, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);  // gamma
   } else if (p <= 1. + conveK + conveL + conveM) {
-    particle(3, Egamma - EbindeM, Egamma - EbindeM, 0., pi, 0., twopi, fTclev,
-             fThlev);                                        // electron
-    particle(1, EbindeM, EbindeM, 0., pi, 0., twopi, 0, 0);  // gamma
+    particle(3, Egamma - EbindeM, Egamma - EbindeM, 0., CLHEP::pi, 0., CLHEP::twopi, fTclev,
+             fThlev);                                                      // electron
+    particle(1, EbindeM, EbindeM, 0., CLHEP::pi, 0., CLHEP::twopi, 0, 0);  // gamma
   } else
     pair(Egamma - 2. * GetMass(3));
 
   return;
 }
 ///************************************************/
-void Decay0::pair(float Epair) {
+void Decay0::pair(double Epair) {
   // Generation of e+e- pair in zero-approximation for INTERNAL pair creation:
   //  1) energy of e+ is equal to the energy of e-;
   //  2) e+ and e- are emitted in the same direction.
 
-  float phi = twopi * GetRandom();
-  float ctet = -1. + 2. * GetRandom();
-  float teta = acos(ctet);
-  float E = 0.5 * Epair;
+  double phi = CLHEP::twopi * GetRandom();
+  double ctet = -1. + 2. * GetRandom();
+  double teta = acos(ctet);
+  double E = 0.5 * Epair;
   particle(2, E, E, teta, teta, phi, phi, fTclev, fThlev);
   particle(3, E, E, teta, teta, phi, phi, 0., 0.);
   return;
 }
 ///************************************************/
-void Decay0::tgold(float a, float b, TF1 &fb, float eps, int minmax, float &xextr, float &fextr) {
+void Decay0::tgold(double a, double b, TF1 &fb, double eps, int minmax, double &xextr, double &fextr) {
   // tgold determines maximum or minimum of the function f(x) in
   // the interval [a,b] by the gold section method.
-  float qc = 0.61803395;
-  float xR = a + (b - a) * qc;
-  float xL = b - (b - a) * qc;
+  double qc = 0.61803395;
+  double xR = a + (b - a) * qc;
+  double xL = b - (b - a) * qc;
   fb.SetParameters(fQbeta, GetMass(3), fZdtr);
-  float yR = fb.Eval(xR);
-  float yL = fb.Eval(xL);
+  double yR = fb.Eval(xR);
+  double yL = fb.Eval(xL);
 
   do {
     if (minmax == 1) {
@@ -11469,8 +11458,8 @@ void Decay0::tgold(float a, float b, TF1 &fb, float eps, int minmax, float &xext
   fextr = fb.Eval(xextr);
 }
 ///************************************************/
-complex<double> Decay0::cgamma(complex<double> z) {
-  complex<double> g, z0, z1;
+std::complex<double> Decay0::cgamma(std::complex<double> z) {
+  std::complex<double> g, z0, z1;
   double x0 = 0., q1 = 0., q2 = 0., x = 0., y = 0., th = 0., th1 = 0., th2 = 0.;
   double g0 = 0., gr = 0., gi = 0., gr1 = 0., gi1 = 0.;
   double na = 0., t = 0., x1 = 0., sr = 0., si = 0.;
@@ -11481,9 +11470,9 @@ complex<double> Decay0::cgamma(complex<double> z) {
                        1.796443723688307e-01, -1.39243221690590};
   x = real(z);
   y = imag(z);
-  if (x > 171) return complex<double>(1e308, 0);
+  if (x > 171) return std::complex<double>(1e308, 0);
   if ((y == 0.0) && (x == (int)x) && (x <= 0.0))
-    return complex<double>(1e308, 0);
+    return std::complex<double>(1e308, 0);
   else if (x < 0.0) {
     x1 = x;
     x = -x;
@@ -11496,7 +11485,7 @@ complex<double> Decay0::cgamma(complex<double> z) {
   }
   q1 = sqrt(x0 * x0 + y * y);
   th = atan(y / x0);
-  gr = (x0 - 0.5) * log(q1) - th * y - x0 + 0.5 * log(twopi);
+  gr = (x0 - 0.5) * log(q1) - th * y - x0 + 0.5 * log(CLHEP::twopi);
   gi = th * (x0 - 0.5) + y * log(q1) - y;
   for (k = 0; k < 10; k++) {
     t = pow(q1, -1.0 - 2.0 * k);
@@ -11516,22 +11505,22 @@ complex<double> Decay0::cgamma(complex<double> z) {
   if (x1 < 0.0) {
     q1 = sqrt(x * x + y * y);
     th1 = atan(y / x);
-    sr = -sin(pi * x) * cosh(pi * y);
-    si = -cos(pi * x) * sinh(pi * y);
+    sr = -sin(CLHEP::pi * x) * cosh(CLHEP::pi * y);
+    si = -cos(CLHEP::pi * x) * sinh(CLHEP::pi * y);
     q2 = sqrt(sr * sr + si * si);
     th2 = atan(si / sr);
-    if (sr < 0.0) th2 += pi;
-    gr = log(pi / (q1 * q2)) - gr;
+    if (sr < 0.0) th2 += CLHEP::pi;
+    gr = log(CLHEP::pi / (q1 * q2)) - gr;
     gi = -th1 - th2 - gi;
   }
   g0 = exp(gr);
   gr = g0 * cos(gi);
   gi = g0 * sin(gi);
-  g = complex<double>(gr, gi);
+  g = std::complex<double>(gr, gi);
   return g;
 }
 ///************************************************/
-float Decay0::divdif(double xtab[50], double xval) {
+double Decay0::divdif(double xtab[50], double xval) {
   // Function Interpolation translated from cernlib function E105
   int i = 0, j = 0;
   double difval = 0.;
@@ -11619,7 +11608,7 @@ float Decay0::divdif(double xtab[50], double xval) {
   return difval;
 }
 ///************************************************/
-float Decay0::GetRandom() { return G4UniformRand(); }
+double Decay0::GetRandom() { return G4UniformRand(); }
 ///************************************************/
 G4double Decay0::GetMass(int gnp) {
   int pdg = 0;

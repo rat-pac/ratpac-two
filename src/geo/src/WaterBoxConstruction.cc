@@ -8,16 +8,14 @@
 #include <G4VisAttributes.hh>
 #include <RAT/WaterBoxConstruction.hh>
 
-using namespace std;
-
 namespace RAT {
 /// \brief Log volume for water box
 ///
 /// Logical volume for water box.
 G4LogicalVolume *WaterBoxConstruction::ConstructLogicalVolume(DBLinkPtr table) {
   // First make the box itself
-  string volume_name = table->GetIndex();
-  const vector<double> &size = table->GetDArray("boxsize");
+  std::string volume_name = table->GetIndex();
+  const std::vector<double> &size = table->GetDArray("boxsize");
   G4Box *thebox = new G4Box("waterbox_box", size[0] / 2, size[1] / 2, size[2] / 2);
   G4Material *cardboard = G4Material::GetMaterial("cardboard");
   G4Material *air = G4Material::GetMaterial("air");

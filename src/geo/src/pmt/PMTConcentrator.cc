@@ -11,8 +11,6 @@
 #include <cmath>
 #include <iostream>
 
-using namespace std;
-
 namespace RAT {
 
 PMTConcentrator::PMTConcentrator(const G4String &name, G4double _upper_radius, G4double _lower_radius,

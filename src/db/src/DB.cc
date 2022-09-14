@@ -14,8 +14,6 @@
 #include <iostream>
 #include <sstream>
 
-using namespace std;
-
 namespace RAT {
 
 DB *DB::primary(0);
@@ -32,7 +30,7 @@ DB::~DB() {
   // Since this database is going away, disable all the existing links.
   // Prevents links from trying to remove themselves from nonexistent
   // databases
-  list<DBLink *>::iterator l;
+  std::list<DBLink *>::iterator l;
   for (l = links.begin(); l != links.end(); l++) (*l)->Unlink();
 }
 
@@ -40,7 +38,7 @@ int DB::Load(std::string filename, bool printPath) {
   // Try to get file info assuming the name is literal
   struct stat s;
   if (stat(filename.c_str(), &s) == 0) {
-    if (printPath) cout << "DB: Loading " << filename << "\n";
+    if (printPath) std::cout << "DB: Loading " << filename << "\n";
     if (S_ISDIR(s.st_mode))
       return LoadAll(filename);
     else
@@ -49,7 +47,7 @@ int DB::Load(std::string filename, bool printPath) {
     // Check through the data directories
     for (auto dir : Rat::ratdb_directories) {
       std::string newfilename = dir + "/" + filename;
-      if (printPath) cout << "DB: Loading " << newfilename << "\n";
+      if (printPath) std::cout << "DB: Loading " << newfilename << "\n";
       if (stat(newfilename.c_str(), &s) == 0) {
         if (S_ISDIR(s.st_mode))
           return LoadAll(newfilename);
@@ -72,7 +70,7 @@ int DB::LoadTable(DBTable *table) {
 
     DBTable *oldtable = FindTable(id.name, id.index, id.run);
     if (oldtable) {
-      cerr << "DB: Replacing default " << id.name << "[" << id.index << "] in database.\n" << endl;
+      std::cerr << "DB: Replacing default " << id.name << "[" << id.index << "] in database.\n" << std::endl;
     }
 
     tables[id] = table;
@@ -81,7 +79,7 @@ int DB::LoadTable(DBTable *table) {
 
     DBTable *oldtable = FindTable(id.name, id.index, id.run);
     if (oldtable) {
-      cerr << "DB: Replacing user " << id.name << "[" << id.index << "] in database.\n" << endl;
+      std::cerr << "DB: Replacing user " << id.name << "[" << id.index << "] in database.\n" << std::endl;
     }
 
     tables[id] = table;
@@ -96,8 +94,8 @@ int DB::LoadTable(DBTable *table) {
 
       DBTable *oldtable = FindTable(id.name, id.index, id.run);
       if (oldtable) {
-        cerr << "DB: Replacing " << id.name << "[" << id.index << "]"
-             << " for run " << id.run << " in database.\n";
+        std::cerr << "DB: Replacing " << id.name << "[" << id.index << "]"
+                  << " for run " << id.run << " in database.\n";
       }
 
       tables[id] = tablePtr;
@@ -115,18 +113,18 @@ int DB::LoadFile(std::string filename) {
   }
 
   // Otherwise try to read and parse it as RATDB or JSON file.
-  vector<DBTable *> contents;
+  std::vector<DBTable *> contents;
   try {
     contents = ReadRATDBFile(filename);
   } catch (FileError &e) {
-    cerr << "DB: Error! Cannot open " << e.filename << "\n";
+    std::cerr << "DB: Error! Cannot open " << e.filename << "\n";
     return 0;
   }
 
   // NOTE: Smart pointers in tables mean that we do not need to
   // explicitly delete old table before replacing with new one below!
 
-  vector<DBTable *>::iterator itbl;
+  std::vector<DBTable *>::iterator itbl;
 
   for (itbl = contents.begin(); itbl != contents.end(); itbl++) {
     DBTable *table = (*itbl);  // Get rid of iterator mess
@@ -142,12 +140,12 @@ int DB::LoadAll(std::string dirname, std::string pattern) {
 
   if (glob(pattern.c_str(), 0, 0, &g) == 0) {
     for (unsigned i = 0; i < g.gl_pathc; i++) {
-      string path(g.gl_pathv[i]);
-      cout << "DB: Loading " << path << " ... ";
+      std::string path(g.gl_pathv[i]);
+      std::cout << "DB: Loading " << path << " ... ";
       if (Load(path))
-        cout << "Success!" << endl;
+        std::cout << "Success!" << std::endl;
       else {
-        cout << "Load Failed!" << endl;
+        std::cout << "Load Failed!" << std::endl;
         globfree(&g);
         return 0;
       }
@@ -187,7 +185,7 @@ void DB::SetServer(std::string url) {
   info << "RATDB: Tables on server include";
   json::Value rows = results["rows"];
   for (unsigned i = 0; i < rows.getArraySize(); i++) {
-    std::string key = rows[i]["key"].cast<string>();
+    std::string key = rows[i]["key"].cast<std::string>();
     tableNamesOnServer.insert(key);
     info << " " << key;
   }
@@ -243,7 +241,7 @@ DBLinkGroup DB::GetLinkGroup(std::string tblname) {
     for (unsigned idx = 0; idx < rows.getArraySize(); idx++) {
       json::Value row = rows[idx]["key"];
       // Key is a two element array, with index in entry 1
-      std::string index = row[1].cast<string>();
+      std::string index = row[1].cast<std::string>();
       if (group.count(index) == 0) group[index] = GetLink(tblname, index);
     }
   }
@@ -348,13 +346,13 @@ DBTable *DB::FindTable(std::string tblname, std::string index, int runNumber) {
 
   // 4) Grab fields from attachments if present
   if (jsonDoc.isMember("_attachments")) {
-    std::string table_id = jsonDoc["_id"].cast<string>();
+    std::string table_id = jsonDoc["_id"].cast<std::string>();
     json::Value attachments = jsonDoc["_attachments"];
     std::vector<std::string> fieldnames = attachments.getMembers();
     for (unsigned idx = 0; idx < fieldnames.size(); idx++) {
       // Fetch attachment
       const std::string &fieldname = fieldnames[idx];
-      std::string content_type = attachments[fieldname]["content_type"].cast<string>();
+      std::string content_type = attachments[fieldname]["content_type"].cast<std::string>();
 
       if (content_type == "vnd.rat/array-double") {
         newTable->SetDArrayDeferred(fieldname, this);
@@ -384,7 +382,7 @@ DBTable *DB::FindTable(std::string tblname, std::string index, int runNumber) {
   tables[forDeletion.first]->GetBytes(); if (forDeletion.second)
       serverTableBytes -= deleteSize;
     tables.erase(forDeletion.first);
-    cerr << "Evicting " << forDeletion.first.name << "[" <<
+    std::cerr << "Evicting " << forDeletion.first.name << "[" <<
   forDeletion.first.index << "], run " << forDeletion.first.run << " (" <<
   deleteSize << " bytes)\n";
   }
@@ -392,7 +390,7 @@ DBTable *DB::FindTable(std::string tblname, std::string index, int runNumber) {
 
   // 6) Add this table to the memory cache
   simple_ptr_nocopy<DBTable> newTablePtr(newTable);
-  const vector<int> &run_range = newTable->GetIArray("run_range");
+  const std::vector<int> &run_range = newTable->GetIArray("run_range");
   for (int i = run_range[0]; i <= run_range[1]; i++) {
     id.run = i;
     tables[id] = newTablePtr;
@@ -403,7 +401,7 @@ DBTable *DB::FindTable(std::string tblname, std::string index, int runNumber) {
   // Last entry in queue gets billed for all the space (since it isn't freed
   // until the last is deleted)
   tablesFromServer.back().second = true;
-  // cerr << "Memory cache = " << serverTableBytes << "\n";
+  // std::cerr << "Memory cache = " << serverTableBytes << "\n";
 
   info << dformat("RATDB: Loaded table %s[%s] from server\n", newTable->GetName().c_str(),
                   newTable->GetIndex().c_str());

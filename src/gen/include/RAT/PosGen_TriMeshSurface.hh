@@ -13,8 +13,6 @@
 #include <RAT/GLG4PosGen.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 class PosGen_TriMeshSurface : public GLG4PosGen {
@@ -28,15 +26,15 @@ class PosGen_TriMeshSurface : public GLG4PosGen {
   G4String GetState() const { return state; };
 
  protected:
-  vector<G4ThreeVector> point;   // the first vertex
-  vector<G4ThreeVector> edge0;   // 2nd vertex minus first vertex
-  vector<G4ThreeVector> edge1;   // 3rd vertex minus first vertex
-  vector<G4ThreeVector> normal;  // normal vector with vertices counterclockwise
-  vector<double> area;           // area of all triangles up to this one
+  std::vector<G4ThreeVector> point;   // the first vertex
+  std::vector<G4ThreeVector> edge0;   // 2nd vertex minus first vertex
+  std::vector<G4ThreeVector> edge1;   // 3rd vertex minus first vertex
+  std::vector<G4ThreeVector> normal;  // normal vector with vertices counterclockwise
+  std::vector<double> area;           // area of all triangles up to this one
   double totalArea;
-  vector<double> thickness;  // thickness of volume for each type
-  vector<int> direction;     // direction to extrude
-  vector<int> ntriangles;    // number of triangles of this type
+  std::vector<double> thickness;  // thickness of volume for each type
+  std::vector<int> direction;     // direction to extrude
+  std::vector<int> ntriangles;    // number of triangles of this type
   G4String state;
 };
 

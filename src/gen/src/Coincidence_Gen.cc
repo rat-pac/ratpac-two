@@ -16,16 +16,10 @@
 #include <RAT/GLG4TimeGen.hh>
 #include <RAT/Log.hh>
 #include <Randomize.hh>
-#include <cstring>
+#include <string>
 #include <vector>
 
 #include "RAT/GLG4VertexGen.hh"
-using std::string;
-using std::vector;
-
-#define std std
-
-//#undef DEBUG
 
 namespace RAT {
 Coincidence_Gen::Coincidence_Gen() : stateStr(""), vertexGen(0), posGen(0) {
@@ -71,9 +65,9 @@ void Coincidence_Gen::GenerateEvent(G4Event *event) {
   G4double KEgen = 0;
 
   // generate times for all the events
-  vector<double> times;
-  vector<double> MaxE;
-  vector<double> MinE;
+  std::vector<double> times;
+  std::vector<double> MaxE;
+  std::vector<double> MinE;
   if (_exptiming) {
     // exponential timing constants have been set so choose times from them
     // first vertex is at time 0
@@ -87,7 +81,7 @@ void Coincidence_Gen::GenerateEvent(G4Event *event) {
       if (_expTimingTimeWindowForce && lastt > fTimeWindow) {
         counter++;
         if (counter < 100) {
-          times.clear();  // restarting with en empty vector
+          times.clear();  // restarting with en empty std::vector
           lastt = 0;      // first tore time of previous vertex (first is at t=0)
           iEx = -1;       // Counter the ++iEx of the for loop
         } else {
@@ -145,9 +139,9 @@ void Coincidence_Gen::GenerateEvent(G4Event *event) {
     hi = fHiEnergy - sumLo;
     if (lo < 0) lo = 0;
     if (hi < 0) {
-      G4cerr << "Coincidence_Gen: cannot achieve selected energy range with "
-                "these generators."
-             << G4endl;
+      std::cerr << "Coincidence_Gen: cannot achieve selected energy range with "
+                   "these generators."
+                << std::endl;
     }
     if (vertexGen->ELimitable()) {
       vertexGen->LimitEnergies(lo, hi);
@@ -172,7 +166,7 @@ void Coincidence_Gen::GenerateEvent(G4Event *event) {
       }
       if (count == 100) {
         // Jump out of what could have been infinite loop
-        G4cerr << "No luck finding correct energy ! " << G4endl;
+        std::cerr << "No luck finding correct energy ! " << std::endl;
       }
       // got a good vertex so add it to the real event
       event->AddPrimaryVertex(vtemp);
@@ -224,7 +218,7 @@ void Coincidence_Gen::GenerateEvent(G4Event *event) {
         }
         if (count == 100 || count == 1) {
           // Jump out of what could have been infinite loop
-          G4cerr << "No luck finding correct energy ! " << G4endl;
+          std::cerr << "No luck finding correct energy ! " << std::endl;
         }
         // got a good vertex so add it to the real event
         event->AddPrimaryVertex(vtemp);
@@ -260,7 +254,7 @@ void Coincidence_Gen::SetState(G4String state) {
 
   state = util_strip_default(state);
 
-  vector<string> parts = util_split(state, ":");
+  std::vector<std::string> parts = util_split(state, ":");
 
   try {
     switch (parts.size()) {
@@ -284,7 +278,7 @@ void Coincidence_Gen::SetState(G4String state) {
     }
     stateStr = state;  // Save for later call to GetState()
   } catch (RAT::FactoryUnknownID &unknown) {
-    G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
+    std::cerr << "Unknown generator \"" << unknown.id << "\"" << std::endl;
   }
 }
 
@@ -295,13 +289,13 @@ void Coincidence_Gen::SetEnergyRange(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // Print help and current state
-    G4cout << " Current limits on Coincidence_Gen generated energy range = " << fLoEnergy << " - " << fHiEnergy
-           << " MeV\n"
-           << " To change use syntax:  Elo  Ehi \n"
-           << " Elo = lower energy limit in MeV, Ehi = upper energy limit in MeV"
-           << " !!!! But note that this option will be very slow for vertex "
-              "generators whose energy cannot be limited !!! "
-           << G4endl;
+    std::cout << " Current limits on Coincidence_Gen generated energy range = " << fLoEnergy << " - " << fHiEnergy
+              << " MeV\n"
+              << " To change use syntax:  Elo  Ehi \n"
+              << " Elo = lower energy limit in MeV, Ehi = upper energy limit in MeV"
+              << " !!!! But note that this option will be very slow for vertex "
+                 "generators whose energy cannot be limited !!! "
+              << std::endl;
   }
   std::istringstream is(newValues.c_str());
   double Elo, Ehi;
@@ -309,14 +303,14 @@ void Coincidence_Gen::SetEnergyRange(G4String newValues) {
   if (Elo < Ehi) {
     fLoEnergy = Elo;
     fHiEnergy = Ehi;
-    G4cout << "Coincidence_Gen: Restricting generated energy range to " << Elo << " - " << Ehi << " MeV\n"
-           << " !!!! But note that this option will be very slow for vertex "
-              "generators whose energy cannot be limited !!!! "
-           << " !!!! And does not work when event energy comes from "
-              "radioactive decay !!!! "
-           << G4endl;
+    std::cout << "Coincidence_Gen: Restricting generated energy range to " << Elo << " - " << Ehi << " MeV\n"
+              << " !!!! But note that this option will be very slow for vertex "
+                 "generators whose energy cannot be limited !!!! "
+              << " !!!! And does not work when event energy comes from "
+                 "radioactive decay !!!! "
+              << std::endl;
   } else {
-    G4cerr << "Coincidence_Gen error: Elo must be less than Ehi!" << G4endl;
+    std::cerr << "Coincidence_Gen error: Elo must be less than Ehi!" << std::endl;
   }
 }
 
@@ -325,9 +319,9 @@ void Coincidence_Gen::SetTimeState(G4String state) {
   if (timeGen) {
     timeGen->SetState(state);
   } else {
-    G4cerr << "Coincidence_Gen error: Cannot set time state, no time generator "
-              "selected"
-           << G4endl;
+    std::cerr << "Coincidence_Gen error: Cannot set time state, no time generator "
+                 "selected"
+              << std::endl;
   }
 }
 
@@ -346,9 +340,9 @@ void Coincidence_Gen::SetPosState(G4String state) {
   if (posGen) {
     posGen->SetState(state);
   } else {
-    G4cerr << "Coincidence_Gen error: Cannot set position state, no position "
-              "generator selected"
-           << G4endl;
+    std::cerr << "Coincidence_Gen error: Cannot set position state, no position "
+                 "generator selected"
+              << std::endl;
   }
 }
 
@@ -368,9 +362,9 @@ void Coincidence_Gen::SetVertexState(G4String state) {
   if (vertexGen) {
     vertexGen->SetState(state);
   } else {
-    G4cerr << "Coincidence_Gen error: Cannot set vertex state, no vertex "
-              "generator selected"
-           << G4endl;
+    std::cerr << "Coincidence_Gen error: Cannot set vertex state, no vertex "
+                 "generator selected"
+              << std::endl;
   }
 }
 
@@ -393,12 +387,12 @@ void Coincidence_Gen::AddExtra(G4String state) {
 
   state = util_strip_default(state);
 
-  vector<string> parts = util_split(state, ":");
+  std::vector<std::string> parts = util_split(state, ":");
 
   try {
     switch (parts.size()) {
       case 2:
-        G4cout << "adding new interaction " << nExtra + 1 << " " << parts[0] << " " << parts[1] << G4endl;
+        std::cout << "adding new interaction " << nExtra + 1 << " " << parts[0] << " " << parts[1] << std::endl;
 
         delete posGenExtra[nExtra];
         posGenExtra[nExtra] = 0;
@@ -416,7 +410,7 @@ void Coincidence_Gen::AddExtra(G4String state) {
     }
     stateStrExtra[nExtra - 1] = state;  // Save for later call to GetState()
   } catch (RAT::FactoryUnknownID &unknown) {
-    G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
+    std::cerr << "Unknown generator \"" << unknown.id << "\"" << std::endl;
   }
 }
 
@@ -435,11 +429,11 @@ void Coincidence_Gen::SetExtraPosState(G4String state) {
   // interaction
   if (nExtra > 0) {  // check we have added an extra interaction
     posGenExtra[nExtra - 1]->SetState(state);
-    G4cout << "Setting extra interaction " << nExtra << ", position type to " << state << G4endl;
+    std::cout << "Setting extra interaction " << nExtra << ", position type to " << state << std::endl;
   } else {
-    G4cerr << "Coincidence_Gen error: Cannot set extra position state, no "
-              "extra interaction selected"
-           << G4endl;
+    std::cerr << "Coincidence_Gen error: Cannot set extra position state, no "
+                 "extra interaction selected"
+              << std::endl;
   }
 }
 
@@ -458,11 +452,11 @@ void Coincidence_Gen::SetExtraVertexState(G4String state) {
   // Set the vertex generator fo the most recently added in interaction
   if (nExtra > 0) {
     vertexGenExtra[nExtra - 1]->SetState(state);
-    G4cout << "Setting extra interaction " << nExtra << ", vertex type to " << state << G4endl;
+    std::cout << "Setting extra interaction " << nExtra << ", vertex type to " << state << std::endl;
   } else {
-    G4cerr << "Coincidence_Gen error: Cannot set extra vertex state, no extra "
-              "interaction selected"
-           << G4endl;
+    std::cerr << "Coincidence_Gen error: Cannot set extra vertex state, no extra "
+                 "interaction selected"
+              << std::endl;
   }
 }
 
@@ -488,13 +482,13 @@ void Coincidence_Gen::SetExponentials(G4String newValues) {
   for (int i = 0; i < nExtra; ++i) {
     is >> fExponent[i];
     if (is.good()) {
-      G4cout << "Coincidence_Gen: Setting extra interaction " << i + 1 << " exponential time constant to "
-             << fExponent[i] << G4endl;
+      std::cout << "Coincidence_Gen: Setting extra interaction " << i + 1 << " exponential time constant to "
+                << fExponent[i] << std::endl;
     } else {
-      G4cerr << "Coincidence_Gen error: "
-             << "Exponential timing selected, but insufficient time constants "
-                "provided "
-             << G4endl;
+      std::cerr << "Coincidence_Gen error: "
+                << "Exponential timing selected, but insufficient time constants "
+                   "provided "
+                << std::endl;
     }
   }
 }

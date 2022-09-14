@@ -1,6 +1,4 @@
 #include <CLHEP/Units/SystemOfUnits.h>
-using namespace CLHEP;
-
 #include <math.h>
 
 #include <G4Colour.hh>
@@ -24,14 +22,12 @@ using namespace CLHEP;
 #include <string>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 G4VPhysicalVolume *GeoCalibrationStickFactory::Construct(DBLinkPtr table) {
-  G4cout << "Building Calibration Stick" << G4endl;
-  const string volumeName = table->GetIndex();
-  const string motherName = table->GetS("mother");
+  std::cout << "Building Calibration Stick" << std::endl;
+  const std::string volumeName = table->GetIndex();
+  const std::string motherName = table->GetS("mother");
 
   // Table properties
   const double innerDiameter = table->GetD("inner_diameter");
@@ -40,7 +36,7 @@ G4VPhysicalVolume *GeoCalibrationStickFactory::Construct(DBLinkPtr table) {
   const double sourceThickness = table->GetD("source_thickness");
   const double stickLength = table->GetD("stick_length");
   const double sourcePosition = table->GetD("source_position");
-  const vector<double> positionArray = table->GetDArray("position");
+  const std::vector<double> positionArray = table->GetDArray("position");
 
   G4ThreeVector offset(positionArray[0], positionArray[1], positionArray[2]);
 
@@ -48,24 +44,25 @@ G4VPhysicalVolume *GeoCalibrationStickFactory::Construct(DBLinkPtr table) {
 
   // Main outer tube
   G4Material *stickMaterial = G4Material::GetMaterial(table->GetS("stick_material"));
-  // const vector<double> &sourceColor = table->GetDArray("source_vis_color");
-  G4Tubs *stickSolid =
-      new G4Tubs("CalibrationStick_StickSolid", innerDiameter / 2.0, outerDiameter / 2.0, stickLength / 2.0, 0, twopi);
+  // const std::vector<double> &sourceColor = table->GetDArray("source_vis_color");
+  G4Tubs *stickSolid = new G4Tubs("CalibrationStick_StickSolid", innerDiameter / 2.0, outerDiameter / 2.0,
+                                  stickLength / 2.0, 0, CLHEP::twopi);
   G4LogicalVolume *stickLog = new G4LogicalVolume(stickSolid, stickMaterial, "CalibrationStick_Stick");
 
   // Place endcap
   G4Material *bottomMaterial = G4Material::GetMaterial(table->GetS("bottom_material"));
   G4Tubs *bottomSolid =
-      new G4Tubs("CalibrationStick_BottomSolid", 0, outerDiameter / 2.0, bottomThickness / 2.0, 0, twopi);
+      new G4Tubs("CalibrationStick_BottomSolid", 0, outerDiameter / 2.0, bottomThickness / 2.0, 0, CLHEP::twopi);
   G4LogicalVolume *bottomLog = new G4LogicalVolume(bottomSolid, bottomMaterial, "CalibrationStick_Bottom");
   // Source
   G4Material *sourceMaterial = G4Material::GetMaterial(table->GetS("source_material"));
   G4Tubs *sourceSolid =
-      new G4Tubs("CalibrationStick_SourceSolid", 0, innerDiameter / 2.0, sourceThickness / 2.0, 0, twopi);
+      new G4Tubs("CalibrationStick_SourceSolid", 0, innerDiameter / 2.0, sourceThickness / 2.0, 0, CLHEP::twopi);
   G4LogicalVolume *sourceLog = new G4LogicalVolume(sourceSolid, sourceMaterial, "CalibrationStick_Source");
   // Tube is filled with air
   G4Material *gasMaterial = G4Material::GetMaterial(table->GetS("gas_material"));
-  G4Tubs *gasSolid = new G4Tubs("CalibrationStick_GasSolid", 0, innerDiameter / 2.0, stickLength / 2.0, 0, twopi);
+  G4Tubs *gasSolid =
+      new G4Tubs("CalibrationStick_GasSolid", 0, innerDiameter / 2.0, stickLength / 2.0, 0, CLHEP::twopi);
   G4LogicalVolume *gasLog = new G4LogicalVolume(gasSolid, gasMaterial, "CalibrationStick_Gas");
 
   // Surface properties: Shiny steel?
@@ -99,7 +96,7 @@ G4VPhysicalVolume *GeoCalibrationStickFactory::Construct(DBLinkPtr table) {
   return NULL;  // This function should probably be void, fixme
 }
 
-// G4OpticalSurface* GeoCherenkovSourceFactory::GetSurface(string surface_name)
+// G4OpticalSurface* GeoCherenkovSourceFactory::GetSurface(std::string surface_name)
 // {
 //     if (Materials::optical_surface.count(surface_name) == 0)
 //         Log::Die("error: surface "+ surface_name + " does not exist");

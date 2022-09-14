@@ -4,8 +4,6 @@
 #include <cmath>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 void TheiaDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
@@ -31,9 +29,9 @@ void TheiaDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
 
   // calculate the area of the defined inner_pmts
   DBLinkPtr inner_pmts = db->GetLink("GEO", "inner_pmts");
-  string pmt_model = inner_pmts->GetS("pmt_model");
+  std::string pmt_model = inner_pmts->GetS("pmt_model");
   DBLinkPtr pmt = db->GetLink("PMT", pmt_model);
-  vector<double> rho_edge = pmt->GetDArray("rho_edge");
+  std::vector<double> rho_edge = pmt->GetDArray("rho_edge");
   double photocathode_radius = rho_edge[0];
   for (size_t i = 1; i < rho_edge.size(); i++) {
     if (photocathode_radius < rho_edge[i]) photocathode_radius = rho_edge[i];
@@ -69,20 +67,20 @@ void TheiaDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   info << "\tPMT spacing " << pmt_space << '\n';
 
   // make the grid for top and bottom PMTs
-  vector<pair<double, double>> topbot;
-  vector<pair<double, double>> topbot_veto;
+  std::vector<std::pair<double, double>> topbot;
+  std::vector<std::pair<double, double>> topbot_veto;
   const int rdim = round(1.5 * pmt_radius / pmt_space);
   for (int i = -rdim; i <= rdim; i++) {
     for (int j = -rdim; j <= rdim; j++) {
       double x = i * pmt_space / 1.118;
       double y = (j + (i % 2 ? 0.5 : 0.0)) * pmt_space * 1.118;
       if (sqrt(x * x + y * y) <= pmt_radius - pmt_space / 2.0) {
-        topbot.push_back(make_pair(x, y));
+        topbot.push_back(std::make_pair(x, y));
       }
       double vx = i * veto_space / 1.118;
       double vy = (j + (i % 2 ? 0.5 : 0.0)) * veto_space * 1.118;
       if (sqrt(vx * vx + vy * vy) <= pmt_radius - pmt_space / 2.0) {  // pmt_* is not a mistake
-        topbot_veto.push_back(make_pair(vx, vy));
+        topbot_veto.push_back(std::make_pair(vx, vy));
       }
     }
   }
@@ -100,8 +98,9 @@ void TheiaDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   info << "\tcols " << veto_cols << '\n';
   info << "\trows " << veto_rows << '\n';
 
-  vector<double> x(total_pmts), y(total_pmts), z(total_pmts), dir_x(total_pmts), dir_y(total_pmts), dir_z(total_pmts);
-  vector<int> type(total_pmts);
+  std::vector<double> x(total_pmts), y(total_pmts), z(total_pmts), dir_x(total_pmts), dir_y(total_pmts),
+      dir_z(total_pmts);
+  std::vector<int> type(total_pmts);
 
   // generate cylinder PMT positions
   for (size_t col = 0; col < cols; col++) {
@@ -190,7 +189,7 @@ void TheiaDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   }
 
   info << "Rescale Theia geometry...\n";
-  vector<double> world_size(3);
+  std::vector<double> world_size(3);
   world_size[0] = world_size[1] = det_radius + 10000.0;
   world_size[2] = det_halfheight + 10000.0;
   db->Set("GEO", "world", "size", world_size);

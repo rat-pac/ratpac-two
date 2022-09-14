@@ -1,11 +1,8 @@
 #include <RAT/Log.hh>
 #include <RAT/PruneProc.hh>
+#include <RAT/string_utilities.hpp>
 #include <algorithm>
 #include <vector>
-
-#include "RAT/string_utilities.hpp"
-
-using namespace std;
 
 namespace RAT {
 
@@ -17,9 +14,9 @@ PruneProc::~PruneProc() {}
 
 void PruneProc::SetS(std::string param, std::string value) {
   if (param == "prune") {
-    vector<string> parts = split(value, ",");
+    std::vector<std::string> parts = split(value, ",");
     for (unsigned int i = 0; i < parts.size(); i++) {
-      vector<string> subparts = split(parts[i], ":");
+      std::vector<std::string> subparts = split(parts[i], ":");
 
       if (subparts.size() == 1)
         SetPruneState(parts[i], true);  // normal case

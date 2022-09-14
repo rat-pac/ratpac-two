@@ -29,18 +29,18 @@ G4VPhysicalVolume *PosGen_FillShell::FindPhysVolume(const std::string volume_nam
   return 0;
 }
 
-// PosGen_FillShell::SetState parses a string of generator parameters
+// PosGen_FillShell::SetState parses a std::string of generator parameters
 // to set the appropriate local variables.
 void PosGen_FillShell::SetState(G4String newValues) {
   std::vector<std::string> params = split(newValues, " ");
 
-  // it is a GLG4 convention that SetState with a null string argument
+  // it is a GLG4 convention that SetState with a null std::string argument
   // should print usage information
   if (newValues.length() == 0) {
-    G4cout << "Current state of this GLG4PosGen_PointPaintFill:\n"
-           << " \"" << GetState() << "\"\n"
-           << G4endl;
-    G4cout << "Usage: x_mm y_mm z_mm r_in r_out volname" << G4endl;
+    std::cout << "Current state of this GLG4PosGen_PointPaintFill:\n"
+              << " \"" << GetState() << "\"\n"
+              << std::endl;
+    std::cout << "Usage: x_mm y_mm z_mm r_in r_out volname" << std::endl;
     return;
   }
 
@@ -83,7 +83,7 @@ void PosGen_FillShell::SetState(G4String newValues) {
       break;
 
     default:
-      Log::Die("PosGen_FillShell::SetState: Error parsing input string.");
+      Log::Die("PosGen_FillShell::SetState: Error parsing input std::string.");
       return;
   }
 
@@ -98,7 +98,7 @@ void PosGen_FillShell::SetState(G4String newValues) {
 }
 
 // PosGen_FillShell::GetState returns a G4String containing the values
-// of all generator parameters, formatted like the input string
+// of all generator parameters, formatted like the input std::string
 G4String PosGen_FillShell::GetState() const {
   std::string rv = dformat("%d %d %d %d %d %s", pos.x(), pos.y(), pos.z(), ri, ro, pVolume->GetName().c_str());
   return G4String(rv);
@@ -129,7 +129,7 @@ void PosGen_FillShell::GeneratePosition(G4ThreeVector &argResult) {
     Log::Assert(iterations < max_iterations,
                 "PosGen_FillShell::GeneratePosition: Failed to find a point "
                 "within volume " +
-                    pVolume->GetName() + " in " + ::to_string(max_iterations) + " tries.");
+                    pVolume->GetName() + " in " + std::to_string(max_iterations) + " tries.");
 
   } while (!(gNavigator->LocateGlobalPointAndSetup(rpos, 0, true)->GetName() == pVolume->GetName()));
 

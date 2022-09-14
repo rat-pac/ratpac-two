@@ -5,8 +5,6 @@
 #include <RAT/GeoSolidFactory.hh>
 #include <RAT/Materials.hh>
 
-using namespace std;
-
 namespace RAT {
 
 G4VPhysicalVolume *GeoSolidFactory::Construct(DBLinkPtr table) {
@@ -14,7 +12,7 @@ G4VPhysicalVolume *GeoSolidFactory::Construct(DBLinkPtr table) {
 
   G4VSolid *solid = ConstructSolid(table);
 
-  string mother_name = table->GetS("mother");
+  std::string mother_name = table->GetS("mother");
   G4LogicalVolume *mother;
   if (mother_name == "")
     mother = 0;  // World volume has no mother
@@ -44,8 +42,8 @@ G4VPhysicalVolume *GeoSolidFactory::Construct(DBLinkPtr table) {
 }
 
 G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid, DBLinkPtr table) {
-  string volume_name = table->GetIndex();
-  string material_name = table->GetS("material");
+  std::string volume_name = table->GetIndex();
+  std::string material_name = table->GetS("material");
   G4LogicalVolume *lv = NULL;
   if (material_name == "G4_Gd") {
     G4NistManager *man = G4NistManager::Instance();
@@ -57,7 +55,7 @@ G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid, DBLink
   // Create optional skin surface for volume.  For more complex surface
   // selection you need to write a separate factory
   try {
-    string surface_name = table->GetS("surface");
+    std::string surface_name = table->GetS("surface");
     if (Materials::optical_surface.count(surface_name) == 0)
       Log::Die("GeoSolidFactory: Error building " + volume_name + ", surface " + surface_name + " does not exist");
     new G4LogicalSkinSurface(volume_name + "_surface", lv, Materials::optical_surface[surface_name]);
@@ -68,7 +66,7 @@ G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid, DBLink
   G4VisAttributes *vis = new G4VisAttributes();
 
   try {
-    const vector<double> &color = table->GetDArray("color");
+    const std::vector<double> &color = table->GetDArray("color");
     if (color.size() == 3)  // RGB
       vis->SetColour(G4Colour(color[0], color[1], color[2]));
     else if (color.size() == 4)  // RGBA
@@ -92,7 +90,7 @@ G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid, DBLink
   };
 
   try {
-    string drawstyle = table->GetS("drawstyle");
+    std::string drawstyle = table->GetS("drawstyle");
     if (drawstyle == "wireframe")
       vis->SetForceWireframe(true);
     else if (drawstyle == "solid")

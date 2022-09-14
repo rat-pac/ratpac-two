@@ -18,12 +18,12 @@ void PosGen_Line::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    G4cout << "Current state of this GLG4PosGen_Line:\n"
-           << " \"" << GetState() << "\"\n"
-           << G4endl;
-    G4cout << "Format of argument to PosGen_Line::SetState: \n"
-              " \"x1_mm y1_mm z1_mm x2_mm y2_mm z2_mm\""
-           << G4endl;
+    std::cout << "Current state of this GLG4PosGen_Line:\n"
+              << " \"" << GetState() << "\"\n"
+              << std::endl;
+    std::cout << "Format of argument to PosGen_Line::SetState: \n"
+                 " \"x1_mm y1_mm z1_mm x2_mm y2_mm z2_mm\""
+              << std::endl;
     return;
   }
 
@@ -33,9 +33,9 @@ void PosGen_Line::SetState(G4String newValues) {
   G4double x1, y1, z1, x2, y2, z2;
   is >> x1 >> y1 >> z1 >> x2 >> y2 >> z2;
   if (is.fail()) {
-    G4cerr << "PosGen_Line::SetState: "
-              "Could not parse six floats from input string"
-           << G4endl;
+    std::cerr << "PosGen_Line::SetState: "
+                 "Could not parse six floats from input std::string"
+              << std::endl;
     return;
   }
   fPoint1 = G4ThreeVector(x1, y1, z1);

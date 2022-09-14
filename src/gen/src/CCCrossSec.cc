@@ -3,26 +3,19 @@
 // See CCCrossSec.hh for more details
 //———————————————————————//
 
-// -- Geant4 includes
-#include <G4ParticleDefinition.hh>
-#include <G4ParticleTable.hh>
-#include <G4PhysicalConstants.hh>
-
-// -- RAT includes
-#include <RAT/CCCrossSec.hh>
-#include <RAT/CCCrossSecMessenger.hh>
-#include <RAT/DB.hh>
-#include <RAT/Log.hh>
-
-// -- ROOT includes
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <TH1F.h>
 #include <TMath.h>
 
+#include <G4ParticleDefinition.hh>
+#include <G4ParticleTable.hh>
+#include <G4PhysicalConstants.hh>
+#include <RAT/CCCrossSec.hh>
+#include <RAT/CCCrossSecMessenger.hh>
+#include <RAT/DB.hh>
+#include <RAT/Log.hh>
 #include <vector>
-
-using namespace CLHEP;
 
 namespace RAT {
 
@@ -38,9 +31,9 @@ namespace RAT {
  */
 
 const double RAT::CCCrossSec::fGf = 1.166371e-11;                 // Fermi constant (MeV^-2)
-const double RAT::CCCrossSec::fhbarc = hbarc * 1e12;              // hbar*c (MeV*fm)
+const double RAT::CCCrossSec::fhbarc = CLHEP::hbarc * 1e12;       // hbar*c (MeV*fm)
 const double RAT::CCCrossSec::fhbarc2 = fhbarc * fhbarc * 1e-11;  // hbar*c^2(MeV^2 mb)
-const double RAT::CCCrossSec::falpha = fine_structure_const;      //
+const double RAT::CCCrossSec::falpha = CLHEP::fine_structure_const;
 
 /**
  * The weak mixing angle (\f$ \sin^{2}\theta_{W}\f$) is declared only as static

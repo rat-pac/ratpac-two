@@ -169,7 +169,7 @@ Processor::Result TrueDAQProc::DSEvent(DS::Root *ds) {
       tt = mc->GetMCTrack(mostEnergeticStepTrackIndex)->GetMCTrackStep(mostEnergeticStepStepIndex)->GetGlobalTime();
       vertex = mc->GetMCTrack(mostEnergeticStepTrackIndex)->GetMCTrackStep(mostEnergeticStepStepIndex)->GetEndpoint();
       // This assumes forward scattering if most energetic step is from gamma.
-      // We take the displacement vector from the previous indexed step since if
+      // We take the displacement std::vector from the previous indexed step since if
       // we lost all our energy in this step, we won't have a momentum and also
       // this was the direction of travel as the energy was deposited, since we
       // save the step endpoints

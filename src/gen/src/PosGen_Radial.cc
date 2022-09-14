@@ -20,12 +20,12 @@ void PosGen_Radial::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    G4cout << "Current state of this PosGen_Radial:\n"
-           << " \"" << GetState() << "\"\n"
-           << G4endl;
-    G4cout << "Format of argument to PosGen_Radial::SetState: \n"
-              " \"x_mm y_mm z_mm R_mm\""
-           << G4endl;
+    std::cout << "Current state of this PosGen_Radial:\n"
+              << " \"" << GetState() << "\"\n"
+              << std::endl;
+    std::cout << "Format of argument to PosGen_Radial::SetState: \n"
+                 " \"x_mm y_mm z_mm R_mm\""
+              << std::endl;
     return;
   }
 
@@ -35,9 +35,9 @@ void PosGen_Radial::SetState(G4String newValues) {
   G4double x, y, z, R;
   is >> x >> y >> z >> R;
   if (is.fail()) {
-    G4cerr << "PosGen_Radial::SetState: "
-              "Could not parse four floats from input string"
-           << G4endl;
+    std::cerr << "PosGen_Radial::SetState: "
+                 "Could not parse four floats from input std::string"
+              << std::endl;
     return;
   }
   fCenter = G4ThreeVector(x, y, z);

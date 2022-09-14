@@ -5,8 +5,6 @@
 #include <RAT/WatchmanDetectorFactory.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 void WatchmanDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
@@ -24,9 +22,9 @@ void WatchmanDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
 
   // calculate the area of the defined inner_pmts
   DBLinkPtr inner_pmts = db->GetLink("GEO", "inner_pmts");
-  string pmt_model = inner_pmts->GetS("pmt_model");
+  std::string pmt_model = inner_pmts->GetS("pmt_model");
   DBLinkPtr pmt = db->GetLink("PMT", pmt_model);
-  vector<double> rho_edge = pmt->GetDArray("rho_edge");
+  std::vector<double> rho_edge = pmt->GetDArray("rho_edge");
   double photocathode_radius = rho_edge[0];
   for (size_t i = 1; i < rho_edge.size(); i++) {
     if (photocathode_radius < rho_edge[i]) photocathode_radius = rho_edge[i];
@@ -74,16 +72,16 @@ void WatchmanDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   info << "\tPMT spacing " << pmt_space << '\n';
 
   // make the grid for top and bottom PMTs
-  vector<pair<int, int>> topbot;
-  vector<pair<int, int>> topbot_veto;
+  std::vector<std::pair<int, int>> topbot;
+  std::vector<std::pair<int, int>> topbot_veto;
   const int rdim = round(pmt_radius / pmt_space);
   for (int i = -rdim; i <= rdim; i++) {
     for (int j = -rdim; j <= rdim; j++) {
       if (pmt_space * sqrt(i * i + j * j) <= pmt_radius - pmt_space / 2.0) {
-        topbot.push_back(make_pair(i, j));
+        topbot.push_back(std::make_pair(i, j));
       }
       if (veto_space * sqrt(i * i + j * j) <= pmt_radius - pmt_space / 2.0) {  // pmt_* is not a mistake
-        topbot_veto.push_back(make_pair(i, j));
+        topbot_veto.push_back(std::make_pair(i, j));
       }
     }
   }
@@ -101,8 +99,9 @@ void WatchmanDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   info << "\tcols " << veto_cols << '\n';
   info << "\trows " << veto_rows << '\n';
 
-  vector<double> x(total_pmts), y(total_pmts), z(total_pmts), dir_x(total_pmts), dir_y(total_pmts), dir_z(total_pmts);
-  vector<int> type(total_pmts);
+  std::vector<double> x(total_pmts), y(total_pmts), z(total_pmts), dir_x(total_pmts), dir_y(total_pmts),
+      dir_z(total_pmts);
+  std::vector<int> type(total_pmts);
 
   // generate cylinder PMT positions
   for (size_t col = 0; col < cols; col++) {
@@ -191,7 +190,7 @@ void WatchmanDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   }
 
   // generate cable positions
-  vector<double> cable_x(cols), cable_y(cols);
+  std::vector<double> cable_x(cols), cable_y(cols);
   for (size_t col = 0; col < cols; col++) {
     cable_x[col] = cable_radius * cos(col * 2.0 * M_PI / cols);
     cable_y[col] = cable_radius * sin(col * 2.0 * M_PI / cols);
@@ -224,24 +223,24 @@ void WatchmanDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   db->Set("GEO", "white_sheet_tank_side", "size_z", detector_size_z / 2.0 - 35.0);
 
   // Top tarps
-  vector<double> move_white_top;
+  std::vector<double> move_white_top;
   move_white_top.push_back(0.0);
   move_white_top.push_back(0.0);
   move_white_top.push_back(topbot_veto_offset);
-  vector<double> move_black_top;
+  std::vector<double> move_black_top;
   move_black_top.push_back(0.0);
   move_black_top.push_back(0.0);
   move_black_top.push_back(topbot_offset + black_sheet_offset);  // paige kunkle: expanding black tarp (+30cm)
-  vector<double> move_topcap;
+  std::vector<double> move_topcap;
   move_topcap.push_back(0.0);
   move_topcap.push_back(0.0);
   move_topcap.push_back(topbot_offset + 200.);
-  vector<double> move_toptruss;
+  std::vector<double> move_toptruss;
   move_toptruss.push_back(0.0);
   move_toptruss.push_back(0.0);
   move_toptruss.push_back(topbot_offset + 200. + 2.5);  // Bergevin: Values based on geofile
 
-  vector<double> move_toptanktarp;
+  std::vector<double> move_toptanktarp;
   move_toptanktarp.push_back(0.0);
   move_toptanktarp.push_back(0.0);
   move_toptanktarp.push_back(detector_size_z / 2.0 - 30.0);  // Bergevin: Values based on geofile
@@ -263,24 +262,24 @@ void WatchmanDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   db->Set("GEO", "white_sheet_tank_top", "position", move_toptanktarp);
 
   // Bottom tarps
-  vector<double> move_white_bottom;
+  std::vector<double> move_white_bottom;
   move_white_bottom.push_back(0.0);
   move_white_bottom.push_back(0.0);
   move_white_bottom.push_back(-topbot_veto_offset);
-  vector<double> move_black_bottom;
+  std::vector<double> move_black_bottom;
   move_black_bottom.push_back(0.0);
   move_black_bottom.push_back(0.0);
   move_black_bottom.push_back(-topbot_offset - black_sheet_offset);  // paige kunkle: expanding black tarp (+30cm)
-  vector<double> move_bottomcap;
+  std::vector<double> move_bottomcap;
   move_bottomcap.push_back(0.0);
   move_bottomcap.push_back(0.0);
   move_bottomcap.push_back(-topbot_offset - 200.);
-  vector<double> move_bottomtruss;
+  std::vector<double> move_bottomtruss;
   move_bottomtruss.push_back(0.0);
   move_bottomtruss.push_back(0.0);
   move_bottomtruss.push_back(-topbot_offset - 200. - 2.5);  // Bergevin: Values based on geofile
 
-  vector<double> move_bottomtanktarp;
+  std::vector<double> move_bottomtanktarp;
   move_bottomtanktarp.push_back(0.0);
   move_bottomtanktarp.push_back(0.0);
   move_bottomtanktarp.push_back(-detector_size_z / 2.0 + 30.0);  // Bergevin: Values based on geofile
@@ -304,20 +303,20 @@ void WatchmanDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   info << "Adjusting the Bottom cap standoff frames ...\n";
 
   DBLinkPtr frame_0 = db->GetLink("GEO", "Bottom_cap_standoff_frame_0");
-  vector<double> standoff_frame_0_size = frame_0->GetDArray("size");
-  vector<double> standoff_frame_0_pos = frame_0->GetDArray("position");
+  std::vector<double> standoff_frame_0_size = frame_0->GetDArray("size");
+  std::vector<double> standoff_frame_0_pos = frame_0->GetDArray("position");
   DBLinkPtr frame_1 = db->GetLink("GEO", "Bottom_cap_standoff_frame_1");
-  vector<double> standoff_frame_1_size = frame_1->GetDArray("size");
-  vector<double> standoff_frame_1_pos = frame_1->GetDArray("position");
+  std::vector<double> standoff_frame_1_size = frame_1->GetDArray("size");
+  std::vector<double> standoff_frame_1_pos = frame_1->GetDArray("position");
   DBLinkPtr frame_2 = db->GetLink("GEO", "Bottom_cap_standoff_frame_2");
-  vector<double> standoff_frame_2_size = frame_2->GetDArray("size");
-  vector<double> standoff_frame_2_pos = frame_2->GetDArray("position");
+  std::vector<double> standoff_frame_2_size = frame_2->GetDArray("size");
+  std::vector<double> standoff_frame_2_pos = frame_2->GetDArray("position");
   DBLinkPtr frame_3 = db->GetLink("GEO", "Bottom_cap_standoff_frame_3");
-  vector<double> standoff_frame_3_size = frame_3->GetDArray("size");
-  vector<double> standoff_frame_3_pos = frame_3->GetDArray("position");
+  std::vector<double> standoff_frame_3_size = frame_3->GetDArray("size");
+  std::vector<double> standoff_frame_3_pos = frame_3->GetDArray("position");
   DBLinkPtr frame_4 = db->GetLink("GEO", "Bottom_cap_standoff_frame_4");
-  vector<double> standoff_frame_4_size = frame_4->GetDArray("size");
-  vector<double> standoff_frame_4_pos = frame_4->GetDArray("position");
+  std::vector<double> standoff_frame_4_size = frame_4->GetDArray("size");
+  std::vector<double> standoff_frame_4_pos = frame_4->GetDArray("position");
 
   info << "Size loaded in frame 0" << standoff_frame_0_size[0] << " " << standoff_frame_0_size[1] << " "
        << standoff_frame_0_size[2] << "...\n";
@@ -400,15 +399,15 @@ void WatchmanDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   info << "Update cable positions to match shield...\n";
   db->Set("cable_pos", "x", cable_x);
   db->Set("cable_pos", "y", cable_y);
-  db->Set("cable_pos", "z", vector<double>(cols, 0.0));
-  db->Set("cable_pos", "dir_x", vector<double>(cols, 0.0));
-  db->Set("cable_pos", "dir_y", vector<double>(cols, 0.0));
-  db->Set("cable_pos", "dir_z", vector<double>(cols, 1.0));
+  db->Set("cable_pos", "z", std::vector<double>(cols, 0.0));
+  db->Set("cable_pos", "dir_x", std::vector<double>(cols, 0.0));
+  db->Set("cable_pos", "dir_y", std::vector<double>(cols, 0.0));
+  db->Set("cable_pos", "dir_z", std::vector<double>(cols, 1.0));
 
   // DBLinkPtr inner_pmts = db->GetLink("GEO","inner_pmts");
-  //   const vector<double> &size = table->GetDArray("boxsize");
+  //   const std::vector<double> &size = table->GetDArray("boxsize");
   DBLinkPtr cavern = db->GetLink("GEO", "cavern");
-  // const vector<double>  &cavSize = cavern->GetDArray("size_z"); //Should be a
+  // const std::vector<double>  &cavSize = cavern->GetDArray("size_z"); //Should be a
   // cube float _shift = cavSize[0]-detector_size_z/2.0;
   const double cavSize = cavern->GetD("size_z");  // Should be a cube
   float _shift = cavSize - detector_size_z / 2.0;
@@ -416,7 +415,7 @@ void WatchmanDetectorFactory::DefineDetector(DBLinkPtr /*detector*/) {
   if (_shift < 0.0) {
     info << "size of detector greater than cavern. (" << detector_size_z << " mm," << cavSize * 2 << "\n";
   }
-  vector<double> shift, minshift;
+  std::vector<double> shift, minshift;
   shift.push_back(0.0);
   shift.push_back(0.0);
   shift.push_back(_shift);

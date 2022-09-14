@@ -12,7 +12,7 @@
 
 #include "RAT/GLG4PMTSD.hh"
 
-#include <string.h>  // for memset
+#include <string>  // for memset
 
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
@@ -59,8 +59,8 @@ void GLG4PMTSD::SimpleHit(G4int ipmt, G4double time, G4double kineticEnergy, con
                           G4int iHitPhotonCount, G4int trackID, G4bool prepulse) {
   G4int pmt_index = ipmt - pmt_no_offset;
   if (pmt_index < 0 || pmt_index >= max_pmts) {
-    G4cerr << "Error: GLG4PMTSD::SimpleHit [" << GetName() << "] passed ipmt=" << ipmt << ", but max_pmts=" << max_pmts
-           << " and offset=" << pmt_no_offset << " !" << G4endl;
+    std::cerr << "Error: GLG4PMTSD::SimpleHit [" << GetName() << "] passed ipmt=" << ipmt
+              << ", but max_pmts=" << max_pmts << " and offset=" << pmt_no_offset << " !" << std::endl;
     return;
   }
 

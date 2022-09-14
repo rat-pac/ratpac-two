@@ -11,13 +11,11 @@
 #include <RAT/RevolutionPMTConstruction.hh>
 #include <algorithm>
 
-using namespace std;
-
 namespace RAT {
 
 RevolutionPMTConstruction::RevolutionPMTConstruction(DBLinkPtr table, G4LogicalVolume *mother)
     : PMTConstruction("revolution") {
-  string pmt_model = table->GetS("index");
+  std::string pmt_model = table->GetS("index");
 
   fParams.rEdge = table->GetDArray("rho_edge");
   fParams.zEdge = table->GetDArray("z_edge");
@@ -86,7 +84,7 @@ G4LogicalVolume *RevolutionPMTConstruction::BuildVolume(const std::string &prefi
     if (fParams.zEdge[edge_equator_idx] <= 0.0) break;
   }
 
-  vector<double> zeros(fParams.rInner.size(), 0.0);
+  std::vector<double> zeros(fParams.rInner.size(), 0.0);
 
   // inner vacuum
   G4Polycone *inner1_solid = new G4Polycone(prefix + "_inner1_solid", 0.0, 2.0 * CLHEP::pi, inner_equator_idx + 1,
@@ -183,8 +181,8 @@ G4LogicalVolume *RevolutionPMTConstruction::BuildVolume(const std::string &prefi
   return body_log;
 }
 
-G4VSolid *RevolutionPMTConstruction::BuildSolid(const string &_name) {
-  vector<double> zeros(fParams.rEdge.size(), 0.0);
+G4VSolid *RevolutionPMTConstruction::BuildSolid(const std::string &_name) {
+  std::vector<double> zeros(fParams.rEdge.size(), 0.0);
   G4Polycone *body =
       new G4Polycone(_name, 0, 2 * CLHEP::pi, fParams.rEdge.size(), &fParams.zEdge[0], &zeros[0], &fParams.rEdge[0]);
   return body;

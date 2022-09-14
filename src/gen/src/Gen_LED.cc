@@ -14,8 +14,6 @@
 #include <RAT/TimeUtil.hh>
 #include <Randomize.hh>
 
-using namespace std;
-
 namespace RAT {
 
 Gen_LED::Gen_LED() : stateStr("default"), timeGen(0), next_led(0) {
@@ -192,7 +190,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
   Log::Assert((led_x.size() == led_y.size() && led_y.size() == led_z.size()), "Some LEDs miss some coordinate(s)\n");
   Log::Assert((led_x.size() <= led_wavelength.size()), "Some LEDs miss a wavelength\n");
 
-  string intensity_mode = "single";
+  std::string intensity_mode = "single";
   try {
     intensity_mode = lled->GetS("intensity_mode");
   } catch (DBNotFoundError &e) {
@@ -204,7 +202,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
     oneLED = false;
   if (oneLED == false) Log::Assert((led_x.size() <= photons_per_LED.size()), "Some LEDs miss their intensity\n");
 
-  string time_mode = "unif";
+  std::string time_mode = "unif";
   try {
     time_mode = lled->GetS("time_mode");
   } catch (DBNotFoundError &e) {
@@ -216,7 +214,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
   else
     Log::Die(dformat("Gen_LED: LED.time_mode = \"%s\" is invalid.", time_mode.c_str()));
 
-  string angle_mode = "iso";
+  std::string angle_mode = "iso";
   try {
     angle_mode = lled->GetS("angle_mode");
   } catch (DBNotFoundError &e) {
@@ -234,7 +232,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
     Log::Die(dformat("Gen_LED: LED.angle_mode = \"%s\" is invalid.", angle_mode.c_str()));
   info << "LED angle mode: " << angle_mode.data() << "\n";
 
-  string wl_mode = lled->GetS("wl_mode");
+  std::string wl_mode = lled->GetS("wl_mode");
   if (wl_mode == "mono")
     mono_wl_mode = true;
   else if (wl_mode == "dist")
@@ -286,7 +284,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
       double step = -.1;
       angle_maxs.clear();
       angle_mins.clear();
-      vector<double> angles, angleints;
+      std::vector<double> angles, angleints;
       for (int i = 0; i < lled->GetI("n_ang_dists"); i++) {
         try {
           angles = lled->GetDArray(dformat("dist_angle%d", i));
@@ -344,7 +342,7 @@ void Gen_LED::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "Gen_LED error: Cannot set time state, no time generator selected" << G4endl;
+    std::cerr << "Gen_LED error: Cannot set time state, no time generator selected" << std::endl;
 }
 
 G4String Gen_LED::GetTimeState() const {
@@ -354,12 +352,14 @@ G4String Gen_LED::GetTimeState() const {
     return G4String("Gen_LED error: no time generator selected");
 }
 
-void Gen_LED::SetVertexState(G4String /*state*/) { G4cerr << "Gen_LED error: Cannot set vertex state." << G4endl; }
+void Gen_LED::SetVertexState(G4String /*state*/) {
+  std::cerr << "Gen_LED error: Cannot set vertex state." << std::endl;
+}
 
 G4String Gen_LED::GetVertexState() const { return G4String("Gen_LED error: no vertex generator"); }
 
 void Gen_LED::SetPosState(G4String /*state*/) {
-  G4cerr << "Gen_LED error: Cannot set position state, no position generator" << G4endl;
+  std::cerr << "Gen_LED error: Cannot set position state, no position generator" << std::endl;
 }
 
 G4String Gen_LED::GetPosState() const { return G4String("Gen_LED error: no pos generator"); }

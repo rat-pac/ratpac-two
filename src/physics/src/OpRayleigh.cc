@@ -20,9 +20,7 @@
 #include <RAT/TrackInfo.hh>
 #include <Randomize.hh>
 
-using CLHEP::twopi;
-
-using namespace RAT;
+namespace RAT {
 
 OpRayleigh::OpRayleigh(const G4String &processName, G4ProcessType type) : G4VDiscreteProcess(processName, type) {
   SetProcessSubType(fOpRayleigh);
@@ -44,9 +42,9 @@ G4VParticleChange *OpRayleigh::PostStepDoIt(const G4Track &track, const G4Step &
 
   double psi = 0.0;
   do {
-    psi = twopi * G4UniformRand() / 2.0;
+    psi = CLHEP::twopi * G4UniformRand() / 2.0;
   } while (G4UniformRand() > pow(sin(psi), 3));
-  const double phi = G4UniformRand() * twopi;
+  const double phi = G4UniformRand() * CLHEP::twopi;
 
   const G4ThreeVector oldMomentum = aParticle->GetMomentumDirection().unit();
   const G4ThreeVector oldPolarisation = aParticle->GetPolarization().unit();
@@ -98,3 +96,4 @@ void OpRayleigh::BuildThePhysicsTable() {
     fPhysicsTable->insertAt(iMaterial, rayleigh);
   }
 }
+}  // namespace RAT

@@ -19,7 +19,8 @@
 
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
-#include <string.h>  // for memset
+
+#include <string>  // for memset
 
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
@@ -95,10 +96,10 @@ void GLG4BoxSD::EndOfEvent(G4HCofThisEvent *) {
       sum_ng += h_ng[i];
       sum_ne += h_ne[i];
     }
-    G4cout << GetName() << ":\t" << sum_ng << " neutral-x0,\t" << sum_ne << " charged-x0,\t" << tot_edep / CLHEP::MeV
-           << " MeV\n"
-           << G4endl;
-    G4cout.flush();
+    std::cout << GetName() << ":\t" << sum_ng << " neutral-x0,\t" << sum_ne << " charged-x0,\t" << tot_edep / CLHEP::MeV
+              << " MeV\n"
+              << std::endl;
+    std::cout.flush();
   }
 }
 
@@ -117,9 +118,9 @@ static void dump_histo(T *hist, int hlength, int xmin) {
   for (i = 0; i < hlength; i++) {
     if (hist[i] != 0 || nrzflag == -1) {
       if (nrzflag != -1 && nrzflag != i - 1) {
-        G4cout << (i - 1 + xmin) << "\t0\n";
+        std::cout << (i - 1 + xmin) << "\t0\n";
       }
-      G4cout << (i + xmin) << "\t" << hist[i] << G4endl;
+      std::cout << (i + xmin) << "\t" << hist[i] << std::endl;
       if (hist[i] == 0)
         nrzflag = i;
       else
@@ -127,19 +128,19 @@ static void dump_histo(T *hist, int hlength, int xmin) {
     }
   }
   if (nrzflag > -1) {
-    G4cout << (hlength - 1 + xmin) << "\t0\n";
+    std::cout << (hlength - 1 + xmin) << "\t0\n";
   }
-  G4cout << G4endl;
+  std::cout << std::endl;
 }
 
 void GLG4BoxSD::PrintAll() {
   // print histograms in compressed form
-  G4cout << "\n# " << GetName() << G4endl;
-  G4cout << "# uncharged vs. 2*rad.length" << G4endl;
+  std::cout << "\n# " << GetName() << std::endl;
+  std::cout << "# uncharged vs. 2*rad.length" << std::endl;
   dump_histo(h_ng, nbin, 0);
-  G4cout << "# charged vs. 2*rad.length" << G4endl;
+  std::cout << "# charged vs. 2*rad.length" << std::endl;
   dump_histo(h_ne, nbin, 0);
-  G4cout << "# edep vs. 2*rad.length" << G4endl;
+  std::cout << "# edep vs. 2*rad.length" << std::endl;
   dump_histo(h_edep, nbin, 0);
-  G4cout << G4endl << std::flush;
+  std::cout << std::endl << std::flush;
 }

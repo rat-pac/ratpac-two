@@ -23,14 +23,14 @@ void PosGen_Multipoint::SetState(G4String newValues) {
   newValues = strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    G4cout << "Current state of this PosGen_Multipoint:\n"
-           << " \"" << GetState() << "\"\n"
-           << G4endl;
-    G4cout << "Format of argument to PosGen_Multipoint::SetState: \n"
-              " \"uniform [# of points] [inner radius] [outer radius]\""
-           << G4endl;
-    G4cout << "   or" << G4endl;
-    G4cout << "\"table [name of table]\"" << G4endl;
+    std::cout << "Current state of this PosGen_Multipoint:\n"
+              << " \"" << GetState() << "\"\n"
+              << std::endl;
+    std::cout << "Format of argument to PosGen_Multipoint::SetState: \n"
+                 " \"uniform [# of points] [inner radius] [outer radius]\""
+              << std::endl;
+    std::cout << "   or" << std::endl;
+    std::cout << "\"table [name of table]\"" << std::endl;
     RAT::Log::Die("PosGen_Multipoint requres arguments");
   }
 
@@ -48,7 +48,7 @@ void PosGen_Multipoint::SetState(G4String newValues) {
     if (is.fail()) {
       RAT::Log::Die(
           "PosGen_Multipoint: Could not parse one int and two "
-          "doubles from config string");
+          "doubles from config std::string");
     }
 
     // Swap to make radius range physical
@@ -66,7 +66,7 @@ void PosGen_Multipoint::SetState(G4String newValues) {
     if (is.fail()) {
       RAT::Log::Die(
           "PosGen_Multipoint: Could not parse a table name from "
-          "config string.");
+          "config std::string.");
     }
 
     // Extract table name and index

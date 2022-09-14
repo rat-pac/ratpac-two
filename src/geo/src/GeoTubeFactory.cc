@@ -4,12 +4,10 @@
 #include <G4Tubs.hh>
 #include <RAT/GeoTubeFactory.hh>
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *GeoTubeFactory::ConstructSolid(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
   G4double r_max = table->GetD("r_max") * CLHEP::mm;
   G4double size_z = table->GetD("size_z") * CLHEP::mm;
 

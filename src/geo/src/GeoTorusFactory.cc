@@ -4,12 +4,10 @@
 #include <G4Torus.hh>
 #include <RAT/GeoTorusFactory.hh>
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *GeoTorusFactory::ConstructSolid(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
   G4double r_max = table->GetD("r_max") * CLHEP::mm;
   G4double r_torus = table->GetD("r_torus") * CLHEP::mm;
 

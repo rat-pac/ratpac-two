@@ -19,7 +19,7 @@
 #include <RAT/GLG4StringUtil.hh>
 #include <RAT/GLG4TimeGen.hh>
 #include <RAT/GdGen.hh>
-#include <cstring>
+#include <string>
 
 #include "Randomize.hh"
 
@@ -62,13 +62,13 @@ void GdGen::GenerateEvent(G4Event *event) {
   }
   int numSecondaries = theMul[indexNow];
 
-  // get vector of energy for certain mutliplicity
+  // get std::vector of energy for certain mutliplicity
   G4String tableErgName = "erg";
   tableErgName += std::to_string(numSecondaries);
   tableErgName += "_list";
   theErg = model->GetDArray(tableErgName);
 
-  // get vector of particle type for certain mutliplicity
+  // get std::vector of particle type for certain mutliplicity
   G4String tableParName = "par";
   tableParName += std::to_string(numSecondaries);
   tableParName += "_list";
@@ -129,25 +129,25 @@ void GdGen::ResetTime(double offset) {
   double eventTime = timeGen->GenerateEventTime();
   nextTime = eventTime + offset;
 #ifdef DEBUG
-  G4cout << "RAT::GdGen::ResetTime:"
-         << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
-         << ", nextTime=" << G4BestUnit(nextTime, "Time") << G4endl;
+  std::cout << "RAT::GdGen::ResetTime:"
+            << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
+            << ", nextTime=" << G4BestUnit(nextTime, "Time") << std::endl;
 #endif
 }
 
 void GdGen::SetState(G4String state) {
 #ifdef DEBUG
-  G4cout << "RAT::GdGen::SetState called with state='" << state << "'" << G4endl;
+  std::cout << "RAT::GdGen::SetState called with state='" << state << "'" << std::endl;
 #endif
 
-  // Break the argument to the this generator into sub-strings
+  // Break the argument to the this generator into sub-std::strings
   // separated by ":".
   state = util_strip_default(state);
   std::vector<std::string> parts = util_split(state, ":");
   size_t nArgs = parts.size();
 
 #ifdef DEBUG
-  G4cout << "RAT::GdGen::SetState: nArgs=" << nArgs << G4endl;
+  std::cout << "RAT::GdGen::SetState: nArgs=" << nArgs << std::endl;
 #endif
 
   try {
@@ -164,7 +164,7 @@ void GdGen::SetState(G4String state) {
       isotope = util_to_int(parts[0]);
 
       if (isotope != 158) {
-        G4cerr << "RAT::GdGen::SetState: Only gd 158 is supported" << G4endl;
+        std::cerr << "RAT::GdGen::SetState: Only gd 158 is supported" << std::endl;
       }
 
       // The second argument is a position generator.
@@ -178,7 +178,7 @@ void GdGen::SetState(G4String state) {
 
     stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
-    G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
+    std::cerr << "Unknown generator \"" << unknown.id << "\"" << std::endl;
   }
 }
 
@@ -188,7 +188,7 @@ void GdGen::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "GdGen error: Cannot set time state, no time generator selected" << G4endl;
+    std::cerr << "GdGen error: Cannot set time state, no time generator selected" << std::endl;
 }
 
 G4String GdGen::GetTimeState() const {
@@ -202,9 +202,9 @@ void GdGen::SetPosState(G4String state) {
   if (posGen)
     posGen->SetState(state);
   else
-    G4cerr << "GdGen error: Cannot set position state, no position generator "
-              "selected"
-           << G4endl;
+    std::cerr << "GdGen error: Cannot set position state, no position generator "
+                 "selected"
+              << std::endl;
 }
 
 G4String GdGen::GetPosState() const {

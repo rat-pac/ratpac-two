@@ -101,16 +101,16 @@ void VertexGen_ES::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);  // from GLG4StringUtil
   if (newValues.length() == 0) {
     // print help and current state
-    G4cout << "Current state of this VertexGen_ES:\n"
-           << " \"" << GetState() << "\"\n"
-           << G4endl;
-    G4cout << "Format of argument to VertexGen_ES::SetState: \n"
-              " \"nu_dir_x nu_dir_y nu_dir_z [db_name:][db_flux:nu_flavor]\"\n"
-              " where fNuDir is the initial direction of the incoming neutrino.\n"
-              " Does not have to be normalized.  Set to \"0. 0. 0.\" for "
-              "isotropic\n"
-              " neutrino direction."
-           << G4endl;
+    std::cout << "Current state of this VertexGen_ES:\n"
+              << " \"" << GetState() << "\"\n"
+              << std::endl;
+    std::cout << "Format of argument to VertexGen_ES::SetState: \n"
+                 " \"nu_dir_x nu_dir_y nu_dir_z [db_name:][db_flux:nu_flavor]\"\n"
+                 " where fNuDir is the initial direction of the incoming neutrino.\n"
+                 " Does not have to be normalized.  Set to \"0. 0. 0.\" for "
+                 "isotropic\n"
+                 " neutrino direction."
+              << std::endl;
     return;
   }
 
@@ -119,7 +119,7 @@ void VertexGen_ES::SetState(G4String newValues) {
   std::string rest;
   is >> x >> y >> z >> rest;
   if (is.fail()) {
-    G4cout << "VertexGen_ES : Failed to extract state from input string.\n";
+    std::cout << "VertexGen_ES : Failed to extract state from input std::string.\n";
     return;
   }
 
@@ -149,7 +149,7 @@ void VertexGen_ES::SetState(G4String newValues) {
     case 1:
       this->SetDBName(params[0]);
     default:
-      G4cout << "VertexGen_ES : Detected only " << params.size() << " neutrino state terms (1,2, or 3 expected).\n";
+      std::cout << "VertexGen_ES : Detected only " << params.size() << " neutrino state terms (1,2, or 3 expected).\n";
       return;
   }
 }

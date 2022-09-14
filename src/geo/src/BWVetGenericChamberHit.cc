@@ -59,7 +59,7 @@ void BWVetGenericChamberHit::Draw() {
 
 void BWVetGenericChamberHit::Print() {
   int deb = 0;
-  if (deb != 0) G4cout << "  BWVetGenericChamber[" << id << "] " << time / CLHEP::ns << " (nsec)" << G4endl;
+  if (deb != 0) std::cout << "  BWVetGenericChamber[" << id << "] " << time / CLHEP::ns << " (nsec)" << std::endl;
 }
 
 }  // namespace RAT

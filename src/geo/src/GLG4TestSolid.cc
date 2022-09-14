@@ -9,10 +9,10 @@
   G4String  Test(const G4VSolid &s, G4int npair)
     calls CalculateExtent() for null affine transform for each axis
     calls GetExtent and checks for consistency, < kInfinity on all axes
-    chooses pairs of points and calls TestRay for vectors between these points
+    chooses std::pairs of points and calls TestRay for std::vectors between these points
        using PickRandomPoint (see below)
     repeats for npair pairs
-    returns empty string if passed all tests, error message otherwise
+    returns empty std::string if passed all tests, error message otherwise
 
   G4String  TestRay(const G4VSolid &s,
                  const G4ThreeVector &p, const G4ThreeVector &v)
@@ -87,7 +87,7 @@
 static inline double glg4_hypot(double x, double y) { return sqrt(x * x + y * y); }
 // #endif
 
-static std::ostream &myenderr(std::ostream &outs) { return outs << G4endl; }
+static std::ostream &myenderr(std::ostream &outs) { return outs << std::endl; }
 
 static G4String MakeErrString(std::ostringstream &errstr) {
   errstr << std::ends;
@@ -150,10 +150,10 @@ G4String GLG4TestSolid::Test(const G4VSolid &s, G4int npair) {
   if (dz < 0.0 || dz >= kInfinity) errmsg << "Bad Z extent" << myenderr;
   if (errmsg.str().size() > 0) return MakeErrString(errmsg);
 
-  // set myCheckTolerance
+  // std::set myCheckTolerance
   G4double myCheckTolerance = std::max(radTolerance, 1e-6 * std::max(dx, std::max(dy, dz)));
 
-  // pick pairs of points
+  // pick std::pairs of points
   G4int nerr = 0;
   G4int ipair;
   G4int lastpcount = 0;
@@ -229,10 +229,10 @@ G4String GLG4TestSolid::TestRay(const G4VSolid &s, const G4ThreeVector &p, const
         G4ThreeVector norm;
         G4bool validNorm;
         dist = s.DistanceToOut(p, v, true, &validNorm, &norm);
-        // if norm is valid, should have some comp. along incidence vector
+        // if norm is valid, should have some comp. along incidence std::vector
         if (validNorm && norm * v <= 0.0) {
           errmsg << "DistanceToOut returned norm flagged as valid which "
-                    "points opposite to ray direction vector!"
+                    "points opposite to ray direction std::vector!"
                  << myenderr;
         }
       }
@@ -268,8 +268,8 @@ G4String GLG4TestSolid::TestRay(const G4VSolid &s, const G4ThreeVector &p, const
   G4ThreeVector pt = ai.TransformPoint(p);
   G4ThreeVector vt = ai.TransformAxis(v);
   if (pt.mag() > myCheckTolerance || fabs(vt.mag() - 1.0) > 0.001 || fabs(vt.z() - 1.0) > 0.001) {
-    G4cerr << "ERROR, failed internal test in GLG4TESTSOLID_DEBUG" << myenderr;
-    G4cerr.flush();
+    std::cerr << "ERROR, failed internal test in GLG4TESTSOLID_DEBUG" << myenderr;
+    std::cerr.flush();
   }
 #endif
 
@@ -354,10 +354,10 @@ G4String GLG4TestSolid::TestAtSurface(const G4VSolid &s, const G4ThreeVector &p1
   norm = s.SurfaceNormal(p1);
   if (fabs(norm.mag2() - 1.0) > 1e-6) {
     if (norm.mag2() <= 1e-6) {
-      errmsg << "SurfaceNormal returned zero-magnitude vector!" << myenderr;
+      errmsg << "SurfaceNormal returned zero-magnitude std::vector!" << myenderr;
       return MakeErrString(errmsg);
     }
-    errmsg << "SurfaceNormal returned un-normalized vector." << myenderr;
+    errmsg << "SurfaceNormal returned un-normalized std::vector." << myenderr;
     norm = norm.unit();
   }
 

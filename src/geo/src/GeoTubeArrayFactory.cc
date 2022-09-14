@@ -5,12 +5,10 @@
 #include <RAT/Log.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 G4VPhysicalVolume *GeoTubeArrayFactory::Construct(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
   G4double r_max = table->GetD("r_max") * CLHEP::mm;
   G4double size_z = table->GetD("size_z") * CLHEP::mm;  // this is the lenght of the LG face to the PMT closest point
 
@@ -33,7 +31,7 @@ G4VPhysicalVolume *GeoTubeArrayFactory::Construct(DBLinkPtr table) {
 
   // can cut out a sphereical region from all the solids of
   // radius sphere_cut_r.
-  // requires that rescale_r be set.
+  // requires that rescale_r be std::set.
   G4double s_cut_r = -1.0;
   try {
     s_cut_r = table->GetD("sphere_cut_r") * CLHEP::mm;

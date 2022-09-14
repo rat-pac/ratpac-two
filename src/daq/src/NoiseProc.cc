@@ -11,8 +11,6 @@
 #include <map>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 NoiseProc::NoiseProc() : Processor("noise") {
@@ -81,7 +79,7 @@ Processor::Result NoiseProc::DSEvent(DS::Root *ds) {
   // Look around real hits or everywhere?
   int totalNoiseHits = 0;
   if (fNearHits) {
-    std::map<double, double> windowMap = FindWindows(realHitTimes, max(abs(fLookback), abs(fLookforward)));
+    std::map<double, double> windowMap = FindWindows(realHitTimes, std::max(abs(fLookback), abs(fLookforward)));
     if (!windowMap.empty()) {
       for (auto m : windowMap) {
         totalNoiseHits +=
@@ -222,10 +220,10 @@ std::map<double, double> NoiseProc::FindWindows(std::vector<double> &times, doub
       startStop[times[0]] = times[0];
     return startStop;
   }
-  vector<double>::iterator back = times.begin();
+  std::vector<double>::iterator back = times.begin();
   double start = *back;
   double stop = 0;
-  for (vector<double>::iterator forward = next(times.begin()); forward < times.end(); ++forward) {
+  for (std::vector<double>::iterator forward = next(times.begin()); forward < times.end(); ++forward) {
     if ((*forward - *back) > window) {
       stop = *back;
       startStop[start] = stop;

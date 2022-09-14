@@ -16,7 +16,6 @@
 #include <RAT/LessSimpleDAQ2Proc.hh>
 #include <iostream>
 #include <vector>
-using namespace std;
 
 namespace RAT {
 
@@ -30,17 +29,17 @@ Processor::Result LessSimpleDAQ2Proc::DSEvent(DS::Root *ds) {
     ds->PruneEV();
   }
 
-  // declare several vectors
-  vector<int> iArray, iArraySort;       // index
-  vector<double> tArray, tArraySort;    // front end time
-  vector<double> qArray, qArraySort;    // charge
-  vector<double> idArray, idArraySort;  // PMT ID
-  vector<double> phArray,
+  // declare several std::vectors
+  std::vector<int> iArray, iArraySort;       // index
+  std::vector<double> tArray, tArraySort;    // front end time
+  std::vector<double> qArray, qArraySort;    // charge
+  std::vector<double> idArray, idArraySort;  // PMT ID
+  std::vector<double> phArray,
       phArraySort;  // photon count ...we are not using this...
-  vector<double> htArray,
+  std::vector<double> htArray,
       htArraySort;  // hit time     ...we are not using this either...
 
-  // get the information for 1 full event and put them in vectors
+  // get the information for 1 full event and put them in std::vectors
   for (int imcpmt = 0; imcpmt < mc->GetMCPMTCount(); imcpmt++) {
     DS::MCPMT *mcpmt = mc->GetMCPMT(imcpmt);
 
@@ -69,7 +68,7 @@ Processor::Result LessSimpleDAQ2Proc::DSEvent(DS::Root *ds) {
     }
   }
 
-  // sort the rest of the vectors
+  // sort the rest of the std::vectors
   for (unsigned long m = 0; m < tArraySort.size(); m++) {
     qArraySort.push_back(qArray[iArraySort[m]]);
     idArraySort.push_back(idArray[iArraySort[m]]);
@@ -84,10 +83,10 @@ Processor::Result LessSimpleDAQ2Proc::DSEvent(DS::Root *ds) {
     double timeWindow = 400.0;
     int numSub = 0;
     double timeNow = tArraySort[0];
-    vector<int> subIndex;
-    vector<double> clusterTime;
+    std::vector<int> subIndex;
+    std::vector<double> clusterTime;
     clusterTime.push_back(timeNow);
-    vector<unsigned long> startIndex;
+    std::vector<unsigned long> startIndex;
     startIndex.push_back(0);
 
     for (unsigned long a = 0; a < tArraySort.size(); a++) {

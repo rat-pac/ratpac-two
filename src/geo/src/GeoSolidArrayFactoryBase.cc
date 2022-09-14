@@ -9,12 +9,10 @@
 #include <RAT/Materials.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 G4VPhysicalVolume *GeoSolidArrayFactoryBase::Construct(G4VSolid *BaseSolid, DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
 
   G4Material *solid_material = G4Material::GetMaterial(table->GetS("material"));
 
@@ -22,7 +20,7 @@ G4VPhysicalVolume *GeoSolidArrayFactoryBase::Construct(G4VSolid *BaseSolid, DBLi
 
   // Create optional skin surface for volume.
   try {
-    string surface_name = table->GetS("surface");
+    std::string surface_name = table->GetS("surface");
     if (Materials::optical_surface.count(surface_name) == 0)
       Log::Die("GeoSolidFactory: Error building " + volume_name + ", surface " + surface_name + " does not exist");
     new G4LogicalSkinSurface(volume_name + "_surface", logiSolid, Materials::optical_surface[surface_name]);
@@ -32,7 +30,7 @@ G4VPhysicalVolume *GeoSolidArrayFactoryBase::Construct(G4VSolid *BaseSolid, DBLi
   // Optional visualization parts
   G4VisAttributes *vis = new G4VisAttributes();
   try {
-    const vector<double> &color = table->GetDArray("color");
+    const std::vector<double> &color = table->GetDArray("color");
     if (color.size() == 3)  // RGB
       vis->SetColour(G4Colour(color[0], color[1], color[2]));
     else if (color.size() == 4)  // RGBA
@@ -43,7 +41,7 @@ G4VPhysicalVolume *GeoSolidArrayFactoryBase::Construct(G4VSolid *BaseSolid, DBLi
   } catch (DBNotFoundError &e) {
   };
   try {
-    string drawstyle = table->GetS("drawstyle");
+    std::string drawstyle = table->GetS("drawstyle");
     if (drawstyle == "wireframe")
       vis->SetForceWireframe(true);
     else if (drawstyle == "solid")
@@ -65,7 +63,7 @@ G4VPhysicalVolume *GeoSolidArrayFactoryBase::Construct(G4VSolid *BaseSolid, DBLi
 
   //  Set sensitive detector
   try {
-    string sensitive_detector_name = table->GetS("sensitive_detector");
+    std::string sensitive_detector_name = table->GetS("sensitive_detector");
     G4SDManager *sdman = G4SDManager::GetSDMpointer();
     G4VSensitiveDetector *sd = sdman->FindSensitiveDetector(sensitive_detector_name);
     if (sd)
@@ -79,14 +77,14 @@ G4VPhysicalVolume *GeoSolidArrayFactoryBase::Construct(G4VSolid *BaseSolid, DBLi
 }
 
 G4VPhysicalVolume *GeoSolidArrayFactoryBase::Construct(G4LogicalVolume *logiSolid, DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
 
   // Read Solid positions
-  string pos_table_name = table->GetS("pos_table");
+  std::string pos_table_name = table->GetS("pos_table");
   DBLinkPtr lpos_table = DB::Get()->GetLink(pos_table_name);
-  const vector<double> &pos_x = lpos_table->GetDArray("x");
-  const vector<double> &pos_y = lpos_table->GetDArray("y");
-  const vector<double> &pos_z = lpos_table->GetDArray("z");
+  const std::vector<double> &pos_x = lpos_table->GetDArray("x");
+  const std::vector<double> &pos_y = lpos_table->GetDArray("y");
+  const std::vector<double> &pos_z = lpos_table->GetDArray("z");
 
   // read max number of solids to use
   int max_solids = pos_x.size();  // default to read all
@@ -111,21 +109,21 @@ G4VPhysicalVolume *GeoSolidArrayFactoryBase::Construct(G4LogicalVolume *logiSoli
   } catch (DBNotFoundError &e) {
   }
 
-  vector<int> sub_type_array;
+  std::vector<int> sub_type_array;
   for (int i = 0; i < max_solids; i++) sub_type_array.push_back(-1);
   if (sub_type > -1) {
     sub_type_array = lpos_table->GetIArray("sub_type");
   }
 
   // Find mother
-  string mother_name = table->GetS("mother");
+  std::string mother_name = table->GetS("mother");
 
   // direction of individual solids.  Default is that +z is orientation pointing
   // direction optional, default is no rotation
   bool rot_manual = false;
-  vector<double> rot_x, rot_y, rot_z;
+  std::vector<double> rot_x, rot_y, rot_z;
   try {
-    string rotate_str = table->GetS("rotate_solids");
+    std::string rotate_str = table->GetS("rotate_solids");
     if (rotate_str == "manual") rot_manual = true;
   } catch (DBNotFoundError &e) {
   }
@@ -138,7 +136,7 @@ G4VPhysicalVolume *GeoSolidArrayFactoryBase::Construct(G4LogicalVolume *logiSoli
   // Orientation of Solids
   bool orient_manual = false;
   try {
-    string orient_str = table->GetS("orientation");
+    std::string orient_str = table->GetS("orientation");
     if (orient_str == "manual")
       orient_manual = true;
     else if (orient_str == "point")
@@ -148,8 +146,8 @@ G4VPhysicalVolume *GeoSolidArrayFactoryBase::Construct(G4LogicalVolume *logiSoli
   } catch (DBNotFoundError &e) {
   }
 
-  vector<double> dir_x, dir_y, dir_z;
-  vector<double> orient_point_array;
+  std::vector<double> dir_x, dir_y, dir_z;
+  std::vector<double> orient_point_array;
   G4ThreeVector orient_point;
   if (orient_manual) {
     dir_x = lpos_table->GetDArray("dir_x");
@@ -178,7 +176,7 @@ G4VPhysicalVolume *GeoSolidArrayFactoryBase::Construct(G4LogicalVolume *logiSoli
   for (int solidID = start_solid_num; solidID < max_solids; solidID++) {
     if ((sub_type == -1) || (sub_type == sub_type_array[solidID])) {
       // name
-      string solidname = volume_name + "_" + ::to_string(solidID);
+      std::string solidname = volume_name + "_" + ::to_string(solidID);
 
       // position
       G4ThreeVector solidpos(pos_x[solidID], pos_y[solidID], pos_z[solidID]);

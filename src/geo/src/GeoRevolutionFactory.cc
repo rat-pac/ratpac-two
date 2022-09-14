@@ -5,24 +5,22 @@
 #include <RAT/GeoRevolutionFactory.hh>
 #include <RAT/Log.hh>
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *GeoRevolutionFactory::ConstructSolid(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
 
   G4int numZPlanes;
 
-  const vector<double> &z = table->GetDArray("z");
-  const vector<double> &r_max = table->GetDArray("r_max");
-  vector<double> r_min;
+  const std::vector<double> &z = table->GetDArray("z");
+  const std::vector<double> &r_max = table->GetDArray("r_max");
+  std::vector<double> r_min;
   bool solid;
   try {
     r_min = table->GetDArray("r_min");
     solid = false;
   } catch (DBNotFoundError &e) {
-    r_min = vector<double>(z.size(), 0.0);
+    r_min = std::vector<double>(z.size(), 0.0);
     solid = true;
   }
 

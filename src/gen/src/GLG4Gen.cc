@@ -13,8 +13,6 @@
 #include "RAT/GLG4TimeGen.hh"
 #include "RAT/GLG4VertexGen.hh"
 
-using namespace std;
-
 GLG4Gen_Combo::GLG4Gen_Combo() : stateStr(""), vertexGen(), posGen(0) {
   // Default time generator
   timeGen = new GLG4TimeGen_Poisson();
@@ -39,7 +37,7 @@ void GLG4Gen_Combo::ResetTime(double offset) { nextTime = timeGen->GenerateEvent
 void GLG4Gen_Combo::SetState(G4String state) {
   state = util_strip_default(state);
 
-  vector<string> parts = util_split(state, ":");
+  std::vector<std::string> parts = util_split(state, ":");
 
   try {
     switch (parts.size()) {
@@ -63,7 +61,7 @@ void GLG4Gen_Combo::SetState(G4String state) {
 
     stateStr = state;  // Save for later call to GetState()
   } catch (RAT::FactoryUnknownID &unknown) {
-    G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
+    std::cerr << "Unknown generator \"" << unknown.id << "\"" << std::endl;
   }
 }
 
@@ -73,9 +71,9 @@ void GLG4Gen_Combo::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "GLG4Gen_Combo error: Cannot set vertex state, no vertex "
-              "generator selected"
-           << G4endl;
+    std::cerr << "GLG4Gen_Combo error: Cannot set vertex state, no vertex "
+                 "generator selected"
+              << std::endl;
 }
 
 G4String GLG4Gen_Combo::GetTimeState() const {
@@ -89,9 +87,9 @@ void GLG4Gen_Combo::SetVertexState(G4String state) {
   if (vertexGen)
     vertexGen->SetState(state);
   else
-    G4cerr << "GLG4Gen_Combo error: Cannot set vertex state, no vertex "
-              "generator selected"
-           << G4endl;
+    std::cerr << "GLG4Gen_Combo error: Cannot set vertex state, no vertex "
+                 "generator selected"
+              << std::endl;
 }
 
 G4String GLG4Gen_Combo::GetVertexState() const {
@@ -105,9 +103,9 @@ void GLG4Gen_Combo::SetPosState(G4String state) {
   if (posGen)
     posGen->SetState(state);
   else
-    G4cerr << "GLG4Gen_Combo error: Cannot set position state, no position "
-              "generator selected"
-           << G4endl;
+    std::cerr << "GLG4Gen_Combo error: Cannot set position state, no position "
+                 "generator selected"
+              << std::endl;
 }
 
 G4String GLG4Gen_Combo::GetPosState() const {
@@ -175,7 +173,7 @@ void GLG4Gen_External::ResetTime(double offset) { nextTime = timeGen->GenerateEv
 void GLG4Gen_External::SetState(G4String state) {
   state = util_strip_default(state);
 
-  vector<string> parts = util_split(state, ":");
+  std::vector<std::string> parts = util_split(state, ":");
 
   try {
     switch (parts.size()) {
@@ -205,7 +203,7 @@ void GLG4Gen_External::SetState(G4String state) {
         vertexGen = 0;
         vertexGen = RAT::GlobalFactory<GLG4VertexGen>::New("HEPEvt");
         RAT::DBLinkPtr lIO = RAT::DB::Get()->GetLink("IO");
-        G4String filename = lIO->GetS("default_vector_filename");
+        G4String filename = lIO->GetS("default_std::vector_filename");
         vertexGen->SetState(filename.c_str());
         delete posGen;
         posGen = 0;
@@ -225,7 +223,7 @@ void GLG4Gen_External::SetState(G4String state) {
 
     stateStr = state;  // Save for later call to GetState()
   } catch (RAT::FactoryUnknownID &unknown) {
-    G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
+    std::cerr << "Unknown generator \"" << unknown.id << "\"" << std::endl;
   }
 }
 
@@ -235,9 +233,9 @@ void GLG4Gen_External::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "GLG4Gen_External error: Cannot set vertex state, no vertex "
-              "generator selected"
-           << G4endl;
+    std::cerr << "GLG4Gen_External error: Cannot set vertex state, no vertex "
+                 "generator selected"
+              << std::endl;
 }
 
 G4String GLG4Gen_External::GetTimeState() const {
@@ -251,9 +249,9 @@ void GLG4Gen_External::SetVertexState(G4String state) {
   if (vertexGen)
     vertexGen->SetState(state);
   else
-    G4cerr << "GLG4Gen_External error: Cannot set vertex state, no vertex "
-              "generator selected"
-           << G4endl;
+    std::cerr << "GLG4Gen_External error: Cannot set vertex state, no vertex "
+                 "generator selected"
+              << std::endl;
 }
 
 G4String GLG4Gen_External::GetVertexState() const {
@@ -267,9 +265,9 @@ void GLG4Gen_External::SetPosState(G4String state) {
   if (posGen)
     posGen->SetState(state);
   else
-    G4cerr << "GLG4Gen_External error: Cannot set position state, no position "
-              "generator selected"
-           << G4endl;
+    std::cerr << "GLG4Gen_External error: Cannot set position state, no position "
+                 "generator selected"
+              << std::endl;
 }
 
 G4String GLG4Gen_External::GetPosState() const {

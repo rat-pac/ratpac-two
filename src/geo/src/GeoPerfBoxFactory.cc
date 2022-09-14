@@ -11,15 +11,13 @@
 #include <cmath>
 #include <sstream>
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *GeoPerfBoxFactory::ConstructSolid(DBLinkPtr table) {
-  string volumeName = table->GetIndex();
+  std::string volumeName = table->GetIndex();
 
   // get the base box
-  vector<double> size = table->GetDArray("size");
+  std::vector<double> size = table->GetDArray("size");
   double thickness = 0.0;
   try {
     thickness = table->GetD("thickness") * CLHEP::mm;
@@ -36,16 +34,16 @@ G4VSolid *GeoPerfBoxFactory::ConstructSolid(DBLinkPtr table) {
   }
 
   // cut out the holes
-  vector<double> rhole = table->GetDArray("r_hole");
-  vector<double> xhole = table->GetDArray("x_hole");
-  vector<double> yhole = table->GetDArray("y_hole");
+  std::vector<double> rhole = table->GetDArray("r_hole");
+  std::vector<double> xhole = table->GetDArray("x_hole");
+  std::vector<double> yhole = table->GetDArray("y_hole");
   if (rhole.size() != xhole.size() || rhole.size() != yhole.size())
     Log::Die("GetPerfBoxFactory: hole parameter arrays not same size");
   for (unsigned i = 0; i < rhole.size(); i++) {
     rhole[i] *= CLHEP::mm;
     xhole[i] *= CLHEP::mm;
     yhole[i] *= CLHEP::mm;
-    stringstream ss;
+    std::stringstream ss;
     ss << i;
     G4VSolid *tube = new G4Tubs(volumeName + ss.str(), 0.0, rhole[i], size[2] * 1.01, 0.0, CLHEP::twopi);
     box = new G4SubtractionSolid(volumeName, box, tube, 0, G4ThreeVector(xhole[i], yhole[i], 0.0));

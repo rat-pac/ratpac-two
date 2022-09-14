@@ -7,27 +7,25 @@
 #include <RAT/Log.hh>
 #include <RAT/WLSPFactory.hh>
 
-using namespace std;
-
 namespace RAT {
 // Creates the WLS Plate by taking a G4Box and subtracting out a G4 rotation
 // (Polycone) to make a hole for the PMT
 G4VPhysicalVolume *WLSPFactory::Construct(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
-  const vector<double> &size = table->GetDArray("size");
+  std::string volume_name = table->GetIndex();
+  const std::vector<double> &size = table->GetDArray("size");
   G4VSolid *box = new G4Box(volume_name, size[0] * CLHEP::mm, size[1] * CLHEP::mm, size[2] * CLHEP::mm);
 
   G4int numZPlanes;
 
-  const vector<double> &z = table->GetDArray("z");
-  const vector<double> &r_max = table->GetDArray("r_max");
-  vector<double> r_min;
+  const std::vector<double> &z = table->GetDArray("z");
+  const std::vector<double> &r_max = table->GetDArray("r_max");
+  std::vector<double> r_min;
   bool solid;
   try {
     r_min = table->GetDArray("r_min");
     solid = false;
   } catch (DBNotFoundError &e) {
-    r_min = vector<double>(z.size(), 0.0);
+    r_min = std::vector<double>(z.size(), 0.0);
     solid = true;
   }
 

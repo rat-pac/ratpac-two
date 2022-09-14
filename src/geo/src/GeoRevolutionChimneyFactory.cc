@@ -8,18 +8,16 @@
 #include <RAT/GeoRevolutionChimneyFactory.hh>
 #include <RAT/Log.hh>
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *GeoRevolutionChimneyFactory::ConstructSolid(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
 
   G4int numZPlanes;
 
-  const vector<double> &z = table->GetDArray("z");
-  const vector<double> &r_max = table->GetDArray("r_max");
-  const vector<double> &r_min = table->GetDArray("r_min");
+  const std::vector<double> &z = table->GetDArray("z");
+  const std::vector<double> &r_max = table->GetDArray("r_max");
+  const std::vector<double> &r_min = table->GetDArray("r_min");
   const float rout_chim = table->GetD("rout_chimney");
   float rin_chim = 0.0;
   try {

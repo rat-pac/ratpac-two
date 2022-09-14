@@ -94,9 +94,8 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
     }
     // check if we can calculate B field effect
     if (BFieldTableName == "" || BEffiTableName == "") {
-      G4cout << "B field is on, but either B data or B PMT efficiency "
-                "correction missing.\n"
-             << "Turning B field off.\n";
+      std::cout << "B field is on, but either B data or B PMT efficiency correction missing.\n"
+                << "Turning B field off.\n";
       BFieldOn = 0;
       BEffiTable = NULL;
     } else {

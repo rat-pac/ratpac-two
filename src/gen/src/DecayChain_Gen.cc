@@ -18,7 +18,7 @@
 #include <RAT/GLG4PosGen.hh>
 #include <RAT/GLG4StringUtil.hh>
 #include <RAT/GLG4TimeGen.hh>
-#include <cstring>
+#include <string>
 
 #undef DEBUG
 
@@ -40,8 +40,8 @@ DecayChain_Gen::~DecayChain_Gen() {
 
 void DecayChain_Gen::GenerateEvent(G4Event *event) {
   if (fDecayChain == 0) {
-    G4cerr << "RAT::DecayChain_Gen::GenerateEvent: No decay chain found; "
-           << "please use /generator/add decaychain ISOTOPE:POSITION[:TIME]" << G4endl;
+    std::cerr << "RAT::DecayChain_Gen::GenerateEvent: No decay chain found; "
+              << "please use /generator/add decaychain ISOTOPE:POSITION[:TIME]" << std::endl;
     return;
   }
 
@@ -55,8 +55,8 @@ void DecayChain_Gen::GenerateEvent(G4Event *event) {
   G4int nPrimaries = fDecayChain->GetNGenerated();
 
 #ifdef DEBUG
-  G4cout << "RAT::DecayChain_Gen::GenerateEvent: " << nPrimaries << " primaries in decay chain "
-         << fDecayChain->GetChainName() << G4endl;
+  std::cout << "RAT::DecayChain_Gen::GenerateEvent: " << nPrimaries << " primaries in decay chain "
+            << fDecayChain->GetChainName() << std::endl;
 #endif
 
   for (G4int iPrimary = 0; iPrimary < nPrimaries; iPrimary++) {
@@ -79,8 +79,8 @@ void DecayChain_Gen::GenerateEvent(G4Event *event) {
       }
     }
     if (particleDef == 0) {
-      G4cerr << "RAT::DecayChain_Gen::GenerateEvent: "
-             << "didn't know how to handle particle with ID " << pid << G4endl;
+      std::cerr << "RAT::DecayChain_Gen::GenerateEvent: "
+                << "didn't know how to handle particle with ID " << pid << std::endl;
       continue;
     }
 
@@ -97,11 +97,11 @@ void DecayChain_Gen::GenerateEvent(G4Event *event) {
     event->AddPrimaryVertex(vertex);
 
 #ifdef DEBUG
-    G4cout << "RAT::DecayChain_Gen::GenerateEvent: "
-           << "Primary " << iPrimary << " of " << nPrimaries << ", pid=" << pid
-           << ", name=" << particleDef->GetParticleName() << G4endl;
-    G4cout << "    time=" << G4BestUnit(time, "Time") << ", position=" << G4BestUnit(position, "Length")
-           << ", momentum=" << G4BestUnit(particleInfo.vector, "Energy") << G4endl;
+    std::cout << "RAT::DecayChain_Gen::GenerateEvent: "
+              << "Primary " << iPrimary << " of " << nPrimaries << ", pid=" << pid
+              << ", name=" << particleDef->GetParticleName() << std::endl;
+    std::cout << "    time=" << G4BestUnit(time, "Time") << ", position=" << G4BestUnit(position, "Length")
+              << ", momentum=" << G4BestUnit(particleInfo.vector, "Energy") << std::endl;
 #endif
 
   }  // for each primary
@@ -111,25 +111,25 @@ void DecayChain_Gen::ResetTime(double offset) {
   double eventTime = timeGen->GenerateEventTime();
   nextTime = eventTime + offset;
 #ifdef DEBUG
-  G4cout << "RAT::DecayChain_Gen::ResetTime:"
-         << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
-         << ", nextTime=" << G4BestUnit(nextTime, "Time") << G4endl;
+  std::cout << "RAT::DecayChain_Gen::ResetTime:"
+            << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
+            << ", nextTime=" << G4BestUnit(nextTime, "Time") << std::endl;
 #endif
 }
 
 void DecayChain_Gen::SetState(G4String state) {
 #ifdef DEBUG
-  G4cout << "RAT::DecayChain_Gen::SetState called with state='" << state << "'" << G4endl;
+  std::cout << "RAT::DecayChain_Gen::SetState called with state='" << state << "'" << std::endl;
 #endif
 
-  // Break the argument to the this generator into sub-strings
+  // Break the argument to the this generator into sub-std::strings
   // separated by ":".
   state = util_strip_default(state);
   std::vector<std::string> parts = util_split(state, ":");
   size_t nArgs = parts.size();
 
 #ifdef DEBUG
-  G4cout << "RAT::DecayChain_Gen::SetState: nArgs=" << nArgs << G4endl;
+  std::cout << "RAT::DecayChain_Gen::SetState: nArgs=" << nArgs << std::endl;
 #endif
 
   try {
@@ -137,18 +137,18 @@ void DecayChain_Gen::SetState(G4String state) {
       // The fourth argument allows one to start midchain
       std::string InMiddle = parts[3];
       if (InMiddle == "midchain") {
-        G4cout << "RAT::DecayChain_Gen: starting chain at Isotope" << G4endl;
+        std::cout << "RAT::DecayChain_Gen: starting chain at Isotope" << std::endl;
         fInMiddle = true;
       }
       if (InMiddle == "alpha") {
-        G4cout << "RAT::DecayChain_Gen: alpha decay of Isotope" << G4endl;
+        std::cout << "RAT::DecayChain_Gen: alpha decay of Isotope" << std::endl;
         fInAlphaDecay = true;
       } else if (InMiddle == "gamma") {
-        G4cout << "RAT::DecayChain_Gen: gamma decay of Isotope" << G4endl;
+        std::cout << "RAT::DecayChain_Gen: gamma decay of Isotope" << std::endl;
         fInGammaDecay = true;
       }
     } else {
-      G4cout << "RAT::DecayChain_Gen: normal decay" << G4endl;
+      std::cout << "RAT::DecayChain_Gen: normal decay" << std::endl;
     }
 
     if (nArgs >= 3) {
@@ -177,15 +177,15 @@ void DecayChain_Gen::SetState(G4String state) {
 
         bool found = fDecayChain->ReadInputFile(fDecayChain->GetChainName());
         if (!found) {
-          G4cerr << "RAT::DecayChain_Gen::SetState: couldn't find data for "
-                    "isotope "
-                 << isotope << G4endl;
+          std::cerr << "RAT::DecayChain_Gen::SetState: couldn't find data for "
+                       "isotope "
+                    << isotope << std::endl;
           delete fDecayChain;
           fDecayChain = 0;
         }
-        G4cout << "RAT::DecayChain_Gen::SetState: successfully created decay "
-                  "chain for "
-               << fDecayChain->GetChainName() << G4endl;
+        std::cout << "RAT::DecayChain_Gen::SetState: successfully created decay "
+                     "chain for "
+                  << fDecayChain->GetChainName() << std::endl;
 #ifdef DEBUG
         fDecayChain->Show();
 #endif
@@ -202,7 +202,7 @@ void DecayChain_Gen::SetState(G4String state) {
 
     stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
-    G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
+    std::cerr << "Unknown generator \"" << unknown.id << "\"" << std::endl;
   }
 }
 
@@ -212,9 +212,9 @@ void DecayChain_Gen::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "DecayChain_Gen error: Cannot set time state, no time generator "
-              "selected"
-           << G4endl;
+    std::cerr << "DecayChain_Gen error: Cannot set time state, no time generator "
+                 "selected"
+              << std::endl;
 }
 
 G4String DecayChain_Gen::GetTimeState() const {
@@ -228,9 +228,9 @@ void DecayChain_Gen::SetPosState(G4String state) {
   if (posGen)
     posGen->SetState(state);
   else
-    G4cerr << "DecayChain_Gen error: Cannot set position state, no position "
-              "generator selected"
-           << G4endl;
+    std::cerr << "DecayChain_Gen error: Cannot set position state, no position "
+                 "generator selected"
+              << std::endl;
 }
 
 G4String DecayChain_Gen::GetPosState() const {

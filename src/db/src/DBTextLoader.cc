@@ -2,7 +2,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -12,17 +11,16 @@
 #include <RAT/Rat.hh>
 #include <RAT/ReadFile.hh>
 #include <memory>
-
-using namespace std;
+#include <string>
 
 namespace RAT {
 
 /*************************** Text Parser *******************************/
 
-const string Tokenizer::symbol_char = "{}[],:#";
-const string Tokenizer::quote_char = "\"'";
-const string Tokenizer::number_char = "0123456789+-.ed";
-const string Tokenizer::hex_char = "0123456789abcdefABCDEF";
+const std::string Tokenizer::symbol_char = "{}[],:#";
+const std::string Tokenizer::quote_char = "\"'";
+const std::string Tokenizer::number_char = "0123456789+-.ed";
+const std::string Tokenizer::hex_char = "0123456789abcdefABCDEF";
 
 Tokenizer::Tokenizer(std::string thedoc, std::string _filename) : doc(thedoc), filename(_filename) {
   len = doc.size();
@@ -39,25 +37,25 @@ Tokenizer::Tokenizer(std::string thedoc, std::string _filename) : doc(thedoc), f
   eof = false;
 }
 
-void Tokenizer::RaiseError(string message) {
+void Tokenizer::RaiseError(std::string message) {
   // Find end of line
   size_t eol = doc.find('\n', linestart);
-  if (eol == string::npos) eol = doc.size();
+  if (eol == std::string::npos) eol = doc.size();
 
   throw ParseError(linenum, pos - linestart, doc.substr(linestart, eol - linestart) + "\n", message);
 }
 
-void Tokenizer::RaiseProbablyJSONError(string message) {
+void Tokenizer::RaiseProbablyJSONError(std::string message) {
   // Find end of line
   size_t eol = doc.find('\n', linestart);
-  if (eol == string::npos) eol = doc.size();
+  if (eol == std::string::npos) eol = doc.size();
 
   throw ProbablyJSONParseError(linenum, pos - linestart, doc.substr(linestart, eol - linestart) + "\n", message);
 }
 
 std::string PickFile(std::string name, std::string enclosing_file) {
   struct stat s;
-  string newname;
+  std::string newname;
 
   // First try file relative to current directory (absolute path or relative
   // path will work)
@@ -83,7 +81,7 @@ std::string PickFile(std::string name, std::string enclosing_file) {
 Tokenizer::Type Tokenizer::Next() {
   char quote = 0;
   bool is_double = false;
-  string double_token;
+  std::string double_token;
 
   State state = STATE_START;
   token = "";
@@ -97,11 +95,11 @@ Tokenizer::Type Tokenizer::Next() {
         } else if (c == '/') {
           state = STATE_COMMENT;
           pos++;
-        } else if (symbol_char.find(c) != string::npos) {
+        } else if (symbol_char.find(c) != std::string::npos) {
           token = c;
           pos++;
           return TYPE_SYMBOL;
-        } else if (quote_char.find(c) != string::npos) {
+        } else if (quote_char.find(c) != std::string::npos) {
           token = "";
           state = STATE_STRING;
           quote = c;
@@ -110,14 +108,14 @@ Tokenizer::Type Tokenizer::Next() {
           token = c;
           state = STATE_IDENTIFIER;
           pos++;
-        } else if (number_char.find(c) != string::npos) {
+        } else if (number_char.find(c) != std::string::npos) {
           token = c;
           double_token = c;
           state = STATE_NUMBER;
           is_double = false;
           pos++;
 
-          // Detect hex string
+          // Detect hex std::string
           if (pos < len && c == '0' && (doc[pos] == 'x' || doc[pos] == 'X')) {
             token += doc[pos];
             state = STATE_HEX_NUMBER;
@@ -172,7 +170,7 @@ Tokenizer::Type Tokenizer::Next() {
         break;
 
       case STATE_NUMBER:
-        if (number_char.find(c) != string::npos) {
+        if (number_char.find(c) != std::string::npos) {
           char translated_c = c;
           if (c == 'e' || c == '.')
             is_double = true;
@@ -202,7 +200,7 @@ Tokenizer::Type Tokenizer::Next() {
         break;
 
       case STATE_HEX_NUMBER:
-        if (hex_char.find(c) != string::npos) {
+        if (hex_char.find(c) != std::string::npos) {
           token += c;
           pos++;
         } else {
@@ -293,13 +291,13 @@ DBTable *Parser::Next() {
   Tokenizer::Type toktype = tokenizer.Next();
   // This fanciness is to ensure tbl deleted if we throw an exception
   // or leave this method for any reason.
-  auto_ptr<DBTable> tbl(new DBTable());
-  string identifier;
+  std::auto_ptr<DBTable> tbl(new DBTable());
+  std::string identifier;
 
   Tokenizer::Type array_type = Tokenizer::TYPE_ERROR;
-  vector<int> integer_array;
-  vector<double> double_array;
-  vector<string> string_array;
+  std::vector<int> integer_array;
+  std::vector<double> double_array;
+  std::vector<std::string> string_array;
 
   if (tokenizer.Eof()) return 0;
 
@@ -318,8 +316,8 @@ DBTable *Parser::Next() {
           toktype = tokenizer.Next();
           if (toktype != Tokenizer::TYPE_STRING) tokenizer.RaiseError("#include requires a filename in quotes");
 
-          string filename = PickFile(tokenizer.Token(), tokenizer.GetCurrentFilename());
-          string contents;
+          std::string filename = PickFile(tokenizer.Token(), tokenizer.GetCurrentFilename());
+          std::string contents;
 
           if (ReadFile(filename, contents) < 0) throw FileNotFoundError(filename);
 
@@ -427,7 +425,7 @@ DBTable *Parser::Next() {
               assert(0);  // should never get here
           }
         } else {
-          tokenizer.RaiseError(string("Unexpected symbol in array: ") + tokenizer.Token());
+          tokenizer.RaiseError(std::string("Unexpected symbol in array: ") + tokenizer.Token());
           return 0;  // should never get here because above raises exception
         }
         break;
@@ -533,7 +531,7 @@ std::vector<DBTable *> DBTextLoader::parse(std::string filename) {
 
   filename = PickFile(filename, "");
 
-  string contents;
+  std::string contents;
   if (ReadFile(filename, contents) < 0) throw FileNotFoundError(filename);
 
   Parser parser(contents, filename);
@@ -547,7 +545,7 @@ std::vector<DBTable *> DBTextLoader::parse(std::string filename) {
       if (table->GetFieldType("name") == DBTable::STRING)
         table->SetName(table->GetS("name"));
       else {
-        cerr << "Unnamed table in " << filename << endl;
+        std::cerr << "Unnamed table in " << filename << std::endl;
         bad = true;
       }
 
@@ -555,16 +553,16 @@ std::vector<DBTable *> DBTextLoader::parse(std::string filename) {
       if (table->GetFieldType("index") == DBTable::STRING) table->SetIndex(table->GetS("index"));
 
       if (table->GetFieldType("run_range") == DBTable::INTEGER_ARRAY && table->GetIArray("run_range").size() == 2) {
-        const vector<int> &run_range = table->GetIArray("run_range");
+        const std::vector<int> &run_range = table->GetIArray("run_range");
         table->SetRunRange(run_range[0], run_range[1]);
       } else if (table->GetFieldType("valid_begin") == DBTable::INTEGER_ARRAY &&
                  table->GetIArray("valid_begin").size() == 2 &&
                  table->GetFieldType("valid_end") == DBTable::INTEGER_ARRAY &&
                  table->GetIArray("valid_end").size() == 2) {
         // Backward compatibility
-        const vector<int> &valid_begin = table->GetIArray("valid_begin");
-        const vector<int> &valid_end = table->GetIArray("valid_end");
-        vector<int> run_range(2);
+        const std::vector<int> &valid_begin = table->GetIArray("valid_begin");
+        const std::vector<int> &valid_end = table->GetIArray("valid_end");
+        std::vector<int> run_range(2);
 
         if (valid_begin[0] == 0 && valid_begin[1] == 0 && valid_end[0] == 0 && valid_end[1] == 0) {
           run_range[0] = run_range[1] = 0;
@@ -579,15 +577,15 @@ std::vector<DBTable *> DBTextLoader::parse(std::string filename) {
           table->Set("run_range", run_range);
           table->SetRunRange(run_range[0], run_range[1]);
         } else {
-          cerr << "Table has old-style valid_begin/valid_end arrays not set to "
-                  "default or user plane.  Discarding..."
-               << endl;
+          std::cerr << "Table has old-style valid_begin/valid_end arrays not set to "
+                       "default or user plane.  Discarding..."
+                    << std::endl;
           bad = true;
         }
 
       } else {
-        cerr << "Table " << table->GetName() << " has bad/missing validity information." << endl
-             << "Discarding..." << endl;
+        std::cerr << "Table " << table->GetName() << " has bad/missing validity information." << std::endl
+                  << "Discarding..." << std::endl;
         bad = true;
       }
 
@@ -604,7 +602,7 @@ std::vector<DBTable *> DBTextLoader::parse(std::string filename) {
   } catch (ParseError &p) {
     // Inform user of parse failure and keep handing the exception up
     // the call stack (presumably we will exit the entire program)
-    cerr << p.GetFull();
+    std::cerr << p.GetFull();
     throw;
   }
 

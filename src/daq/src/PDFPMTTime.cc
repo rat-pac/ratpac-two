@@ -6,11 +6,9 @@
 #include <cmath>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
-PDFPMTTime::PDFPMTTime(string pmt_model) {
+PDFPMTTime::PDFPMTTime(std::string pmt_model) {
   DBLinkPtr model = DB::Get()->GetLink("PMTTRANSIT", pmt_model);
 
   fTime = model->GetDArray("time");
@@ -19,16 +17,16 @@ PDFPMTTime::PDFPMTTime(string pmt_model) {
 
   info << "Setting up PDF PMTTime model for ";
   if (pmt_model == "") {
-    info << "DEFAULT" << endl;
+    info << "DEFAULT" << newline;
   } else {
-    info << pmt_model << endl;
+    info << pmt_model << newline;
   }
 
   if (fTime.size() != fTimeProb.size()) Log::Die("PDFPMTTime: time and probability arrays of different length");
   if (fTime.size() < 2) Log::Die("PDFPMTTime: cannot define a PDF with fewer than 2 points");
 
   double integral = 0.0;
-  fTimeProbCumu = vector<double>(fTime.size());
+  fTimeProbCumu = std::vector<double>(fTime.size());
   fTimeProbCumu[0] = 0.0;
   for (size_t i = 0; i < fTime.size() - 1; i++) {
     integral += (fTime[i + 1] - fTime[i]) * (fTimeProb[i] + fTimeProb[i + 1]) / 2.0;  // trapazoid integration
@@ -53,7 +51,7 @@ double PDFPMTTime::PickTime(double time) const {
   }
   info << "PDFPMTTime::PickTime: impossible condition encountered - returning "
           "highest defined time"
-       << endl;
+       << newline;
   return time + fCableDelay + fTime[fTime.size() - 1];
 }
 

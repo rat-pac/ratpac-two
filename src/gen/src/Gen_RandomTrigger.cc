@@ -23,9 +23,9 @@ void Gen_RandomTrigger::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "Gen_RandomTrigger error: Cannot set vertex state, no vertex "
-              "generator selected"
-           << G4endl;
+    std::cerr << "Gen_RandomTrigger error: Cannot set vertex state, no vertex "
+                 "generator selected"
+              << std::endl;
 }
 
 G4String Gen_RandomTrigger::GetTimeState() const {

@@ -34,8 +34,6 @@
 #include <RAT/WLSPCoverFactory.hh>
 #include <RAT/WLSPFactory.hh>
 
-using namespace std;
-
 namespace RAT {
 
 GeoBuilder::GeoBuilder() {
@@ -94,12 +92,12 @@ G4VPhysicalVolume *GeoBuilder::ConstructAll(std::string geo_tablename) {
   while (geo.size() > 0) {
     DBLinkGroup::iterator i_table;
     for (i_table = geo.begin(); i_table != geo.end(); ++i_table) {
-      string name = i_table->first;
+      std::string name = i_table->first;
       debug << "GeoBuilder: Checking " << name << newline;
 
       DBLinkPtr table = i_table->second;
-      string mother;
-      string type;
+      std::string mother;
+      std::string type;
       try {
         mother = table->GetS("mother");
       } catch (DBNotFoundError &e) {
@@ -125,7 +123,7 @@ G4VPhysicalVolume *GeoBuilder::ConstructAll(std::string geo_tablename) {
       }
 
       if (type == "border") {
-        string volume1, volume2;
+        std::string volume1, volume2;
         try {
           volume1 = table->GetS("volume1");
         } catch (DBNotFoundError &e) {
@@ -176,9 +174,9 @@ G4VPhysicalVolume *GeoBuilder::ConstructAll(std::string geo_tablename) {
 
     // Circular dependency check
     if (i_table == geo.end()) {
-      string err("GeoBuilder error: Circular volume dependency encountered!\n");
+      std::string err("GeoBuilder error: Circular volume dependency encountered!\n");
       for (i_table = geo.begin(); i_table != geo.end(); i_table++) {
-        string name = i_table->first;
+        std::string name = i_table->first;
         DBLinkPtr table = i_table->second;
         err += "  " + name + " depends on " + table->GetS("mother") + "\n";
       }

@@ -14,8 +14,6 @@
 #include <cmath>
 #include <vector>
 
-using namespace std;
-
 BNLOpWLS::BNLOpWLS(const G4String &processName, G4ProcessType type) : G4VDiscreteProcess(processName, type) {
   SetProcessSubType(fOpWLS);
 
@@ -332,18 +330,18 @@ G4double BNLOpWLS::GetEmEnergy(G4double ExEn) {
   }
 
   double UpperEx = wlsData->ExEmData.at(UpperEvt).at(0).at(0);
-  vector<double> UpperInten = wlsData->ExEmData.at(UpperEvt).at(2);
+  std::vector<double> UpperInten = wlsData->ExEmData.at(UpperEvt).at(2);
   double LowerEx = 0;
-  vector<double> LowerInten;
+  std::vector<double> LowerInten;
 
   if (interp) {
     LowerEx = wlsData->ExEmData.at(LowerEvt).at(0).at(0);
     LowerInten = wlsData->ExEmData.at(LowerEvt).at(2);
   }
 
-  vector<double> InterpDist;
+  std::vector<double> InterpDist;
   double RunningSum = 0;
-  vector<double> InterpCDF;
+  std::vector<double> InterpCDF;
 
   double theUpperInten = 0;
 
@@ -377,14 +375,10 @@ G4double BNLOpWLS::GetEmEnergy(G4double ExEn) {
     theIndex++;
   }
 
-  cout << "BNLOpWLS::GetEmEnergy: Error: Ex/Em matrix sampling finished "
-       << "with no result" << endl
-       << "LambEx = " << LambEx << " nm." << endl;
-
   return 0;
 }
 
-void BNLOpWLS::SetExEmData(string fname) {
+void BNLOpWLS::SetExEmData(std::string fname) {
   // File loading handled in a separate class to avoid G4/ROOT clashes
   wlsData = new BNLOpWLSData(fname);
 }

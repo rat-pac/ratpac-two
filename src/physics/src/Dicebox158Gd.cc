@@ -27,8 +27,6 @@
 #include "G4ios.hh"
 #include "Randomize.hh"
 
-using namespace std;
-
 // static
 std::vector<Dicebox158Gd *> Dicebox158Gd::masterVector;
 

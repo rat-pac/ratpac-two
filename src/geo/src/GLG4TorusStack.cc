@@ -30,7 +30,7 @@
 #include "G4Version.hh"
 #include "G4VisExtent.hh"
 #include "G4VoxelLimits.hh"
-#include "G4ios.hh"  // for G4cerr
+#include "G4ios.hh"  // for std::cerr
 #include "local_g4compat.hh"
 #include "meshdefs.hh"
 
@@ -127,7 +127,7 @@ void GLG4TorusStack::SetAllParameters(G4int n_,                  // number of Z-
                 "z_edge[] must be ordered!");
   }
 
-  // set a[] and b[].  Also check z_o for validity and set max_rho
+  // std::set a[] and b[].  Also check z_o for validity and set max_rho
   max_rho = rho_edge[n];
   for (i = 0; i < n; i++) {
     if (rho_edge[i] > max_rho) max_rho = rho_edge[i];
@@ -150,21 +150,21 @@ void GLG4TorusStack::SetAllParameters(G4int n_,                  // number of Z-
         if (rho_edge[i] < a[i] - radTolerance || rho_edge[i + 1] < a[i] - radTolerance) {
           b[i] = -b[i];
         } else {
-          G4cerr << "Warning: ambiguous toroid segment curvature in "
-                    "GLG4TorusStack!"
-                 << G4endl;
+          std::cerr << "Warning: ambiguous toroid segment curvature in "
+                       "GLG4TorusStack!"
+                    << std::endl;
         }
       }
     }
   }
 
-  // set myRadTolerance
+  // std::set myRadTolerance
   myRadTolerance = std::max(radTolerance, angTolerance * max_rho);
 
   // check consistency of derived a and b values with specified radii
   CheckABRho();
 
-  // set Inner solid
+  // std::set Inner solid
   inner = inner_;
 }
 
@@ -191,28 +191,28 @@ void GLG4TorusStack::CheckABRho() {
       // make sure both rho_edges are >= a[i]
       if (rho_edge[i] < a[i]) {
         if (fabs(a[i] - rho_edge[i]) > max_rho * 1e-3 + radTolerance)
-          G4cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
-                    "rho_edge["
-                 << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (1)\n";
+          std::cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
+                       "rho_edge["
+                    << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (1)\n";
 #ifdef G4DEBUG
         else
-          G4cerr << "Debug info: GLG4TorusStack making small adjustment to "
-                    "rho_edge["
-                 << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (1a)\n";
+          std::cerr << "Debug info: GLG4TorusStack making small adjustment to "
+                       "rho_edge["
+                    << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (1a)\n";
 #endif
         // valid intercept is on other side of a[i]
         rho_edge[i] = a[i] + (a[i] - rho_edge[i]);
       }
       if (rho_edge[i + 1] < a[i]) {
         if (fabs(a[i] - rho_edge[i + 1]) > max_rho * 1e-3 + radTolerance)
-          G4cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
-                    "rho_edge["
-                 << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (2)\n";
+          std::cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
+                       "rho_edge["
+                    << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (2)\n";
 #ifdef G4DEBUG
         else
-          G4cerr << "Debug info: GLG4TorusStack making small adjustment to "
-                    "rho_edge["
-                 << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (2a)\n";
+          std::cerr << "Debug info: GLG4TorusStack making small adjustment to "
+                       "rho_edge["
+                    << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (2a)\n";
 #endif
         // valid intercept is on other side of a[i]
         rho_edge[i + 1] = a[i] + (a[i] - rho_edge[i + 1]);
@@ -221,28 +221,28 @@ void GLG4TorusStack::CheckABRho() {
       // make sure both rho_edges are <= a[i]
       if (rho_edge[i] > a[i]) {
         if (fabs(a[i] - rho_edge[i]) > max_rho * 1e-3 + radTolerance)
-          G4cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
-                    "rho_edge["
-                 << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (3)\n";
+          std::cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
+                       "rho_edge["
+                    << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (3)\n";
 #ifdef G4DEBUG
         else
-          G4cerr << "Debug info: GLG4TorusStack making small adjustment to "
-                    "rho_edge["
-                 << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (3a)\n";
+          std::cerr << "Debug info: GLG4TorusStack making small adjustment to "
+                       "rho_edge["
+                    << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (3a)\n";
 #endif
         // valid intercept is on other side of a[i]
         rho_edge[i] = a[i] - (rho_edge[i] - a[i]);
       }
       if (rho_edge[i + 1] > a[i]) {
         if (fabs(a[i] - rho_edge[i + 1]) > max_rho * 1e-3 + radTolerance)
-          G4cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
-                    "rho_edge["
-                 << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (4)\n";
+          std::cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
+                       "rho_edge["
+                    << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (4)\n";
 #ifdef G4DEBUG
         else
-          G4cerr << "Debug info: GLG4TorusStack making small adjustment to "
-                    "rho_edge["
-                 << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (4a)\n";
+          std::cerr << "Debug info: GLG4TorusStack making small adjustment to "
+                       "rho_edge["
+                    << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (4a)\n";
 #endif
         // valid intercept is on other side of a[i]
         rho_edge[i + 1] = a[i] - (rho_edge[i + 1] - a[i]);
@@ -257,8 +257,8 @@ void GLG4TorusStack::CheckABRho() {
 // computation & modification.
 
 void GLG4TorusStack::ComputeDimensions(G4VPVParameterisation *, const G4int, const G4VPhysicalVolume *) {
-  G4cerr << "Warning: ComputeDimensions is not defined for GLG4TorusStack. "
-            "It shouldn't be called.\n";
+  std::cerr << "Warning: ComputeDimensions is not defined for GLG4TorusStack. "
+               "It shouldn't be called.\n";
   // but note that G4Polycone just silently ignores calls to ComputeDimensions!
   // ComputeDimensions seems to be unimplemented in all classes -- just
   // dispatches to methods that ultimately turn out to be no-ops!
@@ -291,7 +291,7 @@ class GLG4TorusStack_TorusFunc : public GLG4TorusStack::RootFinder {
 G4int GLG4TorusStack::FindFirstTorusRoot(G4double a,              // swept radius
                                          G4double b,              // radius of torus section
                                          const G4ThreeVector &p,  // start point relative to torus centroid
-                                         const G4ThreeVector &v,  // direction vector
+                                         const G4ThreeVector &v,  // direction std::vector
                                          G4double smin,           // lower bracket on root
                                          G4double smax,           // upper bracket on root
                                          G4bool fEntering,        // true if looking for out->in crossing
@@ -631,7 +631,7 @@ G4bool GLG4TorusStack::CalculateExtent(const EAxis pAxis, const G4VoxelLimits &p
   } else {
     // Check for case where completely enveloping clipping volume
     // If point inside then we are confident that the solid completely
-    // envelopes the clipping volume. Hence set min/max extents according
+    // envelopes the clipping volume. Hence std::set min/max extents according
     // to clipping volume extents along the specified axis.
     G4ThreeVector clipCentre((pVoxelLimit.GetMinXExtent() + pVoxelLimit.GetMaxXExtent()) * 0.5,
                              (pVoxelLimit.GetMinYExtent() + pVoxelLimit.GetMaxYExtent()) * 0.5,
@@ -737,7 +737,7 @@ G4ThreeVector GLG4TorusStack::SurfaceNormal(const G4ThreeVector &p) const {
   // find index of region containing nearest point on surface
   G4int i = FindNearestSegment(pr, pz);
 
-  // set normal
+  // std::set normal
   if (i == -1) {  // bottom surface
     norm = G4ThreeVector(0.0, 0.0, -1.0);
   } else if (i == n) {  // top surface
@@ -758,18 +758,18 @@ G4ThreeVector GLG4TorusStack::SurfaceNormal(const G4ThreeVector &p) const {
     if (b[i] < 0.0)  // handle concave surface
       norm = -norm;
     if ((b[i] < 0.0) != (dr < 0.0)) {
-      G4cout.flush();
-      G4cerr << "Warning from GLG4TorusStack::SurfaceNormal: position "
-                "inconsistent with concavity\n\tb[i]="
-             << b[i] << " but a[i]=" << a[i] << " and pr=" << pr << G4endl;
-      G4cerr.flush();
+      std::cout.flush();
+      std::cerr << "Warning from GLG4TorusStack::SurfaceNormal: position "
+                   "inconsistent with concavity\n\tb[i]="
+                << b[i] << " but a[i]=" << a[i] << " and pr=" << pr << std::endl;
+      std::cerr.flush();
     }
   }
 
   return norm;
 }
 
-// Calculate distance to shape from outside, along normalised vector
+// Calculate distance to shape from outside, along normalised std::vector
 // - return kInfinity if no intersection
 // - return 0 if inside or on surface and moving inside
 // - if there is an inner solid, assumes it is completely contained in main
@@ -814,7 +814,7 @@ G4double GLG4TorusStack::DistanceToIn(const G4ThreeVector &p, const G4ThreeVecto
     idir = (v.z() >= 0.0) ? +1 : -1;
   }
 
-  // set up for radial distance calcs
+  // std::set up for radial distance calcs
   G4double rp2 = square(p.x()) + square(p.y());
   G4double rpv = p.x() * v.x() + p.y() * v.y();
   G4double rv2 = square(v.x()) + square(v.y());
@@ -869,7 +869,7 @@ G4double GLG4TorusStack::DistanceToIn(const G4ThreeVector &p, const G4ThreeVecto
       G4double s;
       G4int nroots;
       G4double s1, s2;
-      if (tup < tdown) {  // set lower and upper brackets
+      if (tup < tdown) {  // std::set lower and upper brackets
         s1 = tup - myRadTolerance;
         s2 = tdown + myRadTolerance;
       } else {
@@ -993,7 +993,7 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
     idir = (v.z() >= 0.0) ? +1 : -1;
   }
 
-  // set up for radial distance calcs
+  // std::set up for radial distance calcs
   G4double rp2 = square(p.x()) + square(p.y());
   G4double rpv = p.x() * v.x() + p.y() * v.y();
   G4double rv2 = square(v.x()) + square(v.y());
@@ -1023,7 +1023,7 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
       G4double s;
       G4int nroots;
       G4double s1, s2;
-      if (tup < tdown) {  // set lower and upper brackets
+      if (tup < tdown) {  // std::set lower and upper brackets
         s1 = tup;
         s2 = tdown;
       } else {
@@ -1067,8 +1067,8 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
 
 #ifdef G4DEBUG
   if (dist_to_out >= kInfinity) {
-    G4cerr << "WARNING from GLG4TorusStack::DistanceToOut: "
-              "did not find an intercept with the track!\n";
+    std::cerr << "WARNING from GLG4TorusStack::DistanceToOut: "
+                 "did not find an intercept with the track!\n";
   }
 #endif
 
@@ -1103,24 +1103,24 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
           *norm = -*norm;
         *validNorm = true; /* (b[isurface] > 0.0); */
         if (dr != 0.0 && (b[isurface] < 0.0) != (dr < 0.0)) {
-          G4cout.flush();
-          G4cerr << "Warning from GLG4TorusStack::DistanceToOut (surface "
-                    "normal calculation): position inconsistent with "
-                    "concavity\n\tb[isurface]="
-                 << b[isurface] << " but a[isurface]=" << a[isurface] << " and pr=" << pr << G4endl;
-          G4cerr.flush();
+          std::cout.flush();
+          std::cerr << "Warning from GLG4TorusStack::DistanceToOut (surface "
+                       "normal calculation): position inconsistent with "
+                       "concavity\n\tb[isurface]="
+                    << b[isurface] << " but a[isurface]=" << a[isurface] << " and pr=" << pr << std::endl;
+          std::cerr.flush();
         }
       }
     }
     if ((*norm) * v <= 0.0) {
-      G4cout.flush();
-      G4cerr << "Warning from GLG4TorusStack::DistanceToOut: I have calculated "
-                "a normal that is antiparallel to the momentum vector!  I must "
-                "have done something wrong! isurface="
-             << isurface << " a[isurface]=" << a[isurface] << " b[isurface]=" << b[isurface] << " v=" << v
-             << " norm=" << (*norm) << G4endl;
+      std::cout.flush();
+      std::cerr << "Warning from GLG4TorusStack::DistanceToOut: I have calculated "
+                   "a normal that is antiparallel to the momentum std::vector!  I must "
+                   "have done something wrong! isurface="
+                << isurface << " a[isurface]=" << a[isurface] << " b[isurface]=" << b[isurface] << " v=" << v
+                << " norm=" << (*norm) << std::endl;
       *norm = -*norm;
-      G4cerr.flush();
+      std::cerr.flush();
     }
   }
 
@@ -1191,7 +1191,7 @@ G4ThreeVectorList *GLG4TorusStack::CreateRotatedVertices(const G4AffineTransform
   meshAngle = CLHEP::twopi / (noCrossSections - 1);
   meshRMax = max_rho / cos(meshAngle * 0.5);
 
-  // set start angle such that mesh will be at fRmax
+  // std::set start angle such that mesh will be at fRmax
   // on the x axis. Will give better extent calculations when not rotated.
   sAngle = -meshAngle * 0.5;
 
@@ -1314,7 +1314,7 @@ GLG4PolyhedronTorusStack::GLG4PolyhedronTorusStack(const G4int n, const G4double
   //   C H E C K   I N P U T   P A R A M E T E R S
 
   if (n <= 0) {
-    G4cerr << "Error: bad parameters in GLG4PolyhedronTorusStack!" << G4endl;
+    std::cerr << "Error: bad parameters in GLG4PolyhedronTorusStack!" << std::endl;
     G4Exception(__FILE__, "Invalid Parameter", FatalException, "GLG4PolyhedronTorusStack: bad parameters!");
   }
 

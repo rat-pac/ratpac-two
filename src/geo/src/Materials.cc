@@ -11,8 +11,6 @@
 #include <numeric>
 #include <vector>
 
-using namespace ::std;
-
 namespace RAT {
 
 std::map<std::string, G4OpticalSurface *> Materials::optical_surface;
@@ -140,7 +138,7 @@ void Materials::ConstructMaterials() {
     DBLinkPtr table = i_table->second;
     double adb;
     int zdb = 0;
-    string csymbol;
+    std::string csymbol;
 
     // Get common fields
     try {
@@ -152,8 +150,8 @@ void Materials::ConstructMaterials() {
 
     // Check if this element has special isotope abundances
     try {
-      const vector<int> &isotopes = table->GetIArray("isotopes");
-      const vector<double> &isotopes_frac = table->GetDArray("isotopes_frac");
+      const std::vector<int> &isotopes = table->GetIArray("isotopes");
+      const std::vector<double> &isotopes_frac = table->GetDArray("isotopes_frac");
 
       G4Element *elem = new G4Element(namedb, csymbol, isotopes.size());
       for (unsigned i_isotope = 0; i_isotope < isotopes.size(); i_isotope++) {
@@ -173,13 +171,13 @@ void Materials::ConstructMaterials() {
       adb = table->GetD("a");
       new G4Element(namedb, csymbol, zdb, adb * CLHEP::g / CLHEP::mole);
     } catch (DBNotFoundError &e) {
-      G4cout << "Materials error: Could not construct elements" << G4endl;
+      std::cout << "Materials error: Could not construct elements" << std::endl;
     }
   }
 
   // === Material ===============================================
 
-  vector<string> queue;
+  std::vector<std::string> queue;
 
   DBLinkGroup mats = db->GetLinkGroup("MATERIAL");
   for (DBLinkGroup::iterator iv = mats.begin(); iv != mats.end(); iv++) {
@@ -193,11 +191,11 @@ void Materials::ConstructMaterials() {
     }
   }
 
-  // Erasing an iterator to the vector implies re-shifting all the subsequent
+  // Erasing an iterator to the std::vector implies re-shifting all the subsequent
   // entries which can lead the code to crash.
   // Therefore, the loop goes backwards, which ensures that
   // consistency is maintained
-  for (vector<string>::iterator i = queue.begin(); i != queue.end(); ++i) {
+  for (std::vector<std::string>::iterator i = queue.begin(); i != queue.end(); ++i) {
     std::string namedb = *i;
     DBLinkPtr table = DB::Get()->GetLink("MATERIAL", namedb);
     info << "queue (pass1): [" << namedb << "]" << newline;
@@ -218,7 +216,7 @@ void Materials::ConstructMaterials() {
          << newline;
     G4NistManager *nist_db = G4NistManager::Instance();
     nist_db->SetVerbose(1);
-    for (vector<string>::iterator i = queue.begin(); i != queue.end(); i++) {
+    for (std::vector<std::string>::iterator i = queue.begin(); i != queue.end(); i++) {
       std::string namedb = *i;
       G4Material *addmatptr = nist_db->FindOrBuildMaterial(namedb);
       if (addmatptr) {
@@ -230,7 +228,7 @@ void Materials::ConstructMaterials() {
   }
 
   // Now that loaded from the database do a final loop on the queue
-  for (vector<string>::iterator i = queue.begin(); i != queue.end(); i++) {
+  for (std::vector<std::string>::iterator i = queue.begin(); i != queue.end(); i++) {
     std::string namedb = *i;
     DBLinkPtr table = DB::Get()->GetLink("MATERIAL", namedb);
     info << "queue (pass2): [" << namedb << "]" << newline;
@@ -257,7 +255,7 @@ void Materials::ConstructMaterials() {
   LoadOptics();
 }
 
-bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
+bool Materials::BuildMaterial(std::string namedb, DBLinkPtr table) {
   G4MaterialPropertiesTable *MPT = nullptr;
 
   double densitydb;
@@ -272,12 +270,12 @@ bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
     nelementsdb = table->GetI("nelements");
     nmaterialsdb = table->GetI("nmaterials");
   } catch (DBNotFoundError &e) {
-    G4cout << "Materials: Material read error" << G4endl;
+    std::cout << "Materials: Material read error" << std::endl;
     return false;
   }
 
   try {
-    string stringstate = table->GetS("state");
+    std::string stringstate = table->GetS("state");
     if (stringstate == "gas")
       state = kStateGas;
     else if (stringstate == "solid")
@@ -302,7 +300,7 @@ bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
 
   G4Material *tempptr = new G4Material(namedb, densitydb, nelementsdb + nmaterialsdb, state, temperature, pressure);
 
-  string formula = "GOOD";
+  std::string formula = "GOOD";
   try {
     formula = table->GetS("formula");
   } catch (DBNotFoundError &e) {
@@ -328,31 +326,31 @@ bool Materials::BuildMaterial(string namedb, DBLinkPtr table) {
   }
 
   if (nelementsdb > 0) {
-    vector<string> elemname = table->GetSArray("elements");
-    vector<double> elemprop = table->GetDArray("elemprop");
+    std::vector<std::string> elemname = table->GetSArray("elements");
+    std::vector<double> elemprop = table->GetDArray("elemprop");
 
     if (elemname.size() != elemprop.size()) {
-      G4cout << "Death...oh Materials material reader, "
-             << " how you have forsaken me" << G4endl;  // fixme tk
+      std::cout << "Death...oh Materials material reader, "
+                << " how you have forsaken me" << std::endl;  // fixme tk
       exit(-1);
     }
 
-    for (vector<string>::size_type i = 0; i < elemname.size(); i++) {
+    for (std::vector<std::string>::size_type i = 0; i < elemname.size(); i++) {
       tempptr->AddElement(G4Element::GetElement(elemname[i]), elemprop[i]);
     }
   }
 
   if (nmaterialsdb > 0) {
-    vector<string> elemname = table->GetSArray("materials");
-    vector<double> elemprop = table->GetDArray("matprop");
+    std::vector<std::string> elemname = table->GetSArray("materials");
+    std::vector<double> elemprop = table->GetDArray("matprop");
 
     if (elemname.size() != elemprop.size()) {
-      G4cout << "Death...oh Materials material reader, "
-             << "how you have forsaken me" << G4endl;  // fixme tk
+      std::cout << "Death...oh Materials material reader, "
+                << "how you have forsaken me" << std::endl;  // fixme tk
       exit(-1);
     }
 
-    for (vector<string>::size_type i = 0; i < elemname.size(); i++) {
+    for (std::vector<std::string>::size_type i = 0; i < elemname.size(); i++) {
       std::string addmatname = elemname[i];
       G4Material *addmatptr = nullptr;
       G4NistManager *man = G4NistManager::Instance();
@@ -394,18 +392,18 @@ G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table, std::string n
     wavelength_opt = 0;
   }
 
-  vector<double> val1, val2;
+  std::vector<double> val1, val2;
   try {
     val1 = table->GetDArray(name + "_value1");
     val2 = table->GetDArray(name + "_value2");
   } catch (DBNotFoundError &e) {
-    G4cout << "Could not read property " << name << " of " << table->GetIndex() << G4endl;
+    std::cout << "Could not read property " << name << " of " << table->GetIndex() << std::endl;
     return nullptr;
   }
 
   if (val1.size() != val2.size()) {
-    G4cout << "Array size error in Materials: "
-           << "bad property value sizes" << G4endl;
+    std::cout << "Array size error in Materials: "
+              << "bad property value sizes" << std::endl;
     return nullptr;
   }
 
@@ -431,7 +429,7 @@ G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table, std::string n
         E_value = CLHEP::twopi * CLHEP::hbarc / (lam * CLHEP::nanometer);
         if (wavelength_opt == 2) p_value *= lam / E_value;
       } else {
-        G4cerr << "Materials property vector zero wavelength!\n";
+        std::cerr << "Materials property std::vector zero wavelength!\n";
       }
     }
     pv->InsertValues(E_value, p_value);
@@ -448,11 +446,11 @@ void Materials::BuildMaterialPropertiesTable(G4Material *material, DBLinkPtr tab
 
   std::string name = std::string(material->GetName());
   // Determine which fields to load
-  vector<std::string> props;
+  std::vector<std::string> props;
   try {
     props = table->GetSArray("PROPERTY_LIST");
   } catch (DBNotFoundError &e) {
-    G4cout << "Materials failed to get property list on: " << name << G4endl;
+    std::cout << "Materials failed to get property list on: " << name << std::endl;
     return;
   }
 
@@ -460,7 +458,7 @@ void Materials::BuildMaterialPropertiesTable(G4Material *material, DBLinkPtr tab
   material->SetMaterialPropertiesTable(mpt);
 
   // Loop over DB fields containing material (optical) properties
-  for (vector<std::string>::iterator i = props.begin(); i != props.end(); i++) {
+  for (std::vector<std::string>::iterator i = props.begin(); i != props.end(); i++) {
     // Handle const properties
     if (*i == "LIGHT_YIELD" || *i == "dEdxCOEFF" || *i == "WLSTIMECONSTANT" || *i == "WLSMEANNUMBERPHOTONS" ||
         *i == "FASTTIMECONSTANT" || *i == "SLOWTIMECONSTANT" || *i == "YIELDRATIO" || *i == "RESOLUTIONSCALE" ||
@@ -474,7 +472,7 @@ void Materials::BuildMaterialPropertiesTable(G4Material *material, DBLinkPtr tab
       continue;
     }
 
-    // Ignore properties that don't go into the property vector
+    // Ignore properties that don't go into the property std::vector
     if (*i == "RSLENGTH_SCALING" || *i == "ABSLENGTH_SCALING") {
       continue;
     }
@@ -484,7 +482,7 @@ void Materials::BuildMaterialPropertiesTable(G4Material *material, DBLinkPtr tab
       continue;
     }
 
-    // Otherwise, this is a property vector
+    // Otherwise, this is a property std::vector
     G4MaterialPropertyVector *pv = mpt->GetProperty((*i).c_str());
     if (!pv) {
       pv = LoadProperty(table, *i);
@@ -502,17 +500,17 @@ void Materials::BuildMaterialPropertiesTable(G4Material *material, DBLinkPtr tab
 
 void Materials::RescaleProperty(DBLinkPtr dbTable, G4MaterialPropertiesTable *propertiesTable,
                                 const std::string &property) {
-  vector<double> scalings;
+  std::vector<double> scalings;
   try {
     scalings = dbTable->GetDArray(property + "_SCALING");
   } catch (DBNotFoundError &e) {
     detail << "No scaling for " + property + " for " + dbTable->GetIndex() << newline;
     return;
   }
-  vector<double> reciprocalSum;
-  vector<double> energies;
+  std::vector<double> reciprocalSum;
+  std::vector<double> energies;
   for (size_t iScale = 0; iScale < scalings.size(); iScale++) {
-    stringstream propertyName;
+    std::stringstream propertyName;
     propertyName << property << iScale;
     G4MaterialPropertyVector *current = propertiesTable->GetProperty(propertyName.str().c_str());
     if (current == NULL)  // No guarantee this component has this property
@@ -547,12 +545,12 @@ void Materials::LoadOptics() {
   // Load everything in OPTICS
   for (DBLinkGroup::iterator iv = mats.begin(); iv != mats.end(); iv++) {
     std::string name = iv->first;
-    G4cout << "Loading optics: " << name << G4endl;
+    std::cout << "Loading optics: " << name << std::endl;
 
     G4Material *material = G4Material::GetMaterial(name);
     if (material == nullptr) {
-      G4cout << "While loading optics in Materials, "
-             << "there was a bad material name: " << name << G4endl;
+      std::cout << "While loading optics in Materials, "
+                << "there was a bad material name: " << name << std::endl;
       continue;
     }
 
@@ -565,11 +563,11 @@ void Materials::LoadOptics() {
     std::string name = iv->first;
     DBLinkPtr table = iv->second;
 
-    vector<std::string> props;
+    std::vector<std::string> props;
     try {
       props = table->GetSArray("PROPERTY_LIST");
     } catch (DBNotFoundError &e) {
-      G4cout << "Materials failed to get property list on: " << name << G4endl;
+      std::cout << "Materials failed to get property list on: " << name << std::endl;
       Log::Die("Materials unable to load property list");
       return;
     }
@@ -615,7 +613,7 @@ void Materials::LoadOptics() {
       ss << "FRACTION" << i + 1;
       mpt->AddConstProperty(ss.str().c_str(), fraction, true);
 
-      G4cout << " - Component " << i << ": " << compname << " (" << 100.0 * fraction << "%)" << G4endl;
+      std::cout << " - Component " << i << ": " << compname << " (" << 100.0 * fraction << "%)" << std::endl;
 
       G4Material *component = G4Material::GetMaterial(compname);
       Log::Assert(material, "Materials: Unable to locate component material");
@@ -626,7 +624,7 @@ void Materials::LoadOptics() {
 
       G4MaterialPropertiesTable *cpt = component->GetMaterialPropertiesTable();
 
-      // Copy component vector properties to material
+      // Copy component std::vector properties to material
       G4double *absorption_coeff_x = nullptr;
       G4double *absorption_coeff_y = nullptr;
       G4double *rayleigh_coeff_x = nullptr;
@@ -652,7 +650,7 @@ void Materials::LoadOptics() {
           //// Log::Assert(mpm->find(pname) == mpm->end(),
           ////             "Materials: Composite material cannot contain the
           /// same properties as components");
-          G4cout << compname << " has " << pname << "!" << G4endl;
+          std::cout << compname << " has " << pname << "!" << std::endl;
           std::stringstream ss2;
           ss << pname << i + 1;
           //// mpt->AddProperty(ss2.str().c_str(), it->second);
@@ -727,7 +725,7 @@ void Materials::LoadOptics() {
                           materialConstPropertyNames.end(),
                       "Materials: Composite material cannot contain the same "
                       "properties as components");
-          G4cout << compname << " has " << cname << G4endl;
+          std::cout << compname << " has " << cname << std::endl;
           std::stringstream ss2;
           ss2 << cname << i + 1;
           mpt->AddConstProperty(ss2.str().c_str(), cptConstProperties.at(propid).first);
@@ -735,17 +733,17 @@ void Materials::LoadOptics() {
       }
     }
 
-    G4cout << "----" << G4endl;
+    std::cout << "----" << std::endl;
     //// const std::map<G4String,
     ////                G4MaterialPropertyVector*>* mpm =
     /// mpt->GetPropertiesMap(); / std::map<G4String, /
     /// G4MaterialPropertyVector*>::const_iterator it; / for (it=mpm->begin();
-    /// it!=mpm->end(); it++) { /   G4cout << it->first << G4endl; / } / const
+    /// it!=mpm->end(); it++) { /   std::cout << it->first << std::endl; / } / const
     /// std::map<G4String, /                G4double>* mcpm =
     /// mpt->GetPropertiesCMap(); / std::map<G4String, /
     /// G4double>::const_iterator cit; / for (cit=mcpm->begin();
-    /// cit!=mcpm->end(); cit++) { /   G4cout << cit->first << G4endl; / }
-    G4cout << "----" << G4endl;
+    /// cit!=mcpm->end(); cit++) { /   std::cout << cit->first << std::endl; / }
+    std::cout << "----" << std::endl;
   }
 }
 

@@ -72,17 +72,17 @@ void VertexGen_IBD::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);  // from GLG4StringUtil
   if (newValues.length() == 0) {
     // print help and current state
-    G4cout << "Current state of this VertexGen_IBD:\n"
-           << " \"" << GetState() << "\"\n"
-           << G4endl;
-    G4cout << "Format of argument to VertexGen_IBD::SetState: \n"
-              " \"nu_dir_x nu_dir_y nu_dir_z\"\n"
-              " where nu_dir is the initial direction of the reactor "
-              "antineutrino.\n"
-              " Does not have to be normalized.  Set to \"0. 0. 0.\" for "
-              "isotropic\n"
-              " neutrino direction."
-           << G4endl;
+    std::cout << "Current state of this VertexGen_IBD:\n"
+              << " \"" << GetState() << "\"\n"
+              << std::endl;
+    std::cout << "Format of argument to VertexGen_IBD::SetState: \n"
+                 " \"nu_dir_x nu_dir_y nu_dir_z\"\n"
+                 " where nu_dir is the initial direction of the reactor "
+                 "antineutrino.\n"
+                 " Does not have to be normalized.  Set to \"0. 0. 0.\" for "
+                 "isotropic\n"
+                 " neutrino direction."
+              << std::endl;
     return;
   }
 

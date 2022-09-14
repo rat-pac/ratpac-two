@@ -17,14 +17,12 @@
 #include <RAT/UnionSolidArray.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 G4VPhysicalVolume *GeoReflectorFactory::Construct(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
   // Find mother
-  string mother_name = table->GetS("mother");
+  std::string mother_name = table->GetS("mother");
   G4LogicalVolume *mother = FindMother(mother_name);
   if (mother == 0) Log::Die("Unable to find mother volume " + mother_name + " for " + volume_name);
   // get pointer to physical mother volume
@@ -59,24 +57,24 @@ G4VPhysicalVolume *GeoReflectorFactory::Construct(DBLinkPtr table) {
   G4VSolid *ball_whole =
       new G4Sphere(volume_name + "_wholesolid", r_min, r_max, phi_start, phi_delta, theta_start, theta_delta);
 
-  string pmt_table = table->GetS("pmt_table");
+  std::string pmt_table = table->GetS("pmt_table");
   DBLinkPtr lgeo_pmt = DB::Get()->GetLink("GEO", pmt_table);
   PMTInfoParser pmt_parser(lgeo_pmt, mother_name);
   DBLinkPtr lpmt_model = DB::Get()->GetLink("PMT", lgeo_pmt->GetS("pmt_model"));
   ToroidalPMTConstruction pmtConstruct(lpmt_model, mother);
   G4VSolid *pmtBody = pmtConstruct.BuildSolid("dummy");
 
-  vector<G4ThreeVector> pmtloc = pmt_parser.GetPMTLocations();
+  std::vector<G4ThreeVector> pmtloc = pmt_parser.GetPMTLocations();
   int max_pmts = pmtloc.size();
 
-  vector<G4VSolid *> dimples_whole(max_pmts);
-  vector<G4VSolid *> dimples_in(max_pmts);
-  vector<G4VSolid *> dimples_out(max_pmts);
+  std::vector<G4VSolid *> dimples_whole(max_pmts);
+  std::vector<G4VSolid *> dimples_in(max_pmts);
+  std::vector<G4VSolid *> dimples_out(max_pmts);
 
   for (int pmtID = 0; pmtID < max_pmts; pmtID++) {
-    G4String name_in = "reflector_in" + ::to_string(pmtID);
-    G4String name_out = "reflector_out" + ::to_string(pmtID);
-    G4String name_whole = "reflector_whole" + ::to_string(pmtID);
+    G4String name_in = "reflector_in" + std::to_string(pmtID);
+    G4String name_out = "reflector_out" + std::to_string(pmtID);
+    G4String name_whole = "reflector_whole" + std::to_string(pmtID);
     G4RotationMatrix pmtrot = pmt_parser.GetPMTRotation(pmtID);
     dimples_whole[pmtID] = new G4DisplacedSolid(name_whole, pmtBody, &pmtrot, pmtloc[pmtID]);
     dimples_in[pmtID] = new G4DisplacedSolid(name_in, pmtBody, &pmtrot, pmtloc[pmtID]);

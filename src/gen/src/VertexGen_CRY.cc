@@ -39,7 +39,7 @@ VertexGen_CRY::VertexGen_CRY(const char *arg_dbname) : GLG4VertexGen(arg_dbname)
   // Particles are return from a square plane of n x n meters, where n can
   // be 1, 3, 10, 30, 100, 300. Sizes between use the next size with truncation.
   subboxLength = crydb->GetI("subboxLength");
-  // Build the relevant configuration components into a string to give to CRY
+  // Build the relevant configuration components into a std::string to give to CRY
   std::string setupString("");
   setupString.append("returnNeutrons " + std::to_string(returnNeutrons) + " ");
   setupString.append("returnProtons " + std::to_string(returnProtons) + " ");
@@ -58,7 +58,7 @@ VertexGen_CRY::VertexGen_CRY(const char *arg_dbname) : GLG4VertexGen(arg_dbname)
   CRYSetup *setup = new CRYSetup(setupString, crydirectory);
   setup->setRandomFunction([]() { return CLHEP::RandFlat::shoot(); });
   generator = new CRYGenerator(setup);
-  // Setup the time based on the configuration date string
+  // Setup the time based on the configuration date std::string
   int month = stoi(date.substr(0, date.find("-")));
   date.erase(0, date.find("-") + 1);
   int day = stoi(date.substr(0, date.find("-")));
@@ -113,7 +113,7 @@ void VertexGen_CRY::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, G4d
 void VertexGen_CRY::SetState(G4String newValues) {
   // newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
-    G4cout << "Current state of this VertexGen_CRY: " << GetState() << G4endl;
+    std::cout << "Current state of this VertexGen_CRY: " << GetState() << std::endl;
   }
 }
 

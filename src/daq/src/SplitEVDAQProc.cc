@@ -10,8 +10,6 @@
 #include <algorithm>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
@@ -76,7 +74,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   if (ds->ExistEV()) ds->PruneEV();
 
   // First loop through the PMTs and create a summed trigger
-  vector<double> trigPulses;
+  std::vector<double> trigPulses;
   for (int imcpmt = 0; imcpmt < mc->GetMCPMTCount(); imcpmt++) {
     DS::MCPMT *mcpmt = mc->GetMCPMT(imcpmt);
     double lastTrigger = -100000.0;
@@ -106,7 +104,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   // _| |__| |___| |___
   int nbins = floor((end - start) / fTriggerResolution) + 1;
   double bw = fTriggerResolution;
-  vector<double> triggerTrain(nbins);
+  std::vector<double> triggerTrain(nbins);
   for (auto v : trigPulses) {
     int select = int((v - start) / bw);
     triggerTrain[select] += 1.0;
@@ -119,7 +117,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   //       |     |          |____
   //   ____|     |               |____
   // _|          | global trigger!    |___
-  vector<double> triggerHistogram(nbins);
+  std::vector<double> triggerHistogram(nbins);
   for (int i = 0; i < nbins; i++) {
     double x = triggerTrain[i];
     if (x > 0) {
@@ -132,7 +130,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
 
   // Trigger the detector based on fTriggerThreshold
   double lastTrigger = -100000.0;
-  vector<double> triggerTimes;
+  std::vector<double> triggerTimes;
   for (int i = 0; i < nbins; i++) {
     double v = triggerHistogram[i];
     if (v >= fTriggerThreshold)  // check for trigger
@@ -160,7 +158,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
       // window
       bool pmtInEvent = false;
       double integratedCharge = 0;
-      vector<double> hitTimes;
+      std::vector<double> hitTimes;
       if (mcpmt->GetMCPhotonCount() > 0) {
         for (int pidx = 0; pidx < mcpmt->GetMCPhotonCount(); pidx++) {
           DS::MCPhoton *photon = mcpmt->GetMCPhoton(pidx);

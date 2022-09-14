@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "RAT/Log.hh"
-using namespace std;
 
 namespace RAT {
 
@@ -39,10 +38,10 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
   unsigned long triggerThreshold = 6;
   unsigned long hits = 0;
 
-  // cout <<"New Event====================================" << endl;
-  //  First part is to load into vector PMT information for full event
-  vector<double> timeAndChargeAndID;
-  vector<vector<double>> pmtARRAY;
+  // std::cout <<"New Event====================================" << std::endl;
+  //  First part is to load into std::vector PMT information for full event
+  std::vector<double> timeAndChargeAndID;
+  std::vector<std::vector<double>> pmtARRAY;
   // Place the time and charge of a PMT into an matrix
   for (int imcpmt = 0; imcpmt < mc->GetMCPMTCount(); imcpmt++) {
     DS::MCPMT *mcpmt = mc->GetMCPMT(imcpmt);
@@ -66,13 +65,13 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
 
   // Second part is to find cluster times. This is important for IBD/ neutron
   // capture
-  vector<Double_t> clusterTime;
+  std::vector<Double_t> clusterTime;
   // Give an unrealistic time to compare to
   clusterTime.push_back(1000000000000000000);
 
   // get the number odd subevent
   // and tally the cluster time of each subevent
-  // cout <<"oooooooooooooooo sorted oooooooooooo" << endl;
+  // std::cout <<"oooooooooooooooo sorted oooooooooooo" << std::endl;
 
   for (unsigned long pmtIndex = 0; pmtIndex < pmtARRAY.size(); pmtIndex++) {
     time = pmtARRAY[pmtIndex][0];
@@ -119,7 +118,7 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
 
   timeTmp = 0.;
 
-  vector<double> idGroup, tGroup, qGroup, isDarkHit;
+  std::vector<double> idGroup, tGroup, qGroup, isDarkHit;
   bool itsThere;
   int goHere;
 
@@ -170,12 +169,12 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
           }
         }
 
-        // if the PMT is already in the vector, the find its friend
+        // if the PMT is already in the std::vector, the find its friend
         if (itsThere) {
           qGroup[goHere] += pmtARRAY[pmtIndex][1];
         }
 
-        // if the PMT is not in the vector yet, add it to the vector
+        // if the PMT is not in the std::vector yet, add it to the std::vector
         else {
           idGroup.push_back(pmtARRAY[pmtIndex][2]);
           tGroup.push_back(pmtARRAY[pmtIndex][0] - clusterTime[kk]);
@@ -196,7 +195,7 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
       pmt->SetCharge(qGroup[dd]);
     }
 
-    // resize all vectors for the next subevent
+    // resize all std::vectors for the next subevent
     idGroup.resize(0);
     tGroup.resize(0);
     qGroup.resize(0);

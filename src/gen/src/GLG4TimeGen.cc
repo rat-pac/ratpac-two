@@ -10,13 +10,13 @@ void GLG4TimeGen_Uniform::SetState(G4String state) {
   state = util_strip_default(state);
   if (state.length() == 0) {
     // print help and current state
-    G4cout << "Current state of this GLG4TimeGen:\n"
-           << " \"" << GetState() << "\"\n"
-           << G4endl;
-    G4cout << "Format of argument to GLG4TimeGen::SetState: \n"
-              " \"rate\"\n"
-              " where rate is in 1/sec."
-           << G4endl;
+    std::cout << "Current state of this GLG4TimeGen:\n"
+              << " \"" << GetState() << "\"\n"
+              << std::endl;
+    std::cout << "Format of argument to GLG4TimeGen::SetState: \n"
+                 " \"rate\"\n"
+                 " where rate is in 1/sec."
+              << std::endl;
     return;
   }
 

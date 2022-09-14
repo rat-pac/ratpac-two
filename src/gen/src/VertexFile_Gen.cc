@@ -28,7 +28,6 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-using namespace std;
 
 namespace RAT {
 
@@ -102,7 +101,7 @@ void VertexFile_Gen::ResetTime(double offset) {
 }
 
 void VertexFile_Gen::SetState(G4String state) {
-  // Break the argument to the this generator into sub-strings
+  // Break the argument to the this generator into sub-std::strings
   // separated by ":".
   state = util_strip_default(state);
   std::vector<std::string> parts = util_split(state, ":");
@@ -111,11 +110,11 @@ void VertexFile_Gen::SetState(G4String state) {
   std::string filename;
   if (nArgs >= 5) {
     int num_skip;
-    istringstream(parts[4]) >> num_skip;
+    std::istringstream(parts[4]) >> num_skip;
     fCurrentEvent = num_skip;
   }
   if (nArgs >= 4) {
-    istringstream(parts[3]) >> fMaxEvent;
+    std::istringstream(parts[3]) >> fMaxEvent;
     if (fMaxEvent > 0) fMaxEvent += fCurrentEvent;
   }
   if (nArgs >= 3) {

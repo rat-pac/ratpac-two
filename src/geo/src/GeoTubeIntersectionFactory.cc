@@ -9,23 +9,21 @@
 #include <cmath>
 #include <sstream>
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *GeoTubeIntersectionFactory::ConstructSolid(DBLinkPtr table) {
-  string volumeName = table->GetIndex();
+  std::string volumeName = table->GetIndex();
 
   // parameters for the base tube
-  vector<double> posz = table->GetDArray("pos_z");
-  vector<double> rmax = table->GetDArray("r_max");
-  vector<double> rmin;
+  std::vector<double> posz = table->GetDArray("pos_z");
+  std::vector<double> rmax = table->GetDArray("r_max");
+  std::vector<double> rmin;
   bool zeror;
   try {
     rmin = table->GetDArray("r_min");
     zeror = false;
   } catch (DBNotFoundError &e) {
-    rmin = vector<double>(posz.size(), 0.0);
+    rmin = std::vector<double>(posz.size(), 0.0);
     zeror = true;
   }
   double phiStart = 0.0;
@@ -50,20 +48,20 @@ G4VSolid *GeoTubeIntersectionFactory::ConstructSolid(DBLinkPtr table) {
   }
 
   // parameters for the intersecting tubes
-  vector<double> poszInter = table->GetDArray("pos_z_inter");
-  vector<double> phiInter = table->GetDArray("phi_inter");
+  std::vector<double> poszInter = table->GetDArray("pos_z_inter");
+  std::vector<double> phiInter = table->GetDArray("phi_inter");
   if (poszInter.size() != phiInter.size())
     Log::Die(
         "GeoTubeIntersectionFactory: intersecton parameter arrays"
         " do not have same lengths");
-  vector<double> sizezInter = table->GetDArray("size_z_inter");
-  vector<double> rmaxInter = table->GetDArray("r_max_inter");
-  vector<double> rminInter(sizezInter.size(), 0.0);
+  std::vector<double> sizezInter = table->GetDArray("size_z_inter");
+  std::vector<double> rmaxInter = table->GetDArray("r_max_inter");
+  std::vector<double> rminInter(sizezInter.size(), 0.0);
   try {
     rminInter = table->GetDArray("r_min_inter");
   } catch (DBNotFoundError &e) {
   }
-  vector<double> dispInter(sizezInter.size(), 0.0);
+  std::vector<double> dispInter(sizezInter.size(), 0.0);
   try {
     dispInter = table->GetDArray("disp_inter");
   } catch (DBNotFoundError &e) {
@@ -74,9 +72,9 @@ G4VSolid *GeoTubeIntersectionFactory::ConstructSolid(DBLinkPtr table) {
         "GeoTubeIntersectionFactory: intersecton parameter arrays"
         " do not have equal lengths");
 
-  vector<bool> inter = vector<bool>(poszInter.size(), true);
+  std::vector<bool> inter = std::vector<bool>(poszInter.size(), true);
   try {
-    vector<int> includeInter = table->GetIArray("include_inter");
+    std::vector<int> includeInter = table->GetIArray("include_inter");
     if (poszInter.size() != includeInter.size())
       Log::Die(
           "GeoTubeIntersectionFactory: intersecton parameter arrays"
@@ -142,7 +140,7 @@ G4VSolid *GeoTubeIntersectionFactory::ConstructSolid(DBLinkPtr table) {
     dr += rcenter - minr;
     sizezInter[i] += dr / 2;
 
-    stringstream ss;
+    std::stringstream ss;
     ss << i;
     G4VSolid *interTube =
         new G4Tubs(volumeName + "_inter_" + ss.str(), rminInter[i], rmaxInter[i], sizezInter[i], 0.0, CLHEP::twopi);

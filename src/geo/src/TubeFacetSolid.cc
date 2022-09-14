@@ -11,8 +11,6 @@
 #include <G4Tubs.hh>
 #include <G4UnionSolid.hh>
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *MakeFacetSolid(const G4String &pName, std::vector<G4TwoVector> polygon, G4double scale, G4double hz,

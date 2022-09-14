@@ -7,12 +7,10 @@
 #include <RAT/GeoLensFactory.hh>
 #include <RAT/Log.hh>
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *GeoLensFactory::ConstructSolid(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
   G4double diameter = table->GetD("diameter") * CLHEP::mm;
   G4double R1 = table->GetD("R1") * CLHEP::mm;
   G4double thickness = table->GetD("thickness") * CLHEP::mm;

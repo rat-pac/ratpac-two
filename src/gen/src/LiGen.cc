@@ -22,8 +22,8 @@
 #include <RAT/GLG4TimeGen.hh>
 #include <RAT/LiGen.hh>
 #include <Randomize.hh>
-#include <cstring>
 #include <numeric>
+#include <string>
 
 #undef DEBUG
 
@@ -180,25 +180,25 @@ void LiGen::ResetTime(double offset) {
   double eventTime = timeGen->GenerateEventTime();
   nextTime = eventTime + offset;
 #ifdef DEBUG
-  G4cout << "RAT::LiGen::ResetTime:"
-         << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
-         << ", nextTime=" << G4BestUnit(nextTime, "Time") << G4endl;
+  std::cout << "RAT::LiGen::ResetTime:"
+            << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
+            << ", nextTime=" << G4BestUnit(nextTime, "Time") << std::endl;
 #endif
 }
 
 void LiGen::SetState(G4String state) {
 #ifdef DEBUG
-  G4cout << "RAT::LiGen::SetState called with state='" << state << "'" << G4endl;
+  std::cout << "RAT::LiGen::SetState called with state='" << state << "'" << std::endl;
 #endif
 
-  // Break the argument to the this generator into sub-strings
+  // Break the argument to the this generator into sub-std::strings
   // separated by ":".
   state = util_strip_default(state);
   std::vector<std::string> parts = util_split(state, ":");
   size_t nArgs = parts.size();
 
 #ifdef DEBUG
-  G4cout << "RAT::LiGen::SetState: nArgs=" << nArgs << G4endl;
+  std::cout << "RAT::LiGen::SetState: nArgs=" << nArgs << std::endl;
 #endif
 
   try {
@@ -215,7 +215,7 @@ void LiGen::SetState(G4String state) {
       isotope = util_to_int(parts[0]);
 
       if (isotope != 9) {
-        G4cerr << "RAT::LiGen::SetState: Only Li 9 is supported" << G4endl;
+        std::cerr << "RAT::LiGen::SetState: Only Li 9 is supported" << std::endl;
       }
 
       // The second argument is a position generator.
@@ -229,7 +229,7 @@ void LiGen::SetState(G4String state) {
 
     stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
-    G4cerr << "Unknown generator \"" << unknown.id << "\"" << G4endl;
+    std::cerr << "Unknown generator \"" << unknown.id << "\"" << std::endl;
   }
 }
 
@@ -239,7 +239,7 @@ void LiGen::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    G4cerr << "LiGen error: Cannot set time state, no time generator selected" << G4endl;
+    std::cerr << "LiGen error: Cannot set time state, no time generator selected" << std::endl;
 }
 
 G4String LiGen::GetTimeState() const {
@@ -253,9 +253,9 @@ void LiGen::SetPosState(G4String state) {
   if (posGen)
     posGen->SetState(state);
   else
-    G4cerr << "LiGen error: Cannot set position state, no position generator "
-              "selected"
-           << G4endl;
+    std::cerr << "LiGen error: Cannot set position state, no position generator "
+                 "selected"
+              << std::endl;
 }
 
 G4String LiGen::GetPosState() const {

@@ -10,12 +10,10 @@
 #include <RAT/UnionSolidArray.hh>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 G4VSolid *GeoPerfSphereFactory::ConstructSolid(DBLinkPtr table) {
-  string volume_name = table->GetIndex();
+  std::string volume_name = table->GetIndex();
 
   G4double r_max = table->GetD("r_max") * CLHEP::mm;
 
@@ -50,16 +48,16 @@ G4VSolid *GeoPerfSphereFactory::ConstructSolid(DBLinkPtr table) {
   G4VSolid *base_sphere = new G4Sphere(volume_name, r_min, r_max, phi_start, phi_delta, theta_start, theta_delta);
 
   // Read Solid positions
-  string pos_table_name = table->GetS("pos_table");
+  std::string pos_table_name = table->GetS("pos_table");
   DBLinkPtr lpos_table = DB::Get()->GetLink(pos_table_name);
-  const vector<double> &pos_x = lpos_table->GetDArray("x");
-  const vector<double> &pos_y = lpos_table->GetDArray("y");
-  const vector<double> &pos_z = lpos_table->GetDArray("z");
-  const vector<double> &r_hole_array = lpos_table->GetDArray("r_hole");
+  const std::vector<double> &pos_x = lpos_table->GetDArray("x");
+  const std::vector<double> &pos_y = lpos_table->GetDArray("y");
+  const std::vector<double> &pos_z = lpos_table->GetDArray("z");
+  const std::vector<double> &r_hole_array = lpos_table->GetDArray("r_hole");
   G4double r_hole = 0.0;
 
   unsigned num_holes = pos_x.size();
-  vector<G4VSolid *> holes(num_holes);
+  std::vector<G4VSolid *> holes(num_holes);
 
   for (unsigned holeID = 0; holeID < num_holes; holeID++) {
     if (holeID > r_hole_array.size())
@@ -70,7 +68,7 @@ G4VSolid *GeoPerfSphereFactory::ConstructSolid(DBLinkPtr table) {
     G4double cutter_r2 = r_max;
     G4double size_z_hole = (cutter_r2 - cutter_r1) * 1.02;
 
-    G4VSolid *hole_cutter = new G4Tubs("temp_" + ::to_string(holeID), 0.0, r_hole, size_z_hole, 0.0,
+    G4VSolid *hole_cutter = new G4Tubs("temp_" + std::to_string(holeID), 0.0, r_hole, size_z_hole, 0.0,
                                        CLHEP::twopi);  // the hole cutter
 
     G4ThreeVector solidpos(pos_x[holeID], pos_y[holeID], pos_z[holeID]);
@@ -87,7 +85,7 @@ G4VSolid *GeoPerfSphereFactory::ConstructSolid(DBLinkPtr table) {
     solidrot->rotateY(angle_y);
     solidrot->rotateX(angle_x);
 
-    holes[holeID] = new G4DisplacedSolid(volume_name + ::to_string(holeID), hole_cutter, solidrot, solidpos);
+    holes[holeID] = new G4DisplacedSolid(volume_name + std::to_string(holeID), hole_cutter, solidrot, solidpos);
   }
 
   G4VSolid *hole_union = MakeUnionSolidArray("hole_union", holes);

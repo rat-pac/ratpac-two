@@ -1,6 +1,4 @@
 #include <CLHEP/Units/SystemOfUnits.h>
-using namespace CLHEP;
-
 #include <math.h>
 
 #include <G4Colour.hh>
@@ -24,18 +22,16 @@ using namespace CLHEP;
 #include <string>
 #include <vector>
 
-using namespace std;
-
 namespace RAT {
 
 G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
-  G4cout << "Building Cherenkov Source" << G4endl;
-  const string volumeName = table->GetIndex();
-  const string motherName = table->GetS("mother");
+  std::cout << "Building Cherenkov Source" << std::endl;
+  const std::string volumeName = table->GetIndex();
+  const std::string motherName = table->GetS("mother");
 
   // Acrylic properties
   G4Material *sourceMaterial = G4Material::GetMaterial(table->GetS("source_material"));
-  const vector<double> &sourceColor = table->GetDArray("source_vis_color");
+  const std::vector<double> &sourceColor = table->GetDArray("source_vis_color");
 
   // Acrylic neck
   const double neckOd = table->GetD("neck_od");
@@ -50,24 +46,24 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   // Decay chamber
   G4Material *decayChamberMaterial =
       G4Material::GetMaterial(table->GetS("decay_chamber_material"));  // inside the decay chamber
-  const vector<double> &decayChamberColor = table->GetDArray("decay_chamber_vis_color");
+  const std::vector<double> &decayChamberColor = table->GetDArray("decay_chamber_vis_color");
 
   // Black paint layer
   G4Material *blackPaintMaterial = G4Material::GetMaterial(table->GetS("black_paint_material"));
   const double blackPaintThickness = table->GetD("black_paint_thickness");
-  const vector<double> &blackPaintColor = table->GetDArray("black_paint_vis_color");
+  const std::vector<double> &blackPaintColor = table->GetDArray("black_paint_vis_color");
 
   // White paint layer
   G4Material *whitePaintMaterial = G4Material::GetMaterial(table->GetS("white_paint_material"));
   const double whitePaintThickness = table->GetD("white_paint_thickness");
-  const vector<double> &whitePaintColor = table->GetDArray("white_paint_vis_color");
+  const std::vector<double> &whitePaintColor = table->GetDArray("white_paint_vis_color");
 
   // Surface properties
   G4OpticalSurface *paintSurface = GetSurface(table->GetS("paint_surface"));
 
   // Neck sleeve
   G4Material *sleeveMaterial = G4Material::GetMaterial(table->GetS("sleeve_material"));
-  const vector<double> &sleeveColor = table->GetDArray("sleeve_vis_color");
+  const std::vector<double> &sleeveColor = table->GetDArray("sleeve_vis_color");
 
   // PMT window
   G4Material *windowMaterial = G4Material::GetMaterial(table->GetS("window_material"));
@@ -76,7 +72,7 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   const double windowOd1Len = table->GetD("window_od1_len");
   const double windowOd2 = table->GetD("window_od2");
   const double windowOd2Len = table->GetD("window_od2_len");
-  const vector<double> &windowColor = table->GetDArray("window_vis_color");
+  const std::vector<double> &windowColor = table->GetDArray("window_vis_color");
 
   // Gas inlet/outlet tubes
   G4Material *tubeMaterial = G4Material::GetMaterial(table->GetS("tube_material"));
@@ -85,7 +81,7 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   const double tubeLength = table->GetD("tube_length");
   const double tubeOffset = table->GetD("tube_offset");
   const double tubeRot = table->GetD("tube_rot");
-  const vector<double> &tubeColor = table->GetDArray("tube_vis_color");
+  const std::vector<double> &tubeColor = table->GetDArray("tube_vis_color");
 
   // Can stuff
   G4Material *canMaterial = G4Material::GetMaterial(table->GetS("can_material"));
@@ -105,11 +101,11 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   const double canId3Len = table->GetD("can_id3_len");
   const double canId4 = table->GetD("can_id4");
   const double canId4Len = table->GetD("can_id4_len");
-  const vector<double> &canColor = table->GetDArray("can_vis_color");
+  const std::vector<double> &canColor = table->GetDArray("can_vis_color");
 
   // PMT stuff
-  const string pmtType = table->GetS("pmt_model");
-  const vector<double> &pmtColor = table->GetDArray("pmt_vis_color");
+  const std::string pmtType = table->GetS("pmt_model");
+  const std::vector<double> &pmtColor = table->GetDArray("pmt_vis_color");
   const double pmtRadius = table->GetD("pmt_radius");
   const double pmtHeight = table->GetD("pmt_height");
   const int pmtLcn = table->GetI("pmt_lcn");
@@ -122,16 +118,17 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
 
   // Constructs the sleeveSolid - aluminium sleeve in the neck - to be placed in
   // world
-  G4Tubs *sleeveSolid = new G4Tubs(volumeName + "SleeveSolid", 0, neckId / 2.0, neckIdLen / 2.0, 0, twopi);
+  G4Tubs *sleeveSolid = new G4Tubs(volumeName + "SleeveSolid", 0, neckId / 2.0, neckIdLen / 2.0, 0, CLHEP::twopi);
 
   // Construct windowSolid - to be placed in sleeveSolid
-  G4Tubs *window1 = new G4Tubs(volumeName + "window1", 0, windowOd1 / 2.0, (windowOd1Len + windowOd2Len) / 2, 0, twopi);
-  G4Tubs *window2 = new G4Tubs(volumeName + "window2", 0, windowOd2 / 2.0, (windowOd2Len) / 2, 0, twopi);
+  G4Tubs *window1 =
+      new G4Tubs(volumeName + "window1", 0, windowOd1 / 2.0, (windowOd1Len + windowOd2Len) / 2, 0, CLHEP::twopi);
+  G4Tubs *window2 = new G4Tubs(volumeName + "window2", 0, windowOd2 / 2.0, (windowOd2Len) / 2, 0, CLHEP::twopi);
   G4ThreeVector win2Offset(0.0, 0.0, (windowOd1Len + windowOd2Len) / 2.0 - windowOd2Len / 2.0);
   G4UnionSolid *windowFilled = new G4UnionSolid(volumeName + "WindowFilled", window1, window2, NULL, win2Offset);
   double knockoutThickness = windowOd1Len + windowOd2Len - windowThickness;
   G4Tubs *windowKnockout = new G4Tubs(volumeName + "WindowKnockout", 0, pmtRadius, (knockoutThickness) / 2.0, 0,
-                                      twopi);  // leave room for the pmt
+                                      CLHEP::twopi);  // leave room for the pmt
   G4ThreeVector windowKnockoutPos(0.0, 0.0, (windowOd1Len + windowOd2Len) / 2.0 - knockoutThickness / 2.0);
   G4SubtractionSolid *windowSolid =
       new G4SubtractionSolid(volumeName + "WindowSolid", windowFilled, windowKnockout, NULL, windowKnockoutPos);
@@ -140,24 +137,25 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   G4ThreeVector windowPos(0.0, 0.0, (windowOd1Len + windowOd2Len) / 2.0 - neckIdLen / 2.0);
 
   // Construct the gas inlet/outlet tubes - to be placed in world
-  G4Tubs *tubeSolid = new G4Tubs(volumeName + "Tube", 0.0, tubeOd / 2.0, tubeLength / 2.0, 0, twopi);
+  G4Tubs *tubeSolid = new G4Tubs(volumeName + "Tube", 0.0, tubeOd / 2.0, tubeLength / 2.0, 0, CLHEP::twopi);
   G4Tubs *pipeSolid = new G4Tubs(volumeName + "Tube", tubeId / 2.0, tubeOd / 2.0, tubeLength / 2.0, 0,
-                                 twopi);  // to be placed inside tube
+                                 CLHEP::twopi);  // to be placed inside tube
   G4RotationMatrix *inletRot = new G4RotationMatrix();
   inletRot->rotateY(0.0);
-  inletRot->rotateX(tubeRot / 180.0 * pi);
+  inletRot->rotateX(tubeRot / 180.0 * CLHEP::pi);
   inletRot->rotateZ(0.0);
   G4ThreeVector inletPos(0.0, tubeOffset + neckId / 2.0, neckStartZ + neckIdLen / 2.0);
   G4RotationMatrix *outletRot = new G4RotationMatrix();
   outletRot->rotateY(0.0);
-  outletRot->rotateX(-tubeRot / 180.0 * pi);
+  outletRot->rotateX(-tubeRot / 180.0 * CLHEP::pi);
   outletRot->rotateZ(0.0);
   G4ThreeVector outletPos(0.0, -tubeOffset - neckId / 2.0, neckStartZ + neckIdLen / 2.0);
 
   // Construct the sourceSolid - the bulk of acrylic - to be placed in world
   G4Tubs *sourceOuterNeck =
-      new G4Tubs(volumeName + "SourceOuterNeck", canOd1 / 2.0, neckOd / 2.0, neckOdLen / 2.0, 0, twopi);
-  G4Tubs *sourceInnerNeck = new G4Tubs(volumeName + "SourceInnerNeck", 0.0, neckOd / 2.0, neckIdLen / 2.0, 0, twopi);
+      new G4Tubs(volumeName + "SourceOuterNeck", canOd1 / 2.0, neckOd / 2.0, neckOdLen / 2.0, 0, CLHEP::twopi);
+  G4Tubs *sourceInnerNeck =
+      new G4Tubs(volumeName + "SourceInnerNeck", 0.0, neckOd / 2.0, neckIdLen / 2.0, 0, CLHEP::twopi);
   G4ThreeVector outerOffset(0.0, 0.0, neckOdLen - neckIdLen);
   G4UnionSolid *sourceNeck =
       new G4UnionSolid(volumeName + "SourceNeck", sourceInnerNeck, sourceOuterNeck, NULL, outerOffset);
@@ -211,40 +209,41 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   // necessary) - to be placed in world
   double canHalflen = (canOd1Len + canOd2Len + canOd3Len + canOd4Len) / 2.0;
   // OD1 is the biggest so build it first and remove other pieces
-  G4Tubs *canTube = new G4Tubs(volumeName + "CanTube", 0, canOd1 / 2.0, canHalflen, 0, twopi);
+  G4Tubs *canTube = new G4Tubs(volumeName + "CanTube", 0, canOd1 / 2.0, canHalflen, 0, CLHEP::twopi);
   // remove outer 2
-  G4Tubs *canRmO2 = new G4Tubs(volumeName + "CanRmO2", canOd2 / 2.0, canOd1 / 2.0 + 1.0, canOd2Len / 2.0, 0, twopi);
+  G4Tubs *canRmO2 =
+      new G4Tubs(volumeName + "CanRmO2", canOd2 / 2.0, canOd1 / 2.0 + 1.0, canOd2Len / 2.0, 0, CLHEP::twopi);
   G4ThreeVector rmO2Pos(0, 0, canOd1Len + canOd2Len / 2.0 - canHalflen);
   G4SubtractionSolid *canSans2 = new G4SubtractionSolid(volumeName + "CanSans2", canTube, canRmO2, NULL, rmO2Pos);
   // remove outer 3
   G4Tubs *canRmO3 =
-      new G4Tubs(volumeName + "CanRmO3", canOd3 / 2.0, canOd1 / 2.0 + 1.0, canOd3Len / 2.0 + 1.0, 0, twopi);
+      new G4Tubs(volumeName + "CanRmO3", canOd3 / 2.0, canOd1 / 2.0 + 1.0, canOd3Len / 2.0 + 1.0, 0, CLHEP::twopi);
   G4ThreeVector rmO3Pos(0, 0, canOd1Len + canOd2Len + canOd3Len / 2.0 - canHalflen);
   G4SubtractionSolid *canSans2Sans3 =
       new G4SubtractionSolid(volumeName + "CanSans2Sans3", canSans2, canRmO3, NULL, rmO3Pos);
   // remove outer 4
   G4Tubs *canRmO4 =
-      new G4Tubs(volumeName + "CanRmO4", canOd4 / 2.0, canOd1 / 2.0 + 1.0, canOd4Len / 2.0 + 1.0, 0, twopi);
+      new G4Tubs(volumeName + "CanRmO4", canOd4 / 2.0, canOd1 / 2.0 + 1.0, canOd4Len / 2.0 + 1.0, 0, CLHEP::twopi);
   G4ThreeVector rmO4Pos(0, 0, canHalflen - canOd4Len / 2.0 + 1.0);
   G4SubtractionSolid *canFilled =
       new G4SubtractionSolid(volumeName + "CanFilled", canSans2Sans3, canRmO4, NULL, rmO4Pos);
   // remove inner 1
-  G4Tubs *canRmI1 = new G4Tubs(volumeName + "CanRmI1", 0, canId1 / 2.0, canId1Len / 2.0 + 1.0, 0, twopi);
+  G4Tubs *canRmI1 = new G4Tubs(volumeName + "CanRmI1", 0, canId1 / 2.0, canId1Len / 2.0 + 1.0, 0, CLHEP::twopi);
   G4ThreeVector rmI1Pos(0, 0, canId1Len / 2.0 - canHalflen);
   G4SubtractionSolid *canFilledSans1 =
       new G4SubtractionSolid(volumeName + "CanFilledSans1", canFilled, canRmI1, NULL, rmI1Pos);
   // remove inner 2
-  G4Tubs *canRmI2 = new G4Tubs(volumeName + "CanRmI2", 0, canId2 / 2.0, canId2Len / 2.0 + 1.0, 0, twopi);
+  G4Tubs *canRmI2 = new G4Tubs(volumeName + "CanRmI2", 0, canId2 / 2.0, canId2Len / 2.0 + 1.0, 0, CLHEP::twopi);
   G4ThreeVector rmI2Pos(0, 0, canId1Len + canId2Len / 2.0 - canHalflen + 1.0);
   G4SubtractionSolid *canFilledSans1Sans2 =
       new G4SubtractionSolid(volumeName + "CanFilledSans1Sans2", canFilledSans1, canRmI2, NULL, rmI2Pos);
   // remove inner 3
-  G4Tubs *canRmI3 = new G4Tubs(volumeName + "CanRmI3", 0, canId3 / 2.0, canId3Len / 2.0, 0, twopi);
+  G4Tubs *canRmI3 = new G4Tubs(volumeName + "CanRmI3", 0, canId3 / 2.0, canId3Len / 2.0, 0, CLHEP::twopi);
   G4ThreeVector rmI3Pos(0, 0, canHalflen - canId4Len - canId3Len / 2.0);
   G4SubtractionSolid *canFilledSans1Sans2Sans3 =
       new G4SubtractionSolid(volumeName + "CanFilledSans1Sans2Sans3", canFilledSans1Sans2, canRmI3, NULL, rmI3Pos);
   // remove inner 4
-  G4Tubs *canRmI4 = new G4Tubs(volumeName + "CanRmI4", 0, canId4 / 2.0, canId4Len / 2.0 + 1, 0, twopi);
+  G4Tubs *canRmI4 = new G4Tubs(volumeName + "CanRmI4", 0, canId4 / 2.0, canId4Len / 2.0 + 1, 0, CLHEP::twopi);
   G4ThreeVector rmI4Pos(0, 0, canHalflen - canId4Len / 2.0);
   G4SubtractionSolid *canSolid =
       new G4SubtractionSolid(volumeName + "CanFilledSans1Sans2Sans3", canFilledSans1Sans2Sans3, canRmI4, NULL, rmI4Pos);
@@ -275,7 +274,7 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   //    ConstructPMT(0, params);
   //    AssembleFullPMT(0, attrib);
   //    SetupFullOpticalModel(0);
-  //    string pmtName = volumeName + "_pmtenv_" + ::to_string(pmtLcn);
+  //    std::string pmtName = volumeName + "_pmtenv_" + ::to_string(pmtLcn);
   //    //Necessary naming for PMTOpticalModel
   //
   //    //Calculate where to put and how to place the PMT
@@ -373,7 +372,7 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   return NULL;  // This function should probably be void, fixme
 }
 
-G4OpticalSurface *GeoCherenkovSourceFactory::GetSurface(string surface_name) {
+G4OpticalSurface *GeoCherenkovSourceFactory::GetSurface(std::string surface_name) {
   if (Materials::optical_surface.count(surface_name) == 0)
     Log::Die("error: surface " + surface_name + " does not exist");
   return Materials::optical_surface[surface_name];

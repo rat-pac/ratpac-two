@@ -5,34 +5,32 @@
 #include <set>
 #include <stack>
 
-using namespace std;
-
 namespace RAT {
 
 void TrackNav::Load(DS::MC *mc, bool verbose) {
   // Build tables to map trackID to list index and to get the list
   // of daughter tracks for a given trackID
-  map<int, int> idToIndex;
-  multimap<const int, int> idToDaughter;
-  typedef multimap<const int, int>::iterator MMIter;
-  set<int> idYetToLoad;  // This is really just for sanity check
+  std::map<int, int> idToIndex;
+  std::multimap<const int, int> idToDaughter;
+  typedef std::multimap<const int, int>::iterator MMIter;
+  std::set<int> idYetToLoad;  // This is really just for sanity check
 
   for (int i = 0; i < mc->GetMCTrackCount(); i++) {
     DS::MCTrack *track = mc->GetMCTrack(i);
     int trackID = track->GetID();
     int parentID = track->GetParentID();
 
-    if (verbose) cerr << "\rReading in track " << i << " (id " << trackID << ")     ";
+    if (verbose) std::cerr << "\rReading in track " << i << " (id " << trackID << ")     ";
 
     if (idYetToLoad.count(trackID) == 0) {
       idYetToLoad.insert(trackID);
       idToIndex[trackID] = i;
-      idToDaughter.insert(pair<const int, int>(parentID, trackID));
+      idToDaughter.insert(std::pair<const int, int>(parentID, trackID));
     } else
-      cerr << "TrackNav: TrackID " << trackID << " duplicated!" << endl;
+      std::cerr << "TrackNav: TrackID " << trackID << " duplicated!" << std::endl;
   }
 
-  if (verbose) cerr << endl;
+  if (verbose) std::cerr << std::endl;
 
   // Set head node with appropriate markers
   fHead = new TrackNode();
@@ -42,12 +40,12 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
   fHead->SetVolume("_____");
 
   // Initialize tree-building data structures
-  stack<int> readyToAdd;  // Track IDs we can add since parent exists
+  std::stack<int> readyToAdd;  // Track IDs we can add since parent exists
 
   // Tracks with no parent are children of head node, so we are ready
   // to add all tracks with parentID == 0
   fTracks[0] = fHead;
-  pair<MMIter, MMIter> mmipair = idToDaughter.equal_range(0);  // I hate C++.
+  std::pair<MMIter, MMIter> mmipair = idToDaughter.equal_range(0);  // I hate C++.
   for (MMIter mmi = mmipair.first; mmi != mmipair.second; mmi++) readyToAdd.push(mmi->second);
 
   // Loop until nothing left in readyToAdd.  If track list is not corrupted
@@ -56,7 +54,7 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
     // Fetch next track
     int trackID = readyToAdd.top();
 
-    if (verbose) cerr << "\rAdding " << trackID << " to tree.";
+    if (verbose) std::cerr << "\rAdding " << trackID << " to tree.";
 
     readyToAdd.pop();
     DS::MCTrack *track = mc->GetMCTrack(idToIndex[trackID]);
@@ -134,7 +132,7 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
       bestParent->AddChild(trackHead);
 
     // Add this track's children to the available stack
-    pair<MMIter, MMIter> mmipair2 = idToDaughter.equal_range(track->GetID());
+    std::pair<MMIter, MMIter> mmipair2 = idToDaughter.equal_range(track->GetID());
     for (MMIter mmi = mmipair2.first; mmi != mmipair2.second; mmi++) readyToAdd.push(mmi->second);
 
     // Finally, remove this track from the yet-to-load set (for checking at
@@ -144,10 +142,10 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
 
   // All done, let's make sure we are really done
   if (idYetToLoad.size() != 0) {
-    cerr << "TrackNav: Error! Not all tracks were reachable from initial "
-            "particles.\n"
-            "             Still "
-         << idYetToLoad.size() << " left in queue." << endl;
+    std::cerr << "TrackNav: Error! Not all tracks were reachable from initial "
+                 "particles.\n"
+                 "             Still "
+              << idYetToLoad.size() << " left in queue." << std::endl;
   }
 }
 

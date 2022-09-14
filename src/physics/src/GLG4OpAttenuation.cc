@@ -22,8 +22,6 @@
 #include "globals.hh"
 #include "templates.hh"
 
-using namespace std;
-
 /////////////////
 // Hidden static variables and functions
 /////////////////
