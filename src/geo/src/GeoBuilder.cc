@@ -16,7 +16,6 @@
 #include <RAT/GeoBubbleFactory.hh>
 #include <RAT/GeoPerfTubeFactory.hh>
 #include <RAT/GeoPerfSphereFactory.hh>
-#include <RAT/GeoEosFactory.hh>
 #include <RAT/GeoRevArrayFactory.hh>
 #include <RAT/GeoTubeArrayFactory.hh>
 #include <RAT/GeoRevolutionFactory.hh>
@@ -46,7 +45,6 @@ GeoBuilder::GeoBuilder()
   // Register all the standard volumes
   new GeoBoxFactory();
   new GeoTubeFactory();
-  new GeoEosFactory();
   new GeoTorusFactory();
   new GeoSphereFactory();
   new GeoReflectorFactory();
@@ -170,7 +168,6 @@ G4VPhysicalVolume *GeoBuilder::ConstructAll(std::string geo_tablename)
 	    else
               GeoFactory::ConstructWithFactory(type, table);
           } catch (GeoFactoryNotFoundError &e) {
-	    std::cout << "HERE2" << "\n";
             Log::Die("GeoBuilder error: Cannot find factory for volume type "  + type);
           }
 
