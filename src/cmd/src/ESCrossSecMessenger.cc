@@ -25,12 +25,8 @@ ESCrossSecMessenger::ESCrossSecMessenger(ESCrossSec *e) : fESXS(e) {
   fStratCmd->SetGuidance("Options:");
   fStratCmd->SetGuidance("  1 : Original routine from QSNO::PNuE (Bahcall).");
   fStratCmd->SetGuidance("  2 : Improved routine from QSNO::PNuE (without rad. corrections).");
-  fStratCmd->SetGuidance(
-      "  3 : Improved routine from QSNO::PNuE (with rad. "
-      "corrections - analytical).");
-  fStratCmd->SetGuidance(
-      "  4 (default) : Improved routine from QSNO::PNuE "
-      "(with rad. corrections - table).");
+  fStratCmd->SetGuidance("  3 : Improved routine from QSNO::PNuE (with rad. corrections - analytical).");
+  fStratCmd->SetGuidance("  4 (default) : Improved routine from QSNO::PNuE (with rad. corrections - table).");
   fStratCmd->SetParameter(new G4UIparameter("strat", 'i', false));
   fStratCmd->SetDefaultValue(fESXS->GetRadiativeCorrection());
 }
