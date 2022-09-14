@@ -10,7 +10,7 @@
 /// REVISION HISTORY:\n
 /// 10-FEB-2006 - Bill Seligman
 ///				Provide user commands to allow the user to
-///change the ESgen parameters via the command line.
+/// change the ESgen parameters via the command line.
 ///
 /// 18-FEB-2010 - Nuno Barros
 ///				Updated to pass the options to the cross-section

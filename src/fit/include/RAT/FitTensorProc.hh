@@ -2,8 +2,8 @@
 #define __RAT_FitTensorProc__
 
 #if TENSORFLOW_Enabled
-#include <RAT/Processor.hh>
 #include <RAT/DS/PMTInfo.hh>
+#include <RAT/Processor.hh>
 #include <cppflow/cppflow.h>
 #include <string>
 

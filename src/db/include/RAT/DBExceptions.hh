@@ -1,8 +1,8 @@
 #ifndef __RAT_DBExceptions__
 #define __RAT_DBExceptions__
 
-#include <string>
 #include <sstream>
+#include <string>
 
 namespace RAT {
 
