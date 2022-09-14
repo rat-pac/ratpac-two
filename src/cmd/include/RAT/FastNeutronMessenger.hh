@@ -9,7 +9,6 @@
 
 #include "G4String.hh"
 #include "G4UImessenger.hh"
-#include <RAT/VertexGen_FastNeutron.hh>
 
 // Forward declarations
 class G4UIcommand;

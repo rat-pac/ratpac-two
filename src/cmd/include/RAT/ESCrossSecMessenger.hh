@@ -9,17 +9,17 @@
 ///
 /// REVISION HISTORY:\n
 /// 10-FEB-2006 - Bill Seligman
-///				Provide user commands to allow the user to change
-///the ESgen parameters via the command line.
+///				Provide user commands to allow the user to
+///change the ESgen parameters via the command line.
 ///
 /// 18-FEB-2010 - Nuno Barros
 ///				Updated to pass the options to the cross-section
-///object directly to provide independence
+/// object directly to provide independence
 ///             to the cross section class.
 ///
 /// 22-JUN-2012 - Nuno Barros
 ///				Cleaned up code, cleaned documentation and
-///renamed conflicting variables.
+/// renamed conflicting variables.
 ///
 ///
 /// \details Controls user customizable options for the cross section class.

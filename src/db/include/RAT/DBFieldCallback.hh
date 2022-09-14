@@ -1,6 +1,7 @@
 #ifndef __RAT_DBFieldCallback__
 #define __RAT_DBFieldCallback__
 
+#include <string>
 #include <vector>
 
 namespace RAT {

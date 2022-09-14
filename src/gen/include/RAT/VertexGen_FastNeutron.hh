@@ -20,7 +20,7 @@
 #ifndef __RAT_VertexGen_FastNeutron__
 #define __RAT_VertexGen_FastNeutron__
 
-#include "RAT/DB.hh"
+#include <RAT/DB.hh>
 #include <RAT/FastNeutronMessenger.hh>
 #include <RAT/GLG4VertexGen.hh>
 

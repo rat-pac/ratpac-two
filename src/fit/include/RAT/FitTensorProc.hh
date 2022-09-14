@@ -3,6 +3,7 @@
 
 #if TENSORFLOW_Enabled
 #include <RAT/Processor.hh>
+#include <RAT/DS/PMTInfo.hh>
 #include <cppflow/cppflow.h>
 #include <string>
 

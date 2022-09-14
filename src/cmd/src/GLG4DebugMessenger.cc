@@ -33,10 +33,10 @@
 
 #include "G4RunManager.hh"
 
-#include <cstdlib> // for strtol
-#include <fstream> // for file streams
-#include <iomanip> // for setw(), etc..
-#include <sstream> // for string streams
+#include <cstdlib>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 
 using namespace std;
 
