@@ -23,7 +23,6 @@ namespace RAT {
 
 class CountProc : public Processor {
 public:
-  
   /** Create new count processor.
    *
    *  Default update interval is to print a status line for every

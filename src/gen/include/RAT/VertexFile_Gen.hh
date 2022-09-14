@@ -44,15 +44,10 @@ class Root;
 }
 
 class VertexFile_Gen : public GLG4Gen {
- public:
+public:
   VertexFile_Gen()
-      : fStateStr(""),
-        fCurrentEvent(0),
-        fNumEvents(0),
-        fMaxEvent(0),
-        fLastEventTime(0),
-        fTimeGen(0),
-        fPosGen(0){};
+      : fStateStr(""), fCurrentEvent(0), fNumEvents(0), fMaxEvent(0),
+        fLastEventTime(0), fTimeGen(0), fPosGen(0){};
   virtual ~VertexFile_Gen() = default;
 
   void GenerateEvent(G4Event *event);
@@ -77,13 +72,13 @@ class VertexFile_Gen : public GLG4Gen {
   void SetPosState(G4String state);
   G4String GetPosState() const;
 
- protected:
+protected:
   G4String fStateStr;
-  int fCurrentEvent;  ///< Index of current event from ROOT file
-  int fNumEvents;     ///< Read up to this many events from file
-  int fMaxEvent;      ///< Number of events in ROOT file
+  int fCurrentEvent; ///< Index of current event from ROOT file
+  int fNumEvents;    ///< Read up to this many events from file
+  int fMaxEvent;     ///< Number of events in ROOT file
 
-  TTimeStamp fLastEventTime;  ///< Used to calculate time between events
+  TTimeStamp fLastEventTime; ///< Used to calculate time between events
 
   GLG4TimeGen *fTimeGen;
   GLG4PosGen *fPosGen;
@@ -92,5 +87,5 @@ class VertexFile_Gen : public GLG4Gen {
   DS::Root *fDS;
 };
 
-}  // namespace RAT
+} // namespace RAT
 #endif

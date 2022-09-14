@@ -34,19 +34,19 @@ using namespace std;
 
 namespace RAT {
 
-void VertexFile_Gen::GenerateEvent(G4Event* event) {
+void VertexFile_Gen::GenerateEvent(G4Event *event) {
   fTTree->GetEntry(fCurrentEvent);
-  DS::MC* mc = fDS->GetMC();
+  DS::MC *mc = fDS->GetMC();
 
-  G4PrimaryVertex* vertex = NULL;
-  PrimaryVertexInformation* vertinfo = new PrimaryVertexInformation();
+  G4PrimaryVertex *vertex = NULL;
+  PrimaryVertexInformation *vertinfo = new PrimaryVertexInformation();
 
   bool vertexset = false;
 
   // add any parents
   for (int i = 0; i < mc->GetMCParentCount(); i++) {
-    const DS::MCParticle* mcp = mc->GetMCParent(i);
-    G4PrimaryParticle* particle =
+    const DS::MCParticle *mcp = mc->GetMCParent(i);
+    G4PrimaryParticle *particle =
         new G4PrimaryParticle(mcp->GetPDGCode(), mcp->GetMomentum().X(),
                               mcp->GetMomentum().Y(), mcp->GetMomentum().Z());
 
@@ -62,8 +62,8 @@ void VertexFile_Gen::GenerateEvent(G4Event* event) {
 
   // add all particles
   for (int i = 0; i < mc->GetMCParticleCount(); i++) {
-    const DS::MCParticle* mcp = mc->GetMCParticle(i);
-    G4PrimaryParticle* particle =
+    const DS::MCParticle *mcp = mc->GetMCParticle(i);
+    G4PrimaryParticle *particle =
         new G4PrimaryParticle(mcp->GetPDGCode(), mcp->GetMomentum().X(),
                               mcp->GetMomentum().Y(), mcp->GetMomentum().Z());
 
@@ -99,7 +99,7 @@ void VertexFile_Gen::ResetTime(double offset) {
       nextTime = eventTime + offset;
     } else {
       fTTree->GetEntry(fCurrentEvent);
-      DS::MC* mc = fDS->GetMC();
+      DS::MC *mc = fDS->GetMC();
       nextTime = (mc->GetUTC().GetSec() - fLastEventTime.GetSec()) * 1e9 +
                  (mc->GetUTC().GetNanoSec() - fLastEventTime.GetNanoSec()) +
                  offset;
@@ -124,7 +124,8 @@ void VertexFile_Gen::SetState(G4String state) {
   }
   if (nArgs >= 4) {
     istringstream(parts[3]) >> fMaxEvent;
-    if (fMaxEvent > 0) fMaxEvent += fCurrentEvent;
+    if (fMaxEvent > 0)
+      fMaxEvent += fCurrentEvent;
   }
   if (nArgs >= 3) {
     if (parts[2] == "default") {
@@ -150,9 +151,9 @@ void VertexFile_Gen::SetState(G4String state) {
   }
 
   fStateStr = state;
-  TFile* file = new TFile(filename.c_str());
+  TFile *file = new TFile(filename.c_str());
   gROOT->cd(0);
-  fTTree = (TTree*)((TTree*)file->Get("T"))->CloneTree();
+  fTTree = (TTree *)((TTree *)file->Get("T"))->CloneTree();
   fTTree->SetDirectory(0);
 
   file->Close();
@@ -202,4 +203,4 @@ G4String VertexFile_Gen::GetPosState() const {
     return G4String("VertexFile_Gen error: no pos generator selected");
 }
 
-}  // namespace RAT
+} // namespace RAT

@@ -10,21 +10,20 @@
 
 class G4UIcommand;
 
-class GLG4DebugMessenger: public G4UImessenger
-{
-  public:
-    GLG4DebugMessenger(RAT::DetectorConstruction * myDetector);
-    ~GLG4DebugMessenger();
-    
-    void SetNewValue(G4UIcommand * command,G4String newValues);
-    G4String GetCurrentValue(G4UIcommand * command);
-    
-  private:
-    RAT::DetectorConstruction * myDetector;
-    
-    G4UIcommand*       DumpMaterialsCmd;
-    G4UIcommand*       DumpGeomCmd;
-    G4UIcommand*       TestSolidCmd;
+class GLG4DebugMessenger : public G4UImessenger {
+public:
+  GLG4DebugMessenger(RAT::DetectorConstruction *myDetector);
+  ~GLG4DebugMessenger();
+
+  void SetNewValue(G4UIcommand *command, G4String newValues);
+  G4String GetCurrentValue(G4UIcommand *command);
+
+private:
+  RAT::DetectorConstruction *myDetector;
+
+  G4UIcommand *DumpMaterialsCmd;
+  G4UIcommand *DumpGeomCmd;
+  G4UIcommand *TestSolidCmd;
 };
 
 #endif

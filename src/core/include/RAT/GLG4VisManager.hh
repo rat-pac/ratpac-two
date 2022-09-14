@@ -8,24 +8,21 @@
 //
 // Author:  Glenn Horton-Smith, Jan 28, 2000
 //
-//Changed by Franco Giuliani, July 2009
+// Changed by Franco Giuliani, July 2009
 
 #ifndef GLG4VISMANAGER_HH
 #define GLG4VISMANAGER_HH
 
 #include "G4VisManager.hh"
 
-class GLG4VisManager: public G4VisManager {
+class GLG4VisManager : public G4VisManager {
 
 public: // With description
-
-  GLG4VisManager ();
+  GLG4VisManager();
 
 private:
-
-  void RegisterGraphicsSystems ();
+  void RegisterGraphicsSystems();
   void RegisterModelFactories();
-
 };
 
 #endif

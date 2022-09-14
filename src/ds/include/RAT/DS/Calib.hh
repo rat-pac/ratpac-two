@@ -19,12 +19,12 @@
 #define __RAT_DS_Calib__
 
 #include <TObject.h>
+#include <TTimeStamp.h>
 #include <TVector3.h>
 #include <string>
-#include <TTimeStamp.h>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class Calib : public TObject {
 public:
@@ -38,36 +38,34 @@ public:
   /** ID number of source, -1 if no source active during this event */
   virtual Int_t GetID() const { return id; }
   virtual void SetID(Int_t _id) { id = _id; }
-  
+
   /** Source mode (meaning depends on type of source) */
   virtual Int_t GetMode() const { return mode; }
   virtual void SetMode(Int_t _mode) { mode = _mode; }
-  
+
   /** Source intensity (meaning depends on type of source) */
   virtual Float_t GetIntensity() const { return intensity; }
   virtual void SetIntensity(Float_t _intensity) { intensity = _intensity; }
-  
+
   /** Absolute time of source activation */
   virtual TTimeStamp GetUTC() const { return utc; }
-  virtual void SetUTC(const TTimeStamp& _utc) { utc = _utc; }
-  
+  virtual void SetUTC(const TTimeStamp &_utc) { utc = _utc; }
+
   /** Location (mm) of source when activated. */
-  virtual const TVector3& GetPosition() const { return pos; }
-  virtual void SetPosition(const TVector3& _pos) { pos = _pos; }
+  virtual const TVector3 &GetPosition() const { return pos; }
+  virtual void SetPosition(const TVector3 &_pos) { pos = _pos; }
 
   ClassDef(Calib, 1)
 
-protected:
-  Int_t id;  
-  Int_t mode;       
+      protected : Int_t id;
+  Int_t mode;
   Float_t intensity;
   std::string name;
   TTimeStamp utc;
   TVector3 pos;
 };
 
-  } // namespace DS
+} // namespace DS
 } // namespace RAT
 
 #endif
-

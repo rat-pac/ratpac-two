@@ -27,7 +27,6 @@
 #include <Randomize.hh>
 #include <cmath>
 
-
 namespace RAT {
 
 // WGS: Constants copied from various places to make the code work.

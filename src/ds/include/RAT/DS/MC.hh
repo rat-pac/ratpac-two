@@ -13,17 +13,17 @@
 #ifndef __RAT_DS_MC__
 #define __RAT_DS_MC__
 
-#include <vector>
-#include <algorithm>
+#include <RAT/DS/MCPMT.hh>
+#include <RAT/DS/MCParticle.hh>
+#include <RAT/DS/MCSummary.hh>
+#include <RAT/DS/MCTrack.hh>
 #include <TObject.h>
 #include <TTimeStamp.h>
-#include <RAT/DS/MCParticle.hh>
-#include <RAT/DS/MCTrack.hh>
-#include <RAT/DS/MCSummary.hh>
-#include <RAT/DS/MCPMT.hh>
+#include <algorithm>
+#include <vector>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class MC : public TObject {
 public:
@@ -38,34 +38,35 @@ public:
   class ParticleNameEqualityFunctor {
   public:
     ParticleNameEqualityFunctor(std::string _name) : name(_name) {}
-    bool operator()(MCTrack& _track) {
+    bool operator()(MCTrack &_track) {
       return _track.GetParticleName() == this->name;
     }
+
   private:
     std::string name;
   };
-  
+
   /** Event number. */
   virtual int GetID() const { return id; }
   virtual void SetID(int _id) { id = _id; }
-  
+
   /** Absolute time of event. */
   virtual TTimeStamp GetUTC() const { return utc; }
-  virtual void SetUTC(const TTimeStamp& _utc) { utc = _utc; }
-  
+  virtual void SetUTC(const TTimeStamp &_utc) { utc = _utc; }
+
   /** Initial particles in event */
-  virtual MCParticle* GetMCParticle(Int_t i) { return &particle[i]; }
+  virtual MCParticle *GetMCParticle(Int_t i) { return &particle[i]; }
   virtual int GetMCParticleCount() const { return particle.size(); }
-  virtual MCParticle* AddNewMCParticle() {
+  virtual MCParticle *AddNewMCParticle() {
     particle.resize(particle.size() + 1);
     return &particle.back();
   }
   virtual void PruneMCParticle() { particle.resize(0); }
 
   /** Parent particles of interaction */
-  virtual MCParticle* GetMCParent(Int_t i) { return &parent[i]; }
+  virtual MCParticle *GetMCParent(Int_t i) { return &parent[i]; }
   virtual int GetMCParentCount() const { return parent.size(); }
-  virtual MCParticle* AddNewMCParent() {
+  virtual MCParticle *AddNewMCParent() {
     parent.resize(parent.size() + 1);
     return &parent.back();
   }
@@ -75,28 +76,28 @@ public:
    *
    *  Not filled unless the command
 
-@verbatim 
-/tracking/storeTrajectory 1 
+@verbatim
+/tracking/storeTrajectory 1
 @endverbatim
 
    *  is run in the user macro.
    */
-  virtual MCTrack* GetMCTrack(int i) { return &track[i]; }
+  virtual MCTrack *GetMCTrack(int i) { return &track[i]; }
   virtual int GetMCTrackCount() const { return track.size(); }
-  virtual MCTrack* AddNewMCTrack() {
+  virtual MCTrack *AddNewMCTrack() {
     track.resize(track.size() + 1);
     return &track.back();
   }
   virtual void PruneMCTrack() { track.resize(0); };
-  virtual void PruneMCTrack(const std::string& particleName) {
+  virtual void PruneMCTrack(const std::string &particleName) {
     ParticleNameEqualityFunctor pnef(particleName);
-    track.erase(std::remove_if(track.begin(), track.end(), pnef),track.end());
+    track.erase(std::remove_if(track.begin(), track.end(), pnef), track.end());
   }
 
   /** List of PMTs which had at least one photoelectron generated */
-  virtual MCPMT* GetMCPMT(int i) { return &pmt[i]; }
+  virtual MCPMT *GetMCPMT(int i) { return &pmt[i]; }
   virtual int GetMCPMTCount() const { return pmt.size(); }
-  virtual MCPMT* AddNewMCPMT() {
+  virtual MCPMT *AddNewMCPMT() {
     pmt.resize(pmt.size() + 1);
     return &pmt.back();
   };
@@ -111,7 +112,7 @@ public:
   virtual void SetNumDark(int _numDarkHits) { numDarkHits = _numDarkHits; }
 
   /** Summary of detector level properties of this event */
-  virtual MCSummary* GetMCSummary() {
+  virtual MCSummary *GetMCSummary() {
     if (summary.empty()) {
       summary.resize(1);
     }
@@ -121,9 +122,8 @@ public:
   virtual void PruneMCSummary() { summary.resize(0); }
 
   ClassDef(MC, 1)
-    
-protected:
-  int id;
+
+      protected : int id;
   int numPE;
   int numDarkHits;
   TTimeStamp utc;
@@ -134,8 +134,7 @@ protected:
   std::vector<MCPMT> pmt;
 };
 
-  } // namespace DS
+} // namespace DS
 } // namespace RAT
 
 #endif
-

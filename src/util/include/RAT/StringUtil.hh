@@ -5,7 +5,7 @@
 
 namespace RAT {
 
-// strips leading and trailing characters from s. This function by 
+// strips leading and trailing characters from s. This function by
 // Glenn Horton-Smith.
 std::string strip(const std::string &s, const std::string &stripchars);
 // strip spaces, tabs, and quotation marks

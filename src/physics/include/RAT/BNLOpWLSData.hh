@@ -7,7 +7,7 @@
  *
  * This factors out the ROOT file loading, since Geant and ROOT classes
  * do not interact well with -Wshadow enabled.
- * 
+ *
  */
 #ifndef __BNLOpWLSData__
 #define __BNLOpWLSData__
@@ -27,18 +27,17 @@ public:
   //
   // Currently, the data are stored in the ExEmData vector, with the exciting
   // wavelength for event i stored in ExEmData.at(i).at(0).at(0), the emitting
-  // wavelengths stored in ExEmData.at(i).at(1).at(:), and the normalized 
+  // wavelengths stored in ExEmData.at(i).at(1).at(:), and the normalized
   // stored at ExEmData.at(i).at(2).at(:).
   // These data are read into memory to speed things up.
   void SetExEmData(std::string fname);
 
   // Method to get a value from a tree. Arguments; pointer to branch, event #,
   // name of branch.
-  void* GetPointerToValue(TBranch*, int, const char*);
+  void *GetPointerToValue(TBranch *, int, const char *);
 
   // The Ex/Em data
-  std::vector<std::vector<std::vector<double> > > ExEmData;
+  std::vector<std::vector<std::vector<double>>> ExEmData;
 };
 
-#endif  // __BNLOpWLSData__
-
+#endif // __BNLOpWLSData__

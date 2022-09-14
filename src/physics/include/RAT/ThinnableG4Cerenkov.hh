@@ -1,6 +1,7 @@
 /**
  * @class RAT::ThinnableG4Cerenkov
- * @brief Arbitrarily thins Cherenkov photon production with no compensatory side-effects
+ * @brief Arbitrarily thins Cherenkov photon production with no compensatory
+ * side-effects
  *
  * @author Ed Callaghan <ejc3@berkeley.edu>
  *
@@ -11,21 +12,22 @@
 #ifndef __RAT_ThinnableG4Cereknov__
 #define __RAT_ThinnableG4Cereknov__
 
-#include <G4Cerenkov.hh>
 #include <CLHEP/Random/Random.h>
+#include <G4Cerenkov.hh>
 
 namespace RAT {
 
-class ThinnableG4Cerenkov: public G4Cerenkov{
-  public:
-    ThinnableG4Cerenkov();
-    void SetThinningFactor(double);
-    double GetThinningFactor();
-    G4VParticleChange* PostStepDoIt(const G4Track&, const G4Step&);
-  private:
-    bool should_thin;
-    double thinning_factor;
-    CLHEP::HepRandom heprandom;
+class ThinnableG4Cerenkov : public G4Cerenkov {
+public:
+  ThinnableG4Cerenkov();
+  void SetThinningFactor(double);
+  double GetThinningFactor();
+  G4VParticleChange *PostStepDoIt(const G4Track &, const G4Step &);
+
+private:
+  bool should_thin;
+  double thinning_factor;
+  CLHEP::HepRandom heprandom;
 };
 
 } // namespace RAT

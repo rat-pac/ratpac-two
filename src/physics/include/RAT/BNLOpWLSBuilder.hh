@@ -22,5 +22,4 @@ public:
   void ConstructProcess();
 };
 
-#endif  // __BNLOpWLSBuilder__
-
+#endif // __BNLOpWLSBuilder__

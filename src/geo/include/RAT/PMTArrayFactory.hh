@@ -4,12 +4,12 @@
 #include <RAT/PMTFactoryBase.hh>
 
 namespace RAT {
- class PMTArrayFactory : public PMTFactoryBase {
- public:
-   PMTArrayFactory() : PMTFactoryBase("pmtarray") {};
-   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
- };
-  
+class PMTArrayFactory : public PMTFactoryBase {
+public:
+  PMTArrayFactory() : PMTFactoryBase("pmtarray"){};
+  virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
+};
+
 } // namespace RAT
 
 #endif

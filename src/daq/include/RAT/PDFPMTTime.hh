@@ -2,13 +2,13 @@
 /// \class RAT::PDFPMTCharge
 ///
 /// \brief  Simulates PMT time spread and cable delay from DB defined PDFs.
-///         
+///
 /// \author Benjamin Land <benland100@berkeley.edu>
 ///
 /// REVISION HISTORY:\n
 ///     2015-01-07 : B Land - Added doxygen header block \n
 ///
-/// \details Automatically chooses the right table for a given PMT model, or 
+/// \details Automatically chooses the right table for a given PMT model, or
 ///          uses default table if no model is given.
 ///
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@
 #define __RAT_PDFPMTTime__
 
 #include <RAT/DB.hh>
-#include <RAT/PMTTime.hh> 
+#include <RAT/PMTTime.hh>
 
 namespace RAT {
 
@@ -30,11 +30,10 @@ public:
   virtual double PickTime(double time) const;
 
 protected:
-  std::vector<double> fTime,fTimeProb,fTimeProbCumu;
+  std::vector<double> fTime, fTimeProb, fTimeProbCumu;
   double fCableDelay;
 };
 
 } // namespace RAT
 
 #endif
-

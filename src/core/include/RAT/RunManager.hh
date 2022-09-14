@@ -20,20 +20,19 @@ class ProcBlock;
 class RunManager {
 public:
   RunManager();
-  RunManager(ProcBlock* theMainBlock);
+  RunManager(ProcBlock *theMainBlock);
   virtual ~RunManager();
 
 protected:
   void Init();
 
-  G4RunManager* theRunManager;
-  ProcBlock* mainBlock;
-  Gsim* ratGsim;
+  G4RunManager *theRunManager;
+  ProcBlock *mainBlock;
+  Gsim *ratGsim;
 
-  G4VisManager* theVisManager;
+  G4VisManager *theVisManager;
 };
 
 } // namespace RAT
 
 #endif // __RAT_RunManager__
-

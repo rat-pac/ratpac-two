@@ -1,66 +1,68 @@
+#include <G4GeometryManager.hh>
+#include <G4LogicalVolumeStore.hh>
+#include <G4PhysicalVolumeStore.hh>
+#include <G4SDManager.hh>
+#include <G4SolidStore.hh>
+#include <G4VPhysicalVolume.hh>
+#include <RAT/BWVetGenericChamber.hh>
+#include <RAT/DB.hh>
+#include <RAT/DetectorConstruction.hh>
+#include <RAT/GeoBuilder.hh>
+#include <RAT/Log.hh>
+#include <RAT/Materials.hh>
+#include <RAT/PhotonThinning.hh>
 #include <RAT/Rat.hh>
 #include <TVector3.h>
-#include <G4GeometryManager.hh>
-#include <G4PhysicalVolumeStore.hh>
-#include <G4LogicalVolumeStore.hh>
-#include <G4VPhysicalVolume.hh>
-#include <G4SolidStore.hh>
-#include <G4SDManager.hh>
-#include <RAT/BWVetGenericChamber.hh>
-#include <RAT/DetectorConstruction.hh>
-#include <RAT/PhotonThinning.hh>
-#include <RAT/DB.hh>
-#include <RAT/Log.hh>
-#include <RAT/GeoBuilder.hh>
-#include <RAT/Materials.hh>
 
 #include <RAT/DetectorFactory.hh>
-#include <RAT/WatchmanDetectorFactory.hh>
 #include <RAT/TheiaDetectorFactory.hh>
+#include <RAT/WatchmanDetectorFactory.hh>
 #include <string>
 
 using namespace std;
 
 namespace RAT {
 
-DetectorConstruction* DetectorConstruction::sDetectorConstruction = NULL;
+DetectorConstruction *DetectorConstruction::sDetectorConstruction = NULL;
 
 DetectorConstruction::DetectorConstruction() {
-  DetectorFactory::Register("Watchman",new WatchmanDetectorFactory());
-  DetectorFactory::Register("Theia",new TheiaDetectorFactory());
-  //DetectorFactory::Register("WatchmanWLSPSquare",new WatchmanWLSPSquareDetectorFactory());
+  DetectorFactory::Register("Watchman", new WatchmanDetectorFactory());
+  DetectorFactory::Register("Theia", new TheiaDetectorFactory());
+  // DetectorFactory::Register("WatchmanWLSPSquare",new
+  // WatchmanWLSPSquareDetectorFactory());
 }
 
-G4VPhysicalVolume* DetectorConstruction::Construct() {
+G4VPhysicalVolume *DetectorConstruction::Construct() {
   // Load the DETECTOR table
-  DB* db = DB::Get();
+  DB *db = DB::Get();
   DBLinkPtr ldetector = db->GetLink("DETECTOR");
   std::string experiment = "";
 
   // Load experiment RATDB files before doing anything else
   try {
     experiment = ldetector->GetS("experiment");
-    info << "Loading experiment-specific RATDB files for: "
-         << experiment << newline;
-    for(auto dir : Rat::ratdb_directories){
+    info << "Loading experiment-specific RATDB files for: " << experiment
+         << newline;
+    for (auto dir : Rat::ratdb_directories) {
       std::string experimentDirectoryString = dir + "/" + experiment;
       int result = db->LoadAll(experimentDirectoryString);
-      if( result == 2 ){
-        info << "Found experiment files in " << experimentDirectoryString << newline;
+      if (result == 2) {
+        info << "Found experiment files in " << experimentDirectoryString
+             << newline;
         break;
       }
     }
-  }
-  catch (DBNotFoundError& e) {
+  } catch (DBNotFoundError &e) {
     info << "No experiment-specific tables loaded." << newline;
   }
 
   try {
     string detector_factory = ldetector->GetS("detector_factory");
     info << "Loading detector factory " << detector_factory << newline;
-    DetectorFactory::DefineWithFactory(detector_factory,ldetector);
+    DetectorFactory::DefineWithFactory(detector_factory, ldetector);
   } catch (DBNotFoundError &e) {
-    info << "DetectorConstruction: could not access " << e.table << "[" << e.index << "]." << e.field << endl;
+    info << "DetectorConstruction: could not access " << e.table << "["
+         << e.index << "]." << e.field << endl;
     try {
       string geo_file = ldetector->GetS("geo_file");
       info << "Loading detector geometry from " << geo_file << newline;
@@ -68,8 +70,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
         Log::Die("DetectorConstruction: Could not open detector geometry");
       }
     } catch (DBNotFoundError &_e) {
-      info << "DetectorConstruction: could not access " << _e.table << "[" << _e.index << "]." << _e.field << endl;
-      Log::Die("DetectorConstruction: Could not open geo_file or detector_factory");
+      info << "DetectorConstruction: could not access " << _e.table << "["
+           << _e.index << "]." << _e.field << endl;
+      Log::Die(
+          "DetectorConstruction: Could not open geo_file or detector_factory");
     }
   }
 
@@ -83,9 +87,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
   G4SolidStore::GetInstance()->Clean();
 
   // Add sensitive volumes here (only veto for now)
-  G4SDManager* sdman = G4SDManager::GetSDMpointer();
-  G4VSensitiveDetector *veto
-    =  new BWVetGenericChamber("/mydet/veto/genericchamber");
+  G4SDManager *sdman = G4SDManager::GetSDMpointer();
+  G4VSensitiveDetector *veto =
+      new BWVetGenericChamber("/mydet/veto/genericchamber");
   sdman->AddNewDetector(veto);
 
   // Setup photon thinning parameters
@@ -97,18 +101,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
   return fWorldPhys;
 }
 
-
 void DetectorConstruction::ConstructMaterials() {
   Materials::ConstructMaterials();
   Materials::LoadOpticalSurfaces();
 }
 
-
-DetectorConstruction* DetectorConstruction::GetDetectorConstruction() {
+DetectorConstruction *DetectorConstruction::GetDetectorConstruction() {
   if (!sDetectorConstruction) {
     sDetectorConstruction = new DetectorConstruction();
   }
   return sDetectorConstruction;
 }
 
-}
+} // namespace RAT

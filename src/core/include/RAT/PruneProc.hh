@@ -23,7 +23,6 @@
 
 namespace RAT {
 
-
 class PruneProc : public Processor {
 public:
   /** Create a new prune processor which prunes nothing by default. */
@@ -60,25 +59,25 @@ public:
   bool GetPruneState(std::string item);
 
 protected:
-  bool mc;                    /**< Cut Monte Carlo information entirely */
-  bool mc_particle;           /**< Cut Monte Carlo particles? */
-  bool mc_track;              /**< Cut Monte Carlo tracks?  True even if only
-                                   certain particle types will be cut. */
-  bool mc_pmt;                /**< Cut Monte Carlo list of hit PMTs? */
-  bool mc_pmt_photon;         /**< Cut Monte Carlo list of photoelectrons? */
-  bool mc_pmt_pulse;          /**< Cut Monte Carlo list of PMT pulses? */
-  bool ev;                    /**< Cut triggered events? */
-  bool ev_pmt;                /**< Cut list of hit PMTs from triggered events? */
-  bool ev_board_raw_header;   /**< Cut raw from each board */
-  bool ev_channel_raw_block;  /**< Cut raw blocks from each cheannel */
-  bool ev_channel_raw_wave;   /**< Cut raw waveforms from each channel */
-  bool ev_channel_raw_int;    /**< Cut raw integrals from each channel */
-  bool ev_pmt_wave;            /**< Cut calibrated waveforms from each ev.pmt */
-  bool ev_channel;            /**< Cut digitizer channel hits? */
-  bool ev_board;              /**< Cut digitizers */
+  bool mc;                   /**< Cut Monte Carlo information entirely */
+  bool mc_particle;          /**< Cut Monte Carlo particles? */
+  bool mc_track;             /**< Cut Monte Carlo tracks?  True even if only
+                                  certain particle types will be cut. */
+  bool mc_pmt;               /**< Cut Monte Carlo list of hit PMTs? */
+  bool mc_pmt_photon;        /**< Cut Monte Carlo list of photoelectrons? */
+  bool mc_pmt_pulse;         /**< Cut Monte Carlo list of PMT pulses? */
+  bool ev;                   /**< Cut triggered events? */
+  bool ev_pmt;               /**< Cut list of hit PMTs from triggered events? */
+  bool ev_board_raw_header;  /**< Cut raw from each board */
+  bool ev_channel_raw_block; /**< Cut raw blocks from each cheannel */
+  bool ev_channel_raw_wave;  /**< Cut raw waveforms from each channel */
+  bool ev_channel_raw_int;   /**< Cut raw integrals from each channel */
+  bool ev_pmt_wave;          /**< Cut calibrated waveforms from each ev.pmt */
+  bool ev_channel;           /**< Cut digitizer channel hits? */
+  bool ev_board;             /**< Cut digitizers */
 
-  bool ev_pmt_block;         /**< Cut entire calibrated blocks of samples */
-  bool ev_calsum;            /**< Cut calibrated waveform sum */
+  bool ev_pmt_block; /**< Cut entire calibrated blocks of samples */
+  bool ev_calsum;    /**< Cut calibrated waveform sum */
 
   /** Names of particles to eliminate from tracks.
    *

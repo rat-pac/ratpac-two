@@ -1,4 +1,4 @@
-/** 
+/**
  * @class DS::MCPMT
  *  Data Structure: Hit PMT in Monte Carlo
  *
@@ -11,12 +11,12 @@
 #ifndef __RAT_DS_MCPMT__
 #define __RAT_DS_MCPMT__
 
-#include <vector>
 #include <RAT/DS/MCPhoton.hh>
 #include <RAT/Log.hh>
+#include <vector>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class MCPMT : public TObject {
 public:
@@ -38,26 +38,24 @@ public:
   virtual void SetType(Int_t _type) { type = _type; };
 
   /** List of photoelectrons created in this PMT. */
-  MCPhoton* GetMCPhoton(Int_t i) { return &photon[i]; }
+  MCPhoton *GetMCPhoton(Int_t i) { return &photon[i]; }
   Int_t GetMCPhotonCount() const { return photon.size(); }
-  MCPhoton* AddNewMCPhoton() {
+  MCPhoton *AddNewMCPhoton() {
     photon.resize(photon.size() + 1);
     return &photon.back();
   }
-  void RemoveMCPhoton(Int_t i){ photon.erase(photon.begin() + i); }
+  void RemoveMCPhoton(Int_t i) { photon.erase(photon.begin() + i); }
   void PruneMCPhoton() { photon.resize(0); }
   void SortMCPhotons() { std::sort(photon.begin(), photon.end()); }
- 
+
   ClassDef(MCPMT, 2)
-    
-protected:
-  Int_t id;
+
+      protected : Int_t id;
   Int_t type;
   std::vector<MCPhoton> photon;
 };
 
-  } // namespace DS
+} // namespace DS
 } // namespace RAT
 
 #endif
-

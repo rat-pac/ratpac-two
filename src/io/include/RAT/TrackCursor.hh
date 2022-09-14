@@ -2,24 +2,25 @@
 #define __RAT_TrackCursor__
 
 #include <RAT/TrackNode.hh>
-#include <string>
 #include <functional>
+#include <string>
 
 namespace RAT {
 
 class TrackTest : public std::unary_function<TrackNode *, bool> {
 public:
-  virtual bool operator() (TrackNode *) = 0;
+  virtual bool operator()(TrackNode *) = 0;
 }; // Common predicates at the end
-
 
 class TrackCursor {
 public:
-  TrackCursor(TrackNode *node, bool verbose=false) 
-      { fVerbose = verbose; Go(node); };
+  TrackCursor(TrackNode *node, bool verbose = false) {
+    fVerbose = verbose;
+    Go(node);
+  };
 
   bool GetVerbose() { return fVerbose; };
-  void SetVerbose(bool verbose=true) { fVerbose = verbose; };
+  void SetVerbose(bool verbose = true) { fVerbose = verbose; };
 
   // Node peeking (does not change current position)
   TrackNode *TrackStart() const;
@@ -31,7 +32,7 @@ public:
   int StepCount() const { return TrackEnd()->GetStepID() + 1; };
   TrackNode *Step(int i) const;
   int ChildCount() const { return fCur->child.size(); };
-  TrackNode *Child(int i=0) const;
+  TrackNode *Child(int i = 0) const;
   int TrackChildCount() const;
   TrackNode *TrackChild(int i) const;
   TrackNode *Parent() const;
@@ -49,10 +50,10 @@ public:
   TrackNode *GoTrackEnd();
 
   TrackNode *GoStep(int i);
-  TrackNode *GoChild(int i=0);
-  TrackNode *GoTrackChild(int i); 
+  TrackNode *GoChild(int i = 0);
+  TrackNode *GoTrackChild(int i);
   TrackNode *GoParent(); // Go to the step in the parent particle where
-                            // this track was made
+                         // this track was made
 
   // Output
   void Print() const;
@@ -68,31 +69,33 @@ public:
 
   TrackNode *FindNextTrack(TrackTest *predicate);
 
-
   // Specialized Search
   TrackNode *FindNextParticle(const std::string &particleName);
-  //TrackNode *FindNextProcess(std::string process);
+  // TrackNode *FindNextProcess(std::string process);
 
 protected:
   TrackNode *fCur;
   bool fVerbose;
 };
 
-
 // Useful predicates
 
 class TrackTest_Particle : public TrackTest {
   std::string fParticleName;
+
 public:
-  TrackTest_Particle(const std::string &particleName) : fParticleName(particleName) { };
-  virtual bool operator() (TrackNode *c) { return fParticleName == c->GetParticleName(); };
+  TrackTest_Particle(const std::string &particleName)
+      : fParticleName(particleName){};
+  virtual bool operator()(TrackNode *c) {
+    return fParticleName == c->GetParticleName();
+  };
 };
 
 // class TrackTest_HasProcess : public TrackTest {
 //   std::string fProcess;
 // public:
 //   TrackTest_Particle(std::string process) : fProcess(process) { };
-//   virtual bool operator() (TrackNode *c) { 
+//   virtual bool operator() (TrackNode *c) {
 //     int totalSteps;
 //   };
 // };
@@ -100,4 +103,3 @@ public:
 } // namespace RAT
 
 #endif
-

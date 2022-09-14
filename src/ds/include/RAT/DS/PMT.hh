@@ -1,7 +1,7 @@
 /**
  * @class PMT
  * Data Structure: PMT in triggered event
- * 
+ *
  * This represents a PMT in a detector event.
  */
 
@@ -11,7 +11,7 @@
 #include <Rtypes.h>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class PMT : public TObject {
 public:
@@ -30,7 +30,7 @@ public:
   virtual void SetTime(Double_t _time) { this->time = _time; }
   virtual Double_t GetTime() { return time; }
 
- ClassDef(PMT, 1);
+  ClassDef(PMT, 1);
 
 protected:
   Int_t id;
@@ -38,8 +38,7 @@ protected:
   Double_t time;
 };
 
-  } // namespace DS
+} // namespace DS
 } // namespace RAT
 
 #endif
-

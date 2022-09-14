@@ -19,11 +19,11 @@
 #define __RAT_DS_MCTrackStep__
 
 #include <TObject.h>
-#include <string>
 #include <TVector3.h>
+#include <string>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class MCTrackStep : public TObject {
 public:
@@ -39,7 +39,7 @@ public:
   virtual void SetLength(Float_t _length) { length = _length; }
 
   /** Position of endpoint of step (mm). */
-  virtual const TVector3& GetEndpoint() const { return endpoint; }
+  virtual const TVector3 &GetEndpoint() const { return endpoint; }
   virtual void SetEndpoint(const TVector3 &_endpoint) { endpoint = _endpoint; }
 
   /** Time since start of event, in lab frame (ns). */
@@ -55,16 +55,18 @@ public:
   virtual void SetProperTime(Double_t _properTime) { properTime = _properTime; }
 
   /** Momentum of particle (MeV/c) */
-  virtual const TVector3& GetMomentum() const { return mom; }
+  virtual const TVector3 &GetMomentum() const { return mom; }
   virtual void SetMomentum(const TVector3 &_mom) { mom = _mom; }
-  
+
   /** Kinetic energy of particle (MeV) */
   virtual Float_t GetKE() const { return ke; }
   virtual void SetKE(Float_t _ke) { ke = _ke; }
 
   /** Total energy deposited along the track (MeV). **/
   virtual Float_t GetDepositedEnergy() const { return depositedEnergy; }
-  virtual void SetDepositedEnergy(Float_t _depositedEnergy) { depositedEnergy = _depositedEnergy; }
+  virtual void SetDepositedEnergy(Float_t _depositedEnergy) {
+    depositedEnergy = _depositedEnergy;
+  }
 
   /** Name of physics process acting at endpoint. */
   virtual std::string GetProcess() const { return process; }
@@ -72,25 +74,23 @@ public:
 
   /** Name of detector volume in which this step took place. */
   virtual std::string GetVolume() const { return volume; }
-  virtual void SetVolume(const std::string& _volume) { volume = _volume; }
+  virtual void SetVolume(const std::string &_volume) { volume = _volume; }
 
   ClassDef(MCTrackStep, 1)
-  
-protected:
-  Float_t length;
+
+      protected : Float_t length;
   Double_t globalTime;
   Double_t localTime;
   Double_t properTime;
-  Float_t ke;  
-  Float_t depositedEnergy;  
+  Float_t ke;
+  Float_t depositedEnergy;
   TVector3 endpoint;
   TVector3 mom;
   std::string process;
   std::string volume;
 };
 
-  } // namespace DS
+} // namespace DS
 } // namespace RAT
 
 #endif
-

@@ -88,8 +88,10 @@ Rat::Rat(AnyParse *parser, int argc, char **argv)
   rdb_messenger = new DBMessenger();
   // Local data management
   if (getenv("RATSHARE") != NULL) {
-    ratdb_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/ratdb");
-    model_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/models");
+    ratdb_directories.insert(static_cast<std::string>(getenv("RATSHARE")) +
+                             "/ratdb");
+    model_directories.insert(static_cast<std::string>(getenv("RATSHARE")) +
+                             "/models");
   }
 }
 

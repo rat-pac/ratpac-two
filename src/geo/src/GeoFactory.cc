@@ -17,52 +17,47 @@
 
 using namespace std;
 
-
 namespace RAT {
-
 
 std::map<std::string, GeoFactory *> GeoFactory::fFactoryMap;
 
-void GeoFactory::Register(const std::string &name, GeoFactory *factory)
-{
+void GeoFactory::Register(const std::string &name, GeoFactory *factory) {
   fFactoryMap[name] = factory;
 }
 
-G4VPhysicalVolume *GeoFactory::ConstructWithFactory(const std::string &name, DBLinkPtr table)
-{
-  if (fFactoryMap.count(name) == 0) throw GeoFactoryNotFoundError(name);
-  else return fFactoryMap[name]->Construct(table);
+G4VPhysicalVolume *GeoFactory::ConstructWithFactory(const std::string &name,
+                                                    DBLinkPtr table) {
+  if (fFactoryMap.count(name) == 0)
+    throw GeoFactoryNotFoundError(name);
+  else
+    return fFactoryMap[name]->Construct(table);
 }
 
-GeoFactory::GeoFactory(const std::string &name)
-{
+GeoFactory::GeoFactory(const std::string &name) {
   cout << "Registering " << name << endl;
   GeoFactory::Register(name, this);
 }
 
-
-void GeoFactory::SetSensitive(G4LogicalVolume *logi, DBLinkPtr table)
-{
+void GeoFactory::SetSensitive(G4LogicalVolume *logi, DBLinkPtr table) {
   try {
     string sensitive_detector = table->GetS("sensitive_detector");
-    G4SDManager* sdman = G4SDManager::GetSDMpointer();
+    G4SDManager *sdman = G4SDManager::GetSDMpointer();
     G4VSensitiveDetector *sd = sdman->FindSensitiveDetector(sensitive_detector);
     if (sd)
       logi->SetSensitiveDetector(sd);
     else
-      Log::Die("GeoFactory error: Sensitive detector "
-               + sensitive_detector + " does not exist.\n");
-  } catch (DBNotFoundError &e) { }
+      Log::Die("GeoFactory error: Sensitive detector " + sensitive_detector +
+               " does not exist.\n");
+  } catch (DBNotFoundError &e) {
+  }
 }
 
+G4LogicalVolume *GeoFactory::FindMother(const std::string mother_name) {
+  G4LogicalVolumeStore *store = G4LogicalVolumeStore::GetInstance();
 
-G4LogicalVolume *GeoFactory::FindMother(const std::string mother_name)
-{
-  G4LogicalVolumeStore* store = G4LogicalVolumeStore::GetInstance();
-
-  for (vector<G4LogicalVolume*>::iterator i_volume = store->begin();
+  for (vector<G4LogicalVolume *>::iterator i_volume = store->begin();
        i_volume != store->end(); ++i_volume) {
-    G4LogicalVolume* testvolume = *i_volume;
+    G4LogicalVolume *testvolume = *i_volume;
     // Cast to G4String to avoid ambiguious overload
     if (testvolume->GetName() == G4String(mother_name))
       return testvolume;
@@ -71,13 +66,12 @@ G4LogicalVolume *GeoFactory::FindMother(const std::string mother_name)
   return 0;
 }
 
-G4VPhysicalVolume *GeoFactory::FindPhysMother(const std::string mother_name)
-{
-  G4PhysicalVolumeStore* store = G4PhysicalVolumeStore::GetInstance();
+G4VPhysicalVolume *GeoFactory::FindPhysMother(const std::string mother_name) {
+  G4PhysicalVolumeStore *store = G4PhysicalVolumeStore::GetInstance();
 
-  for (vector<G4VPhysicalVolume*>::iterator i_volume = store->begin();
+  for (vector<G4VPhysicalVolume *>::iterator i_volume = store->begin();
        i_volume != store->end(); ++i_volume) {
-    G4VPhysicalVolume* testvolume = *i_volume;
+    G4VPhysicalVolume *testvolume = *i_volume;
     // Cast to G4String to avoid ambiguious overload
     if (testvolume->GetName() == G4String(mother_name))
       return testvolume;
@@ -86,12 +80,9 @@ G4VPhysicalVolume *GeoFactory::FindPhysMother(const std::string mother_name)
   return 0;
 }
 
-
-G4VPhysicalVolume *
-GeoFactory::ConstructPhysicalVolume(G4LogicalVolume *logi,
-                                    G4LogicalVolume *mother,
-                                    DBLinkPtr table)
-{
+G4VPhysicalVolume *GeoFactory::ConstructPhysicalVolume(G4LogicalVolume *logi,
+                                                       G4LogicalVolume *mother,
+                                                       DBLinkPtr table) {
   string volume_name = table->GetIndex();
   G4VPhysicalVolume *pv;
 
@@ -105,20 +96,23 @@ GeoFactory::ConstructPhysicalVolume(G4LogicalVolume *logi,
     double angle_z = 0;
     soliddir.set(orientvector[0], orientvector[1], orientvector[2]);
     soliddir = soliddir.unit();
-    angle_y = (-1.0)*atan2(soliddir.x(), soliddir.z());
-    angle_x = atan2(soliddir.y(), sqrt(soliddir.x()*soliddir.x()+soliddir.z()*soliddir.z()));
-    angle_z = atan2(-1*soliddir.y()*soliddir.z(), soliddir.x());
+    angle_y = (-1.0) * atan2(soliddir.x(), soliddir.z());
+    angle_x = atan2(soliddir.y(), sqrt(soliddir.x() * soliddir.x() +
+                                       soliddir.z() * soliddir.z()));
+    angle_z = atan2(-1 * soliddir.y() * soliddir.z(), soliddir.x());
     rotation->rotateY(angle_y);
     rotation->rotateX(angle_x);
     rotation->rotateZ(angle_z);
-  } catch (DBNotFoundError &e) { };
+  } catch (DBNotFoundError &e) {
+  };
 
   try {
     const vector<double> &rotvector = table->GetDArray("rotation");
     rotation->rotateX(rotvector[0] * CLHEP::deg);
     rotation->rotateY(rotvector[1] * CLHEP::deg);
     rotation->rotateZ(rotvector[2] * CLHEP::deg);
-  } catch (DBNotFoundError &e) { };
+  } catch (DBNotFoundError &e) {
+  };
 
   // optional, default is position at center
   G4ThreeVector position(0.0, 0.0, 0.0);
@@ -127,26 +121,31 @@ GeoFactory::ConstructPhysicalVolume(G4LogicalVolume *logi,
     position.setX(posvector[0] * CLHEP::mm);
     position.setY(posvector[1] * CLHEP::mm);
     position.setZ(posvector[2] * CLHEP::mm);
-  } catch (DBNotFoundError &e) { };
+  } catch (DBNotFoundError &e) {
+  };
 
-  try { position.setX( table->GetD("posx") * CLHEP::mm ); }
-  catch (DBNotFoundError &e) { };
-  try { position.setY( table->GetD("posy") * CLHEP::mm ); }
-  catch (DBNotFoundError &e) { };
-  try { position.setZ( table->GetD("posz") * CLHEP::mm ); }
-  catch (DBNotFoundError &e) { };
+  try {
+    position.setX(table->GetD("posx") * CLHEP::mm);
+  } catch (DBNotFoundError &e) {
+  };
+  try {
+    position.setY(table->GetD("posy") * CLHEP::mm);
+  } catch (DBNotFoundError &e) {
+  };
+  try {
+    position.setZ(table->GetD("posz") * CLHEP::mm);
+  } catch (DBNotFoundError &e) {
+  };
 
-  pv = new G4PVPlacement(rotation, position, logi, volume_name,
-                         mother, false /*?*/, 0 /*?*/);
+  pv = new G4PVPlacement(rotation, position, logi, volume_name, mother,
+                         false /*?*/, 0 /*?*/);
 
   return pv;
 }
 
-G4VPhysicalVolume *
-GeoFactory::ConstructPhysicalReplica(G4LogicalVolume *logi,
-                                     G4LogicalVolume *mother,
-                                     DBLinkPtr table)
-{
+G4VPhysicalVolume *GeoFactory::ConstructPhysicalReplica(G4LogicalVolume *logi,
+                                                        G4LogicalVolume *mother,
+                                                        DBLinkPtr table) {
   string volume_name = table->GetIndex();
   G4VPhysicalVolume *pv;
 
@@ -169,11 +168,7 @@ GeoFactory::ConstructPhysicalReplica(G4LogicalVolume *logi,
 
   G4double replica_spacing = table->GetD("replica_spacing") * CLHEP::mm;
 
-  pv = new G4PVReplica(volume_name,
-                       logi,
-                       mother,
-                       axis,
-                       replicas,
+  pv = new G4PVReplica(volume_name, logi, mother, axis, replicas,
                        replica_spacing);
 
   return pv;

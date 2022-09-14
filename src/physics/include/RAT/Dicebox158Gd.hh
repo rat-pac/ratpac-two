@@ -4,13 +4,6 @@
 #ifndef Dicebox158Gd_h
 #define Dicebox158Gd_h 1
 
-#include <stdio.h>
-#include <RAT/DB.hh>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
 #include "G4DynamicParticle.hh"
 #include "G4Electron.hh"
 #include "G4Gamma.hh"
@@ -21,21 +14,28 @@
 #include "G4VProcess.hh"
 #include "globals.hh"
 #include "local_g4compat.hh"
+#include <RAT/DB.hh>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <stdio.h>
+#include <string>
+#include <vector>
 
 class Dicebox158Gd {
- protected:
+protected:
   G4ParticleChange aParticleChange;
-  static G4std::vector<Dicebox158Gd*> masterVector;
+  static G4std::vector<Dicebox158Gd *> masterVector;
 
   std::vector<int> myPar, myMul;
   std::vector<double> myErg, myCdf;
 
- public:
+public:
   Dicebox158Gd();
   ~Dicebox158Gd();
 
-  static G4VParticleChange* GenericPostStepDoIt(const G4Step* pStep);
-  G4VParticleChange* PostStepDoIt(const G4Track& aTrack, const G4Step& aStep);
+  static G4VParticleChange *GenericPostStepDoIt(const G4Step *pStep);
+  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
 };
 
 #endif

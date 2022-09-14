@@ -1,9 +1,9 @@
 #ifndef __RAT__
 #define __RAT__
 #include <RAT/AnyParse.hh>
-#include <TStopwatch.h>
 #include <RAT/DB.hh>
 #include <RAT/DBMessenger.hh>
+#include <TStopwatch.h>
 #include <set>
 
 namespace RAT {
@@ -19,15 +19,16 @@ protected:
   int run;
   bool vis;
   int argc;
-  char** argv;
+  char **argv;
   TStopwatch runTime;
-  DB* rdb;
-  DBMessenger* rdb_messenger;
+  DB *rdb;
+  DBMessenger *rdb_messenger;
+
 public:
   inline static std::set<std::string> ratdb_directories = {};
   inline static std::set<std::string> model_directories = {};
 
-  Rat(AnyParse*, int, char**);
+  Rat(AnyParse *, int, char **);
   ~Rat();
   void Begin();
   void Report();

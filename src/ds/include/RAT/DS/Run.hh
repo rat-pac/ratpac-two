@@ -10,11 +10,11 @@
 
 #include <RAT/DS/PMTInfo.hh>
 #include <TObject.h>
-#include <vector>
 #include <TTimeStamp.h>
+#include <vector>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class Run : public TObject {
 public:
@@ -31,10 +31,12 @@ public:
 
   /** Run start time */
   virtual TTimeStamp GetStartTime() const { return startTime; }
-  virtual void SetStartTime(const TTimeStamp& _startTime) { startTime = _startTime; }
+  virtual void SetStartTime(const TTimeStamp &_startTime) {
+    startTime = _startTime;
+  }
 
   /** PMT information */
-  virtual PMTInfo* GetPMTInfo() {
+  virtual PMTInfo *GetPMTInfo() {
     if (pmtinfo.empty()) {
       pmtinfo.resize(1);
     }
@@ -51,15 +53,13 @@ public:
 
   ClassDef(Run, 2)
 
-protected:
-  Int_t id;
+      protected : Int_t id;
   ULong64_t type;
   TTimeStamp startTime;
   std::vector<PMTInfo> pmtinfo;
 };
 
-  } // namespace DS
+} // namespace DS
 } // namespace RAT
 
 #endif
-

@@ -15,24 +15,23 @@ class DSWriter : public TObject {
 public:
   // Write event tree to `filename`, flushing to disk every `autosave` kB.
   // If update is true, append to file if it exists
-  DSWriter(const char *filename, bool update=false, int autosave=1024);
+  DSWriter(const char *filename, bool update = false, int autosave = 1024);
   virtual ~DSWriter();
 
   // Write an event to tree.  Returns error code from TTree::Fill()
   int Fill(DS::Root *ds);
-  TTree* GetTree() { return fTree; };
-  TTree* GetRunTree() { return fRunTree; };
+  TTree *GetTree() { return fTree; };
+  TTree *GetRunTree() { return fRunTree; };
   void WriteLog();
   void WriteStatus(int status);
   void Close();
 
-  ClassDef(DSWriter,0)
+  ClassDef(DSWriter, 0)
 
-protected:
-  std::string fFilename;
+      protected : std::string fFilename;
   TFile *fFile;
   TTree *fTree;
-  TTree  *fRunTree;
+  TTree *fRunTree;
   DS::Root *fBranchDS;
   DS::Run *fBranchRun;
 };

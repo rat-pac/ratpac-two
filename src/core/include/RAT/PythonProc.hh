@@ -22,7 +22,7 @@
 namespace RAT {
 
 class PythonProc : public Processor {
-public:  
+public:
   /** Create new Python processor */
   PythonProc();
 

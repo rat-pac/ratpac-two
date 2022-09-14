@@ -7,15 +7,14 @@ namespace RAT {
 
 class WatchmanDetectorFactory : public DetectorFactory {
 
-    public:
-        WatchmanDetectorFactory() { }
-        virtual ~WatchmanDetectorFactory() { }
-        
-    protected:
-        virtual void DefineDetector(DBLinkPtr detector);
+public:
+  WatchmanDetectorFactory() {}
+  virtual ~WatchmanDetectorFactory() {}
 
+protected:
+  virtual void DefineDetector(DBLinkPtr detector);
 };
 
-} //namespace RAT
+} // namespace RAT
 
 #endif

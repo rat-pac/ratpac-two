@@ -4,7 +4,7 @@
  * @author L. Bignell, BNL
  */
 #ifndef __G4OpWLSBuilder__
-#define __G4OpWLSBuilder__ 
+#define __G4OpWLSBuilder__
 
 #include <G4VPhysicsConstructor.hh>
 
@@ -18,8 +18,6 @@ public:
 
   // To instantiate desired Processes
   void ConstructProcess();
-
 };
 
-#endif  // __G4OpWLSBuilder__
-
+#endif // __G4OpWLSBuilder__

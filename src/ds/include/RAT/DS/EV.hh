@@ -16,16 +16,16 @@
 #define __signed signed
 #endif
 
-#include <TObject.h>
-#include <TTimeStamp.h>
-#include <RAT/DS/PMT.hh>
-#include <RAT/DS/LAPPD.hh>
 #include <RAT/DS/Digit.hh>
 #include <RAT/DS/FitResult.hh>
+#include <RAT/DS/LAPPD.hh>
+#include <RAT/DS/PMT.hh>
+#include <TObject.h>
+#include <TTimeStamp.h>
 #include <vector>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class EV : public TObject {
 public:
@@ -38,24 +38,24 @@ public:
 
   /** Date/time of event trigger (UTC)*/
   virtual TTimeStamp GetUTC() const { return utc; }
-  virtual void SetUTC(const TTimeStamp& _utc) { utc = _utc; }
+  virtual void SetUTC(const TTimeStamp &_utc) { utc = _utc; }
 
   /** List of pmts with at least one charge sample in this event. */
-  virtual PMT* GetPMT(Int_t i) { return &pmt[i]; }
+  virtual PMT *GetPMT(Int_t i) { return &pmt[i]; }
   virtual Int_t GetPMTCount() const { return pmt.size(); }
-  virtual PMT* AddNewPMT() {
+  virtual PMT *AddNewPMT() {
     pmt.resize(pmt.size() + 1);
     return &pmt.back();
   }
   virtual void PrunePMT() { pmt.resize(0); }
-  
+
   /** Number of PMTs which were hit at least once. (Convenience method) */
   virtual Int_t Nhits() const { return GetPMTCount(); }
 
   /** List of LAPPDs with at least one charge sample in this event. */
-  virtual LAPPD* GetLAPPD(Int_t i) { return &lappd[i]; }
+  virtual LAPPD *GetLAPPD(Int_t i) { return &lappd[i]; }
   virtual Int_t GetLAPPDCount() const { return lappd.size(); }
-  virtual LAPPD* AddNewLAPPD() {
+  virtual LAPPD *AddNewLAPPD() {
     lappd.resize(lappd.size() + 1);
     return &lappd.back();
   }
@@ -64,26 +64,26 @@ public:
   /** Time since last trigger in ns. */
   Double_t GetDeltaT() const { return deltat; }
   void SetDeltaT(Double_t _deltat) { deltat = _deltat; }
-   
-  void SetCalibratedTriggerTime(Double_t _calibratedTriggerTime) {calibratedTriggerTime=_calibratedTriggerTime;}
-  Double_t GetCalibratedTriggerTime() const {return calibratedTriggerTime;}
-    
+
+  void SetCalibratedTriggerTime(Double_t _calibratedTriggerTime) {
+    calibratedTriggerTime = _calibratedTriggerTime;
+  }
+  Double_t GetCalibratedTriggerTime() const { return calibratedTriggerTime; }
+
   /** Total charge in all PMT waveforms (pC). */
   Float_t GetTotalCharge() const { return qTotal; }
   void SetTotalCharge(Float_t _qTotal) { qTotal = _qTotal; }
 
   /** Fit Results **/
-  virtual std::vector<FitResult*> GetFitResults() { return fitResults; }
-  virtual void AddFitResult(FitResult* fit){ fitResults.push_back(fit); }
+  virtual std::vector<FitResult *> GetFitResults() { return fitResults; }
+  virtual void AddFitResult(FitResult *fit) { fitResults.push_back(fit); }
   virtual void PruneFitResults() { fitResults.resize(0); }
 
   /// Set CAEN digitizer information for this event
-  virtual void SetDigitizer( const Digit& dig ) { digitizer.push_back(dig); }
+  virtual void SetDigitizer(const Digit &dig) { digitizer.push_back(dig); }
 
   /// Get CAEN digitizer information for this event
-  virtual Digit& GetDigitizer(){
-    return digitizer.at( 0 );
-  };
+  virtual Digit &GetDigitizer() { return digitizer.at(0); };
 
   /// Check if the digitizer exists
   virtual bool DigitizerExists() const { return !digitizer.empty(); }
@@ -93,20 +93,18 @@ public:
 
   ClassDef(EV, 1)
 
-protected:
-  Int_t id;
+      protected : Int_t id;
   Float_t qTotal;
   Float_t calibratedTriggerTime;
   Double_t deltat;
   TTimeStamp utc;
   std::vector<PMT> pmt;
   std::vector<LAPPD> lappd;
-  std::vector<FitResult*> fitResults;
+  std::vector<FitResult *> fitResults;
   std::vector<Digit> digitizer; ///< The digitizer information
 };
 
-  } // namespace DS
+} // namespace DS
 } // namespace RAT
 
 #endif
-

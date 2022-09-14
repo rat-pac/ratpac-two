@@ -32,8 +32,8 @@
 #ifndef __RAT_DecayChain_Gen__
 #define __RAT_DecayChain_Gen__
 
-#include <globals.hh>
 #include <RAT/GLG4Gen.hh>
+#include <globals.hh>
 
 class G4Event;
 class GLG4TimeGen;
@@ -41,41 +41,40 @@ class GLG4PosGen;
 
 namespace RAT {
 
-  // Forward declarations in RAT namespace
-  class DecayChain;
+// Forward declarations in RAT namespace
+class DecayChain;
 
-  class DecayChain_Gen : public GLG4Gen {
-  public:
-    DecayChain_Gen();
-    virtual ~DecayChain_Gen();
-    virtual void GenerateEvent(G4Event *event);
-    virtual void ResetTime(double offset=0.0);
-    virtual bool IsRepeatable() const { return true; };
+class DecayChain_Gen : public GLG4Gen {
+public:
+  DecayChain_Gen();
+  virtual ~DecayChain_Gen();
+  virtual void GenerateEvent(G4Event *event);
+  virtual void ResetTime(double offset = 0.0);
+  virtual bool IsRepeatable() const { return true; };
 
-    virtual void SetState(G4String state);
-    virtual G4String GetState() const;
+  virtual void SetState(G4String state);
+  virtual G4String GetState() const;
 
-    virtual void SetTimeState(G4String state);
-    virtual G4String GetTimeState() const;
-    virtual void SetPosState(G4String state);
-    virtual G4String GetPosState() const;
+  virtual void SetTimeState(G4String state);
+  virtual G4String GetTimeState() const;
+  virtual void SetPosState(G4String state);
+  virtual G4String GetPosState() const;
 
-  protected:
+protected:
+  // Generator initialization, specified by the user.
+  G4String stateStr;
 
-    // Generator initialization, specified by the user.
-    G4String stateStr;
+  // The time and position generators specified by the user.
+  GLG4TimeGen *timeGen;
+  GLG4PosGen *posGen;
 
-    // The time and position generators specified by the user.
-    GLG4TimeGen* timeGen;
-    GLG4PosGen* posGen;
+  // The decay chain for the isotope selected by the user.
+  DecayChain *fDecayChain;
 
-    // The decay chain for the isotope selected by the user.
-    DecayChain* fDecayChain;
-
-    bool fInMiddle;  //to start chain from the isotope;
-    bool fInAlphaDecay;// to have only alpha decay
-    bool fInGammaDecay;// to have only gamma decay
-  };
+  bool fInMiddle;     // to start chain from the isotope;
+  bool fInAlphaDecay; // to have only alpha decay
+  bool fInGammaDecay; // to have only gamma decay
+};
 
 } // namespace RAT
 

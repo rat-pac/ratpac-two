@@ -1,9 +1,9 @@
-#include <RAT/RunManager.hh>
-#include <RAT/ProcBlock.hh>
-#include <RAT/Gsim.hh>
-#include <RAT/PhysicsList.hh>
 #include <G4RunManager.hh>
 #include <RAT/GLG4VisManager.hh>
+#include <RAT/Gsim.hh>
+#include <RAT/PhysicsList.hh>
+#include <RAT/ProcBlock.hh>
+#include <RAT/RunManager.hh>
 
 namespace RAT {
 
@@ -12,13 +12,13 @@ RunManager::RunManager() {
   Init();
 }
 
-RunManager::RunManager(ProcBlock* theMainBlock) {
+RunManager::RunManager(ProcBlock *theMainBlock) {
   mainBlock = theMainBlock;
   Init();
 }
 
 void RunManager::Init() {
-  theRunManager = new G4RunManager;  // Manages GEANT4 simulation process
+  theRunManager = new G4RunManager; // Manages GEANT4 simulation process
 
   // Particle transport and interactions.  Note that this has to be
   // created outside of Gsim, since the physics list must be
@@ -30,7 +30,7 @@ void RunManager::Init() {
 
   // Visualization, only if you choose to have it!
   theVisManager = new GLG4VisManager();
-  theVisManager -> Initialize();
+  theVisManager->Initialize();
 }
 
 RunManager::~RunManager() {
@@ -38,5 +38,4 @@ RunManager::~RunManager() {
   delete theVisManager;
 }
 
-}  // namespace RAT
-
+} // namespace RAT

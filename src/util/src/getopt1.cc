@@ -18,7 +18,6 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -27,8 +26,6 @@
 #include "getopt_int.h"
 
 #include <stdio.h>
-
-
 
 /* Comment out all this code if we are using the GNU C Library, and are not
    actually compiling the library itself.  This code is part of the GNU C
@@ -46,37 +43,29 @@
 #endif
 #endif
 
-
 /* This needs to come after some library #include
    to get __GNU_LIBRARY__ defined.  */
 #ifdef __GNU_LIBRARY__
 #include <stdlib.h>
 #endif
 
-#ifndef	NULL
+#ifndef NULL
 #define NULL 0
 #endif
-
 
 // Hide this in RAT namespace to avoid collisions with system standard
 // version where available
 namespace RAT {
 
-
-int
-getopt_long (int argc, char *const *argv, const char *options,
-	     const struct option *long_options, int *opt_index) __THROW
-{
-  return _getopt_internal (argc, argv, options, long_options, opt_index, 0);
+int getopt_long(int argc, char *const *argv, const char *options,
+                const struct option *long_options, int *opt_index) __THROW {
+  return _getopt_internal(argc, argv, options, long_options, opt_index, 0);
 }
 
-int
-_getopt_long_r (int argc, char *const *argv, const char *options,
-		const struct option *long_options, int *opt_index,
-		struct _getopt_data *d)
-{
-  return _getopt_internal_r (argc, argv, options, long_options, opt_index,
-			     0, d);
+int _getopt_long_r(int argc, char *const *argv, const char *options,
+                   const struct option *long_options, int *opt_index,
+                   struct _getopt_data *d) {
+  return _getopt_internal_r(argc, argv, options, long_options, opt_index, 0, d);
 }
 
 /* Like getopt_long, but '-' as well as '--' can indicate a long option.
@@ -84,21 +73,16 @@ _getopt_long_r (int argc, char *const *argv, const char *options,
    but does match a short option, it is parsed as a short option
    instead.  */
 
-int
-getopt_long_only (int argc, char *const *argv, const char *options,
-		  const struct option *long_options, int *opt_index) __THROW
-{
-  return _getopt_internal (argc, argv, options, long_options, opt_index, 1);
+int getopt_long_only(int argc, char *const *argv, const char *options,
+                     const struct option *long_options,
+                     int *opt_index) __THROW {
+  return _getopt_internal(argc, argv, options, long_options, opt_index, 1);
 }
 
-int
-_getopt_long_only_r (int argc, char *const *argv, const char *options,
-		     const struct option *long_options, int *opt_index,
-		     struct _getopt_data *d)
-{
-  return _getopt_internal_r (argc, argv, options, long_options, opt_index,
-			     1, d);
+int _getopt_long_only_r(int argc, char *const *argv, const char *options,
+                        const struct option *long_options, int *opt_index,
+                        struct _getopt_data *d) {
+  return _getopt_internal_r(argc, argv, options, long_options, opt_index, 1, d);
 }
-
 
 } // namespace RAT

@@ -1,16 +1,15 @@
 #ifndef __RAT_TrueDAQProc__
 #define __RAT_TrueDAQProc__
 
-#include <RAT/Processor.hh>
 #include <RAT/DB.hh>
+#include <RAT/Processor.hh>
 
 namespace RAT {
-
 
 class TrueDAQProc : public Processor {
 public:
   TrueDAQProc();
-  virtual ~TrueDAQProc() { };
+  virtual ~TrueDAQProc(){};
   virtual Processor::Result DSEvent(DS::Root *ds);
   void SetD(std::string param, double value);
   void SetI(std::string param, int value);
@@ -22,7 +21,6 @@ protected:
   double fMaxHitTime;
   DBLinkPtr ldaq;
 };
-
 
 } // namespace RAT
 

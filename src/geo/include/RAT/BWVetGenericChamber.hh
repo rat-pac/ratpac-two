@@ -8,24 +8,23 @@
 #include <G4VSensitiveDetector.hh>
 #include <RAT/BWVetGenericChamberHit.hh>
 
-
 class G4Step;
 class G4HCofThisEvent;
 class G4TouchableHistory;
 
 namespace RAT {
 
-class BWVetGenericChamber : public G4VSensitiveDetector //, public GLG4Configurable
+class BWVetGenericChamber
+    : public G4VSensitiveDetector //, public GLG4Configurable
 {
-  
+
 public:
   BWVetGenericChamber(G4String name);
   virtual ~BWVetGenericChamber();
-  
-  virtual void Initialize(G4HCofThisEvent*HCE);
-  virtual G4bool ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist);
-  virtual void EndOfEvent(G4HCofThisEvent*HCE);
 
+  virtual void Initialize(G4HCofThisEvent *HCE);
+  virtual G4bool ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist);
+  virtual void EndOfEvent(G4HCofThisEvent *HCE);
 
   // Data members which are publicly accessible and can be
   // written out to the RAT event tree
@@ -50,12 +49,11 @@ public:
 private:
   int fLastEventID;
   int fLastTrackID;
-    
-  BWVetGenericChamberHitsCollection* _hitsCollection;
-  G4int HCID;
-  G4HCofThisEvent*              _HCE;
-};
 
+  BWVetGenericChamberHitsCollection *_hitsCollection;
+  G4int HCID;
+  G4HCofThisEvent *_HCE;
+};
 
 } // namespace RAT
 

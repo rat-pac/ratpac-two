@@ -4,17 +4,17 @@
 #ifndef __RAT_GeoPerfBoxFactory__
 #define __RAT_GeoPerfBoxFactory__
 
-#include <RAT/GeoSolidFactory.hh>
-#include <RAT/DB.hh>
 #include <G4VSolid.hh>
+#include <RAT/DB.hh>
+#include <RAT/GeoSolidFactory.hh>
 
-namespace RAT{
-  class GeoPerfBoxFactory : public GeoSolidFactory{
-  public:
-    GeoPerfBoxFactory() : GeoSolidFactory("perfbox"){};
-    virtual G4VSolid* ConstructSolid(DBLinkPtr table);
-  };
+namespace RAT {
+class GeoPerfBoxFactory : public GeoSolidFactory {
+public:
+  GeoPerfBoxFactory() : GeoSolidFactory("perfbox"){};
+  virtual G4VSolid *ConstructSolid(DBLinkPtr table);
+};
 
-}
+} // namespace RAT
 
 #endif

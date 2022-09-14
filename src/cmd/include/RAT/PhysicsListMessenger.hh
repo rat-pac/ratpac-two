@@ -20,23 +20,22 @@ class PhysicsList;
 
 class PhysicsListMessenger : public G4UImessenger {
 public:
-  PhysicsListMessenger(PhysicsList* physicsList);
+  PhysicsListMessenger(PhysicsList *physicsList);
   virtual ~PhysicsListMessenger();
-  
-  G4String GetCurrentValue(G4UIcommand* command);
-  void SetNewValue(G4UIcommand* command, G4String newValue);
 
-  PhysicsList* fPhysicsList;
+  G4String GetCurrentValue(G4UIcommand *command);
+  void SetNewValue(G4UIcommand *command, G4String newValue);
+
+  PhysicsList *fPhysicsList;
 
 protected:
-  G4UIcmdWithAString* fSetOpWLSCmd;
-  G4UIcmdWithAnInteger* fSetCerenkovMaxNumPhotonsPerStep;
-  G4UIcmdWithABool* fEnableCerenkov;
-  G4UIcommand* fSetStepFunctionLightIons;
-  G4UIcommand* fSetStepFunctionMuHad;
+  G4UIcmdWithAString *fSetOpWLSCmd;
+  G4UIcmdWithAnInteger *fSetCerenkovMaxNumPhotonsPerStep;
+  G4UIcmdWithABool *fEnableCerenkov;
+  G4UIcommand *fSetStepFunctionLightIons;
+  G4UIcommand *fSetStepFunctionMuHad;
 };
-  
-}  // namespace RAT
 
-#endif  // __RAT_PhysicsListMessenger__
+} // namespace RAT
 
+#endif // __RAT_PhysicsListMessenger__

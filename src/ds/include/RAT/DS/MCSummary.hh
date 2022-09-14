@@ -17,7 +17,7 @@
 #include <string>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 typedef std::map<std::string, double> StringDoubleMap;
 
@@ -33,14 +33,14 @@ public:
    * the energy lost in that step. Optical photons, and the rest mass of
    * particles when a track terminates are not included.
    */
-  virtual const TVector3& GetEnergyCentroid() const { return energyCentroid; }
-  virtual void SetEnergyCentroid(const TVector3& _energyCentroid) {
+  virtual const TVector3 &GetEnergyCentroid() const { return energyCentroid; }
+  virtual void SetEnergyCentroid(const TVector3 &_energyCentroid) {
     energyCentroid = _energyCentroid;
   }
 
   /** RMS of energy loss. */
-  virtual const TVector3& GetEnergyRMS() const { return energyRMS; }
-  virtual void SetEnergyRMS(const TVector3& _energyRMS) {
+  virtual const TVector3 &GetEnergyRMS() const { return energyRMS; }
+  virtual void SetEnergyRMS(const TVector3 &_energyRMS) {
     energyRMS = _energyRMS;
   }
 
@@ -97,46 +97,47 @@ public:
     numReemitPhoton = _numReemitPhoton;
   }
 
-    /** Number of photons produced by the re-emission process */
-    virtual Int_t GetNumCerenkovPhoton() const { return numCerenkovPhoton; }
-    virtual void SetNumCerenkovPhoton(Int_t _numCerenkovPhoton) {
-        numCerenkovPhoton = _numCerenkovPhoton;
-    }
+  /** Number of photons produced by the re-emission process */
+  virtual Int_t GetNumCerenkovPhoton() const { return numCerenkovPhoton; }
+  virtual void SetNumCerenkovPhoton(Int_t _numCerenkovPhoton) {
+    numCerenkovPhoton = _numCerenkovPhoton;
+  }
 
-    virtual void SetPhotonInfo(std::vector<std::vector<double> > _photonComposition) {
-        photonComposition = _photonComposition;
-    }
-    virtual std::vector<std::vector<double> > GetPhotonInfo() const { return photonComposition; }
-    virtual double GetNPhotonsTriggers() const {
-      return photonComposition.size();
-    }
-    virtual double GetCherenkovPhotons(int _trigger) const {
-      return photonComposition[_trigger][2];
-    }
-    virtual double GetScintPhotons(int _trigger) const {
-      return photonComposition[_trigger][0];
-    }
-    virtual double GetRemmitPhotons(int _trigger) const {
-      return photonComposition[_trigger][1];
-    }
-    virtual double GetTimePhotons(int _trigger) const {
-          return photonComposition[_trigger][3];
-    }
+  virtual void
+  SetPhotonInfo(std::vector<std::vector<double>> _photonComposition) {
+    photonComposition = _photonComposition;
+  }
+  virtual std::vector<std::vector<double>> GetPhotonInfo() const {
+    return photonComposition;
+  }
+  virtual double GetNPhotonsTriggers() const {
+    return photonComposition.size();
+  }
+  virtual double GetCherenkovPhotons(int _trigger) const {
+    return photonComposition[_trigger][2];
+  }
+  virtual double GetScintPhotons(int _trigger) const {
+    return photonComposition[_trigger][0];
+  }
+  virtual double GetRemmitPhotons(int _trigger) const {
+    return photonComposition[_trigger][1];
+  }
+  virtual double GetTimePhotons(int _trigger) const {
+    return photonComposition[_trigger][3];
+  }
 
-    virtual void SetPMTPhotonInfo(std::vector<std::vector<double> > _pmtHitVector) {
-         pmtHitVector = _pmtHitVector;
-    }
+  virtual void
+  SetPMTPhotonInfo(std::vector<std::vector<double>> _pmtHitVector) {
+    pmtHitVector = _pmtHitVector;
+  }
 
-    virtual std::vector<std::vector<double> > GetPMTPhotonInfo() {
-         return pmtHitVector;
-    }
-
-
+  virtual std::vector<std::vector<double>> GetPMTPhotonInfo() {
+    return pmtHitVector;
+  }
 
   ClassDef(MCSummary, 3)
 
-protected:
-  Int_t numScintPhoton;
+      protected : Int_t numScintPhoton;
   Int_t numReemitPhoton;
   Int_t numCerenkovPhoton;
   Float_t totalScintEdep;
@@ -148,12 +149,11 @@ protected:
   TVector3 opticalRMS;
   TVector3 totalScintCentroid;
   StringDoubleMap energyLoss;
-  std::vector<std::vector<double> > photonComposition;
-  std::vector<std::vector<double> > pmtHitVector;
-
+  std::vector<std::vector<double>> photonComposition;
+  std::vector<std::vector<double>> pmtHitVector;
 };
 
-  } // namespace DS
+} // namespace DS
 } // namespace RAT
 
 #endif

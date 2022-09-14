@@ -14,11 +14,10 @@
 #define __RAT_PosGen_Multipoint__
 
 #include <RAT/GLG4PosGen.hh>
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace RAT {
-
 
 class PosGen_Multipoint : public GLG4PosGen {
 public:
@@ -27,10 +26,10 @@ public:
    *  The default is an empty list, triggering an error if you don't configure
    *  this generator with SetState before calling GeneratePosition.
    */
-  PosGen_Multipoint(const char *arg_dbname="multipoint");
+  PosGen_Multipoint(const char *arg_dbname = "multipoint");
 
   /** Returns the next position in the list of points. */
-  virtual void GeneratePosition( G4ThreeVector &argResult );
+  virtual void GeneratePosition(G4ThreeVector &argResult);
 
   /** Sets the point list.
    *
@@ -48,24 +47,26 @@ public:
    *  a job with fewer points.
    *
    *  The second version reads the point list from the named table.  You can
-   *  include a table index using the bracket notation.  For example: 
+   *  include a table index using the bracket notation.  For example:
    *     MULTIPOINT[led]
    *
    */
-  void SetState( G4String newValues );
+  void SetState(G4String newValues);
 
   /** Return state as string in same format as SetState() */
   G4String GetState() const;
 
 protected:
-  void LoadUniformPoints(unsigned numPoints, 
-			 double innerRadius, double outerRadius);
+  void LoadUniformPoints(unsigned numPoints, double innerRadius,
+                         double outerRadius);
   void LoadTablePoints(std::string tableName, std::string tableIndex);
 
   enum { MULTIPOINT_TABLE, MULTIPOINT_UNIFORM } MultipointTypeList;
-  int fType; /** Type of multipoint generator.  Value must be from above enum. */
+  int fType; /** Type of multipoint generator.  Value must be from above enum.
+              */
 
-  std::string fTableName;  /** Only set if using table variant of this generator */
+  std::string
+      fTableName; /** Only set if using table variant of this generator */
   std::string fTableIndex;
 
   double fInnerRadius, fOuterRadius;
@@ -73,7 +74,6 @@ protected:
   std::vector<G4ThreeVector> fPos;
   int fNextPosIndex;
 };
-
 
 } // namespace RAT
 

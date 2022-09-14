@@ -230,61 +230,62 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     nanotime = static_cast<ULong64_t>(ev->GetCalibratedTriggerTime()) + mctime;
 
     auto fitVector = ev->GetFitResults();
-    std::map<std::string, double*> fitvalues;
-    std::map<std::string, bool*> fitvalids;
-    std::map<std::string, int*> intFOMs;
-    std::map<std::string, bool*> boolFOMs;
-    std::map<std::string, double*> doubleFOMs;
-    for(auto fit : fitVector){
+    std::map<std::string, double *> fitvalues;
+    std::map<std::string, bool *> fitvalids;
+    std::map<std::string, int *> intFOMs;
+    std::map<std::string, bool *> boolFOMs;
+    std::map<std::string, double *> doubleFOMs;
+    for (auto fit : fitVector) {
       std::string name = fit->GetFitterName();
       // Check the validity and write it out
-      if( fit->GetEnablePosition() ){
+      if (fit->GetEnablePosition()) {
         TVector3 pos = fit->GetPosition();
-        fitvalues["x_"+name] = new double(pos.X());
-        fitvalues["y_"+name] = new double(pos.Y());
-        fitvalues["z_"+name] = new double(pos.Z());
-        fitvalids["validposition_"+name] = new bool(fit->GetValidPosition());
+        fitvalues["x_" + name] = new double(pos.X());
+        fitvalues["y_" + name] = new double(pos.Y());
+        fitvalues["z_" + name] = new double(pos.Z());
+        fitvalids["validposition_" + name] = new bool(fit->GetValidPosition());
       }
-      if( fit->GetEnableDirection() ){
+      if (fit->GetEnableDirection()) {
         TVector3 dir = fit->GetDirection();
-        fitvalues["u_"+name] = new double(dir.X());
-        fitvalues["v_"+name] = new double(dir.Y());
-        fitvalues["w_"+name] = new double(dir.Z());
-        fitvalids["validdirection_"+name] = new bool(fit->GetValidDirection());
+        fitvalues["u_" + name] = new double(dir.X());
+        fitvalues["v_" + name] = new double(dir.Y());
+        fitvalues["w_" + name] = new double(dir.Z());
+        fitvalids["validdirection_" + name] =
+            new bool(fit->GetValidDirection());
       }
-      if( fit->GetEnableEnergy() ){
-        fitvalues["energy_"+name] = new double(fit->GetEnergy());
-        fitvalids["validenergy"+name] = new bool(fit->GetValidEnergy());
+      if (fit->GetEnableEnergy()) {
+        fitvalues["energy_" + name] = new double(fit->GetEnergy());
+        fitvalids["validenergy" + name] = new bool(fit->GetValidEnergy());
       }
-      if( fit->GetEnableTime() ){
-        fitvalues["time_"+name] = new double(fit->GetTime());
-        fitvalids["validtime"+name] = new bool(fit->GetValidTime());
+      if (fit->GetEnableTime()) {
+        fitvalues["time_" + name] = new double(fit->GetTime());
+        fitvalids["validtime" + name] = new bool(fit->GetValidTime());
       }
       // Figures of merit > 3 types
-      for( auto const& [label, value] : fit->boolFiguresOfMerit){
-        boolFOMs[label+"_"+name] = new bool(value);
+      for (auto const &[label, value] : fit->boolFiguresOfMerit) {
+        boolFOMs[label + "_" + name] = new bool(value);
       }
-      for( auto const& [label, value] : fit->intFiguresOfMerit){
-        intFOMs[label+"_"+name] = new int(value);
+      for (auto const &[label, value] : fit->intFiguresOfMerit) {
+        intFOMs[label + "_" + name] = new int(value);
       }
-      for( auto const& [label, value] : fit->doubleFiguresOfMerit){
-        doubleFOMs[label+"_"+name] = new double(value);
+      for (auto const &[label, value] : fit->doubleFiguresOfMerit) {
+        doubleFOMs[label + "_" + name] = new double(value);
       }
     }
     // Write fitter values into TTree
-    for(auto const& [label, value] : fitvalues){
+    for (auto const &[label, value] : fitvalues) {
       this->SetBranchValue(label, value);
     }
-    for(auto const& [label, value] : fitvalids){
+    for (auto const &[label, value] : fitvalids) {
       this->SetBranchValue(label, value);
     }
-    for(auto const& [label, value] : intFOMs){
+    for (auto const &[label, value] : intFOMs) {
       this->SetBranchValue(label, value);
     }
-    for(auto const& [label, value] : boolFOMs){
+    for (auto const &[label, value] : boolFOMs) {
       this->SetBranchValue(label, value);
     }
-    for(auto const& [label, value] : doubleFOMs){
+    for (auto const &[label, value] : doubleFOMs) {
       this->SetBranchValue(label, value);
     }
     if (options.pmthits) {
@@ -360,14 +361,14 @@ OutNtupleProc::~OutNtupleProc() {
     TMap* dbtrace = Log::GetDBTraceMap();
     dbtrace->Write("db", TObject::kSingleKey);
     */
-    //outputFile->Write(0, TObject::kOverwrite);
+    // outputFile->Write(0, TObject::kOverwrite);
     outputFile->Close();
     delete outputFile;
   }
 }
 
-void OutNtupleProc::SetBranchValue(std::string name, double *value){
-  if( branchNames.find(name) != branchNames.end() ){
+void OutNtupleProc::SetBranchValue(std::string name, double *value) {
+  if (branchNames.find(name) != branchNames.end()) {
     outputTree->SetBranchAddress(name.c_str(), value);
   } else {
     branchNames.insert(name);
@@ -375,8 +376,8 @@ void OutNtupleProc::SetBranchValue(std::string name, double *value){
   }
 }
 
-void OutNtupleProc::SetBranchValue(std::string name, bool *value){
-  if( branchNames.find(name) != branchNames.end() ){
+void OutNtupleProc::SetBranchValue(std::string name, bool *value) {
+  if (branchNames.find(name) != branchNames.end()) {
     outputTree->SetBranchAddress(name.c_str(), value);
   } else {
     branchNames.insert(name);
@@ -384,8 +385,8 @@ void OutNtupleProc::SetBranchValue(std::string name, bool *value){
   }
 }
 
-void OutNtupleProc::SetBranchValue(std::string name, int *value){
-  if( branchNames.find(name) != branchNames.end() ){
+void OutNtupleProc::SetBranchValue(std::string name, int *value) {
+  if (branchNames.find(name) != branchNames.end()) {
     outputTree->SetBranchAddress(name.c_str(), value);
   } else {
     branchNames.insert(name);

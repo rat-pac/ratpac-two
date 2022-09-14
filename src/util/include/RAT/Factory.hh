@@ -1,23 +1,19 @@
 #ifndef __RAT_Factory__
 #define __RAT_Factory__
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace RAT {
 
-template <class T>
-class AllocBase {
+template <class T> class AllocBase {
 public:
-  virtual T* New() = 0;
+  virtual T *New() = 0;
 };
 
-template <class T, class TDerived>
-class Alloc : public AllocBase<T> {
+template <class T, class TDerived> class Alloc : public AllocBase<T> {
 public:
-  virtual T* New() {
-    return new TDerived;
-  };
+  virtual T *New() { return new TDerived; };
 };
 
 class FactoryUnknownID {
@@ -27,15 +23,11 @@ public:
 };
 
 template <class T>
-class AllocTable : public std::map< std::string, AllocBase<T>* > 
-{
-};
+class AllocTable : public std::map<std::string, AllocBase<T> *> {};
 
-
-template <class T>
-class Factory {
+template <class T> class Factory {
 public:
-  T* New(const std::string &id) {
+  T *New(const std::string &id) {
     if (table.count(id) == 0)
       throw FactoryUnknownID(id);
     else
@@ -46,27 +38,22 @@ public:
     table[id] = allocator;
   };
 
-
 protected:
   AllocTable<T> table;
 };
 
-
-template <class T>
-class GlobalFactory {
+template <class T> class GlobalFactory {
 public:
-  static T* New(const std::string &id) { return factory.New(id); };
+  static T *New(const std::string &id) { return factory.New(id); };
   static void Register(const std::string &id, AllocBase<T> *allocator) {
     factory.Register(id, allocator);
   };
-
 
 protected:
   static Factory<T> factory;
 };
 
-template<class T>
-Factory<T> GlobalFactory<T>::factory;
+template <class T> Factory<T> GlobalFactory<T>::factory;
 
 } // namespace RAT
 

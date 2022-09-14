@@ -118,17 +118,18 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
           "/" + BFieldTableName; // add the experiment subdir
       std::ifstream Bdata(BFieldTableName1.data());
       if (!Bdata.is_open()) {
-        BFieldTableName = static_cast<std::string>(getenv("RATSHARE")) + "/ratdb/" +
-                          BFieldTableName;
+        BFieldTableName = static_cast<std::string>(getenv("RATSHARE")) +
+                          "/ratdb/" + BFieldTableName;
         std::cout << "file " << BFieldTableName1 << " not found, trying "
-             << BFieldTableName << "\n";
+                  << BFieldTableName << "\n";
         Bdata.close();
         Bdata.open(BFieldTableName.data());
         if (!Bdata.is_open()) {
           BFieldOn = false;
           BEffiTable = NULL;
-          std::cout << "also file " << BFieldTableName
-               << " not found, magnetic efficiency correction turned off\n";
+          std::cout
+              << "also file " << BFieldTableName
+              << " not found, magnetic efficiency correction turned off\n";
         }
         if (!Bdata.good())
           Bdata.clear(); // for backwards compatibility: g++ 3.4 requires to
@@ -138,7 +139,8 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
       std::string header;
       getline(Bdata, header);
       double xr, yr, zr, bxr, byr, bzr;
-      std::cout << "about to load B field from file " << BFieldTableName << "\n";
+      std::cout << "about to load B field from file " << BFieldTableName
+                << "\n";
       G4ThreeVector posi, field;
       while (!Bdata.rdstate()) {
         Bdata >> xr >> yr >> zr >> bxr >> byr >> bzr;
@@ -197,7 +199,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
       std::ifstream dynorfile(dynorfilename.data());
       if (!dynorfile.is_open()) {
         std::cout << "Failed to open " << dynorfilename.data()
-             << ", will assume random dynode orientations\n";
+                  << ", will assume random dynode orientations\n";
         dynorfile.close();
       } else {
         getline(dynorfile, header);
@@ -217,7 +219,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
         HaveDynoData = true;
       else
         std::cout << "No dynode orientation datafile or error in the data, "
-                "randomizing dynode orientations\n";
+                     "randomizing dynode orientations\n";
     }
     try {
       BEffiModel = DB::Get()->GetLink("BField")->GetS("b_efficiency_model");
@@ -267,7 +269,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
       }
       if (jmin < 0)
         std::cout << "can't find a point close to the " << id
-             << "-th pmt; MinDist is " << MinDist << "\n";
+                  << "-th pmt; MinDist is " << MinDist << "\n";
       else {
         G4ThreeVector bfield = Bf[jmin].perpPart(pmtdir);
         G4ThreeVector dynorient;
@@ -281,8 +283,8 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
             }
           if (minj < 0) {
             std::cout << "can't find the orientation of the " << id
-                 << "-th pmt's dynode; MinDiff is " << MinDiff << "\n"
-                 << "Throwing a random dynode orientation\n";
+                      << "-th pmt's dynode; MinDiff is " << MinDiff << "\n"
+                      << "Throwing a random dynode orientation\n";
             dynorient = G4RandomDirection();
             dynorient = dynorient.perpPart(pmtdir);
           } else
@@ -300,9 +302,9 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
           }
           if (dynorient.mag() == 0)
             std::cout << "Warning: tried 100 times to generate a random dynode "
-                    "orientation for "
-                 << id << "-th PMT and failed. dynorient " << dynorient(0)
-                 << "," << dynorient(1) << "," << dynorient(2) << "\n";
+                         "orientation for "
+                      << id << "-th PMT and failed. dynorient " << dynorient(0)
+                      << "," << dynorient(1) << "," << dynorient(2) << "\n";
         }
         dynorient = dynorient.unit();
         // build EfficiencyCorrection table. PMT x axis is dynorient
