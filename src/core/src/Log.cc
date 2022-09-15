@@ -4,8 +4,6 @@
 #include <fstream>
 #include <cstdlib>
 
-using namespace std;
-
 namespace RAT {
 
 //********************************************************************
@@ -66,8 +64,8 @@ Log::Log()
   bool Log::Init(std::string _filename, Level display, Level log)
 {
   // Redirect cout and cerr through Log
-  cerr.rdbuf(&warn_streambuf);
-  cout.rdbuf(&info_streambuf);
+  std::cerr.rdbuf(&warn_streambuf);
+  std::cout.rdbuf(&info_streambuf);
 
   filename = _filename;
   logfile.open(filename, 0);
@@ -96,14 +94,14 @@ void Log::SetLogLevel(Level level)
 void Log::Die(std::string message, int return_code)
 {
   warn << message << newline;
-  exit(return_code);
+  std::exit(return_code);
 }
 
 void Log::Assert(bool condition, std::string message, int return_code)
 {
   if (!condition) {
     warn << message << newline;
-    exit(return_code);
+    std::exit(return_code);
   }
 }
 

@@ -10,12 +10,10 @@
 #include <TVector3.h>
 
 #include <RAT/DB.hh>
-#include <RAT/DS/Centroid.hh>
 #include <RAT/DS/EV.hh>
 #include <RAT/DS/MC.hh>
 #include <RAT/DS/MCParticle.hh>
 #include <RAT/DS/PMTInfo.hh>
-#include <RAT/DS/PathFit.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/DS/RunStore.hh>
@@ -95,12 +93,6 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("mcDiry", &mcDiry);
     outputTree->Branch("mcDirz", &mcDirz);
   }
-  // outputTree->Branch("fitx", &fitx);
-  // outputTree->Branch("fity", &fity);
-  // outputTree->Branch("fitz", &fitz);
-  // outputTree->Branch("fitu", &fitu);
-  // outputTree->Branch("fitv", &fitv);
-  // outputTree->Branch("fitw", &fitw);
   if (options.pmthits) {
     outputTree->Branch("hitPMTID", &hitPMTID);
     outputTree->Branch("hitPMTTime", &hitPMTTime);
@@ -129,7 +121,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       Log::Die("No output file specified");
     }
   }
-  runBranch = RAT::DS::RunStore::GetRun(ds);
+  runBranch = DS::RunStore::GetRun(ds);
   ULong64_t stonano = 1000000000;
   dsentries++;
   // Clear the previous vectors
@@ -142,13 +134,13 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcDiry.clear();
   mcDirz.clear();
 
-  RAT::DS::MC *mc = ds->GetMC();
+  DS::MC *mc = ds->GetMC();
   TTimeStamp mcTTS = mc->GetUTC();
   ULong64_t mctime = static_cast<ULong64_t>(mcTTS.GetSec()) * stonano +
                      static_cast<ULong64_t>(mcTTS.GetNanoSec());
   mcpcount = mc->GetMCParticleCount();
   for (int pid = 0; pid < mcpcount; pid++) {
-    RAT::DS::MCParticle *particle = mc->GetMCParticle(pid);
+    DS::MCParticle *particle = mc->GetMCParticle(pid);
     pdgcodes.push_back(particle->GetPDGCode());
     mcKEnergies.push_back(particle->GetKE());
     TVector3 mcpos = particle->GetPosition();
@@ -187,7 +179,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     std::vector<double> kinetic, localtime;
     std::vector<int> processMapID;
     for (int trk = 0; trk < nTracks; trk++) {
-      RAT::DS::MCTrack *track = mc->GetMCTrack(trk);
+      DS::MCTrack *track = mc->GetMCTrack(trk);
       trackPDG.push_back(track->GetPDGCode());
       xtrack.clear();
       ytrack.clear();
@@ -200,7 +192,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       processMapID.clear();
       int nSteps = track->GetMCTrackStepCount();
       for (int stp = 0; stp < nSteps; stp++) {
-        RAT::DS::MCTrackStep *step = track->GetMCTrackStep(stp);
+        DS::MCTrackStep *step = track->GetMCTrackStep(stp);
         // Process
         std::string proc = step->GetProcess();
         if (processCodeMap.find(proc) == processCodeMap.end()) {
@@ -233,20 +225,68 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   }
   // EV Branches
   for (subev = 0; subev < ds->GetEVCount(); subev++) {
-    RAT::DS::EV *ev = ds->GetEV(subev);
+    DS::EV *ev = ds->GetEV(subev);
     evid = ev->GetID();
     nanotime = static_cast<ULong64_t>(ev->GetCalibratedTriggerTime()) + mctime;
-    // Todo: Need to decide how to add fit information
-    // RAT::DS::PathFit *fit = ev->GetPathFit();
-    // TVector3 pos = fit->GetPosition();
-    // fitx = pos.X();
-    // fity = pos.Y();
-    // fitz = pos.Z();
-    // TVector3 dir = fit->GetDirection();
-    // fitu = dir.X();
-    // fitv = dir.Y();
-    // fitw = dir.Z();
 
+    auto fitVector = ev->GetFitResults();
+    std::map<std::string, double*> fitvalues;
+    std::map<std::string, bool*> fitvalids;
+    std::map<std::string, int*> intFOMs;
+    std::map<std::string, bool*> boolFOMs;
+    std::map<std::string, double*> doubleFOMs;
+    for(auto fit : fitVector){
+      std::string name = fit->GetFitterName();
+      // Check the validity and write it out
+      if( fit->GetEnablePosition() ){
+        TVector3 pos = fit->GetPosition();
+        fitvalues["x_"+name] = new double(pos.X());
+        fitvalues["y_"+name] = new double(pos.Y());
+        fitvalues["z_"+name] = new double(pos.Z());
+        fitvalids["validposition_"+name] = new bool(fit->GetValidPosition());
+      }
+      if( fit->GetEnableDirection() ){
+        TVector3 dir = fit->GetDirection();
+        fitvalues["u_"+name] = new double(dir.X());
+        fitvalues["v_"+name] = new double(dir.Y());
+        fitvalues["w_"+name] = new double(dir.Z());
+        fitvalids["validdirection_"+name] = new bool(fit->GetValidDirection());
+      }
+      if( fit->GetEnableEnergy() ){
+        fitvalues["energy_"+name] = new double(fit->GetEnergy());
+        fitvalids["validenergy"+name] = new bool(fit->GetValidEnergy());
+      }
+      if( fit->GetEnableTime() ){
+        fitvalues["time_"+name] = new double(fit->GetTime());
+        fitvalids["validtime"+name] = new bool(fit->GetValidTime());
+      }
+      // Figures of merit > 3 types
+      for( auto const& [label, value] : fit->boolFiguresOfMerit){
+        boolFOMs[label+"_"+name] = new bool(value);
+      }
+      for( auto const& [label, value] : fit->intFiguresOfMerit){
+        intFOMs[label+"_"+name] = new int(value);
+      }
+      for( auto const& [label, value] : fit->doubleFiguresOfMerit){
+        doubleFOMs[label+"_"+name] = new double(value);
+      }
+    }
+    // Write fitter values into TTree
+    for(auto const& [label, value] : fitvalues){
+      this->SetBranchValue(label, value);
+    }
+    for(auto const& [label, value] : fitvalids){
+      this->SetBranchValue(label, value);
+    }
+    for(auto const& [label, value] : intFOMs){
+      this->SetBranchValue(label, value);
+    }
+    for(auto const& [label, value] : boolFOMs){
+      this->SetBranchValue(label, value);
+    }
+    for(auto const& [label, value] : doubleFOMs){
+      this->SetBranchValue(label, value);
+    }
     if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
@@ -264,14 +304,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     outputTree->Fill();
   }
   if (options.untriggered && ds->GetEVCount() == 0) {
-    evid = 0;
+    evid = -1;
     nanotime = mctime;
-    // fitxx = -999999;
-    // fitxy = -999999;
-    // fitxz = -999999;
-    // fitxu = 0;
-    // fitxv = 0;
-    // fitxw = 0;
     if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
@@ -297,7 +331,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 OutNtupleProc::~OutNtupleProc() {
   if (outputFile) {
     outputFile->cd();
-    RAT::DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
+    DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
     for (int id = 0; id < pmtinfo->GetPMTCount(); id++) {
       int type = pmtinfo->GetType(id);
       TVector3 position = pmtinfo->GetPosition(id);
@@ -329,6 +363,33 @@ OutNtupleProc::~OutNtupleProc() {
     //outputFile->Write(0, TObject::kOverwrite);
     outputFile->Close();
     delete outputFile;
+  }
+}
+
+void OutNtupleProc::SetBranchValue(std::string name, double *value){
+  if( branchNames.find(name) != branchNames.end() ){
+    outputTree->SetBranchAddress(name.c_str(), value);
+  } else {
+    branchNames.insert(name);
+    outputTree->Branch(name.c_str(), value);
+  }
+}
+
+void OutNtupleProc::SetBranchValue(std::string name, bool *value){
+  if( branchNames.find(name) != branchNames.end() ){
+    outputTree->SetBranchAddress(name.c_str(), value);
+  } else {
+    branchNames.insert(name);
+    outputTree->Branch(name.c_str(), value);
+  }
+}
+
+void OutNtupleProc::SetBranchValue(std::string name, int *value){
+  if( branchNames.find(name) != branchNames.end() ){
+    outputTree->SetBranchAddress(name.c_str(), value);
+  } else {
+    branchNames.insert(name);
+    outputTree->Branch(name.c_str(), value);
   }
 }
 

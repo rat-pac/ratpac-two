@@ -21,7 +21,13 @@ WORKDIR /ratpacSetup
 
 RUN chown -R ratuser:ratuser /ratpacSetup
 USER ratuser
-RUN ./ratpacSetup.sh --only geant4 root cry -j5
+RUN ./ratpacSetup.sh --only root -j6
+RUN ./ratpacSetup.sh --only geant4 -j6
+RUN ./ratpacSetup.sh --only cry
+RUN chmod +x env.sh
+ENV PATH=/ratpacSetup/local/bin:$PATH
+RUN sed -i '1s/^/#!\/bin\/bash\n/' /ratpacSetup/env.sh
+RUN printf '\nexec "$@"\n' >> /ratpacSetup/env.sh
 
-ENTRYPOINT [ /ratpacSetup/env.sh ]
+ENTRYPOINT ["/ratpacSetup/env.sh"]
 CMD [ "/bin/bash" ]

@@ -58,6 +58,9 @@ VertexGen_CRY::VertexGen_CRY(const char *arg_dbname)
   // Setup
   std::string crydirectory = static_cast<std::string>(getenv("CRYDATA"));
   CRYSetup* setup = new CRYSetup(setupString, crydirectory);
+  setup->setRandomFunction(
+      [](){return CLHEP::RandFlat::shoot();}
+  );
   generator = new CRYGenerator(setup);
   // Setup the time based on the configuration date string
   int month = stoi(date.substr(0, date.find("-")));
