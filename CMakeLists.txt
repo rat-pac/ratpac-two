@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11...3.14)
-project(ratpac VERSION 1.0.1
+project(ratpac VERSION 2.0.0
                 DESCRIPTION "RAT-PAC"
                 LANGUAGES C CXX)
 
@@ -89,7 +89,7 @@ configure_file(${CMAKE_SOURCE_DIR}/config/Config.hh.in
   @ONLY NEWLINE_STYLE UNIX)
 
 # Configure local scripts
-set(RATROOT ${PROJECT_BINARY_DIR})
+set(RATROOT ${CMAKE_INSTALL_PREFIX})
 set(RATSHARE ${PROJECT_SOURCE_DIR})
 configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.sh.in
   ${PROJECT_SOURCE_DIR}/ratpac.sh
@@ -97,8 +97,9 @@ configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.sh.in
 configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.csh.in
   ${PROJECT_SOURCE_DIR}/ratpac.csh
   @ONLY NEWLINE_STYLE UNIX)
-configure_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
-  ${PROJECT_SOURCE_DIR}/RatpacConfig.cmake @ONLY)
+#configure_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
+#  ${PROJECT_SOURCE_DIR}/RatpacConfig.cmake 
+#  @ONLY NEWLINE_STYLE UNIX)
 
 ###########################################################
 # Compile our libraries and executables
@@ -110,7 +111,6 @@ add_subdirectory(tools)
 # Installation
 
 # Configure global scripts
-set(RATROOT ${CMAKE_INSTALL_PREFIX})
 set(RATSHARE ${CMAKE_INSTALL_PREFIX}/share/RAT)
 configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.sh.in
   ${RATPAC_BINARY_DIR}/ratpac.sh
@@ -119,28 +119,32 @@ configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.csh.in
   ${RATPAC_BINARY_DIR}/ratpac.csh
   @ONLY NEWLINE_STYLE UNIX)
 configure_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
-  ${RATPAC_CMAKE_DIR}/RatpacConfig.cmake @ONLY)
+  ${RATPAC_CMAKE_DIR}/RatpacConfig.cmake 
+  @ONLY NEWLINE_STYLE UNIX)
 
 # Install the data files
 install(DIRECTORY ratdb/ DESTINATION ${RATSHARE}/ratdb
-        PATTERN "ratdb/*")
+  PATTERN "ratdb/*")
 
 install(DIRECTORY models/ DESTINATION ${RATSHARE}/models
-        PATTERN "models/*")
+  PATTERN "models/*")
 
 # Install the python files
 install(DIRECTORY python/ DESTINATION ${RATSHARE}/python
-        PATTERN "python/*")
+  PATTERN "python/*")
 
 # Install the mac files
 install(DIRECTORY mac/ DESTINATION ${RATSHARE}/mac
-        PATTERN "mac/*")
+  PATTERN "mac/*")
 
 # Install the doc files
 install(DIRECTORY doc/ DESTINATION ${RATSHARE}/doc
-        PATTERN "doc/*")
+  PATTERN "doc/*")
 
 # Install env files
 install(FILES ${RATPAC_BINARY_DIR}/ratpac.sh
-             ${RATPAC_BINARY_DIR}/ratpac.csh
-       DESTINATION bin)
+  ${RATPAC_BINARY_DIR}/ratpac.csh
+  DESTINATION bin)
+
+install(FILES ${RATPAC_CMAKE_DIR}/RatpacConfig.cmake
+  DESTINATION cmake)
