@@ -31,9 +31,9 @@
 #ifndef __RAT_VertexFile_Gen_
 #define __RAT_VertexFile_Gen_
 
-#include <RAT/GLG4Gen.hh>
-
 #include <TTimeStamp.h>
+
+#include <RAT/GLG4Gen.hh>
 
 class TTree;
 
@@ -46,13 +46,7 @@ class Root;
 class VertexFile_Gen : public GLG4Gen {
  public:
   VertexFile_Gen()
-      : fStateStr(""),
-        fCurrentEvent(0),
-        fNumEvents(0),
-        fMaxEvent(0),
-        fLastEventTime(0),
-        fTimeGen(0),
-        fPosGen(0){};
+      : fStateStr(""), fCurrentEvent(0), fNumEvents(0), fMaxEvent(0), fLastEventTime(0), fTimeGen(0), fPosGen(0){};
   virtual ~VertexFile_Gen() = default;
 
   void GenerateEvent(G4Event *event);

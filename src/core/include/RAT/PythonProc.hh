@@ -22,7 +22,7 @@
 namespace RAT {
 
 class PythonProc : public Processor {
-public:  
+ public:
   /** Create new Python processor */
   PythonProc();
 
@@ -34,12 +34,12 @@ public:
 
   virtual Processor::Result DSEvent(DS::Root *ds);
 
-protected:
+ protected:
   static int fgProcCounter;
 
   std::string fPyProcName;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

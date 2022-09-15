@@ -4,12 +4,12 @@
 #include <RAT/GeoSolidFactory.hh>
 
 namespace RAT {
- class GeoSphereFactory : public GeoSolidFactory {
+class GeoSphereFactory : public GeoSolidFactory {
  public:
-   GeoSphereFactory() : GeoSolidFactory("sphere") {};
-   virtual G4VSolid *ConstructSolid(DBLinkPtr table);
- };
-  
-} // namespace RAT
+  GeoSphereFactory() : GeoSolidFactory("sphere"){};
+  virtual G4VSolid *ConstructSolid(DBLinkPtr table);
+};
+
+}  // namespace RAT
 
 #endif

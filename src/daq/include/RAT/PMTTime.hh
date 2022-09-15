@@ -2,7 +2,7 @@
 /// \class RAT::PMTTime
 ///
 /// \brief  Pure virtual class for simulating PMT time spread and cable delay.
-///         
+///
 /// \author Benjamin Land <benland100@berkeley.edu>
 ///
 /// REVISION HISTORY:\n
@@ -20,16 +20,14 @@
 namespace RAT {
 
 class PMTTime {
-public:
-  PMTTime() { };
-  virtual ~PMTTime() { };
+ public:
+  PMTTime(){};
+  virtual ~PMTTime(){};
 
   /** Returns front end time for hit time. */
   virtual double PickTime(double time) const = 0;
-
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif
-

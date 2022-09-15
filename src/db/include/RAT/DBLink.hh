@@ -21,7 +21,7 @@
  *
  *  Note that none of the Get methods in this class are declared @c
  *  const to allow for the possibility of caching the results inside
- *  this object.  
+ *  this object.
  *
  *  The reason for the indirection of a link to a table is to allow
  *  for more flexibility implementing the backends, which will someday
@@ -37,19 +37,17 @@
 #ifndef __RAT_DBLink__
 #define __RAT_DBLink__
 
-#include <string>
-#include <vector>
 #include <RAT/DB.hh>
 #include <RAT/DBTable.hh>
+#include <string>
+#include <vector>
 
 namespace RAT {
-
 
 class DB;
 
 class DBLink {
-public:
-
+ public:
   /** Create a new link to a table.
    *
    *  @param  db  Pointer to database which created this link.  When
@@ -59,7 +57,7 @@ public:
    *  @param  index    Index of table
    *  @param  currentRun Run number to use for validity range checking
    */
-  DBLink(DB *db, std::string tblname, std::string index, int currentRun=1);
+  DBLink(DB *db, std::string tblname, std::string index, int currentRun = 1);
 
   /** Destroy link.
    *
@@ -73,7 +71,8 @@ public:
   /** Get index of table this link points to. */
   inline std::string GetIndex() const { return index; };
 
-  /** Set the current run number for fetching run-specific tables from the server */
+  /** Set the current run number for fetching run-specific tables from the
+   * server */
   void SetCurrentRun(int runNumber) { currentRun = runNumber; };
 
   /** Retrieve integer field.
@@ -108,46 +107,44 @@ public:
    *
    *  @throws DBNotFoundException if integer array field @p name
    *  does not exist.
-   */  
+   */
   std::vector<int> GetIArray(const std::string &name);
 
   /** Retrieve float array field.
    *
    *  @throws DBNotFoundException if float array field @p name
    *  does not exist.
-   */  
+   */
   std::vector<float> GetFArrayFromD(const std::string &name);
   std::vector<float> DArrayToFArray(const std::vector<double> &input);
-  
 
   /** Retrieve double array field.
    *
    *  @throws DBNotFoundException if double array field @p name
    *  does not exist.
-   */  
+   */
   std::vector<double> GetDArray(const std::string &name);
 
   /** Retrieve string array field.
    *
    *  @throws DBNotFoundException if string array field @p name
    *  does not exist.
-   */  
+   */
   std::vector<std::string> GetSArray(const std::string &name);
 
   /** Retrieve bool array field.
    *
    *  @throws DBNotFoundException if string array field @p name
    *  does not exist.
-   */  
+   */
   std::vector<bool> GetZArray(const std::string &name);
 
   /** Retrieve raw JSON value.
    *
    *  @throws DBNotFoundException if field @p name
    *  does not exist.
-   */  
+   */
   json::Value GetJSON(const std::string &name);
-  
 
   /** Get the value of a field from the table, including plane
    *  precedence rules.
@@ -155,56 +152,54 @@ public:
    *  @param  T          C++ data type for field
    *  @param  fieldname  Name of field
    */
-  template <class T> T Get(const std::string &fieldname);
-  
+  template <class T>
+  T Get(const std::string &fieldname);
+
   // Used by DB class, do not use this yourself
   void Unlink() { db = 0; };
 
-protected:
-
-
+ protected:
   /** Pointer to DB which created this link. */
   DB *db;
-  
+
   /** Name of table this link refers to. */
   std::string tblname;
 
   /** Index of table this link refers to */
   std::string index;
-  
+
   /** Current run number */
   int currentRun;
 };
 
-  template <class T> T DBLink::Get(const std::string &fieldname) {
-  
-    DBTable *tbl;
-    // First try user plane
-    tbl = db->GetUserTable(tblname, index);
-    if (!tbl || tbl->GetFieldType(fieldname) == DBTable::NOTFOUND) {
-      // Then try the run plane
-      tbl = db->GetRunTable(tblname, index, currentRun);
-      if (tbl) { 
-        if (tbl->GetFieldType(fieldname) == DBTable::NOTFOUND) throw DBNotFoundError(tblname, index, fieldname);
-      } else {
-        // Finally try default plane
-        tbl = db->GetDefaultTable(tblname, index);
-        if (!tbl || tbl->GetFieldType(fieldname) == DBTable::NOTFOUND) {
-          throw DBNotFoundError(tblname, index, fieldname);
-        }
+template <class T>
+T DBLink::Get(const std::string &fieldname) {
+  DBTable *tbl;
+  // First try user plane
+  tbl = db->GetUserTable(tblname, index);
+  if (!tbl || tbl->GetFieldType(fieldname) == DBTable::NOTFOUND) {
+    // Then try the run plane
+    tbl = db->GetRunTable(tblname, index, currentRun);
+    if (tbl) {
+      if (tbl->GetFieldType(fieldname) == DBTable::NOTFOUND) throw DBNotFoundError(tblname, index, fieldname);
+    } else {
+      // Finally try default plane
+      tbl = db->GetDefaultTable(tblname, index);
+      if (!tbl || tbl->GetFieldType(fieldname) == DBTable::NOTFOUND) {
+        throw DBNotFoundError(tblname, index, fieldname);
       }
     }
-
-    // Make class explicit to satisfy Sun CC 5.3
-    T value = tbl->DBTable::Get<T>(fieldname);
-
-    // Trace DB accesses
-    Log::TraceDBAccess(tblname, index, fieldname, value);
-
-    return value;
   }
 
+  // Make class explicit to satisfy Sun CC 5.3
+  T value = tbl->DBTable::Get<T>(fieldname);
 
-} // namespace RAT
+  // Trace DB accesses
+  Log::TraceDBAccess(tblname, index, fieldname, value);
+
+  return value;
+}
+
+}  // namespace RAT
 
 #endif

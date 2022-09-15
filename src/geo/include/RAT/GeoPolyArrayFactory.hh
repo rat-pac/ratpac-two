@@ -4,13 +4,12 @@
 #include <RAT/GeoSolidArrayFactoryBase.hh>
 
 namespace RAT {
- class GeoPolyArrayFactory : public GeoSolidArrayFactoryBase {
+class GeoPolyArrayFactory : public GeoSolidArrayFactoryBase {
  public:
-   GeoPolyArrayFactory() : GeoSolidArrayFactoryBase("polygonarray") {};
-   using GeoSolidArrayFactoryBase::Construct;
-   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
- };
-  
-} // namespace RAT
+  GeoPolyArrayFactory() : GeoSolidArrayFactoryBase("polygonarray"){};
+  virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
+};
+
+}  // namespace RAT
 
 #endif

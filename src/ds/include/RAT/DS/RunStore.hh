@@ -44,7 +44,7 @@
  *
  *   Event Producer
  *   --------------
- * 
+ *
  *   A producer of events (Gsim/inroot/etc) needs to either register
  *   an input TTree of run information using SetReadTree(), or needs
  *   to populate the cache with run records using AddNewRun().  The
@@ -58,36 +58,37 @@
 #define __RAT_DS_RunStore__
 
 #include <TTree.h>
+
 #include <RAT/DS/Run.hh>
 #include <map>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class RunStore;
 class Root;
 
 class RunRecord {
-public:
+ public:
   RunRecord() : run(0), writtenToDisk(false) {}
   ~RunRecord() { delete run; }
-  Run* run;
+  Run *run;
   bool writtenToDisk;
 };
 
 class RunStore {
   /** Static interface */
-public:
+ public:
   /**
    * Get a pointer to the global RunStore instance.
    *
    * You generally don't need to use this function.
    */
-  inline static RunStore* Get() { 
+  inline static RunStore *Get() {
     if (!fgStore) {
       fgStore = new RunStore();
     }
-    return fgStore; 
+    return fgStore;
   }
 
   /**
@@ -98,7 +99,7 @@ public:
    *  input tree of run records, if available.  If the record
    *  cannot be found, 0 is returned.
    */
-  inline static Run* GetRun(Root* ds) { return Get()->InstanceGetRun(ds); }
+  inline static Run *GetRun(Root *ds) { return Get()->InstanceGetRun(ds); }
 
   /**
    * Get the Run object associated with the given runID.
@@ -108,7 +109,7 @@ public:
    *  to identify run records, like eventID ranges.  If that happens,
    *  this method will change.
    */
-  inline static Run* GetRun(int runID) { return Get()->InstanceGetRun(runID); }
+  inline static Run *GetRun(int runID) { return Get()->InstanceGetRun(runID); }
 
   /**
    * Sets the TTree from which Run records can be read.
@@ -121,9 +122,7 @@ public:
    *  will call GetEntry(), SetBranchAddress(), and SetBranchStatus()
    *  on the tree at will.
    */
-  inline static void SetReadTree(TTree* tree) {
-    Get()->InstanceSetReadTree(tree);
-  }
+  inline static void SetReadTree(TTree *tree) { Get()->InstanceSetReadTree(tree); }
 
   /**
    * Sets the TTree to which Run records are written.
@@ -139,19 +138,17 @@ public:
    *
    *  The caller retains ownership of the tree.
    */
-  inline static void SetWriteTree(TTree* tree) {
-    Get()->InstanceSetWriteTree(tree);
-  }
+  inline static void SetWriteTree(TTree *tree) { Get()->InstanceSetWriteTree(tree); }
 
   /** Writes all unwritten run records to the write tree.
    *
    *  This function must be called before closing the write tree.
    *  A flag is kept for each run record indicating whether it has
-   *  already been written to disk, so FlushWriteTree() can be called 
+   *  already been written to disk, so FlushWriteTree() can be called
    *  many times without duplication of run records in the write tree.
    *
    *  Note that this function flushes run records from the cache
-   *  into the tree.  It does not Write() the tree to an output 
+   *  into the tree.  It does not Write() the tree to an output
    *  root file, which is still the responsibility of the caller
    *  to ensure tree contents are flushed to disk.
    */
@@ -159,12 +156,12 @@ public:
 
   /** Adds a new run record to the cache.
    *
-   *  The run record is added to the cache for later access by 
+   *  The run record is added to the cache for later access by
    *  GetRun(), and the record will be sent to the write tree
    *  when FlushWriteTree() is called.
    *
    */
-  inline static void AddNewRun(Run* run) { Get()->InstanceAddNewRun(run); }
+  inline static void AddNewRun(Run *run) { Get()->InstanceAddNewRun(run); }
 
   /** Preloads the cache from a run tree.
    *
@@ -176,40 +173,36 @@ public:
    *  tree.  Instead you can preload the cache from the tree at
    *  the beginning, then write only the new run records to it.
    */
-  inline static void
-  PreloadFromTree(TTree* tree, bool alreadyWrittenToDisk=false) {
+  inline static void PreloadFromTree(TTree *tree, bool alreadyWrittenToDisk = false) {
     Get()->InstancePreloadFromTree(tree, alreadyWrittenToDisk);
   }
 
-protected:
-  static RunStore* fgStore;
+ protected:
+  static RunStore *fgStore;
 
-public:
+ public:
   /** You probably want the static interface above. */
   RunStore();
   virtual ~RunStore();
 
-  Run* InstanceGetRun(Root* ds);
-  Run* InstanceGetRun(int runID);
+  Run *InstanceGetRun(Root *ds);
+  Run *InstanceGetRun(int runID);
   void InstanceSetReadTree(TTree *tree);
   void InstanceSetWriteTree(TTree *tree);
   void InstanceFlushWriteTree();
-  void InstanceAddNewRun(Run* run);
-  void InstancePreloadFromTree(TTree* tree, bool writtenToDisk=false);
-  
+  void InstanceAddNewRun(Run *run);
+  void InstancePreloadFromTree(TTree *tree, bool writtenToDisk = false);
+
   ClassDef(RunStore, 1)
 
-protected:
-  TTree* fReadTree;
-  Run* fReadRun;
-  TTree* fWriteTree;
-  Run* fWriteRun;
-  std::map<int, RunRecord*> fCache;
-
+      protected : TTree *fReadTree;
+  Run *fReadRun;
+  TTree *fWriteTree;
+  Run *fWriteRun;
+  std::map<int, RunRecord *> fCache;
 };
 
-  } // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif
-

@@ -22,8 +22,7 @@
 namespace RAT {
 
 class CountProc : public Processor {
-public:
-  
+ public:
   /** Create new count processor.
    *
    *  Default update interval is to print a status line for every
@@ -46,12 +45,12 @@ public:
    */
   virtual Processor::Result DSEvent(DS::Root *ds);
 
-protected:
-  int dscount;        ///< Number of physics events
-  int evcount;        ///< Number of triggered events
-  int updateInterval; ///< Number of physics events per update line
+ protected:
+  int dscount;         ///< Number of physics events
+  int evcount;         ///< Number of triggered events
+  int updateInterval;  ///< Number of physics events per update line
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -8,7 +8,7 @@
 //   Original: Glenn Horton-Smith, Dec 2001
 //
 // GLG4OpAttenuation.hh
-// 
+//
 
 #ifndef GLG4OpAttenuation_h
 #define GLG4OpAttenuation_h 1
@@ -24,53 +24,46 @@
 // Class Definition
 /////////////////////
 
-class GLG4OpAttenuation : public G4OpAbsorption
-{
+class GLG4OpAttenuation : public G4OpAbsorption {
+ private:
+  //////////////
+  // Operators
+  //////////////
 
-private:
+  // GLG4OpAttenuation& operator=(const GLG4OpAttenuation &right);
 
-        //////////////
-        // Operators
-        //////////////
+  static DummyProcess fgAttenuation;
+  static DummyProcess fgScattering;
 
-        // GLG4OpAttenuation& operator=(const GLG4OpAttenuation &right);
+ public:  // Without description
+  ////////////////////////////////
+  // Constructors and Destructor
+  ////////////////////////////////
 
-        static DummyProcess fgAttenuation;
-        static DummyProcess fgScattering;
+  GLG4OpAttenuation(const G4String &processName = "Attenuation");
 
-public: // Without description
+  // GLG4OpAttenuation(const GLG4OpAttenuation &right);
 
-        ////////////////////////////////
-        // Constructors and Destructor
-        ////////////////////////////////
+  ~GLG4OpAttenuation();
 
-        GLG4OpAttenuation(const G4String& processName = "Attenuation");
+  ////////////
+  // Methods
+  ////////////
 
-        // GLG4OpAttenuation(const GLG4OpAttenuation &right);
+  // G4bool IsApplicable(const G4ParticleDefinition& aParticleType);
+  // Returns true -> 'is applicable' only for an optical photon.
 
-	~GLG4OpAttenuation();
+  // G4double GetMeanFreePath(const G4Track& aTrack,
+  // 			    G4double ,
+  // 			    G4ForceCondition* );
+  // Returns the absorption length for bulk absorption of optical
+  // photons in media with a specified attenuation length.
 
-	////////////
-	// Methods
-        ////////////
-
-        // G4bool IsApplicable(const G4ParticleDefinition& aParticleType);
-        // Returns true -> 'is applicable' only for an optical photon.
-
-	// G4double GetMeanFreePath(const G4Track& aTrack,
-	// 			    G4double ,
-	// 			    G4ForceCondition* );
-        // Returns the absorption length for bulk absorption of optical
-        // photons in media with a specified attenuation length. 
-
-public: // With description
-
-	G4VParticleChange* PostStepDoIt(const G4Track& aTrack,
- 				        const G4Step&  aStep);
-        // This is the method implementing attenuation of optical 
-        // photons.  Fraction of photons scattered or absorbed is
-        // determined by the MaterialProperyVector "OPSCATFRAC".
-
+ public:  // With description
+  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
+  // This is the method implementing attenuation of optical
+  // photons.  Fraction of photons scattered or absorbed is
+  // determined by the MaterialProperyVector "OPSCATFRAC".
 };
 
 #endif /* GLG4OpAttenuation_h */

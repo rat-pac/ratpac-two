@@ -10,40 +10,35 @@
 
 #include <TObject.h>
 #include <TVector3.h>
+
 #include <algorithm>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class PMTInfo : public TObject {
-public:
+ public:
   PMTInfo() : TObject() {}
   virtual ~PMTInfo() {}
 
-  virtual void AddPMT(const TVector3& _pos,
-                      const TVector3& _dir,
-                      const int _type,
-                      const std::string _model,
-                      const double _individual_noise_rate,
-		      const double _individual_afterpulse_fraction) {
+  virtual void AddPMT(const TVector3& _pos, const TVector3& _dir, const int _type, const std::string _model,
+                      const double _individual_noise_rate, const double _individual_afterpulse_fraction) {
     pos.push_back(_pos);
     dir.push_back(_dir);
     type.push_back(_type);
     individual_noise_rate.push_back(_individual_noise_rate);
     individual_afterpulse_fraction.push_back(_individual_afterpulse_fraction);
-    std::vector<std::string>::iterator which = std::find(models.begin(),models.end(),_model);
+    std::vector<std::string>::iterator which = std::find(models.begin(), models.end(), _model);
     if (which != models.end()) {
-        modeltype.push_back(which-models.begin());
+      modeltype.push_back(which - models.begin());
     } else {
-        models.push_back(_model);
-        modeltype.push_back(models.size()-1);
+      models.push_back(_model);
+      modeltype.push_back(models.size() - 1);
     }
   }
-  
-  virtual void AddPMT(const TVector3& _pos,
-                      const TVector3& _dir,
-                      const int _type) {
-    AddPMT(_pos,_dir,_type,"",0.0, 0.0);                   
+
+  virtual void AddPMT(const TVector3& _pos, const TVector3& _dir, const int _type) {
+    AddPMT(_pos, _dir, _type, "", 0.0, 0.0);
   }
 
   virtual Int_t GetPMTCount() const { return pos.size(); }
@@ -59,18 +54,17 @@ public:
 
   virtual double GetNoiseRate(int id) const { return individual_noise_rate.at(id); }
   virtual void SetNoiseRate(int id, double _rate) { individual_noise_rate.at(id) = _rate; }
-  
   virtual double GetAfterPulseFraction(int id) const { return individual_afterpulse_fraction.at(id); }
 
   virtual int GetModel(int id) const { return modeltype.at(id); }
   virtual int SetModel(int id, std::string _model) {
-    std::vector<std::string>::iterator which = std::find(models.begin(),models.end(),_model);
+    std::vector<std::string>::iterator which = std::find(models.begin(), models.end(), _model);
     int _modeltype;
     if (which != models.end()) {
-        _modeltype = which - models.begin();
+      _modeltype = which - models.begin();
     } else {
-        models.push_back(_model);
-        _modeltype = models.size()-1;
+      models.push_back(_model);
+      _modeltype = models.size() - 1;
     }
     modeltype.at(id) = _modeltype;
     return _modeltype;
@@ -78,12 +72,11 @@ public:
   virtual std::string GetModelName(int _modeltype) const { return models.at(_modeltype); }
   virtual int GetModelCount() const { return models.size(); }
 
-  virtual std::string GetModelNameByID(int id) const { return GetModelName( GetModel(id) ); }
+  virtual std::string GetModelNameByID(int id) const { return GetModelName(GetModel(id)); }
 
   ClassDef(PMTInfo, 1)
 
-protected:
-  std::vector<TVector3> pos;
+      protected : std::vector<TVector3> pos;
   std::vector<TVector3> dir;
   std::vector<int> type;
   std::vector<int> modeltype;
@@ -92,8 +85,7 @@ protected:
   std::vector<double> individual_afterpulse_fraction;
 };
 
-  } // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif
-

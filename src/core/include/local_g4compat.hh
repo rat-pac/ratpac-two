@@ -7,17 +7,17 @@
 #endif
 
 #if (G4VERSION_NUMBER < 500)
-#define G4State_PreInit	    PreInit	    
-#define G4State_Init	    Init	    
-#define G4State_Idle	    Idle	    
-#define G4State_GeomClosed  GeomClosed  
-#define G4State_EventProc   EventProc   
-#define G4State_Quit	    Quit	    
-#define G4State_Abort       Abort
+#define G4State_PreInit PreInit
+#define G4State_Init Init
+#define G4State_Idle Idle
+#define G4State_GeomClosed GeomClosed
+#define G4State_EventProc EventProc
+#define G4State_Quit Quit
+#define G4State_Abort Abort
 #endif
 
 #if (G4VERSION_NUMBER >= 600)
-#define G4std  std
+#define std std
 #endif
 
 #endif /* __local_g4compat__ */

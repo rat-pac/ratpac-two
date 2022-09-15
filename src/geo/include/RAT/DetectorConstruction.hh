@@ -13,26 +13,25 @@ class G4VPhysicalVolume;
 namespace RAT {
 
 class DetectorConstruction : public G4VUserDetectorConstruction {
-public:
+ public:
   DetectorConstruction();
-  virtual ~DetectorConstruction() { }
+  virtual ~DetectorConstruction() {}
 
   // Make volumes, return pointer to world
-  virtual G4VPhysicalVolume* Construct();
+  virtual G4VPhysicalVolume *Construct();
 
   // Called by Construct, provided for convenience
   void ConstructMaterials();
 
-  G4VPhysicalVolume* GetWorld() const { return fWorldPhys; }
+  G4VPhysicalVolume *GetWorld() const { return fWorldPhys; }
 
   static DetectorConstruction *GetDetectorConstruction();
 
-protected:
-  static DetectorConstruction* sDetectorConstruction;
-  G4VPhysicalVolume* fWorldPhys;
+ protected:
+  static DetectorConstruction *sDetectorConstruction;
+  G4VPhysicalVolume *fWorldPhys;
 };
 
 }  // namespace RAT
 
 #endif  // __RAT_DetectorConstruction__
-

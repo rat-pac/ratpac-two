@@ -1,9 +1,9 @@
-#include <RAT/RunManager.hh>
-#include <RAT/ProcBlock.hh>
-#include <RAT/Gsim.hh>
-#include <RAT/PhysicsList.hh>
 #include <G4RunManager.hh>
 #include <RAT/GLG4VisManager.hh>
+#include <RAT/Gsim.hh>
+#include <RAT/PhysicsList.hh>
+#include <RAT/ProcBlock.hh>
+#include <RAT/RunManager.hh>
 
 namespace RAT {
 
@@ -12,7 +12,7 @@ RunManager::RunManager() {
   Init();
 }
 
-RunManager::RunManager(ProcBlock* theMainBlock) {
+RunManager::RunManager(ProcBlock *theMainBlock) {
   mainBlock = theMainBlock;
   Init();
 }
@@ -30,7 +30,7 @@ void RunManager::Init() {
 
   // Visualization, only if you choose to have it!
   theVisManager = new GLG4VisManager();
-  theVisManager -> Initialize();
+  theVisManager->Initialize();
 }
 
 RunManager::~RunManager() {
@@ -39,4 +39,3 @@ RunManager::~RunManager() {
 }
 
 }  // namespace RAT
-

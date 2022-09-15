@@ -8,12 +8,14 @@
 // GLG4PrimaryGeneratorMessenger
 ////////////////////////////////////////////////////////////////
 
-#include <RAT/GLG4PrimaryGeneratorMessenger.hh>
-#include <RAT/GLG4PrimaryGeneratorAction.hh>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <RAT/Factory.hh>
+#include <RAT/GLG4PrimaryGeneratorAction.hh>
+#include <RAT/GLG4PrimaryGeneratorMessenger.hh>
+#include <sstream>  // for string streams
 
-#include "G4VPhysicalVolume.hh"
+#include "G4Event.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Material.hh"
 #include "G4MaterialPropertiesTable.hh"
@@ -21,33 +23,27 @@
 #include "G4UIcmdWithAString.hh"
 #include "G4UIdirectory.hh"
 #include "G4UImanager.hh"
+#include "G4VPhysicalVolume.hh"
 #include "G4ios.hh"
-#include "G4Event.hh"
-#include "globals.hh"
-#include <CLHEP/Units/SystemOfUnits.h>
-
-#include "fstream"  // for file streams
-#include <sstream>  // for string streams
-#include "iomanip"  // for G4std::setw(), etc..
-
 #include "RAT/GLG4Gen.hh"
 #include "RAT/GLG4StringUtil.hh"
-
+#include "fstream"  // for file streams
+#include "globals.hh"
+#include "iomanip"  // for std::setw(), etc..
 #include "local_g4compat.hh"
 
-GLG4PrimaryGeneratorMessenger::GLG4PrimaryGeneratorMessenger(GLG4PrimaryGeneratorAction* myaction)
-:myAction(myaction)
-{
-  G4UIdirectory *GenDir= new G4UIdirectory("/generator/");
+GLG4PrimaryGeneratorMessenger::GLG4PrimaryGeneratorMessenger(GLG4PrimaryGeneratorAction *myaction)
+    : myAction(myaction) {
+  G4UIdirectory *GenDir = new G4UIdirectory("/generator/");
   GenDir->SetGuidance("Control the primary event generator.");
 
-  ListCmd = new G4UIcommand("/generator/list",this);
+  ListCmd = new G4UIcommand("/generator/list", this);
 
-  EventWindowCmd= new G4UIcommand("/generator/event_window", this);
+  EventWindowCmd = new G4UIcommand("/generator/event_window", this);
   EventWindowCmd->SetGuidance("Set/show event time window");
-  EventWindowCmd->SetParameter(new G4UIparameter("window(ns)",'d',true));
+  EventWindowCmd->SetParameter(new G4UIparameter("window(ns)", 'd', true));
 
-  GunCmd = new G4UIcommand("/generator/gun",this);
+  GunCmd = new G4UIcommand("/generator/gun", this);
   GunCmd->SetGuidance("Set/show gun parameters.");
   GunCmd->SetGuidance("  particle_name:           name of particle");
   GunCmd->SetGuidance("  x_mm, y_mm, z_mm:        position of gun in mm");
@@ -57,12 +53,14 @@ GLG4PrimaryGeneratorMessenger::GLG4PrimaryGeneratorMessenger(GLG4PrimaryGenerato
   GunCmd->SetGuidance("  mult:                    multiplicity [optional]");
   GunCmd->SetGuidance("For isotropic, leave px,py,pz zero and set K_MeV.");
   GunCmd->SetGuidance("For random polarization, leave pol_* zero.");
-  GunCmd->SetGuidance("Note: this command is an alias for the two commands:\n"
-   "   /generator/pos/set 9 \"x y z\"\n"
-   "   /generator/vtx/set 17 \"particle_name px py pz K polx poly polz mult\"\n"
-   "Use the above two commands directly for more control.\n"
-   "Type the */set commands with only one argument for current state and help."
-		      );
+  GunCmd->SetGuidance(
+      "Note: this command is an alias for the two commands:\n"
+      "   /generator/pos/set 9 \"x y z\"\n"
+      "   /generator/vtx/set 17 \"particle_name px py pz K "
+      "polx poly polz mult\"\n"
+      "Use the above two commands directly for more control.\n"
+      "Type the */set commands with only one argument for "
+      "current state and help.");
 
   GunCmd->SetParameter(new G4UIparameter("particle_name", 's', true));
   GunCmd->SetParameter(new G4UIparameter("x_mm", 'd', true));
@@ -84,16 +82,15 @@ GLG4PrimaryGeneratorMessenger::GLG4PrimaryGeneratorMessenger(GLG4PrimaryGenerato
   GenAddCmd->SetParameter(new G4UIparameter("gen_name", 's', true));
   GenAddCmd->SetParameter(new G4UIparameter("gen_state", 's', true));
 
-
-  RateSetCmd= new G4UIcommand("/generator/rate/set",this);
+  RateSetCmd = new G4UIcommand("/generator/rate/set", this);
   RateSetCmd->SetGuidance("Set generator rate");
   RateSetCmd->SetParameter(new G4UIparameter("setting", 's', true));
 
-  VtxSetCmd= new G4UIcommand("/generator/vtx/set",this);
+  VtxSetCmd = new G4UIcommand("/generator/vtx/set", this);
   VtxSetCmd->SetGuidance("Set vertex generator state");
   VtxSetCmd->SetParameter(new G4UIparameter("setting", 's', true));
 
-  PosSetCmd= new G4UIcommand("/generator/pos/set",this);
+  PosSetCmd = new G4UIcommand("/generator/pos/set", this);
   PosSetCmd->SetGuidance("Set position generator state");
   PosSetCmd->SetParameter(new G4UIparameter("setting", 's', true));
 
@@ -104,27 +101,21 @@ GLG4PrimaryGeneratorMessenger::GLG4PrimaryGeneratorMessenger(GLG4PrimaryGenerato
   lastGen = 0;
 }
 
+GLG4PrimaryGeneratorMessenger::~GLG4PrimaryGeneratorMessenger() {}
 
-GLG4PrimaryGeneratorMessenger::~GLG4PrimaryGeneratorMessenger()
-{
-}
-
-void pop_first_word(G4String in, G4String &first, G4String &rest)
-{
+void pop_first_word(G4String in, G4String &first, G4String &rest) {
   in = util_strip_default(in);
   G4String::size_type pos = in.find(" ");
   if (pos != G4String::npos) {
     first = in.substr(0, pos);
-    rest = util_strip_default(in.substr(pos+1));
+    rest = util_strip_default(in.substr(pos + 1));
   } else {
     first = in;
     rest = "";
   }
 }
 
-void GLG4PrimaryGeneratorMessenger::
-SetNewValue(G4UIcommand * command,G4String newValues)
-{
+void GLG4PrimaryGeneratorMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
   G4String first, rest;
 
   if (command == ListCmd) {
@@ -142,35 +133,33 @@ SetNewValue(G4UIcommand * command,G4String newValues)
     if (lastGen)
       lastGen->SetTimeState(newValues);
     else
-      G4Exception(__FILE__, "No Active Generator", FatalException, "Cannot use /generator/rate/set without active generator");
+      G4Exception(__FILE__, "No Active Generator", FatalException,
+                  "Cannot use /generator/rate/set without active generator");
   } else if (command == VtxSetCmd) {
     if (lastGen)
       lastGen->SetVertexState(newValues);
     else
-      G4Exception(__FILE__, "No Active Generator", FatalException, "Cannot use /generator/vtx/set without active generator");
+      G4Exception(__FILE__, "No Active Generator", FatalException,
+                  "Cannot use /generator/vtx/set without active generator");
   } else if (command == PosSetCmd) {
     if (lastGen)
       lastGen->SetPosState(newValues);
     else
-      G4Exception(__FILE__, "No Active Generator", FatalException, "Cannot use /generator/pos/set without active generator");
+      G4Exception(__FILE__, "No Active Generator", FatalException,
+                  "Cannot use /generator/pos/set without active generator");
   } else if (command == EventWindowCmd) {
     G4double newWindow = util_to_double(newValues);
     if (newWindow <= 0.0)
       G4cerr << "Time window must be positive" << G4endl;
     else
-      myAction->SetEventWindow(newWindow*CLHEP::ns);
-  } else if (command == GenClearCmd){
-    myAction->ClearGenerators(); // clear all event generators
+      myAction->SetEventWindow(newWindow * CLHEP::ns);
+  } else if (command == GenClearCmd) {
+    myAction->ClearGenerators();  // clear all event generators
   } else {
-    G4cerr <<  "invalid GLG4 \"set\" command";
+    G4cerr << "invalid GLG4 \"set\" command";
   }
 }
 
-
-G4String GLG4PrimaryGeneratorMessenger::
-GetCurrentValue(G4UIcommand * /*command*/)
-{
+G4String GLG4PrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand * /*command*/) {
   return G4String("invalid GLG4PrimaryGeneratorMessenger \"get\" command");
 }
-
-

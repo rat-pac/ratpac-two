@@ -38,7 +38,7 @@
  *  All producers will be constructed once in the main() function and
  *  destroyed at the end of program execution.  If you create a new
  *  Processor, be sure to edit main() accordingly.
- *  
+ *
  */
 
 #ifndef __RAT_Producer__
@@ -48,13 +48,10 @@
 
 namespace RAT {
 
-
 class ProcBlock;
 
-class Producer : public G4UImessenger 
-{
-public:
-
+class Producer : public G4UImessenger {
+ public:
   /** Create a new producer with no block.
    *
    *  It is not allowed to do anything further with this object until
@@ -71,7 +68,7 @@ public:
   Producer(ProcBlock *theBlock);
 
   /** Destroy this producer.  Does not destroy the main block. */
-  virtual ~Producer() { /* Do nothing */ };
+  virtual ~Producer(){/* Do nothing */};
 
   /** Get a pointer to the main block used by this producer. */
   ProcBlock *GetMainBlock();
@@ -79,12 +76,11 @@ public:
   /** Set the main block used by this producer. */
   void SetMainBlock(ProcBlock *block);
 
-protected:
+ protected:
   /** Run events on this block of processors when created. */
-  ProcBlock *mainBlock; 
+  ProcBlock *mainBlock;
 };
 
-
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -1,9 +1,9 @@
-/** @class PosGen_Radial 
+/** @class PosGen_Radial
  *  Generate event vertices at random points along a line.
  *
  * This position generator returns random points distributed uniformly
- * in radius and direction around the sphere's center.  The sphere is defined by supplying the radius and the
- * coordinates of the center
+ * in radius and direction around the sphere's center.  The sphere is defined by
+ * supplying the radius and the coordinates of the center
  *
  */
 
@@ -14,33 +14,32 @@
 
 namespace RAT {
 
-
 class PosGen_Radial : public GLG4PosGen {
-public:
+ public:
   /** Create a uniform spherical position generator.
   The default sphere is from (0,0,0) the origin.
    */
-  PosGen_Radial(const char *arg_dbname="radial");
+  PosGen_Radial(const char *arg_dbname = "radial");
 
-  /** Generate a random position in the sphere, uniformly ditributed in radial coordinate*/
-  virtual void GeneratePosition( G4ThreeVector &argResult );
+  /** Generate a random position in the sphere, uniformly ditributed in radial
+   * coordinate*/
+  virtual void GeneratePosition(G4ThreeVector &argResult);
 
   /** Set the center and max radius of the distribution
    *
    *  @param[in] newValues   x y z R (in mm)
    */
-  void SetState( G4String newValues );
+  void SetState(G4String newValues);
 
   /** Return state as string in same format as SetState() */
   G4String GetState() const;
 
-protected:
-  G4ThreeVector  fCenter; /*distribution center */
-  G4double  fMaxRadius; /**distribution radius*/
-  G4ThreeVector fPoint;//generated point
+ protected:
+  G4ThreeVector fCenter; /*distribution center */
+  G4double fMaxRadius;   /**distribution radius*/
+  G4ThreeVector fPoint;  // generated point
 };
 
-
-} // namespace RAT
+}  // namespace RAT
 
 #endif

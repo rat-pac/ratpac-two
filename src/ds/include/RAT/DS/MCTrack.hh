@@ -12,48 +12,47 @@
 #define __RAT_DS_MCTrack__
 
 #include <TObject.h>
-#include <RAT/ListHelp.hh>
+
 #include <RAT/DS/MCTrackStep.hh>
+#include <RAT/ListHelp.hh>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class MCTrack : public TObject {
-public:
+ public:
   MCTrack() : TObject() {}
   virtual ~MCTrack() {}
 
   /**
-   * ID number for this track.  
-   * 
+   * ID number for this track.
+   *
    * Guaranteed to be unique for all tracks within this event, numbered
    * starting from 1.
    */
-   virtual Int_t GetID() const { return id; }
-   virtual void SetID(Int_t _id) { id = _id; }
+  virtual Int_t GetID() const { return id; }
+  virtual void SetID(Int_t _id) { id = _id; }
 
   /**
    * Track ID number of parent.
    *
-   * Tracks for the initial particles in the event have no parents, and are given
-   * the parent ID of 0.
+   * Tracks for the initial particles in the event have no parents, and are
+   * given the parent ID of 0.
    */
-   virtual Int_t GetParentID() const { return parentID; }
-   virtual void SetParentID(Int_t _parentID) { parentID = _parentID; }
+  virtual Int_t GetParentID() const { return parentID; }
+  virtual void SetParentID(Int_t _parentID) { parentID = _parentID; }
 
   /** Particle type as defined in MCParticle::pdgcode. */
   virtual Int_t GetPDGCode() const { return pdgcode; }
   virtual void SetPDGCode(Int_t _pdgcode) { pdgcode = _pdgcode; }
-   
+
   /**
    * Name of particle.
    *
    * Often more accurate than the pdgcode, which is used inconsistently.
    */
-  virtual const std::string& GetParticleName() const { return particleName; }
-  virtual void SetParticleName(const std::string& _particleName) {
-    particleName = _particleName;
-  }
+  virtual const std::string &GetParticleName() const { return particleName; }
+  virtual void SetParticleName(const std::string &_particleName) { particleName = _particleName; }
 
   /**
    * List of segments in this track.
@@ -61,14 +60,14 @@ public:
    * The first step in this list specifies the origin of the track,
    * and has zero length
    */
-  virtual MCTrackStep* GetMCTrackStep(Int_t i) { return &step[i]; }
+  virtual MCTrackStep *GetMCTrackStep(Int_t i) { return &step[i]; }
   virtual Int_t GetMCTrackStepCount() const { return step.size(); }
-  virtual MCTrackStep* AddNewMCTrackStep() {
+  virtual MCTrackStep *AddNewMCTrackStep() {
     step.resize(step.size() + 1);
     return &step.back();
   }
   virtual void PruneMCTrackStep() { step.resize(0); }
-  virtual MCTrackStep* GetLastMCTrackStep() {
+  virtual MCTrackStep *GetLastMCTrackStep() {
     if (step.size() == 0) {
       return NULL;
     }
@@ -94,11 +93,10 @@ public:
   /** Total energy deposited along the track (MeV). **/
   virtual Float_t GetDepositedEnergy() const { return depositedEnergy; }
   virtual void SetDepositedEnergy(Float_t _depositedEnergy) { depositedEnergy = _depositedEnergy; }
-  
+
   ClassDef(MCTrack, 1)
 
-protected:
-  Int_t id;
+      protected : Int_t id;
   Int_t parentID;
   Int_t pdgcode;
   Float_t length;
@@ -107,8 +105,7 @@ protected:
   std::vector<MCTrackStep> step;
 };
 
-  } // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif
-

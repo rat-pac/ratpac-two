@@ -1,5 +1,5 @@
-#include <RAT/Rat.hh>
 #include <RAT/AnyParse.hh>
+#include <RAT/Rat.hh>
 
 int main(int argc, char **argv) {
   auto parser = new RAT::AnyParse(argc, argv);

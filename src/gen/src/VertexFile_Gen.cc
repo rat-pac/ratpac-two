@@ -3,6 +3,18 @@
 // See  VertexFile_Gen.hh for more details
 //———————————————————————//
 
+#include <TFile.h>
+#include <TROOT.h>
+#include <TTimeStamp.h>
+#include <TTree.h>
+#include <TVector3.h>
+
+#include <G4Event.hh>
+#include <G4ParticleTable.hh>
+#include <G4PrimaryParticle.hh>
+#include <G4PrimaryVertex.hh>
+#include <G4RunManager.hh>
+#include <G4ThreeVector.hh>
 #include <RAT/DS/MC.hh>
 #include <RAT/DS/MCParticle.hh>
 #include <RAT/DS/Root.hh>
@@ -13,46 +25,29 @@
 #include <RAT/Log.hh>
 #include <RAT/PrimaryVertexInformation.hh>
 #include <RAT/VertexFile_Gen.hh>
-
-#include <G4Event.hh>
-#include <G4ParticleTable.hh>
-#include <G4PrimaryParticle.hh>
-#include <G4PrimaryVertex.hh>
-#include <G4RunManager.hh>
-#include <G4ThreeVector.hh>
-
-#include <TFile.h>
-#include <TROOT.h>
-#include <TTimeStamp.h>
-#include <TTree.h>
-#include <TVector3.h>
-
 #include <stdexcept>
 #include <string>
 #include <vector>
-using namespace std;
 
 namespace RAT {
 
-void VertexFile_Gen::GenerateEvent(G4Event* event) {
+void VertexFile_Gen::GenerateEvent(G4Event *event) {
   fTTree->GetEntry(fCurrentEvent);
-  DS::MC* mc = fDS->GetMC();
+  DS::MC *mc = fDS->GetMC();
 
-  G4PrimaryVertex* vertex = NULL;
-  PrimaryVertexInformation* vertinfo = new PrimaryVertexInformation();
+  G4PrimaryVertex *vertex = NULL;
+  PrimaryVertexInformation *vertinfo = new PrimaryVertexInformation();
 
   bool vertexset = false;
 
   // add any parents
   for (int i = 0; i < mc->GetMCParentCount(); i++) {
-    const DS::MCParticle* mcp = mc->GetMCParent(i);
-    G4PrimaryParticle* particle =
-        new G4PrimaryParticle(mcp->GetPDGCode(), mcp->GetMomentum().X(),
-                              mcp->GetMomentum().Y(), mcp->GetMomentum().Z());
+    const DS::MCParticle *mcp = mc->GetMCParent(i);
+    G4PrimaryParticle *particle = new G4PrimaryParticle(mcp->GetPDGCode(), mcp->GetMomentum().X(),
+                                                        mcp->GetMomentum().Y(), mcp->GetMomentum().Z());
 
     if (!vertexset) {
-      G4ThreeVector pos(mcp->GetPosition().X(), mcp->GetPosition().Y(),
-                        mcp->GetPosition().Z());
+      G4ThreeVector pos(mcp->GetPosition().X(), mcp->GetPosition().Y(), mcp->GetPosition().Z());
       vertex = new G4PrimaryVertex(pos, NextTime() + mcp->GetTime());
       vertexset = true;
     }
@@ -62,14 +57,12 @@ void VertexFile_Gen::GenerateEvent(G4Event* event) {
 
   // add all particles
   for (int i = 0; i < mc->GetMCParticleCount(); i++) {
-    const DS::MCParticle* mcp = mc->GetMCParticle(i);
-    G4PrimaryParticle* particle =
-        new G4PrimaryParticle(mcp->GetPDGCode(), mcp->GetMomentum().X(),
-                              mcp->GetMomentum().Y(), mcp->GetMomentum().Z());
+    const DS::MCParticle *mcp = mc->GetMCParticle(i);
+    G4PrimaryParticle *particle = new G4PrimaryParticle(mcp->GetPDGCode(), mcp->GetMomentum().X(),
+                                                        mcp->GetMomentum().Y(), mcp->GetMomentum().Z());
 
     if (!vertexset) {
-      G4ThreeVector pos(mcp->GetPosition().X(), mcp->GetPosition().Y(),
-                        mcp->GetPosition().Z());
+      G4ThreeVector pos(mcp->GetPosition().X(), mcp->GetPosition().Y(), mcp->GetPosition().Z());
       vertex = new G4PrimaryVertex(pos, NextTime() + mcp->GetTime());
       vertexset = true;
     }
@@ -85,8 +78,7 @@ void VertexFile_Gen::GenerateEvent(G4Event* event) {
   fLastEventTime = mc->GetUTC();
   fCurrentEvent++;
 
-  if (fCurrentEvent >= fNumEvents ||
-      (fMaxEvent > 0 && fCurrentEvent >= fMaxEvent)) {
+  if (fCurrentEvent >= fNumEvents || (fMaxEvent > 0 && fCurrentEvent >= fMaxEvent)) {
     // we are out of events, stop the simulation after this one
     G4RunManager::GetRunManager()->AbortRun(/*softabort*/ true);
   }
@@ -99,10 +91,9 @@ void VertexFile_Gen::ResetTime(double offset) {
       nextTime = eventTime + offset;
     } else {
       fTTree->GetEntry(fCurrentEvent);
-      DS::MC* mc = fDS->GetMC();
+      DS::MC *mc = fDS->GetMC();
       nextTime = (mc->GetUTC().GetSec() - fLastEventTime.GetSec()) * 1e9 +
-                 (mc->GetUTC().GetNanoSec() - fLastEventTime.GetNanoSec()) +
-                 offset;
+                 (mc->GetUTC().GetNanoSec() - fLastEventTime.GetNanoSec()) + offset;
     }
   } else {
     nextTime = 1e9;
@@ -110,7 +101,7 @@ void VertexFile_Gen::ResetTime(double offset) {
 }
 
 void VertexFile_Gen::SetState(G4String state) {
-  // Break the argument to the this generator into sub-strings
+  // Break the argument to the this generator into sub-std::strings
   // separated by ":".
   state = util_strip_default(state);
   std::vector<std::string> parts = util_split(state, ":");
@@ -119,11 +110,11 @@ void VertexFile_Gen::SetState(G4String state) {
   std::string filename;
   if (nArgs >= 5) {
     int num_skip;
-    istringstream(parts[4]) >> num_skip;
+    std::istringstream(parts[4]) >> num_skip;
     fCurrentEvent = num_skip;
   }
   if (nArgs >= 4) {
-    istringstream(parts[3]) >> fMaxEvent;
+    std::istringstream(parts[3]) >> fMaxEvent;
     if (fMaxEvent > 0) fMaxEvent += fCurrentEvent;
   }
   if (nArgs >= 3) {
@@ -144,23 +135,20 @@ void VertexFile_Gen::SetState(G4String state) {
     filename = parts[0];
   } else {
     G4Exception(__FILE__, "Invalid Parameter", FatalException,
-                ("vertexfile generator syntax error: '" + state +
-                 "' does not have a filename")
-                    .c_str());
+                ("vertexfile generator syntax error: '" + state + "' does not have a filename").c_str());
   }
 
   fStateStr = state;
-  TFile* file = new TFile(filename.c_str());
+  TFile *file = new TFile(filename.c_str());
   gROOT->cd(0);
-  fTTree = (TTree*)((TTree*)file->Get("T"))->CloneTree();
+  fTTree = (TTree *)((TTree *)file->Get("T"))->CloneTree();
   fTTree->SetDirectory(0);
 
   file->Close();
 
   fNumEvents = fTTree->GetEntries();
   if (!fNumEvents)
-    G4Exception(__FILE__, "Invalid Parameter", FatalException,
-                ("File '" + filename + "' is empty").c_str());
+    G4Exception(__FILE__, "Invalid Parameter", FatalException, ("File '" + filename + "' is empty").c_str());
 
   info << "VertexFile_Gen: Reading from " << filename << newline;
 

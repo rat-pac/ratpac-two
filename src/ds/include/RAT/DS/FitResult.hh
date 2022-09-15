@@ -3,6 +3,7 @@
 
 #include <TObject.h>
 #include <TVector3.h>
+
 #include <map>
 #include <string>
 #include <vector>
@@ -11,13 +12,23 @@ namespace RAT {
 namespace DS {
 
 class FitResult : public TObject {
-public:
+ public:
   FitResult(std::string name)
-      : TObject(), fit_name(name), fit_pass(0), fit_position(-1e9, -1e9, -1e9),
-        fit_direction(0, 0, 0), fit_energy(-1e9), fit_time(-1e9) {}
+      : TObject(),
+        fit_name(name),
+        fit_pass(0),
+        fit_position(-1e9, -1e9, -1e9),
+        fit_direction(0, 0, 0),
+        fit_energy(-1e9),
+        fit_time(-1e9) {}
   FitResult()
-      : TObject(), fit_name(""), fit_pass(0), fit_position(-1e9, -1e9, -1e9),
-        fit_direction(0, 0, 0), fit_energy(-1e9), fit_time(-1e9) {}
+      : TObject(),
+        fit_name(""),
+        fit_pass(0),
+        fit_position(-1e9, -1e9, -1e9),
+        fit_direction(0, 0, 0),
+        fit_energy(-1e9),
+        fit_time(-1e9) {}
   virtual ~FitResult() {}
 
   // Fitter name
@@ -34,9 +45,7 @@ public:
   virtual const bool GetValidPosition() { return valid_position; }
   virtual void SetValidPosition(const bool _valid) { valid_position = _valid; }
   virtual const bool GetEnablePosition() { return enable_position; }
-  virtual void SetEnablePosition(const bool _enable) {
-    enable_position = _enable;
-  }
+  virtual void SetEnablePosition(const bool _enable) { enable_position = _enable; }
 
   // Fitted Direction
   virtual const TVector3 &GetDirection() const { return fit_direction; }
@@ -46,13 +55,9 @@ public:
     SetEnableDirection(true);
   }
   virtual const bool GetValidDirection() { return valid_direction; }
-  virtual void SetValidDirection(const bool _valid) {
-    valid_direction = _valid;
-  }
+  virtual void SetValidDirection(const bool _valid) { valid_direction = _valid; }
   virtual const bool GetEnableDirection() { return enable_direction; }
-  virtual void SetEnableDirection(const bool _enable) {
-    enable_direction = _enable;
-  }
+  virtual void SetEnableDirection(const bool _enable) { enable_direction = _enable; }
 
   // Fitted Energy
   virtual const double GetEnergy() { return fit_energy; }
@@ -79,25 +84,13 @@ public:
   virtual void SetEnableTime(const bool _enable) { enable_time = _enable; }
 
   // Figures of Merit (arbitrary number)
-  void SetIntFigureOfMerit(const std::string &name, int value) {
-    intFiguresOfMerit[name] = value;
-  }
-  void SetBoolFigureOfMerit(const std::string &name, bool value) {
-    boolFiguresOfMerit[name] = value;
-  }
-  void SetDoubleFigureOfMerit(const std::string &name, double value) {
-    doubleFiguresOfMerit[name] = value;
-  }
+  void SetIntFigureOfMerit(const std::string &name, int value) { intFiguresOfMerit[name] = value; }
+  void SetBoolFigureOfMerit(const std::string &name, bool value) { boolFiguresOfMerit[name] = value; }
+  void SetDoubleFigureOfMerit(const std::string &name, double value) { doubleFiguresOfMerit[name] = value; }
 
-  int GetIntFigureOfMerit(const std::string &name) {
-    return intFiguresOfMerit[name];
-  }
-  bool GetBoolFigureOfMerit(const std::string &name) {
-    return boolFiguresOfMerit[name];
-  }
-  double GetDoubleFigureOfMerit(const std::string &name) {
-    return doubleFiguresOfMerit[name];
-  }
+  int GetIntFigureOfMerit(const std::string &name) { return intFiguresOfMerit[name]; }
+  bool GetBoolFigureOfMerit(const std::string &name) { return boolFiguresOfMerit[name]; }
+  double GetDoubleFigureOfMerit(const std::string &name) { return doubleFiguresOfMerit[name]; }
 
   // Figures of Merit
   std::map<std::string, int> intFiguresOfMerit;
@@ -125,7 +118,7 @@ public:
   bool enable_time = false;
 };
 
-} // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif

@@ -11,7 +11,7 @@ class TTree;
 namespace RAT {
 
 class OutNtupleProc : public Processor {
-public:
+ public:
   static int run_num;
   OutNtupleProc();
   virtual ~OutNtupleProc();
@@ -45,7 +45,7 @@ public:
   };
   NtupleOptions options;
 
-protected:
+ protected:
   std::string defaultFilename;
   TFile *outputFile;
   TTree *outputTree;
@@ -70,7 +70,7 @@ protected:
   double mcke;
   int evid;
   int subev;
-  ULong64_t nanotime; // 584 years of data
+  ULong64_t nanotime;  // 584 years of data
   // MCParticles
   int mcpcount;
   std::vector<Int_t> pdgcodes;
@@ -112,6 +112,6 @@ protected:
   void SetBranchValue(std::string name, bool *value);
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

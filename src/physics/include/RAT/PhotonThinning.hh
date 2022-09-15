@@ -3,10 +3,8 @@
 
 namespace RAT {
 
-
-class PhotonThinning
-{
-public:
+class PhotonThinning {
+ public:
   static void Init();
   inline static double GetFactor() { return fThinFactor; };
   static void SetFactor(double factor);
@@ -15,13 +13,12 @@ public:
   inline static double GetScintillationThinningFactor() { return fScintillationThinningFactor; };
   static void SetScintillationThinningFactor(double factor);
 
-protected:
+ protected:
   static double fThinFactor;
   static double fCherenkovThinningFactor;
   static double fScintillationThinningFactor;
 };
 
-
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -17,24 +17,23 @@
 #ifndef __RAT_GeoCherenkovSourceFactory__
 #define __RAT_GeoCherenkovSourceFactory__
 
-#include <RAT/GeoFactory.hh>
+#include <G4OpticalSurface.hh>
 #include <G4VPhysicalVolume.hh>
 #include <G4VisAttributes.hh>
-#include <G4OpticalSurface.hh>
+#include <RAT/GeoFactory.hh>
 #include <vector>
 
 namespace RAT {
-  class GeoCherenkovSourceFactory : public GeoFactory {
-    public:
-      GeoCherenkovSourceFactory() : GeoFactory("CherenkovSource") {};
-      virtual G4VPhysicalVolume* Construct(DBLinkPtr table);
+class GeoCherenkovSourceFactory : public GeoFactory {
+ public:
+  GeoCherenkovSourceFactory() : GeoFactory("CherenkovSource"){};
+  virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
 
-    protected:
-      static G4VisAttributes* GetColor(std::vector<double> color);
-      G4OpticalSurface* GetSurface(std::string surface_name);
+ protected:
+  static G4VisAttributes *GetColor(std::vector<double> color);
+  G4OpticalSurface *GetSurface(std::string surface_name);
+};
 
-  };
-
-} // namespace RAT
+}  // namespace RAT
 
 #endif  // __RAT_GeoCherenkovSourceFactory__

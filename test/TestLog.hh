@@ -1,14 +1,14 @@
-#include <cxxtest/TestSuite.h>
 #include <cxxtest/GlobalFixture.h>
+#include <cxxtest/TestSuite.h>
+
 #include "RAT/Log.hh"
 
 using namespace std;
 using namespace RAT;
 
-class Fixture1 : public CxxTest::GlobalFixture
-{
-public:
-  bool setUpWorld() { 
+class Fixture1 : public CxxTest::GlobalFixture {
+ public:
+  bool setUpWorld() {
     Log::Init("testrat.log", Log::DETAIL, Log::DEBUG);
     return true;
   };
@@ -17,9 +17,8 @@ public:
 // Ensure that Log isn't trapping output from other tests
 static Fixture1 init_fixture;
 
-class TestLog : public CxxTest::TestSuite
-{
-public:
+class TestLog : public CxxTest::TestSuite {
+ public:
   void testNormal() {
     Log::Init("test.log", Log::INFO, Log::DETAIL);
 
@@ -39,13 +38,10 @@ public:
   };
 
   // Leave this test commented out since it terminates the program
-//   void testDie() {
-//     Log::Init("testdie.log", Log::INFO, Log::DETAIL);
+  //   void testDie() {
+  //     Log::Init("testdie.log", Log::INFO, Log::DETAIL);
 
-//     Log::Die("terminating immediately");
-//     warn << "You should never see this." << newline;
-//   };
-
+  //     Log::Die("terminating immediately");
+  //     warn << "You should never see this." << newline;
+  //   };
 };
-   
- 

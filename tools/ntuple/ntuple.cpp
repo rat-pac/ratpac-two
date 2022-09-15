@@ -1,10 +1,11 @@
+#include <TFile.h>
+#include <TTree.h>
+
 #include <RAT/AnyParse.hh>
 #include <RAT/DB.hh>
 #include <RAT/DBTable.hh>
-#include <RAT/OutNtupleProc.hh>
 #include <RAT/Log.hh>
-#include <TFile.h>
-#include <TTree.h>
+#include <RAT/OutNtupleProc.hh>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -13,14 +14,10 @@ int main(int argc, char **argv) {
   auto parser = new RAT::AnyParse(argc, argv);
   parser->SetHelpLine("[options] inputfile.root");
   parser->AddArgument("verbose", false, "v", 0, "Verbosity", RAT::ParseInt);
-  parser->AddArgument("tracking", false, "t", 0, "Include Tracking",
-                      RAT::ParseInt);
-  parser->AddArgument("mcparticles", false, "m", 0, "Include All MC Particles",
-                      RAT::ParseInt);
-  parser->AddArgument("pmthits", true, "p", 0, "Include PMT Hits",
-                      RAT::ParseInt);
-  parser->AddArgument("untriggered", true, "u", 0,
-                      "Include Untriggered MC Events", RAT::ParseInt);
+  parser->AddArgument("tracking", false, "t", 0, "Include Tracking", RAT::ParseInt);
+  parser->AddArgument("mcparticles", false, "m", 0, "Include All MC Particles", RAT::ParseInt);
+  parser->AddArgument("pmthits", true, "p", 0, "Include PMT Hits", RAT::ParseInt);
+  parser->AddArgument("untriggered", true, "u", 0, "Include Untriggered MC Events", RAT::ParseInt);
   parser->Parse();
 
   for (auto &filename : parser->Positionals) {
@@ -38,8 +35,7 @@ int main(int argc, char **argv) {
     RAT::DS::Root *ds = new RAT::DS::Root();
     T->SetBranchAddress("ds", &ds);
 
-    std::string macro = static_cast<std::string>( 
-        dynamic_cast<TObjString*>( infile->Get("macro") )->GetString().Data() );
+    std::string macro = static_cast<std::string>(dynamic_cast<TObjString *>(infile->Get("macro"))->GetString().Data());
 
     RAT::Log::AddMacro(macro);
 

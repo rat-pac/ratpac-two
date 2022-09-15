@@ -6,6 +6,7 @@
 
   ------------------------------------------------------------------------------*/
 #include "RAT/os_fixes.hpp"
+
 #include "RAT/debug.hpp"
 #include "RAT/string_utilities.hpp"
 
@@ -18,10 +19,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #if defined(_MSC_VER)
-unsigned sleep(unsigned seconds)
-{
-  Sleep(1000*seconds);
-  // should return remaining time if interrupted - however Windoze Sleep cannot be interrupted
+unsigned sleep(unsigned seconds) {
+  Sleep(1000 * seconds);
+  // should return remaining time if interrupted - however Windoze Sleep cannot
+  // be interrupted
   return 0;
 }
 #endif
@@ -30,14 +31,13 @@ unsigned sleep(unsigned seconds)
 // Function for establishing endian-ness
 ////////////////////////////////////////////////////////////////////////////////
 
-bool little_endian(void)
-{
-//  DEBUG_TRACE;
+bool little_endian(void) {
+  //  DEBUG_TRACE;
   int sample = 1;
-  char* sample_bytes = (char*)&sample;
+  char *sample_bytes = (char *)&sample;
   char byte0 = sample_bytes[0];
   bool result = byte0 != 0;
-//  DEBUG_REPORT("little endian = " + to_string(result));
+  //  DEBUG_REPORT("little endian = " + to_string(result));
   return result;
 }
 

@@ -6,16 +6,14 @@
 namespace RAT {
 
 class WatchmanWLSPSquareDetectorFactory : public DetectorFactory {
+ public:
+  WatchmanWLSPSquareDetectorFactory() {}
+  virtual ~WatchmanWLSPSquareDetectorFactory() {}
 
-    public:
-        WatchmanWLSPSquareDetectorFactory() { }
-        virtual ~WatchmanWLSPSquareDetectorFactory() { }
-        
-    protected:
-        virtual void DefineDetector(DBLinkPtr detector);
-
+ protected:
+  virtual void DefineDetector(DBLinkPtr detector);
 };
 
-} //namespace RAT
+}  // namespace RAT
 
 #endif

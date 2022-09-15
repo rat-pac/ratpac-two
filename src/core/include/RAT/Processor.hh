@@ -27,15 +27,13 @@
 #ifndef __RAT_Processor__
 #define __RAT_Processor__
 
-#include <string>
 #include <RAT/DS/Root.hh>
+#include <string>
 
 namespace RAT {
 
-
 class Processor {
-public:
-
+ public:
   /** The short name of this processor. */
   std::string name;
 
@@ -47,49 +45,48 @@ public:
    *
    *  @param[in] _name Short name of processor
    */
-  Processor(std::string _name) : name(_name) { /* Do nothing */ };
+  Processor(std::string _name) : name(_name){/* Do nothing */};
 
   /** Destroy processor. */
-  virtual ~Processor() { /* Do nothing */ };
-
+  virtual ~Processor(){/* Do nothing */};
 
   /** Result codes returned by DSEvent() or Event(). */
-  enum Result { OK=0,    /**< Processor ran successfully. */
-		FAIL=1,  /**< Processor task failed, but non-fatal, so
-			      execution of later processors continues. */
-		ABORT=2  /**< Processing of event is immediately
-		              terminated, no futher processors are run
-			      on this event */
-	      };
-  
+  enum Result {
+    OK = 0,   /**< Processor ran successfully. */
+    FAIL = 1, /**< Processor task failed, but non-fatal, so
+                   execution of later processors continues. */
+    ABORT = 2 /**< Processing of event is immediately
+                   terminated, no futher processors are run
+                   on this event */
+  };
+
   /** Base class for parameter exceptions.
    *
    *  Thrown if some problem happens while setting a parameter.
    */
   class ParamError {
-  public:
+   public:
     /** Create parameter error.
      *
      *  @param[in]  _param  Name of parameter which triggered this
      *  error.
      */
-    ParamError(std::string _param) : param(_param) { };
+    ParamError(std::string _param) : param(_param){};
 
     std::string param; /**< Name of parameter which triggered this
-			    error. */
+                            error. */
   };
 
-
   /** Exception thrown when parameter name is not known to this
-      processor. 
+      processor.
   */
   class ParamUnknown : public ParamError {
-  public:
+   public:
     /** Create unknown parameter error.
      *
      *  @param[in]  _param  Name of unknown parameter
      */
-    ParamUnknown(std::string _param) : ParamError(_param) { };
+    ParamUnknown(std::string _param) : ParamError(_param){};
   };
 
   /** Exception thrown when parameter name is known, but value is
@@ -102,18 +99,16 @@ public:
    *  function to format strings, much like sprintf().
    */
   class ParamInvalid : public ParamError {
-  public:
+   public:
     /** Create invalid parameter value error.
      *
      *  @param[in]  _param  Name of parameter
      *  @param[in]  _msg    Message explaining problem with setting the value.
      */
-    ParamInvalid(std::string _param, std::string _msg) : ParamError(_param),
-							 msg(_msg)  { };
+    ParamInvalid(std::string _param, std::string _msg) : ParamError(_param), msg(_msg){};
 
     std::string msg; /**< Message explaining problem. */
   };
-
 
   /** Set integer parameter.
    *
@@ -151,7 +146,6 @@ public:
    */
   virtual void SetS(std::string param, std::string value);
 
-
   /** Process one physics event.
    *
    *  The processor can do whatever operation it likes on the event.
@@ -160,7 +154,7 @@ public:
    *  if you plan to override Event().
    *
    *  @param[in,out]  ds  Data structure for current event.
-   * 
+   *
    *  @return Status code for successs/failure in processing this event.
    */
   virtual Processor::Result DSEvent(DS::Root *ds);
@@ -170,7 +164,7 @@ public:
    *  If you do not override DSEvent(), then this method is called
    *  once per triggered event.  As a convenience, a reference is
    *  also provided to the root of the data structure
-   *  associated with the triggered event. 
+   *  associated with the triggered event.
    *
    *  Do not override this method if you also plan to override
    *  DSEvent().
@@ -183,7 +177,6 @@ public:
   virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
 };
 
-
-} // namespace RAT
+}  // namespace RAT
 
 #endif

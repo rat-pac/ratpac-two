@@ -1,14 +1,15 @@
 #include <cxxtest/TestSuite.h>
+
+#include <G4UImanager.hh>
+
 #include "RAT/DB.hh"
 #include "RAT/DBMessenger.hh"
-#include <G4UImanager.hh>
 
 using namespace std;
 using namespace RAT;
 
-class TestDBManager : public CxxTest::TestSuite
-{
-public:
+class TestDBManager : public CxxTest::TestSuite {
+ public:
   DB *db;
   DBMessenger *dbm;
   G4UImanager *ui;
@@ -44,7 +45,4 @@ public:
     testLoad();
     testSet();
   }
-
 };
-   
- 

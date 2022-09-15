@@ -1,23 +1,23 @@
 #ifndef __RAT_TrackingMessenger__
 #define __RAT_TrackingMessenger__
 
-#include <G4UImessenger.hh>
-#include <G4UIcmdWithABool.hh>
-#include <G4UIcmdWithAString.hh>
-#include <G4UIcmdWithADouble.hh>
 #include <G4String.hh>
+#include <G4UIcmdWithABool.hh>
+#include <G4UIcmdWithADouble.hh>
+#include <G4UIcmdWithAString.hh>
+#include <G4UImessenger.hh>
 
 namespace RAT {
 
 class TrackingMessenger : public G4UImessenger {
-public:
+ public:
   TrackingMessenger();
   ~TrackingMessenger();
 
-  G4String GetCurrentValue(G4UIcommand * command);
-  void SetNewValue(G4UIcommand * command, G4String newValue);
+  G4String GetCurrentValue(G4UIcommand *command);
+  void SetNewValue(G4UIcommand *command, G4String newValue);
 
-protected:
+ protected:
   G4UIcmdWithABool *FillPointContCmd;
   G4UIcmdWithAString *storeParticleTrajCmd;
   G4UIcmdWithAString *discardParticleTrajCmd;
@@ -26,7 +26,6 @@ protected:
   G4UIcmdWithABool *storeOpticalTrackIDCmd;
 };
 
-
-} // namespace RAT
+}  // namespace RAT
 
 #endif

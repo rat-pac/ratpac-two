@@ -7,20 +7,24 @@
 /// \author Max Smiley <masmiley@berkeley.edu> -- contact person
 /// \date 26-Aug-2019
 ///
-/// \brief Implements the generation of a neutrino-nucleus charged current interaction.
+/// \brief Implements the generation of a neutrino-nucleus charged current
+/// interaction.
 ///
-/// This class is the workhorse of the generator, separating the Geant4 specific methods from a more physics oriented structure.
-/// It is based on the original elastic scattering implementation by Joe Formaggio and the following adaptation by Bill Seligman.
-/// However the whole class was re-written later to adapt it for the final use of charged current interactions.
+/// This class is the workhorse of the generator, separating the Geant4 specific
+/// methods from a more physics oriented structure. It is based on the original
+/// elastic scattering implementation by Joe Formaggio and the following
+/// adaptation by Bill Seligman. However the whole class was re-written later to
+/// adapt it for the final use of charged current interactions.
 ///
 ////////////////////////////////////////////////////////////////////
 
-#include <RAT/LinearInterp.hh>
-#include <G4ThreeVector.hh>
-#include <G4LorentzVector.hh>
-#include <CLHEP/Vector/LorentzVector.h>
 #include <CLHEP/Random/RandGeneral.h>
+#include <CLHEP/Vector/LorentzVector.h>
 #include <TF1.h>
+
+#include <G4LorentzVector.hh>
+#include <G4ThreeVector.hh>
+#include <RAT/LinearInterp.hh>
 
 /// Forward declarations.
 class TGraph;
@@ -28,173 +32,169 @@ class RandGeneral;
 
 namespace RAT {
 
-  /// Forward declarations within the namespace
-  class CCCrossSec;
+/// Forward declarations within the namespace
+class CCCrossSec;
 
-  class CCgen {
-  public:
-    CCgen();
-    ~CCgen();
-  
-    // Generate random event vectors
-    //    Pass in the neutrino direction (unit vector)
-    //    Returns 4-momentum vectors for resulting electron.
-		/**
-		 * Generate random event vectors.
-		 *
-		 * Pass in the neutrino direction (unit vector).
-		 * \param[in] nu_dir Incoming neutrino direction (lab coordinates).
-		 * \param[out] neutrino Outgoing neutrino direction (lab coordinates. Not used).
-		 * \param[out] electron Outgoing electron direction (lab coordinates).
-		 * \return 4-momentum vectors for resulting electron.
-		 */
-    void GenerateEvent(const G4ThreeVector& nu_dir,
-				G4LorentzVector &neutrino,
-				G4LorentzVector &electron, double &e_nucleus);
+class CCgen {
+ public:
+  CCgen();
+  ~CCgen();
 
-		/**
-		 * Setter for the flux to use.
-		 *
-		 * \param[in] nutype Key to the database to load the flux.
-		 */
-		void SetNuType(const G4String &nutype);
+  // Generate random event vectors
+  //    Pass in the neutrino direction (unit vector)
+  //    Returns 4-momentum vectors for resulting electron.
+  /**
+   * Generate random event vectors.
+   *
+   * Pass in the neutrino direction (unit vector).
+   * \param[in] nu_dir Incoming neutrino direction (lab coordinates).
+   * \param[out] neutrino Outgoing neutrino direction (lab coordinates. Not
+   * used). \param[out] electron Outgoing electron direction (lab coordinates).
+   * \return 4-momentum vectors for resulting electron.
+   */
+  void GenerateEvent(const G4ThreeVector &nu_dir, G4LorentzVector &neutrino, G4LorentzVector &electron,
+                     double &e_nucleus);
 
-		/** Getter for the spectrum being used */
-		inline const G4String & GetNuType() const { return fNuFlavor;};
+  /**
+   * Setter for the flux to use.
+   *
+   * \param[in] nutype Key to the database to load the flux.
+   */
+  void SetNuType(const G4String &nutype);
 
-		/**
-		 * Setter for the neutrino flavor being generated.
-		 *
-		 * This parameter is passed down into the cross-section to calculate the correct shape.
-		 *
-		 * @param nuflavor Flavor of the neutrino being calculated. Can be one of (<tt>nue,numu,nuebar,numubar</tt>).
-		 * \attention \f$ \sigma_{\mu} = \sigma_{\tau}\f$
-		 *
-		 */
-		void SetNuFlavor(const G4String &nuflavor);
-		/** Getter for neutrino flavor */
-		inline const G4String & GetNuFlavor() const { return fNuFlavor;};
+  /** Getter for the spectrum being used */
+  inline const G4String &GetNuType() const { return fNuFlavor; };
 
-		/**
-		 * @brief Getter for the total neutrino flux.
-		 * @return total neutrino flux in \f$ s^{-1} cm^{-2} \f$
-		 */
-		inline G4double GetTotalFlux() {
-			// Return the neutrino flux as the value loaded from the database
-			return fTotalFlux;
-		}
+  /**
+   * Setter for the neutrino flavor being generated.
+   *
+   * This parameter is passed down into the cross-section to calculate the
+   * correct shape.
+   *
+   * @param nuflavor Flavor of the neutrino being calculated. Can be one of
+   * (<tt>nue,numu,nuebar,numubar</tt>). \attention \f$ \sigma_{\mu} =
+   * \sigma_{\tau}\f$
+   *
+   */
+  void SetNuFlavor(const G4String &nuflavor);
+  /** Getter for neutrino flavor */
+  inline const G4String &GetNuFlavor() const { return fNuFlavor; };
 
-        /**
-	     * @brief Getter for the SSM event rate per target for this flux.
-	     *
-	     * The SSM event rate is obtained from the product of the cross section and the flux:
-	     * \f$ R_{\nu} = \sigma \times \Phi_{\nu} \f$
-	     *
-	     * @return The event Rate predicted by the SSM (in Hz)
-	     */
-        G4double GetRatePerTarget();
+  /**
+   * @brief Getter for the total neutrino flux.
+   * @return total neutrino flux in \f$ s^{-1} cm^{-2} \f$
+   */
+  inline G4double GetTotalFlux() {
+    // Return the neutrino flux as the value loaded from the database
+    return fTotalFlux;
+  }
 
-		/**
-     * Getter of the DB entry to input the spectrum from.
-     * @return name of the DB name.
-     */
-    const G4String GetDBName() const  {return fDBName;}
+  /**
+   * @brief Getter for the SSM event rate per target for this flux.
+   *
+   * The SSM event rate is obtained from the product of the cross section and
+   * the flux: \f$ R_{\nu} = \sigma \times \Phi_{\nu} \f$
+   *
+   * @return The event Rate predicted by the SSM (in Hz)
+   */
+  G4double GetRatePerTarget();
 
-    /**
-     * Setter of the DB name. Defaults to \'SOLAR\'
-     * @param[in] name of the database entry to look at.
-     */
-    void SetDBName(const G4String name);
+  /**
+   * Getter of the DB entry to input the spectrum from.
+   * @return name of the DB name.
+   */
+  const G4String GetDBName() const { return fDBName; }
 
-	private:
+  /**
+   * Setter of the DB name. Defaults to \'SOLAR\'
+   * @param[in] name of the database entry to look at.
+   */
+  void SetDBName(const G4String name);
 
-		/** Private member for load the database and cross-section data. */
-		void LoadGenerator();
+ private:
+  /** Private member for load the database and cross-section data. */
+  void LoadGenerator();
 
-		/** Generate the interaction given the neutrino energy and the recoil angle.*/
-		void GenInteraction(double &Enu, double &CosThetaLab);
+  /** Generate the interaction given the neutrino energy and the recoil angle.*/
+  void GenInteraction(double &Enu, double &CosThetaLab);
 
-		/** Resets internal vectors. To be removed. */
-		void Reset();
-		/** Show internal state of calculations. To be removed.*/
-		void Show();
+  /** Resets internal vectors. To be removed. */
+  void Reset();
+  /** Show internal state of calculations. To be removed.*/
+  void Show();
 
-		/** Sampler of neutrino energy from the spectrum. */
-		G4double SampleNuEnergy();
+  /** Sampler of neutrino energy from the spectrum. */
+  G4double SampleNuEnergy();
 
-		/** Sampler of recoil electron energy from the differential cross section. */
-		G4double SampleRecoilEnergy(G4double Enu, int &Transition, double &Enucleus);
+  /** Sampler of recoil electron energy from the differential cross section. */
+  G4double SampleRecoilEnergy(G4double Enu, int &Transition, double &Enucleus);
 
-		/** Sampler of recoil electron angle from the differential cross section. */
-		G4double SampleRecoilAngle(G4double Enu, G4double Te, int Transition);
+  /** Sampler of recoil electron angle from the differential cross section. */
+  G4double SampleRecoilAngle(G4double Enu, G4double Te, int Transition);
 
-	protected:
+ protected:
+  /** Private method to check if generator is loaded. */
+  inline G4bool GetGenLoaded() { return fGenLoaded; };
 
-		/** Private method to check if generator is loaded. */
-		inline G4bool GetGenLoaded() {return fGenLoaded;};
+  /** Generator type */
+  G4String fGenType;
+  /** Neutrino type */
+  G4String fNuType;
 
+  /** Neutrino flavor */
+  G4String fNuFlavor;
 
-		/** Generator type */
-		G4String fGenType;
-		/** Neutrino type */
-		G4String fNuType;
+  /** Instance of cross-section class */
+  CCCrossSec *fXS;
 
-		/** Neutrino flavor */
-		G4String fNuFlavor;
+  /**
+   *  @brief Spectrum shape to be sampled
+   *
+   *  Using ROOT TGraph to make use of it's nice evaluator.
+   */
+  TGraph *fNuSpectrum;
 
-		/** Instance of cross-section class */
-		CCCrossSec *fXS;
+  TF1 *fFermiAngle;
 
-		/**
-		 *  @brief Spectrum shape to be sampled
-		 *
-		 *  Using ROOT TGraph to make use of it's nice evaluator.
-		 */
-		TGraph *fNuSpectrum;
+  TF1 *fGTAngle;
 
-                TF1* fFermiAngle;
+  /** vector of neutrino energy points in the neutrino spectrum shape. */
+  std::vector<double> fEnuTbl;
 
-                TF1* fGTAngle;
+  /** Normalized flux in the neutrino spectrum shape. */
+  std::vector<double> fFluxTbl;
 
-		/** vector of neutrino energy points in the neutrino spectrum shape. */
-		std::vector<double> fEnuTbl;
+  /** Recoil upper limit for the electron.*/
+  G4float fEmax;
+  /** Recoil lower limit for the electron.*/
+  G4float fEmin;
 
-		/** Normalized flux in the neutrino spectrum shape. */
-		std::vector<double> fFluxTbl;
+  /** Recoil upper limit for the electron.*/
+  G4float fEnuMax;
+  /** Recoil lower limit for the electron.*/
+  G4float fEnuMin;
 
-		/** Recoil upper limit for the electron.*/
-		G4float fEmax;
-		/** Recoil lower limit for the electron.*/
-		G4float  fEmin;
+  /** Maximum flux in spectrum shape */
+  G4double fFluxMax;
 
-		/** Recoil upper limit for the electron.*/
-		G4float fEnuMax;
-		/** Recoil lower limit for the electron.*/
-		G4float  fEnuMin;
+  /** Generator loaded flag. */
+  G4bool fGenLoaded;
 
-		/** Maximum flux in spectrum shape */
-		G4double fFluxMax;
+  /** electron mass */
+  G4double fMassElectron;
 
-		/** Generator loaded flag. */
-		G4bool   fGenLoaded;
+  /** Total neutrino flux */
+  G4double fTotalFlux;
 
-		/** electron mass */
-		G4double fMassElectron;
+  /** Random number generator for the nu spectrum sampler */
+  CLHEP::RandGeneral *fSpectrumRndm;
 
-		/** Total neutrino flux */
-		G4double fTotalFlux;
+  /** Name of the database entry to read the input spectrum from.
+   * Defaults to SOLAR.
+   */
+  G4String fDBName;
+};
 
-		/** Random number generator for the nu spectrum sampler */
-		CLHEP::RandGeneral *fSpectrumRndm;
-
-		/** Name of the database entry to read the input spectrum from.
-		 * Defaults to SOLAR.
-		 */
-		G4String fDBName;
-
-	};
-
-} // namespace RAT
+}  // namespace RAT
 
 #endif
-

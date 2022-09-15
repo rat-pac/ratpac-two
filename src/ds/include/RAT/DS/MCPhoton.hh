@@ -20,10 +20,10 @@
 #include <TVector3.h>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class MCPhoton : public TObject {
-public:
+ public:
   MCPhoton() : TObject(), isDarkHit(false) {}
   virtual ~MCPhoton() {}
 
@@ -33,10 +33,8 @@ public:
 
   /** Time of pulse arriving at front-end electronics. */
   virtual Double_t GetFrontEndTime() const { return frontEndTime; }
-  virtual void SetFrontEndTime(Double_t _frontEndTime) {
-    frontEndTime = _frontEndTime;
-  }
-  
+  virtual void SetFrontEndTime(Double_t _frontEndTime) { frontEndTime = _frontEndTime; }
+
   /** Location of photon hit in local PMT coordinates (mm). */
   virtual TVector3 GetPosition() const { return pos; }
   virtual void SetPosition(const TVector3 &_pos) { pos = _pos; }
@@ -62,31 +60,30 @@ public:
   virtual void SetCharge(Float_t _charge) { charge = _charge; }
 
   /** Is this photoelectron due to a dark hit? */
-  virtual void SetDarkHit(Bool_t _isDarkHit){ isDarkHit = _isDarkHit;}
+  virtual void SetDarkHit(Bool_t _isDarkHit) { isDarkHit = _isDarkHit; }
   virtual Bool_t IsDarkHit() const { return isDarkHit; }
 
   /** Is this photoelectron due to an after-pulse? */
-  virtual void SetAfterPulse(Bool_t _isAfterPulse){ isAfterPulse = _isAfterPulse;}
+  virtual void SetAfterPulse(Bool_t _isAfterPulse) { isAfterPulse = _isAfterPulse; }
   virtual Bool_t IsAfterPulse() const { return isAfterPulse; }
 
   /** Track ID of photon which generated this photoelectron */
-  virtual void SetTrackID(Int_t _trackID){ trackID = _trackID;}
+  virtual void SetTrackID(Int_t _trackID) { trackID = _trackID; }
   virtual Int_t GetTrackID() const { return trackID; }
 
   /** Name of physics process acting at endpoint of the MCTrackStep
-   * that created this photon hit. 
+   * that created this photon hit.
    */
   virtual std::string GetCreatorProcess() const { return process; }
   virtual void SetProcess(const std::string &_process) { process = _process; }
 
   /** Operator overload **/
-  bool operator < (const MCPhoton& mcp) const { return (frontEndTime < mcp.frontEndTime); }
-  bool operator > (const MCPhoton& mcp) const { return (frontEndTime > mcp.frontEndTime); }
+  bool operator<(const MCPhoton &mcp) const { return (frontEndTime < mcp.frontEndTime); }
+  bool operator>(const MCPhoton &mcp) const { return (frontEndTime > mcp.frontEndTime); }
 
   ClassDef(MCPhoton, 3)
 
-protected:
-  Double_t hitTime;
+      protected : Double_t hitTime;
   Double_t frontEndTime;
   Double_t lambda;
   TVector3 pos;
@@ -100,8 +97,7 @@ protected:
   std::string process;
 };
 
-  } // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif
-

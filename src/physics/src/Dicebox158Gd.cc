@@ -2,7 +2,9 @@
 // Apr 4, 2018
 
 #include "RAT/Dicebox158Gd.hh"
+
 #include <stdio.h>
+
 #include <G4Event.hh>
 #include <G4EventManager.hh>
 #include <RAT/EventInfo.hh>
@@ -14,6 +16,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
 #include "G4Delete.hh"
 #include "G4IonTable.hh"
 #include "G4ParticleChange.hh"
@@ -24,10 +27,8 @@
 #include "G4ios.hh"
 #include "Randomize.hh"
 
-using namespace std;
-
 // static
-G4std::vector<Dicebox158Gd*> Dicebox158Gd::masterVector;
+std::vector<Dicebox158Gd *> Dicebox158Gd::masterVector;
 
 // constructor
 Dicebox158Gd::Dicebox158Gd() {
@@ -38,8 +39,7 @@ Dicebox158Gd::Dicebox158Gd() {
 
 // destructor
 Dicebox158Gd::~Dicebox158Gd() {
-  for (G4std::vector<Dicebox158Gd*>::iterator i = masterVector.begin();
-       i != masterVector.end(); i++) {
+  for (std::vector<Dicebox158Gd *>::iterator i = masterVector.begin(); i != masterVector.end(); i++) {
     if (*i == this) {
       masterVector.erase(i);
       break;
@@ -48,25 +48,20 @@ Dicebox158Gd::~Dicebox158Gd() {
 }
 
 // PostPostStepDoIt
-G4VParticleChange* Dicebox158Gd::PostStepDoIt(const G4Track& aTrack,
-                                              const G4Step& aStep) {
+G4VParticleChange *Dicebox158Gd::PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) {
   // intialize particle change
   aParticleChange.Initialize(aTrack);
 
   // Get the event and current track info
-  G4Event* event = G4EventManager::GetEventManager()->GetNonconstCurrentEvent();
-  RAT::EventInfo* eventInfo =
-      dynamic_cast<RAT::EventInfo*>(event->GetUserInformation());
-  RAT::TrackInfo* currentTrackInfo =
-      dynamic_cast<RAT::TrackInfo*>(aTrack.GetUserInformation());
+  G4Event *event = G4EventManager::GetEventManager()->GetNonconstCurrentEvent();
+  RAT::EventInfo *eventInfo = dynamic_cast<RAT::EventInfo *>(event->GetUserInformation());
+  RAT::TrackInfo *currentTrackInfo = dynamic_cast<RAT::TrackInfo *>(aTrack.GetUserInformation());
 
   if (eventInfo && eventInfo->StoreCapture158GdIDs) {
     // Only occurs on first step
     if (aTrack.GetCurrentStepNumber() == 1) {
-      eventInfo->Capture158GdIDParentStep[aTrack.GetTrackID()].push_back(
-          aTrack.GetParentID());
-      eventInfo->Capture158GdIDParentStep[aTrack.GetTrackID()].push_back(
-          currentTrackInfo->GetCreatorStep() - 1);
+      eventInfo->Capture158GdIDParentStep[aTrack.GetTrackID()].push_back(aTrack.GetParentID());
+      eventInfo->Capture158GdIDParentStep[aTrack.GetTrackID()].push_back(currentTrackInfo->GetCreatorStep() - 1);
     }
   }
 
@@ -133,7 +128,7 @@ G4VParticleChange* Dicebox158Gd::PostStepDoIt(const G4Track& aTrack,
     G4ParticleMomentum p0(px, py, pz);
 
     // create new particle
-    G4DynamicParticle* aParticle;
+    G4DynamicParticle *aParticle;
     if (type == 0) {
       aParticle = new G4DynamicParticle(G4Gamma::Gamma(), p0.unit(), erg);
     } else {
@@ -141,13 +136,13 @@ G4VParticleChange* Dicebox158Gd::PostStepDoIt(const G4Track& aTrack,
     }
 
     // create new secondary track
-    G4Track* aSecondaryTrack = new G4Track(aParticle, t0, x0);
+    G4Track *aSecondaryTrack = new G4Track(aParticle, t0, x0);
     aSecondaryTrack->SetGoodForTrackingFlag();
 
     // set the track
     aSecondaryTrack->SetWeight(1.0);
     aSecondaryTrack->SetParentID(aTrack.GetTrackID());
-    RAT::TrackInfo* trackInfo = new RAT::TrackInfo();
+    RAT::TrackInfo *trackInfo = new RAT::TrackInfo();
     trackInfo->SetCreatorStep(aTrack.GetCurrentStepNumber());
     trackInfo->SetCreatorProcess("nCapture");
     aSecondaryTrack->SetUserInformation(trackInfo);
@@ -163,9 +158,9 @@ G4VParticleChange* Dicebox158Gd::PostStepDoIt(const G4Track& aTrack,
 }
 
 // GenericPostPostStepDoIt
-G4VParticleChange* Dicebox158Gd::GenericPostStepDoIt(const G4Step* pStep) {
-  G4Track* track = pStep->GetTrack();
-  G4std::vector<Dicebox158Gd*>::iterator it = masterVector.begin();
+G4VParticleChange *Dicebox158Gd::GenericPostStepDoIt(const G4Step *pStep) {
+  G4Track *track = pStep->GetTrack();
+  std::vector<Dicebox158Gd *>::iterator it = masterVector.begin();
 
   return (*it)->PostStepDoIt(*track, *pStep);
 }

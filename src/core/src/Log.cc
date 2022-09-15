@@ -1,8 +1,8 @@
 #include <RAT/Log.hh>
 #include <RAT/fileio.hpp>
-#include <iostream>
-#include <fstream>
 #include <cstdlib>
+#include <fstream>
+#include <iostream>
 
 namespace RAT {
 
@@ -20,16 +20,17 @@ namespace RAT {
 #endif
 
 class otext_streambuf : public std::streambuf {
-public:
+ public:
   otext_streambuf(otext *_out) { out = _out; };
 
-  virtual int_type overflow (int_type c) {
+  virtual int_type overflow(int_type c) {
     if (c != EOF) {
-      (*out) << (char) c;
+      (*out) << (char)c;
     }
     return c;
   };
-protected:
+
+ protected:
   otext *out;
 };
 
@@ -38,13 +39,13 @@ otext_streambuf info_streambuf(&info);
 //********************************************************************
 
 //**** Definition of the global logging objects.
-omtext warn(ferr); // default to screen output
-omtext info(fout); // default to screen output
+omtext warn(ferr);  // default to screen output
+omtext info(fout);  // default to screen output
 omtext detail;
 omtext debug;
 
 //**** Static member variables
-omtext *Log::outstreams[4] = { &warn, &info, &detail, &debug };
+omtext *Log::outstreams[4] = {&warn, &info, &detail, &debug};
 std::string Log::filename;
 oftext Log::logfile;
 int Log::display_level = Log::DEBUG;
@@ -52,17 +53,14 @@ int Log::log_level = Log::DETAIL;
 std::string Log::macro;
 bool Log::enable_dbtrace = false;
 TMap *Log::dbtrace = 0;
-std::vector<std::pair<std::string, TObject*> > Log::objects;
+std::vector<std::pair<std::string, TObject *>> Log::objects;
 
 // Empty constructor.  No one should call this!
-Log::Log()
-{
-}
+Log::Log() {}
 
 //**** Member functions
 
-  bool Log::Init(std::string _filename, Level display, Level log)
-{
+bool Log::Init(std::string _filename, Level display, Level log) {
   // Redirect cout and cerr through Log
   std::cerr.rdbuf(&warn_streambuf);
   std::cout.rdbuf(&info_streambuf);
@@ -76,42 +74,37 @@ Log::Log()
   enable_dbtrace = true;
 
   SetupIO();
-  return true; // FIXME: How do I figure out if logfile didn't open?
+  return true;  // FIXME: How do I figure out if logfile didn't open?
 }
 
-void Log::SetDisplayLevel(Level level)
-{
+void Log::SetDisplayLevel(Level level) {
   display_level = level;
   SetupIO();
 }
 
-void Log::SetLogLevel(Level level)
-{
+void Log::SetLogLevel(Level level) {
   log_level = level;
   SetupIO();
 }
 
-void Log::Die(std::string message, int return_code)
-{
+void Log::Die(std::string message, int return_code) {
   warn << message << newline;
   std::exit(return_code);
 }
 
-void Log::Assert(bool condition, std::string message, int return_code)
-{
+void Log::Assert(bool condition, std::string message, int return_code) {
   if (!condition) {
     warn << message << newline;
     std::exit(return_code);
   }
 }
 
-void Log::SetupIO()
-{
-  for (int i=WARN; i <= DEBUG; i++) {
+void Log::SetupIO() {
+  for (int i = WARN; i <= DEBUG; i++) {
     ClearOMText(outstreams[i]);
     if (display_level >= i) {
       if (i == WARN)
-        outstreams[i]->add(ferr); // special case to ensure warn is unbuffered
+        outstreams[i]->add(ferr);  // special case to ensure warn is unbuffered
       else
         outstreams[i]->add(fout);
     }
@@ -121,22 +114,16 @@ void Log::SetupIO()
   }
 }
 
-void Log::ClearOMText(omtext *out)
-{
+void Log::ClearOMText(omtext *out) {
   int count = out->device_count();
-  for (int i = 0; i < count; i++)
-    out->remove(0); // Always remove head device
+  for (int i = 0; i < count; i++) out->remove(0);  // Always remove head device
 }
 
 const std::string Log::GetLogBuffer() {
   std::ifstream fin(filename.c_str());
-  std::string content( (std::istreambuf_iterator<char>(fin) ),
-                         (std::istreambuf_iterator<char>() ) );
+  std::string content((std::istreambuf_iterator<char>(fin)), (std::istreambuf_iterator<char>()));
   fin.close();
   return content;
-
 }
 
-
-} // namespace RAT
-
+}  // namespace RAT

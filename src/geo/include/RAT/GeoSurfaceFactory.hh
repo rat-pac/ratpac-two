@@ -7,8 +7,10 @@
 /// REVISION HISTORY:\n
 ///   25/03/2011 : P Gorel - New file \n
 ///
-/// \detail Implement the possibility to have a logical border between two solids
-///         Created in order to have TPB only between two defined solids, and not as a skin
+/// \detail Implement the possibility to have a logical border between two
+/// solids
+///         Created in order to have TPB only between two defined solids, and
+///         not as a skin
 ///
 ////////////////////////////////////////////////////////////////////////
 
@@ -20,10 +22,10 @@
 namespace RAT {
 
 class GeoSurfaceFactory : public GeoFactory {
-public:
-  GeoSurfaceFactory() : GeoFactory("border") { };
+ public:
+  GeoSurfaceFactory() : GeoFactory("border"){};
   virtual G4VPhysicalVolume *Construct(DBLinkPtr table);
 };
 
-} // namespace RAT
+}  // namespace RAT
 #endif

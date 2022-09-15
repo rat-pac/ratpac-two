@@ -11,14 +11,14 @@
 #ifndef __RAT_PhysicsList__
 #define __RAT_PhysicsList__
 
-#include <string>
 #include <G4VUserPhysicsList.hh>
 #include <Shielding.hh>
+#include <string>
 
 namespace RAT {
 
 class PhysicsList : public Shielding {
-public:
+ public:
   PhysicsList();
 
   ~PhysicsList();
@@ -35,22 +35,22 @@ public:
   // Get the WLS model name
   std::string GetOpWLSModelName() { return this->wlsModelName; }
 
-  void SetCerenkovMaxNumPhotonsPerStep(int maxphotons){this->CerenkovMaxNumPhotonsPerStep = maxphotons;}
-  int GetCerenkovMaxNumPhotonsPerStep(){ return this->CerenkovMaxNumPhotonsPerStep; }
+  void SetCerenkovMaxNumPhotonsPerStep(int maxphotons) { this->CerenkovMaxNumPhotonsPerStep = maxphotons; }
+  int GetCerenkovMaxNumPhotonsPerStep() { return this->CerenkovMaxNumPhotonsPerStep; }
 
-  void EnableCerenkov(bool status){this->IsCerenkovEnabled = status;}
-  bool GetCerenkovStatus(){return this->IsCerenkovEnabled;}
+  void EnableCerenkov(bool status) { this->IsCerenkovEnabled = status; }
+  bool GetCerenkovStatus() { return this->IsCerenkovEnabled; }
 
-  void SetStepFunctionLightIons(double v1, double v2){ 
+  void SetStepFunctionLightIons(double v1, double v2) {
     this->stepRatioLightIons = v1;
     this->finalRangeLightIons = v2;
   }
-  void SetStepFunctionMuHad(double v1, double v2){ 
+  void SetStepFunctionMuHad(double v1, double v2) {
     this->stepRatioMuHad = v1;
     this->finalRangeMuHad = v2;
   }
 
-private:
+ private:
   // Construct and register optical processes
   void ConstructOpticalProcesses();
 
@@ -58,9 +58,10 @@ private:
   // Register opticalphotons with the PMT G4FastSimulationManagerProcess
   void AddParameterization();
 
-  std::string wlsModelName;         // The name of the WLS model
-  G4VPhysicsConstructor* wlsModel;  // The WLS model constructor
-  int CerenkovMaxNumPhotonsPerStep; // Controlls step-size for cerenkov processes
+  std::string wlsModelName;          // The name of the WLS model
+  G4VPhysicsConstructor *wlsModel;   // The WLS model constructor
+  int CerenkovMaxNumPhotonsPerStep;  // Controlls step-size for cerenkov
+                                     // processes
   bool IsCerenkovEnabled;
   double stepRatioLightIons;
   double finalRangeLightIons;

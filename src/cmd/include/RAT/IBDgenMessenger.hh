@@ -2,37 +2,36 @@
 #ifndef RAT_IBDgenMessenger_hh
 #define RAT_IBDgenMessenger_hh
 
-#include "G4UImessenger.hh"
 #include "G4String.hh"
-#include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithABool.hh"
+#include "G4UIcmdWithAString.hh"
+#include "G4UImessenger.hh"
 
-//Forward declarations
+// Forward declarations
 class G4UIcommand;
 class G4UIcmdWithADouble;
 
 namespace RAT {
 
-  //Forward declarations within RAT namespace
-  class IBDgen;
+// Forward declarations within RAT namespace
+class IBDgen;
 
-  class IBDgenMessenger: public G4UImessenger
-  {
-  public:
-    IBDgenMessenger(IBDgen*);
-    ~IBDgenMessenger();
+class IBDgenMessenger : public G4UImessenger {
+ public:
+  IBDgenMessenger(IBDgen *);
+  ~IBDgenMessenger();
 
-    void SetNewValue(G4UIcommand* command, G4String newValues);
-    G4String GetCurrentValue(G4UIcommand* command);
+  void SetNewValue(G4UIcommand *command, G4String newValues);
+  G4String GetCurrentValue(G4UIcommand *command);
 
-  private:
-    IBDgen* ibdgen;
+ private:
+  IBDgen *ibdgen;
 
-    G4UIcmdWithAString* SpectrumUseCmd;
-    G4UIcmdWithABool* NeutronUseCmd;
-    G4UIcmdWithABool* PositronUseCmd;
-  };
+  G4UIcmdWithAString *SpectrumUseCmd;
+  G4UIcmdWithABool *NeutronUseCmd;
+  G4UIcmdWithABool *PositronUseCmd;
+};
 
-} // namespace RAT
+}  // namespace RAT
 
-#endif // RAT_IBDgenMessenger_hh
+#endif  // RAT_IBDgenMessenger_hh

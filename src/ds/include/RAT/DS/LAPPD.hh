@@ -1,7 +1,7 @@
 /**
  * @class LAPPD
  * Data Structure: LAPPD in triggered event
- * 
+ *
  * This represents a LAPPD in a detector event.
  */
 
@@ -9,13 +9,14 @@
 #define __RAT_DS_LAPPD__
 
 #include <Rtypes.h>
+
 #include <RAT/DS/LAPPDHit.hh>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class LAPPD : public TObject {
-public:
+ public:
   LAPPD() : TObject() {}
   virtual ~LAPPD() {}
 
@@ -32,25 +33,24 @@ public:
   virtual Float_t GetTotalTime() { return totaltime; }
 
   /** List of hits in this LAPPD. */
-  LAPPDHit* GetHit(Int_t i) { return &hits[i]; }
+  LAPPDHit *GetHit(Int_t i) { return &hits[i]; }
   Int_t GetNHits() const { return hits.size(); }
-  LAPPDHit* AddNewHit() {
+  LAPPDHit *AddNewHit() {
     hits.resize(hits.size() + 1);
     return &hits.back();
   }
   void PruneHits() { hits.resize(0); }
-   
- ClassDef(LAPPD, 1);
 
-protected:
+  ClassDef(LAPPD, 1);
+
+ protected:
   Int_t id;
   std::vector<LAPPDHit> hits;
   Float_t totalcharge;
   Float_t totaltime;
 };
 
-  } // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif
-

@@ -5,42 +5,37 @@
 
 namespace RAT {
 
-
 template <class NumType>
 class LinearInterp {
-public:
+ public:
   LinearInterp() { npoints = 0; };
-  LinearInterp(int _npoints, const NumType _x[], const NumType _y[]) {
-    Set(_npoints, _x, _y);
-  };
-  LinearInterp(const std::vector<NumType> &_x, const std::vector<NumType> &_y) {
-    Set(_x, _y);
-  };
-  
+  LinearInterp(int _npoints, const NumType _x[], const NumType _y[]) { Set(_npoints, _x, _y); };
+  LinearInterp(const std::vector<NumType> &_x, const std::vector<NumType> &_y) { Set(_x, _y); };
+
   void Set(int _npoints, const NumType _x[], const NumType _y[]);
   void Set(const std::vector<NumType> &_x, const std::vector<NumType> &_y) {
-    npoints = _x.size(); x = _x; y = _y;
+    npoints = _x.size();
+    x = _x;
+    y = _y;
   };
 
-  NumType operator() (const NumType xeval) const;
+  NumType operator()(const NumType xeval) const;
 
   NumType Min() { return x.front(); };
   NumType Max() { return x.back(); };
   int Points() { return npoints; };
 
   class RangeError {
-  public:
-    RangeError(const NumType _xlow, const NumType _xhigh, const NumType _xeval) 
-      : xlow(_xlow), xhigh(_xhigh), xeval(_xeval)
-      { /* no-op */ };
-    bool operator== (const RangeError &other) const {
-      return xlow == other.xlow && xhigh == other.xhigh
-	&& xeval == other.xeval;
+   public:
+    RangeError(const NumType _xlow, const NumType _xhigh, const NumType _xeval)
+        : xlow(_xlow), xhigh(_xhigh), xeval(_xeval){/* no-op */};
+    bool operator==(const RangeError &other) const {
+      return xlow == other.xlow && xhigh == other.xhigh && xeval == other.xeval;
     };
     NumType xlow, xhigh, xeval;
   };
 
-protected:
+ protected:
   int LowerElement(const NumType xeval) const;
 
   int npoints;
@@ -49,6 +44,6 @@ protected:
 
 #include "../LinearInterp.icc"
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

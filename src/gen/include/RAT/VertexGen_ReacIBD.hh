@@ -15,29 +15,26 @@
 namespace RAT {
 
 class VertexGen_ReacIBD : public GLG4VertexGen {
-public:
-  VertexGen_ReacIBD(const char *arg_dbname="ibd");
+ public:
+  VertexGen_ReacIBD(const char *arg_dbname = "ibd");
   virtual ~VertexGen_ReacIBD();
-  virtual void GeneratePrimaryVertex( G4Event *argEvent,
-				      G4ThreeVector &dx,
-				      G4double dt);
+  virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G4double dt);
   // generates a primary vertex with given particle type, direction, energy,
   // and consistent polarization.
 
-  virtual void SetState( G4String newValues );
+  virtual void SetState(G4String newValues);
   // format: dir_x dir_y dir_z
   // If dir_x==dir_y==dir_z==0, the directions are isotropic.
 
   virtual G4String GetState();
   // returns current state formatted as above
 
-private:
+ private:
   G4ParticleDefinition *nu, *n, *eplus;
   ReacIBDgen reacibd;
   G4ThreeVector nu_dir;
 };
 
-
-} // namespace RAT
+}  // namespace RAT
 
 #endif

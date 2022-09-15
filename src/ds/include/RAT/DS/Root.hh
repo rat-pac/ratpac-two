@@ -24,31 +24,32 @@
 #ifndef __RAT_DS_Root__
 #define __RAT_DS_Root__
 
-#include <vector>
+#include <TObject.h>
+
+#include <RAT/DS/Calib.hh>
+#include <RAT/DS/EV.hh>
+#include <RAT/DS/MC.hh>
 #include <string>
 #include <utility>
-#include <TObject.h>
-#include <RAT/DS/MC.hh>
-#include <RAT/DS/EV.hh>
-#include <RAT/DS/Calib.hh>
+#include <vector>
 
 namespace RAT {
-  namespace DS {
+namespace DS {
 
 class Root : public TObject {
-public:
+ public:
   Root() : TObject() {}
   virtual ~Root() {}
 
   /** Run number. */
   virtual int GetRunID() const { return runID; }
   virtual void SetRunID(int _runID) { runID = _runID; }
-  
+
   /** Add a result code for a processor that was executed on this event */
-  virtual void AppendProcResult(const std::string &procName, int resultCode) { 
+  virtual void AppendProcResult(const std::string &procName, int resultCode) {
     procResult.push_back(std::pair<std::string, int>(procName, resultCode));
   }
-  
+
   /**
    * Return code of last time this processor was run.
    *
@@ -58,11 +59,10 @@ public:
    *   2 : Abort processing of this event.
    */
   virtual int GetLastProcResult(const std::string &procName) const {
-    for (int i=procResult.size()-1; i>=0; i--) {
-      if (procResult[(unsigned int) i].first == procName)
-        return procResult[(unsigned int) i].second;
+    for (int i = procResult.size() - 1; i >= 0; i--) {
+      if (procResult[(unsigned int)i].first == procName) return procResult[(unsigned int)i].second;
     }
-    return -1; // Processor has not been run
+    return -1;  // Processor has not been run
   }
 
   /**
@@ -80,12 +80,10 @@ public:
    * Get the entire list of processor result codes as pairs:
    * (name of processor, result code)
    */
-  virtual std::vector< std::pair< std::string, int> > GetProcResult() const {
-    return procResult;
-  }
-   
+  virtual std::vector<std::pair<std::string, int>> GetProcResult() const { return procResult; }
+
   /**
-   * Version number of RAT which created this event.  
+   * Version number of RAT which created this event.
    *
    *  The integer version number is the floating point version shifted
    *  by 3 decimal places.  For example, version 0.2 is recorded as
@@ -96,7 +94,7 @@ public:
   virtual void SetRatVersion(std::string _ratVersion) { ratVersion = _ratVersion; }
 
   /** Monte Carlo information for this event. */
-  virtual MC* GetMC() {
+  virtual MC *GetMC() {
     if (mc.empty()) {
       mc.resize(1);
     }
@@ -106,7 +104,7 @@ public:
   virtual void PruneMC() { mc.resize(0); }
 
   /** Calibration source used in this event. */
-  virtual Calib* GetCalib() {
+  virtual Calib *GetCalib() {
     if (calib.empty()) {
       calib.resize(1);
     }
@@ -116,9 +114,9 @@ public:
   virtual void PruneCalib() { calib.resize(0); }
 
   /** List of triggered events. */
-  virtual EV* GetEV(int i) { return &ev[i]; }
+  virtual EV *GetEV(int i) { return &ev[i]; }
   virtual int GetEVCount() const { return ev.size(); }
-  virtual EV* AddNewEV() {
+  virtual EV *AddNewEV() {
     ev.resize(ev.size() + 1);
     return &(ev.back());
   }
@@ -137,18 +135,16 @@ public:
 
   ClassDef(Root, 1)
 
-protected:
-  int runID;
+      protected : int runID;
   std::string ratVersion;
-  std::vector< std::pair<std::string, int> > procResult;
+  std::vector<std::pair<std::string, int>> procResult;
   std::vector<MC> mc;
   std::vector<Calib> calib;
   std::vector<EV> ev;
   std::vector<double> user;
 };
 
-  } // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif
-

@@ -1,24 +1,24 @@
-#include <RAT/DB.hh>
-#include <RAT/DS/EV.hh>
-#include <RAT/DS/PMT.hh>
-#include <RAT/DS/Root.hh>
-#include <RAT/DS/Run.hh>
-#include <RAT/DS/RunStore.hh>
-#include <RAT/DS/FitResult.hh>
-#include <RAT/FitPathProc.hh>
-#include <RAT/Processor.hh>
-#include <RAT/SimulatedAnnealing.hh>
-#include <TVector3.h>
-#include <cmath>
-#include <iostream>
-#include <string>
-#include <vector>
-
 #include <Minuit2/FunctionMinimum.h>
 #include <Minuit2/MnMigrad.h>
 #include <Minuit2/MnMinimize.h>
 #include <Minuit2/MnSimplex.h>
 #include <Minuit2/MnUserParameters.h>
+#include <TVector3.h>
+
+#include <RAT/DB.hh>
+#include <RAT/DS/EV.hh>
+#include <RAT/DS/FitResult.hh>
+#include <RAT/DS/PMT.hh>
+#include <RAT/DS/Root.hh>
+#include <RAT/DS/Run.hh>
+#include <RAT/DS/RunStore.hh>
+#include <RAT/FitPathProc.hh>
+#include <RAT/Processor.hh>
+#include <RAT/SimulatedAnnealing.hh>
+#include <cmath>
+#include <iostream>
+#include <string>
+#include <vector>
 
 namespace RAT {
 
@@ -94,10 +94,8 @@ FitPathProc::FitPathProc() : Processor("fitpath") {
 /// Arguments are event {position},{direction unit},time
 /// Excuse my intentional use of basic types and explicit variables -
 /// optomization in progress
-double FitPathProc::FTPProbability(const double x, const double y,
-                                   const double z, const double dx,
-                                   const double dy, const double dz,
-                                   const double t) const {
+double FitPathProc::FTPProbability(const double x, const double y, const double z, const double dx, const double dy,
+                                   const double dz, const double t) const {
   const double c = fLightSpeed;
   const double prob_direct = fDirectProb;
   const double prob_other = fOtherProb;
@@ -109,44 +107,35 @@ double FitPathProc::FTPProbability(const double x, const double y,
   double exponent = 0.0;
   double expTracker = 0.0;
   for (size_t i = 0; i < nHits; i++) {
-    const hit &cur = fHits[i]; // constant reference for speed
+    const hit &cur = fHits[i];  // constant reference for speed
 
     const double rx = cur.x - x, ry = cur.y - y,
-                 rz = cur.z - z; // vector r points from event to hit
-    const double dist =
-        sqrt(rx * rx + ry * ry + rz * rz); // distance from event to hit
+                 rz = cur.z - z;                            // vector r points from event to hit
+    const double dist = sqrt(rx * rx + ry * ry + rz * rz);  // distance from event to hit
     const double nx = rx / dist, ny = ry / dist,
-                 nz = rz / dist; // vector n is the unit vector of r
+                 nz = rz / dist;  // vector n is the unit vector of r
 
-    const double trel = cur.t - t; // time of hit relative to event time
-    const double tresid =
-        trel - dist / c; // hit time corrected by time of flight
+    const double trel = cur.t - t;          // time of hit relative to event time
+    const double tresid = trel - dist / c;  // hit time corrected by time of flight
 
-    const double prob_directtime =
-        PDFDirectTime(tresid); // probability of detecting direct light with
-                               // this time residual
-    const double prob_othertime = PDFOtherTime(
-        tresid); // probability of detecting other light with this time residual
+    const double prob_directtime = PDFDirectTime(tresid);  // probability of detecting direct light with
+                                                           // this time residual
+    const double prob_othertime = PDFOtherTime(tresid);  // probability of detecting other light with this time residual
 
-    const double cosalpha =
-        nx * dx + ny * dy +
-        nz * dz; // cosine of angle formed by hit-event-direction
+    const double cosalpha = nx * dx + ny * dy + nz * dz;  // cosine of angle formed by hit-event-direction
 
     // original
     const double solidangle =
         -sensitive_area / (dist * dist) *
-        (nx * cur.px + ny * cur.py +
-         nz * cur.pz); // solid angle correction to PMT hit probability
+        (nx * cur.px + ny * cur.py + nz * cur.pz);  // solid angle correction to PMT hit probability
     // new
     // const double solidangle = sensitive_area/(dist*dist);
 
-    const double prob_directangle =
-        nCherenkov * PDFCherenkovAngle(cosalpha) * solidangle /
-        (2.0 * M_PI); // probability of detecting direct light at this angle
+    const double prob_directangle = nCherenkov * PDFCherenkovAngle(cosalpha) * solidangle /
+                                    (2.0 * M_PI);  // probability of detecting direct light at this angle
 
     // original
-    double hitprob = prob_direct * prob_directtime * prob_directangle +
-                     prob_other * prob_othertime;
+    double hitprob = prob_direct * prob_directtime * prob_directangle + prob_other * prob_othertime;
     if (hitprob > 1e-50)
       prob *= hitprob;
     else
@@ -168,16 +157,14 @@ double FitPathProc::AvgSquareTimeResid(double x, double y, double z, double t) {
 
   double sum = 0.0;
   for (size_t i = 0; i < nHits; i++) {
-    const hit &cur = fHits[i]; // constant reference for speed
+    const hit &cur = fHits[i];  // constant reference for speed
 
     const double rx = cur.x - x, ry = cur.y - y,
-                 rz = cur.z - z; // vector r points from event to hit
-    const double dist =
-        sqrt(rx * rx + ry * ry + rz * rz); // distance from event to hit
+                 rz = cur.z - z;                            // vector r points from event to hit
+    const double dist = sqrt(rx * rx + ry * ry + rz * rz);  // distance from event to hit
 
-    const double trel = cur.t - t; // time of hit relative to event time
-    const double tresid =
-        trel - dist / c; // hit time corrected by time of flight
+    const double trel = cur.t - t;          // time of hit relative to event time
+    const double tresid = trel - dist / c;  // hit time corrected by time of flight
 
     sum += tresid * tresid;
   }
@@ -187,30 +174,27 @@ double FitPathProc::AvgSquareTimeResid(double x, double y, double z, double t) {
 double FitPathProc::operator()(const std::vector<double> &lParams) const {
   const double costheta = cos(lParams[3]);
   const double sintheta = sqrt(1 - costheta * costheta);
-  return -(FTPProbability(lParams[0], lParams[1], lParams[2],
-                          sintheta * cos(lParams[4]),
-                          sintheta * sin(lParams[4]), costheta, lParams[5]));
+  return -(FTPProbability(lParams[0], lParams[1], lParams[2], sintheta * cos(lParams[4]), sintheta * sin(lParams[4]),
+                          costheta, lParams[5]));
 }
 
 // x,y,z,costheta,phi,t
 double FitPathProc::operator()(double *params) {
   switch (fStage) {
-  case 0:
-    return AvgSquareTimeResid(params[0], params[1], params[2], params[3]);
-  case 1: {
-    const double costheta = cos(params[3]);
-    const double sintheta = sqrt(1 - costheta * costheta);
-    return -(FTPProbability(params[0], params[1], params[2],
-                            sintheta * cos(params[4]),
-                            sintheta * sin(params[4]), costheta, params[5]));
-  }
-  default:
-    return 0.0;
+    case 0:
+      return AvgSquareTimeResid(params[0], params[1], params[2], params[3]);
+    case 1: {
+      const double costheta = cos(params[3]);
+      const double sintheta = sqrt(1 - costheta * costheta);
+      return -(FTPProbability(params[0], params[1], params[2], sintheta * cos(params[4]), sintheta * sin(params[4]),
+                              costheta, params[5]));
+    }
+    default:
+      return 0.0;
   }
 }
 
 Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
-
   fHits.resize(ev->GetPMTCount());
 
   DS::Run *run = DS::RunStore::Get()->GetRun(ds);
@@ -229,7 +213,7 @@ Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
     fHits[i].t = pmt->GetTime();
   }
 
-  DS::FitResult* fit = new DS::FitResult("FitPath");
+  DS::FitResult *fit = new DS::FitResult("FitPath");
 
   if (ev->GetPMTCount() == 0) {
     fit->SetPosition(TVector3(-100000, -100000, -100000));
@@ -265,8 +249,8 @@ Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
   stage0.GetBestPoint(seed);
 
   TVector3 pos0(seed[0], seed[1], seed[2]);
-  //fit->SetPos0(pos0);
-  //fit->SetTime0(seed[3]);
+  // fit->SetPos0(pos0);
+  // fit->SetTime0(seed[3]);
   fStage = 1;
   SimulatedAnnealing<6> stage1(this);
 
@@ -299,7 +283,6 @@ Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
   stage1.GetBestPoint(point);
 
   if (fMigrad) {
-
     seed = point;
     std::vector<double> errors(6);
     errors[0] = errors[1] = errors[2] = 1000.0;
@@ -308,8 +291,7 @@ Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
 
     gErrorIgnoreLevel = 1001;
 
-    ROOT::Minuit2::MnUserParameters mnParams =
-        ROOT::Minuit2::MnUserParameters(seed, errors);
+    ROOT::Minuit2::MnUserParameters mnParams = ROOT::Minuit2::MnUserParameters(seed, errors);
     ROOT::Minuit2::MnUserTransformation trafo;
     ROOT::Minuit2::MinimumState minState(seed.size());
     ROOT::Minuit2::MinimumSeed minSeed(minState, trafo);
@@ -337,4 +319,4 @@ Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
   return Processor::OK;
 }
 
-} // namespace RAT
+}  // namespace RAT

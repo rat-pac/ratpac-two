@@ -3,7 +3,7 @@
  * Data Structure: Initial particle state
  *
  * @author Stan Seibert <sseibert@hep.upenn.edu>
- * 
+ *
  * This class describes the state of one of the initial particles in this event.
  * Secondaries created during simulation are not included here.
  */
@@ -13,13 +13,14 @@
 
 #include <TObject.h>
 #include <TVector3.h>
+
 #include <string>
 
 namespace RAT {
-  namespace DS {
-    
+namespace DS {
+
 class MCParticle : public TObject {
-public:
+ public:
   MCParticle() : TObject() {}
   virtual ~MCParticle() {}
 
@@ -32,10 +33,8 @@ public:
   virtual Int_t GetPDGCode() const { return pdgcode; }
   virtual void SetPDGCode(Int_t _pdgcode) { pdgcode = _pdgcode; }
 
-  virtual const std::string& GetParticleName() const { return particleName; }
-  virtual void SetParticleName(const std::string& _particleName) {
-    particleName = _particleName;
-  }
+  virtual const std::string &GetParticleName() const { return particleName; }
+  virtual void SetParticleName(const std::string &_particleName) { particleName = _particleName; }
 
   /** Initial time of particle (ns). */
   virtual Double_t GetTime() const { return t; }
@@ -75,22 +74,20 @@ public:
 
   ClassDef(MCParticle, 2)
 
-protected:
-  Int_t pdgcode;
+      protected : Int_t pdgcode;
   Double_t t;
-  Float_t ke; 
+  Float_t ke;
   TVector3 pos;
-  TVector3 mom;  
+  TVector3 mom;
   Double_t end_t;
-  Float_t end_ke; 
+  Float_t end_ke;
   TVector3 end_pos;
-  TVector3 end_mom;  
+  TVector3 end_mom;
   TVector3 pol;
   std::string particleName;
 };
 
-  } // namespace DS
-} // namespace RAT
+}  // namespace DS
+}  // namespace RAT
 
 #endif
-

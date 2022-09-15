@@ -18,7 +18,8 @@
  *  needs to abort now, they can hit Ctrl-C again, and the second time
  *  SIGINT is received, the application terminates immediately with no cleanup.
  *
- *  Note that this class only contains static methods and cannot be instantiated.
+ *  Note that this class only contains static methods and cannot be
+ * instantiated.
  */
 
 #ifndef __RAT_SignalHandler__
@@ -28,12 +29,10 @@
 
 namespace RAT {
 
-
 class SignalHandler {
-public:
-
+ public:
   /** Initialize signal handler.
-   * 
+   *
    *  After this call, this class will catch SIGINT.
    */
   static void Init();
@@ -47,7 +46,7 @@ public:
    *  In general, this method is only called by the operating system
    *  in response to a SIGINT.  You should not call it unless you want to
    *  simulate a Ctrl-C.
-   * 
+   *
    *  The first time this is received, the termination flag is set.
    *  The current SIGINT handler is also changed back to the default
    *  OS handler so that the second SIGINT will cause the default
@@ -56,16 +55,14 @@ public:
    */
   static void SigInt();
 
-private:
+ private:
   /** This class cannot be instantiated. */
-  SignalHandler() { /* Do nothing */ };
-
+  SignalHandler(){/* Do nothing */};
 
   /** Set to true if a SIGINT has been received. */
   static bool sigintPending;
 };
 
-
-} // namespace RAT
+}  // namespace RAT
 
 #endif

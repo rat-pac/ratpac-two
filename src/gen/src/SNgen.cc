@@ -15,23 +15,22 @@
 // Time dependency added by Will Yeadon 21-Sep-2017
 // Contact wyeadon1@sheffield.ac.uk
 
-#include <RAT/DB.hh>
-#include <RAT/SNgen.hh>
-#include <RAT/SNgenMessenger.hh>
-
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+
 #include <G4ParticleDefinition.hh>
 #include <G4ParticleTable.hh>
 #include <G4ThreeVector.hh>
+#include <RAT/DB.hh>
+#include <RAT/SNgen.hh>
+#include <RAT/SNgenMessenger.hh>
 #include <Randomize.hh>
 #include <cmath>
-
 
 namespace RAT {
 
 // WGS: Constants copied from various places to make the code work.
-const double XMaxDefault = 1e-45; // Reasonable minimum for x-section (cm^2).
+const double XMaxDefault = 1e-45;  // Reasonable minimum for x-section (cm^2).
 const double GFERMI = 1.16639e-11 / CLHEP::MeV / CLHEP::MeV;
 const double XcMeVtoCmsqrd = 0.389379292e-21;
 
@@ -45,7 +44,7 @@ const double SNgen::ESDEFAULT = 0.0295;
 const double SNgen::CCDEFAULT = 0.003;
 const double SNgen::ICCDEFAULT = 0.024;
 const double SNgen::NCDEFAULT = 0.0175;
-const int SNgen::MODELDEFAULT = 1; // 1: livermore, 2: gkvm
+const int SNgen::MODELDEFAULT = 1;  // 1: livermore, 2: gkvm
 
 TGraph *graphIBD;
 TGraph *graphES;
@@ -107,8 +106,7 @@ CLHEP::HepLorentzVector SNgen::GenerateEvent(const G4ThreeVector &theNeutrino) {
   //
   //  Check if the maximum throwing number has been set.
   //
-  if (!GetNormFlag())
-    SetXSecMax(NTRIAL);
+  if (!GetNormFlag()) SetXSecMax(NTRIAL);
   double XSecNorm = GetXSecMax();
 
   // Throw values against a cross-section.
@@ -144,7 +142,7 @@ CLHEP::HepLorentzVector SNgen::GenerateEvent(const G4ThreeVector &theNeutrino) {
   G4double phi = GetRandomNumber(0., 2. * M_PI);
 
   //
-  //  Now that energy/Q2 is selected, write a momentum transfer 4-vector q.
+  //  Now that energy/Q2 is selected, write a momentum transfer 4-std::vector q.
   //
   G4double qp = sqrt(pow(Nu, 2) + Q2);
   CLHEP::HepLorentzVector qVector;
@@ -179,7 +177,7 @@ void SNgen::Reset() {
 
 void SNgen::SetIBDAmplitude(double IBDAm) {
   if ((IBDAm < 0.) || (IBDAm > 1.)) {
-    G4cerr << "Set your IBD Amplitude between 0 and 1." << G4endl;
+    std::cerr << "Set your IBD Amplitude between 0 and 1." << std::endl;
     return;
   }
   IBDAmp = IBDAm;
@@ -187,7 +185,7 @@ void SNgen::SetIBDAmplitude(double IBDAm) {
 
 void SNgen::SetESAmplitude(double ESAm) {
   if ((ESAm < 0.) || (ESAm > 1.)) {
-    G4cerr << "Set your ES Amplitude between 0 and 1." << G4endl;
+    std::cerr << "Set your ES Amplitude between 0 and 1." << std::endl;
     return;
   }
   ESAmp = ESAm;
@@ -195,7 +193,7 @@ void SNgen::SetESAmplitude(double ESAm) {
 
 void SNgen::SetCCAmplitude(double CCAm) {
   if ((CCAm < 0.) || (CCAm > 1.)) {
-    G4cerr << "Set your CC Amplitude between 0 and 1." << G4endl;
+    std::cerr << "Set your CC Amplitude between 0 and 1." << std::endl;
     return;
   }
   CCAmp = CCAm;
@@ -203,7 +201,7 @@ void SNgen::SetCCAmplitude(double CCAm) {
 
 void SNgen::SetICCAmplitude(double ICCAm) {
   if ((ICCAm < 0.) || (ICCAm > 1.)) {
-    G4cerr << "Set your ICC Amplitude between 0 and 1." << G4endl;
+    std::cerr << "Set your ICC Amplitude between 0 and 1." << std::endl;
     return;
   }
   ICCAmp = ICCAm;
@@ -211,7 +209,7 @@ void SNgen::SetICCAmplitude(double ICCAm) {
 
 void SNgen::SetNCAmplitude(double NCAm) {
   if ((NCAm < 0.) || (NCAm > 1.)) {
-    G4cerr << "Set your NC Amplitude between 0 and 1." << G4endl;
+    std::cerr << "Set your NC Amplitude between 0 and 1." << std::endl;
     return;
   }
   NCAmp = NCAm;
@@ -219,21 +217,21 @@ void SNgen::SetNCAmplitude(double NCAm) {
 
 void SNgen::SetModel(double ModelTm) {
   if ((ModelTm < 1.) || (ModelTm > 2.)) {
-    G4cerr << "Set your model between 1 (livermore) and 2. (gvkm)" << G4endl;
+    std::cerr << "Set your model between 1 (livermore) and 2. (gvkm)" << std::endl;
     return;
   }
   ModelTmp = ModelTm;
 }
 
 void SNgen::Show() {
-  G4cout << "Elastic Scatteing Settings:" << G4endl;
-  G4cout << "Weak Mixing Angle (sinsq(ThetaW)):" << GetMixingAngle() << G4endl;
-  G4cout << "Neutrino Magnetic Moment: " << GetMagneticMoment() << G4endl;
+  std::cout << "Elastic Scatteing Settings:" << std::endl;
+  std::cout << "Weak Mixing Angle (sinsq(ThetaW)):" << GetMixingAngle() << std::endl;
+  std::cout << "Neutrino Magnetic Moment: " << GetMagneticMoment() << std::endl;
 }
 
 void SNgen::SetMixingAngle(double sin2thw) {
   if ((sin2thw < 0.) || (sin2thw > 1.)) {
-    G4cerr << "Error in value setting." << G4endl;
+    std::cerr << "Error in value setting." << std::endl;
     return;
   }
   SinSqThetaW = sin2thw;
@@ -241,14 +239,13 @@ void SNgen::SetMixingAngle(double sin2thw) {
 
 void SNgen::SetNeutrinoMoment(double vMu) {
   if (vMu < 0.) {
-    G4cerr << "Error in value setting." << G4endl;
+    std::cerr << "Error in value setting." << std::endl;
     return;
   }
   MagneticMoment = vMu;
 }
 
 double SNgen::GetXSec(double Enu, double T) {
-
   double XC = 0.;
 
   //  Set up constants for cross-section scale.
@@ -262,8 +259,7 @@ double SNgen::GetXSec(double Enu, double T) {
   double g_a = -0.5;
 
   //  Reject events in prohibited regions.
-  if (T > Enu)
-    return 0.;
+  if (T > Enu) return 0.;
 
   //  Compute differential cross-section
   XC = pow((g_v + g_a), 2) + pow((g_v - g_a), 2) * pow((1. - T / Enu), 2) +
@@ -273,9 +269,7 @@ double SNgen::GetXSec(double Enu, double T) {
 
   //  Add term due to neutrino magnetic moment.
   static const double alphainv = 1. / CLHEP::fine_structure_const;
-  if (T > 0.)
-    XC += (M_PI / pow(alphainv, 2) * pow(vMu, 2) / pow(massElectron, 2)) *
-          (1. - T / Enu) / T;
+  if (T > 0.) XC += (M_PI / pow(alphainv, 2) * pow(vMu, 2) / pow(massElectron, 2)) * (1. - T / Enu) / T;
 
   //  Convert to detector units and return.
   XC *= XCunits;
@@ -290,8 +284,7 @@ void SNgen::SetXSecMax(int ntry) {
     double Enu = GetRandomNumber(0., 10.);
     double T = GetRandomNumber(0., Enu);
     double xsec = GetXSec(Enu, T);
-    if (xsec > xMax)
-      xMax = xsec;
+    if (xsec > xMax) xMax = xsec;
   }
 
   XSecMax = xMax;
@@ -299,7 +292,7 @@ void SNgen::SetXSecMax(int ntry) {
 }
 
 double SNgen::GetRandomNumber(double rmin, double rmax) {
-  double rnd = G4UniformRand(); // random number from 0 to 1.
+  double rnd = G4UniformRand();  // random number from 0 to 1.
   double value = rmin + (rmax - rmin) * rnd;
   return value;
 }
@@ -309,9 +302,7 @@ double ESTGraph2TF1(Double_t *x, Double_t *) { return graphES->Eval(x[0]); }
 double CCTGraph2TF1(Double_t *x, Double_t *) { return graphCC->Eval(x[0]); }
 double ICCTGraph2TF1(Double_t *x, Double_t *) { return graphICC->Eval(x[0]); }
 double NCTGraph2TF1(Double_t *x, Double_t *) { return graphNC->Eval(x[0]); }
-double NCNUTGraph2TF1(Double_t *x, Double_t *) {
-  return graphNCRate->Eval(x[0]);
-}
+double NCNUTGraph2TF1(Double_t *x, Double_t *) { return graphNCRate->Eval(x[0]); }
 double INCTGraph2TF1(Double_t *x, Double_t *) { return graphINC->Eval(x[0]); }
 
 // Reactions Generator, Modified by Will
@@ -334,20 +325,17 @@ double SNgen::GetIBDRandomEnergy(Double_t &dt) {
   Double_t m_n;
   m_n = 939.57;
   // Calculate Flux & XS
-  TF1 *IBD_Flux = new TF1(
-      "IBD_Flux",
-      "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
-      "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
-      1.806, 100);
+  TF1 *IBD_Flux = new TF1("IBD_Flux",
+                          "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
+                          "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
+                          1.806, 100);
   IBD_Flux->SetParameters(alran_IBD, meran_IBD);
-  TF1 *IBD_XS = new TF1(
-      "IBD_XS",
-      "((([0]*[1]*[2]*((1+3*([3]*[3]))/4)*(TMath::Power(((x-[4])/"
-      "[5]),2))*sqrt(1-(([5]/(x-[4]))*([5]/(x-[4]))))*(1+((1.1*x/[6]))))))",
-      1.806, 100);
+  TF1 *IBD_XS = new TF1("IBD_XS",
+                        "((([0]*[1]*[2]*((1+3*([3]*[3]))/4)*(TMath::Power(((x-[4])/"
+                        "[5]),2))*sqrt(1-(([5]/(x-[4]))*([5]/(x-[4]))))*(1+((1.1*x/[6]))))))",
+                        1.806, 100);
   IBD_XS->SetParameters(1, 1, sigma_0, gA, del_np, m_e, m_n);
-  TF1 *IBD_Total =
-      new TF1("IBD_Total", "IBD_Flux*IBD_XS", 1.806, 100); // combo line
+  TF1 *IBD_Total = new TF1("IBD_Total", "IBD_Flux*IBD_XS", 1.806, 100);  // combo line
   IBD_return = IBD_Total->GetRandom();
   IBD_Flux->Delete();
   IBD_XS->Delete();
@@ -374,14 +362,12 @@ double SNgen::GetESRandomEnergy(Double_t &dt) {
     cos_cab_ESe = 0.80795;
     Double_t sin_wei_ESe;
     sin_wei_ESe = 1.29332;
-    TF1 *ES_e_Flux = new TF1(
-        "ES_e_Flux",
-        "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
-        "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
-        0, 100);
+    TF1 *ES_e_Flux = new TF1("ES_e_Flux",
+                             "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
+                             "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
+                             0, 100);
     ES_e_Flux->SetParameters(alran_ES_e, meran_ES_e);
-    TF1 *ES_e_XS = new TF1(
-        "ES_e_XS", "([0]/(8*[1]))*(x/[2])*(1+4*[3]+(16/3)*[3]*[3])", 0, 100);
+    TF1 *ES_e_XS = new TF1("ES_e_XS", "([0]/(8*[1]))*(x/[2])*(1+4*[3]+(16/3)*[3]*[3])", 0, 100);
     ES_e_XS->SetParameters(sigma_0_ESe, cos_cab_ESe, m_e_ESe, sin_wei_ESe);
     TF1 *ES_e_Total = new TF1("ES_e_Total", "ES_e_Flux*ES_e_XS", 0, 100);
     ES_return = ES_e_Total->GetRandom();
@@ -402,17 +388,14 @@ double SNgen::GetESRandomEnergy(Double_t &dt) {
     cos_cab_ESeb = 0.80795;
     Double_t sin_wei_ESeb;
     sin_wei_ESeb = 1.29332;
-    TF1 *ES_eb_Flux = new TF1(
-        "ES_eb_Flux",
-        "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
-        "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
-        0, 100);
+    TF1 *ES_eb_Flux = new TF1("ES_eb_Flux",
+                              "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
+                              "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
+                              0, 100);
     ES_eb_Flux->SetParameters(alran_ES_eb, meran_ES_eb);
-    TF1 *ES_eb_XS = new TF1(
-        "ES_eb_XS", "([0]/(8*[1]))*(x/[2])*(1+4*[3]+(16/3)*[3]*[3])", 0, 100);
+    TF1 *ES_eb_XS = new TF1("ES_eb_XS", "([0]/(8*[1]))*(x/[2])*(1+4*[3]+(16/3)*[3]*[3])", 0, 100);
     ES_eb_XS->SetParameters(sigma_0_ESeb, cos_cab_ESeb, m_e_ESeb, sin_wei_ESeb);
-    TF1 *ES_eb_Total =
-        new TF1("ES_eb_Total", "ES_eb_Flux*ES_eb_XS", 0, 100); // combo line
+    TF1 *ES_eb_Total = new TF1("ES_eb_Total", "ES_eb_Flux*ES_eb_XS", 0, 100);  // combo line
     ES_return = ES_eb_Total->GetRandom();
     ES_eb_Flux->Delete();
     ES_eb_XS->Delete();
@@ -431,14 +414,12 @@ double SNgen::GetESRandomEnergy(Double_t &dt) {
     cos_cab_ESx = 0.80795;
     Double_t sin_wei_ESx;
     sin_wei_ESx = 1.29332;
-    TF1 *ES_x_Flux = new TF1(
-        "ES_x_Flux",
-        "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
-        "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
-        0, 100);
+    TF1 *ES_x_Flux = new TF1("ES_x_Flux",
+                             "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
+                             "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
+                             0, 100);
     ES_x_Flux->SetParameters(alran_ES_x, meran_ES_x);
-    TF1 *ES_x_XS = new TF1(
-        "ES_x_XS", "([0]/(8*[1]))*(x/[2])*(1+4*[3]+(16/3)*[3]*[3])", 0, 100);
+    TF1 *ES_x_XS = new TF1("ES_x_XS", "([0]/(8*[1]))*(x/[2])*(1+4*[3]+(16/3)*[3]*[3])", 0, 100);
     ES_x_XS->SetParameters(sigma_0_ESx, cos_cab_ESx, m_e_ESx, sin_wei_ESx);
     TF1 *ES_x_Total = new TF1("ES_x_Total", "ES_x_Flux*ES_x_XS", 0, 100);
     ES_return = ES_x_Total->GetRandom();
@@ -454,15 +435,12 @@ double SNgen::GetCCRandomEnergy(Double_t &dt) {
   dt = ran_CC;
   Double_t meran_CC = gmene_e->Eval(ran_CC);
   Double_t alran_CC = galpha_e->Eval(ran_CC);
-  TF1 *CC_Flux = new TF1(
-      "CC_Flux",
-      "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
-      "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
-      0, 100);
+  TF1 *CC_Flux = new TF1("CC_Flux",
+                         "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
+                         "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
+                         0, 100);
   CC_Flux->SetParameters(alran_CC, meran_CC);
-  TF1 *CC_XS = new TF1(
-      "CC_XS", "4.7e-40*(TMath::Power(x,0.25)-TMath::Power(15,0.25))**6", 0,
-      100);
+  TF1 *CC_XS = new TF1("CC_XS", "4.7e-40*(TMath::Power(x,0.25)-TMath::Power(15,0.25))**6", 0, 100);
   TF1 *CC_Total = new TF1("CC_Total", "CC_Flux*CC_XS", 0, 100);
   CC_return = CC_Total->GetRandom();
   CC_Flux->Delete();
@@ -478,15 +456,12 @@ double SNgen::GetICCRandomEnergy(Double_t &dt) {
   dt = ran_ICC;
   Double_t meran_ICC = gmene_eb->Eval(ran_ICC);
   Double_t alran_ICC = galpha_eb->Eval(ran_ICC);
-  TF1 *ICC_Flux = new TF1(
-      "ICC_Flux",
-      "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
-      "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
-      0, 100);
+  TF1 *ICC_Flux = new TF1("ICC_Flux",
+                          "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
+                          "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
+                          0, 100);
   ICC_Flux->SetParameters(alran_ICC, meran_ICC);
-  TF1 *ICC_XS = new TF1(
-      "ICC_XS", "7.2e-41*(TMath::Power(x,0.25)-TMath::Power(9.5,0.25))**6", 0,
-      100);
+  TF1 *ICC_XS = new TF1("ICC_XS", "7.2e-41*(TMath::Power(x,0.25)-TMath::Power(9.5,0.25))**6", 0, 100);
   TF1 *ICC_Total = new TF1("ICC_Total", "ICC_Flux*ICC_XS", 0, 100);
   ICC_return = ICC_Total->GetRandom();
   ICC_Flux->Delete();
@@ -496,28 +471,26 @@ double SNgen::GetICCRandomEnergy(Double_t &dt) {
   //            ****************************** \n");
   return ICC_return;
 }
-double SNgen::GetNCRandomEnergy(Double_t &dt) { //
+double SNgen::GetNCRandomEnergy(Double_t &dt) {  //
   Double_t NC_return;
   Double_t ran_NC = glum_e->GetRandom();
   dt = ran_NC;
   Double_t meran_NC = gmene_e->Eval(ran_NC);
   Double_t alran_NC = galpha_e->Eval(ran_NC);
-  TF1 *NC_Flux = new TF1(
-      "NC_Flux",
-      "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
-      "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
-      0, 100);
+  TF1 *NC_Flux = new TF1("NC_Flux",
+                         "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
+                         "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
+                         0, 100);
   NC_Flux->SetParameters(alran_NC, meran_NC);
-  TF1 *NC_XS = new TF1(
-      "NC_XS", "9.7e-41*(TMath::Power(x,0.25)-TMath::Power(12.75,0.25))**6", 0,
-      100);
+  TF1 *NC_XS = new TF1("NC_XS", "9.7e-41*(TMath::Power(x,0.25)-TMath::Power(12.75,0.25))**6", 0, 100);
   TF1 *NC_Total = new TF1("NC_Total", "NC_Flux*NC_XS", 0, 100);
   NC_return = NC_Total->GetRandom();
   NC_Flux->Delete();
   NC_XS->Delete();
   NC_Total->Delete();
-  printf("******************************* NC Event "
-         "********************************** \n");
+  printf(
+      "******************************* NC Event "
+      "********************************** \n");
   return NC_return;
 }
 double SNgen::GetNCRandomNuEnergy() {
@@ -526,15 +499,12 @@ double SNgen::GetNCRandomNuEnergy() {
   // dt = ran_NCR; // NC Nu is different to the others
   Double_t meran_NCR = gmene_e->Eval(ran_NCR);
   Double_t alran_NCR = galpha_e->Eval(ran_NCR);
-  TF1 *NCR_Flux = new TF1(
-      "NCR_Flux",
-      "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
-      "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
-      0, 100);
+  TF1 *NCR_Flux = new TF1("NCR_Flux",
+                          "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
+                          "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
+                          0, 100);
   NCR_Flux->SetParameters(alran_NCR, meran_NCR);
-  TF1 *NCR_XS = new TF1(
-      "NCR_XS", "9.7e-41*(TMath::Power(x,0.25)-TMath::Power(12.75,0.25))**6", 0,
-      100);
+  TF1 *NCR_XS = new TF1("NCR_XS", "9.7e-41*(TMath::Power(x,0.25)-TMath::Power(12.75,0.25))**6", 0, 100);
   TF1 *NCR_Total = new TF1("NCR_Total", "NCR_Flux*NCR_XS", 0, 100);
   NCR_return = NCR_Total->GetRandom();
   NCR_Flux->Delete();
@@ -550,15 +520,12 @@ double SNgen::GetINCRandomEnergy(Double_t &dt) {
   dt = ran_INC;
   Double_t meran_INC = gmene_e->Eval(ran_INC);
   Double_t alran_INC = galpha_e->Eval(ran_INC);
-  TF1 *INC_Flux = new TF1(
-      "INC_Flux",
-      "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
-      "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
-      0, 100);
+  TF1 *INC_Flux = new TF1("INC_Flux",
+                          "(TMath::Power(x,[0]))/(TMath::Gamma([0]+1))*TMath::Power(([0]+1)/"
+                          "[1],[0]+1)*exp(-(([0]+1)/[1])*x)",
+                          0, 100);
   INC_Flux->SetParameters(alran_INC, meran_INC);
-  TF1 *INC_XS = new TF1(
-      "INC_XS", "9.7e-41*(TMath::Power(x,0.25)-TMath::Power(12.75,0.25))**6", 0,
-      100);
+  TF1 *INC_XS = new TF1("INC_XS", "9.7e-41*(TMath::Power(x,0.25)-TMath::Power(12.75,0.25))**6", 0, 100);
   TF1 *INC_Total = new TF1("INC_Total", "INC_Flux*INC_XS", 0, 100);
   INC_return = INC_Total->GetRandom();
   INC_Flux->Delete();
@@ -575,16 +542,14 @@ void SNgen::LoadSpectra() {
   int model = GetModel();
   Double_t magsumTot, totIBD, totES, totCC, totICC, totNC, x, y;
 
-  G4cout
-      << "\n===================== Supernova information ======================"
-      << G4endl;
+  std::cout << "\n===================== Supernova information ======================" << std::endl;
 
   // Load in the Livermore model
   if (model == 1) {
-    G4cout << "\nUsing the livermore model. Within the this model the "
-              "following rates are present.\nThese rates are not used in the "
-              "processing of these events, but may be set by the user\nmanualy "
-           << G4endl;
+    std::cout << "\nUsing the livermore model. Within the this model the "
+                 "following rates are present.\nThese rates are not used in the "
+                 "processing of these events, but may be set by the user\nmanualy "
+              << std::endl;
 
     //////////////////////////// IBD
     /////////////////////////////////////////////////////////
@@ -601,7 +566,7 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep]);
       graphIBD->SetPoint(istep, spec_E[istep], spec_mag[istep]);
     }
-    G4cout << "Total IBD integrate spectra is  " << magsumTot << G4endl;
+    std::cout << "Total IBD integrate spectra is  " << magsumTot << std::endl;
     totIBD = magsumTot;
 
     //////////////////////////// CC
@@ -619,7 +584,7 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep]);
       graphCC->SetPoint(istep, spec_E[istep], spec_mag[istep]);
     }
-    G4cout << "Total CC integrate spectra is  " << magsumTot << G4endl;
+    std::cout << "Total CC integrate spectra is  " << magsumTot << std::endl;
     totCC = magsumTot;
 
     //////////////////////////// ICC
@@ -637,7 +602,7 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep]);
       graphICC->SetPoint(istep, spec_E[istep], spec_mag[istep]);
     }
-    G4cout << "Total ICC integrate spectra is  " << magsumTot << G4endl;
+    std::cout << "Total ICC integrate spectra is  " << magsumTot << std::endl;
     totICC = magsumTot;
 
     //////////////////////////// NC
@@ -656,8 +621,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep]);
       graphNCRate->SetPoint(istep, spec_E[istep], spec_mag[istep]);
     }
-    //            G4cout << "Total NC integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total NC integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totNC = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "livermore_nc_numu_O16");
@@ -672,8 +637,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphNCRate->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totNC = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "livermore_nc_nutau_O16");
@@ -688,8 +653,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphNCRate->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totNC = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "livermore_nc_nuebar_O16");
@@ -704,8 +669,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphNCRate->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totNC = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "livermore_nc_numubar_O16");
@@ -720,8 +685,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphNCRate->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totNC = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "livermore_nc_nutaubar_O16");
@@ -736,8 +701,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphNCRate->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totNC = magsumTot;
 
     //////////////////////////// ES
@@ -754,11 +719,11 @@ void SNgen::LoadSpectra() {
     for (unsigned int istep = 0; istep < spec_E.size(); ++istep) {
       magsumTot += (spec_mag[istep]);
       graphES->SetPoint(istep, spec_E[istep], spec_mag[istep]);
-      // G4cout << "ES nue " << spec_E[istep]  << " " <<spec_mag[istep] <<
-      // G4endl;
+      // std::cout << "ES nue " << spec_E[istep]  << " " <<spec_mag[istep] <<
+      // std::endl;
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totES = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "livermore_nuebar_e");
@@ -772,12 +737,12 @@ void SNgen::LoadSpectra() {
       graphES->GetPoint(istep, x, y);
       magsumTot += (spec_mag[istep] + y);
       graphES->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
-      // G4cout << "ES nuebar x:(" << spec_E[istep]  << ", " <<x << "), E:("<<
+      // std::cout << "ES nuebar x:(" << spec_E[istep]  << ", " <<x << "), E:("<<
       // spec_mag[istep] << " + " << y <<" = " << spec_mag[istep]+y << ")"
-      // <<G4endl;
+      // <<std::endl;
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totES = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "livermore_numu_e");
@@ -792,12 +757,12 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphES->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
 
-      // G4cout << "ES numu x:(" << spec_E[istep]  << ", " <<x << "), E:("<<
+      // std::cout << "ES numu x:(" << spec_E[istep]  << ", " <<x << "), E:("<<
       // spec_mag[istep] << " + " << y <<" = " << spec_mag[istep]+y << ")"
-      // <<G4endl;
+      // <<std::endl;
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totES = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "livermore_numubar_e");
@@ -811,12 +776,12 @@ void SNgen::LoadSpectra() {
       graphES->GetPoint(istep, x, y);
       magsumTot += (spec_mag[istep] + y);
       graphES->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
-      // G4cout << "ES numubar x:(" << spec_E[istep]  << ", " <<x << "), E:("<<
+      // std::cout << "ES numubar x:(" << spec_E[istep]  << ", " <<x << "), E:("<<
       // spec_mag[istep] << " + " << y <<" = " << spec_mag[istep]+y << ")"
-      // <<G4endl;
+      // <<std::endl;
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totES = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "livermore_nutau_e");
@@ -830,12 +795,12 @@ void SNgen::LoadSpectra() {
       graphES->GetPoint(istep, x, y);
       magsumTot += (spec_mag[istep] + y);
       graphES->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
-      // G4cout << "ES nutau x:(" << spec_E[istep]  << ", " <<x << "), E:("<<
+      // std::cout << "ES nutau x:(" << spec_E[istep]  << ", " <<x << "), E:("<<
       // spec_mag[istep] << " + " << y <<" = " << spec_mag[istep]+y << ")"
-      // <<G4endl;
+      // <<std::endl;
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totES = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "livermore_nutaubar_e");
@@ -849,27 +814,27 @@ void SNgen::LoadSpectra() {
       graphES->GetPoint(istep, x, y);
       magsumTot += (spec_mag[istep] + y);
       graphES->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
-      // G4cout << "ES nutaubar x:(" << spec_E[istep]  << ", " <<x << "), E:("<<
+      // std::cout << "ES nutaubar x:(" << spec_E[istep]  << ", " <<x << "), E:("<<
       // spec_mag[istep] << " + " << y <<" = " << spec_mag[istep]+y << ")"
-      // <<G4endl;
+      // <<std::endl;
     }
-    G4cout << "Total ES integrate spectra is  " << magsumTot << G4endl;
+    std::cout << "Total ES integrate spectra is  " << magsumTot << std::endl;
     totES = magsumTot;
 
     //////////////////////////// TALLY
     /////////////////////////////////////////////////////////
 
     Double_t tot = totIBD + totES + totCC + totICC + totNC;
-    G4cout << "(ibd,es,cc,icc,nc): "
-           << "(" << totIBD / tot << ", " << totES / tot << ", " << totCC / tot
-           << ", " << totICC / tot << ", " << totNC / tot << ")\n"
-           << G4endl;
-  } // GVKM MODELgvkm
+    std::cout << "(ibd,es,cc,icc,nc): "
+              << "(" << totIBD / tot << ", " << totES / tot << ", " << totCC / tot << ", " << totICC / tot << ", "
+              << totNC / tot << ")\n"
+              << std::endl;
+  }  // GVKM MODELgvkm
   else if (model == 2) {
-    G4cout << "\nUsing the gvkm model. Within the this model the following "
-              "rates are present.\nThese rates are not used in the processing "
-              "of these events, but may be set by the user\nmanualy  "
-           << G4endl;
+    std::cout << "\nUsing the gvkm model. Within the this model the following "
+                 "rates are present.\nThese rates are not used in the processing "
+                 "of these events, but may be set by the user\nmanualy  "
+              << std::endl;
 
     //////////////////////////// IBD
     /////////////////////////////////////////////////////////
@@ -886,7 +851,7 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep]);
       graphIBD->SetPoint(istep, spec_E[istep], spec_mag[istep]);
     }
-    G4cout << "Total IBD integrate spectra is  " << magsumTot << G4endl;
+    std::cout << "Total IBD integrate spectra is  " << magsumTot << std::endl;
     totIBD = magsumTot;
 
     //////////////////////////// CC
@@ -904,7 +869,7 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep]);
       graphCC->SetPoint(istep, spec_E[istep], spec_mag[istep]);
     }
-    G4cout << "Total CC integrate spectra is  " << magsumTot << G4endl;
+    std::cout << "Total CC integrate spectra is  " << magsumTot << std::endl;
     totCC = magsumTot;
 
     //////////////////////////// ICC
@@ -922,7 +887,7 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep]);
       graphICC->SetPoint(istep, spec_E[istep], spec_mag[istep]);
     }
-    G4cout << "Total ICC integrate spectra is  " << magsumTot << G4endl;
+    std::cout << "Total ICC integrate spectra is  " << magsumTot << std::endl;
     totICC = magsumTot;
 
     //////////////////////////// NC
@@ -941,8 +906,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep]);
       graphNCRate->SetPoint(istep, spec_E[istep], spec_mag[istep]);
     }
-    //            G4cout << "Total NC integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total NC integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totNC = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "gvkm_nc_numu_O16");
@@ -957,8 +922,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphNCRate->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totNC = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "gvkm_nc_nutau_O16");
@@ -973,8 +938,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphNCRate->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totNC = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "gvkm_nc_nuebar_O16");
@@ -989,8 +954,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphNCRate->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totNC = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "gvkm_nc_numubar_O16");
@@ -1005,8 +970,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphNCRate->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totNC = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "gvkm_nc_nutaubar_O16");
@@ -1021,8 +986,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphNCRate->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totNC = magsumTot;
 
     //////////////////////////// ES
@@ -1040,8 +1005,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep]);
       graphES->SetPoint(istep, spec_E[istep], spec_mag[istep]);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totES = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "gvkm_nuebar_e");
@@ -1056,8 +1021,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphES->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totES = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "gvkm_numu_e");
@@ -1072,8 +1037,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphES->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totES = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "gvkm_numubar_e");
@@ -1088,8 +1053,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphES->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totES = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "gvkm_nutau_e");
@@ -1104,8 +1069,8 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphES->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    //            G4cout << "Total ES integrate spectra is  " <<
-    //            magsumTot<<G4endl;
+    //            std::cout << "Total ES integrate spectra is  " <<
+    //            magsumTot<<std::endl;
     totES = magsumTot;
 
     _lspec = DB::Get()->GetLink("SN_SPECTRUM", "gvkm_nutaubar_e");
@@ -1120,17 +1085,17 @@ void SNgen::LoadSpectra() {
       magsumTot += (spec_mag[istep] + y);
       graphES->SetPoint(istep, spec_E[istep], spec_mag[istep] + y);
     }
-    G4cout << "Total ES integrate spectra is  " << magsumTot << G4endl;
+    std::cout << "Total ES integrate spectra is  " << magsumTot << std::endl;
     totES = magsumTot;
 
     //////////////////////////// TALLY
     /////////////////////////////////////////////////////////
 
     Double_t tot = totIBD + totES + totCC + totICC + totNC;
-    G4cout << "(ibd,es,cc,icc,nc): "
-           << "(" << totIBD / tot << ", " << totES / tot << ", " << totCC / tot
-           << ", " << totICC / tot << ", " << totNC / tot << ")\n"
-           << G4endl;
+    std::cout << "(ibd,es,cc,icc,nc): "
+              << "(" << totIBD / tot << ", " << totES / tot << ", " << totCC / tot << ", " << totICC / tot << ", "
+              << totNC / tot << ")\n"
+              << std::endl;
   }
 
   // Neutral current event get a special treatment.
@@ -1188,4 +1153,4 @@ void SNgen::LoadSpectra() {
   funcINC = new TF1("funcINC", INCTGraph2TF1, 0, 10, 0);
 }
 
-} // namespace RAT
+}  // namespace RAT

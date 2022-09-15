@@ -1,43 +1,35 @@
-#include <RAT/InROOTProducer.hh>
-#include <RAT/ProcBlock.hh>
-#include <RAT/DS/Root.hh>
-#include <RAT/DS/RunStore.hh>
-#include <RAT/SignalHandler.hh>
-#include <RAT/Log.hh>
-#include <RAT/DB.hh>
-
-#include <G4UIdirectory.hh>
-#include <G4UIcmdWithAString.hh>
-
 #include <TChain.h>
 #include <TFile.h>
 #include <TString.h>
-
 #include <assert.h>
+
+#include <G4UIcmdWithAString.hh>
+#include <G4UIdirectory.hh>
+#include <RAT/DB.hh>
+#include <RAT/DS/Root.hh>
+#include <RAT/DS/RunStore.hh>
+#include <RAT/InROOTProducer.hh>
+#include <RAT/Log.hh>
+#include <RAT/ProcBlock.hh>
+#include <RAT/SignalHandler.hh>
 
 namespace RAT {
 
-
-InROOTProducer::InROOTProducer()
-{
+InROOTProducer::InROOTProducer() {
   mainBlock = 0;
   Init();
 }
 
-InROOTProducer::InROOTProducer(ProcBlock *block)
-{
+InROOTProducer::InROOTProducer(ProcBlock *block) {
   SetMainBlock(block);
   Init();
 }
 
-InROOTProducer::~InROOTProducer()
-{
-}
+InROOTProducer::~InROOTProducer() {}
 
-void InROOTProducer::Init()
-{
+void InROOTProducer::Init() {
   // Build commands
-  G4UIdirectory* DebugDir = new G4UIdirectory("/rat/inroot/");
+  G4UIdirectory *DebugDir = new G4UIdirectory("/rat/inroot/");
   DebugDir->SetGuidance("Read Events from ROOT file");
 
   readCmd = new G4UIcmdWithAString("/rat/inroot/read", this);
@@ -48,30 +40,27 @@ void InROOTProducer::Init()
   readDefaultCmd->SetGuidance("read from IO.default_input_filename");
 }
 
-G4String InROOTProducer::GetCurrentValue(G4UIcommand * /*command*/)
-{
+G4String InROOTProducer::GetCurrentValue(G4UIcommand * /*command*/) {
   Log::Die("invalid inroot \"get\" command");
   return G4String("You never see this.");
 }
 
-
-void InROOTProducer::SetNewValue(G4UIcommand * command, G4String newValue)
-{
+void InROOTProducer::SetNewValue(G4UIcommand *command, G4String newValue) {
   // readCmd
   if (command == readCmd || command == readDefaultCmd) {
     std::string filename;
 
     if (command == readDefaultCmd) {
-      DBLinkPtr lIO = DB::Get()->GetLink("IO","ROOTProc");
+      DBLinkPtr lIO = DB::Get()->GetLink("IO", "ROOTProc");
       filename = lIO->GetS("default_input_filename");
     } else {
       size_t size = newValue.size();
 
       // Trim extraneous quotation marks to avoid confusing people
-      if (size >= 2 && newValue[(size_t)0] == '\"' && newValue[size-1] == '\"')
-	filename = newValue.substr(1, size-2);
+      if (size >= 2 && newValue[(size_t)0] == '\"' && newValue[size - 1] == '\"')
+        filename = newValue.substr(1, size - 2);
       else
-	filename = newValue;
+        filename = newValue;
     }
 
     if (!mainBlock)
@@ -83,13 +72,11 @@ void InROOTProducer::SetNewValue(G4UIcommand * command, G4String newValue)
     Log::Die("invalid inroot \"set\" command");
 }
 
-bool InROOTProducer::ReadEvents(G4String filename)
-{
+bool InROOTProducer::ReadEvents(G4String filename) {
   // Setup
   TChain tree("T");
-  if (!tree.Add(filename.c_str()))
-      return false;
-  
+  if (!tree.Add(filename.c_str())) return false;
+
   info << "InROOT: Reading from " << filename << "\n";
 
   TChain runTree("runT");
@@ -105,23 +92,23 @@ bool InROOTProducer::ReadEvents(G4String filename)
     if (ftemp->Get("runT")) {
       runTree.Add(filename.c_str());
       DS::RunStore::SetReadTree(&runTree);
-    } // else, no runT, so don't register runTree with RunStore
+    }  // else, no runT, so don't register runTree with RunStore
 
-  //delete ftemp;
+    // delete ftemp;
   }
 
   DS::Root *branchDS = new DS::Root();
   tree.SetBranchAddress("ds", &branchDS);
-  
+
   // Read
   Int_t num_events = tree.GetEntries();
-  for (Int_t i=0; i < num_events && !SignalHandler::IsTermRequested(); i++) {
+  for (Int_t i = 0; i < num_events && !SignalHandler::IsTermRequested(); i++) {
     tree.GetEntry(i);
     // force the run entry to be loaded into memory so that it
     // can be written later.
     // If no runTree to read from, this will return 0, but we don't care.
     DS::RunStore::GetRun(branchDS);
-    
+
     mainBlock->DSEvent(branchDS);
   }
 
@@ -131,4 +118,4 @@ bool InROOTProducer::ReadEvents(G4String filename)
   return true;
 }
 
-} // namespace RAT
+}  // namespace RAT

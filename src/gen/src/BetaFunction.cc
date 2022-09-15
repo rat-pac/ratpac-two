@@ -1,12 +1,10 @@
+#include <G4ExceptionSeverity.hh>
 #include <RAT/BetaFunction.hh>
 #include <RAT/FermiFunction.hh>
-
 #include <Randomize.hh>
-
-#include <G4ExceptionSeverity.hh>
-#include <cstring>
 #include <globals.hh>
 #include <iostream>
+#include <string>
 
 namespace RAT {
 
@@ -17,8 +15,7 @@ BetaFunction::BetaFunction(const std::string Name) {
   SetName(Name);
 }
 
-BetaFunction::BetaFunction(const std::string Name, double A, double Z, int reac,
-                           double tau) {
+BetaFunction::BetaFunction(const std::string Name, double A, double Z, int reac, double tau) {
   Reset();
   SetTarget(Name, A, Z, reac, tau);
 }
@@ -72,7 +69,6 @@ void BetaFunction::Show() {
 
   int nBr = GetNBranches();
   if (nBr > 0) {
-
     for (int i = 0; i < nBr; i++) {
       printf("%f \t", GetBranch(i));
       printf("%d \t", GetSpin(i));
@@ -95,8 +91,7 @@ void BetaFunction::Show() {
   }
 }
 
-void BetaFunction::SetTarget(const std::string Name, double Z, double A,
-                             int reaction, double tau) {
+void BetaFunction::SetTarget(const std::string Name, double Z, double A, int reaction, double tau) {
   SetName(Name);
   SetTargetMass(A);
   SetCharge(Z);
@@ -122,10 +117,8 @@ void BetaFunction::SetBranches(double Branch, int Spin, double EndPoint) {
   NumberOfParticles[nBr] = 1;
 
   if (GetDecayType() != DecayAlpha) {
-    if (iZ > 0)
-      ParticleID[nBr][0] = DecayBeta;
-    if (iZ < 0)
-      ParticleID[nBr][0] = DecayEC;
+    if (iZ > 0) ParticleID[nBr][0] = DecayBeta;
+    if (iZ < 0) ParticleID[nBr][0] = DecayEC;
   } else {
     ParticleID[nBr][0] = DecayAlpha;
   }
@@ -169,7 +162,6 @@ void BetaFunction::SetParticleID(int iBranch, int n, int id) {
 }
 
 void BetaFunction::SetTargetMass(double A) {
-
   TargetMass = 0.;
   double Z = GetCharge();
   if ((A < 1) && (Z > 0)) {
@@ -180,7 +172,6 @@ void BetaFunction::SetTargetMass(double A) {
 }
 
 void BetaFunction::SetNorm(int iBranch) {
-
   double Norm = 0.;
   if (GetDecayType() == DecayAlpha) {
     Norm = 1.;
@@ -190,12 +181,10 @@ void BetaFunction::SetNorm(int iBranch) {
     double dE = (eMax - eMin) / 1000.;
     for (double energy = eMin; energy < eMax; energy = energy + dE) {
       double F = GetValue(energy, iBranch);
-      if (F > Norm)
-        Norm = F;
+      if (F > Norm) Norm = F;
     }
   }
-  if (Norm <= 0.)
-    Norm = 1.;
+  if (Norm <= 0.) Norm = 1.;
   DecayNorm[iBranch] = Norm * 1.11;
 }
 
@@ -265,8 +254,7 @@ double BetaFunction::GetValue(double energy, int iBranch) {
   double Value = 0.;
   int iBeta = GetParticleID(iBranch, 0);
 
-  if ((iBeta != DecayEC) && (iBeta != DecayBeta))
-    return Value;
+  if ((iBeta != DecayEC) && (iBeta != DecayBeta)) return Value;
 
   int iSpin = GetSpin(iBranch);
   double Z = GetCharge();
@@ -313,8 +301,7 @@ void BetaFunction::GenerateEvent() {
         double energy = ElectronMass + GetEndPoint(itag) * GetRandomNumber();
         double F = GetValue(energy, itag);
         W = energy / ElectronMass;
-        if (R < F)
-          ithrow = false;
+        if (R < F) ithrow = false;
       }
       IDn[n] = id;
       En[n] = ElectronMass * W - ElectronMass;
@@ -328,7 +315,7 @@ void BetaFunction::GenerateEvent() {
 }
 
 void BetaFunction::SetEventTime() {
-  double tau = GetLifeTime(); //*1.0e9; Slows down simulations for some reason
+  double tau = GetLifeTime();  //*1.0e9; Slows down simulations for some reason
   double r = GetRandomNumber();
   nTime = -tau * log(r) / log(2.);
 }
@@ -350,7 +337,6 @@ double BetaFunction::GetEventEnergy(int n) {
 }
 
 double BetaFunction::GetEventTotE() {
-
   int nG = GetNGenerated();
   double eTot = 0.;
 
@@ -361,7 +347,7 @@ double BetaFunction::GetEventTotE() {
 }
 
 double BetaFunction::GetRandomNumber(double rmin, double rmax) {
-  double rnd = G4UniformRand(); // random number from 0 to 1.
+  double rnd = G4UniformRand();  // random number from 0 to 1.
   double value = rmin + (rmax - rmin) * rnd;
   return value;
 }
@@ -376,9 +362,7 @@ bool BetaFunction::ReadInputFile(const std::string dName, int iType) {
   return iFound;
 }
 
-bool BetaFunction::ReadInputFile(const std::string dName, int iZ, int iA,
-                                 int iType) {
-
+bool BetaFunction::ReadInputFile(const std::string dName, int iZ, int iA, int iType) {
   const int nReadGamma = 6;
 
   std::string eProbe = "END";
@@ -422,8 +406,7 @@ bool BetaFunction::ReadInputFile(const std::string dName, int iZ, int iA,
       iFound = (dName == iString2);
       iFound = ((iFound) || ((iA == A) && (iZ == Z)));
       if (iFound) {
-        if (isVerbose)
-          printf("Reading %s \n \n", tName);
+        if (isVerbose) printf("Reading %s \n \n", tName);
         SetTargetMass((double)A);
         SetCharge((double)Z);
         SetLifeTime((double)tau);
@@ -431,16 +414,13 @@ bool BetaFunction::ReadInputFile(const std::string dName, int iZ, int iA,
 
         bool iScan = true;
         while (iScan) {
-          bool parseSuccess =
-              fscanf(inputFile, "%f %d %f %d", &iBr, &iSpin, &W0, &nP) == 4;
+          bool parseSuccess = fscanf(inputFile, "%f %d %f %d", &iBr, &iSpin, &W0, &nP) == 4;
           SetBranches((double)iBr, iSpin, (double)W0);
           for (int j = 0; j < nReadGamma; j++) {
             parseSuccess &= fscanf(inputFile, "%f", &eP[j]) == 1;
-            if (eP[j] > 0.)
-              SetGammas((double)eP[j]);
+            if (eP[j] > 0.) SetGammas((double)eP[j]);
           }
-          parseSuccess &=
-              fscanf(inputFile, "%f %f %f", &aC[0], &aC[1], &aC[2]) == 3;
+          parseSuccess &= fscanf(inputFile, "%f %f %f", &aC[0], &aC[1], &aC[2]) == 3;
           if (iBr >= 1.) {
             iScan = false;
           }
@@ -458,22 +438,18 @@ bool BetaFunction::ReadInputFile(const std::string dName, int iZ, int iA,
   fclose(inputFile);
 
   if (iFound) {
-    if (isVerbose)
-      Show();
+    if (isVerbose) Show();
   } else {
     printf("No such element found: %s .\n", dName.c_str());
   }
   return iFound;
 }
 
-void BetaFunction::ErrorLog(int iFlag) {
-  printf("Error detected: %d \n", iFlag);
-}
+void BetaFunction::ErrorLog(int iFlag) { printf("Error detected: %d \n", iFlag); }
 
-void BetaFunction::ThrowParsingException(std::string filename,
-                                         std::string decayName) {
+void BetaFunction::ThrowParsingException(std::string filename, std::string decayName) {
   G4Exception(__FILE__, "BetaFunction Parser Error", FatalException,
               ("failed to parse " + decayName + " in " + filename).c_str());
 }
 
-} // namespace RAT
+}  // namespace RAT

@@ -17,24 +17,22 @@
 namespace RAT {
 
 class CentroidCalculator {
-public:
+ public:
   /** All accumulators cleared by default in constructor */
   CentroidCalculator() { Reset(); };
-  
+
   /** Clear all accumulators */
-  void Reset() { 
+  void Reset() {
     fMoment0 = 0.0;
-    fMoment1.SetXYZ(0.0,0.0,0.0);
-    fMoment2.SetXYZ(0.0,0.0,0.0);
+    fMoment1.SetXYZ(0.0, 0.0, 0.0);
+    fMoment2.SetXYZ(0.0, 0.0, 0.0);
   };
 
   /** Add another point with given weight. */
-  void Fill(const TVector3 &point, double weight=1.0) {
+  void Fill(const TVector3 &point, double weight = 1.0) {
     fMoment0 += weight;
     fMoment1 += weight * point;
-    TVector3 square(point.X() * point.X(),
-		    point.Y() * point.Y(),
-		    point.Z() * point.Z());
+    TVector3 square(point.X() * point.X(), point.Y() * point.Y(), point.Z() * point.Z());
     fMoment2 += weight * square;
   };
 
@@ -47,24 +45,21 @@ public:
 
   /** Mean of each coordinate */
   TVector3 GetMean() const { return fMoment1 * (1.0 / fMoment0); };
-  
+
   /** RMS of each coordinate */
   TVector3 GetRMS() const {
-    TVector3 squareMoment1(fMoment1.X() * fMoment1.X(),
-			   fMoment1.Y() * fMoment1.Y(),
-			   fMoment1.Z() * fMoment1.Z());
+    TVector3 squareMoment1(fMoment1.X() * fMoment1.X(), fMoment1.Y() * fMoment1.Y(), fMoment1.Z() * fMoment1.Z());
     TVector3 temp = fMoment0 * fMoment2 - squareMoment1;
-    
-    return TVector3(sqrt(temp.X()), sqrt(temp.Y()), sqrt(temp.Z())) 
-      * (1.0 / fMoment0);
+
+    return TVector3(sqrt(temp.X()), sqrt(temp.Y()), sqrt(temp.Z())) * (1.0 / fMoment0);
   };
 
-protected:
+ protected:
   double fMoment0;
   TVector3 fMoment1;
   TVector3 fMoment2;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -11,67 +11,57 @@
 
 #include "RAT/GLG4DeferTrackProc.hh"
 
-#include "G4Step.hh"
-#include "G4VParticleChange.hh"
 #include "G4EnergyLossTables.hh"
 #include "G4GeometryTolerance.hh"
-class G4UImessenger; // for G4ProcessTable.hh
-#include "G4ProcessTable.hh"
-#include "RAT/GLG4PrimaryGeneratorAction.hh"
+#include "G4Step.hh"
+#include "G4VParticleChange.hh"
+class G4UImessenger;  // for G4ProcessTable.hh
 #include <CLHEP/Units/PhysicalConstants.h>
 
+#include "G4ProcessTable.hh"
+#include "RAT/GLG4PrimaryGeneratorAction.hh"
 
 ////////////////////////////////////////////////////////////////
 
-GLG4DeferTrackProc::GLG4DeferTrackProc(const G4String& aName)
-  : G4VProcess(aName)
-{
-   if (verboseLevel>0) {
-     G4cout << GetProcessName() << " is created "<< G4endl;
-   }
+GLG4DeferTrackProc::GLG4DeferTrackProc(const G4String &aName) : G4VProcess(aName) {
+  if (verboseLevel > 0) {
+    std::cout << GetProcessName() << " is created " << std::endl;
+  }
 
-   _generator= GLG4PrimaryGeneratorAction::GetTheGLG4PrimaryGeneratorAction();
-   if (_generator == 0) {
-     G4Exception(__FILE__, "No Primary Generator Action", FatalException, "GLG4DeferTrackProc:: no GLG4PrimaryGeneratorAction instance.");
-   }
+  _generator = GLG4PrimaryGeneratorAction::GetTheGLG4PrimaryGeneratorAction();
+  if (_generator == 0) {
+    G4Exception(__FILE__, "No Primary Generator Action", FatalException,
+                "GLG4DeferTrackProc:: no GLG4PrimaryGeneratorAction instance.");
+  }
 }
 
-GLG4DeferTrackProc::~GLG4DeferTrackProc()
-{}
+GLG4DeferTrackProc::~GLG4DeferTrackProc() {}
 
 ////////////////////////////////////////////////////////////////
 
-GLG4DeferTrackProc::GLG4DeferTrackProc(GLG4DeferTrackProc& right)
-  : G4VProcess(right)
-{}
+GLG4DeferTrackProc::GLG4DeferTrackProc(GLG4DeferTrackProc &right) : G4VProcess(right) {}
 
 ////////////////////////////////////////////////////////////////
 
-G4double GLG4DeferTrackProc::PostStepGetPhysicalInteractionLength(
-                             const G4Track& aTrack,
-			     G4double   /* previousStepSize */,
-			     G4ForceCondition* condition
-			    )
-{
+G4double GLG4DeferTrackProc::PostStepGetPhysicalInteractionLength(const G4Track &aTrack,
+                                                                  G4double /* previousStepSize */,
+                                                                  G4ForceCondition *condition) {
   // condition is set to "Not Forced"
   *condition = NotForced;
 
   // apply maximum time limit
-  G4double dTime= (_generator->GetEventWindow() - aTrack.GetGlobalTime());
+  G4double dTime = (_generator->GetEventWindow() - aTrack.GetGlobalTime());
   if (dTime <= 0.0) {
     return G4GeometryTolerance::GetInstance()->GetSurfaceTolerance();
   }
-  G4double beta = (aTrack.GetDynamicParticle()->GetTotalMomentum())/(aTrack.GetTotalEnergy());
-  return beta*CLHEP::c_light*dTime;
+  G4double beta = (aTrack.GetDynamicParticle()->GetTotalMomentum()) / (aTrack.GetTotalEnergy());
+  return beta * CLHEP::c_light * dTime;
 }
 
 ////////////////////////////////////////////////////////////////
 
-G4VParticleChange* GLG4DeferTrackProc::PostStepDoIt(
-			     const G4Track& aTrack,
-			     const G4Step& /* aStep */
-			    )
-{
+G4VParticleChange *GLG4DeferTrackProc::PostStepDoIt(const G4Track &aTrack, const G4Step & /* aStep */
+) {
   _generator->DeferTrackToLaterEvent(&aTrack);
   aParticleChange.Initialize(aTrack);
   aParticleChange.ProposeTrackStatus(fStopAndKill);

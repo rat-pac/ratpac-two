@@ -5,19 +5,17 @@
 
 namespace RAT {
 
-
 class LessSimpleDAQProc : public Processor {
-public:
+ public:
   LessSimpleDAQProc();
-  virtual ~LessSimpleDAQProc() { };
+  virtual ~LessSimpleDAQProc(){};
   virtual Processor::Result DSEvent(DS::Root *ds);
 
-protected:
+ protected:
   int fEventCounter;
   std::vector<double> fSPECharge;
 };
 
-
-} // namespace RAT
+}  // namespace RAT
 
 #endif

@@ -1,49 +1,38 @@
-#include <RAT/ProcBlock.hh>
-#include <RAT/Log.hh>
 #include <TStopwatch.h>
+
+#include <RAT/Log.hh>
+#include <RAT/ProcBlock.hh>
 
 namespace RAT {
 
-ProcBlock::ProcBlock() : Processor("ProcBlock"),
-			 fSeenFirstEvent(false), 
-			 fSourceTime(0.0), fSourceCount(0)
-{
+ProcBlock::ProcBlock() : Processor("ProcBlock"), fSeenFirstEvent(false), fSourceTime(0.0), fSourceCount(0) {
   // Nothing to do!
-
 }
- 
-ProcBlock::~ProcBlock()
-{
+
+ProcBlock::~ProcBlock() {
   // Display usage statistics
   info << "Processor usage statistics\n";
   info << "--------------------------\n";
-  info << dformat("%25s: %1.3f sec/event\n",
-		  "Event source",
-		  fSourceTime / fSourceCount);
+  info << dformat("%25s: %1.3f sec/event\n", "Event source", fSourceTime / fSourceCount);
   double total = fSourceTime / fSourceCount;
 
-  for (unsigned i=0; i < fProcessorList.size(); i++) {
-    double timeperevent = fProcessorTime[i]/fProcessorExecutionCount[i];
-    info << dformat("%25s: %1.3f sec/event\n",
-		    fProcessorList[i]->name.c_str(),
-		    timeperevent);
+  for (unsigned i = 0; i < fProcessorList.size(); i++) {
+    double timeperevent = fProcessorTime[i] / fProcessorExecutionCount[i];
+    info << dformat("%25s: %1.3f sec/event\n", fProcessorList[i]->name.c_str(), timeperevent);
     total += timeperevent;
   }
   info << "--------------------------\n";
   info << dformat("Total: %1.3f sec/event\n\n", total);
 
-  Clear(); // Used to delete processors before we clear them from the list
+  Clear();  // Used to delete processors before we clear them from the list
 }
 
-void ProcBlock::Clear()
-{
+void ProcBlock::Clear() {
   // Destroy all the processor objects to give them a chance to clean up
   // and close files, etc.
-  for (unsigned i=0; i < fProcessorList.size(); i++)
-    delete fProcessorList[i];
+  for (unsigned i = 0; i < fProcessorList.size(); i++) delete fProcessorList[i];
 
-  for (unsigned i=0; i < fDeferredAppendList.size(); i++)
-    delete fDeferredAppendList[i];
+  for (unsigned i = 0; i < fDeferredAppendList.size(); i++) delete fDeferredAppendList[i];
 
   fProcessorList.clear();
   fProcessorTime.clear();
@@ -54,20 +43,15 @@ void ProcBlock::Clear()
   fSourceCount = 0;
 }
 
-void ProcBlock::AddProcessor(Processor *proc)
-{
+void ProcBlock::AddProcessor(Processor *proc) {
   fProcessorList.push_back(proc);
   fProcessorTime.push_back(0.0);
   fProcessorExecutionCount.push_back(0);
 }
 
-void ProcBlock::DeferAppend(Processor *proc)
-{
-  fDeferredAppendList.push_back(proc);
-}
+void ProcBlock::DeferAppend(Processor *proc) { fDeferredAppendList.push_back(proc); }
 
-Processor::Result ProcBlock::DSEvent(DS::Root *ds)
-{
+Processor::Result ProcBlock::DSEvent(DS::Root *ds) {
   Processor::Result retcode = Processor::OK;
   TStopwatch timer;
 
@@ -77,7 +61,7 @@ Processor::Result ProcBlock::DSEvent(DS::Root *ds)
     fSeenFirstEvent = true;
 
     // Append queued up processors to end of processor list
-    for (unsigned int i=0; i < fDeferredAppendList.size(); i++) {
+    for (unsigned int i = 0; i < fDeferredAppendList.size(); i++) {
       AddProcessor(fDeferredAppendList[i]);
     }
     fDeferredAppendList.clear();
@@ -87,15 +71,15 @@ Processor::Result ProcBlock::DSEvent(DS::Root *ds)
     fSourceTime += fSourceTimer.RealTime();
   }
 
-  for (unsigned i=0; i < fProcessorList.size(); i++) {
+  for (unsigned i = 0; i < fProcessorList.size(); i++) {
     timer.Start(true);
     Processor::Result procResult = fProcessorList[i]->DSEvent(ds);
     timer.Stop();
     fProcessorExecutionCount[i]++;
     fProcessorTime[i] += timer.RealTime();
 
-
-    ds->AppendProcResult(fProcessorList[i]->name.c_str(), procResult); // For later processors that
+    ds->AppendProcResult(fProcessorList[i]->name.c_str(),
+                         procResult);  // For later processors that
                                        // want to check result, like IF
 
     if (procResult == Processor::ABORT) {
@@ -118,5 +102,4 @@ Processor::Result ProcBlock::DSEvent(DS::Root *ds)
   return retcode;
 }
 
-
-} // namespace RAT
+}  // namespace RAT
