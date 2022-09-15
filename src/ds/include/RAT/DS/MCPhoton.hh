@@ -65,6 +65,10 @@ public:
   virtual void SetDarkHit(Bool_t _isDarkHit){ isDarkHit = _isDarkHit;}
   virtual Bool_t IsDarkHit() const { return isDarkHit; }
 
+  /** Is this photoelectron due to an after-pulse? */
+  virtual void SetAfterPulse(Bool_t _isAfterPulse){ isAfterPulse = _isAfterPulse;}
+  virtual Bool_t IsAfterPulse() const { return isAfterPulse; }
+
   /** Track ID of photon which generated this photoelectron */
   virtual void SetTrackID(Int_t _trackID){ trackID = _trackID;}
   virtual Int_t GetTrackID() const { return trackID; }
@@ -91,6 +95,7 @@ protected:
 
   Float_t charge;
   Bool_t isDarkHit;
+  Bool_t isAfterPulse;
   Int_t trackID;
   std::string process;
 };

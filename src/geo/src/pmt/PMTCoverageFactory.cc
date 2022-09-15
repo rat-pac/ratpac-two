@@ -57,6 +57,7 @@ namespace RAT {
     
     vector<G4ThreeVector> pos(Npmt), dir(Npmt);
     vector<double> individual_noise_rates(Npmt, 0.0);
+    vector<double> individual_afterpulse_fraction(Npmt, 0.0);
     vector<int> type(Npmt,0); //FIXME make macro settable perhaps
     vector<double> effi_corr(Npmt,1.0); //FIXME make macro settable perhaps
     for (int i = 0; i < Npmt; i++) {
@@ -64,6 +65,6 @@ namespace RAT {
         dir[i].set(-xpmt[i],-ypmt[i],zpmt[i]);
     }
 
-    return ConstructPMTs(table, pos, dir, type, effi_corr, individual_noise_rates);
+    return ConstructPMTs(table, pos, dir, type, effi_corr, individual_noise_rates, individual_afterpulse_fraction);
   }
 } // namespace RAT

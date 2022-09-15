@@ -188,6 +188,7 @@ void NoiseProc::AddNoiseHit( DS::MCPMT* mcpmt, DS::PMTInfo* pmtinfo,
 {
     DS::MCPhoton* photon = mcpmt->AddNewMCPhoton();
     photon->SetDarkHit(true);
+    photon->SetAfterPulse(false);
     photon->SetLambda(0.0);
     photon->SetPosition(TVector3(0, 0, 0));
     photon->SetMomentum(TVector3(0, 0, 0));

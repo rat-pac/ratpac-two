@@ -7,6 +7,7 @@ add_library(daq OBJECT
   src/LessSimpleDAQProc.cc
   src/MiniCleanPMTCharge.cc
   src/NoiseProc.cc
+  src/AfterPulseProc.cc
   src/PDFPMTCharge.cc
   src/PDFPMTTime.cc
   src/PMTPulse.cc

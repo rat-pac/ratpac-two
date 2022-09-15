@@ -47,6 +47,10 @@ public:
     return fNoiseRate;
   }
   
+  const std::vector<double>& GetPMTAfterPulseFraction() {
+    return fAfterPulseFraction;
+  }
+  
   const std::vector<int>& GetTypes() {
     return fType;
   }
@@ -58,6 +62,7 @@ protected:
   std::vector<int> fType;
   std::vector<double> fEfficiencyCorrection;
   std::vector<double> fNoiseRate;
+  std::vector<double> fAfterPulseFraction;
 };
 } // namespace RAT
 #endif
