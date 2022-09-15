@@ -34,9 +34,8 @@ class PMTInfoParser {
   G4RotationMatrix GetPMTRotation(int i) const;
 
   const std::vector<double> &GetEfficiencyCorrections() { return fEfficiencyCorrection; }
-
   const std::vector<double> &GetPMTNoiseRates() { return fNoiseRate; }
-
+  const std::vector<double> &GetPMTAfterPulseFraction() { return fAfterPulseFraction; }
   const std::vector<int> &GetTypes() { return fType; }
 
  protected:
@@ -46,6 +45,7 @@ class PMTInfoParser {
   std::vector<int> fType;
   std::vector<double> fEfficiencyCorrection;
   std::vector<double> fNoiseRate;
+  std::vector<double> fAfterPulseFraction;
 };
 }  // namespace RAT
 #endif

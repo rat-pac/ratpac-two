@@ -8,6 +8,7 @@
 #include <globals.hh>
 
 // Processors
+#include <RAT/AfterPulseProc.hh>
 #include <RAT/Config.hh>
 #include <RAT/CountProc.hh>
 #include <RAT/FitCentroidProc.hh>
@@ -77,6 +78,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
 
   // DAQ
   procAllocators["noise"] = new ProcAllocatorTmpl<NoiseProc>;
+  procAllocators["afterpulse"] = new ProcAllocatorTmpl<AfterPulseProc>;
   procAllocators["simpledaq"] = new ProcAllocatorTmpl<SimpleDAQProc>;
   procAllocators["splitevdaq"] = new ProcAllocatorTmpl<SplitEVDAQProc>;
   procAllocators["lesssimpledaq"] = new ProcAllocatorTmpl<LessSimpleDAQProc>;

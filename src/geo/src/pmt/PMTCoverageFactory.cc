@@ -8,10 +8,9 @@
 namespace RAT {
 
 G4VPhysicalVolume *PMTCoverageFactory::Construct(DBLinkPtr table) {
-  G4double coverage = 0.0, pmtRadius = 0.0,
-           pmtDiameter;  // coverage is percent solid angle
-                         // pmt radius is distance pmt to center
-                         // pmt geometry diameter
+  G4double coverage = 0.0, pmtRadius = 0.0, pmtDiameter;  // coverage is percent solid angle
+                                                          // pmt radius is distance pmt to center
+                                                          // pmt geometry diameter
   try {
     coverage = table->GetD("coverage");
     pmtRadius = table->GetD("rescale_radius");
@@ -34,7 +33,7 @@ G4VPhysicalVolume *PMTCoverageFactory::Construct(DBLinkPtr table) {
   Nphibins = int(sqrt(num_pmt * CLHEP::pi));
   Npmt = Ncosbins * Nphibins;
 
-  info << "PMTCoverageFactory: Generated " << Npmt << "PMTs" << newline;
+  info << "PMTCoverageFactory: Generated " << Npmt << "PMTs" << endl;
 
   std::vector<double> xpmt(Npmt);
   std::vector<double> ypmt(Npmt);
@@ -50,11 +49,14 @@ G4VPhysicalVolume *PMTCoverageFactory::Construct(DBLinkPtr table) {
       xpmt[i * Nphibins + j] = pmtRadius * sqrt(1 - z * z) * cos(phi);
       ypmt[i * Nphibins + j] = pmtRadius * sqrt(1 - z * z) * sin(phi);
       zpmt[i * Nphibins + j] = pmtRadius * z;
+      //      cout<<"pmt location"<<i*Nphibins+j<<" "<<xpmt[i*Nphibins+j]<<" "<<ypmt[i*Nphibins+j]<<"
+      //      "<<zpmt[i*Nphibins+j]<<endl; cout << "z,phi  " << z << " " << phi << endl;
     }
   }
 
   std::vector<G4ThreeVector> pos(Npmt), dir(Npmt);
   std::vector<double> individual_noise_rates(Npmt, 0.0);
+  std::vector<double> individual_afterpulse_fraction(Npmt, 0.0);
   std::vector<int> type(Npmt, 0);            // FIXME make macro settable perhaps
   std::vector<double> effi_corr(Npmt, 1.0);  // FIXME make macro settable perhaps
   for (int i = 0; i < Npmt; i++) {
@@ -62,6 +64,6 @@ G4VPhysicalVolume *PMTCoverageFactory::Construct(DBLinkPtr table) {
     dir[i].set(-xpmt[i], -ypmt[i], zpmt[i]);
   }
 
-  return ConstructPMTs(table, pos, dir, type, effi_corr, individual_noise_rates);
+  return ConstructPMTs(table, pos, dir, type, effi_corr, individual_noise_rates, individual_afterpulse_fraction);
 }
 }  // namespace RAT

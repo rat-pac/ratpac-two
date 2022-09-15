@@ -16,12 +16,12 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
 
   PMTInfoParser pmtinfo(lpos_table, mother_name);
 
+  const std::vector<int> &pmtinfo_types = pmtinfo.GetTypes();
   const std::vector<G4ThreeVector> &pmtinfo_pos = pmtinfo.GetPMTLocations();
   const std::vector<G4ThreeVector> &pmtinfo_dir = pmtinfo.GetPMTDirections();
   const G4ThreeVector local_offset = pmtinfo.GetLocalOffset();
   const std::vector<double> &pmtinfo_noiserates = pmtinfo.GetPMTNoiseRates();
-
-  const std::vector<int> &pmtinfo_types = pmtinfo.GetTypes();
+  const std::vector<double> &pmtinfo_afterpulse_fraction = pmtinfo.GetPMTAfterPulseFraction();
 
   int start_idx, end_idx;
   try {
@@ -76,14 +76,6 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
     orient_point.set(orient_point_array[0], orient_point_array[1], orient_point_array[2]);
   }
 
-  /*
-  // Simplified PMT drawing for faster visualization
-  bool vis_simple = false;
-  try {
-  vis_simple = table->GetI("vis_simple") != 0;
-  } catch (DBNotFoundError &e) { }
-  */
-
   std::vector<G4ThreeVector> pos(end_idx - start_idx + 1), dir(end_idx - start_idx + 1);
   std::vector<int> ptypes(end_idx - start_idx + 1);
   for (int idx = start_idx, i = 0; idx <= end_idx; idx++, i++) {
@@ -95,12 +87,56 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
       dir[i] = pmtinfo_dir[idx];
     } else {
       dir[i] = orient_point - pmtinfo_pos[idx];
+      // Optionally can rescale PMT radius from mother volume center for
+      // case where PMTs have spherical layout symmetry
+      bool rescale_radius = false;
+      double new_radius = 1.0;
+      try {
+        new_radius = table->GetD("rescale_radius");
+        rescale_radius = true;
+      } catch (DBNotFoundError &e) {
+      }
+
+      // Orientation of PMTs
+      std::vector<double> dir_x, dir_y, dir_z;
+      G4ThreeVector orient_point;
+      bool orient_manual = false;
+      try {
+        std::string orient_str = table->GetS("orientation");
+        if (orient_str == "manual")
+          orient_manual = true;
+        else if (orient_str == "point")
+          orient_manual = false;
+        else
+          Log::Die("PMTFactoryBase error: Unknown PMT orientation " + orient_str);
+      } catch (DBNotFoundError &e) {
+      }
+      if (!orient_manual) {
+        const std::vector<double> &orient_point_array = table->GetDArray("orient_point");
+        if (orient_point_array.size() != 3) Log::Die("PMTFactoryBase error: orient_point must have 3 values");
+        orient_point.set(orient_point_array[0], orient_point_array[1], orient_point_array[2]);
+      }
+
+      std::vector<G4ThreeVector> pos(end_idx - start_idx + 1), dir(end_idx - start_idx + 1);
+      std::vector<int> ptypes(end_idx - start_idx + 1);
+      for (int idx = start_idx, i = 0; idx <= end_idx; idx++, i++) {
+        pos[i] = pmtinfo_pos[idx];
+        ptypes[i] = pmtinfo_types[idx];
+        if (rescale_radius) pos[i].setMag(new_radius);
+        pos[i] -= local_offset;
+        if (orient_manual) {
+          dir[i] = pmtinfo_dir[idx];
+        } else {
+          dir[i] = orient_point - pmtinfo_pos[idx];
+        }
+        dir[i] = dir[i].unit();
+        if (flip) dir[i] = -dir[i];
+      }
     }
-    dir[i] = dir[i].unit();
-    if (flip) dir[i] = -dir[i];
   }
 
-  return ConstructPMTs(table, pos, dir, ptypes, pmtinfo.GetEfficiencyCorrections(), pmtinfo_noiserates);
+  return ConstructPMTs(table, pos, dir, ptypes, pmtinfo.GetEfficiencyCorrections(), pmtinfo_noiserates,
+                       pmtinfo_afterpulse_fraction);
 }
 
 }  // namespace RAT

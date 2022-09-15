@@ -552,9 +552,9 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
         process = trackProcessMap[a_pmt->GetPhoton(i)->GetTrackID()];
       }
       if (StoreOpticalTrackID) {
-        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), false, exinfo, process);
+        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), false, false, exinfo, process);
       } else {
-        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), false, NULL, process);
+        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), false, false, NULL, process);
       }
 
       /** Update event start and end time */
@@ -573,10 +573,11 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   mc->SetNumPE(numPE);
 }
 
-void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, bool isDarkHit, EventInfo * /*exinfo*/,
-                       std::string process) {
+void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, bool isDarkHit, bool isAfterPulse,
+                       EventInfo * /*exinfo*/, std::string process) {
   DS::MCPhoton *rat_mcphoton = rat_mcpmt->AddNewMCPhoton();
   rat_mcphoton->SetDarkHit(isDarkHit);
+  rat_mcphoton->SetAfterPulse(isAfterPulse);
 
   // parameters relevant only for actual photon hits, not noise hits
   if (!isDarkHit) {

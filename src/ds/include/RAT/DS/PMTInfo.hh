@@ -21,12 +21,13 @@ class PMTInfo : public TObject {
   PMTInfo() : TObject() {}
   virtual ~PMTInfo() {}
 
-  virtual void AddPMT(const TVector3 &_pos, const TVector3 &_dir, const int _type, const std::string _model,
-                      const double _individual_noise_rate) {
+  virtual void AddPMT(const TVector3& _pos, const TVector3& _dir, const int _type, const std::string _model,
+                      const double _individual_noise_rate, const double _individual_afterpulse_fraction) {
     pos.push_back(_pos);
     dir.push_back(_dir);
     type.push_back(_type);
     individual_noise_rate.push_back(_individual_noise_rate);
+    individual_afterpulse_fraction.push_back(_individual_afterpulse_fraction);
     std::vector<std::string>::iterator which = std::find(models.begin(), models.end(), _model);
     if (which != models.end()) {
       modeltype.push_back(which - models.begin());
@@ -36,23 +37,24 @@ class PMTInfo : public TObject {
     }
   }
 
-  virtual void AddPMT(const TVector3 &_pos, const TVector3 &_dir, const int _type) {
-    AddPMT(_pos, _dir, _type, "", 0.0);
+  virtual void AddPMT(const TVector3& _pos, const TVector3& _dir, const int _type) {
+    AddPMT(_pos, _dir, _type, "", 0.0, 0.0);
   }
 
   virtual Int_t GetPMTCount() const { return pos.size(); }
 
   virtual TVector3 GetPosition(int id) const { return pos.at(id); }
-  virtual void SetPosition(int id, const TVector3 &_pos) { pos.at(id) = _pos; }
+  virtual void SetPosition(int id, const TVector3& _pos) { pos.at(id) = _pos; }
 
   virtual TVector3 GetDirection(int id) const { return dir.at(id); }
-  virtual void SetDirection(int id, const TVector3 &_dir) { dir.at(id) = _dir; }
+  virtual void SetDirection(int id, const TVector3& _dir) { dir.at(id) = _dir; }
 
   virtual int GetType(int id) const { return type.at(id); }
   virtual void SetType(int id, int _type) { type.at(id) = _type; }
 
   virtual double GetNoiseRate(int id) const { return individual_noise_rate.at(id); }
   virtual void SetNoiseRate(int id, double _rate) { individual_noise_rate.at(id) = _rate; }
+  virtual double GetAfterPulseFraction(int id) const { return individual_afterpulse_fraction.at(id); }
 
   virtual int GetModel(int id) const { return modeltype.at(id); }
   virtual int SetModel(int id, std::string _model) {
@@ -80,6 +82,7 @@ class PMTInfo : public TObject {
   std::vector<int> modeltype;
   std::vector<std::string> models;
   std::vector<double> individual_noise_rate;
+  std::vector<double> individual_afterpulse_fraction;
 };
 
 }  // namespace DS

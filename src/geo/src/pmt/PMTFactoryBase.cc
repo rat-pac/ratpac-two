@@ -27,7 +27,8 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
                                                  const std::vector<G4ThreeVector> &pmt_dir,
                                                  const std::vector<int> &pmt_type,
                                                  const std::vector<double> &pmt_effi_corr,
-                                                 const std::vector<double> &individual_noise_rate) {
+                                                 const std::vector<double> &individual_noise_rate,
+                                                 const std::vector<double> &individual_afterpulse_fraction) {
   std::string volume_name = table->GetS("index");
   std::string mother_name = table->GetS("mother");
   std::string pmt_model = table->GetS("pmt_model");
@@ -94,8 +95,9 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
     }
     // check if we can calculate B field effect
     if (BFieldTableName == "" || BEffiTableName == "") {
-      std::cout << "B field is on, but either B data or B PMT efficiency correction missing.\n"
-                << "Turning B field off.\n";
+      G4cout << "B field is on, but either B data or B PMT efficiency "
+                "correction missing.\n"
+             << "Turning B field off.\n";
       BFieldOn = 0;
       BEffiTable = NULL;
     } else {
@@ -227,7 +229,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
     // Write the real (perhaps calculated) PMT positions and directions.
     // This goes into the DS by way of Gsim
     pmtinfo.AddPMT(TVector3(pmtpos.x(), pmtpos.y(), pmtpos.z()), TVector3(pmtdir.x(), pmtdir.y(), pmtdir.z()),
-                   pmt_type[i], pmt_model, individual_noise_rate[i]);
+                   pmt_type[i], pmt_model, individual_noise_rate[i], individual_afterpulse_fraction[i]);
 
     // if requested, generates the magnetic efficiency corrections as the PMTs
     // are created
