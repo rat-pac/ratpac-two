@@ -133,9 +133,9 @@ install(DIRECTORY models/ DESTINATION ${RATSHARE}/models
 install(DIRECTORY python/ DESTINATION ${RATSHARE}/python
   PATTERN "python/*")
 
-# Install the mac files
-install(DIRECTORY mac/ DESTINATION ${RATSHARE}/mac
-  PATTERN "mac/*")
+# Install the macro files
+install(DIRECTORY macros/ DESTINATION ${RATSHARE}/macros
+  PATTERN "macros/*")
 
 # Install the doc files
 install(DIRECTORY doc/ DESTINATION ${RATSHARE}/doc

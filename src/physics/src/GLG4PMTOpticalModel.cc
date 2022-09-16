@@ -271,7 +271,6 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
            << ", energy=" << _photon_energy << ", wavelength=" << _wavelength << ", (n1,n3,n2,k2,efficiency)=(" << _n1
            << "," << _n3 << "," << _n2 << "," << _k2 << "," << _efficiency << ")\n";
   }
-  // MFB Import from Watchman
   _rho = sqrt(pow(pos.x(), 2) + pow(pos.y(), 2));
   _rhoAvg = (_photocathode_MINrho + _photocathode_MAXrho) / 2.0;
   _rhoDif = (_photocathode_MAXrho - _photocathode_MINrho);
