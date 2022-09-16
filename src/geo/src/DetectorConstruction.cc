@@ -15,7 +15,6 @@
 #include <RAT/Materials.hh>
 #include <RAT/PhotonThinning.hh>
 #include <RAT/Rat.hh>
-#include <RAT/TheiaDetectorFactory.hh>
 #include <string>
 
 namespace RAT {
@@ -23,7 +22,6 @@ namespace RAT {
 DetectorConstruction *DetectorConstruction::sDetectorConstruction = NULL;
 
 DetectorConstruction::DetectorConstruction() {
-  DetectorFactory::Register("Theia", new TheiaDetectorFactory());
 }
 
 G4VPhysicalVolume *DetectorConstruction::Construct() {

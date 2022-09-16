@@ -43,7 +43,6 @@ add_library(geo OBJECT
         src/GeoTubeIntersectionFactory.cc
         src/GeoWaterBoxArrayFactory.cc
         src/Materials.cc
-        src/TheiaDetectorFactory.cc
         src/TubeFacetSolid.cc
         src/UnionSolidArray.cc
         src/WaterBoxConstruction.cc
