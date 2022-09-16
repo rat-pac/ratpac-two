@@ -1,5 +1,6 @@
 # RAT configuration files
 build*
+install*
 src/core/include/RAT/Config.hh
 *.pyc
 .sconsign
