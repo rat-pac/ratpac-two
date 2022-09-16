@@ -17,7 +17,6 @@ add_library(geo OBJECT
         src/GeoBuilder.cc
         src/GeoCalibrationStickFactory.cc
         src/GeoCherenkovSourceFactory.cc
-        src/GeoCheSSVesselFactory.cc
         src/GeoConvexLensFactory.cc
         src/GeoCutTubeFactory.cc
         src/GeoEosFactory.cc
@@ -41,14 +40,10 @@ add_library(geo OBJECT
         src/GeoTubeArrayFactory.cc
         src/GeoTubeFactory.cc
         src/GeoTubeIntersectionFactory.cc
-        src/GeoWatchmanShieldFactory.cc
         src/GeoWaterBoxArrayFactory.cc
         src/Materials.cc
-        src/TheiaDetectorFactory.cc
         src/TubeFacetSolid.cc
         src/UnionSolidArray.cc
-        src/WatchmanDetectorFactory.cc
-        #src/WatchmanWLSPSquareDetectorFactory.cc
         src/WaterBoxConstruction.cc
         src/WLSPFactory.cc
         src/WLSPCoverFactory.cc

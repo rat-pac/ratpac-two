@@ -93,4 +93,3 @@ r_max: 6005.0, // Outer radius, mm
 material: "HeavyWater",
 color: [0.0, 0.3, 1.0, 0.2],
 }
-
