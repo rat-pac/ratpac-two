@@ -1,0 +1,23 @@
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+/rat/db/set DETECTOR experiment "SuperK"
+/rat/db/set DETECTOR geo_file "SuperK/SuperK.geo"
+
+/run/initialize
+
+/vis/open OGLSQt
+/vis/scene/create
+/vis/scene/add/volume
+/vis/sceneHandler/attach
+/vis/viewer/set/upVector 0.0 0.0 1.0
+/vis/viewer/set/viewpointThetaPhi -90 135 
+/vis/viewer/set/style s
+/vis/viewer/flush
+
+## Cut a plane through the detector
+/vis/viewer/addCutawayPlane 0 0 0 cm 1 0 0
+#/vis/viewer/addCutawayPlane 0 -100 0 cm 0 1 0
+#/vis/viewer/set/viewpointThetaPhi -90 0
+#/vis/viewer/zoomTo 10
+#/vis/viewer/panTo 10 0

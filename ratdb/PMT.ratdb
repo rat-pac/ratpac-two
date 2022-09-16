@@ -366,3 +366,28 @@ rho_edge: [ 0.0d, 111.0d, 126.5d, 111.0d, 42.25d, 42.25d ],
 z_origin: [ -40.0d, 0.0d, 0.0d, 40.0d, -142.0d ],
 
 }
+
+{
+name: "PMT",
+index: "r3600",
+valid_begin: [0,0],
+valid_end: [0,0],
+construction: "toroidal",
+
+dynode_material: "stainless_steel",
+glass_material: "glass",
+pmt_vacuum_material: "pmt_vacuum",
+photocathode_surface: "photocathode_R3600",
+photocathode_MINrho: 230.0d,
+photocathode_MAXrho: 254.0d,
+mirror_surface: "mirror",
+dynode_surface: "stainless_steel",
+
+dynode_radius: 27.5, // mm
+dynode_top:   -5.9, // mm
+wall_thickness: 4.0, // mm
+
+z_edge: [ 194.2d, 92.0d, 0.0d, -92.0d, -207.0d, -300.0d ],
+rho_edge: [ 0.0d, 200.0d, 254.0d, 200.0d, 127.5d, 127.5d ],
+z_origin: [ -60.0d, 0.0d, 0.0d, 60.0d, -300.0d ],
+}
