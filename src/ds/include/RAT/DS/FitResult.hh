@@ -3,7 +3,7 @@
 
 #include <TObject.h>
 #include <TVector3.h>
-#include <RAT/Classifier.hh>
+#include <RAT/DS/Classifier.hh>
 
 #include <map>
 #include <string>
@@ -99,7 +99,7 @@ class FitResult : public TObject {
   std::map<std::string, double> doubleFiguresOfMerit;
 
   // Classification
-  std::map<std::string, Classifier>;
+  std::map<std::string, Classifier> classifiers;
 
   ClassDef(FitResult, 1);
 

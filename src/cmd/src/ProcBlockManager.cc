@@ -11,6 +11,7 @@
 #include <RAT/AfterPulseProc.hh>
 #include <RAT/Config.hh>
 #include <RAT/CountProc.hh>
+#include <RAT/ClassifyChargeBalance.hh>
 #include <RAT/FitCentroidProc.hh>
 #include <RAT/FitPathProc.hh>
 #include <RAT/FitTensorProc.hh>
@@ -75,6 +76,9 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   procAllocators["fittensor"] = new ProcAllocatorTmpl<FitTensorProc>;
 #endif
   procAllocators["fitpath"] = new ProcAllocatorTmpl<FitPathProc>;
+
+  // Classifiers
+  procAllocators["classifychargebalance"] = new ProcAllocatorTmpl<ClassifyChargeBalance>;
 
   // DAQ
   procAllocators["noise"] = new ProcAllocatorTmpl<NoiseProc>;
