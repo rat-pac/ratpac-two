@@ -120,9 +120,10 @@ class MC : public TObject {
   virtual bool ExistMCSummary() const { return !summary.empty(); }
   virtual void PruneMCSummary() { summary.resize(0); }
 
-  ClassDef(MC, 1)
+  ClassDef(MC, 1);
 
-      protected : int id;
+ protected:
+  int id;
   int numPE;
   int numDarkHits;
   TTimeStamp utc;

@@ -27,9 +27,10 @@ class DSWriter : public TObject {
   void WriteStatus(int status);
   void Close();
 
-  ClassDef(DSWriter, 0)
+  ClassDef(DSWriter, 0);
 
-      protected : std::string fFilename;
+ protected:
+  std::string fFilename;
   TFile *fFile;
   TTree *fTree;
   TTree *fRunTree;

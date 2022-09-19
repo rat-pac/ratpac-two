@@ -1,4 +1,5 @@
 #include <RAT/DS/Calib.hh>
+#include <RAT/DS/Classifier.hh>
 #include <RAT/DS/EV.hh>
 #include <RAT/DS/FitResult.hh>
 #include <RAT/DS/MC.hh>
@@ -18,5 +19,6 @@ ClassImp(RAT::DS::Calib);
 ClassImp(RAT::DS::EV);
 ClassImp(RAT::DS::PMT);
 ClassImp(RAT::DS::FitResult);
+ClassImp(RAT::DS::Classifier);
 ClassImp(RAT::DSReader);
 ClassImp(RAT::TrackNode);

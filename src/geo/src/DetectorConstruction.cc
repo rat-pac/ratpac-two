@@ -21,8 +21,7 @@ namespace RAT {
 
 DetectorConstruction *DetectorConstruction::sDetectorConstruction = NULL;
 
-DetectorConstruction::DetectorConstruction() {
-}
+DetectorConstruction::DetectorConstruction() {}
 
 G4VPhysicalVolume *DetectorConstruction::Construct() {
   // Load the DETECTOR table

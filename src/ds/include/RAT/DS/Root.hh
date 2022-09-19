@@ -133,9 +133,10 @@ class Root : public TObject {
   virtual double GetUserData(int i) const { return user.at(i); }
   virtual void SetUserData(int i, double val) { user.at(i) = val; }
 
-  ClassDef(Root, 1)
+  ClassDef(Root, 1);
 
-      protected : int runID;
+ protected:
+  int runID;
   std::string ratVersion;
   std::vector<std::pair<std::string, int>> procResult;
   std::vector<MC> mc;

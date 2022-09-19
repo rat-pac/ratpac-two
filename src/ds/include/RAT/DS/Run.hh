@@ -50,9 +50,10 @@ class Run : public TObject {
   virtual bool ExistPMTInfo() { return !pmtinfo.empty(); }
   virtual void PrunePMTInfo() { pmtinfo.resize(0); }
 
-  ClassDef(Run, 2)
+  ClassDef(Run, 2);
 
-      protected : Int_t id;
+ protected:
+  Int_t id;
   ULong64_t type;
   TTimeStamp startTime;
   std::vector<PMTInfo> pmtinfo;

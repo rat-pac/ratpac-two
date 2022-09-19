@@ -33,9 +33,10 @@ class LAPPDHit : public TObject {
   virtual Float_t GetCharge() const { return charge; }
   virtual void SetCharge(Float_t _charge) { charge = _charge; }
 
-  ClassDef(LAPPDHit, 1)
+  ClassDef(LAPPDHit, 1);
 
-      protected : Float_t time;
+ protected:
+  Float_t time;
   Float_t charge;
   TVector3 pos;
 };

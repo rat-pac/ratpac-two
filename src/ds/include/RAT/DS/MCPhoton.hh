@@ -81,9 +81,10 @@ class MCPhoton : public TObject {
   bool operator<(const MCPhoton &mcp) const { return (frontEndTime < mcp.frontEndTime); }
   bool operator>(const MCPhoton &mcp) const { return (frontEndTime > mcp.frontEndTime); }
 
-  ClassDef(MCPhoton, 3)
+  ClassDef(MCPhoton, 3);
 
-      protected : Double_t hitTime;
+ protected:
+  Double_t hitTime;
   Double_t frontEndTime;
   Double_t lambda;
   TVector3 pos;

@@ -48,9 +48,10 @@ class MCPMT : public TObject {
   void PruneMCPhoton() { photon.resize(0); }
   void SortMCPhotons() { std::sort(photon.begin(), photon.end()); }
 
-  ClassDef(MCPMT, 2)
+  ClassDef(MCPMT, 2);
 
-      protected : Int_t id;
+ protected:
+  Int_t id;
   Int_t type;
   std::vector<MCPhoton> photon;
 };

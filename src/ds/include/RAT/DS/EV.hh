@@ -90,9 +90,10 @@ class EV : public TObject {
   // Prune digitizer information
   virtual void PruneDigitizer() { digitizer.resize(0); }
 
-  ClassDef(EV, 1)
+  ClassDef(EV, 1);
 
-      protected : Int_t id;
+ protected:
+  Int_t id;
   Float_t qTotal;
   Float_t calibratedTriggerTime;
   Double_t deltat;

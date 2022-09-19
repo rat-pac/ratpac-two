@@ -12,6 +12,7 @@
 #pragma link C++ class RAT::DS::MCSummary + ;
 #pragma link C++ class RAT::DS::Calib + ;
 #pragma link C++ class RAT::DS::FitResult + ;
+#pragma link C++ class RAT::DS::Classifier + ;
 
 #pragma link C++ class RAT::DS::EV + ;
 #pragma link C++ class RAT::DS::PMT + ;
