@@ -27,6 +27,18 @@ ProcBlock::~ProcBlock() {
   Clear();  // Used to delete processors before we clear them from the list
 }
 
+void ProcBlock::BeginOfRun(DS::Run *run) {
+  for (auto &proc : fProcessorList) {
+    proc->BeginOfRun(run);
+  }
+}
+
+void ProcBlock::EndOfRun(DS::Run *run) {
+  for (auto &proc : fProcessorList) {
+    proc->EndOfRun(run);
+  }
+}
+
 void ProcBlock::Clear() {
   // Destroy all the processor objects to give them a chance to clean up
   // and close files, etc.

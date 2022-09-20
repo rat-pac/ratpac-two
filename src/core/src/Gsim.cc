@@ -175,7 +175,7 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
     MakeRun(runID);
   }
 
-  DS::Run *run = DS::RunStore::GetRun(runID);
+  run = DS::RunStore::GetRun(runID);
   fPMTInfo = run->GetPMTInfo();
 
   for (size_t i = 0; i < fPMTTime.size(); i++) {
@@ -220,12 +220,16 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
     maxpe = 0;
   }
   nabort = 0;
+
+  // Begin of run actions cascade
+  mainBlock->BeginOfRun(run);
 }
 
 void Gsim::EndOfRunAction(const G4Run * /*arun*/) {
   if (maxpe > 0) {
     info << "Gsim: Tracking aborted for " << nabort << " events exceeding " << maxpe << " photoelectrons" << newline;
   }
+  mainBlock->EndOfRun(run);
 }
 
 void Gsim::BeginOfEventAction(const G4Event *anEvent) {

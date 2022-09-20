@@ -35,6 +35,10 @@ class ProcBlock : public Processor {
   /** Delete this block, and delete all processors in this block. */
   virtual ~ProcBlock();
 
+  virtual void BeginOfRun(DS::Run *run);
+
+  virtual void EndOfRun(DS::Run *run);
+
   /** Remove all processors from this block.
    *
    *  The destructors of all the processors are called, allowing them

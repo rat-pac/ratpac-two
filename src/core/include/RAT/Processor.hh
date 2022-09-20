@@ -28,6 +28,7 @@
 #define __RAT_Processor__
 
 #include <RAT/DS/Root.hh>
+#include <RAT/DS/Run.hh>
 #include <string>
 
 namespace RAT {
@@ -162,6 +163,9 @@ class Processor {
    *  @return Status code for successs/failure in processing this event.
    */
   virtual Processor::Result DSEvent(DS::Root *ds);
+
+  virtual void BeginOfRun(DS::Run *run) {}
+  virtual void EndOfRun(DS::Run *run) {}
 
   /** Process one triggered event.
    *

@@ -11,6 +11,7 @@
 #include <G4UserTrackingAction.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/Root.hh>
+#include <RAT/DS/Run.hh>
 #include <RAT/EventInfo.hh>
 #include <RAT/GLG4VEventAction.hh>
 #include <RAT/Producer.hh>
@@ -83,6 +84,7 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
   std::vector<RAT::PMTTime *> fPMTTime;      //< PMT transit time/delay calculator (indexed by modeltype)
   std::vector<RAT::PMTCharge *> fPMTCharge;  //< PMT single-pe charge calculator (indexed by modeltype)
 
+  RAT::DS::Run *run;
   int runID;
   TTimeStamp utc;
   int maxpe;
