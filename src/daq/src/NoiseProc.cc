@@ -24,17 +24,15 @@ NoiseProc::NoiseProc() : Processor("noise") {
   fNearHits = lnoise->GetI("noise_nearhits");
 }
 
-Processor::Result NoiseProc::DSEvent(DS::Root *ds) {
-  // Noise moved to a processor from GSim, this is a special
-  // case of a processor modifying the MC branch
+void NoiseProc::BeginOfRun(DS::Run* run) {
+  DS::PMTInfo *pmtinfo = run->GetPMTInfo();
+  UpdatePMTModels(pmtinfo);
+}
 
+Processor::Result NoiseProc::DSEvent(DS::Root *ds) {
   // Run Information
   DS::Run *run = DS::RunStore::Get()->GetRun(ds);
   DS::PMTInfo *pmtinfo = run->GetPMTInfo();
-
-  // By the way, this is a cheat. Once we have BeginOfRunActions
-  // in processors, this gets moved there.
-  UpdatePMTModels(pmtinfo);
 
   // Write over MC
   DS::MC *mc = ds->GetMC();
@@ -179,10 +177,6 @@ void NoiseProc::AddNoiseHit(DS::MCPMT *mcpmt, DS::PMTInfo *pmtinfo, double hitti
 }
 
 void NoiseProc::UpdatePMTModels(DS::PMTInfo *pmtinfo) {
-  // This is a bit hacky, but we don't want to keep
-  // running this every event, so after the first time it
-  // is skipped.
-  if (fPMTTime.size() > 0) return;
   const size_t numModels = pmtinfo->GetModelCount();
   fPMTTime.resize(numModels);
   fPMTCharge.resize(numModels);
