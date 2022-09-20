@@ -3,7 +3,6 @@
 
 #include <TObject.h>
 #include <TVector3.h>
-#include <RAT/DS/Classifier.hh>
 
 #include <RAT/DS/Classifier.hh>
 #include <map>
