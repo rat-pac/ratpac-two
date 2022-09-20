@@ -33,9 +33,11 @@
 namespace RAT {
 
 class Processor {
+ protected:
+  std::string name;
+
  public:
   /** The short name of this processor. */
-  std::string name;
 
   /** Create new processor.
    *
@@ -49,6 +51,8 @@ class Processor {
 
   /** Destroy processor. */
   virtual ~Processor(){/* Do nothing */};
+
+  std::string GetName() const { return name; }
 
   /** Result codes returned by DSEvent() or Event(). */
   enum Result {

@@ -18,7 +18,7 @@ ProcBlock::~ProcBlock() {
 
   for (unsigned i = 0; i < fProcessorList.size(); i++) {
     double timeperevent = fProcessorTime[i] / fProcessorExecutionCount[i];
-    info << dformat("%25s: %1.3f sec/event\n", fProcessorList[i]->name.c_str(), timeperevent);
+    info << dformat("%25s: %1.3f sec/event\n", fProcessorList[i]->GetName().c_str(), timeperevent);
     total += timeperevent;
   }
   info << "--------------------------\n";
@@ -78,7 +78,7 @@ Processor::Result ProcBlock::DSEvent(DS::Root *ds) {
     fProcessorExecutionCount[i]++;
     fProcessorTime[i] += timer.RealTime();
 
-    ds->AppendProcResult(fProcessorList[i]->name.c_str(),
+    ds->AppendProcResult(fProcessorList[i]->GetName().c_str(),
                          procResult);  // For later processors that
                                        // want to check result, like IF
 

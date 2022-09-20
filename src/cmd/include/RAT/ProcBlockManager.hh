@@ -25,13 +25,21 @@ class ProcBlockManager : public G4UImessenger {
   // Methods implementing the commands
   virtual bool DoProcCmd(std::string procname, bool last = false);
   virtual void DoProcSetCmd(std::string cmdstring);
-  // if, endif, loops?
+
+  // Processor Table
+  // template <class T> void AppendProcessor();
+  static std::map<std::string, ProcAllocator *> procAllocators;
+
+  template <class T>
+  static void AppendProcessor() {
+    ProcAllocator *pa = new ProcAllocatorTmpl<T>;
+    procAllocators[pa->operator()()->GetName()] = pa;
+  }
 
  protected:
   ProcBlock *mainBlock;  // Convenience, non-NULL when we are at the main
   // block in analysis construction
   std::stack<ProcBlock *> blocks;
-  std::map<std::string, ProcAllocator *> procAllocators;
 
   Processor *lastProc;
 
