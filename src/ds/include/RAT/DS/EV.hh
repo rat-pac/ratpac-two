@@ -78,6 +78,11 @@ class EV : public TObject {
   virtual void AddFitResult(FitResult *fit) { fitResults.push_back(fit); }
   virtual void PruneFitResults() { fitResults.resize(0); }
 
+  /** Classifier Results **/
+  virtual std::vector<Classifier *> GetClassifierResults() { return classifierResults; }
+  virtual void AddClassifierResult(Classifier *clf) { classifierResults.push_back(clf); }
+  virtual void PruneClassifierResults() { classifierResults.resize(0); }
+
   /// Set CAEN digitizer information for this event
   virtual void SetDigitizer(const Digit &dig) { digitizer.push_back(dig); }
 
@@ -90,9 +95,10 @@ class EV : public TObject {
   // Prune digitizer information
   virtual void PruneDigitizer() { digitizer.resize(0); }
 
-  ClassDef(EV, 1)
+  ClassDef(EV, 1);
 
-      protected : Int_t id;
+ protected:
+  Int_t id;
   Float_t qTotal;
   Float_t calibratedTriggerTime;
   Double_t deltat;
@@ -100,6 +106,7 @@ class EV : public TObject {
   std::vector<PMT> pmt;
   std::vector<LAPPD> lappd;
   std::vector<FitResult *> fitResults;
+  std::vector<Classifier *> classifierResults;
   std::vector<Digit> digitizer;  ///< The digitizer information
 };
 

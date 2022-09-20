@@ -32,9 +32,10 @@ class DSReader : public TObject {
   };
   DS::Root *NextEvent();
 
-  ClassDef(DSReader, 0)
+  ClassDef(DSReader, 0);
 
-      protected : TChain T;
+ protected:
+  TChain T;
   TChain runT;
   DS::Root *ds;
   Long64_t next;

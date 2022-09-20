@@ -56,9 +56,10 @@ class Calib : public TObject {
   virtual const TVector3 &GetPosition() const { return pos; }
   virtual void SetPosition(const TVector3 &_pos) { pos = _pos; }
 
-  ClassDef(Calib, 1)
+  ClassDef(Calib, 1);
 
-      protected : Int_t id;
+ protected:
+  Int_t id;
   Int_t mode;
   Float_t intensity;
   std::string name;

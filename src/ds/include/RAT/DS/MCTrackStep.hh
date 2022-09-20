@@ -75,9 +75,10 @@ class MCTrackStep : public TObject {
   virtual std::string GetVolume() const { return volume; }
   virtual void SetVolume(const std::string &_volume) { volume = _volume; }
 
-  ClassDef(MCTrackStep, 1)
+  ClassDef(MCTrackStep, 1);
 
-      protected : Float_t length;
+ protected:
+  Float_t length;
   Double_t globalTime;
   Double_t localTime;
   Double_t properTime;

@@ -72,9 +72,10 @@ class MCParticle : public TObject {
   virtual TVector3 GetPolarization() const { return pol; }
   virtual void SetPolarization(const TVector3 &_pol) { pol = _pol; }
 
-  ClassDef(MCParticle, 2)
+  ClassDef(MCParticle, 2);
 
-      protected : Int_t pdgcode;
+ protected:
+  Int_t pdgcode;
   Double_t t;
   Float_t ke;
   TVector3 pos;

@@ -94,9 +94,10 @@ class MCSummary : public TObject {
 
   virtual std::vector<std::vector<double>> GetPMTPhotonInfo() { return pmtHitVector; }
 
-  ClassDef(MCSummary, 3)
+  ClassDef(MCSummary, 3);
 
-      protected : Int_t numScintPhoton;
+ protected:
+  Int_t numScintPhoton;
   Int_t numReemitPhoton;
   Int_t numCerenkovPhoton;
   Float_t totalScintEdep;

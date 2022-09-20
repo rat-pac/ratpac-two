@@ -3,6 +3,7 @@
 
 #include <TObject.h>
 #include <TVector3.h>
+#include <RAT/DS/Classifier.hh>
 
 #include <map>
 #include <string>
@@ -97,9 +98,13 @@ class FitResult : public TObject {
   std::map<std::string, bool> boolFiguresOfMerit;
   std::map<std::string, double> doubleFiguresOfMerit;
 
-  ClassDef(FitResult, 1)
+  // Classification
+  std::map<std::string, Classifier> classifiers;
 
-      protected : std::string fit_name;
+  ClassDef(FitResult, 1);
+
+ protected:
+  std::string fit_name;
   int fit_pass;
   // Fit values
   TVector3 fit_position;

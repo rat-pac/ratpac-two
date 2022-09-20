@@ -74,9 +74,10 @@ class PMTInfo : public TObject {
 
   virtual std::string GetModelNameByID(int id) const { return GetModelName(GetModel(id)); }
 
-  ClassDef(PMTInfo, 1)
+  ClassDef(PMTInfo, 1);
 
-      protected : std::vector<TVector3> pos;
+ protected:
+  std::vector<TVector3> pos;
   std::vector<TVector3> dir;
   std::vector<int> type;
   std::vector<int> modeltype;

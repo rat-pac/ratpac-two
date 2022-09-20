@@ -2,17 +2,17 @@
 # CMakeLists for fit module
 
 add_library(fit OBJECT
-        src/FitPathProc.cc
-        src/FitCentroidProc.cc
-        src/FitTensorProc.cc
-        src/MiniSim.cc)
+  src/ClassifyChargeBalance.cc
+  src/FitPathProc.cc
+  src/FitCentroidProc.cc
+  src/FitTensorProc.cc
+  src/MiniSim.cc)
 
 
 # Set our include directories
 target_include_directories(fit PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:include>)
+  $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
+  $<INSTALL_INTERFACE:include>)
 
 # Copy our headers when installing
 file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
-        

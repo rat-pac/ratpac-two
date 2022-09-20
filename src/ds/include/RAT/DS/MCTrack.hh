@@ -94,9 +94,10 @@ class MCTrack : public TObject {
   virtual Float_t GetDepositedEnergy() const { return depositedEnergy; }
   virtual void SetDepositedEnergy(Float_t _depositedEnergy) { depositedEnergy = _depositedEnergy; }
 
-  ClassDef(MCTrack, 1)
+  ClassDef(MCTrack, 1);
 
-      protected : Int_t id;
+ protected:
+  Int_t id;
   Int_t parentID;
   Int_t pdgcode;
   Float_t length;

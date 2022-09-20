@@ -193,9 +193,10 @@ class RunStore {
   void InstanceAddNewRun(Run *run);
   void InstancePreloadFromTree(TTree *tree, bool writtenToDisk = false);
 
-  ClassDef(RunStore, 1)
+  ClassDef(RunStore, 1);
 
-      protected : TTree *fReadTree;
+ protected:
+  TTree *fReadTree;
   Run *fReadRun;
   TTree *fWriteTree;
   Run *fWriteRun;
