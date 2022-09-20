@@ -25,6 +25,7 @@ class FitTensorProc : public Processor {
   TVector3 DirectionFit(DS::Root *ds, DS::EV *ev, TVector3 pos);
 
   cppflow::tensor CreateProjection(DS::EV *ev, DS::PMTInfo *pmtinfo, TVector3 coordinates);
+  void BeginOfRun(DS::Run *run);
 
  protected:
   double fPower;

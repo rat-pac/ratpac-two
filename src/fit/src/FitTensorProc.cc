@@ -21,7 +21,9 @@
 
 namespace RAT {
 
-FitTensorProc::FitTensorProc() : Processor("fittensor") {
+FitTensorProc::FitTensorProc() : Processor("fittensor") {}
+
+void FitTensorProc::BeginOfRun(DS::Run *run) {
   DB *db = DB::Get();
   DBLinkPtr table = db->GetLink("Fitter", "FitTensor");
   std::string directory = table->GetS("directory");
@@ -34,9 +36,8 @@ FitTensorProc::FitTensorProc() : Processor("fittensor") {
       break;
     }
   }
-  /* This needs to go into BeginOfRunAction */
   if (!std::filesystem::exists(path)) {
-    // Log::Die("Could not find FitTensor path: " + path);
+    Log::Die("Could not find FitTensor path: " + path);
   } else {
     directionModel = new cppflow::model(path + "/direction");
     positionModel = new cppflow::model(path + "/position");

@@ -29,6 +29,7 @@ class FitPathProc : public Processor, public Minimizable, public ROOT::Minuit2::
   double operator()(double *params);                            // Minimizable
   double operator()(const std::vector<double> &lParams) const;  // FCNBase
   double Up() const { return 0.5; }                             // FCNBase
+  void BeginOfRun(DS::Run *run);
 
  protected:
   // per-event hit data

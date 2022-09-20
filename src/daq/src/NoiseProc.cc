@@ -24,7 +24,7 @@ NoiseProc::NoiseProc() : Processor("noise") {
   fNearHits = lnoise->GetI("noise_nearhits");
 }
 
-void NoiseProc::BeginOfRun(DS::Run* run) {
+void NoiseProc::BeginOfRun(DS::Run *run) {
   DS::PMTInfo *pmtinfo = run->GetPMTInfo();
   UpdatePMTModels(pmtinfo);
 }

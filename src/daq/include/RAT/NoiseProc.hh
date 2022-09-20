@@ -21,7 +21,7 @@ class NoiseProc : public Processor {
   std::map<double, double> FindWindows(std::vector<double> &times, double window);
   void SetD(std::string, double);
   void SetI(std::string param, int value);
-  void BeginOfRun(DS::Run* run);
+  void BeginOfRun(DS::Run *run);
 
  protected:
   double fDefaultNoiseRate;

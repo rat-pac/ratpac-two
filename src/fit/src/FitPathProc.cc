@@ -22,7 +22,9 @@
 
 namespace RAT {
 
-FitPathProc::FitPathProc() : Processor("fitpath") {
+FitPathProc::FitPathProc() : Processor("fitpath") {}
+
+void FitPathProc::BeginOfRun(DS::Run *run) {
   DBLinkPtr ftp = DB::Get()->GetLink("FTP");
 
   fSeed = ftp->GetDArray("seed_pos");
