@@ -9,9 +9,9 @@
 
 // Processors
 #include <RAT/AfterPulseProc.hh>
+#include <RAT/ClassifyChargeBalance.hh>
 #include <RAT/Config.hh>
 #include <RAT/CountProc.hh>
-#include <RAT/ClassifyChargeBalance.hh>
 #include <RAT/FitCentroidProc.hh>
 #include <RAT/FitPathProc.hh>
 #include <RAT/FitTensorProc.hh>
@@ -31,6 +31,7 @@ namespace RAT {
 
 // Helper func defined in ConstructUserProc.cc and overridden by user
 Processor *construct_user_proc(std::string userProcName);
+std::map<std::string, ProcAllocator *> ProcBlockManager::procAllocators;
 
 ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   lastProc = 0;
@@ -66,35 +67,32 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   // ----------------Create processor allocator table-----------------
 
   // I/O
-  procAllocators["outroot"] = new ProcAllocatorTmpl<OutROOTProc>;
-  procAllocators["outntuple"] = new ProcAllocatorTmpl<OutNtupleProc>;
-  procAllocators["outnet"] = new ProcAllocatorTmpl<OutNetProc>;
+  // procAllocators["outroot"] = new ProcAllocatorTmpl<OutROOTProc>;
+  AppendProcessor<OutROOTProc>();
 
+  AppendProcessor<OutNtupleProc>();
+  AppendProcessor<OutNetProc>();
   // Fitters
-  procAllocators["fitcentroid"] = new ProcAllocatorTmpl<FitCentroidProc>;
+  AppendProcessor<FitCentroidProc>();
 #if TENSORFLOW_Enabled
-  procAllocators["fittensor"] = new ProcAllocatorTmpl<FitTensorProc>;
+  AppendProcessor<FitTensorProc>();
 #endif
-  procAllocators["fitpath"] = new ProcAllocatorTmpl<FitPathProc>;
-
+  AppendProcessor<FitPathProc>();
   // Classifiers
-  procAllocators["classifychargebalance"] = new ProcAllocatorTmpl<ClassifyChargeBalance>;
-
+  AppendProcessor<ClassifyChargeBalance>();
   // DAQ
-  procAllocators["noise"] = new ProcAllocatorTmpl<NoiseProc>;
-  procAllocators["afterpulse"] = new ProcAllocatorTmpl<AfterPulseProc>;
-  procAllocators["simpledaq"] = new ProcAllocatorTmpl<SimpleDAQProc>;
-  procAllocators["splitevdaq"] = new ProcAllocatorTmpl<SplitEVDAQProc>;
-  procAllocators["lesssimpledaq"] = new ProcAllocatorTmpl<LessSimpleDAQProc>;
-  procAllocators["lesssimpledaq2"] = new ProcAllocatorTmpl<LessSimpleDAQ2Proc>;
-  procAllocators["truedaq"] = new ProcAllocatorTmpl<TrueDAQProc>;
-
+  AppendProcessor<NoiseProc>();
+  AppendProcessor<AfterPulseProc>();
+  AppendProcessor<SimpleDAQProc>();
+  AppendProcessor<SplitEVDAQProc>();
+  AppendProcessor<LessSimpleDAQProc>();
+  AppendProcessor<LessSimpleDAQ2Proc>();
+  AppendProcessor<TrueDAQProc>();
   // Misc
-  procAllocators["count"] = new ProcAllocatorTmpl<CountProc>;
-  procAllocators["prune"] = new ProcAllocatorTmpl<PruneProc>;
-
+  AppendProcessor<CountProc>();
+  AppendProcessor<PruneProc>();
   // Escape Hatch
-  procAllocators["python"] = new ProcAllocatorTmpl<PythonProc>;
+  AppendProcessor<PythonProc>();
 
   // -----------------------------------------------------------------
 
@@ -139,9 +137,9 @@ void ProcBlockManager::SetNewValue(G4UIcommand *command, G4String newValue) {
       try {
         DoProcSetCmd(newValue);
       } catch (Processor::ParamUnknown &pu) {
-        Log::Die(lastProc->name + ": Unknown parameter " + pu.param);
+        Log::Die(lastProc->GetName() + ": Unknown parameter " + pu.param);
       } catch (Processor::ParamInvalid &pi) {
-        Log::Die(lastProc->name + ":  " + pi.msg);
+        Log::Die(lastProc->GetName() + ":  " + pi.msg);
       }
 
     } else

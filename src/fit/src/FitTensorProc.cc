@@ -34,12 +34,13 @@ FitTensorProc::FitTensorProc() : Processor("fittensor") {
       break;
     }
   }
+  /* This needs to go into BeginOfRunAction */
   if (!std::filesystem::exists(path)) {
-    Log::Die("Could not find FitTensor path: " + path);
+    // Log::Die("Could not find FitTensor path: " + path);
+  } else {
+    directionModel = new cppflow::model(path + "/direction");
+    positionModel = new cppflow::model(path + "/position");
   }
-
-  directionModel = new cppflow::model(path + "/direction");
-  positionModel = new cppflow::model(path + "/position");
 }
 
 Processor::Result FitTensorProc::Event(DS::Root *ds, DS::EV *ev) {

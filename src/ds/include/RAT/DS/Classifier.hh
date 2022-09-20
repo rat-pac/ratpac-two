@@ -12,14 +12,13 @@ namespace DS {
 
 class Classifier : public TObject {
  public:
-  Classifier()
-      : TObject(), classifier_name(""), classificationLabels(std::vector<std::string>{""}){
+  Classifier() : TObject(), classifier_name(""), classificationLabels(std::vector<std::string>{""}) {
     int index = 0;
     for (auto &L : classificationLabels) {
       this->nameIndexMap[L] = index++;
       this->classificationResults.push_back(0.0);
     }
-    }
+  }
   Classifier(std::string name, std::vector<std::string> labels)
       : TObject(), classifier_name(name), classificationLabels(labels) {
     int index = 0;

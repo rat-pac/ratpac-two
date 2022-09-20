@@ -48,11 +48,12 @@ if(DEFINED ENV{CRYLIB})
 endif()
 
 set(TENSORFLOW_Enabled 0)
-find_library(TENSORFLOW_LIBRARIES tensorflow NO_DEFAULT_PATH)
+find_library(TENSORFLOW_LIBRARIES tensorflow)
 if(TENSORFLOW_LIBRARIES)
   message(STATUS "Compiling with Tensorflow")
   set(TENSORFLOW_Enabled 1)
 else()
+  message(WARNING "Tensorflow Not Found")
   set(TENSORFLOW_LIBRARIES "")
 endif()
 
