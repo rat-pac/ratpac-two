@@ -7,6 +7,7 @@ add_library(core OBJECT
         src/GLG4SteppingAction.cc
         src/PythonProc.cc
         src/ProcBlock.cc
+        src/ProducerBlock.cc
         src/RunManager.cc
         src/CountProc.cc
         src/PruneProc.cc

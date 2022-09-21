@@ -5,8 +5,10 @@
 
 namespace RAT {
 
-ProcBlock::ProcBlock() : Processor("ProcBlock"), fSeenFirstEvent(false), fSourceTime(0.0), fSourceCount(0) {
-  // Nothing to do!
+ProcBlock::ProcBlock(ProducerBlock *prodBlock) 
+  : Processor("ProcBlock"), fSeenFirstEvent(false), fSourceTime(0.0), fSourceCount(0) {
+  this->prodBlock = prodBlock;
+  prodBlock->Init(this);
 }
 
 ProcBlock::~ProcBlock() {
@@ -31,12 +33,14 @@ void ProcBlock::BeginOfRun(DS::Run *run) {
   for (auto &proc : fProcessorList) {
     proc->BeginOfRun(run);
   }
+  prodBlock->BeginOfRun(run);
 }
 
 void ProcBlock::EndOfRun(DS::Run *run) {
   for (auto &proc : fProcessorList) {
     proc->EndOfRun(run);
   }
+  prodBlock->EndOfRun(run);
 }
 
 void ProcBlock::Clear() {

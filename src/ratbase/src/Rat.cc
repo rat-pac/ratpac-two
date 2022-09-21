@@ -11,15 +11,13 @@
 #include <G4UIterminal.hh>
 #include <G4VisExecutive.hh>
 #include <RAT/Config.hh>
-#include <RAT/InNetProducer.hh>
-#include <RAT/InROOTProducer.hh>
 #include <RAT/Log.hh>
 #include <RAT/OutROOTProc.hh>
 #include <RAT/ProcBlock.hh>
 #include <RAT/ProcBlockManager.hh>
+#include <RAT/ProducerBlock.hh>
 #include <RAT/PythonProc.hh>
 #include <RAT/Rat.hh>
-#include <RAT/RunManager.hh>
 #include <RAT/SignalHandler.hh>
 #include <RAT/TrackingMessenger.hh>
 #include <Randomize.hh>
@@ -139,17 +137,14 @@ void Rat::Begin() {
       info << "Setting default vector file to " << this->vector_filename << newline;
     }
 
+    // Build event producers
+    ProducerBlock *prodBlock = new ProducerBlock();
     // Main analysis block
-    ProcBlock *mainBlock = new ProcBlock;
+    ProcBlock *mainBlock = new ProcBlock(prodBlock);
     // Process block manager -- supplies user commands to construct analyis
     // sequence and does the processor creation
     ProcBlockManager *blockManager = new ProcBlockManager(mainBlock);
     TrackingMessenger *trackingMessenger = new TrackingMessenger();
-
-    // Build event producers
-    RunManager *runManager = new RunManager(mainBlock);
-    InROOTProducer *inroot = new InROOTProducer(mainBlock);
-    InNetProducer *innet = new InNetProducer(mainBlock);
 
     // Setup signal handler to intercept Ctrl-C and quit event loop
     SignalHandler::Init();
@@ -186,9 +181,7 @@ void Rat::Begin() {
 
     delete blockManager;
     delete mainBlock;
-    delete runManager;
-    delete inroot;
-    delete innet;
+    delete prodBlock;
     delete rdb_messenger;
     delete trackingMessenger;
   } catch (DBNotFoundError &e) {

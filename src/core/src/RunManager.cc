@@ -8,7 +8,7 @@
 namespace RAT {
 
 RunManager::RunManager() {
-  mainBlock = NULL;
+  mainBlock = nullptr;
   Init();
 }
 
