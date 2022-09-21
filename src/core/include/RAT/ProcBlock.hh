@@ -23,17 +23,23 @@
 #include <TStopwatch.h>
 
 #include <RAT/Processor.hh>
+#include <RAT/ProducerBlock.hh>
 #include <vector>
 
 namespace RAT {
 
+class ProducerBlock;
+
 class ProcBlock : public Processor {
  public:
-  /** Create an empty block of processors. */
-  ProcBlock();
+  ProcBlock(ProducerBlock *prodBlock);
 
   /** Delete this block, and delete all processors in this block. */
   virtual ~ProcBlock();
+
+  virtual void BeginOfRun(DS::Run *run);
+
+  virtual void EndOfRun(DS::Run *run);
 
   /** Remove all processors from this block.
    *
@@ -107,6 +113,8 @@ class ProcBlock : public Processor {
   /** List of processors to append to processor list as soon as the first event
       comes in */
   std::vector<Processor *> fDeferredAppendList;
+
+  ProducerBlock* prodBlock;
 };
 
 }  // namespace RAT

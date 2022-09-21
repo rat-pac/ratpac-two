@@ -45,6 +45,7 @@
 #define __RAT_Producer__
 
 #include <G4UImessenger.hh>
+#include <RAT/DS/Run.hh>
 
 namespace RAT {
 
@@ -75,6 +76,9 @@ class Producer : public G4UImessenger {
 
   /** Set the main block used by this producer. */
   void SetMainBlock(ProcBlock *block);
+
+  virtual void BeginOfRun(DS::Run *run) {}
+  virtual void EndOfRun(DS::Run *run) {}
 
  protected:
   /** Run events on this block of processors when created. */

@@ -8,6 +8,7 @@
 
 #ifndef __RAT_RunManager__
 #define __RAT_RunManager__
+#include <RAT/Producer.hh>
 
 class G4RunManager;
 class G4VisManager;
@@ -17,7 +18,7 @@ namespace RAT {
 class Gsim;
 class ProcBlock;
 
-class RunManager {
+class RunManager : public Producer {
  public:
   RunManager();
   RunManager(ProcBlock *theMainBlock);
