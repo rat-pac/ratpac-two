@@ -34,7 +34,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ###########################################################
-# External libraries and dependencies
+# External libraries and optional dependencies
 set(CRY_Enabled 0)
 if(DEFINED ENV{CRYLIB})
   message(STATUS "Compiling with CRY enabled")
@@ -45,7 +45,10 @@ if(DEFINED ENV{CRYLIB})
   set(CRY_LIBRARIES CRY)
   include_directories(${CRYINCLUDE})
   link_directories(${CRYLIBDIR})
+else()
+  message(WARNING "Cry Not Found")
 endif()
+add_compile_definitions(CRY_Enabled=${CRY_Enabled})
 
 set(TENSORFLOW_Enabled 0)
 find_library(TENSORFLOW_LIBRARIES tensorflow)
@@ -56,7 +59,18 @@ else()
   message(WARNING "Tensorflow Not Found")
   set(TENSORFLOW_LIBRARIES "")
 endif()
+add_compile_definitions(TENSORFLOW_Enabled=${TENSORFLOW_Enabled})
 
+set(ZMQ_Enabled 0)
+find_library(ZEROMQ_LIBRARIES zmq)
+if(ZEROMQ_LIBRARIES)
+  message(STATUS "Compiling with ZeroMQ")
+  set(ZMQ_Enabled 1)
+else()
+  message(WARNING "ZeroMQ Not Found")
+  set(ZEROMQ_LIBRARIES "")
+endif()
+add_compile_definitions(ZMQ_Enabled=${ZMQ_Enabled})
 
 ###########################################################
 # Options

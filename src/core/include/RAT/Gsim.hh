@@ -9,6 +9,7 @@
 #include <G4UserEventAction.hh>
 #include <G4UserRunAction.hh>
 #include <G4UserTrackingAction.hh>
+#include <RAT/Chroma.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
@@ -80,6 +81,9 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
   G4RunManager *theRunManager;
   GLG4DebugMessenger *theDebugMessenger;
 
+#ifdef ZMQ_Enabled
+  Chroma *chroma = nullptr;
+#endif
   RAT::DS::PMTInfo *fPMTInfo;
   std::vector<RAT::PMTTime *> fPMTTime;      //< PMT transit time/delay calculator (indexed by modeltype)
   std::vector<RAT::PMTCharge *> fPMTCharge;  //< PMT single-pe charge calculator (indexed by modeltype)

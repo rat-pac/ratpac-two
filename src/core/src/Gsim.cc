@@ -161,9 +161,23 @@ Gsim::~Gsim() {
     delete fPMTTime[i];
     delete fPMTCharge[i];
   }
+#ifdef ZMQ_Enabled
+  if (chroma) delete chroma;
+#endif
 }
 
 void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
+  // Setup chroma
+#ifdef ZMQ_Enabled
+  DBLinkPtr lchroma = DB::Get()->GetLink("CHROMA");
+  const std::string &chroma_address = lchroma->GetS("address");
+  if (chroma) delete chroma;
+  if (chroma_address.length() > 0) {
+    chroma = new Chroma(chroma_address);
+  } else {
+    chroma = nullptr;
+  }
+#endif
   DBLinkPtr lmc = DB::Get()->GetLink("MC");
   runID = DB::Get()->GetDefaultRun();
   utc = TTimeStamp();  // default to now
@@ -326,6 +340,18 @@ void Gsim::PreUserTrackingAction(const G4Track *aTrack) {
     } else if (creatorProcessName == "Cerenkov") {
       eventInfo->numCerenkovPhoton++;
     }
+#ifdef ZMQ_Enabled
+    if (chroma) {
+      const G4ThreeVector pos = aTrack->GetPosition();
+      const G4ThreeVector dir = aTrack->GetMomentumDirection();
+      const G4ThreeVector pol = aTrack->GetPolarization();
+      const double energy = aTrack->GetKineticEnergy();
+      const double t = aTrack->GetGlobalTime();
+      const uint32_t trackid = aTrack->GetTrackID();
+      chroma->addPhoton(pos, dir, pol, energy, t, trackid);
+      const_cast<G4Track *>(aTrack)->SetTrackStatus(fStopAndKill);
+    }
+#endif
   }
 }
 
@@ -386,8 +412,8 @@ void Gsim::PostUserTrackingAction(const G4Track *aTrack) {
 
     // With surface TPB model: Not reemitted, but killed by SurfaceAbsorption
     // With bulk TPB model:    Not made by OpWLS, but killed by OpWLS
-    if ((aTrack->GetDefinition()->GetParticleName() == "opticalphoton") && (creatorProcessName != "Reemission") &&
-        (creatorProcessName != "OpWLS")) {
+    if (!chroma && (aTrack->GetDefinition()->GetParticleName() == "opticalphoton") &&
+        (creatorProcessName != "Reemission") && (creatorProcessName != "OpWLS")) {
       destroyerProcessName = aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
       if ((destroyerProcessName == "SurfaceAbsorption") || (destroyerProcessName == "OpWLS")) {
         G4ThreeVector startPosition = aTrack->GetVertexPosition();
@@ -415,6 +441,10 @@ void Gsim::MakeRun(int _runID) {
 
 void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   DS::MC *mc = ds->GetMC();
+#ifdef ZMQ_Enabled
+  // ships photons off to chroma server, adds resulting hits to GLG4HitPMTCollection
+  if (chroma) chroma->propagate();
+#endif
   EventInfo *exinfo = dynamic_cast<EventInfo *>(g4ev->GetUserInformation());
 
   // Event Header

@@ -10,7 +10,6 @@
 #include <G4UItcsh.hh>
 #include <G4UIterminal.hh>
 #include <G4VisExecutive.hh>
-#include <RAT/Config.hh>
 #include <RAT/Log.hh>
 #include <RAT/OutROOTProc.hh>
 #include <RAT/ProcBlock.hh>

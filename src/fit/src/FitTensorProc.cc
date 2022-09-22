@@ -1,4 +1,3 @@
-#include <RAT/Config.hh>
 #if TENSORFLOW_Enabled
 #include <TVector.h>
 #include <cppflow/cppflow.h>
