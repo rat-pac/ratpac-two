@@ -551,10 +551,8 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
     /** Add "real" hits from actual simulated photons */
     for (int i = 0; i < a_pmt->GetEntries(); i++) {
       // Find the optical process responsible
-      std::string process = "unknown";
-      if (trackProcessMap.find(a_pmt->GetPhoton(i)->GetTrackID()) != trackProcessMap.end()) {
-        process = trackProcessMap[a_pmt->GetPhoton(i)->GetTrackID()];
-      }
+      auto photon = a_pmt->GetPhoton(i);
+      std::string process = photon->GetCreatorProcess();
       if (StoreOpticalTrackID) {
         AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), false, false, exinfo, process);
       } else {
