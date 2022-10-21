@@ -198,9 +198,9 @@ dynode_radius: 27.5, // mm
 dynode_top:   -5.9, // mm
 wall_thickness: 3.0, // mm
 
-z_edge: [ 96.7d, 40.0d, 0.0d, -40.0d, -90.0d, -142.0d ],
-rho_edge: [ 0.0d, 111.0d, 130.0d, 111.0d, 42.25d, 42.25d ],
-z_origin: [ -40.0d, 0.0d, 0.0d, 40.0d, -142.0d ],
+z_edge: [ 96.7, 40.0, 0.0, -40.0, -90.0, -142.0 ],
+rho_edge: [ 0.0, 111.0, 130.0, 111.0, 42.25, 42.25 ],
+z_origin: [ -40.0, 0.0, 0.0, 40.0, -142.0 ],
 
 }
 
@@ -224,7 +224,7 @@ dynode_radius: 27.5, // mm
 dynode_top:   -43.7, // mm
 dynode_height: 100.0, // mm
 
-//0.05rad face density
+//0.05ra face density
 "rho_inner" : [
 	2.501690401754149, 9.172900600188227, 15.827826891209853, 22.443259412429057, 29.002604377502625, 35.48946014113348, 41.88761148855203, 48.181065933768366, 54.35409295441039, 60.39126312725447, 66.27748663718998, 71.99805097337008, 77.5386576944237, 82.88545816333328, 88.02508815999704, 92.94470128387604, 97.63200106279011, 102.07527168741201, 106.26340729451667, 110.18593972574507, 114.58025685703835, 116.6457336287988, 119.42921005937527, 121.44137628413552, 122.65123712458202, 123.1892796112572, 123.5, 123.20826612920352, 122.45409716848, 121.30060662687725, 119.54191360617526, 117.09024829771481, 113.82378257072736, 109.66097932799293, 102.62612269489755, 52.42170409044925, 45.93413443486852, 41.68177216362357, 40.15988482987869, 39.48418801210443, 39.3327, 39.00422132376172, 38.10955066507895, 36.21487231522765, 31.6456328901129
 ], 
@@ -352,8 +352,8 @@ dynode_material: "stainless_steel",
 glass_material: "glass",
 pmt_vacuum_material: "pmt_vacuum",
 photocathode_surface: "photocathode_R7081HQE",
-photocathode_MINrho: 110.0d,
-photocathode_MAXrho: 126.5d,
+photocathode_MINrho: 110.0,
+photocathode_MAXrho: 126.5,
 mirror_surface: "mirror",
 dynode_surface: "stainless_steel",
 
@@ -361,9 +361,9 @@ dynode_radius: 27.5, // mm
 dynode_top:   -5.9, // mm
 wall_thickness: 3.0, // mm
 
-z_edge: [ 96.7d, 40.0d, 0.0d, -40.0d, -90.0d, -142.0d ],
-rho_edge: [ 0.0d, 111.0d, 126.5d, 111.0d, 42.25d, 42.25d ],
-z_origin: [ -40.0d, 0.0d, 0.0d, 40.0d, -142.0d ],
+z_edge: [ 96.7, 40.0, 0.0, -40.0, -90.0, -142.0 ],
+rho_edge: [ 0.0, 111.0, 126.5, 111.0, 42.25, 42.25 ],
+z_origin: [ -40.0, 0.0, 0.0, 40.0, -142.0 ],
 
 }
 
@@ -378,8 +378,8 @@ dynode_material: "stainless_steel",
 glass_material: "glass",
 pmt_vacuum_material: "pmt_vacuum",
 photocathode_surface: "photocathode_R3600",
-photocathode_MINrho: 230.0d,
-photocathode_MAXrho: 254.0d,
+photocathode_MINrho: 230.0,
+photocathode_MAXrho: 254.0,
 mirror_surface: "mirror",
 dynode_surface: "stainless_steel",
 
@@ -387,7 +387,7 @@ dynode_radius: 27.5, // mm
 dynode_top:   -5.9, // mm
 wall_thickness: 4.0, // mm
 
-z_edge: [ 194.2d, 92.0d, 0.0d, -92.0d, -207.0d, -300.0d ],
-rho_edge: [ 0.0d, 200.0d, 254.0d, 200.0d, 127.5d, 127.5d ],
-z_origin: [ -60.0d, 0.0d, 0.0d, 60.0d, -300.0d ],
+z_edge: [ 194.2, 92.0, 0.0, -92.0, -207.0, -300.0 ],
+rho_edge: [ 0.0, 200.0, 254.0, 200.0, 127.5, 127.5 ],
+z_origin: [ -60.0, 0.0, 0.0, 60.0, -300.0 ],
 }
