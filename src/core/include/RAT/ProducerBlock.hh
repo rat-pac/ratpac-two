@@ -15,7 +15,7 @@ class ProducerBlock {
   ProducerBlock();
   virtual ~ProducerBlock();
 
-  void Init(ProcBlock* theMainBlock);
+  void Init(ProcBlock *theMainBlock);
   virtual void BeginOfRun(DS::Run *run);
   virtual void EndOfRun(DS::Run *run);
   virtual void Clear();

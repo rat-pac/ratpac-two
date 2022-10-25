@@ -114,7 +114,7 @@ class ProcBlock : public Processor {
       comes in */
   std::vector<Processor *> fDeferredAppendList;
 
-  ProducerBlock* prodBlock;
+  ProducerBlock *prodBlock;
 };
 
 }  // namespace RAT

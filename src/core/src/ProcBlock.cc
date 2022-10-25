@@ -5,8 +5,8 @@
 
 namespace RAT {
 
-ProcBlock::ProcBlock(ProducerBlock *prodBlock) 
-  : Processor("ProcBlock"), fSeenFirstEvent(false), fSourceTime(0.0), fSourceCount(0) {
+ProcBlock::ProcBlock(ProducerBlock *prodBlock)
+    : Processor("ProcBlock"), fSeenFirstEvent(false), fSourceTime(0.0), fSourceCount(0) {
   this->prodBlock = prodBlock;
   prodBlock->Init(this);
 }
