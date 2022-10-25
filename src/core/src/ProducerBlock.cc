@@ -1,20 +1,17 @@
+#include <RAT/InNetProducer.hh>
+#include <RAT/InROOTProducer.hh>
 #include <RAT/Log.hh>
 #include <RAT/ProducerBlock.hh>
 #include <RAT/RunManager.hh>
-#include <RAT/InNetProducer.hh>
-#include <RAT/InROOTProducer.hh>
 
 namespace RAT {
 
 ProcBlock *ProducerBlock::mainBlock = nullptr;
 std::vector<Producer *> ProducerBlock::fProducerList;
 
-ProducerBlock::ProducerBlock() {
-}
+ProducerBlock::ProducerBlock() {}
 
-ProducerBlock::~ProducerBlock() {
-  Clear();
-}
+ProducerBlock::~ProducerBlock() { Clear(); }
 
 void ProducerBlock::Init(ProcBlock *theMainBlock) {
   mainBlock = theMainBlock;
