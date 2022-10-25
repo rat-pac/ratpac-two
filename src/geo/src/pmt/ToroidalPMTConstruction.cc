@@ -143,7 +143,7 @@ G4LogicalVolume *ToroidalPMTConstruction::BuildVolume(const std::string &prefix)
   G4LogicalVolume *envelope_log = 0, *body_log, *inner1_log, *inner2_log, *dynode_log, *central_gap_log;
 
   if (fParams.useEnvelope)
-    envelope_log = new G4LogicalVolume(envelope_solid, fParams.exterior, prefix + "envelope_log");
+    envelope_log = new G4LogicalVolume(envelope_solid, fParams.exterior, prefix + "_envelope_log");
 
   body_log = new G4LogicalVolume(body_solid, fParams.glass, prefix + "_body_log");
 
@@ -264,10 +264,7 @@ G4LogicalVolume *ToroidalPMTConstruction::BuildVolume(const std::string &prefix)
     central_gap_log->SetVisAttributes(G4VisAttributes::GetInvisible());
   }
 
-  if (fParams.useEnvelope)
-    log_pmt = envelope_log;
-  else
-    log_pmt = body_log;
+  log_pmt = body_log;
 
   // if using envelope place waveguide now
   if (fParams.useEnvelope && fWaveguideFactory) {
@@ -278,7 +275,7 @@ G4LogicalVolume *ToroidalPMTConstruction::BuildVolume(const std::string &prefix)
                       offsetWg,
                       log_wg,                      // the logical volume
                       prefix + "_waveguide_phys",  // a name for this physical volume
-                      log_pmt,                     // the mother volume
+                      envelope_log,                // the mother volume
                       false,                       // no boolean ops
                       0);                          // copy number
   }
