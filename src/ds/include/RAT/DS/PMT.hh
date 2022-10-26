@@ -30,12 +30,22 @@ class PMT : public TObject {
   virtual void SetTime(Double_t _time) { this->time = _time; }
   virtual Double_t GetTime() { return time; }
 
-  ClassDef(PMT, 1);
+  /** Processed waveform time in ns */
+  virtual void SetDigitizedTime(Double_t _dTime) { this->dTime = _dTime; }
+  virtual Double_t GetDigitizedTime() { return dTime; }
+
+  /** Processed waveform time in ns */
+  virtual void SetDigitizedCharge(Double_t _dCharge) { this->dCharge = _dCharge; }
+  virtual Double_t GetDigitizedCharge() { return dCharge; }
+
+  ClassDef(PMT, 2);
 
  protected:
   Int_t id;
   Float_t charge;
   Double_t time;
+  Double_t dTime;
+  Double_t dCharge;
 };
 
 }  // namespace DS

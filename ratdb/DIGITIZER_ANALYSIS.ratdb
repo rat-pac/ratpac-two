@@ -1,0 +1,14 @@
+{
+name: "DIGITIZER_ANALYSIS",
+valid_begin: [0,0],
+valid_end: [0,0],
+
+// Lower/upper limits of pedestal window
+pedestal_window_low: 0,
+pedestal_window_high: 100,
+constant_fraction: 0.40,
+lookback: 100,
+integration_window_low: 10,
+integration_window_high: 50,
+}
+

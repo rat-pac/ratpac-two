@@ -20,6 +20,7 @@ lookback: 200.0,
 max_hit_time: 1000000.0,
 pmt_type: 1,
 trigger_on_noise: 1,
+termination_ohms: 50,
 digitizer_name: "V1730",
 digitize: true,
 }
