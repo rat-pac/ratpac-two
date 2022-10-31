@@ -4,6 +4,8 @@
 #include <RAT/DB.hh>
 #include <RAT/DS/Digit.hh>
 #include <RAT/DS/MCPMT.hh>
+#include <RAT/DS/PMT.hh>
+#include <RAT/WaveformAnalysis.hh>
 #include <RAT/Digitizer.hh>
 #include <RAT/PMTWaveform.hh>
 #include <RAT/Processor.hh>
@@ -31,8 +33,10 @@ class SplitEVDAQProc : public Processor {
   double fTriggerResolution;
   double fLookback;
   double fMaxHitTime;
+
   int fPmtType;
   int fTriggerOnNoise;
+  double fTerminationOhms;
   DBLinkPtr ldaq;
 
   Digitizer *fDigitizer;
@@ -40,6 +44,8 @@ class SplitEVDAQProc : public Processor {
   bool fDigitize;
 
   DS::Digit digit;
+
+  WaveformAnalysis *fWaveformAnalysis;
 
   DBLinkPtr lpulse;
   double fPMTPulseMin;

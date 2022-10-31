@@ -4,7 +4,6 @@
  */
 #include <G4ThreeVector.hh>
 #include <RAT/DB.hh>
-#include <RAT/DetectorConstruction.hh>
 #include <RAT/PMTPulse.hh>
 #include <RAT/SplitEVDAQProc.hh>
 #include <algorithm>
@@ -26,10 +25,13 @@ SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   fMaxHitTime = ldaq->GetD("max_hit_time");
   fPmtType = ldaq->GetI("pmt_type");
   fTriggerOnNoise = ldaq->GetI("trigger_on_noise");
+  fTerminationOhms = ldaq->GetD("termination_ohms");
   fDigitizerType = ldaq->GetS("digitizer_name");
   fDigitize = ldaq->GetZ("digitize");
 
   fDigitizer = new Digitizer(fDigitizerType);
+
+  fWaveformAnalysis = new WaveformAnalysis();
 
   // PMT pulse model specification (for digitization)
   lpulse = DB::Get()->GetLink("PMTPULSE", "lognormal");
@@ -48,7 +50,7 @@ PMTWaveform SplitEVDAQProc::GenerateWaveforms(DS::MCPMT *mcpmt) {
     DS::MCPhoton *mcpe = mcpmt->GetMCPhoton(iph);
 
     PMTPulse *pmtpulse = new PMTPulse;
-    pmtpulse->SetPulseCharge(mcpe->GetCharge() * 50.0);  // FIXME! Units
+    pmtpulse->SetPulseCharge(mcpe->GetCharge()*fTerminationOhms);
     pmtpulse->SetPulseMin(fPMTPulseMin);
     pmtpulse->SetPulseOffset(fPMTPulseOffset);
     pmtpulse->SetPulseTimeOffset(fPMTPulseTimeOffset);
@@ -154,8 +156,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     for (int imcpmt = 0; imcpmt < mc->GetMCPMTCount(); imcpmt++) {
       DS::MCPMT *mcpmt = mc->GetMCPMT(imcpmt);
       int pmtID = mcpmt->GetID();
-      // Check if the mcpmt has a time within one pulsewidth of the trigger
-      // window
+      // Check if the mcpmt has a time within one pulsewidth of the trigger window
       bool pmtInEvent = false;
       double integratedCharge = 0;
       std::vector<double> hitTimes;
@@ -174,15 +175,36 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
       if (pmtInEvent) {
         DS::PMT *pmt = ev->AddNewPMT();
         pmt->SetID(pmtID);
-        double true_hit_time = *std::min_element(hitTimes.begin(), hitTimes.end());
+        double front_end_hit_time = *std::min_element(hitTimes.begin(), hitTimes.end());
         // PMT Hit time relative to the trigger
-        pmt->SetTime(true_hit_time - tt);
+        pmt->SetTime(front_end_hit_time - tt);
         pmt->SetCharge(integratedCharge);
         totalEVCharge += integratedCharge;
-      }
-      if (fDigitize) {
-        PMTWaveform pmtwfm = GenerateWaveforms(mcpmt);
-        fDigitizer->AddChannel(pmtID, pmtwfm);
+        if (fDigitize) {
+          PMTWaveform pmtwfm = GenerateWaveforms(mcpmt);
+          fDigitizer->AddChannel(pmtID, pmtwfm);
+          double dy = (fDigitizer->fVhigh - fDigitizer->fVlow)/(pow(2,fDigitizer->fNBits));
+          double digit_time = fWaveformAnalysis->CalculateTime(fDigitizer->fDigitWaveForm[pmtID],
+                                                               fDigitizer->fPedWindowLow,
+                                                               fDigitizer->fPedWindowHigh, dy,
+                                                               fDigitizer->fSamplingRate,
+                                                               fDigitizer->fConstFrac,
+                                                               fDigitizer->fLookback);
+
+          double time_step = 1.0 / fDigitizer->fSamplingRate;
+          int low_int_window = int((digit_time - fDigitizer->fIntWindowLow)/time_step);
+          int high_int_window = int((digit_time + fDigitizer->fIntWindowHigh)/time_step);
+
+          double digit_charge = fWaveformAnalysis->Integrate(fDigitizer->fDigitWaveForm[pmtID],
+                                                             fDigitizer->fPedWindowLow,
+                                                             fDigitizer->fPedWindowHigh, dy,
+                                                             fDigitizer->fSamplingRate,
+                                                             low_int_window,
+                                                             high_int_window,
+                                                             fTerminationOhms);
+          pmt->SetDigitizedTime(digit_time);
+          pmt->SetDigitizedCharge(digit_charge);
+        }
       }
     }  // Done looping over PMTs
 

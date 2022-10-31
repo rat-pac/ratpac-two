@@ -15,6 +15,7 @@ add_library(daq OBJECT
   src/SimpleDAQProc.cc
   src/SplitEVDAQProc.cc
   src/TrueDAQProc.cc
+  src/WaveformAnalysis.cc
   )
 
 # Set our include directories

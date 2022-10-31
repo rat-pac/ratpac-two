@@ -94,8 +94,11 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   }
   if (options.pmthits) {
     outputTree->Branch("hitPMTID", &hitPMTID);
+    // Information about *first* hit on each PMT
     outputTree->Branch("hitPMTTime", &hitPMTTime);
+    outputTree->Branch("hitPMTDigitizedTime", &hitPMTDigitizedTime);
     outputTree->Branch("hitPMTCharge", &hitPMTCharge);
+    outputTree->Branch("hitPMTDigitizedCharge", &hitPMTDigitizedCharge);
   }
   if (options.tracking) {
     outputTree->Branch("trackPDG", &trackPDG);
@@ -288,14 +291,20 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
+      hitPMTDigitizedTime.clear();
       hitPMTCharge.clear();
+      hitPMTDigitizedCharge.clear();
       for (int pmtc = 0; pmtc < ev->GetPMTCount(); pmtc++) {
         double charge = ev->GetPMT(pmtc)->GetCharge();
         double hit_time = ev->GetPMT(pmtc)->GetTime();
+        double digitized_time = ev->GetPMT(pmtc)->GetDigitizedTime();
+        double digitized_charge = ev->GetPMT(pmtc)->GetDigitizedCharge();
         int pmtid = ev->GetPMT(pmtc)->GetID();
         hitPMTID.push_back(pmtid);
         hitPMTTime.push_back(hit_time);
+        hitPMTDigitizedTime.push_back(digitized_time);
         hitPMTCharge.push_back(charge);
+        hitPMTDigitizedCharge.push_back(digitized_charge);
       }
     }
     // Fill
@@ -307,7 +316,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
+      hitPMTDigitizedTime.clear();
       hitPMTCharge.clear();
+      hitPMTDigitizedCharge.clear();
     }
     outputTree->Fill();
   }

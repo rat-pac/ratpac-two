@@ -19,6 +19,15 @@ void Digitizer::SetDigitizerType(std::string digitName) {
   fNoiseAmpl = fLdaq->GetD("noise_amplitude");  // digitizer noise, in mV
   fNSamples = fLdaq->GetD("nsamples");
 
+  fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS");
+  fPedWindowLow = fDigit->GetI("pedestal_window_low");
+  fPedWindowHigh = fDigit->GetI("pedestal_window_high");
+  fLookback = fDigit->GetI("lookback");
+  fIntWindowLow = fDigit->GetD("integration_window_low");
+  fIntWindowHigh = fDigit->GetD("integration_window_high");
+  fConstFrac = fDigit->GetD("constant_fraction");
+
+
   detail << dformat("  Digitizer: Channel Noise: ............ %6.2f adc counts\n", fNoiseAmpl);
   detail << dformat("  Digitizer: Sampling Rate: ............ %6.2f ns\n", fSamplingRate);
   detail << dformat("  Digitizer: Total Number of Samples: .. %d \n", fNSamples);
