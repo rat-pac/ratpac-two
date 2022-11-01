@@ -1,5 +1,4 @@
 #include <TVector3.h>
-
 #include <G4GeometryManager.hh>
 #include <G4LogicalVolumeStore.hh>
 #include <G4PhysicalVolumeStore.hh>
@@ -16,6 +15,7 @@
 #include <RAT/PhotonThinning.hh>
 #include <RAT/Rat.hh>
 #include <string>
+#include <RAT/GDMLParser.hh>
 
 namespace RAT {
 
@@ -82,6 +82,18 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
   GeoBuilder geo;
   fWorldPhys = geo.ConstructAll();
+
+  // TEST; Write Geo
+  //G4LogicalVolumeStore* store = G4LogicalVolumeStore::GetInstance();
+  //for( std::vector<G4LogicalVolume*>::iterator itr = store->begin(); itr != store->end(); ++itr ) {
+  //  if( (*itr)->GetName().find("pmts") != std::string::npos )
+  //    for( int iVol = (*itr)->GetNoDaughters()-1; iVol >= 0; iVol-- )
+  //      (*itr)->RemoveDaughter( (*itr)->GetDaughter( iVol ) );
+  //}
+  // Kill the pmts for now, then bring them back
+  GDMLParser parser;
+  parser.SetOutputFileOverwrite(true);
+  parser.Write("Moo.gdml", fWorldPhys);
 
   return fWorldPhys;
 }
