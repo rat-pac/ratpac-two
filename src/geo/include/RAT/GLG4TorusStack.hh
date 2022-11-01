@@ -59,6 +59,7 @@
 
 #include "G4CSGSolid.hh"
 
+namespace RAT {
 class GLG4TorusStack : public G4CSGSolid {
  public:
   GLG4TorusStack(const G4String &pName);
@@ -160,4 +161,5 @@ class GLG4TorusStack : public G4CSGSolid {
   GLG4TorusStack *inner;           // because G4SubtractionSolid is bad
 };
 
+}
 #endif

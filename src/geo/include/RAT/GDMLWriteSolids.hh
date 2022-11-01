@@ -38,6 +38,7 @@ class G4VSolid;
 class G4OpticalSurface;
 
 namespace RAT {
+class GLG4TorusStack;
 
 class GDMLWriteSolids : public G4GDMLWriteMaterials
 {
@@ -93,6 +94,7 @@ class GDMLWriteSolids : public G4GDMLWriteMaterials
                           const G4TessellatedSolid* const);
     void TetWrite(xercesc::DOMElement*, const G4Tet* const);
     void TorusWrite(xercesc::DOMElement*, const G4Torus* const);
+    void GLG4TorusStackWrite(xercesc::DOMElement*, const GLG4TorusStack* const);
     void GenTrapWrite(xercesc::DOMElement*, const G4GenericTrap* const);
     void TrapWrite(xercesc::DOMElement*, const G4Trap* const);
     void TrdWrite(xercesc::DOMElement*, const G4Trd* const);

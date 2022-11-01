@@ -42,6 +42,8 @@
 #define DEBUG_GLG4TorusStack(A)
 #endif
 
+namespace RAT {
+
 // a helpful function I use a lot:
 static inline double square(double x) { return x * x; }
 // #if defined(__GNUC__) && (__GNUC__ < 3)
@@ -1385,4 +1387,5 @@ G4Polyhedron *GLG4TorusStack::CreatePolyhedron() const {
     return new GLG4PolyhedronTorusStack(n, z_edge, rho_edge, z_o, a, b, inner->n, inner->z_edge, inner->rho_edge,
                                         inner->z_o, inner->a, inner->b);
   }
+}
 }

@@ -1,4 +1,5 @@
 #include "RAT/GDMLWriteSolids.hh"
+#include "RAT/GLG4TorusStack.hh"
 
 #include "G4SystemOfUnits.hh"
 #include "G4BooleanSolid.hh"
@@ -748,6 +749,12 @@ void GDMLWriteSolids::TorusWrite(xercesc::DOMElement* solElement,
   solElement->appendChild(torusElement);
 }
 
+void GDMLWriteSolids::GLG4TorusStackWrite( xercesc::DOMElement* solElement,
+    const GLG4TorusStack* const tstack )
+{
+
+}
+
 // --------------------------------------------------------------------
 void GDMLWriteSolids::GenTrapWrite(xercesc::DOMElement* solElement,
                                      const G4GenericTrap* const gtrap)
@@ -1277,6 +1284,12 @@ void GDMLWriteSolids::AddSolid(const G4VSolid* const solidPtr)
     const G4TwistedTubs* const twistedtubsPtr =
       static_cast<const G4TwistedTubs*>(solidPtr);
     TwistedtubsWrite(solidsElement, twistedtubsPtr);
+  }
+  else if(solidPtr->GetEntityType() == "GLG4TorusStack")
+  {
+    const GLG4TorusStack* const torusStack =
+      static_cast<const GLG4TorusStack*>(solidPtr);
+    GLG4TorusStackWrite(solidsElement, torusStack);
   }
   else
   {

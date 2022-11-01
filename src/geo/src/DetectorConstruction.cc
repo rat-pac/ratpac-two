@@ -91,9 +91,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
   //      (*itr)->RemoveDaughter( (*itr)->GetDaughter( iVol ) );
   //}
   // Kill the pmts for now, then bring them back
-  GDMLParser parser;
-  parser.SetOutputFileOverwrite(true);
-  parser.Write("Moo.gdml", fWorldPhys);
+  GDMLParser gdmlparser;
+  gdmlparser.SetOutputFileOverwrite(true);
+  gdmlparser.Write("Moo.gdml", fWorldPhys);
 
   return fWorldPhys;
 }
