@@ -1,5 +1,4 @@
 #include <TVector3.h>
-
 #include <G4GeometryManager.hh>
 #include <G4LogicalVolumeStore.hh>
 #include <G4PhysicalVolumeStore.hh>
@@ -16,6 +15,7 @@
 #include <RAT/PhotonThinning.hh>
 #include <RAT/Rat.hh>
 #include <string>
+#include <RAT/GDMLParser.hh>
 
 namespace RAT {
 
