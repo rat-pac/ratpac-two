@@ -5,10 +5,10 @@
 #include <RAT/DS/Digit.hh>
 #include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/PMT.hh>
-#include <RAT/WaveformAnalysis.hh>
 #include <RAT/Digitizer.hh>
 #include <RAT/PMTWaveform.hh>
 #include <RAT/Processor.hh>
+#include <RAT/WaveformAnalysis.hh>
 #include <string>
 
 namespace RAT {
