@@ -7,6 +7,7 @@
 #include <RAT/DS/EV.hh>
 #include <RAT/DS/MC.hh>
 #include <RAT/DS/MCParticle.hh>
+#include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
@@ -42,11 +43,13 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.mcparticles = table->GetZ("include_mcparticles");
     options.pmthits = table->GetZ("include_pmthits");
     options.untriggered = table->GetZ("include_untriggered_events");
+    options.mchits = table->GetZ("include_mchits");
   } catch (DBNotFoundError &e) {
     options.tracking = false;
     options.mcparticles = false;
     options.pmthits = true;
     options.untriggered = false;
+    options.mchits = true;
   }
 }
 
@@ -82,6 +85,8 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("subev", &subev);
   outputTree->Branch("nanotime", &nanotime);
   outputTree->Branch("mcpcount", &mcpcount);
+  outputTree->Branch("mcpecount", &mcpecount);
+  outputTree->Branch("mcnhits", &mcnhits);
   if (options.mcparticles) {
     outputTree->Branch("pdgcodes", &pdgcodes);
     outputTree->Branch("mcKEnergies", &mcKEnergies);
@@ -99,6 +104,10 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("hitPMTDigitizedTime", &hitPMTDigitizedTime);
     outputTree->Branch("hitPMTCharge", &hitPMTCharge);
     outputTree->Branch("hitPMTDigitizedCharge", &hitPMTDigitizedCharge);
+  }
+  if (options.mchits) {
+    outputTree->Branch("mcPETime", &mcpetime);
+    outputTree->Branch("mcPEProcess", &mcpeprocess);
   }
   if (options.tracking) {
     outputTree->Branch("trackPDG", &trackPDG);
@@ -224,6 +233,28 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       trackProcess.push_back(processMapID);
     }
   }
+
+  mcpetime.clear();
+  mcpeprocess.clear();
+
+  mcnhits = mc->GetMCPMTCount();
+  mcpecount = mc->GetNumPE();
+  if (option.mchits){
+    for (int ipmt = 0; ipmt < mc->GetMCPMTCount(); ipmt++){
+      DS::MCPMT* mcpmt = mc->GetMCPMT(ipmt);
+      for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++){
+        mcpetime.push_back(mcpmt->GetMCPhoton(ipe)->GetFrontEndTime());
+        std::string process = mcpmt->GetMCPhoton(ipe)->GetCreatorProcess();
+        if(strcmp(process.c_str(), "Cerenkov")==0){
+          mcpeprocess.push_back(1);
+        }
+        else{
+          mcpeprocess.push_back(0);
+        }
+      }
+    }
+  }
+
   // EV Branches
   for (subev = 0; subev < ds->GetEVCount(); subev++) {
     DS::EV *ev = ds->GetEV(subev);
@@ -419,6 +450,9 @@ void OutNtupleProc::SetI(std::string param, int value) {
   }
   if (param == "include_untriggered_events") {
     options.untriggered = value ? true : false;
+  }
+  if (param == "include_mchits") {
+    options.mchits = value ? true : false;
   }
 }
 }  // namespace RAT

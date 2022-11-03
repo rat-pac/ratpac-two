@@ -19,4 +19,5 @@ include_tracking: false,
 include_mcparticles: false,
 include_pmthits: true,
 include_untriggered_events: true,
+include_mchits: true,
 }
