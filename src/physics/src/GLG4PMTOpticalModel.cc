@@ -410,7 +410,10 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
         hit_photon->SetPolarization((double)pol.x(), (double)pol.y(), (double)pol.z());
         hit_photon->SetCount(N_pe);
         hit_photon->SetTrackID(fastTrack.GetPrimaryTrack()->GetTrackID());
-        hit_photon->SetCreatorProcess(fastTrack.GetPrimaryTrack()->GetCreatorProcess()->GetProcessName());
+        const G4VProcess *creatorProcess = fastTrack.GetPrimaryTrack()->GetCreatorProcess();
+        if (creatorProcess) {
+          hit_photon->SetCreatorProcess(creatorProcess->GetProcessName());
+        }
         hit_photon->SetPrepulse(prepulse);
         GLG4VEventAction::GetTheHitPMTCollection()->DetectPhoton(hit_photon);
         if (prepulse) break;
