@@ -239,7 +239,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 
   mcnhits = mc->GetMCPMTCount();
   mcpecount = mc->GetNumPE();
-  if (option.mchits){
+  if (options.mchits){
     for (int ipmt = 0; ipmt < mc->GetMCPMTCount(); ipmt++){
       DS::MCPMT* mcpmt = mc->GetMCPMT(ipmt);
       for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++){
