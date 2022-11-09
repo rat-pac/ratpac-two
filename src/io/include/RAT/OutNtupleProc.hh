@@ -42,6 +42,7 @@ class OutNtupleProc : public Processor {
     bool mcparticles;
     bool pmthits;
     bool untriggered;
+    bool mchits;
   };
   NtupleOptions options;
 
@@ -71,6 +72,11 @@ class OutNtupleProc : public Processor {
   int evid;
   int subev;
   ULong64_t nanotime;  // 584 years of data
+  // MC PMT/PE
+  int mcnhits;
+  int mcpecount;
+  std::vector<double> mcpetime;
+  std::vector<int> mcpeprocess;
   // MCParticles
   int mcpcount;
   std::vector<Int_t> pdgcodes;
