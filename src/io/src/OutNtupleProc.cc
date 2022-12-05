@@ -8,6 +8,7 @@
 #include <RAT/DS/MC.hh>
 #include <RAT/DS/MCParticle.hh>
 #include <RAT/DS/MCPMT.hh>
+#include <RAT/DS/MCSummary.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
@@ -81,12 +82,19 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("mcv", &mcv);
   outputTree->Branch("mcw", &mcw);
   outputTree->Branch("mcke", &mcke);
+  outputTree->Branch("mct", &mct);
   outputTree->Branch("evid", &evid);
   outputTree->Branch("subev", &subev);
   outputTree->Branch("nanotime", &nanotime);
-  outputTree->Branch("mcpcount", &mcpcount);
+  outputTree->Branch("mcparticlecount", &mcpcount);
   outputTree->Branch("mcpecount", &mcpecount);
+  outputTree->Branch("nhits", &nhits);
   outputTree->Branch("mcnhits", &mcnhits);
+  outputTree->Branch("scintEdep", &scintEdep);
+  outputTree->Branch("scintEdepQuenched", &scintEdepQuenched);
+  outputTree->Branch("scintPhotons", &scintPhotons);
+  outputTree->Branch("remPhotons", &remPhotons);
+  outputTree->Branch("cherPhotons", &cherPhotons);
   if (options.mcparticles) {
     outputTree->Branch("pdgcodes", &pdgcodes);
     outputTree->Branch("mcKEnergies", &mcKEnergies);
@@ -96,6 +104,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("mcDirx", &mcDirx);
     outputTree->Branch("mcDiry", &mcDiry);
     outputTree->Branch("mcDirz", &mcDirz);
+    outputTree->Branch("mcTime", &mcTime);
   }
   if (options.pmthits) {
     outputTree->Branch("hitPMTID", &hitPMTID);
@@ -144,6 +153,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcDirx.clear();
   mcDiry.clear();
   mcDirz.clear();
+  mcTime.clear();
 
   DS::MC *mc = ds->GetMC();
   TTimeStamp mcTTS = mc->GetUTC();
@@ -161,6 +171,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     mcDirx.push_back(mcdir.X() / mcdir.Mag());
     mcDiry.push_back(mcdir.Y() / mcdir.Mag());
     mcDirz.push_back(mcdir.Z() / mcdir.Mag());
+    mcTime.push_back(particle->GetTime());
   }
   mcx = mcPosx[0];
   mcy = mcPosy[0];
@@ -168,6 +179,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcu = mcDirx[0];
   mcv = mcDiry[0];
   mcw = mcDirz[0];
+  mct = mcTime[0];
   mcke = accumulate(mcKEnergies.begin(), mcKEnergies.end(), 0.0);
   // Tracking
   if (options.tracking) {
@@ -234,6 +246,15 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     }
   }
 
+  // MCSummary info
+  RAT::DS::MCSummary *mcs = mc->GetMCSummary();
+  scintEdep = mcs->GetTotalScintEdep();
+  scintEdepQuenched = mcs->GetTotalScintEdepQuenched();
+  scintPhotons = mcs->GetNumScintPhoton();
+  remPhotons = mcs->GetNumReemitPhoton();
+  cherPhotons = mcs->GetNumCerenkovPhoton();
+
+  // MC hits and PE
   mcpetime.clear();
   mcpeprocess.clear();
 
@@ -319,6 +340,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     for (auto const &[label, value] : doubleFOMs) {
       this->SetBranchValue(label, value);
     }
+    nhits = ev->GetPMTCount();
     if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
