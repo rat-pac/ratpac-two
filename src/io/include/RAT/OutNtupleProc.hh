@@ -75,6 +75,8 @@ class OutNtupleProc : public Processor {
   // MC PMT/PE
   int mcnhits;
   int mcpecount;
+  std::vector<int> mcpmtid;
+  std::vector<int> mcpeindex;
   std::vector<double> mcpetime;
   std::vector<int> mcpeprocess;
   // MCParticles

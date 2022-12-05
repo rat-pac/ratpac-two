@@ -106,6 +106,8 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("hitPMTDigitizedCharge", &hitPMTDigitizedCharge);
   }
   if (options.mchits) {
+    outputTree->Branch("mcPMTID", &mcpmtid);
+    outputTree->Branch("mcPEIndex", &mcpeindex);
     outputTree->Branch("mcPETime", &mcpetime);
     outputTree->Branch("mcPEProcess", &mcpeprocess);
   }
@@ -234,6 +236,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     }
   }
 
+  mcpmtid.clear();
+  mcpeindex.clear();
   mcpetime.clear();
   mcpeprocess.clear();
 
@@ -242,7 +246,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   if (options.mchits){
     for (int ipmt = 0; ipmt < mc->GetMCPMTCount(); ipmt++){
       DS::MCPMT* mcpmt = mc->GetMCPMT(ipmt);
+      mcpmtid.push_back(mcpmt->GetID());
       for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++){
+        mcpeindex.push_back(ipe);
         mcpetime.push_back(mcpmt->GetMCPhoton(ipe)->GetFrontEndTime());
         std::string process = mcpmt->GetMCPhoton(ipe)->GetCreatorProcess();
         if(strcmp(process.c_str(), "Cerenkov")==0){
