@@ -69,9 +69,17 @@ class OutNtupleProc : public Processor {
   double mcx, mcy, mcz;
   double mcu, mcv, mcw;
   double mcke;
+  double mct;
   int evid;
   int subev;
   ULong64_t nanotime;  // 584 years of data
+  int nhits;
+  // MC Summary Information
+  double scintEdep;
+  double scintEdepQuenched;
+  double scintPhotons;
+  double remPhotons;
+  double cherPhotons;
   // MC PMT/PE
   int mcnhits;
   int mcpecount;
@@ -89,6 +97,7 @@ class OutNtupleProc : public Processor {
   std::vector<double> mcDirx;
   std::vector<double> mcDiry;
   std::vector<double> mcDirz;
+  std::vector<double> mcTime;
   // Reconstruted variables
   std::vector<int> fitterId;
   std::vector<double> fitx, fity, fitz;
