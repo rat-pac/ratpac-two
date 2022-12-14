@@ -27,7 +27,6 @@ void Digitizer::SetDigitizerType(std::string digitName) {
   fIntWindowHigh = fDigit->GetD("integration_window_high");
   fConstFrac = fDigit->GetD("constant_fraction");
 
-
   detail << dformat("  Digitizer: Channel Noise: ............ %6.2f adc counts\n", fNoiseAmpl);
   detail << dformat("  Digitizer: Sampling Rate: ............ %6.2f ns\n", fSamplingRate);
   detail << dformat("  Digitizer: Total Number of Samples: .. %d \n", fNSamples);

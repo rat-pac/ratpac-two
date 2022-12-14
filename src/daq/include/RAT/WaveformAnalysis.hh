@@ -28,15 +28,10 @@ class WaveformAnalysis {
   virtual ~WaveformAnalysis(){};
 
   // Calculate baseline (in mV)
-  double CalculatePedestal(std::vector<UShort_t> wfm,
-                           UShort_t low_window,
-                           UShort_t high_window);
+  double CalculatePedestal(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window);
 
   // Linearly interpolate between two samples
-  double Interpolate(double voltage1,
-                     double voltage2,
-                     double voltage_crossing,
-                     double time_step);
+  double Interpolate(double voltage1, double voltage2, double voltage_crossing, double time_step);
 
   // Apply a constant fraction discriminator to
   // calculate the threshold crossing
@@ -49,34 +44,23 @@ class WaveformAnalysis {
 
   // Find the sample where a threshold crossing occurs
   UShort_t GetThresholdCrossing(std::vector<UShort_t> wfm,
-                                double dy,            // mV/ADC
-                                double pedestal,      // ADC
-                                double peak,          // mV
-                                UShort_t peak_sample, // sample #
+                                double dy,             // mV/ADC
+                                double pedestal,       // ADC
+                                double peak,           // mV
+                                UShort_t peak_sample,  // sample #
                                 double cfd_fraction = 0.60, UShort_t lookback = 30);
 
   // Calculate the peak (in mV) and corresponding sample
-  void GetPeak(std::vector<UShort_t> wfm,
-               double dy,
-               double pedestal,
-               double &peak,
-               UShort_t &peak_sample);
+  void GetPeak(std::vector<UShort_t> wfm, double dy, double pedestal, double &peak, UShort_t &peak_sample);
 
   // Integrate the digitized waveform to calculate charge
-  double Integrate(std::vector<UShort_t> wfm,
-                   UShort_t low_window,
-                   UShort_t high_window,
-                   double dy,
-                   double sampling_rate,
-                   int integration_window_low,
-                   int integration_window_high,
+  double Integrate(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window, double dy,
+                   double sampling_rate, int integration_window_low, int integration_window_high,
                    double termination_ohms);
-              
 
  protected:
   // Invalid value for bad waveforms
   const UShort_t INVALID = 99999;
-
 };
 
 }  // namespace RAT

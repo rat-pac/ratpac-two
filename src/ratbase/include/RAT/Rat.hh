@@ -5,6 +5,7 @@
 #include <RAT/AnyParse.hh>
 #include <RAT/DB.hh>
 #include <RAT/DBMessenger.hh>
+#include <RAT/RatMessenger.hh>
 #include <set>
 
 namespace RAT {
@@ -24,6 +25,7 @@ class Rat {
   TStopwatch runTime;
   DB *rdb;
   DBMessenger *rdb_messenger;
+  RatMessenger *rat_messenger;
 
  public:
   inline static std::set<std::string> ratdb_directories = {};

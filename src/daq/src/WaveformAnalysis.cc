@@ -3,9 +3,7 @@
 
 namespace RAT {
 
-double WaveformAnalysis::CalculatePedestal(std::vector<UShort_t> wfm,
-                                           UShort_t low_window,
-                                           UShort_t high_window) {
+double WaveformAnalysis::CalculatePedestal(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window) {
   /*
   Calculate the baseline in the window between low - high samples.
   */
@@ -19,10 +17,7 @@ double WaveformAnalysis::CalculatePedestal(std::vector<UShort_t> wfm,
   return pedestal;
 }
 
-double WaveformAnalysis::Interpolate(double voltage1,
-                                     double voltage2,
-                                     double voltage_crossing,
-                                     double time_step) {
+double WaveformAnalysis::Interpolate(double voltage1, double voltage2, double voltage_crossing, double time_step) {
   /*
   Linearly interpolate between two samples
   */
@@ -33,9 +28,7 @@ double WaveformAnalysis::Interpolate(double voltage1,
   return dt;
 }
 
-void WaveformAnalysis::GetPeak(std::vector<UShort_t> wfm,
-                               double dy, double pedestal,
-                               double &peak,
+void WaveformAnalysis::GetPeak(std::vector<UShort_t> wfm, double dy, double pedestal, double &peak,
                                UShort_t &peak_sample) {
   /*
   Calculate the peak (in mV) and the corresponding sample.
@@ -51,12 +44,8 @@ void WaveformAnalysis::GetPeak(std::vector<UShort_t> wfm,
   }
 }
 
-UShort_t WaveformAnalysis::GetThresholdCrossing(std::vector<UShort_t> wfm,
-                                                double dy, double pedestal,
-                                                double peak,
-                                                UShort_t peak_sample,
-                                                double cfd_fraction,
-                                                UShort_t lookback) {
+UShort_t WaveformAnalysis::GetThresholdCrossing(std::vector<UShort_t> wfm, double dy, double pedestal, double peak,
+                                                UShort_t peak_sample, double cfd_fraction, UShort_t lookback) {
   /*
   Identifies the sample at which the constant-fraction threshold crossing occurs
    */
@@ -80,13 +69,8 @@ UShort_t WaveformAnalysis::GetThresholdCrossing(std::vector<UShort_t> wfm,
   return threshold_crossing_sample;
 }
 
-double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm,
-                                       UShort_t low_window,
-                                       UShort_t high_window,
-                                       double dy,
-                                       double sampling_rate,
-                                       double cfd_fraction,
-                                       UShort_t lookback) {
+double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window, double dy,
+                                       double sampling_rate, double cfd_fraction, UShort_t lookback) {
   /*
   Apply constant-fraction discriminator to digitized PMT waveforms.
   */
@@ -113,24 +97,19 @@ double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm,
   return tcdf;
 }
 
-double WaveformAnalysis::Integrate(std::vector<UShort_t> wfm,
-                                   UShort_t low_window,
-                                   UShort_t high_window,
-                                   double dy,
-                                   double sampling_rate,
-                                   int integration_window_low,
-                                   int integration_window_high,
-                                   double termination_ohms) { 
+double WaveformAnalysis::Integrate(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window, double dy,
+                                   double sampling_rate, int integration_window_low, int integration_window_high,
+                                   double termination_ohms) {
   /*
   Integrate the digitized waveform to calculate charge
-  */                                 
+  */
   double pedestal = CalculatePedestal(wfm, low_window, high_window);
   double time_step = 1.0 / sampling_rate;  // in ns
   double charge = 0;
 
-  for(int i = integration_window_low; i < integration_window_high; i++){
-    double voltage = (wfm[i] - pedestal)*dy;
-    charge += (-voltage*time_step)/termination_ohms; // in pC
+  for (int i = integration_window_low; i < integration_window_high; i++) {
+    double voltage = (wfm[i] - pedestal) * dy;
+    charge += (-voltage * time_step) / termination_ohms;  // in pC
   }
 
   return charge;
