@@ -67,6 +67,8 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
   static bool GetStoreOpticalTrackID() { return StoreOpticalTrackID; }
   static void SetStoreOpticalTrackID(bool on = false) { StoreOpticalTrackID = on; }
 
+  static void SetMaxWallTime(double time) { MaxWallTime = time; }
+
  protected:
   void Init();  // the real constructor
   void AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, bool isDarkHit = false, bool isAfterPulse = false,
@@ -107,6 +109,7 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
 
   static bool FillPointCont;
   static bool StoreOpticalTrackID;
+  static double MaxWallTime;
   static std::set<G4String> fStoreParticleTraj;
   static std::set<G4String> fDiscardParticleTraj;
 

@@ -1,0 +1,27 @@
+# Instead of running for a specific number of events, the simulations will stop
+# producing events once the simulations have been running for a specific amount
+# of time. This means that the total time will be <= the specified time and will
+# not stop mid event.
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+/rat/db/set DETECTOR experiment "Validation"
+/rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+
+# Simulations set to terminate after 5 minutes.
+/rat/maxWallTime 300.0
+
+/run/initialize
+/rat/proc splitevdaq
+/rat/proc count
+/rat/procset update 100
+
+/rat/proc classifychargebalance
+
+/rat/proclast outroot
+
+/generator/add combo gun2:fill:poisson
+/generator/vtx/set e- 0.0 0.0 0.0 0.0 100.0 0.0
+/generator/pos/set 0.0 0.0 0.0
+
+/run/beamOn 10000

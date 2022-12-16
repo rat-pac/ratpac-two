@@ -33,12 +33,12 @@ class Digitizer {
   virtual void SetDigitizerType(std::string);
   virtual void AddChannel(int ich, PMTWaveform wfm);
 
-  std::string fDigitName; // Digitizer type
-  int fNBits;             // N bits of the digitizer
-  double fVhigh;          // Upper dynamic range
-  double fVlow;           // Lower dynamic range
-  double fSamplingRate;   // Sampling rate in GHz
-  int fNSamples;          // Total number of samples per digitized trace
+  std::string fDigitName;  // Digitizer type
+  int fNBits;              // N bits of the digitizer
+  double fVhigh;           // Upper dynamic range
+  double fVlow;            // Lower dynamic range
+  double fSamplingRate;    // Sampling rate in GHz
+  int fNSamples;           // Total number of samples per digitized trace
   // Channel:Digitized waveform for each channel
   std::map<UShort_t, std::vector<UShort_t>> fDigitWaveForm;
 

@@ -96,6 +96,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   // MC Information
   outputTree->Branch("mcparticlecount", &mcpcount);
   outputTree->Branch("mcpecount", &mcpecount);
+  outputTree->Branch("nhits", &nhits);
   outputTree->Branch("mcnhits", &mcnhits);
   outputTree->Branch("scintEdep", &scintEdep);
   outputTree->Branch("scintEdepQuenched", &scintEdepQuenched);
@@ -131,7 +132,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("mcPEIndex", &mcpeindex);
     outputTree->Branch("mcPETime", &mcpetime);
     // Production process
-    // 0=Cherenkov, 1=scintillation, 2=reemission
+    // 1=Cherenkov, 0=other
     outputTree->Branch("mcPEProcess", &mcpeprocess);
   }
   if (options.tracking) {

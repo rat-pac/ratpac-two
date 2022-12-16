@@ -72,6 +72,8 @@ Rat::Rat(AnyParse *parser, int argc, char **argv) : parser(parser), argc(argc), 
     ratdb_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/ratdb");
     model_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/models");
   }
+  // Rat Messenger
+  rat_messenger = new RatMessenger();
 }
 
 Rat::~Rat() {}

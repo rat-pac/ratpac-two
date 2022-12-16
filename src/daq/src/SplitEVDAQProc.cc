@@ -50,7 +50,7 @@ PMTWaveform SplitEVDAQProc::GenerateWaveforms(DS::MCPMT *mcpmt) {
     DS::MCPhoton *mcpe = mcpmt->GetMCPhoton(iph);
 
     PMTPulse *pmtpulse = new PMTPulse;
-    pmtpulse->SetPulseCharge(mcpe->GetCharge()*fTerminationOhms);
+    pmtpulse->SetPulseCharge(mcpe->GetCharge() * fTerminationOhms);
     pmtpulse->SetPulseMin(fPMTPulseMin);
     pmtpulse->SetPulseOffset(fPMTPulseOffset);
     pmtpulse->SetPulseTimeOffset(fPMTPulseTimeOffset);
@@ -183,25 +183,18 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         if (fDigitize) {
           PMTWaveform pmtwfm = GenerateWaveforms(mcpmt);
           fDigitizer->AddChannel(pmtID, pmtwfm);
-          double dy = (fDigitizer->fVhigh - fDigitizer->fVlow)/(pow(2,fDigitizer->fNBits));
-          double digit_time = fWaveformAnalysis->CalculateTime(fDigitizer->fDigitWaveForm[pmtID],
-                                                               fDigitizer->fPedWindowLow,
-                                                               fDigitizer->fPedWindowHigh, dy,
-                                                               fDigitizer->fSamplingRate,
-                                                               fDigitizer->fConstFrac,
-                                                               fDigitizer->fLookback);
+          double dy = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
+          double digit_time = fWaveformAnalysis->CalculateTime(
+              fDigitizer->fDigitWaveForm[pmtID], fDigitizer->fPedWindowLow, fDigitizer->fPedWindowHigh, dy,
+              fDigitizer->fSamplingRate, fDigitizer->fConstFrac, fDigitizer->fLookback);
 
           double time_step = 1.0 / fDigitizer->fSamplingRate;
-          int low_int_window = int((digit_time - fDigitizer->fIntWindowLow)/time_step);
-          int high_int_window = int((digit_time + fDigitizer->fIntWindowHigh)/time_step);
+          int low_int_window = int((digit_time - fDigitizer->fIntWindowLow) / time_step);
+          int high_int_window = int((digit_time + fDigitizer->fIntWindowHigh) / time_step);
 
-          double digit_charge = fWaveformAnalysis->Integrate(fDigitizer->fDigitWaveForm[pmtID],
-                                                             fDigitizer->fPedWindowLow,
-                                                             fDigitizer->fPedWindowHigh, dy,
-                                                             fDigitizer->fSamplingRate,
-                                                             low_int_window,
-                                                             high_int_window,
-                                                             fTerminationOhms);
+          double digit_charge = fWaveformAnalysis->Integrate(
+              fDigitizer->fDigitWaveForm[pmtID], fDigitizer->fPedWindowLow, fDigitizer->fPedWindowHigh, dy,
+              fDigitizer->fSamplingRate, low_int_window, high_int_window, fTerminationOhms);
           pmt->SetDigitizedTime(digit_time);
           pmt->SetDigitizedCharge(digit_charge);
         }

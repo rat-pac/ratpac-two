@@ -1,5 +1,6 @@
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <math.h>
+#include <sys/resource.h>
 
 #include <RAT/AmBeGen.hh>
 #include <RAT/BWVetGenericChamber.hh>
@@ -59,6 +60,7 @@ namespace RAT {
 // Doesn't waste space unless you want to draw tracks
 bool Gsim::FillPointCont = false;
 bool Gsim::StoreOpticalTrackID = false;
+double Gsim::MaxWallTime = 0;
 std::set<G4String> Gsim::fStoreParticleTraj;
 std::set<G4String> Gsim::fDiscardParticleTraj;
 
@@ -274,6 +276,16 @@ void Gsim::EndOfEventAction(const G4Event *anEvent) {
 
   if (StoreOpticalTrackID) {
     OpticalPhotonIDs.resize(0);
+  }
+
+  // Soft-abort if a maximum runtime is set.
+  if (MaxWallTime > 0) {
+    struct rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    double usertime = usage.ru_utime.tv_sec + usage.ru_utime.tv_usec / 1e6;
+    if (usertime > MaxWallTime) {
+      theRunManager->AbortRun(true);
+    }
   }
 }
 
