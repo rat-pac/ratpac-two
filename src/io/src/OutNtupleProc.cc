@@ -72,9 +72,14 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("pmtU", &pmtU);
   metaTree->Branch("pmtV", &pmtV);
   metaTree->Branch("pmtW", &pmtW);
+  metaTree->Branch("experiment", &experiment);
+  metaTree->Branch("geo_file", &geo_file);
+  metaTree->Branch("geo_index", &geo_index);
   dsentries = 0;
   // Data Tree
   outputTree = new TTree("output", "output");
+  // These are the *first* particles MC positions, directions, and time
+  outputTree->Branch("mcpdg", &mcpdg);
   outputTree->Branch("mcx", &mcx);
   outputTree->Branch("mcy", &mcy);
   outputTree->Branch("mcz", &mcz);
@@ -83,44 +88,54 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("mcw", &mcw);
   outputTree->Branch("mcke", &mcke);
   outputTree->Branch("mct", &mct);
+  // Event IDs and trigger time and nhits
   outputTree->Branch("evid", &evid);
   outputTree->Branch("subev", &subev);
-  outputTree->Branch("nanotime", &nanotime);
+  outputTree->Branch("nhits", &nhits);
+  outputTree->Branch("triggerTime", &triggerTime);
+  // MC Information
   outputTree->Branch("mcparticlecount", &mcpcount);
   outputTree->Branch("mcpecount", &mcpecount);
-  outputTree->Branch("nhits", &nhits);
   outputTree->Branch("mcnhits", &mcnhits);
   outputTree->Branch("scintEdep", &scintEdep);
   outputTree->Branch("scintEdepQuenched", &scintEdepQuenched);
+  // Total number of produced photons of each type
   outputTree->Branch("scintPhotons", &scintPhotons);
   outputTree->Branch("remPhotons", &remPhotons);
   outputTree->Branch("cherPhotons", &cherPhotons);
   if (options.mcparticles) {
-    outputTree->Branch("pdgcodes", &pdgcodes);
-    outputTree->Branch("mcKEnergies", &mcKEnergies);
-    outputTree->Branch("mcPosx", &mcPosx);
-    outputTree->Branch("mcPosy", &mcPosy);
-    outputTree->Branch("mcPosz", &mcPosz);
-    outputTree->Branch("mcDirx", &mcDirx);
-    outputTree->Branch("mcDiry", &mcDiry);
-    outputTree->Branch("mcDirz", &mcDirz);
-    outputTree->Branch("mcTime", &mcTime);
+    // Save information about *all* particles that are simulated
+    // Variable naming is the same as the first particle, just plural.
+    outputTree->Branch("mcpdgs", &pdgcodes);
+    outputTree->Branch("mcxs", &mcPosx);
+    outputTree->Branch("mcys", &mcPosy);
+    outputTree->Branch("mczs", &mcPosz);
+    outputTree->Branch("mcus", &mcDirx);
+    outputTree->Branch("mcvs", &mcDiry);
+    outputTree->Branch("mcws", &mcDirz);
+    outputTree->Branch("mckes", &mcKEnergies);
+    outputTree->Branch("mcts", &mcTime);
   }
   if (options.pmthits) {
+    // Save full PMT hit informations
     outputTree->Branch("hitPMTID", &hitPMTID);
-    // Information about *first* hit on each PMT
+    // Information about *first* detected PE 
     outputTree->Branch("hitPMTTime", &hitPMTTime);
     outputTree->Branch("hitPMTDigitizedTime", &hitPMTDigitizedTime);
     outputTree->Branch("hitPMTCharge", &hitPMTCharge);
     outputTree->Branch("hitPMTDigitizedCharge", &hitPMTDigitizedCharge);
   }
   if (options.mchits) {
+    // Save full MC PMT hit information
     outputTree->Branch("mcPMTID", &mcpmtid);
     outputTree->Branch("mcPEIndex", &mcpeindex);
     outputTree->Branch("mcPETime", &mcpetime);
+    // Production process
+    // 0=Cherenkov, 1=scintillation, 2=reemission
     outputTree->Branch("mcPEProcess", &mcpeprocess);
   }
   if (options.tracking) {
+    // Save particle tracking information
     outputTree->Branch("trackPDG", &trackPDG);
     outputTree->Branch("trackPosX", &trackPosX);
     outputTree->Branch("trackPosY", &trackPosY);
@@ -158,8 +173,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcTime.clear();
 
   DS::MC *mc = ds->GetMC();
-  TTimeStamp mcTTS = mc->GetUTC();
-  ULong64_t mctime = static_cast<ULong64_t>(mcTTS.GetSec()) * stonano + static_cast<ULong64_t>(mcTTS.GetNanoSec());
   mcpcount = mc->GetMCParticleCount();
   for (int pid = 0; pid < mcpcount; pid++) {
     DS::MCParticle *particle = mc->GetMCParticle(pid);
@@ -175,6 +188,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     mcDirz.push_back(mcdir.Z() / mcdir.Mag());
     mcTime.push_back(particle->GetTime());
   }
+  // First particle's position, direction, and time
+  mcpdg = pdgcodes[0];
   mcx = mcPosx[0];
   mcy = mcPosy[0];
   mcz = mcPosz[0];
@@ -284,8 +299,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   for (subev = 0; subev < ds->GetEVCount(); subev++) {
     DS::EV *ev = ds->GetEV(subev);
     evid = ev->GetID();
-    nanotime = static_cast<ULong64_t>(ev->GetCalibratedTriggerTime()) + mctime;
-
+    triggerTime = ev->GetCalibratedTriggerTime();
     auto fitVector = ev->GetFitResults();
     std::map<std::string, double *> fitvalues;
     std::map<std::string, bool *> fitvalids;
@@ -369,7 +383,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   }
   if (options.untriggered && ds->GetEVCount() == 0) {
     evid = -1;
-    nanotime = mctime;
+    triggerTime = 0;
     if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
@@ -395,8 +409,23 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 }
 
 OutNtupleProc::~OutNtupleProc() {
+
   if (outputFile) {
     outputFile->cd();
+
+    DB *db = DB::Get();
+    DBLinkPtr ldetector = db->GetLink("DETECTOR");
+    experiment = ldetector->GetS("experiment");
+    geo_file = ldetector->GetS("geo_file");
+    try {
+      geo_index = ldetector->GetD("geo_index");
+    }
+    catch (DBNotFoundError& e) {
+      std::cout << "Geometry index not found." << std::endl;
+      // Set invalid
+      geo_index = -9999;
+    }
+
     DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
     for (int id = 0; id < pmtinfo->GetPMTCount(); id++) {
       int type = pmtinfo->GetType(id);
