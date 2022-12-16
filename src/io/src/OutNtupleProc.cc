@@ -96,7 +96,6 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   // MC Information
   outputTree->Branch("mcparticlecount", &mcpcount);
   outputTree->Branch("mcpecount", &mcpecount);
-  outputTree->Branch("nhits", &nhits);
   outputTree->Branch("mcnhits", &mcnhits);
   outputTree->Branch("scintEdep", &scintEdep);
   outputTree->Branch("scintEdepQuenched", &scintEdepQuenched);
