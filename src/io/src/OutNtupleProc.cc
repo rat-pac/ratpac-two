@@ -274,6 +274,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   // MC hits and PE
   mcpetime.clear();
   mcpeprocess.clear();
+  mcpeindex.clear();
+  mcpmtid.clear();
 
   mcnhits = mc->GetMCPMTCount();
   mcpecount = mc->GetNumPE();
