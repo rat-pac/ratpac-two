@@ -22,7 +22,7 @@ class SplitEVDAQProc : public Processor {
   void SetI(std::string param, int value);
 
  protected:
-  PMTWaveform GenerateWaveforms(DS::MCPMT *mcpmt);
+  PMTWaveform GenerateWaveforms(DS::MCPMT *mcpmt, double tt);
 
   int fEventCounter;
   double fPulseWidth;

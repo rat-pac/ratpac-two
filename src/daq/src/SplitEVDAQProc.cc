@@ -42,7 +42,7 @@ SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   fPMTPulseTimeOffset = lpulse->GetD("pulse_time_offset");
 }
 
-PMTWaveform SplitEVDAQProc::GenerateWaveforms(DS::MCPMT *mcpmt) {
+PMTWaveform SplitEVDAQProc::GenerateWaveforms(DS::MCPMT *mcpmt, double tt) {
   PMTWaveform pmtwf;
 
   // Loop over PEs and create a pulse for each one
@@ -56,7 +56,7 @@ PMTWaveform SplitEVDAQProc::GenerateWaveforms(DS::MCPMT *mcpmt) {
     pmtpulse->SetPulseTimeOffset(fPMTPulseTimeOffset);
     pmtpulse->SetPulseWidth(fPMTPulseWidth);
     pmtpulse->SetPulseMean(fPMTPulseMean);
-    pmtpulse->SetPulseStartTime(mcpe->GetFrontEndTime());
+    pmtpulse->SetPulseStartTime(mcpe->GetFrontEndTime()-tt);
     pmtwf.fPulse.push_back(pmtpulse);
   }
 
@@ -181,7 +181,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         pmt->SetCharge(integratedCharge);
         totalEVCharge += integratedCharge;
         if (fDigitize) {
-          PMTWaveform pmtwfm = GenerateWaveforms(mcpmt);
+          PMTWaveform pmtwfm = GenerateWaveforms(mcpmt,tt);
           fDigitizer->AddChannel(pmtID, pmtwfm);
           double dy = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
           double digit_time = fWaveformAnalysis->CalculateTime(
