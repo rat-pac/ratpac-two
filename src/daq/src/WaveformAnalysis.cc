@@ -80,9 +80,10 @@ double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm, UShort_t low_w
   double peak = 9999;
   UShort_t peak_sample = 0;
   GetPeak(wfm, dy, pedestal, peak, peak_sample);
-
   UShort_t threshold_crossing_sample =
       GetThresholdCrossing(wfm, dy, pedestal, peak, peak_sample, cfd_fraction, lookback);
+
+  if(threshold_crossing_sample == INVALID) return INVALID;
 
   double time_step = 1.0 / sampling_rate;  // in ns
 
@@ -91,7 +92,6 @@ double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm, UShort_t low_w
   double v1 = (wfm[threshold_crossing_sample + 1] - pedestal) * dy;
   double v2 = (wfm[threshold_crossing_sample] - pedestal) * dy;
   double dt = Interpolate(v1, v2, voltage_crossing, time_step);
-
   double tcdf = double(threshold_crossing_sample) * time_step + dt;
 
   return tcdf;

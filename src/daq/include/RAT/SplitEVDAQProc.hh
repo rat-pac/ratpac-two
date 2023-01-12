@@ -11,6 +11,8 @@
 #include <RAT/WaveformAnalysis.hh>
 #include <string>
 
+const UShort_t INVALID = 99999;
+
 namespace RAT {
 
 class SplitEVDAQProc : public Processor {

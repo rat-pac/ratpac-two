@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <vector>
 
+
 namespace RAT {
 
 SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
@@ -173,13 +174,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
       }
       std::sort(hitTimes.begin(), hitTimes.end());
       if (pmtInEvent) {
-        DS::PMT *pmt = ev->AddNewPMT();
-        pmt->SetID(pmtID);
         double front_end_hit_time = *std::min_element(hitTimes.begin(), hitTimes.end());
-        // PMT Hit time relative to the trigger
-        pmt->SetTime(front_end_hit_time - tt);
-        pmt->SetCharge(integratedCharge);
-        totalEVCharge += integratedCharge;
         if (fDigitize) {
           PMTWaveform pmtwfm = GenerateWaveforms(mcpmt,tt);
           fDigitizer->AddChannel(pmtID, pmtwfm);
@@ -187,14 +182,28 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
           double digit_time = fWaveformAnalysis->CalculateTime(
               fDigitizer->fDigitWaveForm[pmtID], fDigitizer->fPedWindowLow, fDigitizer->fPedWindowHigh, dy,
               fDigitizer->fSamplingRate, fDigitizer->fConstFrac, fDigitizer->fLookback);
-
+          if(digit_time == INVALID){
+              printf("Invalid digit time returned for pmtID:%d for  event:%d (frontEndTime:%f,TriggerTime:%f)\n",
+              pmtID,ev->GetID(),front_end_hit_time,tt);
+              printf("This may be due to retriggers, please consider changing trigger_lockout (currently :%f)\n\n",
+              fTriggerLockout);
+              break;
+          }
           double time_step = 1.0 / fDigitizer->fSamplingRate;
           int low_int_window = int((digit_time - fDigitizer->fIntWindowLow) / time_step);
           int high_int_window = int((digit_time + fDigitizer->fIntWindowHigh) / time_step);
-
           double digit_charge = fWaveformAnalysis->Integrate(
               fDigitizer->fDigitWaveForm[pmtID], fDigitizer->fPedWindowLow, fDigitizer->fPedWindowHigh, dy,
               fDigitizer->fSamplingRate, low_int_window, high_int_window, fTerminationOhms);
+
+          //Only do this step if Waveform generation was succesful
+          DS::PMT *pmt = ev->AddNewPMT();
+          pmt->SetID(pmtID);
+        
+          // PMT Hit time relative to the trigger
+          pmt->SetTime(front_end_hit_time - tt);
+          pmt->SetCharge(integratedCharge);
+          totalEVCharge += integratedCharge;
           pmt->SetDigitizedTime(digit_time);
           pmt->SetDigitizedCharge(digit_charge);
         }
@@ -207,7 +216,6 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
            it++) {
         digit.SetWaveform(UShort_t(it->first), waveforms[UShort_t(it->first)]);
       }
-
       digit.SetDigitName(fDigitizer->fDigitName);
       digit.SetNSamples(UShort_t(fDigitizer->fNSamples));
       digit.SetNBits(UShort_t(fDigitizer->fNBits));
@@ -218,6 +226,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     }
 
     ev->SetTotalCharge(totalEVCharge);
+
   }
 
   return Processor::OK;
