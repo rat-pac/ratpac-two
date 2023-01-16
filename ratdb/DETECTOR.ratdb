@@ -11,5 +11,10 @@ valid_end: [0, 0],
    but can be loaded from macro. */
 //geo_file: "cylinder/cylinder.geo",
 
+/* Detector index. No index by default,
+   but can be loaded from macro. This index is
+   to specify different version of the same experiment. */
+//geo_index: 0,
+
 }
 

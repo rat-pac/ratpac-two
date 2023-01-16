@@ -65,15 +65,19 @@ class OutNtupleProc : public Processor {
   std::vector<double> pmtU;
   std::vector<double> pmtV;
   std::vector<double> pmtW;
+  std::string experiment;
+  std::string geo_file;
+  int geo_index;
   // Data Branches
+  Int_t mcpdg;
   double mcx, mcy, mcz;
   double mcu, mcv, mcw;
   double mcke;
   double mct;
   int evid;
   int subev;
-  ULong64_t nanotime;  // 584 years of data
   int nhits;
+  double triggerTime;
   // MC Summary Information
   double scintEdep;
   double scintEdepQuenched;
