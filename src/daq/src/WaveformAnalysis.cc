@@ -4,6 +4,37 @@
 
 namespace RAT {
 
+WaveformAnalysis::WaveformAnalysis(){
+
+  fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS");
+  fPedWindowLow = fDigit->GetI("pedestal_window_low");
+  fPedWindowHigh = fDigit->GetI("pedestal_window_high");
+  fLookback = fDigit->GetI("lookback");
+  fIntWindowLow = fDigit->GetD("integration_window_low");
+  fIntWindowHigh = fDigit->GetD("integration_window_high");
+  fConstFrac = fDigit->GetD("constant_fraction");
+}
+
+void WaveformAnalysis::RunAnalysis(DS::PMT *pmt, int pmtID, Digitizer *fDigitizer){
+
+  double dy = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
+
+  double digit_time = CalculateTime(fDigitizer->fDigitWaveForm[pmtID], fPedWindowLow,
+                                    fPedWindowHigh, dy, fDigitizer->fSamplingRate,
+                                    fConstFrac, fLookback);
+
+  double time_step = 1.0 / fDigitizer->fSamplingRate;
+  int low_int_window = int((digit_time - fIntWindowLow) / time_step);
+  int high_int_window = int((digit_time + fIntWindowHigh) / time_step);
+
+  double digit_charge = Integrate(fDigitizer->fDigitWaveForm[pmtID], fPedWindowLow,
+                                  fPedWindowHigh, dy, fDigitizer->fSamplingRate,
+                                  low_int_window, high_int_window, fDigitizer->fTerminationOhms);
+
+  pmt->SetDigitizedTime(digit_time);
+  pmt->SetDigitizedCharge(digit_charge);
+}
+
 double WaveformAnalysis::CalculatePedestal(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window) {
   /*
   Calculate the baseline in the window between low - high samples.

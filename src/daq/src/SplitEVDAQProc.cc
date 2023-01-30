@@ -3,9 +3,10 @@
  * data and produce combined datasets.
  */
 #include <G4ThreeVector.hh>
-#include <RAT/DB.hh>
-#include <RAT/PMTPulse.hh>
 #include <RAT/SplitEVDAQProc.hh>
+#include <RAT/DS/MCPMT.hh>
+#include <RAT/DS/PMT.hh>
+
 #include <algorithm>
 #include <vector>
 
@@ -13,6 +14,7 @@ namespace RAT {
 
 SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   // Trigger Specifications
+
   ldaq = DB::Get()->GetLink("SplitEVDAQ");
   fEventCounter = 0;
   fPulseWidth = ldaq->GetD("pulse_width");
@@ -23,44 +25,13 @@ SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   fTriggerResolution = ldaq->GetD("trigger_resolution");
   fLookback = ldaq->GetD("lookback");
   fMaxHitTime = ldaq->GetD("max_hit_time");
-  fPmtType = ldaq->GetI("pmt_type");
   fTriggerOnNoise = ldaq->GetI("trigger_on_noise");
-  fTerminationOhms = ldaq->GetD("termination_ohms");
   fDigitizerType = ldaq->GetS("digitizer_name");
   fDigitize = ldaq->GetZ("digitize");
+  fAnalyze = ldaq->GetZ("analyze");
 
   fDigitizer = new Digitizer(fDigitizerType);
-
   fWaveformAnalysis = new WaveformAnalysis();
-
-  // PMT pulse model specification (for digitization)
-  lpulse = DB::Get()->GetLink("PMTPULSE", "lognormal");
-  fPMTPulseOffset = lpulse->GetD("pulse_offset");
-  fPMTPulseWidth = lpulse->GetD("pulse_width");
-  fPMTPulseMean = lpulse->GetD("pulse_mean");
-  fPMTPulseMin = lpulse->GetD("pulse_min");
-  fPMTPulseTimeOffset = lpulse->GetD("pulse_time_offset");
-}
-
-PMTWaveform SplitEVDAQProc::GenerateWaveforms(DS::MCPMT *mcpmt) {
-  PMTWaveform pmtwf;
-
-  // Loop over PEs and create a pulse for each one
-  for (int iph = 0; iph < mcpmt->GetMCPhotonCount(); iph++) {
-    DS::MCPhoton *mcpe = mcpmt->GetMCPhoton(iph);
-
-    PMTPulse *pmtpulse = new PMTPulse;
-    pmtpulse->SetPulseCharge(mcpe->GetCharge() * fTerminationOhms);
-    pmtpulse->SetPulseMin(fPMTPulseMin);
-    pmtpulse->SetPulseOffset(fPMTPulseOffset);
-    pmtpulse->SetPulseTimeOffset(fPMTPulseTimeOffset);
-    pmtpulse->SetPulseWidth(fPMTPulseWidth);
-    pmtpulse->SetPulseMean(fPMTPulseMean);
-    pmtpulse->SetPulseStartTime(mcpe->GetFrontEndTime());
-    pmtwf.fPulse.push_back(pmtpulse);
-  }
-
-  return pmtwf;
 }
 
 Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
@@ -181,40 +152,16 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         pmt->SetCharge(integratedCharge);
         totalEVCharge += integratedCharge;
         if (fDigitize) {
-          PMTWaveform pmtwfm = GenerateWaveforms(mcpmt);
-          fDigitizer->AddChannel(pmtID, pmtwfm);
-          double dy = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
-          double digit_time = fWaveformAnalysis->CalculateTime(
-              fDigitizer->fDigitWaveForm[pmtID], fDigitizer->fPedWindowLow, fDigitizer->fPedWindowHigh, dy,
-              fDigitizer->fSamplingRate, fDigitizer->fConstFrac, fDigitizer->fLookback);
-
-          double time_step = 1.0 / fDigitizer->fSamplingRate;
-          int low_int_window = int((digit_time - fDigitizer->fIntWindowLow) / time_step);
-          int high_int_window = int((digit_time + fDigitizer->fIntWindowHigh) / time_step);
-
-          double digit_charge = fWaveformAnalysis->Integrate(
-              fDigitizer->fDigitWaveForm[pmtID], fDigitizer->fPedWindowLow, fDigitizer->fPedWindowHigh, dy,
-              fDigitizer->fSamplingRate, low_int_window, high_int_window, fTerminationOhms);
-          pmt->SetDigitizedTime(digit_time);
-          pmt->SetDigitizedCharge(digit_charge);
+          fDigitizer->DigitizePMT(mcpmt, pmtID);
+          if( fAnalyze) {
+            fWaveformAnalysis->RunAnalysis(pmt, pmtID, fDigitizer);
+          }
         }
       }
     }  // Done looping over PMTs
 
     if (fDigitize) {
-      std::map<UShort_t, std::vector<UShort_t>> waveforms = fDigitizer->fDigitWaveForm;
-      for (std::map<UShort_t, std::vector<UShort_t>>::const_iterator it = waveforms.begin(); it != waveforms.end();
-           it++) {
-        digit.SetWaveform(UShort_t(it->first), waveforms[UShort_t(it->first)]);
-      }
-
-      digit.SetDigitName(fDigitizer->fDigitName);
-      digit.SetNSamples(UShort_t(fDigitizer->fNSamples));
-      digit.SetNBits(UShort_t(fDigitizer->fNBits));
-      digit.SetDynamicRange((fDigitizer->fVhigh - fDigitizer->fVlow));
-      digit.SetSamplingRate(fDigitizer->fSamplingRate);
-
-      ev->SetDigitizer(digit);
+      fDigitizer->DigitizeSum(ev);
     }
 
     ev->SetTotalCharge(totalEVCharge);
@@ -245,9 +192,7 @@ void SplitEVDAQProc::SetD(std::string param, double value) {
 }
 
 void SplitEVDAQProc::SetI(std::string param, int value) {
-  if (param == "pulse_type")
-    fPmtType = value;
-  else if (param == "trigger_on_noise")
+  if (param == "trigger_on_noise")
     fTriggerOnNoise = value;
   else
     throw ParamUnknown(param);

@@ -17,6 +17,9 @@
 #define __RAT_WaveformAnalysis__
 
 #include <TObject.h>
+#include <RAT/DS/PMT.hh>
+#include <RAT/Digitizer.hh>
+#include <RAT/DB.hh>
 
 #include <vector>
 
@@ -24,8 +27,10 @@ namespace RAT {
 
 class WaveformAnalysis {
  public:
-  WaveformAnalysis(){};
+  WaveformAnalysis();
   virtual ~WaveformAnalysis(){};
+
+  void RunAnalysis(DS::PMT *pmt, int pmtID, Digitizer *fDigitizer);
 
   // Calculate baseline (in mV)
   double CalculatePedestal(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window);
@@ -59,6 +64,15 @@ class WaveformAnalysis {
                    double termination_ohms);
 
  protected:
+
+  DBLinkPtr fDigit;
+  int fPedWindowLow;
+  int fPedWindowHigh;
+  int fLookback;
+  int fIntWindowLow;
+  int fIntWindowHigh;
+  double fConstFrac;
+
   // Invalid value for bad waveforms
   const UShort_t INVALID = 99999;
 };

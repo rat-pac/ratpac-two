@@ -18,8 +18,10 @@
 
 #include <RAT/DB.hh>
 #include <RAT/DS/Digit.hh>
-#include <RAT/Log.hh>
+#include <RAT/DS/MCPMT.hh>
+#include <RAT/DS/EV.hh>
 #include <RAT/PMTWaveform.hh>
+#include <RAT/Log.hh>
 #include <map>
 
 namespace RAT {
@@ -31,7 +33,9 @@ class Digitizer {
   Digitizer(std::string);
 
   virtual void SetDigitizerType(std::string);
-  virtual void AddChannel(int ich, PMTWaveform wfm);
+  virtual void DigitizePMT(DS::MCPMT *mcpmt, int pmtID);
+  virtual void DigitizeSum(DS::EV* ev);
+  virtual void AddChannel(int ichannel, PMTWaveform pmtwf);
 
   std::string fDigitName;  // Digitizer type
   int fNBits;              // N bits of the digitizer
@@ -39,15 +43,11 @@ class Digitizer {
   double fVlow;            // Lower dynamic range
   double fSamplingRate;    // Sampling rate in GHz
   int fNSamples;           // Total number of samples per digitized trace
+  double fTerminationOhms; // Input impedence of digitizer
   // Channel:Digitized waveform for each channel
   std::map<UShort_t, std::vector<UShort_t>> fDigitWaveForm;
 
-  int fPedWindowLow;      // Lower edge of baseline window (samples)
-  int fPedWindowHigh;     // Upper edge of baseline window (samples)
-  double fConstFrac;      // Constant fraction of peak
-  int fLookback;          // Number of samples to look back for thresh. crossing
-  double fIntWindowLow;   // Lower edge of integration window, relative to thresh. crossing (ns)
-  double fIntWindowHigh;  // Upper edge of integration window, relative to thresh. crossing (ns)
+  PMTWaveform *fPMTWaveform;
 
  protected:
   DBLinkPtr fLdaq;

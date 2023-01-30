@@ -6,6 +6,7 @@
   pulse_mean: 6.0,
   pulse_offset: 0.0,
   pulse_min: 1e-6,
-  pulse_time_offset: 60.0
+  pulse_time_offset: 60.0,
+  termination_ohms: 50.0,
 }
 
