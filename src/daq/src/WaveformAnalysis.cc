@@ -1,4 +1,5 @@
 #include <RAT/WaveformAnalysis.hh>
+#include <RAT/Log.hh>
 #include <iostream>
 
 namespace RAT {
@@ -8,6 +9,13 @@ double WaveformAnalysis::CalculatePedestal(std::vector<UShort_t> wfm, UShort_t l
   Calculate the baseline in the window between low - high samples.
   */
   double pedestal = 0;
+
+  if(low_window > wfm.size()){
+    Log::Die("WaveformAnalysis: Start of pedestal window must be smaller than waveform size.");
+  }
+
+  // Ensure end of pedestal window is less than waveform size
+  high_window = (high_window > wfm.size()) ? wfm.size() : high_window;
 
   for (UShort_t i = low_window; i < high_window; i++) {
     pedestal += wfm[i];
@@ -52,8 +60,12 @@ UShort_t WaveformAnalysis::GetThresholdCrossing(std::vector<UShort_t> wfm, doubl
   UShort_t threshold_crossing_sample = 0;
   double voltage_crossing = cfd_fraction * peak;
 
+  // Make sure we don't scan passed the beginning of the waveform 
+  Int_t lb = Int_t(peak_sample) - Int_t(lookback);
+  UShort_t back_window = (lb > 0) ? lb : 0;
+
   // Start at the peak and scan backwards
-  for (UShort_t i = peak_sample; i > peak_sample - lookback; i--) {
+  for (UShort_t i = peak_sample; i > back_window; i--) {
     double voltage = (wfm[i] - pedestal) * dy;
 
     if (voltage > voltage_crossing) {
@@ -84,6 +96,10 @@ double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm, UShort_t low_w
   UShort_t threshold_crossing_sample =
       GetThresholdCrossing(wfm, dy, pedestal, peak, peak_sample, cfd_fraction, lookback);
 
+  if(threshold_crossing_sample >= wfm.size()){
+    Log::Die("WaveformAnalysis: Threshold crossing sample larger than waveform window."); 
+  }
+
   double time_step = 1.0 / sampling_rate;  // in ns
 
   // Interpolate between the two samples where the CFD threshold is crossed
@@ -106,6 +122,9 @@ double WaveformAnalysis::Integrate(std::vector<UShort_t> wfm, UShort_t low_windo
   double pedestal = CalculatePedestal(wfm, low_window, high_window);
   double time_step = 1.0 / sampling_rate;  // in ns
   double charge = 0;
+
+  // Make sure not to integrate past the end of the waveform
+  integration_window_high = (integration_window_high > wfm.size()) ? wfm.size() : integration_window_high;
 
   for (int i = integration_window_low; i < integration_window_high; i++) {
     double voltage = (wfm[i] - pedestal) * dy;
