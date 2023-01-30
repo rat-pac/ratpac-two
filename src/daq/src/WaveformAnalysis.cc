@@ -86,6 +86,9 @@ double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm, UShort_t low_w
 
   double time_step = 1.0 / sampling_rate;  // in ns
 
+  if( threshold_crossing_sample >= wfm.size() ){
+    return time_step;
+  }
   // Interpolate between the two samples where the CFD threshold is crossed
   double voltage_crossing = cfd_fraction * peak;
   double v1 = (wfm[threshold_crossing_sample + 1] - pedestal) * dy;
@@ -106,6 +109,7 @@ double WaveformAnalysis::Integrate(std::vector<UShort_t> wfm, UShort_t low_windo
   double pedestal = CalculatePedestal(wfm, low_window, high_window);
   double time_step = 1.0 / sampling_rate;  // in ns
   double charge = 0;
+  integration_window_high = (integration_window_high > wfm.size()) ? wfm.size() : integration_window_high;
 
   for (int i = integration_window_low; i < integration_window_high; i++) {
     double voltage = (wfm[i] - pedestal) * dy;
