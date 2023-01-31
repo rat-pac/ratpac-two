@@ -31,9 +31,9 @@ void Digitizer::SetDigitizerType(std::string digitName) {
   detail << dformat("  Digitizer: Voltage Low: .............. %6.2f mV\n", fVlow);
 }
 
-void Digitizer::DigitizePMT(DS::MCPMT *mcpmt, int pmtID){
+void Digitizer::DigitizePMT(DS::MCPMT *mcpmt, int pmtID, double triggerTime){
 
-  PMTWaveform pmtwfm = fPMTWaveform->GenerateWaveforms(mcpmt);
+  PMTWaveform pmtwfm = fPMTWaveform->GenerateWaveforms(mcpmt, triggerTime);
   AddChannel(pmtID, pmtwfm);
 }
 

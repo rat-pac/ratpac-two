@@ -152,7 +152,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         pmt->SetCharge(integratedCharge);
         totalEVCharge += integratedCharge;
         if (fDigitize) {
-          fDigitizer->DigitizePMT(mcpmt, pmtID);
+          fDigitizer->DigitizePMT(mcpmt, pmtID, tt);
           if( fAnalyze) {
             fWaveformAnalysis->RunAnalysis(pmt, pmtID, fDigitizer);
           }

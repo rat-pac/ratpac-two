@@ -124,11 +124,11 @@ double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm, UShort_t low_w
   UShort_t peak_sample = 0;
   GetPeak(wfm, dy, pedestal, peak, peak_sample);
 
-  UShort_t threshold_crossing_sample =
-      GetThresholdCrossing(wfm, dy, pedestal, peak, peak_sample, cfd_fraction, lookback);
+  UShort_t threshold_crossing_sample = GetThresholdCrossing(wfm, dy, pedestal, peak, peak_sample, cfd_fraction, lookback);
 
-  if(threshold_crossing_sample >= wfm.size()){
-    Log::Die("WaveformAnalysis: Threshold crossing sample larger than waveform window."); 
+  if(threshold_crossing_sample == INVALID || 
+     threshold_crossing_sample >= wfm.size()){
+    return INVALID;
   }
 
   double time_step = 1.0 / sampling_rate;  // in ns

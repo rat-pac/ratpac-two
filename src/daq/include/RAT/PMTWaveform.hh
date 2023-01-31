@@ -17,7 +17,7 @@ class PMTWaveform {
   virtual ~PMTWaveform();
   virtual double GetHeight(double time);
 
-  virtual PMTWaveform GenerateWaveforms(DS::MCPMT* mcpmt);
+  virtual PMTWaveform GenerateWaveforms(DS::MCPMT* mcpmt, double triggerTime);
 
   std::vector<PMTPulse *> fPulse;
 

@@ -21,7 +21,6 @@
 #include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/EV.hh>
 #include <RAT/PMTWaveform.hh>
-#include <RAT/Log.hh>
 #include <map>
 
 namespace RAT {
@@ -33,7 +32,7 @@ class Digitizer {
   Digitizer(std::string);
 
   virtual void SetDigitizerType(std::string);
-  virtual void DigitizePMT(DS::MCPMT *mcpmt, int pmtID);
+  virtual void DigitizePMT(DS::MCPMT *mcpmt, int pmtID, double triggerTime);
   virtual void DigitizeSum(DS::EV* ev);
   virtual void AddChannel(int ichannel, PMTWaveform pmtwf);
 

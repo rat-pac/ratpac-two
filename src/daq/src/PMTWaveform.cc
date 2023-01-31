@@ -34,7 +34,7 @@ double PMTWaveform::GetHeight(double currenttime) {
   return height;
 }
 
-PMTWaveform PMTWaveform::GenerateWaveforms(DS::MCPMT *mcpmt) {
+PMTWaveform PMTWaveform::GenerateWaveforms(DS::MCPMT *mcpmt, double triggerTime) {
   PMTWaveform pmtwf;
 
   // Loop over PEs and create a pulse for each one
@@ -48,7 +48,7 @@ PMTWaveform PMTWaveform::GenerateWaveforms(DS::MCPMT *mcpmt) {
     pmtpulse->SetPulseTimeOffset(fPMTPulseTimeOffset);
     pmtpulse->SetPulseWidth(fPMTPulseWidth);
     pmtpulse->SetPulseMean(fPMTPulseMean);
-    pmtpulse->SetPulseStartTime(mcpe->GetFrontEndTime());
+    pmtpulse->SetPulseStartTime(mcpe->GetFrontEndTime() - triggerTime);
     pmtwf.fPulse.push_back(pmtpulse);
   }
 
