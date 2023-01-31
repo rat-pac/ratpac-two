@@ -4,7 +4,6 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-#include <stdlib.h>
 
 #include <G4UIExecutive.hh>
 #include <G4UImanager.hh>
