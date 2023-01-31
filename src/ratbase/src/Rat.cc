@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <G4UIExecutive.hh>
 #include <G4UImanager.hh>
@@ -98,7 +99,8 @@ void Rat::Begin() {
 
   // Start by putting all of the basic rat starting functions here, eventually
   // break this apart and fix it up.
-  info << "RAT, version x.x.x" << newline;
+  info << "RAT, version " << RATVERSION << newline;
+  if(this->parser->GetValue("version", false)) return;
   info << "Status messages enabled: info ";
   detail << "detail ";
   debug << "debug ";
