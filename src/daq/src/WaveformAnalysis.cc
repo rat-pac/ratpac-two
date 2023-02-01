@@ -44,6 +44,9 @@ double WaveformAnalysis::CalculatePedestal(std::vector<UShort_t> wfm, UShort_t l
   if(low_window > wfm.size()){
     Log::Die("WaveformAnalysis: Start of pedestal window must be smaller than waveform size.");
   }
+  else if(low_window > high_window){
+    Log::Die("WaveformAnalysis: Start of pedestal window must be smaller than end of pedestal window.");
+  }
 
   // Ensure end of pedestal window is less than waveform size
   high_window = (high_window > wfm.size()) ? wfm.size() : high_window;
@@ -154,8 +157,14 @@ double WaveformAnalysis::Integrate(std::vector<UShort_t> wfm, UShort_t low_windo
   double time_step = 1.0 / sampling_rate;  // in ns
   double charge = 0;
 
+  if(integration_window_low >= wfm.size()){
+    return INVALID;
+  }
+
   // Make sure not to integrate past the end of the waveform
   integration_window_high = (integration_window_high > wfm.size()) ? wfm.size() : integration_window_high;
+  // Make sure not to integrate before the waveform starts
+  integration_window_low = (integration_window_low < 0) ? 0 : integration_window_low;
 
   for (int i = integration_window_low; i < integration_window_high; i++) {
     double voltage = (wfm[i] - pedestal) * dy;
