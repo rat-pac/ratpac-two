@@ -134,6 +134,10 @@ double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm, UShort_t low_w
     return INVALID;
   }
 
+  if(threshold_crossing_sample >= wfm.size()){
+    Log::Die("WaveformAnalysis: Threshold crossing sample larger than waveform window."); 
+  }
+
   double time_step = 1.0 / sampling_rate;  // in ns
 
   // Interpolate between the two samples where the CFD threshold is crossed
