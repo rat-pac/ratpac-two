@@ -1,11 +1,14 @@
 #include <CLHEP/Random/RandGauss.h>
 
 #include <RAT/Digitizer.hh>
-#include <RAT/PMTWaveform.hh>
+#include <RAT/DS/Digit.hh>
 
 namespace RAT {
 
-Digitizer::Digitizer(std::string digitName) { SetDigitizerType(digitName); }
+Digitizer::Digitizer(std::string digitName) { 
+  SetDigitizerType(digitName); 
+  fPMTWaveform = new PMTWaveform();
+}
 
 void Digitizer::SetDigitizerType(std::string digitName) {
   fDigitName = digitName;
@@ -18,14 +21,7 @@ void Digitizer::SetDigitizerType(std::string digitName) {
   fNBits = fLdaq->GetI("nbits");
   fNoiseAmpl = fLdaq->GetD("noise_amplitude");  // digitizer noise, in mV
   fNSamples = fLdaq->GetD("nsamples");
-
-  fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS");
-  fPedWindowLow = fDigit->GetI("pedestal_window_low");
-  fPedWindowHigh = fDigit->GetI("pedestal_window_high");
-  fLookback = fDigit->GetI("lookback");
-  fIntWindowLow = fDigit->GetD("integration_window_low");
-  fIntWindowHigh = fDigit->GetD("integration_window_high");
-  fConstFrac = fDigit->GetD("constant_fraction");
+  fTerminationOhms = fLdaq->GetD("termination_ohms");
 
   detail << dformat("  Digitizer: Channel Noise: ............ %6.2f adc counts\n", fNoiseAmpl);
   detail << dformat("  Digitizer: Sampling Rate: ............ %6.2f ns\n", fSamplingRate);
@@ -33,6 +29,31 @@ void Digitizer::SetDigitizerType(std::string digitName) {
   detail << dformat("  Digitizer: Voltage offset: ........... %6.2f mV\n", fOffset);
   detail << dformat("  Digitizer: Voltage High: ............. %6.2f mV\n", fVhigh);
   detail << dformat("  Digitizer: Voltage Low: .............. %6.2f mV\n", fVlow);
+}
+
+void Digitizer::DigitizePMT(DS::MCPMT *mcpmt, int pmtID, double triggerTime){
+
+  PMTWaveform pmtwfm = fPMTWaveform->GenerateWaveforms(mcpmt, triggerTime);
+  AddChannel(pmtID, pmtwfm);
+}
+
+void Digitizer::DigitizeSum(DS::EV* ev){
+
+  DS::Digit digit;
+
+  std::map<UShort_t, std::vector<UShort_t>> waveforms = fDigitWaveForm;
+  for (std::map<UShort_t, std::vector<UShort_t>>::const_iterator it = waveforms.begin(); it != waveforms.end();
+       it++) {
+    digit.SetWaveform(UShort_t(it->first), waveforms[UShort_t(it->first)]);
+  }
+
+  digit.SetDigitName(fDigitName);
+  digit.SetNSamples(UShort_t(fNSamples));
+  digit.SetNBits(UShort_t(fNBits));
+  digit.SetDynamicRange((fVhigh - fVlow));
+  digit.SetSamplingRate(fSamplingRate);
+
+  ev->SetDigitizer(digit);
 }
 
 // Add channel to digitizer and immdediatly digitize analogue waveform

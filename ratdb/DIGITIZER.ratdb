@@ -11,6 +11,7 @@ volt_high: 1000.0, // upper voltage limit in mV
 volt_low: -1000.0, // lower voltage limit in mV
 offset: 800.0, // voltage offset in mV
 noise_amplitude: 0.40, // in mV
+termination_ohms: 50.0, // in ohms
 }
 
 {
@@ -26,5 +27,6 @@ volt_high: 1000.0, // upper voltage limit in mV
 volt_low: 0.0, // lower voltage limit in mV
 offset: 800, // voltage offset in mV
 noise_amplitude: 0.40, // in mV
+termination_ohms: 50.0, // in ohms
 }
 
