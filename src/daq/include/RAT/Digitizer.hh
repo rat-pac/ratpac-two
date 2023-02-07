@@ -20,7 +20,7 @@
 #include <RAT/DS/Digit.hh>
 #include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/EV.hh>
-#include <RAT/PMTWaveform.hh>
+#include <RAT/PMTWaveformGenerator.hh>
 #include <map>
 
 namespace RAT {
@@ -46,7 +46,7 @@ class Digitizer {
   // Channel:Digitized waveform for each channel
   std::map<UShort_t, std::vector<UShort_t>> fDigitWaveForm;
 
-  PMTWaveform *fPMTWaveform;
+  PMTWaveformGenerator *fPMTWaveformGenerator;
 
  protected:
   DBLinkPtr fLdaq;

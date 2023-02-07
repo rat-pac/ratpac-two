@@ -17,17 +17,8 @@ class PMTWaveform {
   virtual ~PMTWaveform();
   virtual double GetHeight(double time);
 
-  virtual PMTWaveform GenerateWaveforms(DS::MCPMT* mcpmt, double triggerTime);
-
   std::vector<PMTPulse *> fPulse;
 
-  DBLinkPtr lpulse;
-  double fPMTPulseMin;
-  double fPMTPulseOffset;
-  double fPMTPulseTimeOffset;
-  double fPMTPulseWidth;
-  double fPMTPulseMean;
-  double fTerminationOhms;
 };
 
 }  // namespace RAT
