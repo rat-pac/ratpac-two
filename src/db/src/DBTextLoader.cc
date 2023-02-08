@@ -291,7 +291,7 @@ DBTable *Parser::Next() {
   Tokenizer::Type toktype = tokenizer.Next();
   // This fanciness is to ensure tbl deleted if we throw an exception
   // or leave this method for any reason.
-  std::auto_ptr<DBTable> tbl(new DBTable());
+  std::unique_ptr<DBTable> tbl(new DBTable());
   std::string identifier;
 
   Tokenizer::Type array_type = Tokenizer::TYPE_ERROR;
@@ -520,7 +520,7 @@ DBTable *Parser::Next() {
     tokenizer.RaiseError("Unexpected end of file");
     return 0;  // Never get here since previous call always throws exception
   } else
-    return tbl.release();  // Extract object from auto_ptr and prevent
+    return tbl.release();  // Extract object from unique_ptr and prevent
                            // it from being automatically deleted.
 }
 
