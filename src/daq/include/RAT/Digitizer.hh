@@ -17,6 +17,7 @@
 #define __RAT_Digitizer__
 
 #include <RAT/DB.hh>
+#include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/Digit.hh>
 #include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/EV.hh>
@@ -32,9 +33,11 @@ class Digitizer {
   Digitizer(std::string);
 
   virtual void SetDigitizerType(std::string);
-  virtual void DigitizePMT(DS::MCPMT *mcpmt, int pmtID, double triggerTime);
+  virtual void DigitizePMT(DS::MCPMT *mcpmt, int pmtID, double triggerTime, DS::PMTInfo *pmtinfo);
   virtual void DigitizeSum(DS::EV* ev);
   virtual void AddChannel(int ichannel, PMTWaveform pmtwf);
+
+  void AddWaveformGenerator(std::string modelName);
 
   std::string fDigitName;  // Digitizer type
   int fNBits;              // N bits of the digitizer
@@ -46,7 +49,7 @@ class Digitizer {
   // Channel:Digitized waveform for each channel
   std::map<UShort_t, std::vector<UShort_t>> fDigitWaveForm;
 
-  PMTWaveformGenerator *fPMTWaveformGenerator;
+  std::map<std::string, PMTWaveformGenerator*> fPMTWaveformGenerators;
 
  protected:
   DBLinkPtr fLdaq;
