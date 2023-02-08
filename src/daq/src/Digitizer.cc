@@ -31,7 +31,7 @@ void Digitizer::SetDigitizerType(std::string digitName) {
 }
 
 void Digitizer::AddWaveformGenerator(std::string modelName) {
-    fPMTWaveformGenerators[modelName] = new PMTWaveformGenerator();
+    fPMTWaveformGenerators[modelName] = new PMTWaveformGenerator(modelName);
 }
 
 void Digitizer::DigitizePMT(DS::MCPMT *mcpmt, int pmtID, double triggerTime, DS::PMTInfo* pmtinfo){
