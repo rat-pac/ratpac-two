@@ -181,7 +181,7 @@ void NoiseProc::UpdatePMTModels(DS::PMTInfo *pmtinfo) {
   fPMTTime.resize(numModels);
   fPMTCharge.resize(numModels);
   for (size_t i = 0; i < numModels; i++) {
-    const std::string modelName = pmtinfo->GetModelName(pmtinfo->GetType(i));
+    const std::string modelName = pmtinfo->GetModelName(i);
     try {
       fPMTTime[i] = new RAT::PDFPMTTime(modelName);
     } catch (DBNotFoundError &e) {
@@ -190,7 +190,7 @@ void NoiseProc::UpdatePMTModels(DS::PMTInfo *pmtinfo) {
     try {
       fPMTCharge[i] = new RAT::PDFPMTCharge(modelName);
     } catch (DBNotFoundError &e) {
-      fPMTCharge[i] = new RAT::MiniCleanPMTCharge();
+      fPMTCharge[i] = new RAT::PDFPMTCharge();
     }
     try {
       DBLinkPtr lpmt = DB::Get()->GetLink("PMT", modelName);
