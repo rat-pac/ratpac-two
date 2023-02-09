@@ -103,6 +103,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("scintPhotons", &scintPhotons);
   outputTree->Branch("remPhotons", &remPhotons);
   outputTree->Branch("cherPhotons", &cherPhotons);
+  outputTree->Branch("userCode", &userCode);
   if (options.mcparticles) {
     // Save information about *all* particles that are simulated
     // Variable naming is the same as the first particle, just plural.
@@ -270,7 +271,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   scintPhotons = mcs->GetNumScintPhoton();
   remPhotons = mcs->GetNumReemitPhoton();
   cherPhotons = mcs->GetNumCerenkovPhoton();
-
+  userCode    = mcs->GetUserGeneratorCode();
   // MC hits and PE
   mcpetime.clear();
   mcpeprocess.clear();

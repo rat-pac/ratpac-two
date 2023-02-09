@@ -84,6 +84,7 @@ class OutNtupleProc : public Processor {
   double scintPhotons;
   double remPhotons;
   double cherPhotons;
+  int userCode;
   // MC PMT/PE
   int mcnhits;
   int mcpecount;
