@@ -28,7 +28,7 @@ void GLG4Gen_Combo::GenerateEvent(G4Event *event) {
   G4ThreeVector pos;
   posGen->GeneratePosition(pos);
   G4double t0 = NextTime();
-
+ 
   vertexGen->GeneratePrimaryVertex(event, pos, t0);
 }
 
@@ -41,6 +41,9 @@ void GLG4Gen_Combo::SetState(G4String state) {
 
   try {
     switch (parts.size()) {
+      case 4:
+        usercode = 0;
+        usercode = util_to_int(parts[3]);
       case 3:
         // last is optional time generator
         delete timeGen;

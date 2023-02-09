@@ -133,6 +133,9 @@ void DecayChain_Gen::SetState(G4String state) {
 #endif
 
   try {
+    if (nArgs >= 5) {
+         usercode = util_to_int(parts[4]);
+    }
     if (nArgs >= 4) {
       // The fourth argument allows one to start midchain
       std::string InMiddle = parts[3];

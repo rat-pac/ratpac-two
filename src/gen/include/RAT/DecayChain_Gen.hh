@@ -59,7 +59,9 @@ class DecayChain_Gen : public GLG4Gen {
   virtual G4String GetTimeState() const;
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
-
+  virtual void SetUserCode(G4int usercode){};
+  virtual G4int GetUserCode() const { return usercode; };
+  
  protected:
   // Generator initialization, specified by the user.
   G4String stateStr;
@@ -74,6 +76,8 @@ class DecayChain_Gen : public GLG4Gen {
   bool fInMiddle;      // to start chain from the isotope;
   bool fInAlphaDecay;  // to have only alpha decay
   bool fInGammaDecay;  // to have only gamma decay
+
+  G4int usercode;
 };
 
 }  // namespace RAT

@@ -18,6 +18,7 @@
 #include <RAT/GLG4PrimaryGeneratorAction.hh>
 #include <RAT/GLG4Scint.hh>
 #include <RAT/GLG4SteppingAction.hh>
+#include <RAT/GLG4Gen.hh>
 #include <RAT/GLG4VertexGen.hh>
 #include <RAT/GdGen.hh>
 #include <RAT/Gen_LED.hh>
@@ -529,7 +530,8 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   summary->SetNumReemitPhoton(exinfo->numReemitPhoton);
   summary->SetNumCerenkovPhoton(exinfo->numCerenkovPhoton);
   // summary->SetPMTPhotonInfo(GLG4PMTOpticalModel::pmtHitVector);
-
+  
+  summary->SetUserGeneratorCode(exinfo->usercode); 
   // GLG4Scint::ResetTimeChargeMatrix();
   exinfo->timePhotonMatrix.resize(0);
   // GLG4PMTOpticalModel::pmtHitVector.resize(0);

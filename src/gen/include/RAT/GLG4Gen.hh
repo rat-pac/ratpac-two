@@ -32,7 +32,9 @@ class GLG4Gen {
   virtual G4String GetVertexState() const { return ""; };
   virtual void SetPosState(G4String /*state*/){};
   virtual G4String GetPosState() const { return ""; };
-
+  virtual void SetUserCode(G4int usercode){};
+  virtual G4int GetUserCode() const { return usercode; };
+  G4int usercode;
  protected:
   double nextTime;
 };
@@ -56,12 +58,15 @@ class GLG4Gen_Combo : public GLG4Gen {
   virtual G4String GetVertexState() const;
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
+  virtual void SetUserCode(int usercode){};
+  virtual int GetUserCode() const { return usercode; };
 
  protected:
   G4String stateStr;
   GLG4TimeGen *timeGen;
   GLG4VertexGen *vertexGen;
   GLG4PosGen *posGen;
+  int usercode;
 };
 
 // Creates a one-shot generator used to defer a long-lived track
@@ -76,9 +81,12 @@ class GLG4Gen_DeferTrack : public GLG4Gen {
 
   virtual void SetState(G4String state);
   virtual G4String GetState() const;
+  virtual void SetUserCode(int usercode){};
+  virtual int GetUserCode() const { return usercode; };
 
  protected:
   G4PrimaryVertex *vertex;
+  int usercode;
 };
 
 // Creates events from an ASCII input.  See documentation about
@@ -101,12 +109,16 @@ class GLG4Gen_External : public GLG4Gen {
   virtual G4String GetVertexState() const;
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
+  virtual void SetUserCode(G4int usercode){};
+  virtual G4int GetUserCode() const { return usercode; };
 
  protected:
   G4String stateStr;
   GLG4TimeGen *timeGen;
   GLG4VertexGen *vertexGen;
   GLG4PosGen *posGen;
+  G4int usercode;
+
 };
 
 #endif
