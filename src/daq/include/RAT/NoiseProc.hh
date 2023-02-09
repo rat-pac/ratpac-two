@@ -14,14 +14,15 @@ class NoiseProc : public Processor {
   NoiseProc();
   virtual ~NoiseProc(){};
   virtual Processor::Result DSEvent(DS::Root *ds);
+  void BeginOfRun(DS::Run *run);
+  void UpdatePMTModels(DS::PMTInfo *);
 
   void AddNoiseHit(DS::MCPMT *, DS::PMTInfo *, double);
   int GenerateNoiseInWindow(DS::MC *, double, double, DS::PMTInfo *, std::map<int, int>);
-  void UpdatePMTModels(DS::PMTInfo *);
   std::map<double, double> FindWindows(std::vector<double> &times, double window);
+
   void SetD(std::string, double);
   void SetI(std::string param, int value);
-  void BeginOfRun(DS::Run *run);
 
  protected:
   double fDefaultNoiseRate;

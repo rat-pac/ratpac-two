@@ -14,6 +14,9 @@
 namespace RAT {
 
 NoiseProc::NoiseProc() : Processor("noise") {
+}
+
+void NoiseProc::BeginOfRun(DS::Run *run) {
   DBLinkPtr lnoise = DB::Get()->GetLink("NOISEPROC");
 
   fNoiseFlag = lnoise->GetD("noise_flag");
@@ -22,9 +25,7 @@ NoiseProc::NoiseProc() : Processor("noise") {
   fLookforward = lnoise->GetD("noise_lookforward");
   fMaxTime = lnoise->GetD("noise_maxtime");
   fNearHits = lnoise->GetI("noise_nearhits");
-}
 
-void NoiseProc::BeginOfRun(DS::Run *run) {
   DS::PMTInfo *pmtinfo = run->GetPMTInfo();
   UpdatePMTModels(pmtinfo);
 }
@@ -51,14 +52,10 @@ Processor::Result NoiseProc::DSEvent(DS::Root *ds) {
     mcpmtObjects[mcpmt->GetID()] = imcpmt;
     for (int pidx = 0; pidx < mcpmt->GetMCPhotonCount(); pidx++) {
       DS::MCPhoton *photon = mcpmt->GetMCPhoton(pidx);
-      if (photon->IsDarkHit())
-        mcpmt->RemoveMCPhoton(pidx);
-      else {
-        double hittime = photon->GetHitTime();
-        if (hittime < firsthittime) firsthittime = hittime;
-        if (hittime > lasthittime) lasthittime = hittime;
-        realHitTimes.push_back(hittime);
-      }
+     double hittime = photon->GetHitTime();
+     if (hittime < firsthittime) firsthittime = hittime;
+     if (hittime > lasthittime) lasthittime = hittime;
+     realHitTimes.push_back(hittime);
     }
   }
 
@@ -119,22 +116,22 @@ int NoiseProc::GenerateNoiseInWindow(DS::MC *mc, double noiseBegin, double noise
     }
   } else {
     for (int pmtid = 0; pmtid < pmtCount; pmtid++) {
-      double NoiseRate = 0;
+      double noiseRate = 0;
       switch (fNoiseFlag) {
         case 1: {
           const std::string modelName = pmtinfo->GetModelNameByID(pmtid);
-          NoiseRate = fModelNoiseMap[modelName];
+          noiseRate = fModelNoiseMap[modelName];
           break;
         }
         case 2: {
-          NoiseRate = pmtinfo->GetNoiseRate(pmtid);
+          noiseRate = pmtinfo->GetNoiseRate(pmtid);
           break;
         }
         default:
-          NoiseRate = fDefaultNoiseRate;
+          noiseRate = fDefaultNoiseRate;
       }
-      if (NoiseRate >= 0) {
-        double darkCount = NoiseRate * noiseWindowWidth * 1e-9;
+      if (noiseRate >= 0) {
+        double darkCount = noiseRate * noiseWindowWidth * 1e-9;
         int idnoiseHits = static_cast<int>(floor(CLHEP::RandPoisson::shoot(darkCount)));
         for (int ihit = 0; ihit < idnoiseHits; ihit++) {
           if (!mcpmtObjects.count(pmtid)) {
@@ -197,6 +194,8 @@ void NoiseProc::UpdatePMTModels(DS::PMTInfo *pmtinfo) {
       fModelNoiseMap[modelName] = lpmt->GetD("noise_rate");
     } catch (DBNotFoundError &e) {
       fModelNoiseMap[modelName] = fDefaultNoiseRate;
+      info << "NoiseProc: By model noise rate not found for " << modelName
+           << ". Using default noise rate for this model if per model rates used." << newline;
     }
   }
   return;
