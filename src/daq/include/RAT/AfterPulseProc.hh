@@ -2,7 +2,10 @@
 #define __RAT_AfterPulseProc__
 
 #include <RAT/DS/PMTInfo.hh>
+#include <RAT/PMTCharge.hh>
+#include <RAT/PMTTime.hh>
 #include <RAT/Processor.hh>
+#include <map>
 
 namespace RAT {
 
@@ -11,34 +14,33 @@ class AfterPulseProc : public Processor {
   AfterPulseProc();
   virtual ~AfterPulseProc(){};
   virtual Processor::Result DSEvent(DS::Root *ds);
+  void BeginOfRun(DS::Run *run);
+  void UpdatePMTModels(DS::PMTInfo* pmtinfo);
 
-  void GenerateAfterPulse(DS::MC *, DS::PMTInfo *, uint64_t);
-  double CalculateAfterPulseTime(double, std::vector<double>, std::vector<double>);
-  double PickFrontEnd(double, std::vector<double>, std::vector<double>, double);
-  void DetectAfterPulse(DS::MC *, RAT::DS::PMTInfo *, uint64_t, std::vector<double>, std::vector<double>, double);
+  void GenerateAfterPulses(DS::MC* mc, DS::PMTInfo* pmtinfo, uint64_t eventTime);
+  double CalculateAfterPulseTime(double apFraction, std::vector<double> apTime, std::vector<double> apProb);
+  void DetectAfterPulses(DS::MC* mc, DS::PMTInfo* pmtinfo, uint64_t eventTime);
 
-  void SetD(std::string, double);
+  void SetD(std::string param, double value);
   void SetI(std::string param, int value);
 
  protected:
   std::string fDAQ;
   int fAPFlag;
-  double fDefAPFraction;
   double fTriggerWindow;
-  double fDefCableDelay;
-  int fPMTCount;
 
-  std::vector<double> fDefAPTime;
-  std::vector<double> fDefAPProb;
+  double fDefaultAPFraction;
+  std::vector<double> fDefaultAPTime;
+  std::vector<double> fDefaultAPProb;
 
-  std::vector<double> fDefPMTTime;
-  std::vector<double> fDefPMTProb;
+  std::map<std::string, double> fModelAPFractionMap;
+  std::map<std::string, std::vector<double>> fModelAPTimeMap;
+  std::map<std::string, std::vector<double>> fModelAPProbMap;
 
-  std::vector<std::vector<uint64_t> > fAfterPulseTime;
-  std::vector<std::vector<uint64_t> > fFrontEndTime;
-  std::vector<double> fPMTTime;
-  std::vector<double> fPMTProb;
-  std::vector<size_t> countAP;
+  std::vector<RAT::PMTTime *> fPMTTime;
+  std::vector<RAT::PMTCharge *> fPMTCharge;
+
+  std::map<int, std::vector<uint64_t>> fAfterPulseTime;
 };
 
 }  // namespace RAT
