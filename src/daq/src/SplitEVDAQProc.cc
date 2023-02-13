@@ -16,7 +16,7 @@ namespace RAT {
 SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   // Trigger Specifications
 
-  ldaq = DB::Get()->GetLink("SplitEVDAQ");
+  ldaq = DB::Get()->GetLink("DAQ","SplitEVDAQ");
   fEventCounter = 0;
   fPulseWidth = ldaq->GetD("pulse_width");
   fTriggerThreshold = ldaq->GetD("trigger_threshold");

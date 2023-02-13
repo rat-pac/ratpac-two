@@ -38,7 +38,7 @@ void AfterPulseProc::BeginOfRun(DS::Run *run) {
     fDefaultAPProb = lafterpulse->GetDArray("afterpulse_prob");
     fDAQ = lafterpulse->GetS("daq");
 
-    fTriggerWindow = DB::Get()->GetLink(fDAQ)->GetD("trigger_window");
+    fTriggerWindow = DB::Get()->GetLink("DAQ",fDAQ)->GetD("trigger_window");
 
     DS::PMTInfo *pmtinfo = run->GetPMTInfo();
     UpdatePMTModels(pmtinfo);
