@@ -84,9 +84,7 @@ void DecayChain::Show() {
   int nE = GetNElements();
   if (nE > 0) {
       printf("Elements : %d \n", nE);
-      printf(
-          "Name \t Branch \t Decay Type \t Half-Life \t Weight \t Prob \t "
-          "Level \n");
+      printf("Name \t Branch \t Decay Type \t Half-Life \t Weight \t Prob \t Level \n");
       for (int i = 0; i < nE; i++) {
           printf("%s \t %d \t %d \t %g \t %g \t %g \t %d \n", GetElementName(i).c_str(), GetElementBranch(i),
                GetElementDecay(i), GetLifetime(i), GetElementWt(i), GetElementProb(i), CheckChainLevel(i));
@@ -335,7 +333,9 @@ void DecayChain::GenerateDecayElement(int i) {
           int iNext = i;
           if (i > GetNElements() - 1) {
               for (int q = GetNElements() - 1; q > i; q--) {
-                  if (CheckInChain(i, q)) iNext = q;
+                  if (CheckInChain(i, q)) {
+                      iNext = q;
+                  }
               }
           }
           SetDaughterName(k, Element[iNext]->GetName());
@@ -512,12 +512,13 @@ void DecayChain::GenerateFullChain(const std::string iElement) {
   }
   isChainElement = false;
 
-  double tMax = 0.;
+  double tMax = 1.0e+99;
   for (int i = 0; i < GetNGenerated(); i++) {
-      if (GetEventTime(i) > tMax) {
+      if (GetEventTime(i) < tMax) {
           tMax = GetEventTime(i);
       }
   }
+
   for (int i = 0; i < GetNGenerated(); i++) {
       SetEventTime(i, GetEventTime(i) - tMax);
   }

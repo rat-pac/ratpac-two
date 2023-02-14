@@ -5,6 +5,7 @@
 
 #include <G4Alpha.hh>
 #include <G4Electron.hh>
+#include <G4Positron.hh>
 #include <G4Event.hh>
 #include <G4Gamma.hh>
 #include <G4IonTable.hh>
@@ -76,6 +77,9 @@ void DecayChain_Gen::GenerateEvent(G4Event *event) {
       else {
           if (pid == DecayBeta) {
               particleDef = G4Electron::Electron();
+          }
+          else if (pid == DecayEC) {
+              particleDef = G4Positron::Positron();
           }
           else if (pid == DecayGamma) {
               particleDef = G4Gamma::Gamma();
