@@ -131,8 +131,12 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("mcPEIndex", &mcpeindex);
     outputTree->Branch("mcPETime", &mcpetime);
     // Production process
-    // 1=Cherenkov, 0=other
+    // 1=Cherenkov, 0=Dark noise, 2=Scint., 3=Reem., 4=Unknown
     outputTree->Branch("mcPEProcess", &mcpeprocess);
+    outputTree->Branch("mcPEWavelength", &mcpewavelength);
+    outputTree->Branch("mcPEx", &mcpex);
+    outputTree->Branch("mcPEy", &mcpey);
+    outputTree->Branch("mcPEz", &mcpez);
   }
   if (options.tracking) {
     // Save particle tracking information
@@ -159,6 +163,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     }
   }
   runBranch = DS::RunStore::GetRun(ds);
+  DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
   ULong64_t stonano = 1000000000;
   dsentries++;
   // Clear the previous vectors
@@ -275,6 +280,10 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcpetime.clear();
   mcpeprocess.clear();
   mcpeindex.clear();
+  mcpewavelength.clear();
+  mcpex.clear();
+  mcpey.clear();
+  mcpez.clear();
   mcpmtid.clear();
 
   mcnhits = mc->GetMCPMTCount();
@@ -283,15 +292,31 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     for (int ipmt = 0; ipmt < mc->GetMCPMTCount(); ipmt++){
       DS::MCPMT* mcpmt = mc->GetMCPMT(ipmt);
       mcpmtid.push_back(mcpmt->GetID());
+      TVector3 position = pmtinfo->GetPosition(mcpmt->GetID());
       for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++){
+        RAT::DS::MCPhoton* mcph = mcpmt->GetMCPhoton(ipe);
         mcpeindex.push_back(ipe);
-        mcpetime.push_back(mcpmt->GetMCPhoton(ipe)->GetFrontEndTime());
-        std::string process = mcpmt->GetMCPhoton(ipe)->GetCreatorProcess();
-        if(strcmp(process.c_str(), "Cerenkov")==0){
+        mcpetime.push_back(mcph->GetFrontEndTime());
+        mcpewavelength.push_back(mcph->GetLambda());
+        mcpex.push_back(position.X());
+        mcpey.push_back(position.Y());
+        mcpez.push_back(position.Z());
+        if(mcph->IsDarkHit()){
+          mcpeprocess.push_back(0);
+          continue;
+        }
+        std::string process = mcph->GetCreatorProcess();
+        if(process.find("Cerenkov") != std::string::npos){
           mcpeprocess.push_back(1);
         }
+        else if(process.find("Scintillation") != std::string::npos){
+          mcpeprocess.push_back(2);
+        }
+        else if(process.find("Reemission") != std::string::npos){
+          mcpeprocess.push_back(3);
+        }
         else{
-          mcpeprocess.push_back(0);
+          mcpeprocess.push_back(4);
         }
       }
     }
