@@ -1,4 +1,5 @@
-{//Data in this file is based on default settings in SNOplus rat (R1408 PMT in Penn darkbox) and the transit time distributions for normal hits (11780_hqe data)
+{
+//Default afterpulsing is based on R1408 PMT data measured in Penn darkbox
 name: "AFTERPULSEPROC",
 run_range: [0, 0],
 
@@ -14,6 +15,7 @@ afterpulse_prob: [0.00668772, 0.0150474, 0.0208062, 0.0312094, 0.0469998, 0.0596
 }
 
 {
+//Afterpulsing for this model is based on R1408 PMT data measured in Penn darkbox
 name: "AFTERPULSEPROC",
 index: "r11780_hqe",
 run_range: [0, 0],
@@ -29,6 +31,7 @@ afterpulse_prob: [0.00668772, 0.0150474, 0.0208062, 0.0312094, 0.0469998, 0.0596
 }
 
 {
+//Afterpulsing for this model is based on R1408 PMT data measured in Penn darkbox
 name: "AFTERPULSEPROC",
 index: "r14688",
 run_range: [0, 0],
