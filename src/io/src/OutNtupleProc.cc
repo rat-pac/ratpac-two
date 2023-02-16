@@ -302,21 +302,21 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         mcpey.push_back(position.Y());
         mcpez.push_back(position.Z());
         if(mcph->IsDarkHit()){
-          mcpeprocess.push_back(0);
+          mcpeprocess.push_back(noise);
           continue;
         }
         std::string process = mcph->GetCreatorProcess();
         if(process.find("Cerenkov") != std::string::npos){
-          mcpeprocess.push_back(1);
+          mcpeprocess.push_back(cherenkov);
         }
         else if(process.find("Scintillation") != std::string::npos){
-          mcpeprocess.push_back(2);
+          mcpeprocess.push_back(scintillation);
         }
         else if(process.find("Reemission") != std::string::npos){
-          mcpeprocess.push_back(3);
+          mcpeprocess.push_back(reemission);
         }
         else{
-          mcpeprocess.push_back(4);
+          mcpeprocess.push_back(unknown);
         }
       }
     }
