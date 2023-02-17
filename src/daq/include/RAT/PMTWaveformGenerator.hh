@@ -1,7 +1,6 @@
 #ifndef __RAT_PMTWaveformGenerator__
 #define __RAT_PMTWaveformGenerator__
 
-#include <TGraph.h>
 #include <TObject.h>
 
 #include <RAT/PMTWaveform.hh>
