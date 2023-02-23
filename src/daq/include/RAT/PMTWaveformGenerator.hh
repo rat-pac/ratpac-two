@@ -19,6 +19,7 @@ class PMTWaveformGenerator {
   std::string fModelName;
 
   DBLinkPtr lpulse;
+  std::string fPMTPulseType;
   std::string fPMTPulseShape;
 
   //Universal pulse parameters

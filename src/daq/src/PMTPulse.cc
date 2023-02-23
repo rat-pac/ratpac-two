@@ -9,7 +9,8 @@
 
 namespace RAT {
 
-PMTPulse::PMTPulse(std::string pulseShape) {
+PMTPulse::PMTPulse(std::string pulseType, std::string pulseShape) {
+    fPulseType = pulseType;
     fPulseShape = pulseShape;
 }
 
@@ -20,10 +21,12 @@ double PMTPulse::GetPulseHeight(double utime) {
 
   if (delta_t > 0.0) {
       double val = 0.0;
-      if (fPulseShape == "lognormal") {
-          val = TMath::LogNormal(delta_t, fPulseWidth, 0., fPulseMean);
+      if (fPulseType == "analytic") {
+          if (fPulseShape == "lognormal") {
+              val = TMath::LogNormal(delta_t, fPulseWidth, 0., fPulseMean);
+          }
       }
-      if (fPulseShape == "datadriven") {
+      else if (fPulseType == "datadriven") {
           int i = 0;
           for (i = 0; i < fPulseTimes.size()-1; i++) {
               if (delta_t > fPulseTimes[i]) {

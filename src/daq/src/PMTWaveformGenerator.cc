@@ -23,12 +23,24 @@ PMTWaveformGenerator::PMTWaveformGenerator(std::string modelName) {
       }
   }
   try {
-      fPMTPulseShape = lpulse->GetS("pulse_shape");
-      info << "PMTWaveformGenerator: Using " << fPMTPulseShape << " pulse for " << modelName << "." << newline;
+      fPMTPulseType = lpulse->GetS("pulse_type");
+      info << "PMTWaveformGenerator: Using " << fPMTPulseType << " pulse for " << modelName << "." << newline;
   }
   catch (DBNotFoundError &e) {
-      info << "PMTWaveformGenerator: Could not find pulse shape for " << modelName << ". Using lognormal as default." << newline;
-      fPMTPulseShape = "lognormal";
+      info << "PMTWaveformGenerator: Could not find pulse type for " << modelName << ". Using analytic as default." << newline;
+      fPMTPulseShape = "analytic";
+  }
+
+  fPMTPulseShape == "";
+  if (fPMTPulseShape == "analytic") {
+      try {
+          fPMTPulseShape = lpulse->GetS("pulse_shape");
+          info << "PMTWaveformGenerator: Using " << fPMTPulseShape << " pulse for " << modelName << "." << newline;
+      }
+      catch (DBNotFoundError &e) {
+          info << "PMTWaveformGenerator: Could not find pulse shape for " << modelName << ". Using lognormal as default." << newline;
+          fPMTPulseShape = "lognormal";
+      }
   }
 
   fPMTPulseOffset = lpulse->GetD("pulse_offset");
@@ -37,11 +49,13 @@ PMTWaveformGenerator::PMTWaveformGenerator(std::string modelName) {
   fTerminationOhms = lpulse->GetD("termination_ohms");
   fPMTPulsePolarity = lpulse->GetZ("pulse_polarity_negative");
 
-  if (fPMTPulseShape == "lognormal") {
-      fPMTPulseWidth = lpulse->GetD("pulse_width");
-      fPMTPulseMean = lpulse->GetD("pulse_mean");
+  if (fPMTPulseType == "analytic") {
+      if (fPMTPulseShape == "lognormal") {
+          fPMTPulseWidth = lpulse->GetD("pulse_width");
+          fPMTPulseMean = lpulse->GetD("pulse_mean");
+      }
   }
-  if (fPMTPulseShape == "datadriven") {
+  if (fPMTPulseType == "datadriven") {
       fPMTPulseShapeTimes = lpulse->GetDArray("pulse_shape_times");
       fPMTPulseShapeValues = lpulse->GetDArray("pulse_values_times");
   }
@@ -56,7 +70,7 @@ PMTWaveform PMTWaveformGenerator::GenerateWaveforms(DS::MCPMT *mcpmt, double tri
   for (int iph = 0; iph < mcpmt->GetMCPhotonCount(); iph++) {
     DS::MCPhoton *mcpe = mcpmt->GetMCPhoton(iph);
 
-    PMTPulse *pmtpulse = new PMTPulse(fPMTPulseShape);
+    PMTPulse *pmtpulse = new PMTPulse(fPMTPulseType, fPMTPulseShape);
     pmtpulse->SetPulseCharge(mcpe->GetCharge() * fTerminationOhms);
     pmtpulse->SetPulseMin(fPMTPulseMin);
     pmtpulse->SetPulseOffset(fPMTPulseOffset);
