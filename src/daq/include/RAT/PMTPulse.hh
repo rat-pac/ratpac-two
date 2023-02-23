@@ -15,7 +15,7 @@ class PMTPulse {
   virtual void SetPulseOffset(double _fPulseOffset) { fPulseOffset = _fPulseOffset; };
   virtual void SetPulseTimeOffset(double _fPulseTimeOffset) { fPulseTimeOffset = _fPulseTimeOffset; };
   virtual void SetPulseMin(double _fPulseMin) { fPulseMin = _fPulseMin; };
-  virtual void SetPulsePolarity(bool _fPulsePolarity) { _fPulsePolarity ? -1 : 1; };
+  virtual void SetPulsePolarity(bool _fPulsePolarity) { fPulsePolaritySign = _fPulsePolarity ? -1 : 1; };
 
   virtual void SetPulseMean(double _fPulseMean) { fPulseMean = _fPulseMean; };
   virtual void SetPulseWidth(double _fPulseWidth) { fPulseWidth = _fPulseWidth; };
