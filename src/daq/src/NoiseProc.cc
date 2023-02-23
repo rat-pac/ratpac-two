@@ -66,9 +66,13 @@ Processor::Result NoiseProc::DSEvent(DS::Root *ds) {
     }
 
     // Cap how far forward to look in case of weird geant-4 lifetimes
-    if (lasthittime > fMaxTime) lasthittime = fMaxTime;
+    if (lasthittime > fMaxTime) {
+        lasthittime = fMaxTime;
+    }
     // And really just in case
-    if (firsthittime < -fMaxTime) firsthittime = -fMaxTime;
+    if (firsthittime < -fMaxTime) {
+        firsthittime = -fMaxTime;
+    }
     // When there are no hits present in an event:
     if (firsthittime > lasthittime) {
         firsthittime = 0;
@@ -87,7 +91,8 @@ Processor::Result NoiseProc::DSEvent(DS::Root *ds) {
                     GenerateNoiseInWindow(mc, m.first - fLookback, m.second + fLookforward, pmtinfo, mcpmtObjects);
             }
         }
-    } else {
+    }
+    else {
         totalNoiseHits += GenerateNoiseInWindow(mc, noiseBegin, noiseEnd, pmtinfo, mcpmtObjects);
     }
     mc->SetNumDark(totalNoiseHits);
@@ -120,21 +125,23 @@ int NoiseProc::GenerateNoiseInWindow(DS::MC *mc, double noiseBegin, double noise
             double hittime = noiseBegin + G4UniformRand() * noiseWindowWidth;
             AddNoiseHit(mcpmt, pmtinfo, hittime);
         }
-    } else {
+    }
+    else {
         for (int pmtid = 0; pmtid < pmtCount; pmtid++) {
             double noiseRate = 0;
             switch (fNoiseFlag) {
                 case 1: {
-                            const std::string modelName = pmtinfo->GetModelNameByID(pmtid);
-                            noiseRate = fModelNoiseMap[modelName];
-                            break;
-                        }
+                    const std::string modelName = pmtinfo->GetModelNameByID(pmtid);
+                    noiseRate = fModelNoiseMap[modelName];
+                    break;
+                }
                 case 2: {
-                            noiseRate = pmtinfo->GetNoiseRate(pmtid);
-                            break;
-                        }
-                default:
-                        noiseRate = fDefaultNoiseRate;
+                    noiseRate = pmtinfo->GetNoiseRate(pmtid);
+                    break;
+                }
+                default: {
+                    noiseRate = fDefaultNoiseRate;
+                }
             }
             if (noiseRate >= 0) {
                 double darkCount = noiseRate * noiseWindowWidth * 1e-9;
@@ -151,7 +158,8 @@ int NoiseProc::GenerateNoiseInWindow(DS::MC *mc, double noiseBegin, double noise
                     AddNoiseHit(mcpmt, pmtinfo, hittime);
                 }
                 noiseHits += idnoiseHits;
-            } else {
+            }
+            else {
                 throw ParamInvalid("rate", "Noise rate must be positive");
             }
         }
@@ -185,24 +193,30 @@ void NoiseProc::UpdatePMTModels(DS::PMTInfo *pmtinfo) {
     fPMTCharge.resize(numModels);
     for (size_t i = 0; i < numModels; i++) {
         const std::string modelName = pmtinfo->GetModelName(i);
+
         try {
             fPMTTime[i] = new RAT::PDFPMTTime(modelName);
             info << "NoiseProc: Loaded PDFPMTTime for " << modelName << newline;
-        } catch (DBNotFoundError &e) {
+        }
+        catch (DBNotFoundError &e) {
             fPMTTime[i] = new RAT::PDFPMTTime();
             info << "NoiseProc: Loaded PDFPMTTime DEFAULT for " << modelName << newline;
         }
+
         try {
             fPMTCharge[i] = new RAT::PDFPMTCharge(modelName);
             info << "NoiseProc: Loaded PDFPMTCharge for " << modelName << newline;
-        } catch (DBNotFoundError &e) {
+        }
+        catch (DBNotFoundError &e) {
             fPMTCharge[i] = new RAT::PDFPMTCharge();
             info << "NoiseProc: Loaded PDFPMTCharge DEFAULT for " << modelName << newline;
         }
+
         try {
             DBLinkPtr lpmt = DB::Get()->GetLink("PMT", modelName);
             fModelNoiseMap[modelName] = lpmt->GetD("noise_rate");
-        } catch (DBNotFoundError &e) {
+        }
+        catch (DBNotFoundError &e) {
             fModelNoiseMap[modelName] = fDefaultNoiseRate;
             info << "NoiseProc: By model noise rate not found for " << modelName
                 << ". Using default noise rate for this model if per model rates used." << newline;
@@ -218,10 +232,12 @@ std::map<double, double> NoiseProc::FindWindows(std::vector<double> &times, doub
     std::map<double, double> startStop;
     // If there are too few hits, generate noise near trigger??
     if (times.size() < 2) {
-        if (times.size() == 0)
+        if (times.size() == 0) {
             return startStop;
-        else
+        }
+        else {
             startStop[times[0]] = times[0];
+        }
         return startStop;
     }
     std::vector<double>::iterator back = times.begin();
@@ -242,28 +258,38 @@ std::map<double, double> NoiseProc::FindWindows(std::vector<double> &times, doub
 }
 
 void NoiseProc::SetD(std::string param, double value) {
-    if (param == "rate")
-        if (value >= 0)
+    if (param == "rate") {
+        if (value >= 0) {
             fDefaultNoiseRate = value;
-        else
-            throw ParamInvalid(param, "Noise rate must be positive");
-    else if (param == "lookback")
+        }
+        else {
+            throw ParamInvalid(param, "Noise rate must be non-negative");
+        }
+    }
+    else if (param == "lookback") {
         fLookback = abs(value);
-    else if (param == "lookforward")
+    }
+    else if (param == "lookforward") {
         fLookforward = abs(value);
-    else if (param == "maxtime")
+    }
+    else if (param == "maxtime") {
         fMaxTime = abs(value);
-    else
+    }
+    else {
         throw ParamUnknown(param);
+    }
 }
 
 void NoiseProc::SetI(std::string param, int value) {
-    if (param == "nearhits")
+    if (param == "nearhits") {
         fNearHits = value;
-    else if (param == "flag")
+    }
+    else if (param == "flag") {
         fNoiseFlag = value;
-    else
+    }
+    else {
         throw ParamUnknown(param);
+    }
 }
 
 }  // namespace RAT
