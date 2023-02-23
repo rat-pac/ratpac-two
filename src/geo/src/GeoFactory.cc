@@ -25,7 +25,7 @@ G4VPhysicalVolume *GeoFactory::ConstructWithFactory(const std::string &name, DBL
 }
 
 GeoFactory::GeoFactory(const std::string &name) {
-  std::cout << "Registering " << name << std::endl;
+  debug << "Registering " << name << newline;
   GeoFactory::Register(name, this);
 }
 

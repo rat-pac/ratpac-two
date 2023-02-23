@@ -16,6 +16,8 @@ class OutNtupleProc : public Processor {
   OutNtupleProc();
   virtual ~OutNtupleProc();
 
+  enum mc_pe_type{ noise=0, cherenkov=1, scintillation=2, reemission=3, unknown=4 };
+
   // file - string, name of file to open for output, file will be erased
   // updatefile - string, name of file to append to
   // (do not use both file and update file)
@@ -91,6 +93,10 @@ class OutNtupleProc : public Processor {
   std::vector<int> mcpeindex;
   std::vector<double> mcpetime;
   std::vector<int> mcpeprocess;
+  std::vector<double> mcpewavelength;
+  std::vector<double> mcpex;
+  std::vector<double> mcpey;
+  std::vector<double> mcpez;
   // MCParticles
   int mcpcount;
   std::vector<Int_t> pdgcodes;
