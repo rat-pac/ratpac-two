@@ -81,7 +81,7 @@ void Gen_LED::GenerateEvent(G4Event *event) {
           theta = rand_angles[iLED]->shoot() * (angle_maxs[iLED] - angle_mins[iLED]) + angle_mins[iLED];
         else {
           warn << "Warning: missing " << next_led << "-th angular distr., only " << rand_angles.size()
-               << " exist! Reusing last distrib.\n";
+               << " exist! Reusing last distrib." << newline;
           theta = rand_angles[rand_angles.size() - 1]->shoot() *
                       (angle_maxs[rand_angles.size() - 1] - angle_mins[rand_angles.size() - 1]) +
                   angle_mins[rand_angles.size() - 1];
@@ -133,7 +133,7 @@ void Gen_LED::GenerateEvent(G4Event *event) {
         theta = rand_angles[next_led]->shoot() * (angle_maxs[next_led] - angle_mins[next_led]) + angle_mins[next_led];
       else {
         warn << "Warning: missing " << next_led << "-th angular distr., only " << rand_angles.size()
-             << " exist! Reusing last distrib.\n";
+             << " exist! Reusing last distrib." << newline;
         theta = rand_angles[rand_angles.size() - 1]->shoot() *
                     (angle_maxs[rand_angles.size() - 1] - angle_mins[rand_angles.size() - 1]) +
                 angle_mins[rand_angles.size() - 1];
@@ -195,7 +195,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
     intensity_mode = lled->GetS("intensity_mode");
   } catch (DBNotFoundError &e) {
   };
-  info << intensity_mode.data() << " LED mode\n";
+  info << intensity_mode.data() << " LED mode" << newline;
   if (intensity_mode == "single")
     oneLED = true;
   else if (intensity_mode == "chain")
@@ -230,7 +230,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
     multi_ang_dist_mode = true;
   else
     Log::Die(dformat("Gen_LED: LED.angle_mode = \"%s\" is invalid.", angle_mode.c_str()));
-  info << "LED angle mode: " << angle_mode.data() << "\n";
+  info << "LED angle mode: " << angle_mode.data() << newline;
 
   std::string wl_mode = lled->GetS("wl_mode");
   if (wl_mode == "mono")
@@ -280,7 +280,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
       rand_angle = new CLHEP::RandGeneral(dist_angle_intensity, nbins);
     } else {
       if (int(led_x.size()) != lled->GetI("n_ang_dists"))
-        warn << lled->GetI("n_ang_dists") << " angular distributions, but " << led_x.size() << " LEDs...!\n";
+        warn << lled->GetI("n_ang_dists") << " angular distributions, but " << led_x.size() << " LEDs...!" << newline;
       double step = -.1;
       angle_maxs.clear();
       angle_mins.clear();
@@ -311,7 +311,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
       }
       if (int(rand_angles.size()) != lled->GetI("n_ang_dists"))
         warn << "Loaded " << rand_angles.size() << " angular distributions. Should be " << lled->GetI("n_ang_dists")
-             << "... Data file needs to be rechecked!\n";
+             << "... Data file needs to be rechecked!" << newline;
       for (int iangs = 0; iangs < int(rand_angles.size()); iangs++) {
         Log::Assert(rand_angles[iangs] != NULL, dformat("Failed loading an angular distribution for %d-th LED", iangs));
       }
@@ -342,7 +342,7 @@ void Gen_LED::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    std::cerr << "Gen_LED error: Cannot set time state, no time generator selected" << std::endl;
+    warn << "Gen_LED error: Cannot set time state, no time generator selected" << newline;
 }
 
 G4String Gen_LED::GetTimeState() const {
@@ -353,13 +353,13 @@ G4String Gen_LED::GetTimeState() const {
 }
 
 void Gen_LED::SetVertexState(G4String /*state*/) {
-  std::cerr << "Gen_LED error: Cannot set vertex state." << std::endl;
+  warn << "Gen_LED error: Cannot set vertex state." << newline;
 }
 
 G4String Gen_LED::GetVertexState() const { return G4String("Gen_LED error: no vertex generator"); }
 
 void Gen_LED::SetPosState(G4String /*state*/) {
-  std::cerr << "Gen_LED error: Cannot set position state, no position generator" << std::endl;
+  warn << "Gen_LED error: Cannot set position state, no position generator" << newline;
 }
 
 G4String Gen_LED::GetPosState() const { return G4String("Gen_LED error: no pos generator"); }

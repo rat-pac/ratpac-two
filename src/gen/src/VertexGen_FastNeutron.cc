@@ -80,9 +80,9 @@ void VertexGen_FastNeutron::GeneratePrimaryVertex(G4Event *event, G4ThreeVector 
   double massN = n->GetPDGMass();
   double totNeutronMomentum = sqrt(pow(neutronEnergy + massN, 2) - pow(massN, 2));
   G4ThreeVector momentum = neutronDirection * totNeutronMomentum;
-  //        std::cout << "( " << muCosTheta << ", "<< phi << ") (" << cosTheta <<
+  //        info << "( " << muCosTheta << ", "<< phi << ") (" << cosTheta <<
   //        ", " << phi2 <<") " << ev_mu_dir << " " << ev_n_dir << " " <<
-  //        neutronDirection<< "\n";
+  //        neutronDirection<< newline;
 
   // Generate the geant4 neutron_particle vertex
   G4PrimaryVertex *vertex = new G4PrimaryVertex(dx, dt);
@@ -100,17 +100,14 @@ void VertexGen_FastNeutron::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);  // from GLG4StringUtil
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this VertexGen_ES:\n"
-              << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to VertexGen_ES::SetState: \n"
-                 " \"nu_dir_x nu_dir_y nu_dir_z\"\n"
-                 " where nu_dir is the initial direction of the reactor "
-                 "antineutrino.\n"
-                 " Does not have to be normalized.  Set to \"0. 0. 0.\" for "
-                 "isotropic\n"
-                 " neutrino direction."
-              << std::endl;
+    info << "Current state of this VertexGen_ES:" << newline
+              << " \"" << GetState() << "\"" << newline
+              << newline;
+    info << "Format of argument to VertexGen_ES::SetState: " << newline
+              << " \"nu_dir_x nu_dir_y nu_dir_z\"\n"
+              << " where nu_dir is the initial direction of the reactor antineutrino.\n"
+              << " Does not have to be normalized.  Set to \"0. 0. 0.\" for isotropic\n"
+              << " neutrino direction." << newline;
     return;
   }
 
@@ -139,7 +136,7 @@ G4String VertexGen_FastNeutron::GetState() {
 
 void VertexGen_FastNeutron::SetDepth(double _tmpVal) {
   if ((_tmpVal < 0.) || (_tmpVal > 8000.)) {
-    std::cerr << "Set your depth between 0 and 8000." << std::endl;
+    warn << "Set your depth between 0 and 8000." << newline;
     return;
   }
   valueD = _tmpVal;
@@ -147,7 +144,7 @@ void VertexGen_FastNeutron::SetDepth(double _tmpVal) {
 
 void VertexGen_FastNeutron::SetEnThreshold(double _tmpVal) {
   if ((_tmpVal < 1.) || (_tmpVal > 1000.)) {
-    std::cerr << "Set your energy threshold between 1 and 1000." << std::endl;
+    warn << "Set your energy threshold between 1 and 1000." << newline;
     return;
   }
   valueE = _tmpVal;
@@ -155,7 +152,7 @@ void VertexGen_FastNeutron::SetEnThreshold(double _tmpVal) {
 
 void VertexGen_FastNeutron::SetSideBool(double _tmpVal) {
   if ((_tmpVal < 0) || (_tmpVal > 1)) {
-    std::cerr << "Set your wall to either at 0 or 1" << std::endl;
+    warn << "Set your wall to either at 0 or 1" << newline;
     return;
   }
   valueSB = _tmpVal;
@@ -199,8 +196,8 @@ void VertexGen_FastNeutron::GetMeiHimeParameters(double depth, double emin, doub
 
   MeiHimeCosDistribution->Delete();
 
-  //        std::cout << energy << " " << cosTheta << " " << B0 << " " << C0 <<
-  //        std::endl;
+  //        info << energy << " " << cosTheta << " " << B0 << " " << C0 <<
+  //        newline;
 
   //        return energy;
 }

@@ -21,6 +21,7 @@
 #include <RAT/GLG4StringUtil.hh>
 #include <RAT/GLG4TimeGen.hh>
 #include <RAT/HeGen.hh>
+#include <RAT/Log.hh>
 #include <Randomize.hh>
 #include <numeric>
 #include <string>
@@ -218,15 +219,15 @@ void HeGen::ResetTime(double offset) {
   double eventTime = timeGen->GenerateEventTime();
   nextTime = eventTime + offset;
 #ifdef DEBUG
-  std::cout << "RAT::HeGen::ResetTime:"
+  debug << "RAT::HeGen::ResetTime:"
             << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
-            << ", nextTime=" << G4BestUnit(nextTime, "Time") << std::endl;
+            << ", nextTime=" << G4BestUnit(nextTime, "Time") << newline;
 #endif
 }
 
 void HeGen::SetState(G4String state) {
 #ifdef DEBUG
-  std::cout << "RAT::HeGen::SetState called with state='" << state << "'" << std::endl;
+  debug << "RAT::HeGen::SetState called with state='" << state << "'" << newline;
 #endif
 
   // Break the argument to the this generator into sub-std::strings
@@ -236,7 +237,7 @@ void HeGen::SetState(G4String state) {
   size_t nArgs = parts.size();
 
 #ifdef DEBUG
-  std::cout << "RAT::HeGen::SetState: nArgs=" << nArgs << std::endl;
+  debug << "RAT::HeGen::SetState: nArgs=" << nArgs << newline;
 #endif
 
   try {
@@ -253,7 +254,7 @@ void HeGen::SetState(G4String state) {
       isotope = util_to_int(parts[0]);
 
       if (isotope != 8) {
-        std::cerr << "RAT::HeGen::SetState: Only He 8 is supported" << std::endl;
+        warn << "RAT::HeGen::SetState: Only He 8 is supported" << newline;
       }
 
       // The second argument is a position generator.
@@ -267,7 +268,7 @@ void HeGen::SetState(G4String state) {
 
     stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
-    std::cerr << "Unknown generator \"" << unknown.id << "\"" << std::endl;
+    warn << "Unknown generator \"" << unknown.id << "\"" << newline;
   }
 }
 
@@ -277,7 +278,7 @@ void HeGen::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    std::cerr << "HeGen error: Cannot set time state, no time generator selected" << std::endl;
+    warn << "HeGen error: Cannot set time state, no time generator selected" << newline;
 }
 
 G4String HeGen::GetTimeState() const {
@@ -291,9 +292,9 @@ void HeGen::SetPosState(G4String state) {
   if (posGen)
     posGen->SetState(state);
   else
-    std::cerr << "HeGen error: Cannot set position state, no position generator "
+    warn << "HeGen error: Cannot set position state, no position generator "
                  "selected"
-              << std::endl;
+              << newline;
 }
 
 G4String HeGen::GetPosState() const {

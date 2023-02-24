@@ -24,6 +24,7 @@
 #include "RAT/GLG4Scint.hh"  // for doScintilllation and total energy deposition info
 #include "RAT/GLG4VEventAction.hh"
 #include "Randomize.hh"
+#include <RAT/Log.hh>
 
 GLG4PMTSD::GLG4PMTSD(G4String name, int arg_max_pmts, int arg_pmt_no_offset, int arg_my_id_pmt_size)
     : G4VSensitiveDetector(name) {
@@ -59,8 +60,8 @@ void GLG4PMTSD::SimpleHit(G4int ipmt, G4double time, G4double kineticEnergy, con
                           G4int iHitPhotonCount, G4int trackID, G4bool prepulse) {
   G4int pmt_index = ipmt - pmt_no_offset;
   if (pmt_index < 0 || pmt_index >= max_pmts) {
-    std::cerr << "Error: GLG4PMTSD::SimpleHit [" << GetName() << "] passed ipmt=" << ipmt
-              << ", but max_pmts=" << max_pmts << " and offset=" << pmt_no_offset << " !" << std::endl;
+    RAT::warn << "Error: GLG4PMTSD::SimpleHit [" << GetName() << "] passed ipmt=" << ipmt
+              << ", but max_pmts=" << max_pmts << " and offset=" << pmt_no_offset << " !" << newline;
     return;
   }
 

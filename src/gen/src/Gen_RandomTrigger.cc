@@ -3,6 +3,7 @@
 #include <G4Event.hh>
 #include <RAT/EventInfo.hh>
 #include <RAT/Factory.hh>
+#include <RAT/Log.hh>
 
 #include "RAT/GLG4StringUtil.hh"
 #include "RAT/GLG4TimeGen.hh"
@@ -23,9 +24,9 @@ void Gen_RandomTrigger::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    std::cerr << "Gen_RandomTrigger error: Cannot set vertex state, no vertex "
+    RAT::warn << "Gen_RandomTrigger error: Cannot set vertex state, no vertex "
                  "generator selected"
-              << std::endl;
+              << newline;
 }
 
 G4String Gen_RandomTrigger::GetTimeState() const {

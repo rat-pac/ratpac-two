@@ -21,6 +21,7 @@
 #include "Randomize.hh"
 #include "globals.hh"
 #include "templates.hh"
+#include <RAT/Log.hh>
 
 /////////////////
 // Hidden static variables and functions

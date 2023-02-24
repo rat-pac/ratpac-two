@@ -105,7 +105,7 @@ GLG4DebugMessenger::GLG4DebugMessenger(RAT::DetectorConstruction *mydetector) : 
 GLG4DebugMessenger::~GLG4DebugMessenger() {}
 
 static void DumpGeom(G4VPhysicalVolume *pv, const char *s) {
-  G4cout << "*******************************\n";
+  G4cout << "*******************************" << newline;
   G4cout << "Physical volume dump for " << s << G4endl;
   G4cout << " Name: " << pv->GetName() << G4endl;
 
@@ -128,7 +128,7 @@ static void DumpGeom(G4VPhysicalVolume *pv, const char *s) {
   if (ndaught == 0) {
     G4cout << "Has no daughters." << G4endl;
   } else {
-    G4cout << "Has " << ndaught << " daughters:\n";
+    G4cout << "Has " << ndaught << " daughters:" << newline;
     for (G4int i = 0; i < ndaught; i++) G4cout << "\t" << lv->GetDaughter(i)->GetName();
     G4cout << G4endl;
   }
@@ -142,7 +142,7 @@ static void SetMaterial(G4String newValues) {
   G4String matName;
   iss >> lvName >> matName;
   if (iss.fail()) {
-    G4cerr << "Could not parse volume and material name from command args\n";
+    G4cerr << "Could not parse volume and material name from command args" << newline;
     G4cerr.flush();
     return;
   }
@@ -158,7 +158,7 @@ static void SetMaterial(G4String newValues) {
     if (lv->GetName() == lvName) break;
   }
   if (lv == NULL || ilv >= nlv) {  // not found
-    G4cerr << "Error, logical volume named \'" << lvName << "\' not found\n";
+    G4cerr << "Error, logical volume named \'" << lvName << "\' not found" << newline;
     G4cerr.flush();
     return;
   }
@@ -166,7 +166,7 @@ static void SetMaterial(G4String newValues) {
   // access the store of materials
   G4Material *mat = G4Material::GetMaterial(matName);
   if (mat == NULL) {
-    G4cerr << "Error, material named \'" << matName << "\' not found\n";
+    G4cerr << "Error, material named \'" << matName << "\' not found" << newline;
     G4cerr.flush();
     return;
   }
@@ -216,7 +216,7 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
         if (pv->GetName() == newValues) break;
       }
       if (pv == NULL || ipv >= npv) {  // not found
-        G4cerr << "Error, name \'" << newValues << "\' not found\n";
+        G4cerr << "Error, name \'" << newValues << "\' not found" << newline;
         G4cerr.flush();
       } else {
         DumpGeom(pv, newValues);
@@ -239,7 +239,7 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
 
     // if no arguments or nloop==0, list the solids
     if (nloop == 0) {
-      G4cout << "Here is a list of solid names\n";
+      G4cout << "Here is a list of solid names" << newline;
       for (isolid = 0; isolid < nsolid; isolid++) {
         G4VSolid *aSolid = (*theSolidStore)[isolid];
         if (!aSolid) break;
@@ -256,8 +256,8 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
         if (aSolid->GetName() == nameptr) break;
       }
       if (aSolid == NULL || isolid >= nsolid) {  // solid not found
-        G4cerr << "Error, solid name \'" << nameptr << "\' not found\n";
-        G4cerr << "Enter command with no parameters to get list of names\n";
+        G4cerr << "Error, solid name \'" << nameptr << "\' not found" << newline;
+        G4cerr << "Enter command with no parameters to get list of names" << newline;
         G4cerr.flush();
       } else {  // we found the solid, now test it
         G4Timer timer;
@@ -282,7 +282,7 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
     G4double new_value;
     iss >> parameterName;
     if (iss.fail()) {
-      G4cerr << "Could not parse parameter name from command args\n";
+      G4cerr << "Could not parse parameter name from command args" << newline;
       G4cerr.flush();
       return;
     }
@@ -327,7 +327,7 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
 
   // invalid command
   else {
-    G4cerr << "invalid GLG4 \"set\" command\n" << std::flush;
+    G4cerr << "invalid GLG4 \"set\" command" << newline << std::flush;
   }
 }
 

@@ -443,8 +443,7 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
         }
 #ifdef RATDEBUG
         if (sampledMomentum > aTrack.GetKineticEnergy()) {
-          RAT::warn << "GLG4Scint: Error in GLG4Scint: sampled reemitted "
-                       "photon momentum "
+          RAT::warn << "GLG4Scint: Error in GLG4Scint: sampled reemitted photon momentum "
                     << sampledMomentum << " is greater than track energy " << aTrack.GetKineticEnergy() << newline;
         }
         if (fVerboseLevel > 1) {
@@ -693,8 +692,7 @@ GLG4Scint::MyPhysicsTable::MyPhysicsTable() {
 
 GLG4Scint::MyPhysicsTable::~MyPhysicsTable() {
   if (fUsedByCount != 0) {
-    RAT::warn << "GLG4Scint: Error, GLG4Scint::MyPhysicsTable is being deleted with "
-                 "used_by_count="
+    RAT::warn << "GLG4Scint: Error, GLG4Scint::MyPhysicsTable is being deleted with used_by_count="
               << fUsedByCount << newline;
     return;
   }
@@ -707,8 +705,7 @@ GLG4Scint::MyPhysicsTable::~MyPhysicsTable() {
 ////////////////
 
 void GLG4Scint::MyPhysicsTable::Dump(void) const {
-  G4cout << " GLG4Scint::MyPhysicsTable {\n"
-            "  fName="
+  G4cout << " GLG4Scint::MyPhysicsTable {" << newline << "  fName="
          << (*fName) << G4endl << "  fLength=" << fLength << G4endl << "  fUsedByCount=" << fUsedByCount << G4endl;
   for (G4int i = 0; i < fLength; i++) {
     G4cout << "  data[" << i << "]= { // " << (*G4Material::GetMaterialTable())[i]->GetName() << G4endl;
@@ -737,9 +734,9 @@ void GLG4Scint::MyPhysicsTable::Dump(void) const {
     if (fData[i].fQuenchingArray != nullptr)
       fData[i].fQuenchingArray->DumpValues();
     else
-      G4cout << "nullptr" << G4endl << "  }\n";
+      G4cout << "nullptr" << G4endl << "  }" << newline;
   }
-  G4cout << " }\n";
+  G4cout << " }" << newline;
 }
 
 GLG4Scint::MyPhysicsTable *GLG4Scint::MyPhysicsTable::FindOrBuild(const G4String &name) {

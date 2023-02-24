@@ -18,6 +18,7 @@
 #include "RAT/GLG4VisManager.hh"
 #include "globals.hh"
 #include "local_g4compat.hh"
+#include <RAT/Log.hh>
 
 GLG4VisMessenger::GLG4VisMessenger(GLG4VisManager *pVMan_) : pVMan(pVMan_) {
   // the glg4vis directory
@@ -63,10 +64,10 @@ void GLG4VisMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
     vp.SetDolly(0.);
     vp.SetViewpointDirection(G4Vector3D(0., 1., 0.));
     vp.SetUpVector(G4Vector3D(0., 0., 1.));
-    G4cout << "Target point reset to (0.0,0.0,0.0)\n";
-    G4cout << "Zoom factor reset to 1.\n";
-    G4cout << "Dolly distance reset to 0.\n";
-    G4cout << "Viewpoint direction reset to +y.\n";
+    G4cout << "Target point reset to (0.0,0.0,0.0)" << newline;
+    G4cout << "Zoom factor reset to 1." << newline;
+    G4cout << "Dolly distance reset to 0." << newline;
+    G4cout << "Viewpoint direction reset to +y." << newline;
     G4cout << "Up vector set to +z.";
     G4cout << G4endl;
   } else if (commandname == "upvector") {
