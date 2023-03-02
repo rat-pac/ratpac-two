@@ -1,5 +1,6 @@
 #include <RAT/GLG4StringUtil.hh>
 #include <RAT/PosGen_Radial.hh>
+#include <RAT/Log.hh>
 #include <Randomize.hh>
 #include <sstream>
 
@@ -20,12 +21,11 @@ void PosGen_Radial::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this PosGen_Radial:\n"
-              << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to PosGen_Radial::SetState: \n"
-                 " \"x_mm y_mm z_mm R_mm\""
-              << std::endl;
+    info << "Current state of this PosGen_Radial:" << newline
+              << " \"" << GetState() << "\"" << newline
+              << newline;
+    info << "Format of argument to PosGen_Radial::SetState: " << newline
+              << " \"x_mm y_mm z_mm R_mm\"" << newline;
     return;
   }
 
@@ -35,9 +35,7 @@ void PosGen_Radial::SetState(G4String newValues) {
   G4double x, y, z, R;
   is >> x >> y >> z >> R;
   if (is.fail()) {
-    std::cerr << "PosGen_Radial::SetState: "
-                 "Could not parse four floats from input std::string"
-              << std::endl;
+    warn << "PosGen_Radial::SetState: Could not parse four floats from input string" << newline;
     return;
   }
   fCenter = G4ThreeVector(x, y, z);

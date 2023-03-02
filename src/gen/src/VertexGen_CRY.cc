@@ -14,6 +14,7 @@
 #include <G4ThreeVector.hh>
 #include <RAT/DB.hh>
 #include <RAT/EventInfo.hh>
+#include <RAT/Log.hh>
 #include <Randomize.hh>
 #include <string>
 
@@ -113,7 +114,7 @@ void VertexGen_CRY::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, G4d
 void VertexGen_CRY::SetState(G4String newValues) {
   // newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
-    std::cout << "Current state of this VertexGen_CRY: " << GetState() << std::endl;
+    info << "Current state of this VertexGen_CRY: " << GetState() << newline;
   }
 }
 

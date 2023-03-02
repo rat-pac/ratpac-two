@@ -34,10 +34,10 @@ CCCrossSecMessenger::~CCCrossSecMessenger() { ; }
 void CCCrossSecMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
   if (command == fWmaCmd) {
     G4double wma = fWmaCmd->GetNewDoubleValue(newValue);
-    std::cout << "Warning not using WMA: " << wma << std::endl;
+    info << "Warning not using WMA: " << wma << newline;
   } else if (command == fStratCmd) {
     G4int strat = fStratCmd->GetNewIntValue(newValue);
-    std::cout << "Warning not using strategy: " << strat << std::endl;
+    info << "Warning not using strategy: " << strat << newline;
   } else {
     warn << "Error: Invalid CCCrossSecMessenger \"set\" command" << newline;
   }

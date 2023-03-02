@@ -269,7 +269,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     G4cout << "> Enter GLG4PMTOpticalModel, ipmt=" << ipmt << (whereAmI == kInVacuum ? " vacuum" : " glass")
            << ", pos=" << pos << ", dir=" << dir << ", weight=" << weight << ", pol=" << pol
            << ", energy=" << _photon_energy << ", wavelength=" << _wavelength << ", (n1,n3,n2,k2,efficiency)=(" << _n1
-           << "," << _n3 << "," << _n2 << "," << _k2 << "," << _efficiency << ")\n";
+           << "," << _n3 << "," << _n2 << "," << _k2 << "," << _efficiency << ")" << newline;
   }
   _rho = sqrt(pow(pos.x(), 2) + pow(pos.y(), 2));
   _rhoAvg = (_photocathode_MINrho + _photocathode_MAXrho) / 2.0;
@@ -329,7 +329,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     _cos_theta1 = dir * norm;
     if (_cos_theta1 < 0.0) {
       G4cerr << "GLG4PMTOpticalModel::DoIt(): "
-             << " The normal points the wrong way!\n"
+             << " The normal points the wrong way!" << newline
              << "  norm: " << norm << G4endl << "  dir:  " << dir << G4endl << "  _cos_theta1:  " << _cos_theta1
              << G4endl << "  pos:  " << pos << G4endl << "  whereAmI:  " << (int)(whereAmI) << G4endl
              << " Reversing normal!" << G4endl;
@@ -356,7 +356,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
 
 #ifdef G4DEBUG
     if (A < 0.0 || A > 1.0 || collection_eff < 0.0 || collection_eff > 1.0) {
-      G4cerr << "GLG4PMTOpticalModel::DoIt(): Strange coefficients!\n";
+      G4cerr << "GLG4PMTOpticalModel::DoIt(): Strange coefficients!" << newline;
       G4cout << "T, R, A, An, weight: " << T << " " << R << " " << A << " " << An << " " << weight << G4endl;
       G4cout << "collection eff, std QE: " << collection_eff << " " << _efficiency << G4endl;
       G4cout << "=========================================================" << G4endl;
@@ -379,7 +379,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
         mean_N_pe *= EfficiencyCorrection[ipmt];
       } else {
         G4cout << "GLG4PMTOpticalModel[" << GetName() << "] warning: individual efficiency correction for PMT " << ipmt
-               << " is " << EfficiencyCorrection[ipmt] << ", resetting to 1\n";
+               << " is " << EfficiencyCorrection[ipmt] << ", resetting to 1" << newline;
       }
     }
     G4double ranno_absorb = G4UniformRand();
@@ -417,7 +417,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
         hit_photon->SetPrepulse(prepulse);
         GLG4VEventAction::GetTheHitPMTCollection()->DetectPhoton(hit_photon);
         if (prepulse) break;
-        if (_verbosity >= 2) G4cout << "GLG4PMTOpticalModel made " << N_pe << " pe\n";
+        if (_verbosity >= 2) G4cout << "GLG4PMTOpticalModel made " << N_pe << " pe" << newline;
       }
     }
 
@@ -436,14 +436,14 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     // correct, assuming there are no bugs in the code.)
     if (ranno_absorb < A) {
       weight = 0;
-      if (_verbosity >= 2) G4cout << "GLG4PMTOpticalModel absorbed track\n";
+      if (_verbosity >= 2) G4cout << "GLG4PMTOpticalModel absorbed track" << newline;
       break;
     }
 
     // reflect or refract the unabsorbed track
     if (G4UniformRand() < R / (R + T)) {  // reflect
       Reflect(dir, pol, norm);
-      if (_verbosity >= 2) G4cout << "GLG4PMTOpticalModel reflects track\n";
+      if (_verbosity >= 2) G4cout << "GLG4PMTOpticalModel reflects track" << newline;
     } else {  // transmit
       Refract(dir, pol, norm);
       if (whereAmI == kInGlass)
@@ -480,7 +480,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     G4cout.flush();
     G4cout << "> Exit GLG4PMTOpticalModel, ipmt=" << ipmt << (whereAmI == kInVacuum ? " vacuum" : " glass")
            << ", pos=" << pos << ", dir=" << dir << ", weight=" << weight << ", pol=" << pol << ", iloop=" << iloop
-           << "\n";
+           << newline;
   }
 
   return;

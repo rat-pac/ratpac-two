@@ -1,5 +1,6 @@
 #include <G4ThreeVector.hh>
 #include <RAT/TrackNav.hh>
+#include <RAT/Log.hh>
 #include <iostream>
 #include <map>
 #include <set>
@@ -20,17 +21,17 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
     int trackID = track->GetID();
     int parentID = track->GetParentID();
 
-    if (verbose) std::cerr << "\rReading in track " << i << " (id " << trackID << ")     ";
+    if (verbose) warn << "\rReading in track " << i << " (id " << trackID << ")     ";
 
     if (idYetToLoad.count(trackID) == 0) {
       idYetToLoad.insert(trackID);
       idToIndex[trackID] = i;
       idToDaughter.insert(std::pair<const int, int>(parentID, trackID));
     } else
-      std::cerr << "TrackNav: TrackID " << trackID << " duplicated!" << std::endl;
+      warn << "TrackNav: TrackID " << trackID << " duplicated!" << newline;
   }
 
-  if (verbose) std::cerr << std::endl;
+  if (verbose) warn << newline;
 
   // Set head node with appropriate markers
   fHead = new TrackNode();
@@ -54,7 +55,7 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
     // Fetch next track
     int trackID = readyToAdd.top();
 
-    if (verbose) std::cerr << "\rAdding " << trackID << " to tree.";
+    if (verbose) warn << "\rAdding " << trackID << " to tree.";
 
     readyToAdd.pop();
     DS::MCTrack *track = mc->GetMCTrack(idToIndex[trackID]);
@@ -142,10 +143,10 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
 
   // All done, let's make sure we are really done
   if (idYetToLoad.size() != 0) {
-    std::cerr << "TrackNav: Error! Not all tracks were reachable from initial "
+    warn << "TrackNav: Error! Not all tracks were reachable from initial "
                  "particles.\n"
                  "             Still "
-              << idYetToLoad.size() << " left in queue." << std::endl;
+              << idYetToLoad.size() << " left in queue." << newline;
   }
 }
 

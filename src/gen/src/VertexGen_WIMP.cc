@@ -44,12 +44,11 @@ void VertexGen_WIMP::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, G4
 void VertexGen_WIMP::SetState(G4String newValues) {
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this VertexGen_WIMP:\n"
-              << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to VertexGen_WIMP::SetState: \n"
-                 " \"nucleus_name WIMP_mass_in_GeV\"\n"
-              << std::endl;
+    info << "Current state of this VertexGen_WIMP:" << newline
+           << " \"" << GetState() << "\"" << newline
+           << newline;
+    info << "Format of argument to VertexGen_WIMP::SetState: " << newline
+           << " \"nucleus_name WIMP_mass_in_GeV\"\n" << newline;
     return;
   }
 
@@ -89,15 +88,15 @@ double VertexGen_WIMP::Helmff(double E, double mA) {
 // Eq. (19) of C. Savage, G. Gelmini, P. Gondolo, K. Freese, JCAP 0904:010, 2009
 double VertexGen_WIMP::VelIntegral(double vmin, double v0, double vE, double vesc) {
   if (v0 == 0) {
-    std::cout << "VertexGen_WIMP error: zero most likely WIMP velocity relative "
+    info << "VertexGen_WIMP error: zero most likely WIMP velocity relative "
                  "to the Milky Way. Returning -1\n";
     return -1;
   }
   double xmin = vmin / v0, xE = vE / v0, xesc = vesc / v0;
   if (xesc < xE)
-    std::cout << "VertexGen_WIMP warning (we are not escaping the galaxy): our "
+    info << "VertexGen_WIMP warning (we are not escaping the galaxy): our "
                  "velocity is "
-              << vE << ", the local Milky Way escape velocity is " << vesc << ". The results will be unphysical.\n";
+              << vE << ", the local Milky Way escape velocity is " << vesc << ". The results will be unphysical." << newline;
   // no extragalactic WIMPs
   if (xesc + xE <= xmin) return 0;
   // normal case: we're looking where we expect a good signal

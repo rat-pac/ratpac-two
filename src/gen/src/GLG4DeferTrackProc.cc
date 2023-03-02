@@ -20,12 +20,13 @@ class G4UImessenger;  // for G4ProcessTable.hh
 
 #include "G4ProcessTable.hh"
 #include "RAT/GLG4PrimaryGeneratorAction.hh"
+#include <RAT/Log.hh>
 
 ////////////////////////////////////////////////////////////////
 
 GLG4DeferTrackProc::GLG4DeferTrackProc(const G4String &aName) : G4VProcess(aName) {
   if (verboseLevel > 0) {
-    std::cout << GetProcessName() << " is created " << std::endl;
+    RAT::info << GetProcessName() << " is created " << newline;
   }
 
   _generator = GLG4PrimaryGeneratorAction::GetTheGLG4PrimaryGeneratorAction();

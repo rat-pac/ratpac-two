@@ -14,6 +14,7 @@
 #include <G4Neutron.hh>
 #include <G4ParticleDefinition.hh>
 #include <RAT/AmBeSource.hh>
+#include <RAT/Log.hh>
 #include <cmath>
 #include <cstring>
 #include <fstream>  // file I/O
@@ -62,7 +63,7 @@ AmBeSource::AmBeSource() {
     double fspace[probDensSize];
 
 #ifdef DEBUG
-    std::cout << "AmBeSource initialization" << std::endl;
+    debug << "AmBeSource initialization" << newline;
 #endif
 
     // Find function values at bin centers.
@@ -70,7 +71,7 @@ AmBeSource::AmBeSource() {
       float value = (float(i) + 0.5) * (fhigh - flow) / (float)probDensSize;
       fspace[i] = AmBeNeutronSpectrum(value);
 #ifdef DEBUG
-      std::cout << "   i=" << i << ", value = " << value << " f,m,g=" << fspace[i] << std::endl;
+      debug << "   i=" << i << ", value = " << value << " f,m,g=" << fspace[i] << newline;
 #endif
     }
 
@@ -78,9 +79,9 @@ AmBeSource::AmBeSource() {
     fGenerate = new CLHEP::RandGeneral(fspace, probDensSize);
 
 #ifdef DEBUG
-    std::cout << " Random generator test (f):" << std::endl;
+    debug << " Random generator test (f):" << newline;
     for (size_t i = 0; i != 20; i++) {
-      std::cout << i << ": " << fGenerate->shoot() * (fhigh - flow) + flow << std::endl;
+      debug << i << ": " << fGenerate->shoot() * (fhigh - flow) + flow << newline;
     }
 
 #endif
@@ -89,15 +90,15 @@ AmBeSource::AmBeSource() {
   // pick a neutron multiplicity
   Nneutron = 1;  // only one neutron generated
 
-  // std::cout << "   " << Nneutron << " neutrons" << std::endl;
+  // info << "   " << Nneutron << " neutrons" << newline;
   //
   //  pick a momentum direction for each neutron
   //
   for (int nn = 0; nn < Nneutron; nn++) {
     double neutronKE = fGenerate->shoot() * (fhigh - flow) + flow;
-    // 	  std::cout << "neutronKE = " << neutronKE*CLHEP::MeV << std::endl;
+    // 	  info << "neutronKE = " << neutronKE*CLHEP::MeV << newline;
     double energy = massNeutron + neutronKE;
-    // 	  std::cout << "energy = " << energy*CLHEP::MeV << std::endl;
+    // 	  info << "energy = " << energy*CLHEP::MeV << newline;
     // Generate momentum direction uniformly in phi and cos(theta).
     double phi = CLHEP::RandFlat::shoot(0., M_PI);
     double cosTheta = CLHEP::RandFlat::shoot(-1., 1.);
@@ -114,8 +115,8 @@ AmBeSource::AmBeSource() {
     double py = neutronP * sinTheta * sin(phi);
     double pz = neutronP * cosTheta;
 #ifdef DEBUG
-    std::cout << "AmBeSource::AmBeSource() - neutron energy " << nn << " = " << energy << ", KE=" << neutronKE
-              << ", (px,py,pz)=(" << px << "," << py << "," << pz << ")" << std::endl;
+    debug << "AmBeSource::AmBeSource() - neutron energy " << nn << " = " << energy << ", KE=" << neutronKE
+              << ", (px,py,pz)=(" << px << "," << py << "," << pz << ")" << newline;
 #endif
     CLHEP::HepLorentzVector momentum(px, py, pz, energy);
     neutronE.push_back(momentum);
@@ -137,8 +138,8 @@ AmBeSource::AmBeSource() {
   }
 
 #ifdef DEBUG
-  std::cout << "AmBeSource::AmBeSource - "
-            << "m=" << m << " => " << Ngamma << " photons" << std::endl;
+  debug << "AmBeSource::AmBeSource - "
+            << "m=" << m << " => " << Ngamma << " photons" << newline;
 #endif
   // pick a momentum for each gamma
   //
@@ -153,8 +154,8 @@ AmBeSource::AmBeSource() {
     double py = energy * sinTheta * sin(phi);
     double pz = energy * cosTheta;
 #ifdef DEBUG
-    std::cout << "AmBeSource::AmBeSource() - gamma energy " << nn << " = " << energy << ", (px,py,pz)=(" << px << ","
-              << py << "," << pz << ")" << std::endl;
+    debug << "AmBeSource::AmBeSource() - gamma energy " << nn << " = " << energy << ", (px,py,pz)=(" << px << ","
+              << py << "," << pz << ")" << newline;
 #endif
     CLHEP::HepLorentzVector momentum(px, py, pz, energy);
     gammaE.push_back(momentum);
@@ -163,7 +164,7 @@ AmBeSource::AmBeSource() {
     // consider the gammas is emitted instantaneously (10^-15 -ish decay time)
     Tgamma.push_back(0.);
   }
-  // std::cout << "          total energy = " << tote << std::endl;
+  // info << "          total energy = " << tote << newline;
 }
 
 AmBeSource::~AmBeSource() { ; }

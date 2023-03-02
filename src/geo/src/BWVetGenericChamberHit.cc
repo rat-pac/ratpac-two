@@ -11,6 +11,7 @@
 #include <G4VisAttributes.hh>
 #include <G4ios.hh>
 #include <RAT/BWVetGenericChamberHit.hh>
+#include <RAT/Log.hh>
 
 namespace RAT {
 
@@ -59,7 +60,7 @@ void BWVetGenericChamberHit::Draw() {
 
 void BWVetGenericChamberHit::Print() {
   int deb = 0;
-  if (deb != 0) std::cout << "  BWVetGenericChamber[" << id << "] " << time / CLHEP::ns << " (nsec)" << std::endl;
+  if (deb != 0) info << "  BWVetGenericChamber[" << id << "] " << time / CLHEP::ns << " (nsec)" << newline;
 }
 
 }  // namespace RAT

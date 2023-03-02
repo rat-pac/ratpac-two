@@ -545,7 +545,7 @@ std::vector<DBTable *> DBTextLoader::parse(std::string filename) {
       if (table->GetFieldType("name") == DBTable::STRING)
         table->SetName(table->GetS("name"));
       else {
-        std::cerr << "Unnamed table in " << filename << std::endl;
+        warn << "Unnamed table in " << filename << newline;
         bad = true;
       }
 
@@ -577,15 +577,15 @@ std::vector<DBTable *> DBTextLoader::parse(std::string filename) {
           table->Set("run_range", run_range);
           table->SetRunRange(run_range[0], run_range[1]);
         } else {
-          std::cerr << "Table has old-style valid_begin/valid_end arrays not set to "
+          warn << "Table has old-style valid_begin/valid_end arrays not set to "
                        "default or user plane.  Discarding..."
-                    << std::endl;
+                    << newline;
           bad = true;
         }
 
       } else {
-        std::cerr << "Table " << table->GetName() << " has bad/missing validity information." << std::endl
-                  << "Discarding..." << std::endl;
+        warn << "Table " << table->GetName() << " has bad/missing validity information." << newline
+                  << "Discarding..." << newline;
         bad = true;
       }
 
@@ -602,7 +602,7 @@ std::vector<DBTable *> DBTextLoader::parse(std::string filename) {
   } catch (ParseError &p) {
     // Inform user of parse failure and keep handing the exception up
     // the call stack (presumably we will exit the entire program)
-    std::cerr << p.GetFull();
+    warn << p.GetFull();
     throw;
   }
 

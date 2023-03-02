@@ -24,6 +24,7 @@
 #include <RAT/CCCrossSec.hh>
 #include <RAT/CCgen.hh>
 #include <RAT/DB.hh>
+#include <RAT/Log.hh>
 #include <Randomize.hh>
 #include <cmath>
 
@@ -136,8 +137,8 @@ void CCgen::LoadGenerator() {
 
   // If it reaches this point without failing then everything should be fine
   fGenLoaded = true;
-  std::cout << "Rate per target for CC of " << fNuType.c_str() << " flux on Li7 is: " << GetRatePerTarget()
-            << std::endl;
+  info << "Rate per target for CC of " << fNuType.c_str() << " flux on Li7 is: " << GetRatePerTarget()
+            << newline;
 }
 
 CCgen::~CCgen() {
@@ -250,8 +251,8 @@ void CCgen::Reset() {
 }
 
 void CCgen::Show() {
-  std::cout << "Charged Current Settings:\n";
-  std::cout << "NuType : " << fNuType.c_str() << "\n";
+  info << "Charged Current Settings:" << newline;
+  info << "NuType : " << fNuType.c_str() << newline;
 }
 
 //
@@ -395,8 +396,8 @@ G4double CCgen::GetRatePerTarget() {
       intRate += integ;
     }
   }
-  std::cout << "Interaction rate: " << intRate << " XS norm: " << fXS->CrossSecNorm() << " Total Flux: " << fTotalFlux
-            << std::endl;
+  info << "Interaction rate: " << intRate << " XS norm: " << fXS->CrossSecNorm() << " Total Flux: " << fTotalFlux
+            << newline;
   // don't forget the scale factor from the cross section
   // nor the total flux
   return intRate * fXS->CrossSecNorm() * fTotalFlux;

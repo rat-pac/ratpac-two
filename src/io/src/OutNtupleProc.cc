@@ -14,6 +14,7 @@
 #include <RAT/DS/Run.hh>
 #include <RAT/DS/RunStore.hh>
 #include <RAT/OutNtupleProc.hh>
+#include <RAT/Log.hh>
 #include <iostream>
 #include <numeric>
 #include <sstream>
@@ -448,7 +449,7 @@ OutNtupleProc::~OutNtupleProc() {
       geo_index = ldetector->GetD("geo_index");
     }
     catch (DBNotFoundError& e) {
-      std::cout << "Geometry index not found." << std::endl;
+      info << "Geometry index not found." << newline;
       // Set invalid
       geo_index = -9999;
     }

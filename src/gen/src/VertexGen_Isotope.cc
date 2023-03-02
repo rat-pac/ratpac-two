@@ -54,14 +54,14 @@ void VertexGen_Isotope::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx,
 void VertexGen_Isotope::SetState(G4String newValues) {
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this VertexGen_Isotope:\n"
-              << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to VertexGen_Isotope::SetState: \n"
-              << " \"pname  specname  (Elo Ehi)\"\n"
-              << " pname = particle name \n"
-              << " specname = Isotope name as given in ratdb \n"
-              << " Elo Ehi = optional limits on energy range of generated particles " << std::endl;
+    info << "Current state of this VertexGen_Isotope:" << newline
+              << " \"" << GetState() << "\"" << newline
+              << newline;
+    info << "Format of argument to VertexGen_Isotope::SetState: " << newline
+              << " \"pname  specname  (Elo Ehi)\"" << newline
+              << " pname = particle name " << newline
+              << " specname = Isotope name as given in ratdb " << newline
+              << " Elo Ehi = optional limits on energy range of generated particles " << newline;
     return;
   }
 
@@ -90,17 +90,17 @@ void VertexGen_Isotope::SetState(G4String newValues) {
         if (elementName == GLG4VertexGen_Gun::theElementNames[Z - 1]) break;
         if (Z <= GLG4VertexGen_Gun::numberOfElements) {
           newTestGunG4Code = G4IonTable::GetIonTable()->GetIon(Z, A, 0.0);
-          std::cout << " Isotope Vertex: Setting ion with A = " << A << " Z = " << Z << std::endl;
+          info << " Isotope Vertex: Setting ion with A = " << A << " Z = " << Z << newline;
         }
       }
     }
     if (newTestGunG4Code == NULL) {
-      std::cerr << "Isotope Vertex: Could not find particle type " << pname << " defaulting to electron " << std::endl;
+      warn << "Isotope Vertex: Could not find particle type " << pname << " defaulting to electron " << newline;
       _particle = "e-";
       return;
     }
   } else {
-    std::cout << "Isotope Vertex: Setting particle = " << pname << std::endl;
+    info << "Isotope Vertex: Setting particle = " << pname << newline;
   }
   // so store the name and the particle definition
   _particle = pname;
@@ -113,11 +113,11 @@ void VertexGen_Isotope::SetState(G4String newValues) {
   //        DBLinkPtr lspec = DB::Get()->GetLink("Isotope", specname);
   //        if(lspec){
   //            _Isotope = specname;
-  //            std::cout << "Isotope Vertex: Setting Isotope " << specname <<
-  //            std::endl;
+  //            info << "Isotope Vertex: Setting Isotope " << specname <<
+  //            newline;
   //        }else{
-  //            std::cerr << "Could not find Isotope " << specname << " using
-  //            default, flat Isotope " << std::endl;
+  //            warn << "Could not find Isotope " << specname << " using
+  //            default, flat Isotope " << newline;
   //        }
 
   // finally ready to initialise the Isotope!
@@ -138,7 +138,7 @@ G4String VertexGen_Isotope::GetState() {
 
 void VertexGen_Isotope::SetIsotopeA(double IBDAm) {
   if ((IBDAm < 0.) || (IBDAm > 400.)) {
-    std::cerr << "Set your IBD Amplitude between 0 and 400." << std::endl;
+    warn << "Set your IBD Amplitude between 0 and 400." << newline;
     return;
   }
   valueA = IBDAm;
@@ -146,7 +146,7 @@ void VertexGen_Isotope::SetIsotopeA(double IBDAm) {
 
 void VertexGen_Isotope::SetIsotopeZ(double IBDAm) {
   if ((IBDAm < 0.) || (IBDAm > 400.)) {
-    std::cerr << "Set your IBD Amplitude between 0 and 400." << std::endl;
+    warn << "Set your IBD Amplitude between 0 and 400." << newline;
     return;
   }
   valueZ = IBDAm;
@@ -154,7 +154,7 @@ void VertexGen_Isotope::SetIsotopeZ(double IBDAm) {
 
 void VertexGen_Isotope::SetIsotopeE(double IBDAm) {
   if ((IBDAm < 0.) || (IBDAm > 400.)) {
-    std::cerr << "Set your IBD Amplitude between 0 and 400." << std::endl;
+    warn << "Set your IBD Amplitude between 0 and 400." << newline;
     return;
   }
   valueE = IBDAm;

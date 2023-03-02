@@ -171,7 +171,7 @@ void Materials::ConstructMaterials() {
       adb = table->GetD("a");
       new G4Element(namedb, csymbol, zdb, adb * CLHEP::g / CLHEP::mole);
     } catch (DBNotFoundError &e) {
-      std::cout << "Materials error: Could not construct elements" << std::endl;
+      info << "Materials error: Could not construct elements" << newline;
     }
   }
 
@@ -270,7 +270,7 @@ bool Materials::BuildMaterial(std::string namedb, DBLinkPtr table) {
     nelementsdb = table->GetI("nelements");
     nmaterialsdb = table->GetI("nmaterials");
   } catch (DBNotFoundError &e) {
-    std::cout << "Materials: Material read error" << std::endl;
+    info << "Materials: Material read error" << newline;
     return false;
   }
 
@@ -330,8 +330,8 @@ bool Materials::BuildMaterial(std::string namedb, DBLinkPtr table) {
     std::vector<double> elemprop = table->GetDArray("elemprop");
 
     if (elemname.size() != elemprop.size()) {
-      std::cout << "Death...oh Materials material reader, "
-                << " how you have forsaken me" << std::endl;  // fixme tk
+      info << "Death...oh Materials material reader, "
+                << " how you have forsaken me" << newline;  // fixme tk
       exit(-1);
     }
 
@@ -345,8 +345,8 @@ bool Materials::BuildMaterial(std::string namedb, DBLinkPtr table) {
     std::vector<double> elemprop = table->GetDArray("matprop");
 
     if (elemname.size() != elemprop.size()) {
-      std::cout << "Death...oh Materials material reader, "
-                << "how you have forsaken me" << std::endl;  // fixme tk
+      info << "Death...oh Materials material reader, "
+                << "how you have forsaken me" << newline;  // fixme tk
       exit(-1);
     }
 
@@ -397,13 +397,13 @@ G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table, std::string n
     val1 = table->GetDArray(name + "_value1");
     val2 = table->GetDArray(name + "_value2");
   } catch (DBNotFoundError &e) {
-    std::cout << "Could not read property " << name << " of " << table->GetIndex() << std::endl;
+    info << "Could not read property " << name << " of " << table->GetIndex() << newline;
     return nullptr;
   }
 
   if (val1.size() != val2.size()) {
-    std::cout << "Array size error in Materials: "
-              << "bad property value sizes" << std::endl;
+    info << "Array size error in Materials: "
+              << "bad property value sizes" << newline;
     return nullptr;
   }
 
@@ -429,7 +429,7 @@ G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table, std::string n
         E_value = CLHEP::twopi * CLHEP::hbarc / (lam * CLHEP::nanometer);
         if (wavelength_opt == 2) p_value *= lam / E_value;
       } else {
-        std::cerr << "Materials property std::vector zero wavelength!\n";
+        warn << "Materials property std::vector zero wavelength!" << newline;
       }
     }
     pv->InsertValues(E_value, p_value);
@@ -450,7 +450,7 @@ void Materials::BuildMaterialPropertiesTable(G4Material *material, DBLinkPtr tab
   try {
     props = table->GetSArray("PROPERTY_LIST");
   } catch (DBNotFoundError &e) {
-    std::cout << "Materials failed to get property list on: " << name << std::endl;
+    info << "Materials failed to get property list on: " << name << newline;
     return;
   }
 
@@ -545,12 +545,12 @@ void Materials::LoadOptics() {
   // Load everything in OPTICS
   for (DBLinkGroup::iterator iv = mats.begin(); iv != mats.end(); iv++) {
     std::string name = iv->first;
-    std::cout << "Loading optics: " << name << std::endl;
+    info << "Loading optics: " << name << newline;
 
     G4Material *material = G4Material::GetMaterial(name);
     if (material == nullptr) {
-      std::cout << "While loading optics in Materials, "
-                << "there was a bad material name: " << name << std::endl;
+      info << "While loading optics in Materials, "
+                << "there was a bad material name: " << name << newline;
       continue;
     }
 
@@ -567,7 +567,7 @@ void Materials::LoadOptics() {
     try {
       props = table->GetSArray("PROPERTY_LIST");
     } catch (DBNotFoundError &e) {
-      std::cout << "Materials failed to get property list on: " << name << std::endl;
+      info << "Materials failed to get property list on: " << name << newline;
       Log::Die("Materials unable to load property list");
       return;
     }
@@ -613,7 +613,7 @@ void Materials::LoadOptics() {
       ss << "FRACTION" << i + 1;
       mpt->AddConstProperty(ss.str().c_str(), fraction, true);
 
-      std::cout << " - Component " << i << ": " << compname << " (" << 100.0 * fraction << "%)" << std::endl;
+      info << " - Component " << i << ": " << compname << " (" << 100.0 * fraction << "%)" << newline;
 
       G4Material *component = G4Material::GetMaterial(compname);
       Log::Assert(material, "Materials: Unable to locate component material");
@@ -650,7 +650,7 @@ void Materials::LoadOptics() {
           //// Log::Assert(mpm->find(pname) == mpm->end(),
           ////             "Materials: Composite material cannot contain the
           /// same properties as components");
-          std::cout << compname << " has " << pname << "!" << std::endl;
+          info << compname << " has " << pname << "!" << newline;
           std::stringstream ss2;
           ss << pname << i + 1;
           //// mpt->AddProperty(ss2.str().c_str(), it->second);
@@ -725,7 +725,7 @@ void Materials::LoadOptics() {
                           materialConstPropertyNames.end(),
                       "Materials: Composite material cannot contain the same "
                       "properties as components");
-          std::cout << compname << " has " << cname << std::endl;
+          info << compname << " has " << cname << newline;
           std::stringstream ss2;
           ss2 << cname << i + 1;
           mpt->AddConstProperty(ss2.str().c_str(), cptConstProperties.at(propid).first);
@@ -733,17 +733,17 @@ void Materials::LoadOptics() {
       }
     }
 
-    std::cout << "----" << std::endl;
+    info << "----" << newline;
     //// const std::map<G4String,
     ////                G4MaterialPropertyVector*>* mpm =
     /// mpt->GetPropertiesMap(); / std::map<G4String, /
     /// G4MaterialPropertyVector*>::const_iterator it; / for (it=mpm->begin();
-    /// it!=mpm->end(); it++) { /   std::cout << it->first << std::endl; / } / const
+    /// it!=mpm->end(); it++) { /   info << it->first << newline; / } / const
     /// std::map<G4String, /                G4double>* mcpm =
     /// mpt->GetPropertiesCMap(); / std::map<G4String, /
     /// G4double>::const_iterator cit; / for (cit=mcpm->begin();
-    /// cit!=mcpm->end(); cit++) { /   std::cout << cit->first << std::endl; / }
-    std::cout << "----" << std::endl;
+    /// cit!=mcpm->end(); cit++) { /   info << cit->first << newline; / }
+    info << "----" << newline;
   }
 }
 

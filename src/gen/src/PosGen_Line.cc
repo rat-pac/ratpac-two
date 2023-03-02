@@ -1,5 +1,6 @@
 #include <RAT/GLG4StringUtil.hh>
 #include <RAT/PosGen_Line.hh>
+#include <RAT/Log.hh>
 #include <Randomize.hh>
 #include <sstream>
 
@@ -18,12 +19,10 @@ void PosGen_Line::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this GLG4PosGen_Line:\n"
-              << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to PosGen_Line::SetState: \n"
-                 " \"x1_mm y1_mm z1_mm x2_mm y2_mm z2_mm\""
-              << std::endl;
+    info << "Current state of this GLG4PosGen_Line:" << newline
+              << " \"" << GetState() << "\"" << newline << newline;
+    info << "Format of argument to PosGen_Line::SetState: " << newline
+              <<  " \"x1_mm y1_mm z1_mm x2_mm y2_mm z2_mm\"" << newline;
     return;
   }
 
@@ -33,9 +32,7 @@ void PosGen_Line::SetState(G4String newValues) {
   G4double x1, y1, z1, x2, y2, z2;
   is >> x1 >> y1 >> z1 >> x2 >> y2 >> z2;
   if (is.fail()) {
-    std::cerr << "PosGen_Line::SetState: "
-                 "Could not parse six floats from input std::string"
-              << std::endl;
+    warn << "PosGen_Line::SetState: Could not parse six floats from input string" << newline;
     return;
   }
   fPoint1 = G4ThreeVector(x1, y1, z1);

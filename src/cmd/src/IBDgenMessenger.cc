@@ -6,6 +6,7 @@
 #include <G4UIdirectory.hh>
 #include <RAT/IBDgen.hh>
 #include <RAT/IBDgenMessenger.hh>
+#include <RAT/Log.hh>
 
 namespace RAT {
 IBDgenMessenger::IBDgenMessenger(IBDgen *re) : ibdgen(re) {

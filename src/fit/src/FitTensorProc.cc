@@ -84,7 +84,7 @@ cppflow::tensor FitTensorProc::CreateProjection(DS::EV *ev, DS::PMTInfo *pmtinfo
     for (int j = 0; j < ydim; j++) {
       float red_value = red[i][j];
       red_value = isnan(red_value) ? 0 : red_value;
-      // std::cout << red_value << std::endl;
+      // info << red_value << newline;
       flatArray.push_back(std::min(std::max(static_cast<float>(0.0), red_value), static_cast<float>(1.0)));
       float green_value = green[i][j];
       green_value = isnan(green_value) ? 0 : green_value;
@@ -92,9 +92,9 @@ cppflow::tensor FitTensorProc::CreateProjection(DS::EV *ev, DS::PMTInfo *pmtinfo
     }
   }
   float totalTester = accumulate(flatArray.begin(), flatArray.end(), 0);
-  // std::cout << totalTester << std::endl;
+  // info << totalTester << newline;
   for (auto &a : flatArray) {
-    // std::cout << a << ", ";
+    // info << a << ", ";
   }
   cppflow::tensor input(flatArray, shape);
   return input;

@@ -10,6 +10,7 @@
 #include <G4UIdirectory.hh>
 #include <RAT/CoincidenceMessenger.hh>
 #include <RAT/Coincidence_Gen.hh>
+#include <RAT/Log.hh>
 
 namespace RAT {
 
