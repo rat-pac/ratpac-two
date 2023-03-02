@@ -13,166 +13,187 @@ WaveformAnalysis::WaveformAnalysis(){
   fIntWindowLow = fDigit->GetD("integration_window_low");
   fIntWindowHigh = fDigit->GetD("integration_window_high");
   fConstFrac = fDigit->GetD("constant_fraction");
+  fThreshold = fDigit->GetD("voltage_threshold");
 }
 
 void WaveformAnalysis::RunAnalysis(DS::PMT *pmt, int pmtID, Digitizer *fDigitizer){
 
-  double dy = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
+  fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
+  fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
 
-  double digit_time = CalculateTime(fDigitizer->fDigitWaveForm[pmtID], fPedWindowLow,
-                                    fPedWindowHigh, dy, fDigitizer->fSamplingRate,
-                                    fConstFrac, fLookback);
+  fDigitWfm = fDigitizer->fDigitWaveForm[pmtID]; 
 
-  double time_step = 1.0 / fDigitizer->fSamplingRate;
-  int low_int_window = int((digit_time - fIntWindowLow) / time_step);
-  int high_int_window = int((digit_time + fIntWindowHigh) / time_step);
+  CalculatePedestal();
 
-  double digit_charge = Integrate(fDigitizer->fDigitWaveForm[pmtID], fPedWindowLow,
-                                  fPedWindowHigh, dy, fDigitizer->fSamplingRate,
-                                  low_int_window, high_int_window, fDigitizer->fTerminationOhms);
+  double digit_time = CalculateTime();
+
+  fLowIntWindow = int((digit_time - fIntWindowLow) / fTimeStep);
+  fHighIntWindow = int((digit_time + fIntWindowHigh) / fTimeStep);
+  fTermOhms = fDigitizer->fTerminationOhms;
+
+  double digit_charge = Integrate();
 
   pmt->SetDigitizedTime(digit_time);
   pmt->SetDigitizedCharge(digit_charge);
+  pmt->SetInterpolatedTime(fInterpolatedTime);
+  pmt->SetSampleTime(fThresholdCrossing);
+  pmt->SetNCrossings(fNCrossings);
+  pmt->SetPedestal(fPedestal);
 }
 
-double WaveformAnalysis::CalculatePedestal(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window) {
+void WaveformAnalysis::CalculatePedestal() {
   /*
   Calculate the baseline in the window between low - high samples.
   */
-  double pedestal = 0;
+  fPedestal = 0;
 
-  if(low_window > wfm.size()){
+  if(fPedWindowLow > fDigitWfm.size()){
     Log::Die("WaveformAnalysis: Start of pedestal window must be smaller than waveform size.");
   }
-  else if(low_window > high_window){
+  else if(fPedWindowLow > fPedWindowHigh){
     Log::Die("WaveformAnalysis: Start of pedestal window must be smaller than end of pedestal window.");
   }
 
   // Ensure end of pedestal window is less than waveform size
-  high_window = (high_window > wfm.size()) ? wfm.size() : high_window;
+  fPedWindowHigh = (fPedWindowHigh > fDigitWfm.size()) ? fDigitWfm.size() : fPedWindowHigh;
 
-  for (UShort_t i = low_window; i < high_window; i++) {
-    pedestal += wfm[i];
+  for (UShort_t i = fPedWindowLow; i < fPedWindowHigh; i++) {
+    fPedestal += fDigitWfm[i];
   }
-  pedestal /= (high_window - low_window);
-
-  return pedestal;
+  fPedestal /= (fPedWindowHigh - fPedWindowLow);
 }
 
-double WaveformAnalysis::Interpolate(double voltage1, double voltage2, double voltage_crossing, double time_step) {
+void WaveformAnalysis::Interpolate(double voltage1, double voltage2){
   /*
   Linearly interpolate between two samples
   */
   double deltav = (voltage1 - voltage2);
-  double dx = (voltage_crossing - voltage2) / deltav;
-  double dt = dx * time_step;
-
-  return dt;
+  double dx = (fVoltageCrossing - voltage2) / deltav;
+  fInterpolatedTime = dx * fTimeStep;
 }
 
-void WaveformAnalysis::GetPeak(std::vector<UShort_t> wfm, double dy, double pedestal, double &peak,
-                               UShort_t &peak_sample) {
+void WaveformAnalysis::GetPeak(){
   /*
   Calculate the peak (in mV) and the corresponding sample.
   */
-  for (size_t i = 0; i < wfm.size(); i++) {
-    double voltage = (wfm[i] - pedestal) * dy;
+  fVoltagePeak = 999;
+  fSamplePeak = -999;
+  for (size_t i = 0; i < fDigitWfm.size(); i++) {
+    double voltage = (fDigitWfm[i] - fPedestal) * fVoltageRes;
 
     // Downward going pulse
-    if (voltage < peak) {
-      peak = voltage;
-      peak_sample = i;
+    if (voltage < fVoltagePeak) {
+      fVoltagePeak = voltage;
+      fSamplePeak = i;
     }
   }
 }
 
-UShort_t WaveformAnalysis::GetThresholdCrossing(std::vector<UShort_t> wfm, double dy, double pedestal, double peak,
-                                                UShort_t peak_sample, double cfd_fraction, UShort_t lookback) {
+void WaveformAnalysis::GetThresholdCrossing(){
   /*
   Identifies the sample at which the constant-fraction threshold crossing occurs
    */
-  UShort_t threshold_crossing_sample = 0;
-  double voltage_crossing = cfd_fraction * peak;
+  fThresholdCrossing = 0;
+  fVoltageCrossing = fConstFrac * fVoltagePeak;
 
   // Make sure we don't scan passed the beginning of the waveform 
-  Int_t lb = Int_t(peak_sample) - Int_t(lookback);
+  Int_t lb = Int_t(fSamplePeak) - Int_t(fLookback);
   UShort_t back_window = (lb > 0) ? lb : 0;
 
   // Start at the peak and scan backwards
-  for (UShort_t i = peak_sample; i > back_window; i--) {
-    double voltage = (wfm[i] - pedestal) * dy;
+  for (UShort_t i = fSamplePeak; i > back_window; i--) {
+    double voltage = (fDigitWfm[i] - fPedestal) * fVoltageRes;
 
-    if (voltage > voltage_crossing) {
-      threshold_crossing_sample = i;
+    if (voltage > fVoltageCrossing) {
+      fThresholdCrossing = i;
       break;
     }
 
     // Reached the begining of the waveform
     // returned an invalid value
-    if (i == 0) return INVALID;
+    if (i == 0){
+      fThresholdCrossing = INVALID;
+      break;
+    }
   }
-
-  return threshold_crossing_sample;
 }
 
-double WaveformAnalysis::CalculateTime(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window, double dy,
-                                       double sampling_rate, double cfd_fraction, UShort_t lookback) {
+void WaveformAnalysis::GetNCrossings(){
+  /*
+  Calculates the total number of threshold crossings
+  */
+  fNCrossings = 0;
+  fTimeOverThreshold = 0;
+
+  bool fCrossed = false;
+  // Start at the peak and scan backwards
+  for (UShort_t i = 0; i > fDigitWfm.size(); i--) {
+    double voltage = (fDigitWfm[i] - fPedestal) * fVoltageRes;
+
+    if (voltage < fThreshold) {
+      if(!fCrossed){
+        fNCrossings += 1;
+      }
+      fTimeOverThreshold += fTimeStep;
+      fCrossed = true;
+    }
+
+    if (voltage < fThreshold) {
+      fCrossed = false;
+    }
+  }
+}
+
+double WaveformAnalysis::CalculateTime() {
   /*
   Apply constant-fraction discriminator to digitized PMT waveforms.
   */
-  double pedestal = CalculatePedestal(wfm, low_window, high_window);
 
   // Calculate peak in mV
-  double peak = 9999;
-  UShort_t peak_sample = 0;
-  GetPeak(wfm, dy, pedestal, peak, peak_sample);
+  GetPeak();
 
-  UShort_t threshold_crossing_sample = GetThresholdCrossing(wfm, dy, pedestal, peak, peak_sample, cfd_fraction, lookback);
+  // Get the sample where the voltage thresh is crossed
+  GetThresholdCrossing();
 
-  if(threshold_crossing_sample == INVALID || 
-     threshold_crossing_sample >= wfm.size()){
+  GetNCrossings();
+
+  if(fThresholdCrossing == INVALID || 
+     fThresholdCrossing >= fDigitWfm.size()){
     return INVALID;
   }
 
-  if(threshold_crossing_sample >= wfm.size()){
+  if(fThresholdCrossing >= fDigitWfm.size()){
     Log::Die("WaveformAnalysis: Threshold crossing sample larger than waveform window."); 
   }
 
-  double time_step = 1.0 / sampling_rate;  // in ns
-
   // Interpolate between the two samples where the CFD threshold is crossed
-  double voltage_crossing = cfd_fraction * peak;
-  double v1 = (wfm[threshold_crossing_sample + 1] - pedestal) * dy;
-  double v2 = (wfm[threshold_crossing_sample] - pedestal) * dy;
-  double dt = Interpolate(v1, v2, voltage_crossing, time_step);
+  double v1 = (fDigitWfm[fThresholdCrossing + 1] - fPedestal) * fVoltageRes;
+  double v2 = (fDigitWfm[fThresholdCrossing] - fPedestal) * fVoltageRes;
+  Interpolate(v1, v2);
 
-  double tcdf = double(threshold_crossing_sample) * time_step + dt;
+  double tcdf = double(fThresholdCrossing) * fTimeStep + fInterpolatedTime;
 
   return tcdf;
 }
 
-double WaveformAnalysis::Integrate(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window, double dy,
-                                   double sampling_rate, int integration_window_low, int integration_window_high,
-                                   double termination_ohms) {
+double WaveformAnalysis::Integrate() {
   /*
   Integrate the digitized waveform to calculate charge
   */
-  double pedestal = CalculatePedestal(wfm, low_window, high_window);
-  double time_step = 1.0 / sampling_rate;  // in ns
   double charge = 0;
 
-  if(integration_window_low >= wfm.size()){
+  if(fLowIntWindow >= fDigitWfm.size()){
     return INVALID;
   }
 
   // Make sure not to integrate past the end of the waveform
-  integration_window_high = (integration_window_high > wfm.size()) ? wfm.size() : integration_window_high;
+  fHighIntWindow = (fHighIntWindow > fDigitWfm.size()) ? fDigitWfm.size() : fHighIntWindow;
   // Make sure not to integrate before the waveform starts
-  integration_window_low = (integration_window_low < 0) ? 0 : integration_window_low;
+  fLowIntWindow = (fLowIntWindow < 0) ? 0 : fLowIntWindow;
 
-  for (int i = integration_window_low; i < integration_window_high; i++) {
-    double voltage = (wfm[i] - pedestal) * dy;
-    charge += (-voltage * time_step) / termination_ohms;  // in pC
+  for (int i = fLowIntWindow; i < fHighIntWindow; i++) {
+    double voltage = (fDigitWfm[i] - fPedestal) * fVoltageRes;
+    charge += (-voltage * fTimeStep) / fTermOhms;  // in pC
   }
 
   return charge;

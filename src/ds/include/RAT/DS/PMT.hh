@@ -34,9 +34,20 @@ class PMT : public TObject {
   virtual void SetDigitizedTime(Double_t _dTime) { this->dTime = _dTime; }
   virtual Double_t GetDigitizedTime() { return dTime; }
 
-  /** Processed waveform time in ns */
   virtual void SetDigitizedCharge(Double_t _dCharge) { this->dCharge = _dCharge; }
   virtual Double_t GetDigitizedCharge() { return dCharge; }
+
+  virtual void SetInterpolatedTime(Double_t _iTime) { this->iTime = _iTime; }
+  virtual Double_t GetInterpolatedTime() { return iTime; }
+
+  virtual void SetSampleTime(Int_t _sTime) { this->sTime = _sTime; }
+  virtual Int_t GetSampleTime() { return sTime; }
+
+  virtual void SetNCrossings(Int_t _nCrossings) { this->nCrossings = _nCrossings; }
+  virtual Int_t GetNCrossings() { return nCrossings; }
+
+  virtual void SetPedestal(Double_t _pedestal) { this->pedestal = _pedestal; }
+  virtual Double_t GetPedestal() { return pedestal; }
 
   ClassDef(PMT, 2);
 
@@ -46,6 +57,10 @@ class PMT : public TObject {
   Double_t time;
   Double_t dTime;
   Double_t dCharge;
+  Double_t iTime;
+  Int_t sTime;
+  Int_t nCrossings;
+  Double_t pedestal;
 };
 
 }  // namespace DS
