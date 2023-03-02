@@ -15,7 +15,7 @@ PDFPMTTime::PDFPMTTime(std::string pmt_model) {
   fTimeProb = model->GetDArray("time_prob");
   fCableDelay = model->GetD("cable_delay");
 
-  info << "Setting up PDF PMTTime model for ";
+  info << "PDFPMTTime: Setting up PDF PMTTime model for ";
   if (pmt_model == "") {
     info << "DEFAULT" << newline;
   } else {

@@ -17,6 +17,8 @@ class SplitEVDAQProc : public Processor {
   void SetD(std::string param, double value);
   void SetI(std::string param, int value);
 
+  void BeginOfRun(DS::Run *run);
+
  protected:
 
   int fEventCounter;

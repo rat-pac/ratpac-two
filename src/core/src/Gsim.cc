@@ -199,8 +199,8 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
     try {
       fPMTCharge[i] = new RAT::PDFPMTCharge(modelName);
     } catch (DBNotFoundError &e) {
-      // fallback to MiniCleanPMTCharge if nothing else avaliable
-      fPMTCharge[i] = new RAT::MiniCleanPMTCharge();
+      // fallback to default table if model is not avaliable
+      fPMTCharge[i] = new RAT::PDFPMTCharge();
     }
   }
 
@@ -538,14 +538,6 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   GLG4HitPMTCollection *hitpmts = GLG4VEventAction::GetTheHitPMTCollection();
   int numPE = 0;
 
-  double firsthittime = std::numeric_limits<double>::max();
-  double lasthittime = std::numeric_limits<double>::min();
-
-  // Get the PMT type for IDPMTs. Then in the loop,
-  // increment numPE only when the PE is in an IDPMT.
-  // Map ID-INDEX for later noise calculation
-  std::map<int, int> mcpmtObjects;
-
   for (int ipmt = 0; ipmt < hitpmts->GetEntries(); ipmt++) {
     GLG4HitPMT *a_pmt = hitpmts->GetPMT(ipmt);
     a_pmt->SortTimeAscending();
@@ -553,7 +545,6 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
     // Create and initialize a RAT DS::MCPMT
     // note that GLG4HitPMTs are given IDs which are their index
     DS::MCPMT *rat_mcpmt = mc->AddNewMCPMT();
-    mcpmtObjects[a_pmt->GetID()] = mc->GetMCPMTCount() - 1;  // the index of the last element represents
     // the index of the PMT we just added
     rat_mcpmt->SetID(a_pmt->GetID());
     rat_mcpmt->SetType(fPMTInfo->GetType(a_pmt->GetID()));
@@ -566,53 +557,36 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
       auto photon = a_pmt->GetPhoton(i);
       std::string process = photon->GetCreatorProcess();
       if (StoreOpticalTrackID) {
-        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), false, false, exinfo, process);
-      } else {
-        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), false, false, NULL, process);
+        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), exinfo, process);
       }
-
-      /** Update event start and end time */
-      double hittime = a_pmt->GetPhoton(i)->GetTime();
-      if (hittime < firsthittime) {
-        firsthittime = hittime;
-        if (i != 0) {
-          detail << "Gsim: " << i << "th photon has earliest hit time" << newline;
-        }
-      }
-      if (hittime > lasthittime) {
-        lasthittime = hittime;
+      else {
+        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), NULL, process);
       }
     }
   }
   mc->SetNumPE(numPE);
 }
 
-void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, bool isDarkHit, bool isAfterPulse,
+void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon,
                        EventInfo * /*exinfo*/, std::string process) {
   DS::MCPhoton *rat_mcphoton = rat_mcpmt->AddNewMCPhoton();
-  rat_mcphoton->SetDarkHit(isDarkHit);
-  rat_mcphoton->SetAfterPulse(isAfterPulse);
+  //Only real photons are added in Gsim, noise and afterpulsing handled in processors
+  rat_mcphoton->SetDarkHit(false);
+  rat_mcphoton->SetAfterPulse(false);
 
-  // parameters relevant only for actual photon hits, not noise hits
-  if (!isDarkHit) {
-    rat_mcphoton->SetLambda(photon->GetWavelength());
-    double x, y, z;
-    photon->GetPosition(x, y, z);
-    rat_mcphoton->SetPosition(TVector3(x, y, z));
-    photon->GetMomentum(x, y, z);
-    rat_mcphoton->SetMomentum(TVector3(x, y, z));
-    photon->GetPolarization(x, y, z);
-    rat_mcphoton->SetPolarization(TVector3(x, y, z));
-    rat_mcphoton->SetTrackID(photon->GetTrackID());
-  } else {
-    // default values
-    rat_mcphoton->SetLambda(0.0);
-    rat_mcphoton->SetPosition(TVector3(0, 0, 0));
-    rat_mcphoton->SetMomentum(TVector3(0, 0, 0));
-    rat_mcphoton->SetPolarization(TVector3(0, 0, 0));
-    rat_mcphoton->SetTrackID(-1);
-  }
+  rat_mcphoton->SetLambda(photon->GetWavelength());
+
+  double x, y, z;
+  photon->GetPosition(x, y, z);
+  rat_mcphoton->SetPosition(TVector3(x, y, z));
+  photon->GetMomentum(x, y, z);
+  rat_mcphoton->SetMomentum(TVector3(x, y, z));
+  photon->GetPolarization(x, y, z);
+  rat_mcphoton->SetPolarization(TVector3(x, y, z));
+
+  rat_mcphoton->SetTrackID(photon->GetTrackID());
   rat_mcphoton->SetHitTime(photon->GetTime());
+
   rat_mcphoton->SetFrontEndTime(fPMTTime[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickTime(photon->GetTime()));
   rat_mcphoton->SetCharge(fPMTCharge[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickCharge());
   rat_mcphoton->SetProcess(process);
