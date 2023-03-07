@@ -32,7 +32,7 @@ PMTWaveformGenerator::PMTWaveformGenerator(std::string modelName) {
   }
 
   fPMTPulseShape == "";
-  if (fPMTPulseShape == "analytic") {
+  if (fPMTPulseType == "analytic") {
       try {
           fPMTPulseShape = lpulse->GetS("pulse_shape");
           info << "PMTWaveformGenerator: Using " << fPMTPulseShape << " pulse for " << modelName << "." << newline;
