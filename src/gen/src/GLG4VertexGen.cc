@@ -145,7 +145,7 @@ void GLG4VertexGen_Gun::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &
 }
 
 /** Set state of the GLG4VertexGen_Gun, or show current state and
-    explanation of state syntax if empty std::string provided.
+    explanation of state syntax if empty string provided.
 
     Format of argument to GLG4VertexGen_Gun::SetState:
        "pname  momx_MeV momy_MeV momz_MeV  KE_MeV  polx poly polz mult",
@@ -162,20 +162,20 @@ void GLG4VertexGen_Gun::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this GLG4VertexGen_Gun:\n"
-              << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to GLG4VertexGen_Gun::SetState: \n"
-                 " \"pname  momx_MeV momy_MeV momz_MeV  KE_MeV  polx poly polz "
-                 "mult\"\n"
-                 " where pname is the name of a particle type (e-, mu-, U238, ...)\n"
-                 " mom*_MeV is a momentum in MeV/c\n"
-                 " KE_MeV is an optional override for kinetic energy\n"
-                 " pol* is an optional polarization std::vector.\n"
-                 " mult is an optional multiplicity of the particles.\n"
-                 "mom*_MeV==0 and KE_MeV!=0 --> random isotropic directions chosen\n"
-                 "pol*==0 --> random transverse polarization for photons.\n"
-              << std::endl;
+    RAT::info << "Current state of this GLG4VertexGen_Gun:" << newline
+              << " \"" << GetState() << "\"" << newline
+              << newline;
+    RAT::info << "Format of argument to GLG4VertexGen_Gun::SetState: " << newline
+              <<  " \"pname  momx_MeV momy_MeV momz_MeV  KE_MeV  polx poly polz "
+              <<  "mult\"\n"
+              <<  " where pname is the name of a particle type (e-, mu-, U238, ...)\n"
+              <<  " mom*_MeV is a momentum in MeV/c\n"
+              <<  " KE_MeV is an optional override for kinetic energy\n"
+              <<  " pol* is an optional polarization std::vector.\n"
+              <<  " mult is an optional multiplicity of the particles.\n"
+              <<  "mom*_MeV==0 and KE_MeV!=0 --> random isotropic directions chosen\n"
+              <<  "pol*==0 --> random transverse polarization for photons.\n"
+              << newline;
     return;
   }
 
@@ -204,9 +204,9 @@ void GLG4VertexGen_Gun::SetState(G4String newValues) {
       if (Z <= numberOfElements) newTestGunG4Code = G4IonTable::GetIonTable()->GetIon(Z, A, 0.0);
     }
     if (newTestGunG4Code == NULL) {
-      std::cerr << "test gun particle type not changed! Could not"
+      RAT::warn << "test gun particle type not changed! Could not"
                    " find "
-                << pname << std::endl;
+                << pname << newline;
       return;
     }
   }
@@ -380,7 +380,7 @@ void GLG4VertexGen_Gun2::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector 
 }
 
 /** Set state of the GLG4VertexGen_Gun, or show current state and
-    explanation of state syntax if empty std::string provided.
+    explanation of state syntax if empty string provided.
 
     Format of argument to GLG4VertexGen_Gun::SetState:
        "pname  momx_MeV momy_MeV momz_MeV  KE_MeV  polx poly polz mult",
@@ -397,22 +397,22 @@ void GLG4VertexGen_Gun2::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this GLG4VertexGen_Gun:\n"
-              << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to GLG4VertexGen_Gun::SetState: \n"
-                 " \"pname  momx_MeV momy_MeV momz_MeV angle KE1_MeV  KE2_MeV polx "
-                 "ply polz multiplicity\"\n"
-                 " where pname is the name of a particle type (e-, mu-, U238, ...)\n"
-                 " mom*_MeV is a momentum in MeV/c\n"
-                 " angle is the aperture of the shooting cone\n"
-                 " KE1_MeV is the minimum kinetic energy\n"
-                 " KE2_MeV is the maximum kinetic energy\n"
-                 " pol* is a polarization\n"
-                 " multiplicity = (optional) no. of primaries shot at once\n"
-                 " mom*_MeV==0  --> random isotropic directions chosen\n"
-                 " pol*==0  --> random isotropic polarizations\n"
-              << std::endl;
+    RAT::info << "Current state of this GLG4VertexGen_Gun:" << newline
+              << " \"" << GetState() << "\"" << newline
+              << newline;
+    RAT::info << "Format of argument to GLG4VertexGen_Gun::SetState: " << newline
+              << " \"pname  momx_MeV momy_MeV momz_MeV angle KE1_MeV  KE2_MeV polx "
+              << "ply polz multiplicity\"\n"
+              << " where pname is the name of a particle type (e-, mu-, U238, ...)\n"
+              << " mom*_MeV is a momentum in MeV/c\n"
+              << " angle is the aperture of the shooting cone\n"
+              << " KE1_MeV is the minimum kinetic energy\n"
+              << " KE2_MeV is the maximum kinetic energy\n"
+              << " pol* is a polarization\n"
+              << " multiplicity = (optional) no. of primaries shot at once\n"
+              << " mom*_MeV==0  --> random isotropic directions chosen\n"
+              << " pol*==0  --> random isotropic polarizations\n"
+              << newline;
     return;
   }
 
@@ -441,9 +441,9 @@ void GLG4VertexGen_Gun2::SetState(G4String newValues) {
       if (Z <= numberOfElements) newTestGunG4Code = G4IonTable::GetIonTable()->GetIon(Z, A, 0.0);
     }
     if (newTestGunG4Code == NULL) {
-      std::cerr << "test gun particle type not changed! Could not"
+      RAT::warn << "test gun particle type not changed! Could not"
                    " find "
-                << pname << std::endl;
+                << pname << newline;
       return;
     }
   }
@@ -498,7 +498,7 @@ GLG4VertexGen_HEPEvt::~GLG4VertexGen_HEPEvt() { Close(); }
 
 void GLG4VertexGen_HEPEvt::Open(const char *argFilename) {
   if (argFilename == NULL || argFilename[0] == '\0') {
-    std::cerr << "GLG4VertexGen_HEPEvt::Open(): null filename" << std::endl;
+    RAT::warn << "GLG4VertexGen_HEPEvt::Open(): null filename" << newline;
     return;
   }
   if (_file != 0) Close();
@@ -531,7 +531,7 @@ void GLG4VertexGen_HEPEvt::Close() {
     if (_isPipe) {
       int status = pclose(_file);
       if (status != 0) {
-        std::cerr << "HEPEvt input pipe from " << _filename << " gave status " << status << " on close." << std::endl;
+        RAT::warn << "HEPEvt input pipe from " << _filename << " gave status " << status << " on close." << newline;
       }
       _file = 0;
       _isPipe = false;
@@ -552,22 +552,22 @@ void GLG4VertexGen_HEPEvt::GetDataLine(char *buffer, size_t size) {
     buffer[0] = '\0';
     if (fgets(buffer, size, _file) != buffer) {
       // try from beginning of file on failure
-      std::cerr << (feof(_file) ? "End-of_file reached" : "Failure") << " on " << _filename << " at " << ftell(_file);
-      std::cerr << " Executive decision to end at end of file, soft closing." << std::endl;
+      RAT::warn << (feof(_file) ? "End-of_file reached" : "Failure") << " on " << _filename << " at " << ftell(_file);
+      RAT::warn << " Executive decision to end at end of file, soft closing." << newline;
       G4RunManager::GetRunManager()->AbortRun(true);
       if (rewind_count == 0) {
         if (_isPipe == false) {
-          std::cerr << ", rewinding." << std::endl;
+          RAT::warn << ", rewinding." << newline;
           rewind(_file);
         } else {
-          std::cerr << ", reopening." << std::endl;
+          RAT::warn << ", reopening." << newline;
           pclose(_file);
           _file = popen(_filename.substr(0, _filename.length() - 1).c_str(), "r");
         }
         rewind_count++;
         continue;
       } else {
-        std::cerr << ", closing." << std::endl;
+        RAT::warn << ", closing." << newline;
         Close();
         return;
       }
@@ -592,7 +592,7 @@ void GLG4VertexGen_HEPEvt::GetDataLine(char *buffer, size_t size) {
               "revision history");  // db[ ((_dbname+".")+firstword).c_str() ]=
                                     // value;
         else {
-          std::cout << "Warning, bad STATE line in " << _filename << ": " << buffer << std::endl;
+          RAT::info << "Warning, bad STATE line in " << _filename << ": " << buffer << newline;
         }
       }
       continue;
@@ -601,7 +601,7 @@ void GLG4VertexGen_HEPEvt::GetDataLine(char *buffer, size_t size) {
       sentinel[0] = '\0';
       sscanf(buffer, " HEPEVT DATA SENTINEL IS %19s", sentinel);
       if (sentinel[0] == '\0') {
-        std::cerr << "Warning, line starting with word HEPEVT ignored" << std::endl;
+        RAT::warn << "Warning, line starting with word HEPEVT ignored" << newline;
         continue;
       }
       // skip until sentinel found
@@ -614,13 +614,13 @@ void GLG4VertexGen_HEPEvt::GetDataLine(char *buffer, size_t size) {
     }
 
     // not comment, blank line, STATE, or numeric data
-    std::cerr << "Warning, ignoring garbage line in " << _filename << std::endl << buffer;
+    RAT::warn << "Warning, ignoring garbage line in " << _filename << newline << buffer;
   }
   // Peak at next word
   long posnot = ftell(_file);
   char buff2[400];
   if (fgets(buff2, sizeof(buff2), _file) != buff2) {
-    std::cerr << " Executive decision to end at end of file, soft closing." << std::endl;
+    RAT::warn << " Executive decision to end at end of file, soft closing." << newline;
     G4RunManager::GetRunManager()->AbortRun(true);
   }
   fseek(_file, posnot, SEEK_SET);
@@ -679,9 +679,9 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
   // (which itself may be a modified and adapted version of CLHEP/StdHep++...)
 
   if (_file == 0) {
-    std::cerr << "GLG4VertexGen_HEPEvt::GeneratePrimaryVertex: "
+    RAT::warn << "GLG4VertexGen_HEPEvt::GeneratePrimaryVertex: "
                  "Error, no file open!"
-              << std::endl;
+              << newline;
     return;
   }
 
@@ -690,7 +690,7 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
   int NHEP;  // number of entries
   GetDataLine(buffer, sizeof(buffer));
   if (_file == 0) {
-    std::cerr << "Unexpected end of file in " << _filename << ", expecting NHEP." << std::endl;
+    RAT::warn << "Unexpected end of file in " << _filename << ", expecting NHEP." << newline;
     Close();
     return;
   }
@@ -698,8 +698,8 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
   if (istat != 1) {
     // this should never happen: GetDataLine() should make sure integer is ok
     // -- but the test above is cheap and a good cross-check, so leave it.
-    std::cerr << "Bad data in " << _filename << ", expecting NHEP but got:\n"
-              << buffer << " --> closing file." << std::endl;
+    RAT::warn << "Bad data in " << _filename << ", expecting NHEP but got:" << newline
+              << buffer << " --> closing file." << newline;
     Close();
     return;
   }
@@ -734,8 +734,8 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
 
     GetDataLine(buffer, sizeof(buffer));
     if (_file == 0) {
-      std::cerr << "Unexpected end of file in " << _filename << ", expecting particle " << IHEP << "/" << NHEP
-                << std::endl;
+      RAT::warn << "Unexpected end of file in " << _filename << ", expecting particle " << IHEP << "/" << NHEP
+                << newline;
       Close();
       return;
     }
@@ -749,10 +749,10 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
       // print an error and Close() if request was made to use external
       // positions, but they are not present in ascii input
       if (req_vertexX == req_novalue && req_vertexY == req_novalue && req_vertexZ == req_novalue) {
-        std::cerr << "GLG4VertexGen: Request was made to use external position "
+        RAT::warn << "GLG4VertexGen: Request was made to use external position "
                      "for event,\n"
-                  << " but no positions were found in this line of ascii input.\n"
-                  << " No events will be generated for this line.\n";
+                  << " but no positions were found in this line of ascii input." << newline
+                  << " No events will be generated for this line." << newline;
         return;
       }
     } else {  // use positions from a different position generator,
@@ -766,9 +766,9 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
     // frobnicate IDHEP if ISTHEP != 1
     if (ISTHEP != kISTHEP_ParticleForTracking) {
       if (ISTHEP <= 0 || ISTHEP > kISTHEP_Max) {
-        std::cerr << "Error in GLG4VertexGen_HEPEvt[" << _filename << "]: ISTHEP=" << ISTHEP
+        RAT::warn << "Error in GLG4VertexGen_HEPEvt[" << _filename << "]: ISTHEP=" << ISTHEP
                   << " not allowed: valid range is 1 to 213"
-                  << " --> set to 213" << std::endl;
+                  << " --> set to 213" << newline;
         ISTHEP = kISTHEP_Max;
       }
       if (IDHEP < 0)
@@ -785,7 +785,7 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
       int Z = (IDHEP / 1000) % 100;
       G4ParticleDefinition *g4code = G4IonTable::GetIonTable()->GetIon(Z, A, 0.0);
       if (g4code == 0) {
-        std::cerr << "Warning: GLG4HEPEvt could not find Ion Z=" << Z << " A=" << A << " code=" << IDHEP << std::endl;
+        RAT::warn << "Warning: GLG4HEPEvt could not find Ion Z=" << Z << " A=" << A << " code=" << IDHEP << newline;
         particle = new G4PrimaryParticle(IDHEP, PHEP1 * energy_unit, PHEP2 * energy_unit, PHEP3 * energy_unit);
       } else {
         particle = new G4PrimaryParticle(g4code, PHEP1 * energy_unit, PHEP2 * energy_unit, PHEP3 * energy_unit);
@@ -858,9 +858,9 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
             mother->SetDaughter(daughter);
             HPlist[j]->Done();
           } else {
-            std::cerr << "Error in  GLG4VertexGen_HEPEvt[" << _filename << "]: mother " << i << " and daughter " << j
+            RAT::warn << "Error in  GLG4VertexGen_HEPEvt[" << _filename << "]: mother " << i << " and daughter " << j
                       << " are at different vertices, and this cannot be"
-                      << " done in Geant4! Must divorce mother and daughter." << std::endl;
+                      << " done in Geant4! Must divorce mother and daughter." << newline;
           }
         }
       }
@@ -893,18 +893,18 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
 
 /** Set source of HEPEVT ascii data for this generator, or print
     current source and help.
-    Format of std::string: either "filename" or "shell_command (arguments) |".
+    Format of string: either "filename" or "shell_command (arguments) |".
 */
 void GLG4VertexGen_HEPEvt::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this GLG4VertexGen_HEPEvt:\n"
-              << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to GLG4VertexGen_HEPEvt::SetState: \n"
-              << "either \"filename\" or \"shell_command (arguments) |\"\n"
-              << std::endl;
+    RAT::info << "Current state of this GLG4VertexGen_HEPEvt:" << newline
+              << " \"" << GetState() << "\"" << newline
+              << newline;
+    RAT::info << "Format of argument to GLG4VertexGen_HEPEvt::SetState: " << newline
+              << "either \"filename\" or \"shell_command (arguments) |\"" << newline
+              << newline;
     return;
   }
 
@@ -958,10 +958,10 @@ SetState(G4String newValues)
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this GLG4VertexGen_XXX:\n"
-	   << " \"" << GetState() << "\"\n" << std::endl;
-    std::cout << "Format of argument to GLG4VertexGen_XXX::SetState: \n"
-	   << std::endl;
+    RAT::info << "Current state of this GLG4VertexGen_XXX:" << newline
+	   << " \"" << GetState() << "\"" << newline << newline;
+    RAT::info << "Format of argument to GLG4VertexGen_XXX::SetState: " << newline
+	   << newline;
     return;
   }
 

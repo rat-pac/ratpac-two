@@ -18,6 +18,7 @@
 #include <RAT/GLG4StringUtil.hh>
 #include <RAT/SNgen.hh>
 #include <RAT/VertexGen_SN.hh>
+#include <RAT/Log.hh>
 #include <Randomize.hh>
 #include <cmath>
 #include <globals.hh>
@@ -53,9 +54,9 @@ void VertexGen_SN::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G
     G4double theta = acos(2.0 * G4UniformRand() - 1.0);
     G4double phi = 2.0 * G4UniformRand() * CLHEP::pi;
     nu_dir.setRThetaPhi(1.0, theta, phi);  // Changed such that nu_dir is changed, not e_nu_dir
-    std::cout << "You have chosen an isotropic configuration, for supernovae this "
-                 "does not make sense.\n Picking a new direction for you. ("
-              << theta << " " << phi << ")" << std::endl;
+    info << "You have chosen an isotropic configuration, for supernovae this "
+           << "does not make sense.\n Picking a new direction for you. ("
+           << theta << " " << phi << ")" << newline;
   }
 
   // Pick an interaction for the supernova and then randomly pick a neutrino
@@ -89,7 +90,7 @@ void VertexGen_SN::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G
     }
 
   } else {
-    std::cout << "No interactions was chosen, something is wrong with the code" << std::endl;
+    info << "No interactions was chosen, something is wrong with the code" << newline;
     G4PrimaryVertex *vertex = new G4PrimaryVertex(dx, dt);
     argEvent->AddPrimaryVertex(vertex);
   }
@@ -100,17 +101,14 @@ void VertexGen_SN::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);  // from GLG4StringUtil
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this VertexGen_SN:\n"
-              << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to VertexGen_SN::SetState: \n"
-                 " \"nu_dir_x nu_dir_y nu_dir_z\"\n"
-                 " where nu_dir is the initial direction of the reactor "
-                 "antineutrino.\n"
-                 " Does not have to be normalized.  Set to \"0. 0. 0.\" for "
-                 "isotropic\n"
-                 " neutrino direction."
-              << std::endl;
+    info << "Current state of this VertexGen_SN:" << newline
+            << " \"" << GetState() << "\"" << newline
+            << newline;
+    info << "Format of argument to VertexGen_SN::SetState: " << newline
+            << " \"nu_dir_x nu_dir_y nu_dir_z\"\n"
+            << " where nu_dir is the initial direction of the reactor antineutrino.\n"
+            << " Does not have to be normalized.  Set to \"0. 0. 0.\" for isotropic\n"
+            << " neutrino direction." << newline;
     return;
   }
 
@@ -145,7 +143,7 @@ int VertexGen_SN::ChooseInteraction() {
   double a4 = a3 + sngen.GetICCAmplitude();
   double a5 = a4 + sngen.GetNCAmplitude();
   if (std::abs(a5 - 1.0) > 0.01) {
-    std::cout << "Something is wrong " << a1 << " " << a2 << " " << a3 << " " << a4 << " " << a5 << std::endl;
+    info << "Something is wrong " << a1 << " " << a2 << " " << a3 << " " << a4 << " " << a5 << newline;
   }
   if (rand < a1) {
     return 1;
@@ -168,9 +166,9 @@ void VertexGen_SN::GenerateIBDVertex(G4Event *argEvent, G4ThreeVector &dx, G4dou
   Eval2BodyKinematicIBD(e_nu, ev_nu_dir);
 
 #ifdef DEBUG
-  std::cout << "Neutrino " << ev_nu_dir << "" << std::endl;
-  std::cout << "Positron " << primair << "" << std::endl;
-  std::cout << "Neutron " << secondaire << "" << std::endl;
+  debug << "Neutrino " << ev_nu_dir << "" << newline;
+  debug << "Positron " << primair << "" << newline;
+  debug << "Neutron " << secondaire << "" << newline;
 #endif
 
   // -- Create particles
@@ -211,8 +209,8 @@ void VertexGen_SN::GenerateESVertex(G4Event *argEvent, G4ThreeVector &dx, G4doub
   CLHEP::HepLorentzVector mom_electron = GetEmomentum(e_nu, energyElectron, ev_nu_dir);
 
 #ifdef DEBUG
-  std::cout << "Energies (" << e_nu << ", " << energyElectron << ")" << std::endl;
-  std::cout << "Momentum (" << mom_electron2 << ")" << std::endl;
+  debug << "Energies (" << e_nu << ", " << energyElectron << ")" << newline;
+  debug << "Momentum (" << mom_electron2 << ")" << newline;
 #endif
 
   // Generate elastic-scattering interaction using ESgen.
@@ -244,9 +242,9 @@ void VertexGen_SN::GenerateCCVertex(G4Event *argEvent, G4ThreeVector &dx, G4doub
   Eval2BodyKinematicCC(e_nu, ev_nu_dir);
 
 #ifdef DEBUG
-  std::cout << "Neutrino " << ev_nu_dir << "" << std::endl;
-  std::cout << "Positron " << primair << "" << std::endl;
-  std::cout << "Neutron " << secondaire << "" << std::endl;
+  debug << "Neutrino " << ev_nu_dir << "" << newline;
+  debug << "Positron " << primair << "" << newline;
+  debug << "Neutron " << secondaire << "" << newline;
 #endif
 
   // -- Create particles
@@ -286,12 +284,12 @@ void VertexGen_SN::GenerateICCVertex(G4Event *argEvent, G4ThreeVector &dx, G4dou
   G4ThreeVector ev_nu_dir(nu_dir);  // By default use specified direction
 
   Eval2BodyKinematicICC(e_nu, ev_nu_dir);
-  // std::cout << "Breakpoint 4 ICC" << e_nu << std::endl;
+  // info << "Breakpoint 4 ICC" << e_nu << newline;
 
 #ifdef DEBUG
-  std::cout << "Neutrino " << ev_nu_dir << "" << std::endl;
-  std::cout << "Positron " << primair << "" << std::endl;
-  std::cout << "Neutron " << secondaire << "" << std::endl;
+  debug << "Neutrino " << ev_nu_dir << "" << newline;
+  debug << "Positron " << primair << "" << newline;
+  debug << "Neutron " << secondaire << "" << newline;
 #endif
 
   // -- Create particles
@@ -303,11 +301,11 @@ void VertexGen_SN::GenerateICCVertex(G4Event *argEvent, G4ThreeVector &dx, G4dou
                                                             primair.pz());  // z component of momentum
   eplus_particle->SetMass(eplus->GetPDGMass());                             // Geant4 is silly.
   vertex->SetPrimary(eplus_particle);
-  // std::cout << "Breakpoint 5 ICC" << e_nu << std::endl;
+  // info << "Breakpoint 5 ICC" << e_nu << newline;
 
   // Due to issues with Nitrogen 16, Nitrogen 15 (stable) is used instead
   G4ParticleDefinition *f16N = G4IonTable::GetIonTable()->GetIon(7, 16, 0.0);
-  // std::cout << "Breakpoint 6 ICC" << e_nu << std::endl;
+  // info << "Breakpoint 6 ICC" << e_nu << newline;
 
   G4PrimaryParticle *n_particle = new G4PrimaryParticle(f16N,              // particle code
                                                         secondaire.px(),   // x component of momentum
@@ -340,8 +338,8 @@ void VertexGen_SN::GenerateNCVertex(G4Event *argEvent, G4ThreeVector &dx, G4doub
   eg_nu_dir.setRThetaPhi(1.0, theta, phi);
 
 #ifdef DEBUG
-  std::cout << "Neutrino " << ev_nu_dir << "" << std::endl;
-  std::cout << "Neutron " << secondaire << "" << std::endl;
+  debug << "Neutrino " << ev_nu_dir << "" << newline;
+  debug << "Neutron " << secondaire << "" << newline;
 #endif
 
   // Need to find a way to split the recoil and excitation energy
@@ -402,8 +400,8 @@ void VertexGen_SN::GenerateINCVertex(G4Event *argEvent, G4ThreeVector &dx, G4dou
   eg_nu_dir.setRThetaPhi(1.0, theta, phi);
 
 #ifdef DEBUG
-  std::cout << "Neutrino " << ev_nu_dir << "" << std::endl;
-  std::cout << "Neutron " << secondaire << "" << std::endl;
+  debug << "Neutrino " << ev_nu_dir << "" << newline;
+  debug << "Neutron " << secondaire << "" << newline;
 #endif
 
   // Need to find a way to split the recoil and excitation energy
@@ -463,7 +461,7 @@ G4double VertexGen_SN::GetElectronEnergy(G4double enu) {
   G4double g_2 = 0.73;
 
 #ifdef DEBUG
-  std::cout << "eee enu is " << enu << "\n";
+  debug << "eee enu is " << enu << newline;
 #endif
   // Define the maximum allowable scattered electron energy based off the
   // antineutrino energy
@@ -489,14 +487,14 @@ G4double VertexGen_SN::GetElectronEnergy(G4double enu) {
   G4double E_electron = sigma_Te->GetRandom();
 
 #ifdef DEBUG
-  std::cout << "Electron energy = " << E_electron << " MeV\n";
+  debug << "Electron energy = " << E_electron << " MeV" << newline;
 #endif
 
   delete sigma_Te;
 
 #ifdef DEBUG
-  std::cout << "eee E_electron is " << E_electron << "\n";
-  if (E_electron > 14.0) std::cout << "eee99 E_electron is " << E_electron << "\n";
+  debug << "eee E_electron is " << E_electron << newline;
+  if (E_electron > 14.0) debug << "eee99 E_electron is " << E_electron << newline;
 #endif
   return E_electron;
 }
@@ -513,9 +511,9 @@ CLHEP::HepLorentzVector VertexGen_SN::GetEmomentum(G4double enu, G4double eelect
       acos((sqrt(((eelectron * (pow((m_e + enu), 2))) / ((2 * m_e * (pow(enu, 2))) + ((pow(enu, 2)) * eelectron))))));
 
 #ifdef DEBUG
-  std::cout << "Neutrino std::vector = {" << neutrino_dir.x() << ", " << neutrino_dir.y() << ", " << neutrino_dir.z()
-            << "}\n";
-  std::cout << "Cosine scattering angle (cos(theta)) = " << cos(theta) << "\n";
+  debug << "Neutrino std::vector = {" << neutrino_dir.x() << ", " << neutrino_dir.y() << ", " << neutrino_dir.z()
+            << "}" << newline;
+  debug << "Cosine scattering angle (cos(theta)) = " << cos(theta) << newline;
 #endif
 
   // Randomly sample phi from 0 to 2pi
@@ -535,9 +533,9 @@ CLHEP::HepLorentzVector VertexGen_SN::GetEmomentum(G4double enu, G4double eelect
   e_momentum.setE(eelectron + m_e);
 
 #ifdef DEBUG
-  std::cout << "Electron std::vector = {" << e_direction.x() << ", " << e_direction.y() << ", " << e_direction.z()
-            << "}\n";
-  std::cout << "-----------------------------------------\n";
+  debug << "Electron std::vector = {" << e_direction.x() << ", " << e_direction.y() << ", " << e_direction.z()
+            << "}" << newline;
+  debug << "-----------------------------------------" << newline;
 #endif
 
   return (e_momentum);
@@ -549,7 +547,7 @@ void VertexGen_SN::Eval2BodyKinematicIBD(G4double enu, G4ThreeVector ev_nu_dir) 
   G4double recoilMass = CLHEP::neutron_mass_c2;
   // Taken from IBDGen.cc
   G4double DELTA = recoilMass - targetMass;
-  //        std::cout << "Delta value " << DELTA << std::endl;
+  //        info << "Delta value " << DELTA << newline;
   //        double GFERMI = 1.16639e-11 / CLHEP::MeV / CLHEP::MeV;
 
   //        G4double CosThetaLab = -1.0+2.0*CLHEP::HepUniformRand();
@@ -599,7 +597,7 @@ void VertexGen_SN::Eval2BodyKinematicCC(G4double enu, G4ThreeVector ev_nu_dir) {
   // Taken from IBDGen.cc
   G4double DELTA = recoilMass - targetMass;
 
-  //        std::cout << "Delta value CC " << DELTA << std::endl;
+  //        info << "Delta value CC " << DELTA << newline;
 
   //        double GFERMI = 1.16639e-11 / CLHEP::MeV / CLHEP::MeV;
 
@@ -650,7 +648,7 @@ void VertexGen_SN::Eval2BodyKinematicICC(G4double enu, G4ThreeVector ev_nu_dir) 
   // Taken from IBDGen.cc
   G4double DELTA = recoilMass - targetMass;
 
-  //        std::cout << "Delta value ICC " << DELTA << std::endl;
+  //        info << "Delta value ICC " << DELTA << newline;
 
   //        double GFERMI = 1.16639e-11 / CLHEP::MeV / CLHEP::MeV;
 
@@ -668,7 +666,7 @@ void VertexGen_SN::Eval2BodyKinematicICC(G4double enu, G4ThreeVector ev_nu_dir) 
   G4double Ysquared = (DELTA * DELTA - CLHEP::electron_mass_c2 * CLHEP::electron_mass_c2) / 2;
   G4double E1 = E0 * (1 - enu / targetMass * (1 - v0 * CosThetaLab)) - Ysquared / targetMass;
   G4double p1 = sqrt(E1 * E1 - CLHEP::electron_mass_c2 * CLHEP::electron_mass_c2);
-  // std::cout << "Breakpoint 1 ICC" << DELTA << std::endl;
+  // info << "Breakpoint 1 ICC" << DELTA << newline;
 
   // Compute nu 4-momentum
   CLHEP::HepLorentzVector neutrino;
@@ -685,7 +683,7 @@ void VertexGen_SN::Eval2BodyKinematicICC(G4double enu, G4ThreeVector ev_nu_dir) 
   rotation_axis.rotate(phi, ev_nu_dir);
   pos_momentum.rotate(theta, rotation_axis);
 
-  // std::cout << "Breakpoint 2 ICC" << DELTA << std::endl;
+  // info << "Breakpoint 2 ICC" << DELTA << newline;
 
   primair.setVect(pos_momentum);
   primair.setE(E1);
@@ -694,8 +692,8 @@ void VertexGen_SN::Eval2BodyKinematicICC(G4double enu, G4ThreeVector ev_nu_dir) 
   secondaire.setVect(neutrino.vect() - primair.vect());
   secondaire.setE(sqrt(secondaire.vect().mag2() + recoilMass * recoilMass));
 
-  // std::cout << "Breakpoint 3 ICC" << sqrt(secondaire.vect().mag2() +
-  // recoilMass*recoilMass) << std::endl;
+  // info << "Breakpoint 3 ICC" << sqrt(secondaire.vect().mag2() +
+  // recoilMass*recoilMass) << newline;
 }
 
 double VertexGen_SN::FindCosTheta(G4double Enu, G4double target_mass_c2, G4double recoil_mass_c2) {

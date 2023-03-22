@@ -98,7 +98,8 @@ void Rat::Begin() {
 
   // Start by putting all of the basic rat starting functions here, eventually
   // break this apart and fix it up.
-  info << "RAT, version x.x.x" << newline;
+  info << "RAT, version " << RATVERSION << newline;
+  if(this->parser->GetValue("version", false)) return;
   info << "Status messages enabled: info ";
   detail << "detail ";
   debug << "debug ";

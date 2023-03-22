@@ -12,6 +12,7 @@
 #include <G4UIcommand.hh>
 #include <G4UIdirectory.hh>
 #include <RAT/VertexGen_FastNeutron.hh>
+#include <RAT/Log.hh>
 
 namespace RAT {
 

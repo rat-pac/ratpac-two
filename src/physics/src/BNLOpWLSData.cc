@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 
 #include <RAT/BNLOpWLSData.hh>
+#include <RAT/Log.hh>
 #include <iostream>
 #include <vector>
 
@@ -21,8 +22,8 @@ void BNLOpWLSData::SetExEmData(std::string fname) {
   // Check file is there
   struct stat buffer;
   if (stat(fname.c_str(), &buffer) != 0) {
-    std::cout << "BNLOpWLS::SetExEmData: Warning: Could not find Ex/Em data file "
-              << "for BNLOpWLS model" << std::endl;
+    RAT::info << "BNLOpWLS::SetExEmData: Warning: Could not find Ex/Em data file "
+              << "for BNLOpWLS model" << newline;
     return;
   }
 

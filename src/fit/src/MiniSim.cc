@@ -4,6 +4,7 @@
 #include <G4VParticleChange.hh>
 #include <RAT/DB.hh>
 #include <RAT/GLG4Scint.hh>
+#include <RAT/Log.hh>
 
 namespace RAT {
 
@@ -92,7 +93,7 @@ void MiniSim::UserSteppingAction(const G4Step *aStep) {
   if (track->GetCurrentStepNumber() > 1000000) {
     const G4VPhysicalVolume *pv = track->GetVolume();
     const G4VProcess *lastproc = track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
-    G4cerr << "MiniSim: Too many steps for this track, terminating!\n"
+    G4cerr << "MiniSim: Too many steps for this track, terminating!" << newline
            << " step_no=" << track->GetCurrentStepNumber() << " type=" << track->GetDefinition()->GetParticleName()
            << "\n volume=" << (pv != 0 ? pv->GetName() : G4String("NULL"))
            << " last_process=" << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))

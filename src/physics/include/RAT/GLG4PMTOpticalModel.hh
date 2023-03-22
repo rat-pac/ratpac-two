@@ -24,6 +24,7 @@
 #include "G4OpticalSurface.hh"
 #include "G4UImessenger.hh"
 #include "G4VFastSimulationModel.hh"
+#include <RAT/Log.hh>
 
 class G4UIcommand;
 class G4UIdirectory;
@@ -62,13 +63,13 @@ class GLG4PMTOpticalModel : public G4VFastSimulationModel, public G4UImessenger 
 
   void SetEfficiencyCorrection(std::map<int, double> _EffiCorr) {
     EfficiencyCorrection = _EffiCorr;
-    G4cout << GetName() << ": Individual efficiency correction table set\n";
+    G4cout << GetName() << ": Individual efficiency correction table set" << newline;
   }
   void DumpEfficiencyCorrectionTable() {
-    G4cout << "Individual correction table for the PMT efficiencies of " << GetName() << ":\nPMT ID  corr. factor\n";
+    G4cout << "Individual correction table for the PMT efficiencies of " << GetName() << ":\nPMT ID  corr. factor" << newline;
     for (std::map<int, double>::iterator iter = EfficiencyCorrection.begin(); iter != EfficiencyCorrection.end();
          iter++) {
-      G4cout << iter->first << "," << iter->second << "\n";
+      G4cout << iter->first << "," << iter->second << newline;
     }
   }
   void fillPMTVector(double code, double A, double An, double T, double R, double collection_eff, double N_pe, double x,

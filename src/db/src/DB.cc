@@ -38,7 +38,7 @@ int DB::Load(std::string filename, bool printPath) {
   // Try to get file info assuming the name is literal
   struct stat s;
   if (stat(filename.c_str(), &s) == 0) {
-    if (printPath) std::cout << "DB: Loading " << filename << "\n";
+    if (printPath) info << "DB: Loading " << filename << newline;
     if (S_ISDIR(s.st_mode))
       return LoadAll(filename);
     else
@@ -47,7 +47,7 @@ int DB::Load(std::string filename, bool printPath) {
     // Check through the data directories
     for (auto dir : Rat::ratdb_directories) {
       std::string newfilename = dir + "/" + filename;
-      if (printPath) std::cout << "DB: Loading " << newfilename << "\n";
+      if (printPath) info << "DB: Loading " << newfilename << newline;
       if (stat(newfilename.c_str(), &s) == 0) {
         if (S_ISDIR(s.st_mode))
           return LoadAll(newfilename);
@@ -70,7 +70,7 @@ int DB::LoadTable(DBTable *table) {
 
     DBTable *oldtable = FindTable(id.name, id.index, id.run);
     if (oldtable) {
-      std::cerr << "DB: Replacing default " << id.name << "[" << id.index << "] in database.\n" << std::endl;
+      warn << "DB: Replacing default " << id.name << "[" << id.index << "] in database." << newline << newline;
     }
 
     tables[id] = table;
@@ -79,7 +79,7 @@ int DB::LoadTable(DBTable *table) {
 
     DBTable *oldtable = FindTable(id.name, id.index, id.run);
     if (oldtable) {
-      std::cerr << "DB: Replacing user " << id.name << "[" << id.index << "] in database.\n" << std::endl;
+      warn << "DB: Replacing user " << id.name << "[" << id.index << "] in database." << newline << newline;
     }
 
     tables[id] = table;
@@ -94,8 +94,8 @@ int DB::LoadTable(DBTable *table) {
 
       DBTable *oldtable = FindTable(id.name, id.index, id.run);
       if (oldtable) {
-        std::cerr << "DB: Replacing " << id.name << "[" << id.index << "]"
-                  << " for run " << id.run << " in database.\n";
+        warn << "DB: Replacing " << id.name << "[" << id.index << "]"
+                  << " for run " << id.run << " in database." << newline;
       }
 
       tables[id] = tablePtr;
@@ -117,7 +117,7 @@ int DB::LoadFile(std::string filename) {
   try {
     contents = ReadRATDBFile(filename);
   } catch (FileError &e) {
-    std::cerr << "DB: Error! Cannot open " << e.filename << "\n";
+    warn << "DB: Error! Cannot open " << e.filename << newline;
     return 0;
   }
 
@@ -141,11 +141,11 @@ int DB::LoadAll(std::string dirname, std::string pattern) {
   if (glob(pattern.c_str(), 0, 0, &g) == 0) {
     for (unsigned i = 0; i < g.gl_pathc; i++) {
       std::string path(g.gl_pathv[i]);
-      std::cout << "DB: Loading " << path << " ... ";
+      info << "DB: Loading " << path << " ... ";
       if (Load(path))
-        std::cout << "Success!" << std::endl;
+        info << "Success!" << newline;
       else {
-        std::cout << "Load Failed!" << std::endl;
+        info << "Load Failed!" << newline;
         globfree(&g);
         return 0;
       }
@@ -190,7 +190,7 @@ void DB::SetServer(std::string url) {
     info << " " << key;
   }
 
-  info << "\n";
+  info << newline;
 }
 
 void DB::SetDefaultRun(int _run) { run = _run; }
@@ -382,9 +382,9 @@ DBTable *DB::FindTable(std::string tblname, std::string index, int runNumber) {
   tables[forDeletion.first]->GetBytes(); if (forDeletion.second)
       serverTableBytes -= deleteSize;
     tables.erase(forDeletion.first);
-    std::cerr << "Evicting " << forDeletion.first.name << "[" <<
+    warn << "Evicting " << forDeletion.first.name << "[" <<
   forDeletion.first.index << "], run " << forDeletion.first.run << " (" <<
-  deleteSize << " bytes)\n";
+  deleteSize << " bytes)" << newline;
   }
   */
 
@@ -401,7 +401,7 @@ DBTable *DB::FindTable(std::string tblname, std::string index, int runNumber) {
   // Last entry in queue gets billed for all the space (since it isn't freed
   // until the last is deleted)
   tablesFromServer.back().second = true;
-  // std::cerr << "Memory cache = " << serverTableBytes << "\n";
+  // warn << "Memory cache = " << serverTableBytes << newline;
 
   info << dformat("RATDB: Loaded table %s[%s] from server\n", newTable->GetName().c_str(),
                   newTable->GetIndex().c_str());

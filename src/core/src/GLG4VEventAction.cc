@@ -23,6 +23,7 @@
 #include "G4ios.hh"
 #include "RAT/GLG4Scint.hh"  // for doScintilllation and total energy deposition info
 #include "local_g4compat.hh"
+#include <RAT/Log.hh>
 
 // GLG4HitPhotonCollection GLG4VEventAction :: theHitPhotons=
 // GLG4HitPhotonCollection();
@@ -108,7 +109,7 @@ void GLG4VEventAction::SetNewValue(G4UIcommand *command, G4String newValue) {
   } else if (command->GetCommandName() == "doParameterizedScintillation") {
     fgDoParameterizedScintillation = (atoi((const char *)newValue) != 0);
   } else {
-    G4cerr << "Unknown command ``" << command->GetCommandName() << " passed to GLG4EventAction::SetNewValue\n";
+    G4cerr << "Unknown command ``" << command->GetCommandName() << " passed to GLG4EventAction::SetNewValue" << newline;
   }
 }
 

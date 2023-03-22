@@ -5,9 +5,8 @@
 
 namespace RAT {
 
-Digitizer::Digitizer(std::string digitName) { 
-  SetDigitizerType(digitName); 
-  fPMTWaveform = new PMTWaveform();
+Digitizer::Digitizer(std::string digitName) {
+  SetDigitizerType(digitName);
 }
 
 void Digitizer::SetDigitizerType(std::string digitName) {
@@ -31,9 +30,12 @@ void Digitizer::SetDigitizerType(std::string digitName) {
   detail << dformat("  Digitizer: Voltage Low: .............. %6.2f mV\n", fVlow);
 }
 
-void Digitizer::DigitizePMT(DS::MCPMT *mcpmt, int pmtID, double triggerTime){
+void Digitizer::AddWaveformGenerator(std::string modelName) {
+    fPMTWaveformGenerators[modelName] = new PMTWaveformGenerator(modelName);
+}
 
-  PMTWaveform pmtwfm = fPMTWaveform->GenerateWaveforms(mcpmt, triggerTime);
+void Digitizer::DigitizePMT(DS::MCPMT *mcpmt, int pmtID, double triggerTime, DS::PMTInfo* pmtinfo){
+  PMTWaveform pmtwfm = fPMTWaveformGenerators[pmtinfo->GetModelNameByID(pmtID)]->GenerateWaveforms(mcpmt, triggerTime);
   AddChannel(pmtID, pmtwfm);
 }
 

@@ -77,7 +77,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
   if (nocorr)
     CorrBEpsiInput = false;
   else
-    std::cout << "Forcing B efficiency<= 1\n";
+    info << "Forcing B efficiency<= 1" << newline;
   bool HaveDynoData = false;
 
   if (BFieldOn) {
@@ -97,7 +97,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
     if (BFieldTableName == "" || BEffiTableName == "") {
       G4cout << "B field is on, but either B data or B PMT efficiency "
                 "correction missing.\n"
-             << "Turning B field off.\n";
+             << "Turning B field off." << newline;
       BFieldOn = 0;
       BEffiTable = NULL;
     } else {
@@ -107,13 +107,13 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
       std::ifstream Bdata(BFieldTableName1.data());
       if (!Bdata.is_open()) {
         BFieldTableName = static_cast<std::string>(getenv("RATSHARE")) + "/ratdb/" + BFieldTableName;
-        std::cout << "file " << BFieldTableName1 << " not found, trying " << BFieldTableName << "\n";
+        info << "file " << BFieldTableName1 << " not found, trying " << BFieldTableName << newline;
         Bdata.close();
         Bdata.open(BFieldTableName.data());
         if (!Bdata.is_open()) {
           BFieldOn = false;
           BEffiTable = NULL;
-          std::cout << "also file " << BFieldTableName << " not found, magnetic efficiency correction turned off\n";
+          info << "also file " << BFieldTableName << " not found, magnetic efficiency correction turned off" << newline;
         }
         if (!Bdata.good())
           Bdata.clear();  // for backwards compatibility: g++ 3.4 requires to
@@ -123,7 +123,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
       std::string header;
       getline(Bdata, header);
       double xr, yr, zr, bxr, byr, bzr;
-      std::cout << "about to load B field from file " << BFieldTableName << "\n";
+      info << "about to load B field from file " << BFieldTableName << newline;
       G4ThreeVector posi, field;
       while (!Bdata.rdstate()) {
         Bdata >> xr >> yr >> zr >> bxr >> byr >> bzr;
@@ -180,7 +180,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
       dynorfilename = static_cast<std::string>(getenv("RATSHARE")) + "/ratdb/" + ExpSubdir + "/" + dynorfilename;
       std::ifstream dynorfile(dynorfilename.data());
       if (!dynorfile.is_open()) {
-        std::cout << "Failed to open " << dynorfilename.data() << ", will assume random dynode orientations\n";
+        info << "Failed to open " << dynorfilename.data() << ", will assume random dynode orientations" << newline;
         dynorfile.close();
       } else {
         getline(dynorfile, header);
@@ -199,14 +199,14 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
       if (!Dorie.empty() && Dorie.size() == Dpos.size())
         HaveDynoData = true;
       else
-        std::cout << "No dynode orientation datafile or error in the data, "
+        info << "No dynode orientation datafile or error in the data, "
                      "randomizing dynode orientations\n";
     }
     try {
       BEffiModel = DB::Get()->GetLink("BField")->GetS("b_efficiency_model");
     } catch (DBNotFoundError &e) {
     }
-    std::cout << "\nSelected " << BEffiModel.data() << " B Efficiency Model\n";
+    info << "\nSelected " << BEffiModel.data() << " B Efficiency Model" << newline;
   } else
     BEffiTable = NULL;
 
@@ -245,7 +245,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
         }
       }
       if (jmin < 0)
-        std::cout << "can't find a point close to the " << id << "-th pmt; MinDist is " << MinDist << "\n";
+        info << "can't find a point close to the " << id << "-th pmt; MinDist is " << MinDist << newline;
       else {
         G4ThreeVector bfield = Bf[jmin].perpPart(pmtdir);
         G4ThreeVector dynorient;
@@ -258,9 +258,9 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
               minj = j;
             }
           if (minj < 0) {
-            std::cout << "can't find the orientation of the " << id << "-th pmt's dynode; MinDiff is " << MinDiff
-                      << "\n"
-                      << "Throwing a random dynode orientation\n";
+            info << "can't find the orientation of the " << id << "-th pmt's dynode; MinDiff is " << MinDiff
+                      << newline
+                      << "Throwing a random dynode orientation" << newline;
             dynorient = G4RandomDirection();
             dynorient = dynorient.perpPart(pmtdir);
           } else
@@ -277,10 +277,10 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
             dynorient = dynorient.perpPart(pmtdir);
           }
           if (dynorient.mag() == 0)
-            std::cout << "Warning: tried 100 times to generate a random dynode "
+            info << "Warning: tried 100 times to generate a random dynode "
                          "orientation for "
                       << id << "-th PMT and failed. dynorient " << dynorient(0) << "," << dynorient(1) << ","
-                      << dynorient(2) << "\n";
+                      << dynorient(2) << newline;
         }
         dynorient = dynorient.unit();
         // build EfficiencyCorrection table. PMT x axis is dynorient
@@ -311,7 +311,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
           else
             EfficiencyCorrection[id] *= BeffiComp;
         } else {
-          std::cout << "\nError: undefined B Efficiency Model\n";
+          info << "\nError: undefined B Efficiency Model" << newline;
         }
       }
     }

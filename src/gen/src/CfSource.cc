@@ -14,6 +14,7 @@
 #include <G4Neutron.hh>
 #include <G4ParticleDefinition.hh>
 #include <RAT/CfSource.hh>
+#include <RAT/Log.hh>
 #include <cmath>
 #include <fstream>  // file I/O
 #include <iomanip>  // format manipulation
@@ -74,7 +75,7 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
       double gspace[probDensSize];
 
 #ifdef DEBUG
-      std::cout << "CfSource initialization" << std::endl;
+      debug << "CfSource initialization" << newline;
 #endif
       // Find function values at bin centers.
       for (size_t i = 0; i != probDensSize; i++) {
@@ -85,7 +86,7 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
         value = (float(i) + 0.5) * (ghigh - glow) / (float)probDensSize;
         gspace[i] = Cf252GammaSpectrum(value);
 #ifdef DEBUG
-        std::cout << "   i=" << i << " f,m,g=" << fspace[i] << "," << mspace[i] << "," << gspace[i] << std::endl;
+        debug << "   i=" << i << " f,m,g=" << fspace[i] << "," << mspace[i] << "," << gspace[i] << newline;
 #endif
       }
 
@@ -95,11 +96,11 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
       gGenerate = new CLHEP::RandGeneral(gspace, probDensSize);
 
 #ifdef DEBUG
-      std::cout << " Random generator test (f,m,g):" << std::endl;
+      debug << " Random generator test (f,m,g):" << newline;
       for (size_t i = 0; i != 20; i++) {
-        std::cout << i << ": " << fGenerate->shoot() * (fhigh - flow) + flow << ", "
+        debug << i << ": " << fGenerate->shoot() * (fhigh - flow) + flow << ", "
                   << mGenerate->shoot() * (mhigh - mlow) + mlow << ", " << gGenerate->shoot() * (ghigh - glow) + glow
-                  << std::endl;
+                  << newline;
       }
 
 #endif
@@ -123,7 +124,7 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
         }
       }
     }
-    // std::cout << "   " << Nneutron << " neutrons" << std::endl;
+    // info << "   " << Nneutron << " neutrons" << newline;
     //
     //  pick a momentum direction for each neutron
     //
@@ -140,8 +141,8 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
       double py = neutronP * sinTheta * sin(phi);
       double pz = neutronP * cosTheta;
 #ifdef DEBUG
-      std::cout << "CfSource::CfSource() - neutron energy " << nn << " = " << energy << ", KE=" << neutronKE
-                << ", (px,py,pz)=(" << px << "," << py << "," << pz << ")" << std::endl;
+      debug << "CfSource::CfSource() - neutron energy " << nn << " = " << energy << ", KE=" << neutronKE
+                << ", (px,py,pz)=(" << px << "," << py << "," << pz << ")" << newline;
 #endif
       CLHEP::HepLorentzVector momentum(px, py, pz, energy);
       neutronE.push_back(momentum);
@@ -171,8 +172,8 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
     Ngamma = (int)m;
 
 #ifdef DEBUG
-    std::cout << "CfSource::CfSource - "
-              << "m=" << m << " => " << Ngamma << " photons" << std::endl;
+    debug << "CfSource::CfSource - "
+              << "m=" << m << " => " << Ngamma << " photons" << newline;
 #endif
     // pick a momentum for each gamma
     //
@@ -187,8 +188,8 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
       double py = energy * sinTheta * sin(phi);
       double pz = energy * cosTheta;
 #ifdef DEBUG
-      std::cout << "CfSource::CfSource() - gamma energy " << nn << " = " << energy << ", (px,py,pz)=(" << px << ","
-                << py << "," << pz << ")" << std::endl;
+      debug << "CfSource::CfSource() - gamma energy " << nn << " = " << energy << ", (px,py,pz)=(" << px << ","
+                << py << "," << pz << ")" << newline;
 #endif
       CLHEP::HepLorentzVector momentum(px, py, pz, energy);
       gammaE.push_back(momentum);
@@ -207,7 +208,7 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
         halflife = 1.0;
       Tgamma.push_back(halflife * log(1 / rv[1]));
     }
-    // std::cout << "          total energy = " << tote << std::endl;
+    // info << "          total energy = " << tote << newline;
 
   }  // done with Cf 252
 
@@ -251,14 +252,14 @@ float CfSource::Cf252NeutronSpectrum(const float &x) {
   float N = 0.;
 
   float scale = 1 / (2 * M_PI * 0.359);
-  // std::cout << "scale " << scale << std::endl;
+  // info << "scale " << scale << newline;
 
   float fminus = exp(-(sqrt(x) - sqrt(0.359)) * (sqrt(x) - sqrt(0.359)) / 1.175);
   float fplus = exp(-(sqrt(x) + sqrt(0.359)) * (sqrt(x) + sqrt(0.359)) / 1.175);
 
   N = scale * (fminus - fplus);
 
-  // std::cout << "N " << N << std::endl;
+  // info << "N " << N << newline;
   return N;
 }
 
@@ -272,7 +273,7 @@ float CfSource::Cf252GammaMultiplicity(const int &x) {
 
   M = C1 * pow(C2, x) * exp(-C2) / factorial(x) + (1 - C1) * pow(C3, x) * exp(-C3) / factorial(x);
 
-  // std::cout << "M(" << x << ") " << M << std::endl;
+  // info << "M(" << x << ") " << M << newline;
 
   return M;
 }
@@ -298,7 +299,7 @@ float CfSource::Cf252GammaMultiplicityFit(const float &x) {
     M = exponential;
   }
 
-  // std::cout << "M(" << x << ") " << M << std::endl;
+  // info << "M(" << x << ") " << M << newline;
 
   return M;
 }
@@ -316,7 +317,7 @@ float CfSource::Cf252GammaSpectrum(const float &x) {
     N = exponential;
   }
 
-  // std::cout << "N " << N << std::endl;
+  // info << "N " << N << newline;
   return N;
 }
 

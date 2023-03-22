@@ -22,6 +22,7 @@
 #include <RAT/GLG4StringUtil.hh>
 #include <RAT/GLG4TimeGen.hh>
 #include <RAT/NGen.hh>
+#include <RAT/Log.hh>
 #include <Randomize.hh>
 #include <numeric>
 #include <string>
@@ -178,15 +179,15 @@ void NGen::ResetTime(double offset) {
   double eventTime = timeGen->GenerateEventTime();
   nextTime = eventTime + offset;
 #ifdef DEBUG
-  std::cout << "RAT::NGen::ResetTime:"
+  debug << "RAT::NGen::ResetTime:"
             << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
-            << ", nextTime=" << G4BestUnit(nextTime, "Time") << std::endl;
+            << ", nextTime=" << G4BestUnit(nextTime, "Time") << newline;
 #endif
 }
 
 void NGen::SetState(G4String state) {
 #ifdef DEBUG
-  std::cout << "RAT::NGen::SetState called with state='" << state << "'" << std::endl;
+  debug << "RAT::NGen::SetState called with state='" << state << "'" << newline;
 #endif
 
   // Break the argument to the this generator into sub-std::strings
@@ -196,7 +197,7 @@ void NGen::SetState(G4String state) {
   size_t nArgs = parts.size();
 
 #ifdef DEBUG
-  std::cout << "RAT::NGen::SetState: nArgs=" << nArgs << std::endl;
+  debug << "RAT::NGen::SetState: nArgs=" << nArgs << newline;
 #endif
 
   try {
@@ -216,7 +217,7 @@ void NGen::SetState(G4String state) {
       isotope = util_to_int(parts[0]);
 
       if (isotope != 17) {
-        std::cerr << "RAT::NGen::SetState: Only N 17 is supported" << std::endl;
+        warn << "RAT::NGen::SetState: Only N 17 is supported" << newline;
       }
 
       // The second argument is a position generator.
@@ -230,7 +231,7 @@ void NGen::SetState(G4String state) {
 
     stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
-    std::cerr << "Unknown generator \"" << unknown.id << "\"" << std::endl;
+    warn << "Unknown generator \"" << unknown.id << "\"" << newline;
   }
 }
 
@@ -240,7 +241,7 @@ void NGen::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    std::cerr << "NGen error: Cannot set time state, no time generator selected" << std::endl;
+    warn << "NGen error: Cannot set time state, no time generator selected" << newline;
 }
 
 G4String NGen::GetTimeState() const {
@@ -254,9 +255,9 @@ void NGen::SetPosState(G4String state) {
   if (posGen)
     posGen->SetState(state);
   else
-    std::cerr << "NGen error: Cannot set position state, no position generator "
+    warn << "NGen error: Cannot set position state, no position generator "
                  "selected"
-              << std::endl;
+              << newline;
 }
 
 G4String NGen::GetPosState() const {

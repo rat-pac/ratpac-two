@@ -4,6 +4,7 @@
 #include <RAT/TrackNode.hh>
 #include <RAT/dprintf.hpp>
 #include <RAT/string_utilities.hpp>
+#include <RAT/Log.hh>
 #include <iostream>
 
 namespace RAT {
@@ -127,9 +128,9 @@ TrackNode *TrackCursor::GoParent() {
 }
 
 // Pretty printing
-void TrackCursor::Print() const { std::cout << Print(fCur); }
+void TrackCursor::Print() const { info << Print(fCur); }
 
-void TrackCursor::PrintTrack() const { std::cout << PrintTrack(fCur); }
+void TrackCursor::PrintTrack() const { info << PrintTrack(fCur); }
 
 std::string TrackCursor::PrintTrackIDs(TrackNode *node) {
   std::set<int> trackIDs;
@@ -264,7 +265,7 @@ TrackNode *TrackCursor::FindNextTrack(TrackTest *predicate) {
     Go(candidate);
   else {
     Go(origLocation);
-    if (fVerbose) std::cout << "Unable to find track.  Returned to original location.\n";
+    if (fVerbose) info << "Unable to find track.  Returned to original location." << newline;
   }
 
   return candidate;

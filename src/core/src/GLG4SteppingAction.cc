@@ -17,6 +17,7 @@
 #include "RAT/GLG4SteppingAction.hh"
 
 #include <RAT/TrackInfo.hh>
+#include <RAT/Log.hh>
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "G4OpticalPhoton.hh"
@@ -113,7 +114,7 @@ int GLG4SteppingAction_dump_IlluminationMap(void) {
       static char filename[] = "map#.ppm";
       filename[3] = kmap + '0';
       std::ofstream of(filename);
-      of << "P6\n# Illumination map " << kmap << "\n" << nrowIlluminationMap << ' ' << nrowIlluminationMap << " 255\n";
+      of << "P6\n# Illumination map " << kmap << newline << nrowIlluminationMap << ' ' << nrowIlluminationMap << " 255" << newline;
       for (int irow = 0; irow < nrowIlluminationMap; irow++) {
         for (int jcol = 0; jcol < ncolIlluminationMap; jcol++)
           for (int kcol = 0; kcol < 3; kcol++) {
@@ -164,14 +165,14 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   // check for very high number of steps
   if (track->GetCurrentStepNumber() % GLG4SteppingAction_MaxStepNumber == 0) {
     G4cerr << "warning:  step_no=" << track->GetCurrentStepNumber() << "  %  " << GLG4SteppingAction_MaxStepNumber
-           << " == 0 for particle: " << track->GetDefinition()->GetParticleName() << "\n";
+           << " == 0 for particle: " << track->GetDefinition()->GetParticleName() << newline;
   }
 
   if (track->GetCurrentStepNumber() > GLG4SteppingAction_MaxStepNumber &&
       !(track->GetDefinition()->GetParticleName() == "mu-" || track->GetDefinition()->GetParticleName() == "mu+")) {
     const G4VPhysicalVolume *pv = track->GetVolume();
     const G4VProcess *lastproc = track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
-    G4cerr << "GLG4SteppingAction: Too many steps for this track, terminating!\n"
+    G4cerr << "GLG4SteppingAction: Too many steps for this track, terminating!" << newline
            << " step_no=" << track->GetCurrentStepNumber() << " type=" << track->GetDefinition()->GetParticleName()
            << "\n volume=" << (pv != 0 ? pv->GetName() : G4String("NULL"))
            << " last_process=" << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
@@ -307,7 +308,7 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   // check for NULL world volume
   if (track->GetVolume() == NULL) {
     const G4VProcess *lastproc = track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
-    G4cerr << "GLG4SteppingAction: Track in NULL volume, terminating!\n"
+    G4cerr << "GLG4SteppingAction: Track in NULL volume, terminating!" << newline
            << " step_no=" << track->GetCurrentStepNumber() << " type=" << track->GetDefinition()->GetParticleName()
            << "\n volume=NULL"
            << " last_process=" << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
