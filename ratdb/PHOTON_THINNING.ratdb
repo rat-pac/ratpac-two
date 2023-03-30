@@ -5,5 +5,10 @@ valid_end: [0, 0],
 
 // raw thinning: no compensatory increase(s) in efficiency
 cherenkov_thinning_factor: 1.0,
+cherenkov_lower_wavelength_threshold: 0.01,//0.0,
+cherenkov_upper_wavelength_threshold: 10000000000000000000.0,
+
 scintillation_thinning_factor: 1.0,
+scintillation_lower_wavelength_threshold: 0.0,
+scintillation_upper_wavelength_threshold: 10000000000000000000.0
 }

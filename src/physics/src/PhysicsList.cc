@@ -2,7 +2,6 @@
 #include <stdexcept>
 #include <string>
 // Required for G4 > 10.5
-#include <G4Cerenkov.hh>
 #include <G4EmParameters.hh>
 #include <G4FastSimulationManagerProcess.hh>
 #include <G4HadronicInteractionRegistry.hh>
@@ -22,6 +21,8 @@
 #include <RAT/GLG4Scint.hh>
 #include <RAT/GLG4SteppingAction.hh>
 #include <RAT/OpRayleigh.hh>
+#include <RAT/ThinnableG4Cerenkov.hh>
+#include <RAT/PhotonThinning.hh>
 #include <RAT/PhysicsList.hh>
 #include <RAT/PhysicsListMessenger.hh>
 #include <RAT/Log.hh>
@@ -114,13 +115,17 @@ void PhysicsList::SetOpWLSModel(std::string model) {
 }
 
 void PhysicsList::ConstructOpticalProcesses() {
-  // Cherenkov: default G4Cerenkov
+  // Cherenkov: G4Cerenkov with thinning and thresholding applied after-the-fact
   //
   // Request that Cerenkov photons be tracked first, before continuing
   // originating particle step.  Otherwise, we get too many secondaries!
-  G4Cerenkov *cerenkovProcess = nullptr;
+  ThinnableG4Cerenkov *cerenkovProcess = nullptr;
   if (this->IsCerenkovEnabled) {
-    cerenkovProcess = new G4Cerenkov();
+    cerenkovProcess = new ThinnableG4Cerenkov();
+    double thinning = 1.0/RAT::PhotonThinning::GetCherenkovThinningFactor();
+    cerenkovProcess->SetThinningFactor(thinning);
+    cerenkovProcess->SetLowerWavelengthThreshold(RAT::PhotonThinning::GetCherenkovLowerWavelengthThreshold());
+    cerenkovProcess->SetUpperWavelengthThreshold(RAT::PhotonThinning::GetCherenkovUpperWavelengthThreshold());
     cerenkovProcess->SetTrackSecondariesFirst(true);
     cerenkovProcess->SetMaxNumPhotonsPerStep(this->CerenkovMaxNumPhotonsPerStep);
   }
