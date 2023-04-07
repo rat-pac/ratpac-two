@@ -101,63 +101,11 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
         }
         else {
             dir[i] = orient_point - pmtinfo_pos[idx];
-            // case where PMTs have spherical layout symmetry
-            bool rescale_radius = false;
-            double new_radius = 1.0;
-            try {
-                new_radius = table->GetD("rescale_radius");
-                rescale_radius = true;
-            }
-            catch (DBNotFoundError &e) {
-            }
+        }
+        dir[i] = dir[i].unit();
 
-            // Orientation of PMTs
-            std::vector<double> dir_x, dir_y, dir_z;
-            G4ThreeVector orient_point;
-            bool orient_manual = false;
-            try {
-                std::string orient_str = table->GetS("orientation");
-                if (orient_str == "manual") {
-                    orient_manual = true;
-                }
-                else if (orient_str == "point") {
-                    orient_manual = false;
-                }
-                else {
-                    Log::Die("PMTFactoryBase error: Unknown PMT orientation " + orient_str);
-                }
-            }
-            catch (DBNotFoundError &e) {
-            }
-
-            if (!orient_manual) {
-                const std::vector<double> &orient_point_array = table->GetDArray("orient_point");
-                if (orient_point_array.size() != 3) {
-                    Log::Die("PMTFactoryBase error: orient_point must have 3 values");
-                }
-                orient_point.set(orient_point_array[0], orient_point_array[1], orient_point_array[2]);
-            }
-
-            std::vector<G4ThreeVector> pos(end_idx - start_idx + 1), dir(end_idx - start_idx + 1);
-            std::vector<int> ptypes(end_idx - start_idx + 1);
-            for (int idx = start_idx, i = 0; idx <= end_idx; idx++, i++) {
-                pos[i] = pmtinfo_pos[idx];
-                ptypes[i] = pmtinfo_types[idx];
-                if (rescale_radius) {
-                    pos[i].setMag(new_radius);
-                }
-                pos[i] -= local_offset;
-                if (orient_manual) {
-                    dir[i] = pmtinfo_dir[idx];
-                }
-                else {
-                    dir[i] = orient_point - pmtinfo_pos[idx];
-                }
-                dir[i] = dir[i].unit();
-                if (flip) {
-                    dir[i] = -dir[i];
-                }
-            }
+        if (flip) {
+            dir[i] = -dir[i];
         }
     }
 
