@@ -20,6 +20,7 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
     const std::vector<G4ThreeVector> &pmtinfo_pos = pmtinfo.GetPMTLocations();
     const std::vector<G4ThreeVector> &pmtinfo_dir = pmtinfo.GetPMTDirections();
     const G4ThreeVector local_offset = pmtinfo.GetLocalOffset();
+    const std::vector<double> &pmtinfo_effcorrs = pmtinfo.GetEfficiencyCorrections();
     const std::vector<double> &pmtinfo_noiserates = pmtinfo.GetPMTNoiseRates();
     const std::vector<double> &pmtinfo_afterpulse_fraction = pmtinfo.GetPMTAfterPulseFraction();
 
@@ -109,7 +110,7 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
         }
     }
 
-    return ConstructPMTs(table, pos, dir, ptypes, pmtinfo.GetEfficiencyCorrections(), pmtinfo_noiserates,
+    return ConstructPMTs(table, pos, dir, ptypes, pmtinfo_effcorrs, pmtinfo_noiserates,
             pmtinfo_afterpulse_fraction);
 }
 

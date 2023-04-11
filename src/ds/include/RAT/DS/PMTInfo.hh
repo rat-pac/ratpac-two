@@ -22,10 +22,11 @@ class PMTInfo : public TObject {
   virtual ~PMTInfo() {}
 
   virtual void AddPMT(const TVector3& _pos, const TVector3& _dir, const int _type, const std::string _model,
-                      const double _individual_noise_rate, const double _individual_afterpulse_fraction) {
+                      const double _efficiency, const double _individual_noise_rate, const double _individual_afterpulse_fraction) {
     pos.push_back(_pos);
     dir.push_back(_dir);
     type.push_back(_type);
+    efficiency.push_back(_efficiency);
     individual_noise_rate.push_back(_individual_noise_rate);
     individual_afterpulse_fraction.push_back(_individual_afterpulse_fraction);
     std::vector<std::string>::iterator which = std::find(models.begin(), models.end(), _model);
@@ -38,7 +39,7 @@ class PMTInfo : public TObject {
   }
 
   virtual void AddPMT(const TVector3& _pos, const TVector3& _dir, const int _type) {
-    AddPMT(_pos, _dir, _type, "", 0.0, 0.0);
+    AddPMT(_pos, _dir, _type, "", 1.0, 0.0, 0.0);
   }
 
   virtual Int_t GetPMTCount() const { return pos.size(); }
@@ -52,9 +53,14 @@ class PMTInfo : public TObject {
   virtual int GetType(int id) const { return type.at(id); }
   virtual void SetType(int id, int _type) { type.at(id) = _type; }
 
+  virtual double GetEfficiency(int id) const { return efficiency.at(id); }
+  virtual void SetEfficiency(int id, double _efficiency) { efficiency.at(id) = _efficiency; }
+
   virtual double GetNoiseRate(int id) const { return individual_noise_rate.at(id); }
   virtual void SetNoiseRate(int id, double _rate) { individual_noise_rate.at(id) = _rate; }
+
   virtual double GetAfterPulseFraction(int id) const { return individual_afterpulse_fraction.at(id); }
+  virtual double SetAfterPulseFraction(int id, double _frac) { individual_afterpulse_fraction.at(id) = _frac; }
 
   virtual int GetModel(int id) const { return modeltype.at(id); }
   virtual int SetModel(int id, std::string _model) {
@@ -74,7 +80,7 @@ class PMTInfo : public TObject {
 
   virtual std::string GetModelNameByID(int id) const { return GetModelName(GetModel(id)); }
 
-  ClassDef(PMTInfo, 1);
+  ClassDef(PMTInfo, 2);
 
  protected:
   std::vector<TVector3> pos;
@@ -82,6 +88,7 @@ class PMTInfo : public TObject {
   std::vector<int> type;
   std::vector<int> modeltype;
   std::vector<std::string> models;
+  std::vector<double> efficiency;
   std::vector<double> individual_noise_rate;
   std::vector<double> individual_afterpulse_fraction;
 };

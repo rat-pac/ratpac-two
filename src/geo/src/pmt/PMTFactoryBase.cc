@@ -249,8 +249,10 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table,
 
         // Write the real (perhaps calculated) PMT positions and directions.
         // This goes into the DS by way of Gsim
+        // NOTE: Since the BField stuff isn't used currently, add the efficiency here.
+        // If we revive the BField code, this needs to be moved after so that the efficiency is correct
         pmtinfo.AddPMT(TVector3(pmtpos.x(), pmtpos.y(), pmtpos.z()), TVector3(pmtdir.x(), pmtdir.y(), pmtdir.z()),
-                pmt_type[i], pmt_model, individual_noise_rate[i], individual_afterpulse_fraction[i]);
+                pmt_type[i], pmt_model, pmt_effi_corr[i], individual_noise_rate[i], individual_afterpulse_fraction[i]);
 
         // if requested, generates the magnetic efficiency corrections as the PMTs
         // are created
