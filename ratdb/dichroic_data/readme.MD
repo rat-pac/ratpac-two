@@ -1,5 +1,5 @@
 ## How to add new dichroic filters
-### Produce a dichroic filter transmission data file. 
+### Produce a dichroic filter transmission data file
 The format is
 ```
 4 <nbins_wavelength> <nbins_angle>
@@ -10,7 +10,7 @@ angles of the measurements in an increasing order.
 *Note*: Geant4 does nearest neighbor extrapolation and Bicubic interpolation of the data. If this is not desired,
 interpolation should be done while producing these data files.
 
-### Add appropriate entries in RATDB.
+### Add appropriate entries in RATDB
 The filters need to be defined as both a material and a optical surface. 
 Examples: 
 ```
