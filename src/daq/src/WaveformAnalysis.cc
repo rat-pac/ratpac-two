@@ -9,7 +9,7 @@ WaveformAnalysis::WaveformAnalysis(){
   fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS");
   fPedWindowLow = fDigit->GetI("pedestal_window_low");
   fPedWindowHigh = fDigit->GetI("pedestal_window_high");
-  fLookback = fDigit->GetI("lookback");
+  fLookback = fDigit->GetD("lookback");
   fIntWindowLow = fDigit->GetD("integration_window_low");
   fIntWindowHigh = fDigit->GetD("integration_window_high");
   fConstFrac = fDigit->GetD("constant_fraction");
@@ -97,7 +97,7 @@ void WaveformAnalysis::GetThresholdCrossing(){
   fVoltageCrossing = fConstFrac * fVoltagePeak;
 
   // Make sure we don't scan passed the beginning of the waveform 
-  Int_t lb = Int_t(fSamplePeak) - Int_t(fLookback);
+  Int_t lb = Int_t(fSamplePeak) - Int_t(fLookback/fTimeStep);
   UShort_t back_window = (lb > 0) ? lb : 0;
 
   // Start at the peak and scan backwards
@@ -127,7 +127,7 @@ void WaveformAnalysis::GetNCrossings(){
 
   bool fCrossed = false;
   // Start at the peak and scan backwards
-  for (UShort_t i = 0; i > fDigitWfm.size(); i--) {
+  for (UShort_t i = 0; i < fDigitWfm.size(); i++) {
     double voltage = (fDigitWfm[i] - fPedestal) * fVoltageRes;
 
     if (voltage < fThreshold) {

@@ -65,7 +65,7 @@ class WaveformAnalysis {
   // Analysis constants 
   int fPedWindowLow;
   int fPedWindowHigh;
-  int fLookback;
+  double fLookback;
   int fIntWindowLow;
   int fIntWindowHigh;
   double fConstFrac;
@@ -87,7 +87,7 @@ class WaveformAnalysis {
   double fTimeOverThreshold;
 
   // Invalid value for bad waveforms
-  const UShort_t INVALID = 99999;
+  const UShort_t INVALID = 9999;
 };
 
 }  // namespace RAT
