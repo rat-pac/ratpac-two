@@ -28,10 +28,12 @@ void Materials::LoadOpticalSurfaces() {
   std::map<std::string, G4OpticalSurfaceModel> opticalSurfaceModels;
   opticalSurfaceModels["glisur"] = glisur;
   opticalSurfaceModels["unified"] = unified;
+  opticalSurfaceModels["dichroic"] = dichroic;
 
   std::map<std::string, G4SurfaceType> opticalSurfaceTypes;
   opticalSurfaceTypes["dielectric_metal"] = dielectric_metal;
   opticalSurfaceTypes["dielectric_dielectric"] = dielectric_dielectric;
+  opticalSurfaceTypes["dielectric_dichroic"] = dielectric_dichroic;
   opticalSurfaceTypes["firsov"] = firsov;
   opticalSurfaceTypes["x_ray"] = x_ray;
 
@@ -107,6 +109,19 @@ void Materials::LoadOpticalSurfaces() {
       try {
         polish = iv->second->GetD("polish");
       } catch (DBNotFoundError &e) {
+      }
+
+      if (type == dielectric_dichroic){
+        // Dichroic filters need to have a environment variable 
+        // set to the transmission property file, rather than 
+        // declaring a properties table directly.
+        std::string name = std::string(iv->first.c_str());
+        std::string data_file = iv->second->GetS("dichroic_property_file");
+        std::string data_base_dir = getenv("RATSHARE") + std::string("/ratdb/");
+        std::string data_path = data_base_dir + data_file;
+        info << "Getting dichroic data for Material: " << name 
+              << " from file: " << data_path << newline;
+        setenv("G4DICHROICDATA", data_path.c_str(), 1);
       }
 
       G4OpticalSurface *surf = new G4OpticalSurface(iv->first.c_str());
@@ -403,7 +418,7 @@ G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table, std::string n
 
   if (val1.size() != val2.size()) {
     info << "Array size error in Materials: "
-              << "bad property value sizes" << newline;
+              << "bad property value sizes for " << name << newline;
     return nullptr;
   }
 
