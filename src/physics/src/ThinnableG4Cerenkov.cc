@@ -24,7 +24,7 @@ double ThinnableG4Cerenkov::GetThinningFactor() {
 }
 
 void ThinnableG4Cerenkov::SetLowerWavelengthThreshold(double wvl_thresh_lo) {
-  if (wvl_thresh_lo > 0) {
+  if (wvl_thresh_lo >= 0) {
     this->should_thin = true;
     this->lower_wavelength_threshold = wvl_thresh_lo;
   } else {
