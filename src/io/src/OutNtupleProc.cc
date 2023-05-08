@@ -76,6 +76,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("experiment", &experiment);
   metaTree->Branch("geo_file", &geo_file);
   metaTree->Branch("geo_index", &geo_index);
+  this->AssignAdditionalMetaAddresses();
   dsentries = 0;
   // Data Tree
   outputTree = new TTree("output", "output");
@@ -473,7 +474,6 @@ OutNtupleProc::~OutNtupleProc() {
     TTimeStamp rootTime = runBranch->GetStartTime();
     runTime = static_cast<ULong64_t>(rootTime.GetSec()) * stonano + static_cast<ULong64_t>(rootTime.GetNanoSec());
     macro = Log::GetMacro();
-    this->FillMeta();
     metaTree->Fill();
     metaTree->Write();
     outputTree->Write();
@@ -537,10 +537,5 @@ void OutNtupleProc::SetI(std::string param, int value) {
     options.mchits = value ? true : false;
   }
 }
-void OutNtupleProc::AssignAdditionalAddresses() {}
-void OutNtupleProc::AssignAdditionalMetaAddresses() {}
-void OutNtupleProc::FillEvent(DS::Root*, DS::EV*) {}
-void OutNtupleProc::FillNoTriggerEvent(DS::Root*) {}
-void OutNtupleProc::FillMeta() {}
 
 }  // namespace RAT

@@ -36,11 +36,11 @@ class OutNtupleProc : public Processor {
   virtual void SetS(std::string param, std::string value);
 
   // Extensible functions
-  virtual void AssignAdditionalAddresses();
-  virtual void AssignAdditionalMetaAddresses();
-  virtual void FillEvent(DS::Root*, DS::EV*);
-  virtual void FillNoTriggerEvent(DS::Root*);
-  virtual void FillMeta();
+  virtual void AssignAdditionalAddresses() {};
+  virtual void AssignAdditionalMetaAddresses() {};
+  virtual void FillEvent(DS::Root*, DS::EV*) {};
+  virtual void FillNoTriggerEvent(DS::Root*) {};
+  virtual void FillMeta() {};
 
   // Exposed members for external tools
   DS::Run *runBranch;
