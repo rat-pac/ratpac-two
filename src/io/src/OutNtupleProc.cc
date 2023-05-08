@@ -153,6 +153,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("trackProcess", &trackProcess);
     metaTree->Branch("processCodeMap", &processCodeMap);
   }
+  this->AssignAdditionalAddresses();
 
   return true;
 }
@@ -406,7 +407,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         hitPMTDigitizedCharge.push_back(digitized_charge);
       }
     }
-    // Fill
+    this->FillEvent(ds, ev);
     outputTree->Fill();
   }
   if (options.untriggered && ds->GetEVCount() == 0) {
@@ -419,13 +420,10 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       hitPMTCharge.clear();
       hitPMTDigitizedCharge.clear();
     }
+    this->FillNoTriggerEvent(ds);
     outputTree->Fill();
   }
 
-  // Additional branches
-  // for(auto& f : this->additionalBranches){
-  //  f();
-  //}
   // FIX THE ABOVE
   // int errorcode = outputTree->Fill();
   // if( errorcode < 0 )
@@ -475,6 +473,7 @@ OutNtupleProc::~OutNtupleProc() {
     TTimeStamp rootTime = runBranch->GetStartTime();
     runTime = static_cast<ULong64_t>(rootTime.GetSec()) * stonano + static_cast<ULong64_t>(rootTime.GetNanoSec());
     macro = Log::GetMacro();
+    this->FillMeta();
     metaTree->Fill();
     metaTree->Write();
     outputTree->Write();
@@ -538,4 +537,10 @@ void OutNtupleProc::SetI(std::string param, int value) {
     options.mchits = value ? true : false;
   }
 }
+void OutNtupleProc::AssignAdditionalAddresses() {}
+void OutNtupleProc::AssignAdditionalMetaAddresses() {}
+void OutNtupleProc::FillEvent(DS::Root*, DS::EV*) {}
+void OutNtupleProc::FillNoTriggerEvent(DS::Root*) {}
+void OutNtupleProc::FillMeta() {}
+
 }  // namespace RAT
