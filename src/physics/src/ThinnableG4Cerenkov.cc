@@ -10,10 +10,15 @@ ThinnableG4Cerenkov::ThinnableG4Cerenkov() : should_thin(false), thinning_factor
 }
 
 void ThinnableG4Cerenkov::SetThinningFactor(double thinning) {
-  if ((thinning > 0) && (thinning <= 1.0)) {
+  if ((thinning > 0) && (thinning < 1.0)) {
     this->should_thin = true;
     this->thinning_factor = thinning;
-  } else {
+  }
+  else if (thinning == 1.0) {
+      this->should_thin = this->should_thin || false;
+      this->thinning_factor = thinning;
+  }
+  else {
     Log::Die(dformat("Cannot thin photons with acceptance %1.f%", thinning));
   }
 }
@@ -24,10 +29,15 @@ double ThinnableG4Cerenkov::GetThinningFactor() {
 }
 
 void ThinnableG4Cerenkov::SetLowerWavelengthThreshold(double wvl_thresh_lo) {
-  if (wvl_thresh_lo >= 0) {
+  if (wvl_thresh_lo > 0) {
     this->should_thin = true;
     this->lower_wavelength_threshold = wvl_thresh_lo;
-  } else {
+  }
+  else if (wvl_thresh_lo == 0) {
+    this->should_thin = this->should_thin || false;
+    this->lower_wavelength_threshold = wvl_thresh_lo;
+  }
+  else {
     Log::Die(dformat("Cannot set lower wavelength threshold for Cerenkov photons below 0: %1.f%", wvl_thresh_lo));
   }
 }
