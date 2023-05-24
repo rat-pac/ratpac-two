@@ -328,11 +328,13 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     _thickness = _thickness_photocathode->Value(pos.z());
     _cos_theta1 = dir * norm;
     if (_cos_theta1 < 0.0) {
+#ifdef G4DEBUG
       G4cerr << "GLG4PMTOpticalModel::DoIt(): "
              << " The normal points the wrong way!" << newline
              << "  norm: " << norm << G4endl << "  dir:  " << dir << G4endl << "  _cos_theta1:  " << _cos_theta1
              << G4endl << "  pos:  " << pos << G4endl << "  whereAmI:  " << (int)(whereAmI) << G4endl
              << " Reversing normal!" << G4endl;
+#endif
       _cos_theta1 = -_cos_theta1;
       norm = -norm;
     }
