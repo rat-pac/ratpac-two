@@ -2,8 +2,12 @@
 name: "NOISEPROC",
 run_range: [0, 0],
 
+// Noise flag sets the way PMT dark noise is simulated.
+// 0: Global dark rate
+// 1: Per PMT model dark rate
+// 2: Per PMT dark rate
 noise_flag: 0,
-default_noise_rate: 0.0,
+default_noise_rate: 1000.0,
 noise_lookback: 1000.0,
 noise_lookforward: 1000.0,
 noise_maxtime: 1000000.0,

@@ -76,6 +76,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("experiment", &experiment);
   metaTree->Branch("geo_file", &geo_file);
   metaTree->Branch("geo_index", &geo_index);
+  this->AssignAdditionalMetaAddresses();
   dsentries = 0;
   // Data Tree
   outputTree = new TTree("output", "output");
@@ -153,6 +154,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("trackProcess", &trackProcess);
     metaTree->Branch("processCodeMap", &processCodeMap);
   }
+  this->AssignAdditionalAddresses();
 
   return true;
 }
@@ -406,7 +408,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         hitPMTDigitizedCharge.push_back(digitized_charge);
       }
     }
-    // Fill
+    this->FillEvent(ds, ev);
     outputTree->Fill();
   }
   if (options.untriggered && ds->GetEVCount() == 0) {
@@ -419,13 +421,10 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       hitPMTCharge.clear();
       hitPMTDigitizedCharge.clear();
     }
+    this->FillNoTriggerEvent(ds);
     outputTree->Fill();
   }
 
-  // Additional branches
-  // for(auto& f : this->additionalBranches){
-  //  f();
-  //}
   // FIX THE ABOVE
   // int errorcode = outputTree->Fill();
   // if( errorcode < 0 )
@@ -538,4 +537,5 @@ void OutNtupleProc::SetI(std::string param, int value) {
     options.mchits = value ? true : false;
   }
 }
+
 }  // namespace RAT
