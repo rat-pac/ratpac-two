@@ -405,6 +405,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
             else {
                 G4cout << "GLG4PMTOpticalModel[" << GetName() << "] warning: individual efficiency correction for PMT " << ipmt
                     << " is " << EfficiencyCorrection[ipmt] << ", resetting to 1" << newline;
+                EfficiencyCorrection[ipmt] = 1.0;
             }
         }
         G4double ranno_absorb = G4UniformRand();

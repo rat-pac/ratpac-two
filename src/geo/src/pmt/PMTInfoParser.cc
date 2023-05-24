@@ -57,7 +57,7 @@ PMTInfoParser::PMTInfoParser(DBLinkPtr lpos_table, const std::string &mother_nam
 
     // Individual PMT efficiency correction
     try {
-        fEfficiencyCorrection = lpos_table->GetDArray("efficiency");  // individual PMT efficiency corrections
+        fEfficiencyCorrection = lpos_table->GetDArray("efficiency_corr");  // individual PMT efficiency corrections
         Log::Assert(fPos.size() == fEfficiencyCorrection.size(), "PMTInfoParser: PMTINFO arrays must be same length!");
     }
     catch (DBNotFoundError &e) {
@@ -66,21 +66,21 @@ PMTInfoParser::PMTInfoParser(DBLinkPtr lpos_table, const std::string &mother_nam
     }
 
     try {
-        fNoiseRate = lpos_table->GetDArray("noise_rate");
+        fNoiseRate = lpos_table->GetDArray("noise_rate"); // noise rate for individual pmts
         Log::Assert(fPos.size() == fNoiseRate.size(), "PMTInfoParser: PMTINFO arrays must be same length!");
     }
     catch (DBNotFoundError &e) {
         fNoiseRate.resize(fPos.size());
-        fill(fNoiseRate.begin(), fNoiseRate.end(), 0.0);
+        fill(fNoiseRate.begin(), fNoiseRate.end(), 0.0); // defaults to 0.0 (no noise)
     }
 
     try {
-        fAfterPulseFraction = lpos_table->GetDArray("afterpulse_fraction");  // noise rate for individual pmts
+        fAfterPulseFraction = lpos_table->GetDArray("afterpulse_fraction");  // fraction of hits with afterpulse for individual pmts
         Log::Assert(fPos.size() == fAfterPulseFraction.size(), "PMTInfoParser: PMTINFO arrays must be same length!");
     }
     catch (DBNotFoundError &e) {
         fAfterPulseFraction.resize(fPos.size());
-        fill(fAfterPulseFraction.begin(), fAfterPulseFraction.end(), -1);  // defaults to type -1 if unspecified
+        fill(fAfterPulseFraction.begin(), fAfterPulseFraction.end(), 0.0);  // defaults to 0.0 (no afterpulsing)
     }
 
     // Find mother volume
