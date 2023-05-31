@@ -13,6 +13,8 @@ add_subdirectory(gen)
 add_subdirectory(geo)
 add_subdirectory(io)
 add_subdirectory(physics)
+add_subdirectory(quadrature)
+add_subdirectory(quenching)
 add_subdirectory(stlplus)
 add_subdirectory(util)
 # ds has to come last to avoid race condition with ratdict 
@@ -26,7 +28,7 @@ add_subdirectory(ratbase)
 add_library(RATPAC SHARED)
 target_link_libraries(RATPAC PUBLIC 
   ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} ${CRY_LIBRARIES} ${TENSORFLOW_LIBRARIES}
-  cmd core daq db ds fit gen geo io physics ratbase stlplus util RATDict)
+  cmd core daq db ds fit gen geo io physics quadrature quenching ratbase stlplus util RATDict)
 
 
 ### Target: library for ROOT
