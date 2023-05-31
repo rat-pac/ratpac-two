@@ -17,19 +17,23 @@
 namespace RAT {
 
 PMTConstruction *PMTConstruction::NewConstruction(DBLinkPtr table, G4LogicalVolume *mother) {
-  std::string construction = table->Get<std::string>("construction");
-  if (construction == "toroidal") {
-    return new ToroidalPMTConstruction(table, mother);
-  } else if (construction == "revolution") {
-    return new RevolutionPMTConstruction(table, mother);
-  } else if (construction == "cubic") {
-    return new CubicPMTConstruction(table, mother);
-  } else if (construction == "lappd") {
-    return new LAPPDConstruction(table, mother);
-  } else {
-    Log::Die("PMT construction \'" + construction + "\' does not exist.");
-  }
-  return NULL;
+    std::string construction = table->Get<std::string>("construction");
+    if (construction == "toroidal") {
+        return new ToroidalPMTConstruction(table, mother);
+    }
+    else if (construction == "revolution") {
+        return new RevolutionPMTConstruction(table, mother);
+    }
+    else if (construction == "cubic") {
+        return new CubicPMTConstruction(table, mother);
+    }
+    else if (construction == "lappd") {
+        return new LAPPDConstruction(table, mother);
+    }
+    else {
+        Log::Die("PMT construction \'" + construction + "\' does not exist.");
+    }
+    return NULL;
 }
 
 }  // namespace RAT
