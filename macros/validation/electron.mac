@@ -14,8 +14,8 @@
 
 /rat/proclast outroot
 
-/generator/add combo gun2:fill:poisson
-/generator/vtx/set e- 0.0 0.0 0.0 0.0 100.0 0.0
+/generator/add combo gun:point:poisson
+/generator/vtx/set e- 0.0 0.0 0.0 2.5
 /generator/pos/set 0.0 0.0 0.0
 
 /run/beamOn 100
