@@ -24,6 +24,11 @@
 #include <RAT/PhotonThinning.hh>
 #include <RAT/TrackInfo.hh>
 #include <RAT/fileio.hpp>
+#include <RAT/DB.hh>
+#include <RAT/AdaptiveSimpsonQuadrature.hh>
+#include <RAT/FixedTrapezoidalQuadrature.hh>
+#include <RAT/IntegratedQuenchingCalculator.hh>
+#include <RAT/NaiveQuenchingCalculator.hh>
 
 #include "G4Timer.hh"
 #include "G4TrackFastVector.hh"  // for G4TrackFastVectorSize
@@ -141,6 +146,56 @@ GLG4Scint::GLG4Scint(const G4String &tablename, G4double lowerMassLimit) {
   G4cout << "GLG4Scint[" << tablename << "]"
          << " is created " << G4endl;
 #endif
+
+  // ejc
+  // open up db
+  // if quenching selection is "naive", then QC = new NQC
+  // if quenching selection is "integrated", then
+  //    if integration is "fixed", then
+  //        Quadrature = FixedQuadrature(resolution)
+  //    if integration is "adaptive", then
+  //        Quadrature = AdaptiveQuadrature(tolerance)
+  //    QC = new IQC(Quadrature)
+  RAT::DB* db = RAT::DB::Get();
+  RAT::DBLinkPtr tbl = db->GetLink("QUENCHING");
+  std::string selection = tbl->GetS("model");
+  BirksLaw model;
+  if (selection == "birks") {
+    model = BirksLaw();
+  }
+  else {
+    // no such quenching model
+    std::string msg = "Invalid quenching model: " + selection;
+    RAT::Log::Die(msg);
+  }
+  std::string strategy = tbl->GetS("strategy");
+  if (strategy == "naive") {
+    this->fQuenching = new NaiveQuenchingCalculator(model);
+  }
+  else if (strategy == "integrated") {
+    std::string method = tbl->GetS("integration");
+    Quadrature* quadrature;
+    if (method == "fixed") {
+        // TODO
+        double resolution = tbl->GetD("resolution");
+        quadrature = new FixedTrapezoidalQuadrature(resolution);
+    }
+    else if (method == "adaptive") {
+        double tolerance = tbl->GetD("tolerance");
+        quadrature = new AdaptiveSimpsonQuadrature(tolerance);
+    }
+    else {
+        // no such integration method
+        std::string msg = "Invalid integration method: " + method;
+        RAT::Log::Die(msg);
+    }
+    this->fQuenching = new IntegratedQuenchingCalculator(model, quadrature);
+  }
+  else {
+    // no such quenching calculation strategy
+    std::string msg = "Invalid quenching calculation strategy: " + strategy;
+    RAT::Log::Die(msg);
+  }
 }
 
 // GLG4Scint::GLG4Scint(const GLG4Scint &right)
@@ -159,6 +214,8 @@ GLG4Scint::~GLG4Scint() {
       break;
     }
   }
+
+  delete fQuenching;
 }
 
 ////////////
@@ -360,11 +417,7 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
     }
     else {  // apply Birk's law
       G4double birksConstant = physicsEntry->fBirksConstant;
-      G4double QuenchedTotalEnergyDeposit = TotalEnergyDeposit;
-      if (birksConstant != 0.0) {
-        G4double dE_dx = TotalEnergyDeposit / aStep.GetStepLength();
-        QuenchedTotalEnergyDeposit /= (1.0 + birksConstant * dE_dx);
-      }
+      G4double QuenchedTotalEnergyDeposit = fQuenching->QuenchedEnergyDeposit(aStep, birksConstant);
 
       // track total edep, quenched edep
       fTotEdep += TotalEnergyDeposit;
