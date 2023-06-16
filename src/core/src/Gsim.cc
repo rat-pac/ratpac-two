@@ -586,10 +586,11 @@ void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon,
 
   rat_mcphoton->SetTrackID(photon->GetTrackID());
   rat_mcphoton->SetHitTime(photon->GetTime());
+  rat_mcphoton->SetCreationTime(photon->GetCreationTime());
 
   rat_mcphoton->SetFrontEndTime(fPMTTime[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickTime(photon->GetTime()));
   rat_mcphoton->SetCharge(fPMTCharge[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickCharge());
-  rat_mcphoton->SetProcess(process);
+  rat_mcphoton->SetCreatorProcess(process);
 }
 
 void Gsim::SetStoreParticleTraj(const G4String &particleName, const bool &gDoStore) {

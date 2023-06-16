@@ -33,6 +33,7 @@ class GLG4HitPhoton {
 
   void SetPMTID(int id) { fPMTID = id; }
   void SetTime(double t) { fTime = t; }
+  void SetCreationTime(double t) { fCreationTime= t; }
   void SetKineticEnergy(double KE);
   void SetWavelength(double wl);
   void SetPosition(double x, double y, double z);
@@ -46,6 +47,7 @@ class GLG4HitPhoton {
 
   int GetPMTID() const { return fPMTID; }
   double GetTime() const { return fTime; }
+  double GetCreationTime() const { return fCreationTime; }
   double GetKineticEnergy() const;
   double GetWavelength() const;
   template <class T>
@@ -63,6 +65,7 @@ class GLG4HitPhoton {
 
  private:
   double fTime;                 // time of hit
+  double fCreationTime;        /// creation time of the photon that created the hit
   int fPMTID;                   // ID number of PMT the HitPhoton hit
   float fKE;                    // kinetic energy
   float fPosition[3];           // x,y,z components of position
