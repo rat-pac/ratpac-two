@@ -80,6 +80,10 @@ class MCSummary : public TObject {
   virtual Int_t GetNumCerenkovPhoton() const { return numCerenkovPhoton; }
   virtual void SetNumCerenkovPhoton(Int_t _numCerenkovPhoton) { numCerenkovPhoton = _numCerenkovPhoton; }
 
+  /** Set code defined by user for distinguishing multiple generators */
+  virtual Int_t GetUserGeneratorCode() const { return userCode; }
+  virtual void SetUserGeneratorCode(Int_t _userCode) { userCode = _userCode; }
+
   virtual void SetPhotonInfo(std::vector<std::vector<double>> _photonComposition) {
     photonComposition = _photonComposition;
   }
@@ -94,12 +98,13 @@ class MCSummary : public TObject {
 
   virtual std::vector<std::vector<double>> GetPMTPhotonInfo() { return pmtHitVector; }
 
-  ClassDef(MCSummary, 3);
+  ClassDef(MCSummary, 4);
 
  protected:
   Int_t numScintPhoton;
   Int_t numReemitPhoton;
   Int_t numCerenkovPhoton;
+  Int_t userCode;
   Float_t totalScintEdep;
   Float_t totalScintEdepQuenched;
   Float_t initialScintTime;

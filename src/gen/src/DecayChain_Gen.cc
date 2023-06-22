@@ -142,6 +142,9 @@ void DecayChain_Gen::SetState(G4String state) {
 #endif
 
   try {
+      if (nArgs >= 5) {
+         usercode = util_to_int(parts[4]);
+      }
       if (nArgs >= 4) {
           // The fourth argument allows one to start midchain
           std::string InMiddle = parts[3];
@@ -157,12 +160,12 @@ void DecayChain_Gen::SetState(G4String state) {
               info << "RAT::DecayChain_Gen: gamma decay of Isotope" << newline;
               fInGammaDecay = true;
           }
-      }
-      else {
+       }
+       else {
           info << "RAT::DecayChain_Gen: normal decay" << newline;
-      }
+       }
 
-      if (nArgs >= 3) {
+       if (nArgs >= 3) {
           // The last argument is an optional time generator
           delete timeGen;
           timeGen = 0;  // In case of exception in next line

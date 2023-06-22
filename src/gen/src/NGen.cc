@@ -201,7 +201,10 @@ void NGen::SetState(G4String state) {
 #endif
 
   try {
-    if (nArgs >= 3) {
+    if (nArgs >= 4) {
+         // The forth argument is an optional user code entry
+         usercode = util_to_int(parts[3]);
+    }    if (nArgs >= 3) {
       // The last argument is an optional time generator
       delete timeGen;
       timeGen = 0;  // In case of exception in next line

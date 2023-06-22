@@ -86,12 +86,14 @@ class OutNtupleProc : public Processor {
   int subev;
   int nhits;
   double triggerTime;
+  ULong64_t timestamp_ns;
   // MC Summary Information
   double scintEdep;
   double scintEdepQuenched;
   double scintPhotons;
   double remPhotons;
   double cherPhotons;
+  int userCode;
   // MC PMT/PE
   int mcnhits;
   int mcpecount;

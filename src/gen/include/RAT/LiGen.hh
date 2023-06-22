@@ -36,6 +36,8 @@ class LiGen : public GLG4Gen {
   virtual G4String GetTimeState() const;
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
+  virtual void SetUserCode(G4int usercode){};
+  virtual G4int GetUserCode() const { return usercode; };
 
  protected:
   // Generator initialization, specified by the user.
@@ -66,6 +68,7 @@ class LiGen : public GLG4Gen {
   G4double gamma0;
   G4double sumBr;
   G4double pdfNow;
+  G4int usercode;
 };
 
 }  // namespace RAT

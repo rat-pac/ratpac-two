@@ -95,6 +95,7 @@ GLG4PrimaryGeneratorAction::GLG4PrimaryGeneratorAction() {
   RAT::GlobalFactory<GLG4PosGen>::Register("multipoint", new RAT::Alloc<GLG4PosGen, RAT::PosGen_Multipoint>);
   RAT::GlobalFactory<GLG4PosGen>::Register("triMeshSurface", new RAT::Alloc<GLG4PosGen, RAT::PosGen_TriMeshSurface>);
 
+
   needReset = true;
 }
 
@@ -115,6 +116,7 @@ void GLG4PrimaryGeneratorAction::ClearGenerators(void) {
 void GLG4PrimaryGeneratorAction::GeneratePrimaries(G4Event *argEvent) {
   RAT::EventInfo *eventInfo = new RAT::EventInfo;
   eventInfo->utc = RAT::AddNanoseconds(runUTC, (long)GetUniversalTime());
+  
   argEvent->SetUserInformation((G4VUserEventInformation *)eventInfo);
 
   if (needReset) {
@@ -152,7 +154,7 @@ void GLG4PrimaryGeneratorAction::GeneratePrimaries(G4Event *argEvent) {
 
     double vertexTime = nextGen->NextTime();
     nextGen->GenerateEvent(argEvent);
-
+    eventInfo->usercode = nextGen->GetUserCode() ;
     if (nextGen->IsRepeatable()) {
       // Reset time relative to time to previous generator time
       // to get pilup correct

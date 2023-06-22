@@ -19,6 +19,7 @@ class EventInfo : public G4VUserEventInformation {
     numCerenkovPhoton = 0;
     extTriggerType = 0;
     extTriggerTime = 0.0;
+    usercode = 0;
   };
 
   virtual ~EventInfo() { delete fCalib; }
@@ -59,6 +60,10 @@ class EventInfo : public G4VUserEventInformation {
 
   /** Time of external trigger relative to start of event primaries */
   double extTriggerTime;
+
+ /** Input of generator code set at macro level to distinghuish between multiple
+ * generators **/
+  int usercode;
 
   bool StorePhotonIDs;
 

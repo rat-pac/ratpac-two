@@ -30,6 +30,7 @@ class GLG4PrimaryGeneratorMessenger : public G4UImessenger {
   G4UIcommand *RateSetCmd;
   G4UIcommand *VtxSetCmd;
   G4UIcommand *PosSetCmd;
+  G4UIcommand *UserCodeCmd;
   G4UIcommand *EventWindowCmd;
   G4UIcommand *GenClearCmd;
 

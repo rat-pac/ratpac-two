@@ -105,6 +105,8 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("scintPhotons", &scintPhotons);
   outputTree->Branch("remPhotons", &remPhotons);
   outputTree->Branch("cherPhotons", &cherPhotons);
+  outputTree->Branch("userCode", &userCode);
+  outputTree->Branch("timestamp_ns",&timestamp_ns);  
   if (options.mcparticles) {
     // Save information about *all* particles that are simulated
     // Variable naming is the same as the first particle, just plural.
@@ -273,12 +275,12 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 
   // MCSummary info
   RAT::DS::MCSummary *mcs = mc->GetMCSummary();
-  scintEdep = mcs->GetTotalScintEdep();
+  scintEdep         = mcs->GetTotalScintEdep();
   scintEdepQuenched = mcs->GetTotalScintEdepQuenched();
-  scintPhotons = mcs->GetNumScintPhoton();
-  remPhotons = mcs->GetNumReemitPhoton();
-  cherPhotons = mcs->GetNumCerenkovPhoton();
-
+  scintPhotons      = mcs->GetNumScintPhoton();
+  remPhotons        = mcs->GetNumReemitPhoton();
+  cherPhotons       = mcs->GetNumCerenkovPhoton();
+  userCode          = mcs->GetUserGeneratorCode();
   // MC hits and PE
   mcpetime.clear();
   mcpeprocess.clear();
@@ -291,6 +293,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 
   mcnhits = mc->GetMCPMTCount();
   mcpecount = mc->GetNumPE();
+  timestamp_ns = ULong64_t(mc->GetUTC().GetSec() * 1000000000 + mc->GetUTC().GetNanoSec());
+
   if (options.mchits){
     for (int ipmt = 0; ipmt < mc->GetMCPMTCount(); ipmt++){
       DS::MCPMT* mcpmt = mc->GetMCPMT(ipmt);
@@ -330,6 +334,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     DS::EV *ev = ds->GetEV(subev);
     evid = ev->GetID();
     triggerTime = ev->GetCalibratedTriggerTime();
+    timestamp_ns+=triggerTime;
     auto fitVector = ev->GetFitResults();
     std::map<std::string, double *> fitvalues;
     std::map<std::string, bool *> fitvalids;
