@@ -5,6 +5,7 @@
 #include <RAT/DB.hh>
 #include <RAT/ReacIBDgen.hh>
 #include <RAT/ReacIBDgenMessenger.hh>
+#include <RAT/Log.hh>
 #include <fstream>
 #include <iostream>
 
@@ -92,7 +93,7 @@ void ReacIBDgen::GenInteraction(float &E, float &CosThetaLab) {
 
 void ReacIBDgen::SetU235Amplitude(double U235Am) {
   if ((U235Am < 0.) || (U235Am > 1.)) {
-    std::cerr << "Set your U235 Amplitude between 0 and 1." << std::endl;
+    warn << "Set your U235 Amplitude between 0 and 1." << newline;
     return;
   }
   U235Amp = U235Am;
@@ -107,7 +108,7 @@ void ReacIBDgen::Reset() {
 
 void ReacIBDgen::SetU238Amplitude(double U238Am) {
   if ((U238Am < 0.) || (U238Am > 1.)) {
-    std::cerr << "Set your U238 Amplitude between 0 and 1." << std::endl;
+    warn << "Set your U238 Amplitude between 0 and 1." << newline;
     return;
   }
   U238Amp = U238Am;
@@ -115,7 +116,7 @@ void ReacIBDgen::SetU238Amplitude(double U238Am) {
 
 void ReacIBDgen::SetPu239Amplitude(double Pu239Am) {
   if ((Pu239Am < 0.) || (Pu239Am > 1.)) {
-    std::cerr << "Set your Pu239 Amplitude between 0 and 1." << std::endl;
+    warn << "Set your Pu239 Amplitude between 0 and 1." << newline;
     return;
   }
   Pu239Amp = Pu239Am;
@@ -123,7 +124,7 @@ void ReacIBDgen::SetPu239Amplitude(double Pu239Am) {
 
 void ReacIBDgen::SetPu241Amplitude(double Pu241Am) {
   if ((Pu241Am < 0.) || (Pu241Am > 1.)) {
-    std::cerr << "Set your Pu241 Amplitude between 0 and 1." << std::endl;
+    warn << "Set your Pu241 Amplitude between 0 and 1." << newline;
     return;
   }
   Pu241Amp = Pu241Am;
@@ -160,7 +161,7 @@ float ReacIBDgen::GetNuEnergy() {
       fspace[i] = IBDESpectrum(flow + value);
 
 #ifdef DEBUG
-      std::cout << "   i=" << i << " f=" << fspace[i] << "," << std::endl;
+      debug << "   i=" << i << " f=" << fspace[i] << "," << newline;
 
 #endif
 
@@ -168,11 +169,11 @@ float ReacIBDgen::GetNuEnergy() {
       // Let's write the fspace prob. density function to a text file.
       std::ofstream fout("TheProbFunc.txt");
       if (fout.is_open()) {
-        std::cout << "Your file is open.  Let's put the probability density "
+        debug << "Your file is open.  Let's put the probability density "
                      "function into it..."
-                  << std::endl;
+                  << newline;
         for (int i = 0; i < probDensSize; i++) {
-          fout << i << " " << fspace[i] << std::endl;
+          fout << i << " " << fspace[i] << newline;
         }
         fout.close();
       }
@@ -185,9 +186,9 @@ float ReacIBDgen::GetNuEnergy() {
     fGenerate = new CLHEP::RandGeneral(fspace, probDensSize);
 
 #ifdef DEBUG
-    std::cout << " Random generator test (f):" << std::endl;
+    debug << " Random generator test (f):" << newline;
     for (int i = 0; i != 20; i++) {
-      std::cout << i << ": " << fGenerate->shoot() * (fhigh - flow) + flow << ", " << std::endl;
+      debug << i << ": " << fGenerate->shoot() * (fhigh - flow) + flow << ", " << newline;
     }
 
 #endif
@@ -196,7 +197,7 @@ float ReacIBDgen::GetNuEnergy() {
   float nuE = fGenerate->shoot() * (fhigh - flow) + flow;
 
 #ifdef DEBUG
-  std::cout << "Your generated neutrino energy is..." << nuE << std::endl;
+  debug << "Your generated neutrino energy is..." << nuE << newline;
 #endif
 
   return nuE;
@@ -212,7 +213,7 @@ double ReacIBDgen::IBDESpectrum(float x) {
   double EnergyVal = NuReacSpectrum(x) * XC * sqrt(XC * XC - mElectron * mElectron);
 
 #ifdef DEBUG
-  std::cout << EnergyVal << " and " << XC << std::endl;
+  debug << EnergyVal << " and " << XC << newline;
 #endif
 
   return EnergyVal;

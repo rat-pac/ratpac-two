@@ -82,14 +82,14 @@ void VertexGen_Spectrum::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx
 void VertexGen_Spectrum::SetState(G4String newValues) {
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this VertexGen_Spectrum:\n"
-              << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to VertexGen_Spectrum::SetState: \n"
-              << " \"pname  specname  (Elo Ehi)\"\n"
-              << " pname = particle name \n"
-              << " specname = spectrum name as given in ratdb \n"
-              << " Elo Ehi = optional limits on energy range of generated particles " << std::endl;
+    info << "Current state of this VertexGen_Spectrum:" << newline
+              << " \"" << GetState() << "\"" << newline
+              << newline;
+    info << "Format of argument to VertexGen_Spectrum::SetState: " << newline
+              << " \"pname  specname  (Elo Ehi)\"" << newline
+              << " pname = particle name " << newline
+              << " specname = spectrum name as given in ratdb " << newline
+              << " Elo Ehi = optional limits on energy range of generated particles " << newline;
     return;
   }
 
@@ -118,17 +118,17 @@ void VertexGen_Spectrum::SetState(G4String newValues) {
         if (elementName == GLG4VertexGen_Gun::theElementNames[Z - 1]) break;
         if (Z <= GLG4VertexGen_Gun::numberOfElements) {
           newTestGunG4Code = G4IonTable::GetIonTable()->GetIon(Z, A, 0.0);
-          std::cout << " Spectrum Vertex: Setting ion with A = " << A << " Z = " << Z << std::endl;
+          info << " Spectrum Vertex: Setting ion with A = " << A << " Z = " << Z << newline;
         }
       }
     }
     if (newTestGunG4Code == NULL) {
-      std::cerr << "Spectrum Vertex: Could not find particle type " << pname << " defaulting to electron " << std::endl;
+      warn << "Spectrum Vertex: Could not find particle type " << pname << " defaulting to electron " << newline;
       _particle = "e-";
       return;
     }
   } else {
-    std::cout << "Spectrum Vertex: Setting particle = " << pname << std::endl;
+    info << "Spectrum Vertex: Setting particle = " << pname << newline;
   }
   // so store the name and the particle definition
   _particle = pname;
@@ -142,9 +142,9 @@ void VertexGen_Spectrum::SetState(G4String newValues) {
   if (lspec) {
     _lspec = lspec;
     _spectrum = specname;
-    std::cout << "Spectrum Vertex: Setting spectrum " << specname << std::endl;
+    info << "Spectrum Vertex: Setting spectrum " << specname << newline;
   } else {
-    std::cerr << "Could not find spectrum " << specname << " using default, flat spectrum " << std::endl;
+    warn << "Could not find spectrum " << specname << " using default, flat spectrum " << newline;
   }
 
   // Has the user supplied energy limits too?
@@ -158,7 +158,7 @@ void VertexGen_Spectrum::SetState(G4String newValues) {
     // user has selected universal limits
     Elim_Ulo = Elo;
     Elim_Uhi = Ehi;
-    std::cout << "Limiting spectrum to range " << Elim_Ulo << " - " << Elim_Uhi << std::endl;
+    info << "Limiting spectrum to range " << Elim_Ulo << " - " << Elim_Uhi << newline;
   }
 
   // finally ready to initialise the spectrum!
@@ -213,7 +213,7 @@ void VertexGen_Spectrum::InitialiseSpectrum() {
   // and finally make sure temporary limits are set to universal ones
   Elim_Tlo = Elim_Ulo;
   Elim_Thi = Elim_Uhi;
-  std::cout << "Spectrum " << _spectrum << " initialised " << std::endl;
+  info << "Spectrum " << _spectrum << " initialised " << newline;
 }
 
 ///-------------------------------------------------------------------------
@@ -251,7 +251,7 @@ float VertexGen_Spectrum::SampleEnergy() {
     int istep = spec_E.size() - 1;
     while (spec_E[istep] > Ehi) {
       stop = spec_cummag[istep];
-      std::cout << "* " << istep << " " << stop << " " << spec_E[istep] << " " << Ehi << std::endl;
+      info << "* " << istep << " " << stop << " " << spec_E[istep] << " " << Ehi << newline;
       istep--;
     }
     // and interpolate the last bit
@@ -293,10 +293,10 @@ void VertexGen_Spectrum::LimitEnergies(float Elo, float Ehi) {
   // Set the limits for the generated energy range
   // first check this makes sense
   if ((Elo > _emax) || (Elo > Elim_Uhi) || (Ehi < _emin) || (Ehi < Elim_Ulo) || ((Ehi - Elo) <= 0)) {
-    std::cout << "Spectrum Vertex: temporary energy limits " << Elo << " - " << Ehi
-              << " don't make sense, not applied \n"
+    info << "Spectrum Vertex: temporary energy limits " << Elo << " - " << Ehi
+              << " don't make sense, not applied " << newline
               << "spectrum in range " << _emin << " - " << _emax << " MeV with universal limits " << Elim_Ulo << " - "
-              << Elim_Uhi << std::endl;
+              << Elim_Uhi << newline;
     return;
   }
   Elim_Tlo = Elo;

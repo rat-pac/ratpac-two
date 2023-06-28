@@ -11,6 +11,7 @@ add_library(daq OBJECT
   src/PDFPMTCharge.cc
   src/PDFPMTTime.cc
   src/PMTPulse.cc
+  src/PMTWaveformGenerator.cc
   src/PMTWaveform.cc
   src/SimpleDAQProc.cc
   src/SplitEVDAQProc.cc

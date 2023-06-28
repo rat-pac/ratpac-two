@@ -143,12 +143,12 @@ double CCCrossSec::Sigma(const double Enu) const {
 
 std::vector<double> CCCrossSec::CalcAllowedElectronKE(const double Enu) const {
   std::vector<double> allowed_ke;
-  // std::cout << "Neutrino energy: " << Enu << std::endl;
+  // info << "Neutrino energy: " << Enu << newline;
   for (unsigned int n = 0; n < fLevels.size(); n++) {
     double energy = Enu - fLevels[n];
     if (energy > fMe) {
-      // std::cout << "Allowed e- kinetic energy: " << energy - fMe <<
-      // std::endl;
+      // info << "Allowed e- kinetic energy: " << energy - fMe <<
+      // newline;
       allowed_ke.push_back(energy - fMe);
     }
   }
@@ -157,13 +157,13 @@ std::vector<double> CCCrossSec::CalcAllowedElectronKE(const double Enu) const {
 
 std::vector<double> CCCrossSec::CalcAllowedNuclearEx(const double Enu) const {
   std::vector<double> allowed_nuclear;
-  // std::cout << "Neutrino energy: " << Enu << std::endl;
+  // info << "Neutrino energy: " << Enu << newline;
 
   for (unsigned int n = 0; n < fLevels.size(); n++) {
     double energy = Enu - fLevels[n];
     if (energy > fMe) {
-      // std::cout << "Allowed nuclear excitation: " << fLevels[n] - 0.350 <<
-      // std::endl;
+      // info << "Allowed nuclear excitation: " << fLevels[n] - 0.350 <<
+      // newline;
       allowed_nuclear.push_back(fLevels[n] - 0.350);
     }
   }

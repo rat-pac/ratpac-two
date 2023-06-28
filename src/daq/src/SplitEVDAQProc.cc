@@ -6,6 +6,7 @@
 #include <RAT/SplitEVDAQProc.hh>
 #include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/PMT.hh>
+#include <RAT/DS/RunStore.hh>
 
 #include <algorithm>
 #include <vector>
@@ -15,7 +16,7 @@ namespace RAT {
 SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   // Trigger Specifications
 
-  ldaq = DB::Get()->GetLink("SplitEVDAQ");
+  ldaq = DB::Get()->GetLink("DAQ","SplitEVDAQ");
   fEventCounter = 0;
   fPulseWidth = ldaq->GetD("pulse_width");
   fTriggerThreshold = ldaq->GetD("trigger_threshold");
@@ -34,6 +35,17 @@ SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   fWaveformAnalysis = new WaveformAnalysis();
 }
 
+void SplitEVDAQProc::BeginOfRun(DS::Run *run) {
+    if (fDigitize) {
+        DS::PMTInfo *pmtinfo = run->GetPMTInfo();
+        const size_t numModels = pmtinfo->GetModelCount();
+        for (size_t i = 0; i < numModels; i++) {
+            const std::string modelName = pmtinfo->GetModelName(i);
+            fDigitizer->AddWaveformGenerator(modelName);
+        }
+    }
+}
+
 Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   // This DAQ will convert hits on PMTs through time into trigger pulses
   // which can fire a global event trigger. Each trigger will correspond
@@ -43,6 +55,8 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   // - Disciminator on charge (all hits assumed to trigger)
 
   DS::MC *mc = ds->GetMC();
+  DS::Run *run = DS::RunStore::Get()->GetRun(ds);
+  DS::PMTInfo *pmtinfo = run->GetPMTInfo();
   // Prune the previous EV branchs if one exists
   if (ds->ExistEV()) ds->PruneEV();
 
@@ -152,7 +166,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         pmt->SetCharge(integratedCharge);
         totalEVCharge += integratedCharge;
         if (fDigitize) {
-          fDigitizer->DigitizePMT(mcpmt, pmtID, tt);
+          fDigitizer->DigitizePMT(mcpmt, pmtID, tt, pmtinfo);
           if( fAnalyze) {
             fWaveformAnalysis->RunAnalysis(pmt, pmtID, fDigitizer);
           }

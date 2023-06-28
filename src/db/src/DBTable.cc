@@ -64,7 +64,7 @@ DBTable::FieldType DBTable::GetFieldType(std::string name) const {
               return DBTable::JSON;
           }
         }
-        return DBTable::JSON;
+        return DBTable::EMPTY_ARRAY;
       default:
         return DBTable::JSON;
     }
@@ -135,7 +135,7 @@ std::vector<int> DBTable::GetIArray(const std::string &name) const {
 
   if (!table.isMember(name))
     throw DBNotFoundError(tblname, index, name);
-  else if (GetFieldType(name) != INTEGER_ARRAY)
+  else if (GetFieldType(name) != INTEGER_ARRAY && GetFieldType(name) != EMPTY_ARRAY)
     throw DBWrongTypeError(tblname, index, name, INTEGER_ARRAY, GetFieldType(name));
   else {
     const json::Value &json_array = table[name];
@@ -153,14 +153,14 @@ std::vector<double> DBTable::GetDArray(const std::string &name) const {
 
   if (!table.isMember(name)) {
     throw DBNotFoundError(tblname, index, name);
-  } else if (GetFieldType(name) == INTEGER_ARRAY) {
+  } else if (GetFieldType(name) == INTEGER_ARRAY && GetFieldType(name) != EMPTY_ARRAY) {
     const std::vector<int> iv = GetIArray(name);
     std::vector<double> v(iv.size());
     for (size_t i = 0; i < iv.size(); i++) {
       v[i] = iv[i];
     }
     return v;
-  } else if (GetFieldType(name) != DOUBLE_ARRAY) {
+  } else if (GetFieldType(name) != DOUBLE_ARRAY && GetFieldType(name) != EMPTY_ARRAY) {
     throw DBWrongTypeError(tblname, index, name, DOUBLE_ARRAY, GetFieldType(name));
   } else {
     const json::Value &json_array = table[name];
@@ -171,7 +171,7 @@ std::vector<double> DBTable::GetDArray(const std::string &name) const {
 std::vector<std::string> DBTable::GetSArray(const std::string &name) const {
   if (!table.isMember(name))
     throw DBNotFoundError(tblname, index, name);
-  else if (GetFieldType(name) != STRING_ARRAY)
+  else if (GetFieldType(name) != STRING_ARRAY && GetFieldType(name) != EMPTY_ARRAY)
     throw DBWrongTypeError(tblname, index, name, STRING_ARRAY, GetFieldType(name));
   else
     return table[name].toVector<std::string>();
@@ -180,7 +180,7 @@ std::vector<std::string> DBTable::GetSArray(const std::string &name) const {
 std::vector<bool> DBTable::GetZArray(const std::string &name) const {
   if (!table.isMember(name))
     throw DBNotFoundError(tblname, index, name);
-  else if (GetFieldType(name) != BOOLEAN_ARRAY)
+  else if (GetFieldType(name) != BOOLEAN_ARRAY && GetFieldType(name) != EMPTY_ARRAY)
     throw DBWrongTypeError(tblname, index, name, BOOLEAN_ARRAY, GetFieldType(name));
   else
     return table[name].toVector<bool>();

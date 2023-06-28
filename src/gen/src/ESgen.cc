@@ -23,6 +23,7 @@
 #include <RAT/DB.hh>
 #include <RAT/ESCrossSec.hh>
 #include <RAT/ESgen.hh>
+#include <RAT/Log.hh>
 #include <Randomize.hh>
 #include <cmath>
 
@@ -212,8 +213,8 @@ void ESgen::Reset() {
 }
 
 void ESgen::Show() {
-  std::cout << "Elastic Scattering Settings:\n";
-  std::cout << "NuType : " << fNuType.c_str() << "\n";
+  info << "Elastic Scattering Settings:" << newline;
+  info << "NuType : " << fNuType.c_str() << newline;
 }
 
 //

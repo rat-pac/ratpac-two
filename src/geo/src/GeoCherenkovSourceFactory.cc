@@ -25,7 +25,7 @@
 namespace RAT {
 
 G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
-  std::cout << "Building Cherenkov Source" << std::endl;
+  info << "Building Cherenkov Source" << newline;
   const std::string volumeName = table->GetIndex();
   const std::string motherName = table->GetS("mother");
 

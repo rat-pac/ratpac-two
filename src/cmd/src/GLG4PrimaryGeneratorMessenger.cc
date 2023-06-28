@@ -13,6 +13,7 @@
 #include <RAT/Factory.hh>
 #include <RAT/GLG4PrimaryGeneratorAction.hh>
 #include <RAT/GLG4PrimaryGeneratorMessenger.hh>
+#include <RAT/Log.hh>
 #include <sstream>  // for string streams
 
 #include "G4Event.hh"

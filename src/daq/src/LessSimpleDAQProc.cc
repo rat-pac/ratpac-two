@@ -2,6 +2,7 @@
 #include <RAT/DB.hh>
 #include <RAT/DetectorConstruction.hh>
 #include <RAT/LessSimpleDAQProc.hh>
+#include <RAT/Log.hh>
 #include <iostream>
 #include <vector>
 
@@ -38,7 +39,7 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
   unsigned long triggerThreshold = 6;
   unsigned long hits = 0;
 
-  // std::cout <<"New Event====================================" << std::endl;
+  // info <<"New Event====================================" << newline;
   //  First part is to load into std::vector PMT information for full event
   std::vector<double> timeAndChargeAndID;
   std::vector<std::vector<double>> pmtARRAY;
@@ -71,7 +72,7 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
 
   // get the number odd subevent
   // and tally the cluster time of each subevent
-  // std::cout <<"oooooooooooooooo sorted oooooooooooo" << std::endl;
+  // info <<"oooooooooooooooo sorted oooooooooooo" << newline;
 
   for (unsigned long pmtIndex = 0; pmtIndex < pmtARRAY.size(); pmtIndex++) {
     time = pmtARRAY[pmtIndex][0];

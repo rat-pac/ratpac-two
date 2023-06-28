@@ -19,6 +19,7 @@
 #include <RAT/GLG4PosGen.hh>
 #include <RAT/GLG4StringUtil.hh>
 #include <RAT/GLG4TimeGen.hh>
+#include <RAT/Log.hh>
 #include <string>
 
 #undef DEBUG
@@ -54,8 +55,8 @@ void CfGen::GenerateEvent(G4Event *event) {
   int numberGammas = cfSource.GetNumGamma();
 
 #ifdef DEBUG
-  std::cout << "RAT::CfGen::GenerateEvent: " << numberNeutrons << " neutrons, " << numberGammas << " photons"
-            << std::endl;
+  debug << "RAT::CfGen::GenerateEvent: " << numberNeutrons << " neutrons, " << numberGammas << " photons"
+            << newline;
 #endif
 
   // For each neutron...
@@ -75,10 +76,10 @@ void CfGen::GenerateEvent(G4Event *event) {
     event->AddPrimaryVertex(vertex);
 
 #ifdef DEBUG
-    std::cout << "RAT::CfGen::GenerateEvent: "
+    debug << "RAT::CfGen::GenerateEvent: "
               << "Neutron " << i << " of " << numberNeutrons << "    time=" << G4BestUnit(time, "Time")
               << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy")
-              << std::endl;
+              << newline;
 #endif
 
   }  // for each neutron
@@ -101,10 +102,10 @@ void CfGen::GenerateEvent(G4Event *event) {
     event->AddPrimaryVertex(vertex);
 
 #ifdef DEBUG
-    std::cout << "RAT::CfGen::GenerateEvent: "
+    debug << "RAT::CfGen::GenerateEvent: "
               << "Gamma " << i << " of " << numberGammas << "    time=" << G4BestUnit(time, "Time")
               << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy")
-              << std::endl;
+              << newline;
 #endif
 
   }  // for each prompt photon
@@ -114,15 +115,15 @@ void CfGen::ResetTime(double offset) {
   double eventTime = timeGen->GenerateEventTime();
   nextTime = eventTime + offset;
 #ifdef DEBUG
-  std::cout << "RAT::CfGen::ResetTime:"
+  debug << "RAT::CfGen::ResetTime:"
             << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
-            << ", nextTime=" << G4BestUnit(nextTime, "Time") << std::endl;
+            << ", nextTime=" << G4BestUnit(nextTime, "Time") << newline;
 #endif
 }
 
 void CfGen::SetState(G4String state) {
 #ifdef DEBUG
-  std::cout << "RAT::CfGen::SetState called with state='" << state << "'" << std::endl;
+  debug << "RAT::CfGen::SetState called with state='" << state << "'" << newline;
 #endif
 
   // Break the argument to the this generator into sub-std::strings
@@ -132,7 +133,7 @@ void CfGen::SetState(G4String state) {
   size_t nArgs = parts.size();
 
 #ifdef DEBUG
-  std::cout << "RAT::CfGen::SetState: nArgs=" << nArgs << std::endl;
+  debug << "RAT::CfGen::SetState: nArgs=" << nArgs << newline;
 #endif
 
   try {
@@ -149,7 +150,7 @@ void CfGen::SetState(G4String state) {
       isotope = util_to_int(parts[0]);
 
       if (isotope != 252) {
-        std::cerr << "RAT::CfGen::SetState: Only cf 252 is supported" << std::endl;
+        warn << "RAT::CfGen::SetState: Only cf 252 is supported" << newline;
       }
 
       // The second argument is a position generator.
@@ -163,7 +164,7 @@ void CfGen::SetState(G4String state) {
 
     stateStr = state;  // Save for later call to GetState()
   } catch (FactoryUnknownID &unknown) {
-    std::cerr << "Unknown generator \"" << unknown.id << "\"" << std::endl;
+    warn << "Unknown generator \"" << unknown.id << "\"" << newline;
   }
 }
 
@@ -173,7 +174,7 @@ void CfGen::SetTimeState(G4String state) {
   if (timeGen)
     timeGen->SetState(state);
   else
-    std::cerr << "CfGen error: Cannot set time state, no time generator selected" << std::endl;
+    warn << "CfGen error: Cannot set time state, no time generator selected" << newline;
 }
 
 G4String CfGen::GetTimeState() const {
@@ -187,9 +188,9 @@ void CfGen::SetPosState(G4String state) {
   if (posGen)
     posGen->SetState(state);
   else
-    std::cerr << "CfGen error: Cannot set position state, no position generator "
+    warn << "CfGen error: Cannot set position state, no position generator "
                  "selected"
-              << std::endl;
+              << newline;
 }
 
 G4String CfGen::GetPosState() const {

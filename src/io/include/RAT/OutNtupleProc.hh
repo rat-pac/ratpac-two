@@ -35,10 +35,16 @@ class OutNtupleProc : public Processor {
   virtual void SetI(std::string param, int value);
   virtual void SetS(std::string param, std::string value);
 
+  // Extensible functions
+  virtual void AssignAdditionalAddresses() {};
+  virtual void AssignAdditionalMetaAddresses() {};
+  virtual void FillEvent(DS::Root*, DS::EV*) {};
+  virtual void FillNoTriggerEvent(DS::Root*) {};
+  virtual void FillMeta() {};
+
   // Exposed members for external tools
   DS::Run *runBranch;
   // Fill Functions
-  std::vector<std::function<void()>> additionalBranches;
   struct NtupleOptions {
     bool tracking;
     bool mcparticles;

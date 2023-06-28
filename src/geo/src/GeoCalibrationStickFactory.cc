@@ -25,7 +25,7 @@
 namespace RAT {
 
 G4VPhysicalVolume *GeoCalibrationStickFactory::Construct(DBLinkPtr table) {
-  std::cout << "Building Calibration Stick" << std::endl;
+  info << "Building Calibration Stick" << newline;
   const std::string volumeName = table->GetIndex();
   const std::string motherName = table->GetS("mother");
 

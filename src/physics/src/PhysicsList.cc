@@ -24,6 +24,7 @@
 #include <RAT/OpRayleigh.hh>
 #include <RAT/PhysicsList.hh>
 #include <RAT/PhysicsListMessenger.hh>
+#include <RAT/Log.hh>
 
 namespace RAT {
 
@@ -71,17 +72,17 @@ void PhysicsList::EnableThermalNeutronScattering() {
     }
   }
   if (!n_elastic_process) {
-    std::cerr << "PhysicsList::EnableThermalNeutronScattering: "
-              << " couldn't find hadron elastic scattering process.\n";
+    warn << "PhysicsList::EnableThermalNeutronScattering: "
+              << " couldn't find hadron elastic scattering process." << newline;
     throw std::runtime_error(std::string("Missing") + " hadron elastic" + " scattering process in PhysicsList");
   }
 
   // Get the "regular" neutron HP elastic scattering model
   G4HadronicInteraction *n_elastic_hp = G4HadronicInteractionRegistry::Instance()->FindModel("NeutronHPElastic");
   if (!n_elastic_hp) {
-    std::cerr << "PhysicsList::EnableThermalNeutronScattering: "
+    warn << "PhysicsList::EnableThermalNeutronScattering: "
               << " couldn't find high-precision neutron elastic"
-              << " scattering interaction.\n";
+              << " scattering interaction." << newline;
     throw std::runtime_error(std::string("Missing") + " NeutronHPElastic" + " scattering interaction in PhysicsList");
   }
 
@@ -103,11 +104,11 @@ void PhysicsList::SetOpWLSModel(std::string model) {
   } else if (model == "bnl") {
     this->wlsModel = new BNLOpWLSBuilder();
   } else {
-    std::cerr << "PhysicsList::SetOpWLSModel: Unknown model \"" << model << "\"" << std::endl;
+    warn << "PhysicsList::SetOpWLSModel: Unknown model \"" << model << "\"" << newline;
     throw std::runtime_error("Unknown WLS model in PhysicsList");
   }
 
-  std::cout << "PhysicsList::SetOpWLSModel: Set WLS model to \"" << model << "\"" << std::endl;
+  info << "PhysicsList::SetOpWLSModel: Set WLS model to \"" << model << "\"" << newline;
 
   G4RunManager::GetRunManager()->PhysicsHasBeenModified();
 }

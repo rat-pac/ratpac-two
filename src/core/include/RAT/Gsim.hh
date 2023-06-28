@@ -71,7 +71,7 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
 
  protected:
   void Init();  // the real constructor
-  void AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, bool isDarkHit = false, bool isAfterPulse = false,
+  void AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon,
                    EventInfo *exinfo = NULL, std::string process = "unknown");
 
   /* Storing optical creation track ID and step */

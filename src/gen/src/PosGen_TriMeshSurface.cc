@@ -38,12 +38,12 @@ void PosGen_TriMeshSurface::SetState(G4String newValues) {
   // complain if there are no arguments
   newValues = strip_default(newValues);
   if (newValues.length() == 0) {
-    std::cout << "Current state of this PosGen_TriMeshSurface:\n"
-              << "\"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of arguments to run PosGen_TriMeshSurface: \n"
-                 "\"tableIndex optionalThickness_mm optionalDirection\""
-              << std::endl;
+    info << "Current state of this PosGen_TriMeshSurface:" << newline
+              << "\"" << GetState() << "\"" << newline
+              << newline;
+    info << "Format of arguments to run PosGen_TriMeshSurface: " << newline
+              << "\"tableIndex optionalThickness_mm optionalDirection\""
+              << newline;
     return;
   }
   // read the new values

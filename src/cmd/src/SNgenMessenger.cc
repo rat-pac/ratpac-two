@@ -10,6 +10,7 @@
 #include <G4UIdirectory.hh>
 #include <RAT/SNgen.hh>
 #include <RAT/SNgenMessenger.hh>
+#include <RAT/Log.hh>
 
 namespace RAT {
 

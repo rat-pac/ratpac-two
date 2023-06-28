@@ -11,7 +11,7 @@ PDFPMTCharge::PDFPMTCharge(std::string pmt_model) {
   fCharge = model->GetDArray("charge");
   fChargeProb = model->GetDArray("charge_prob");
 
-  info << "Setting up PDF PMTCharge model for ";
+  info << "PDFPMTCharge: Setting up PDF PMTCharge model for ";
   if (pmt_model == "") {
     info << "DEFAULT" << newline;
   } else {

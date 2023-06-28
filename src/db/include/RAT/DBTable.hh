@@ -77,6 +77,7 @@ class DBTable {
     DOUBLE_ARRAY,
     BOOLEAN_ARRAY,
     STRING_ARRAY,
+    EMPTY_ARRAY,
     JSON
   };
 

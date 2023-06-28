@@ -14,6 +14,7 @@
 #include <RAT/DS/Run.hh>
 #include <RAT/DS/RunStore.hh>
 #include <RAT/OutNtupleProc.hh>
+#include <RAT/Log.hh>
 #include <iostream>
 #include <numeric>
 #include <sstream>
@@ -75,6 +76,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("experiment", &experiment);
   metaTree->Branch("geo_file", &geo_file);
   metaTree->Branch("geo_index", &geo_index);
+  this->AssignAdditionalMetaAddresses();
   dsentries = 0;
   // Data Tree
   outputTree = new TTree("output", "output");
@@ -156,6 +158,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("trackProcess", &trackProcess);
     metaTree->Branch("processCodeMap", &processCodeMap);
   }
+  this->AssignAdditionalAddresses();
 
   return true;
 }
@@ -420,7 +423,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         hitPMTNCrossings.push_back(ncrossings);
       }
     }
-    // Fill
+    this->FillEvent(ds, ev);
     outputTree->Fill();
   }
   if (options.untriggered && ds->GetEVCount() == 0) {
@@ -433,13 +436,10 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       hitPMTCharge.clear();
       hitPMTDigitizedCharge.clear();
     }
+    this->FillNoTriggerEvent(ds);
     outputTree->Fill();
   }
 
-  // Additional branches
-  // for(auto& f : this->additionalBranches){
-  //  f();
-  //}
   // FIX THE ABOVE
   // int errorcode = outputTree->Fill();
   // if( errorcode < 0 )
@@ -463,7 +463,7 @@ OutNtupleProc::~OutNtupleProc() {
       geo_index = ldetector->GetD("geo_index");
     }
     catch (DBNotFoundError& e) {
-      std::cout << "Geometry index not found." << std::endl;
+      info << "Geometry index not found." << newline;
       // Set invalid
       geo_index = -9999;
     }
@@ -552,4 +552,5 @@ void OutNtupleProc::SetI(std::string param, int value) {
     options.mchits = value ? true : false;
   }
 }
+
 }  // namespace RAT

@@ -37,10 +37,10 @@ void PosGen_FillShell::SetState(G4String newValues) {
   // it is a GLG4 convention that SetState with a null std::string argument
   // should print usage information
   if (newValues.length() == 0) {
-    std::cout << "Current state of this GLG4PosGen_PointPaintFill:\n"
-              << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Usage: x_mm y_mm z_mm r_in r_out volname" << std::endl;
+    info << "Current state of this GLG4PosGen_PointPaintFill:" << newline
+              << " \"" << GetState() << "\"" << newline
+              << newline;
+    info << "Usage: x_mm y_mm z_mm r_in r_out volname" << newline;
     return;
   }
 
@@ -90,7 +90,7 @@ void PosGen_FillShell::SetState(G4String newValues) {
   pos = G4ThreeVector(x, y, z);
 
   if (ri > ro) {
-    info << "Inner radius is greater than outer radius, flipping them.\n";
+    info << "Inner radius is greater than outer radius, flipping them." << newline;
     double radius_temp = ro;
     ro = ri;
     ri = radius_temp;
@@ -134,7 +134,7 @@ void PosGen_FillShell::GeneratePosition(G4ThreeVector &argResult) {
   } while (!(gNavigator->LocateGlobalPointAndSetup(rpos, 0, true)->GetName() == pVolume->GetName()));
 
   debug << "PosGen_FillShell::GeneratePosition: Point in volume " << pVolume->GetName() << " found in " << iterations
-        << " tries.\n";
+        << " tries." << newline;
 
   argResult = rpos;
 }
