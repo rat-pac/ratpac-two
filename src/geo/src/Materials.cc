@@ -127,7 +127,23 @@ void Materials::LoadOpticalSurfaces() {
       G4OpticalSurface *surf = new G4OpticalSurface(iv->first.c_str());
       surf->SetFinish(finish);
       surf->SetModel(model);
-      surf->SetType(type);
+      
+      // when dichroic filter data is read, geant4 emits unguarded printouts, spamming the log. Calls are here:
+      // [https://gitlab.cern.ch/geant4/geant4/-/blob/84a556a9dca683c2d541394a795642ecb4c07a3d/source/materials/src/G4OpticalSurface.cc#L523-562].
+      // This hack temporarily redirects cout to avoid this. Should be reverted if upstream is fixed.
+      if (type == dielectric_dichroic) {
+        std::ofstream devNull("/dev/null");
+        // save cout
+        std::streambuf * oldCout = G4cout.rdbuf();
+        G4cout.rdbuf(devNull.rdbuf());
+        surf->SetType(type);
+        G4cout.rdbuf(oldCout);
+      }
+      else {
+        surf->SetType(type);
+      }
+      
+      
       surf->SetPolish(polish);
 
       surf->SetMaterialPropertiesTable(mat->GetMaterialPropertiesTable());
