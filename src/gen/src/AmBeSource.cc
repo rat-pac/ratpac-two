@@ -68,7 +68,7 @@ AmBeSource::AmBeSource() {
 
     // Find function values at bin centers.
     for (size_t i = 0; i != probDensSize; i++) {
-      double value = (float(i) + 0.5) * (fhigh - flow) / (float)probDensSize;
+      double value = (double(i) + 0.5) * (fhigh - flow) / (double)probDensSize;
       fspace[i] = AmBeNeutronSpectrum(value);
 #ifdef DEBUG
       debug << "   i=" << i << ", value = " << value << " f,m,g=" << fspace[i] << newline;
@@ -190,7 +190,7 @@ AmBeSource &AmBeSource::operator=(const AmBeSource &rhs) {
   return *this;
 }
 
-float AmBeSource::AmBeNeutronSpectrum(const double &x) {
+double AmBeSource::AmBeNeutronSpectrum(const double &x) {
   // return the neutron spectrum N(x)
   double N = 0.;
 

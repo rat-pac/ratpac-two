@@ -217,7 +217,7 @@ void VertexGen_Spectrum::InitialiseSpectrum() {
 }
 
 ///-------------------------------------------------------------------------
-float VertexGen_Spectrum::SampleEnergy() {
+double VertexGen_Spectrum::SampleEnergy() {
   // Return a value for KE sampled from the spectrum between the limits Elo and
   // Ehi
   double Elo, Ehi;
@@ -289,7 +289,7 @@ float VertexGen_Spectrum::SampleEnergy() {
 }
 
 ///-------------------------------------------------------------------------
-void VertexGen_Spectrum::LimitEnergies(float Elo, double Ehi) {
+void VertexGen_Spectrum::LimitEnergies(double Elo, double Ehi) {
   // Set the limits for the generated energy range
   // first check this makes sense
   if ((Elo > _emax) || (Elo > Elim_Uhi) || (Ehi < _emin) || (Ehi < Elim_Ulo) || ((Ehi - Elo) <= 0)) {
@@ -305,7 +305,7 @@ void VertexGen_Spectrum::LimitEnergies(float Elo, double Ehi) {
 }
 
 ///-------------------------------------------------------------------------
-float VertexGen_Spectrum::EMaximum() {
+double VertexGen_Spectrum::EMaximum() {
   // return the maximum possible energy - accounting for spectrum and universal
   // limits on it
   if (_emax < Elim_Uhi) {
@@ -316,7 +316,7 @@ float VertexGen_Spectrum::EMaximum() {
 }
 
 ///-------------------------------------------------------------------------
-float VertexGen_Spectrum::EMinimum() {
+double VertexGen_Spectrum::EMinimum() {
   // return the minimum possible energy - accounting for spectrum and universal
   // limits on it
   if (_emin > Elim_Ulo) {

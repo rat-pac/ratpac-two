@@ -35,7 +35,7 @@ void PosGen_Radial::SetState(G4String newValues) {
   G4double x, y, z, R;
   is >> x >> y >> z >> R;
   if (is.fail()) {
-    warn << "PosGen_Radial::SetState: Could not parse four floats from input string" << newline;
+    warn << "PosGen_Radial::SetState: Could not parse four doubles from input string" << newline;
     return;
   }
   fCenter = G4ThreeVector(x, y, z);

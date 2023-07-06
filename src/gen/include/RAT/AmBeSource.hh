@@ -65,14 +65,14 @@ class AmBeSource {
    *  each AmBe decay, indexed from 0 to the total number of
    *  neutrons. */
   std::vector<CLHEP::HepLorentzVector> neutronE;
-  std::vector<float> Tneutron;
+  std::vector<double> Tneutron;
 
   /** \var gammaE
    *  Array containing the momentum of the gammas from
    *  each AmBe decay, indexed from 0 to the total number of
    *  gammas. */
   std::vector<CLHEP::HepLorentzVector> gammaE;
-  std::vector<float> Tgamma;
+  std::vector<double> Tgamma;
 
   // G4 particle definitions.
   static double massNeutron;

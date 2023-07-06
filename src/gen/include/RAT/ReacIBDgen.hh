@@ -40,7 +40,7 @@ class ReacIBDgen {
   //   from 2D distribution of reactor neutrinos which have interacted
   //   with a proton, so both the incident flux, and the (relative)
   //   differential cross-section are factored in.
-  void GenInteraction(float &E, double &CosThetaLab);
+  void GenInteraction(double &E, double &CosThetaLab);
 
   void SetU235Amplitude(double U235Am = U235DEFAULT);
   void SetU238Amplitude(double U238Am = U238DEFAULT);
@@ -48,7 +48,7 @@ class ReacIBDgen {
   void SetPu241Amplitude(double Pu241Am = Pu241DEFAULT);
 
   // Total cross section for inverse beta decay
-  static double CrossSection(float x);
+  static double CrossSection(double x);
 
   inline double GetU235Amplitude() { return U235Amp; };
   inline double GetU238Amplitude() { return U238Amp; };
@@ -81,7 +81,7 @@ class ReacIBDgen {
 
   // IBDEnergy which is a product of the above spectrums, the cross-section, and
   // a square root factor with the cross section and electron mass.
-  double IBDESpectrum(float x);
+  double IBDESpectrum(double x);
 
  protected:
   double Emax;

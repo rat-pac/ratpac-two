@@ -31,7 +31,7 @@ class IBDgen {
   //   from 2D distribution of reactor neutrinos which have interacted
   //   with a proton, so both the incident flux, and the (relative)
   //   differential cross-section are factored in.
-  void GenInteraction(float &E, double &CosThetaLab);
+  void GenInteraction(double &E, double &CosThetaLab);
 
   // Differential cross section for inverse beta decay
   static double CrossSection(double Enu, double CosThetaLab);
@@ -44,7 +44,7 @@ class IBDgen {
   static double PositronEnergy(double Enu, double CosThetaLab);
 
   // Flux as a function of energy.  Interpolated from table in IBD RATDB table
-  double Flux(float E) const { return rmpflux(E); };
+  double Flux(double E) const { return rmpflux(E); };
 
   // Spectrum index for ratdb
   G4String GetSpectrumIndex() { return SpectrumIndex; };

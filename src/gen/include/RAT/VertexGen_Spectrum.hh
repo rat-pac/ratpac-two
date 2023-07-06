@@ -56,7 +56,7 @@ class VertexGen_Spectrum : public GLG4VertexGen {
   virtual bool ELimitable() { return true; };
 
   /** Set the limits on the generated energy */
-  virtual void LimitEnergies(float Elo, double Ehi);
+  virtual void LimitEnergies(double Elo, double Ehi);
 
   /** Return the maximum possible energy */
   virtual double EMaximum();

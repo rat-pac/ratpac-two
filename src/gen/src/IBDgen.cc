@@ -72,7 +72,7 @@ void IBDgen::GenEvent(const CLHEP::Hep3Vector &nu_dir, CLHEP::HepLorentzVector &
   neutron.setE(sqrt(neutron.vect().mag2() + CLHEP::neutron_mass_c2 * CLHEP::neutron_mass_c2));
 }
 
-void IBDgen::GenInteraction(float &E, double &CosThetaLab) {
+void IBDgen::GenInteraction(double &E, double &CosThetaLab) {
   bool passed = false;
 
   while (!passed) {

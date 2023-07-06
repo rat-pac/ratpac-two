@@ -40,7 +40,7 @@ class VertexGen_Decay0 : public GLG4VertexGen {
 
   G4int fLevel;        // daughter energy level
   G4int fMode;         // decay mode
-  G4float fLoE, fHiE;  // limit for energy spectrum
+  G4double fLoE, fHiE;  // limit for energy spectrum
 
   DBLinkPtr fLdecay;
 

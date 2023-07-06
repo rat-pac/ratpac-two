@@ -79,11 +79,11 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
 #endif
       // Find function values at bin centers.
       for (size_t i = 0; i != probDensSize; i++) {
-        double value = (float(i) + 0.5) * (fhigh - flow) / (float)probDensSize;
+        double value = (double(i) + 0.5) * (fhigh - flow) / (double)probDensSize;
         fspace[i] = Cf252NeutronSpectrum(value);
-        value = (float(i) + 0.5) * (mhigh - mlow) / (float)probDensSize;
+        value = (double(i) + 0.5) * (mhigh - mlow) / (double)probDensSize;
         mspace[i] = Cf252GammaMultiplicityFit(value);
-        value = (float(i) + 0.5) * (ghigh - glow) / (float)probDensSize;
+        value = (double(i) + 0.5) * (ghigh - glow) / (double)probDensSize;
         gspace[i] = Cf252GammaSpectrum(value);
 #ifdef DEBUG
         debug << "   i=" << i << " f,m,g=" << fspace[i] << "," << mspace[i] << "," << gspace[i] << newline;
@@ -247,7 +247,7 @@ CfSource &CfSource::operator=(const CfSource &rhs) {
   return *this;
 }
 
-float CfSource::Cf252NeutronSpectrum(const double &x) {
+double CfSource::Cf252NeutronSpectrum(const double &x) {
   // return the neutron spectrum N(x)
   double N = 0.;
 
@@ -263,7 +263,7 @@ float CfSource::Cf252NeutronSpectrum(const double &x) {
   return N;
 }
 
-float CfSource::Cf252GammaMultiplicity(const int &x) {
+double CfSource::Cf252GammaMultiplicity(const int &x) {
   // return the gamma multiplicity M(x)
   double M = 0.;
 
@@ -286,7 +286,7 @@ long long factorial(int n) {
     return n * factorial(n - 1);
 }
 
-float CfSource::Cf252GammaMultiplicityFit(const double &x) {
+double CfSource::Cf252GammaMultiplicityFit(const double &x) {
   // return the gamma multiplicity M(x)
   double M = 0.;
 
@@ -304,7 +304,7 @@ float CfSource::Cf252GammaMultiplicityFit(const double &x) {
   return M;
 }
 
-float CfSource::Cf252GammaSpectrum(const double &x) {
+double CfSource::Cf252GammaSpectrum(const double &x) {
   // return the gamma spectrum N(x)
   double N = 0.;
 

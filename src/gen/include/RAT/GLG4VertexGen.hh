@@ -43,7 +43,7 @@ class GLG4VertexGen {
   virtual bool ELimitable() { return false; };
   /** Optional method to limit the energies, must be supplied if ELimitable
    * returns true */
-  virtual void LimitEnergies(float, float){};
+  virtual void LimitEnergies(double, double){};
   /** Optional method to return maximum energy possible for generator */
   virtual double EMaximum() { return 99999; };
   /** Optional method to return minimum energy possible for generator */
