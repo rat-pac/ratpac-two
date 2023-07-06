@@ -93,7 +93,7 @@ class SNgen {
 
   double GetTime();
   double SetTime();
-  float banana();
+  double banana();
   int n;
 
   //        Float_t q1_f;

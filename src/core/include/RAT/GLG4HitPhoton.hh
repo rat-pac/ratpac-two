@@ -64,10 +64,10 @@ class GLG4HitPhoton {
  private:
   double fTime;                 // time of hit
   int fPMTID;                   // ID number of PMT the HitPhoton hit
-  float fKE;                    // kinetic energy
-  float fPosition[3];           // x,y,z components of position
-  float fMomentum[3];           // x,y,z components of momentum (normalized?)
-  float fPolarization[3];       // x,y,z components of polarization
+  double fKE;                    // kinetic energy
+  double fPosition[3];           // x,y,z components of position
+  double fMomentum[3];           // x,y,z components of momentum (normalized?)
+  double fPolarization[3];       // x,y,z components of polarization
   int fCount;                   // count of photons, often 1
   int fTrackID;                 // ID number of track which generated this photoelectron
   std::string fCreatorProcess;  // Process that created the photon

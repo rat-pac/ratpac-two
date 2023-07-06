@@ -25,12 +25,12 @@ class LAPPD : public TObject {
   virtual Int_t GetID() { return id; }
 
   /** Total charge in waveform (pC) */
-  virtual void SetTotalCharge(Float_t _charge) { this->totalcharge = _charge; }
-  virtual Float_t GetTotalCharge() { return totalcharge; }
+  virtual void SetTotalCharge(Double_t _charge) { this->totalcharge = _charge; }
+  virtual Double_t GetTotalCharge() { return totalcharge; }
 
   /** Hit time in ns */
-  virtual void SetTotalTime(Float_t _time) { this->totaltime = _time; }
-  virtual Float_t GetTotalTime() { return totaltime; }
+  virtual void SetTotalTime(Double_t _time) { this->totaltime = _time; }
+  virtual Double_t GetTotalTime() { return totaltime; }
 
   /** List of hits in this LAPPD. */
   LAPPDHit *GetHit(Int_t i) { return &hits[i]; }
@@ -41,13 +41,13 @@ class LAPPD : public TObject {
   }
   void PruneHits() { hits.resize(0); }
 
-  ClassDef(LAPPD, 1);
+  ClassDef(LAPPD, 2);
 
  protected:
   Int_t id;
   std::vector<LAPPDHit> hits;
-  Float_t totalcharge;
-  Float_t totaltime;
+  Double_t totalcharge;
+  Double_t totaltime;
 };
 
 }  // namespace DS

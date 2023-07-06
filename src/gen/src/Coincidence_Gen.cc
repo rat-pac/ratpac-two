@@ -115,8 +115,8 @@ void Coincidence_Gen::GenerateEvent(G4Event *event) {
   }
   // But if more than one extra generator, we actually want a cumulative total
   // of the other energy limits
-  float sumLo = 0;
-  float sumHi = 0;
+  double sumLo = 0;
+  double sumHi = 0;
   for (int iEx = nExtra - 1; iEx >= 0; --iEx) {
     sumLo += MinE[iEx];
     sumHi += MaxE[iEx];
@@ -133,7 +133,7 @@ void Coincidence_Gen::GenerateEvent(G4Event *event) {
   posGen->GeneratePosition(pos);
   // the vertex generators add a primary vertex to event - ready to addirst one
   // if we need to limit the upper energy for this vertex, do so
-  float lo, hi;
+  double lo, hi;
   if (fLoEnergy > 0 || fHiEnergy < 99999) {
     lo = fLoEnergy - sumHi;
     hi = fHiEnergy - sumLo;

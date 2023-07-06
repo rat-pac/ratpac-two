@@ -47,7 +47,7 @@ ReacIBDgen::~ReacIBDgen() {
 
 void ReacIBDgen::GenEvent(const CLHEP::Hep3Vector &nu_dir, CLHEP::HepLorentzVector &neutrino,
                           CLHEP::HepLorentzVector &positron, CLHEP::HepLorentzVector &neutron) {
-  float Enu, CosThetaLab;
+  double Enu, CosThetaLab;
 
   // Pick energy of neutrino and relative direction of positron
   GenInteraction(Enu, CosThetaLab);
@@ -84,7 +84,7 @@ void ReacIBDgen::GenEvent(const CLHEP::Hep3Vector &nu_dir, CLHEP::HepLorentzVect
   neutron.setE(sqrt(neutron.vect().mag2() + CLHEP::neutron_mass_c2 * CLHEP::neutron_mass_c2));
 }
 
-void ReacIBDgen::GenInteraction(float &E, float &CosThetaLab) {
+void ReacIBDgen::GenInteraction(float &E, double &CosThetaLab) {
   // Pick E from the reactor spectrum and cos(theta) uniformly
 
   E = GetNuEnergy();
@@ -139,8 +139,8 @@ float ReacIBDgen::GetNuEnergy() {
   // Random generators according to probability densities.
   static CLHEP::RandGeneral *fGenerate = 0;
 
-  static const float flow = Emin;
-  static const float fhigh = Emax;
+  static const double flow = Emin;
+  static const double fhigh = Emax;
 
   static bool first = true;
   if (first) {
@@ -157,7 +157,7 @@ float ReacIBDgen::GetNuEnergy() {
 
     // Find function values at bin centers.
     for (int i = 0; i != probDensSize; i++) {
-      float value = (float(i) + 0.5) * (fhigh - flow) / (float)probDensSize;
+      double value = (float(i) + 0.5) * (fhigh - flow) / (float)probDensSize;
       fspace[i] = IBDESpectrum(flow + value);
 
 #ifdef DEBUG
@@ -194,7 +194,7 @@ float ReacIBDgen::GetNuEnergy() {
 #endif
   }
 
-  float nuE = fGenerate->shoot() * (fhigh - flow) + flow;
+  double nuE = fGenerate->shoot() * (fhigh - flow) + flow;
 
 #ifdef DEBUG
   debug << "Your generated neutrino energy is..." << nuE << newline;
@@ -237,9 +237,9 @@ double ReacIBDgen::CrossSection(float x) {
   return XC;
 }
 
-float ReacIBDgen::U235ReacSpectrum(const float &x) {
+float ReacIBDgen::U235ReacSpectrum(const double &x) {
   // return the the reactor U235 neutrino flux contribution U235(x)
-  float N = 0.;
+  double N = 0.;
 
   // Use the current set Amplitude for the U235 contribution
   double C0 = GetU235Amplitude();
@@ -254,9 +254,9 @@ float ReacIBDgen::U235ReacSpectrum(const float &x) {
   return N;
 }
 
-float ReacIBDgen::Pu239ReacSpectrum(const float &x) {
+float ReacIBDgen::Pu239ReacSpectrum(const double &x) {
   // return the reactor Pu239 neutrino flux contribution Pu239(x)
-  float N = 0.;
+  double N = 0.;
 
   double C0 = GetPu239Amplitude();
   double C1 = 0.896;
@@ -268,9 +268,9 @@ float ReacIBDgen::Pu239ReacSpectrum(const float &x) {
   return N;
 }
 
-float ReacIBDgen::U238ReacSpectrum(const float &x) {
+float ReacIBDgen::U238ReacSpectrum(const double &x) {
   // return the reactor U238 neutrino flux contribution U238(x)
-  float N = 0.;
+  double N = 0.;
 
   double C0 = GetU238Amplitude();
   double C1 = 0.976;
@@ -282,9 +282,9 @@ float ReacIBDgen::U238ReacSpectrum(const float &x) {
   return N;
 }
 
-float ReacIBDgen::Pu241ReacSpectrum(const float &x) {
+float ReacIBDgen::Pu241ReacSpectrum(const double &x) {
   // return the the reactor Pu241 Neutrino flux contribution Pu241(x)
-  float N = 0.;
+  double N = 0.;
 
   double C0 = GetPu241Amplitude();
   double C1 = 0.793;
@@ -296,11 +296,11 @@ float ReacIBDgen::Pu241ReacSpectrum(const float &x) {
   return N;
 }
 
-float ReacIBDgen::NuReacSpectrum(const float &x) {
+float ReacIBDgen::NuReacSpectrum(const double &x) {
   // return the sum of the neutrino flux contributions from each reactor isotope
   // for a given value x (energy in MeV)
 
-  float tot = U235ReacSpectrum(x) + Pu239ReacSpectrum(x) + U238ReacSpectrum(x) + Pu241ReacSpectrum(x);
+  double tot = U235ReacSpectrum(x) + Pu239ReacSpectrum(x) + U238ReacSpectrum(x) + Pu241ReacSpectrum(x);
 
   return tot;
 }

@@ -36,8 +36,8 @@ class MCTrackStep : public TObject {
    *
    * If zero length, this step represents the beginning of a track.
    */
-  virtual Float_t GetLength() const { return length; }
-  virtual void SetLength(Float_t _length) { length = _length; }
+  virtual Double_t GetLength() const { return length; }
+  virtual void SetLength(Double_t _length) { length = _length; }
 
   /** Position of endpoint of step (mm). */
   virtual const TVector3 &GetEndpoint() const { return endpoint; }
@@ -60,12 +60,12 @@ class MCTrackStep : public TObject {
   virtual void SetMomentum(const TVector3 &_mom) { mom = _mom; }
 
   /** Kinetic energy of particle (MeV) */
-  virtual Float_t GetKE() const { return ke; }
-  virtual void SetKE(Float_t _ke) { ke = _ke; }
+  virtual Double_t GetKE() const { return ke; }
+  virtual void SetKE(Double_t _ke) { ke = _ke; }
 
   /** Total energy deposited along the track (MeV). **/
-  virtual Float_t GetDepositedEnergy() const { return depositedEnergy; }
-  virtual void SetDepositedEnergy(Float_t _depositedEnergy) { depositedEnergy = _depositedEnergy; }
+  virtual Double_t GetDepositedEnergy() const { return depositedEnergy; }
+  virtual void SetDepositedEnergy(Double_t _depositedEnergy) { depositedEnergy = _depositedEnergy; }
 
   /** Name of physics process acting at endpoint. */
   virtual std::string GetProcess() const { return process; }
@@ -75,15 +75,15 @@ class MCTrackStep : public TObject {
   virtual std::string GetVolume() const { return volume; }
   virtual void SetVolume(const std::string &_volume) { volume = _volume; }
 
-  ClassDef(MCTrackStep, 1);
+  ClassDef(MCTrackStep, 2);
 
  protected:
-  Float_t length;
+  Double_t length;
   Double_t globalTime;
   Double_t localTime;
   Double_t properTime;
-  Float_t ke;
-  Float_t depositedEnergy;
+  Double_t ke;
+  Double_t depositedEnergy;
   TVector3 endpoint;
   TVector3 mom;
   std::string process;

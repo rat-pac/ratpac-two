@@ -93,19 +93,19 @@ class CfSource {
 
   /** The probability density of the prompt neutrons from the Cf
    *  decay as a function of neutron energy. */
-  static float Cf252NeutronSpectrum(const float &x);
+  static double Cf252NeutronSpectrum(const double &x);
 
   /** The probability density of the prompt gammas from the Cf
    *  decay as a function of integer gamma multiplicity (exact). */
-  static float Cf252GammaMultiplicity(const int &x);
+  static double Cf252GammaMultiplicity(const int &x);
 
   /** The probability density of the prompt gammas from the Cf
-   *  decay as a function of float gamma multiplicity (fit). */
-  static float Cf252GammaMultiplicityFit(const float &x);
+   *  decay as a function of double gamma multiplicity (fit). */
+  static double Cf252GammaMultiplicityFit(const double &x);
 
   /** The probability density of the prompt gammas from the Cf
    *  decay as a function of gamma energy. */
-  static float Cf252GammaSpectrum(const float &x);
+  static double Cf252GammaSpectrum(const double &x);
 };
 
 }  // namespace RAT

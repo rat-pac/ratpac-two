@@ -40,8 +40,8 @@ class MCPhoton : public TObject {
   virtual void SetPosition(const TVector3 &_pos) { pos = _pos; }
 
   /** Wavelength of photon (mm). */
-  virtual Float_t GetLambda() const { return lambda; }
-  virtual void SetLambda(Float_t _lambda) { lambda = _lambda; }
+  virtual Double_t GetLambda() const { return lambda; }
+  virtual void SetLambda(Double_t _lambda) { lambda = _lambda; }
 
   /** Momentum of photon (MeV/c). */
   virtual TVector3 GetMomentum() const { return mom; }
@@ -56,8 +56,8 @@ class MCPhoton : public TObject {
    *  One pe is defined to be the peak of the single photoelectron
    *  charge distribution for this PMT.
    */
-  virtual Float_t GetCharge() const { return charge; }
-  virtual void SetCharge(Float_t _charge) { charge = _charge; }
+  virtual Double_t GetCharge() const { return charge; }
+  virtual void SetCharge(Double_t _charge) { charge = _charge; }
 
   /** Is this photoelectron due to a dark hit? */
   virtual void SetDarkHit(Bool_t _isDarkHit) { isDarkHit = _isDarkHit; }
@@ -81,7 +81,7 @@ class MCPhoton : public TObject {
   bool operator<(const MCPhoton &mcp) const { return (frontEndTime < mcp.frontEndTime); }
   bool operator>(const MCPhoton &mcp) const { return (frontEndTime > mcp.frontEndTime); }
 
-  ClassDef(MCPhoton, 3);
+  ClassDef(MCPhoton, 4);
 
  protected:
   Double_t hitTime;
@@ -91,7 +91,7 @@ class MCPhoton : public TObject {
   TVector3 mom;
   TVector3 pol;
 
-  Float_t charge;
+  Double_t charge;
   Bool_t isDarkHit;
   Bool_t isAfterPulse;
   Int_t trackID;

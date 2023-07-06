@@ -31,7 +31,7 @@ class IBDgen {
   //   from 2D distribution of reactor neutrinos which have interacted
   //   with a proton, so both the incident flux, and the (relative)
   //   differential cross-section are factored in.
-  void GenInteraction(float &E, float &CosThetaLab);
+  void GenInteraction(float &E, double &CosThetaLab);
 
   // Differential cross section for inverse beta decay
   static double CrossSection(double Enu, double CosThetaLab);

@@ -79,7 +79,7 @@ class AmBeSource {
 
   /** The probability density of the prompt neutrons from the AmBe
    *  decay as a function of neutron energy. */
-  static float AmBeNeutronSpectrum(const float &x);
+  static double AmBeNeutronSpectrum(const double &x);
 };
 
 }  // namespace RAT

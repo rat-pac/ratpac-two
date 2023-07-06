@@ -45,9 +45,9 @@ class GLG4VertexGen {
    * returns true */
   virtual void LimitEnergies(float, float){};
   /** Optional method to return maximum energy possible for generator */
-  virtual float EMaximum() { return 99999; };
+  virtual double EMaximum() { return 99999; };
   /** Optional method to return minimum energy possible for generator */
-  virtual float EMinimum() { return 0; };
+  virtual double EMinimum() { return 0; };
 
  protected:
   G4String _dbname;  // used for GLG4param key prefix

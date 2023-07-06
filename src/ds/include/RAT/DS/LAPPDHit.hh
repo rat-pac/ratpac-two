@@ -22,22 +22,22 @@ class LAPPDHit : public TObject {
   virtual ~LAPPDHit() {}
 
   /** Time of photon hit at photocathode relative to event start time (ns). */
-  virtual Float_t GetTime() const { return time; }
-  virtual void SetTime(Float_t _time) { time = _time; }
+  virtual Double_t GetTime() const { return time; }
+  virtual void SetTime(Double_t _time) { time = _time; }
 
   /** Location of photon hit in local LAPPD coordinates (mm). */
   virtual TVector3 GetPosition() const { return pos; }
   virtual void SetPosition(const TVector3 &_pos) { pos = _pos; }
 
   /** Charge created by photon in photoelectron (pe) units. */
-  virtual Float_t GetCharge() const { return charge; }
-  virtual void SetCharge(Float_t _charge) { charge = _charge; }
+  virtual Double_t GetCharge() const { return charge; }
+  virtual void SetCharge(Double_t _charge) { charge = _charge; }
 
-  ClassDef(LAPPDHit, 1);
+  ClassDef(LAPPDHit, 2);
 
  protected:
-  Float_t time;
-  Float_t charge;
+  Double_t time;
+  Double_t charge;
   TVector3 pos;
 };
 
