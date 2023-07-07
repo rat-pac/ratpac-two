@@ -102,7 +102,14 @@ G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack, cons
   // clear the list of secondaries, and repopulate with chosen subset
   // Geant4 may spit out warning messages based on whether it was compiled with
   // verbose flags but this is safe to ignore, though it will clutter the log
+  // UPDATE: Going to just redirect the output to ignore this since we are intentionally
+  // calling this function again and the prints at issue got removed in G4 11.1.0
+  std::ofstream devNull("/dev/null");
+  // Save cerr
+  std::streambuf* oldCerr = G4cerr.rdbuf();
+  G4cerr.rdbuf(devNull.rdbuf());
   rv->SetNumberOfSecondaries(secondaries.size());
+  G4cerr.rdbuf(oldCerr);
   for (size_t i = 0; i < secondaries.size(); i++) {
     G4Track *secondary = secondaries[i];
     rv->AddSecondary(secondary);
