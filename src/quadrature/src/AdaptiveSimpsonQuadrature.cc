@@ -38,7 +38,7 @@ double AdaptiveSimpsonQuadrature::refine(Evaluateable& f, double whole,
     double right = this->evaluate(f, xmd, fmd, rxmd, rfmd, xhi, fhi);
     double divided = left + right;
     double error = fabs(divided - whole)/whole;
-    if (error < fTolerance){
+    if (error < fTolerance || std::isnan(error)){
         rv = divided;
     }
     else{
