@@ -437,6 +437,7 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
 
           sampledMomentum = ReemissionIntegral->GetEnergy(CIIvalue);
         }
+
         fAParticleChange.ProposeLocalEnergyDeposit(aTrack.GetKineticEnergy() - sampledMomentum);
         if (sampledMomentum > aTrack.GetKineticEnergy()) {
           goto PostStepDoIt_DONE;
@@ -453,6 +454,14 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
         }
 #endif
       }
+
+      // Check whether sampled wavelength is within the accepted range, and skip if not
+      double wvl = (CLHEP::twopi*CLHEP::hbarc)/((sampledMomentum*CLHEP::MeV)*CLHEP::nm);
+      if (wvl < RAT::PhotonThinning::GetScintillationLowerWavelengthThreshold()
+              || wvl > RAT::PhotonThinning::GetScintillationUpperWavelengthThreshold()) {
+          continue;
+      }
+
       // Generate random photon direction
       G4double cost = 1. - 2. * G4UniformRand();
       G4double sint = sqrt(1. - cost * cost);  // FIXED BUG from G4Scint
