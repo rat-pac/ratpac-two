@@ -7,6 +7,10 @@ NaiveQuenchingCalculator::NaiveQuenchingCalculator(BirksLaw model):
 
 double NaiveQuenchingCalculator::QuenchedEnergyDeposit(const G4Step& step,
                                                        const double kB){
+    //Short circuit issues with 0 energy steps
+    if (step.GetDeltaEnergy() == 0){
+        return 0;
+    }
     const double E = step.GetPreStepPoint()->GetKineticEnergy();
     const double dE = step.GetTotalEnergyDeposit();
     const double dX = step.GetStepLength();

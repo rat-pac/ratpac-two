@@ -1,5 +1,6 @@
 #include <cmath>
 #include <RAT/AdaptiveSimpsonQuadrature.hh>
+#include <RAT/Log.hh>
 
 AdaptiveSimpsonQuadrature::AdaptiveSimpsonQuadrature(double _tolerance):
                                           fTolerance(_tolerance){
@@ -40,6 +41,9 @@ double AdaptiveSimpsonQuadrature::refine(Evaluateable& f, double whole,
     double error = fabs(divided - whole)/whole;
     if (error < fTolerance || std::isnan(error)){
         rv = divided;
+        if (std::isnan(error)){
+            RAT::warn << "AdaptiveSimpsonQuadrature::refine: Warning! Encountered nan and halting integration refinement." << newline;
+        }
     }
     else{
         rv = 0.0;
