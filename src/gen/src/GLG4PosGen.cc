@@ -53,7 +53,7 @@ void GLG4PosGen_Point::SetState(G4String newValues) {
   is >> x >> y >> z;
   if (is.fail()) {
     std::cerr << "GLG4PosGen_Point::SetState: "
-                 "Could not parse three floats from input std::string"
+                 "Could not parse three doubles from input std::string"
               << std::endl;
     return;
   }
@@ -293,7 +293,7 @@ void GLG4PosGen_Paint::SetState(G4String newValues) {
   is >> x >> y >> z;
   if (is.fail()) {
     std::cerr << "GLG4PosGen_Paint::SetState: "
-                 "Could not parse three floats from input std::string"
+                 "Could not parse three doubles from input std::string"
               << std::endl;
     return;
   }
@@ -491,7 +491,7 @@ void GLG4PosGen_Fill::SetState(G4String newValues) {
   is >> x >> y >> z;
   if (is.fail()) {
     std::cerr << "GLG4PosGen_PointPaintFill::SetState: "
-                 "Could not parse three floats from input std::string"
+                 "Could not parse three doubles from input std::string"
               << std::endl;
     return;
   }
@@ -569,7 +569,7 @@ void GLG4PosGen_FillCyl::SetState(G4String newValues) {
   is >> height >> radius;
   if (is.fail()) {
     std::cerr << "GLG4PosGen_FillCyl::SetState: "
-                 "Could not parse two floats from input std::string"
+                 "Could not parse two doubles from input std::string"
               << std::endl;
     return;
   }
@@ -706,7 +706,7 @@ void GLG4PosGen_Cosmic::SetState( G4String newValues )
 	   << std::endl;
     return;
   }
-  
+
   std::istringstream is(newValues.c_str());
 
   // set width and height
@@ -716,7 +716,7 @@ void GLG4PosGen_Cosmic::SetState( G4String newValues )
   db[ (_dbname+".height").c_str() ]= _height;
   if (is.fail()) {
     std::cerr << "GLG4PosGen_Cosmic::SetState: "
-      "Could not parse two floats from input std::string" << std::endl;
+      "Could not parse two doubles from input std::string" << std::endl;
     return;
   }
 }
@@ -728,7 +728,7 @@ G4String GLG4PosGen_Cosmic::GetState()
   os << _width << ' ' << _height << std::ends;
   G4String rv(os.str());
   os.freeze(0); // avoid memory leak!
-  return rv;  
+  return rv;
 }
 
 #endif

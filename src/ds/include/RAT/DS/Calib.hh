@@ -45,8 +45,8 @@ class Calib : public TObject {
   virtual void SetMode(Int_t _mode) { mode = _mode; }
 
   /** Source intensity (meaning depends on type of source) */
-  virtual Float_t GetIntensity() const { return intensity; }
-  virtual void SetIntensity(Float_t _intensity) { intensity = _intensity; }
+  virtual Double_t GetIntensity() const { return intensity; }
+  virtual void SetIntensity(Double_t _intensity) { intensity = _intensity; }
 
   /** Absolute time of source activation */
   virtual TTimeStamp GetUTC() const { return utc; }
@@ -56,12 +56,12 @@ class Calib : public TObject {
   virtual const TVector3 &GetPosition() const { return pos; }
   virtual void SetPosition(const TVector3 &_pos) { pos = _pos; }
 
-  ClassDef(Calib, 1);
+  ClassDef(Calib, 2);
 
  protected:
   Int_t id;
   Int_t mode;
-  Float_t intensity;
+  Double_t intensity;
   std::string name;
   TTimeStamp utc;
   TVector3 pos;

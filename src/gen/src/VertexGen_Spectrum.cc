@@ -148,7 +148,7 @@ void VertexGen_Spectrum::SetState(G4String newValues) {
   }
 
   // Has the user supplied energy limits too?
-  float Elo, Ehi;
+  double Elo, Ehi;
   is >> Elo >> Ehi;
   if (is.fail()) {
     // obviously not, so make the universal limits huge
@@ -193,7 +193,7 @@ void VertexGen_Spectrum::InitialiseSpectrum() {
   // now get the magnitudes
   spec_mag = _lspec->GetDArray("spec_mag");
   // now create a cumulative magnitude std::vector
-  float magsum = 0;
+  double magsum = 0;
   spec_cummag.push_back(0.0);
   for (unsigned int istep = 1; istep < spec_E.size(); ++istep) {
     // use trapazoid rule to produce linear interpolation
@@ -217,10 +217,10 @@ void VertexGen_Spectrum::InitialiseSpectrum() {
 }
 
 ///-------------------------------------------------------------------------
-float VertexGen_Spectrum::SampleEnergy() {
+double VertexGen_Spectrum::SampleEnergy() {
   // Return a value for KE sampled from the spectrum between the limits Elo and
   // Ehi
-  float Elo, Ehi;
+  double Elo, Ehi;
   // decide whether, Elo and Ehi should be universal or temporary limits (which
   // is more std::stringent?)
   if (Elim_Tlo > Elim_Ulo) {
@@ -234,8 +234,8 @@ float VertexGen_Spectrum::SampleEnergy() {
     Ehi = Elim_Uhi;
   }
   // (assume linear interpolation between specified points in spectrum)
-  float start = spec_cummag.front();
-  float stop = spec_cummag.back();
+  double start = spec_cummag.front();
+  double stop = spec_cummag.back();
   if (Elo > _emin) {
     // We have to apply a more std::stringent lower energy limit
     int istep = 0;
@@ -260,7 +260,7 @@ float VertexGen_Spectrum::SampleEnergy() {
   }
 
   // now throw a random number between these limits
-  float random = start + G4UniformRand() * (stop - start);
+  double random = start + G4UniformRand() * (stop - start);
   // now loop through cummulative distribution to choose energy
   int istep = 0;
   while (spec_cummag[istep + 1] < random) {
@@ -272,16 +272,16 @@ float VertexGen_Spectrum::SampleEnergy() {
   // interpolated spectrum, it is quadratic between data points.
   // Find energy assuming quadratic shape.
 
-  float spec_slope = (spec_mag[istep + 1] - spec_mag[istep]) / (spec_E[istep + 1] - spec_E[istep]);
+  double spec_slope = (spec_mag[istep + 1] - spec_mag[istep]) / (spec_E[istep + 1] - spec_E[istep]);
 
-  float energy;
-  float delta_y = random - spec_cummag[istep];
+  double energy;
+  double delta_y = random - spec_cummag[istep];
   if (fabs(spec_slope) < 1e-6) {
     energy = spec_E[istep] + delta_y / spec_mag[istep];
   } else {
-    float a = 0.5 * spec_slope;
-    float b = spec_mag[istep] - spec_slope * spec_E[istep];
-    float c = -a * spec_E[istep] * spec_E[istep] - b * spec_E[istep] - delta_y;
+    double a = 0.5 * spec_slope;
+    double b = spec_mag[istep] - spec_slope * spec_E[istep];
+    double c = -a * spec_E[istep] * spec_E[istep] - b * spec_E[istep] - delta_y;
     energy = (-b + sqrt(b * b - 4 * a * c)) / (2 * a);
   }
 
@@ -289,7 +289,7 @@ float VertexGen_Spectrum::SampleEnergy() {
 }
 
 ///-------------------------------------------------------------------------
-void VertexGen_Spectrum::LimitEnergies(float Elo, float Ehi) {
+void VertexGen_Spectrum::LimitEnergies(double Elo, double Ehi) {
   // Set the limits for the generated energy range
   // first check this makes sense
   if ((Elo > _emax) || (Elo > Elim_Uhi) || (Ehi < _emin) || (Ehi < Elim_Ulo) || ((Ehi - Elo) <= 0)) {
@@ -305,7 +305,7 @@ void VertexGen_Spectrum::LimitEnergies(float Elo, float Ehi) {
 }
 
 ///-------------------------------------------------------------------------
-float VertexGen_Spectrum::EMaximum() {
+double VertexGen_Spectrum::EMaximum() {
   // return the maximum possible energy - accounting for spectrum and universal
   // limits on it
   if (_emax < Elim_Uhi) {
@@ -316,7 +316,7 @@ float VertexGen_Spectrum::EMaximum() {
 }
 
 ///-------------------------------------------------------------------------
-float VertexGen_Spectrum::EMinimum() {
+double VertexGen_Spectrum::EMinimum() {
   // return the minimum possible energy - accounting for spectrum and universal
   // limits on it
   if (_emin > Elim_Ulo) {

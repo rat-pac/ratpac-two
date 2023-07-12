@@ -14,7 +14,7 @@
 #include <vector>
 
 namespace RAT {
-bool check_intersect(G4ThreeVector newpos, std::vector<G4ThreeVector> &pos, float radius) {
+bool check_intersect(G4ThreeVector newpos, std::vector<G4ThreeVector> &pos, double radius) {
   for (unsigned i = 0; i < pos.size(); i++) {
     if ((newpos - pos[i]).mag() < (2 * radius)) return true;  // info << "Intersect " << i << " " << j << newline;
   }
@@ -38,14 +38,14 @@ G4VPhysicalVolume *GeoBubbleFactory::Construct(DBLinkPtr table) {
   // Bubble properties
   G4Material *material = G4Material::GetMaterial(table->GetS("material"));
   int count = table->GetI("count");
-  float radius_mean = table->GetD("radius_mean");
-  float radius_sigma = table->GetD("radius_sigma");
+  double radius_mean = table->GetD("radius_mean");
+  double radius_sigma = table->GetD("radius_sigma");
 
   std::vector<G4ThreeVector> pos;
 
   for (int i = 0; i < count; i++) {
     std::string bubble_name = name + dformat("%d", i);
-    float radius = G4RandGauss::shoot(radius_mean, radius_sigma) * CLHEP::mm;
+    double radius = G4RandGauss::shoot(radius_mean, radius_sigma) * CLHEP::mm;
     if (radius < 0) radius = 0.001 * radius_mean * CLHEP::mm;
 
     G4VSolid *solid_bubble = new G4Sphere(bubble_name, 0, radius, /*phi*/ 0, CLHEP::twopi, /*theta*/ 0, CLHEP::pi);

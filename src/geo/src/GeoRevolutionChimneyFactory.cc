@@ -18,14 +18,14 @@ G4VSolid *GeoRevolutionChimneyFactory::ConstructSolid(DBLinkPtr table) {
   const std::vector<double> &z = table->GetDArray("z");
   const std::vector<double> &r_max = table->GetDArray("r_max");
   const std::vector<double> &r_min = table->GetDArray("r_min");
-  const float rout_chim = table->GetD("rout_chimney");
-  float rin_chim = 0.0;
+  const double rout_chim = table->GetD("rout_chimney");
+  double rin_chim = 0.0;
   try {
     rin_chim = table->GetD("rin_chimney");
   } catch (DBNotFoundError &e) {
   };
-  const float z_bot = table->GetD("bottom_chimney");
-  const float z_top = table->GetD("top_chimney");
+  const double z_bot = table->GetD("bottom_chimney");
+  const double z_top = table->GetD("top_chimney");
   const G4ThreeVector offset((z_top + z_bot) * .5, 0.0, 0.0);
 
   numZPlanes = G4int(z.size());

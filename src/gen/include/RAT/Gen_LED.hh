@@ -45,7 +45,7 @@ class Gen_LED : public GLG4Gen {
   bool oneLED;  // fire one LED per event?
 
   CLHEP::RandGeneral *rand_angle, *rand_wl, *rand_time;
-  float angle_min, angle_max, wl_min, wl_max, time_min, time_max;
+  double angle_min, angle_max, wl_min, wl_max, time_min, time_max;
   std::vector<CLHEP::RandGeneral *> rand_angles;
   std::vector<double> angle_mins, angle_maxs;
 

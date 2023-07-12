@@ -27,15 +27,15 @@ class BWVetGenericChamber : public G4VSensitiveDetector  //, public GLG4Configur
   // Data members which are publicly accessible and can be
   // written out to the RAT event tree
 
-  std::vector<float> _hit_x;
+  std::vector<double> _hit_x;
   /** hit x-coordinate */
-  std::vector<float> _hit_y;
+  std::vector<double> _hit_y;
   /** hit y-coordinate */
-  std::vector<float> _hit_z;
+  std::vector<double> _hit_z;
   /** hit z-coordinate */
   std::vector<double> _hit_E;
   /** hit energy deposition */
-  std::vector<float> _hit_time;
+  std::vector<double> _hit_time;
   /** global time of the hit */
   std::vector<int> _hit_uid;
   /** unique identifier code of the hit */

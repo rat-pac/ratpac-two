@@ -45,8 +45,8 @@ class MCParticle : public TObject {
   virtual void SetPosition(const TVector3 &_pos) { pos = _pos; }
 
   /** Initial kinetic energy of particle (MeV). */
-  virtual Float_t GetKE() const { return ke; }
-  virtual void SetKE(Float_t _ke) { ke = _ke; }
+  virtual Double_t GetKE() const { return ke; }
+  virtual void SetKE(Double_t _ke) { ke = _ke; }
 
   /** Initial momentum of particle (MeV/c) */
   virtual TVector3 GetMomentum() const { return mom; }
@@ -61,8 +61,8 @@ class MCParticle : public TObject {
   virtual void SetEndPosition(const TVector3 &_pos) { end_pos = _pos; }
 
   /** End kinetic energy of particle (MeV). */
-  virtual Float_t GetEndKE() const { return end_ke; }
-  virtual void SetEndKE(Float_t _ke) { end_ke = _ke; }
+  virtual Double_t GetEndKE() const { return end_ke; }
+  virtual void SetEndKE(Double_t _ke) { end_ke = _ke; }
 
   /** End momentum of particle (MeV/c) */
   virtual TVector3 GetEndMomentum() const { return end_mom; }
@@ -72,16 +72,16 @@ class MCParticle : public TObject {
   virtual TVector3 GetPolarization() const { return pol; }
   virtual void SetPolarization(const TVector3 &_pol) { pol = _pol; }
 
-  ClassDef(MCParticle, 2);
+  ClassDef(MCParticle, 3);
 
  protected:
   Int_t pdgcode;
   Double_t t;
-  Float_t ke;
+  Double_t ke;
   TVector3 pos;
   TVector3 mom;
   Double_t end_t;
-  Float_t end_ke;
+  Double_t end_ke;
   TVector3 end_pos;
   TVector3 end_mom;
   TVector3 pol;
