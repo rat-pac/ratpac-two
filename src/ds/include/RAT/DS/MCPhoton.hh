@@ -75,7 +75,11 @@ class MCPhoton : public TObject {
    * that created this photon hit.
    */
   virtual std::string GetCreatorProcess() const { return process; }
-  virtual void SetProcess(const std::string &_process) { process = _process; }
+  virtual void SetCreatorProcess(const std::string &_process) { process = _process; }
+
+  /** Creation time of this PE */
+  virtual void SetCreationTime(Double_t _creationTime){ creationTime = _creationTime;}
+  virtual Double_t GetCreationTime() const { return creationTime; }
 
   /** Operator overload **/
   bool operator<(const MCPhoton &mcp) const { return (frontEndTime < mcp.frontEndTime); }
@@ -86,6 +90,7 @@ class MCPhoton : public TObject {
  protected:
   Double_t hitTime;
   Double_t frontEndTime;
+  Double_t creationTime;
   Double_t lambda;
   TVector3 pos;
   TVector3 mom;

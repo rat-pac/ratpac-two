@@ -433,6 +433,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
                 GLG4HitPhoton *hit_photon = new GLG4HitPhoton();
                 hit_photon->SetPMTID((int)ipmt);
                 hit_photon->SetTime((double)time);
+                hit_photon->SetCreationTime((double)(time - fastTrack.GetPrimaryTrack()->GetLocalTime())); //Local time counts from track creation, so Global - Local will be track origin time
                 hit_photon->SetKineticEnergy((double)energy);
                 hit_photon->SetPosition((double)pos.x(), (double)pos.y(), (double)pos.z());
                 hit_photon->SetMomentum((double)dir.x(), (double)dir.y(), (double)dir.z());
