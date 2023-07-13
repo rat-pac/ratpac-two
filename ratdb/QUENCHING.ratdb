@@ -1,0 +1,22 @@
+{
+name: "QUENCHING",
+index: "",
+valid_begin: [0, 0],
+valid_end: [0, 0],
+
+// quenching model --- only birks law is supported!
+model: "birks",
+
+// quench each step by approximating constant dE/dx = \delta E / \delta x
+// strategy: "naive",
+
+// integrate quenching model, as a riemann sum
+// strategy: "integrated",
+// integration: "fixed", // riemann sum of fixed number of terms
+// resolution: 1e-4, // 1 keV subdivision
+
+// integrate quenching model, using repeated quadratic approximations
+strategy: "integrated",
+integration: "adaptive", // adaptive simpson's rule
+tolerance: 1e-3, // stop refining answer when the per-iteration change is < 0.1%
+}

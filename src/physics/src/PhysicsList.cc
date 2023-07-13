@@ -32,7 +32,9 @@ namespace RAT {
 PhysicsList::PhysicsList() : Shielding(), wlsModel(NULL) {
   this->CerenkovMaxNumPhotonsPerStep = 1;
   this->IsCerenkovEnabled = true;
+
   new PhysicsListMessenger(this);
+
   // Step sizes for light ions (alpha), muons, and hadrons
   this->stepRatioLightIons = 0.01;
   this->finalRangeLightIons = 0.01 * CLHEP::um;
@@ -137,11 +139,19 @@ void PhysicsList::ConstructOpticalProcesses() {
 
   // Scintillation: RAT's GLG4Scint
   //
-  // Create three scintillation processes which depend on the mass.
+  // Create scintillation processes which depend on the mass.
+  // Particles use following processes depending on mass:
+  // - 0 < m < 0.9*proton (844 MeV) -- use default process (electron)
+  // - 0.9*proton (844 MeV) < m < 0.999*neutron (938.6 MeV) -- use proton process
+  // - 0.999*neutron (938.6 MeV) < m < 0.9*alpha (3.35 GeV) -- use neutron process
+  // - m > 0.9*alpha (3.35 GeV) -- use alpha process
   G4double protonMass = G4Proton::Proton()->GetPDGMass();
+  G4double neutronMass = G4Neutron::Neutron()->GetPDGMass();
   G4double alphaMass = G4Alpha::Alpha()->GetPDGMass();
+
   GLG4Scint *defaultScintProcess = new GLG4Scint();
-  GLG4Scint *nucleonScintProcess = new GLG4Scint("nucleon", 0.9 * protonMass);
+  GLG4Scint *protonScintProcess = new GLG4Scint("proton", 0.9 * protonMass);
+  GLG4Scint *neutronScintProcess = new GLG4Scint("neutron", 0.999 * neutronMass);
   GLG4Scint *alphaScintProcess = new GLG4Scint("alpha", 0.9 * alphaMass);
 
   // Optical boundary processes: default G4
@@ -161,7 +171,8 @@ void PhysicsList::ConstructOpticalProcesses() {
     }
     attenuationProcess->DumpInfo();
     defaultScintProcess->DumpInfo();
-    nucleonScintProcess->DumpInfo();
+    protonScintProcess->DumpInfo();
+    neutronScintProcess->DumpInfo();
     alphaScintProcess->DumpInfo();
     opBoundaryProcess->DumpInfo();
   }
@@ -171,7 +182,8 @@ void PhysicsList::ConstructOpticalProcesses() {
   }
   attenuationProcess->SetVerboseLevel(verboseLevel - 1);
   defaultScintProcess->SetVerboseLevel(verboseLevel - 1);
-  nucleonScintProcess->SetVerboseLevel(verboseLevel - 1);
+  protonScintProcess->SetVerboseLevel(verboseLevel - 1);
+  neutronScintProcess->SetVerboseLevel(verboseLevel - 1);
   alphaScintProcess->SetVerboseLevel(verboseLevel - 1);
   opBoundaryProcess->SetVerboseLevel(verboseLevel - 1);
 

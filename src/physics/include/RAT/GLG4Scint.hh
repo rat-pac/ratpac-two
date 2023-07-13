@@ -40,6 +40,9 @@
 #include "local_g4compat.hh"
 #include "templates.hh"
 #include "vector"
+#include <RAT/BirksLaw.hh>
+#include <RAT/Quadrature.hh>
+#include <RAT/QuenchingCalculator.hh>
 #include <RAT/Log.hh>
 
 // Dummy classes used as placeholders in new opticalphoton tracks so
@@ -191,7 +194,7 @@ class GLG4Scint : public G4UImessenger  // not creating a separate class is my l
       Entry();
       ~Entry();
 
-      void Build(const G4String &name, int material_index, G4MaterialPropertiesTable *matprops);
+      void Build(const G4String &name, const G4String &matName, int material_index, G4MaterialPropertiesTable *matprops);
     };
 
    private:
@@ -333,6 +336,8 @@ class GLG4Scint : public G4UImessenger  // not creating a separate class is my l
 
   // on/off flag for absorbed opticalphoton reemission
   static G4bool fDoReemission;
+
+  QuenchingCalculator* fQuenching;
 
   // total real energy deposited and total quenched energy deposited
   static G4double fTotEdep;
