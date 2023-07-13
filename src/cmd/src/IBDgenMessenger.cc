@@ -43,7 +43,7 @@ void IBDgenMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
   } else if (command == PositronUseCmd) {
     ibdgen->SetPositronState(PositronUseCmd->GetNewBoolValue(newValue));
   } else {
-    G4cerr << "Error: Invalid IBDgenMessenger \"set\" command" << G4endl;
+    RAT::warn << "Error: Invalid IBDgenMessenger \"set\" command" << newline;
   }
 }
 

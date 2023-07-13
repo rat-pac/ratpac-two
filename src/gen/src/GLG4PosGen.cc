@@ -24,7 +24,9 @@
 #include "G4VoxelLimits.hh"
 #include "RAT/GLG4StringUtil.hh"
 #include "RAT/GLG4VertexGen.hh"  // for GLG4VertexGen_HEPEvt
+#include "RAT/Log.hh"
 #include "Randomize.hh"
+
 
 // To support GEANT4.6 and up
 #define std std
@@ -37,12 +39,12 @@ void GLG4PosGen_Point::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this GLG4PosGen_Point:\n"
+    RAT::info << "Current state of this GLG4PosGen_Point:\n"
               << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to GLG4PosGen_Point::SetState: \n"
+              << newline;
+    RAT::info << "Format of argument to GLG4PosGen_Point::SetState: \n"
                  " \"x_mm y_mm z_mm\""
-              << std::endl;
+              << newline;
     return;
   }
 
@@ -52,9 +54,9 @@ void GLG4PosGen_Point::SetState(G4String newValues) {
   G4double x, y, z;
   is >> x >> y >> z;
   if (is.fail()) {
-    std::cerr << "GLG4PosGen_Point::SetState: "
+    RAT::warn << "GLG4PosGen_Point::SetState: "
                  "Could not parse three floats from input std::string"
-              << std::endl;
+              << newline;
     return;
   }
   _fixedPos = G4ThreeVector(x, y, z);
@@ -88,9 +90,9 @@ void GLG4PosGen_Paint::GeneratePosition(G4ThreeVector &argResult) {
   G4Navigator *gNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
   pv = gNavigator->LocateGlobalPointAndSetup(_pos, 0, false);  // full setup
   if (pv == 0) {
-    std::cerr << "GLG4PosGen_Paint: "
+    G4cerr << "GLG4PosGen_Paint: "
                  "Could not find any volume at "
-              << _pos << std::endl;
+              << _pos << newline;
     return;
   }
 
@@ -100,20 +102,20 @@ void GLG4PosGen_Paint::GeneratePosition(G4ThreeVector &argResult) {
       _pVolume = pv;
       if (_pVolumeName.length() == 0 || _pVolumeName == "!") _pVolumeName = _pVolume->GetName();
       if (_pVolumeName != _pVolume->GetName()) {
-        std::cerr << "Warning: actual volume at " << _pos << " is " << _pVolume->GetName()
-                  << ", not equal to expected volume " << _pVolumeName << " in GLG4PosGen_Paint." << std::endl;
+        G4cerr << "Warning: actual volume at " << _pos << " is " << _pVolume->GetName()
+                  << ", not equal to expected volume " << _pVolumeName << " in GLG4PosGen_Paint." << newline;
       }
     } else {
-      std::cerr << "Warning: actual volume at " << _pos << " has changed! Now " << pv->GetName() << ", was "
-                << _pVolume->GetName() << " in GLG4PosGen_Paint." << std::endl;
+      G4cerr << "Warning: actual volume at " << _pos << " has changed! Now " << pv->GetName() << ", was "
+                << _pVolume->GetName() << " in GLG4PosGen_Paint." << newline;
       _pVolume = pv;
       _pVolumeName = pv->GetName();
     }
     if (_materialName.length() > 0 && _material == 0) {
       _material = G4Material::GetMaterial(_materialName);
       if (_material == 0) {
-        std::cerr << "ERROR from GLG4PosGen_Paint: no material named " << _materialName
-                  << ", material restriction cancelled." << std::endl;
+        RAT::warn << "ERROR from GLG4PosGen_Paint: no material named " << _materialName
+                  << ", material restriction cancelled." << newline;
         _materialName = "";
       }
     }
@@ -138,9 +140,9 @@ void GLG4PosGen_Paint::GeneratePosition(G4ThreeVector &argResult) {
     if (_boundingBoxVolume <= 0.0)
       _boundingBoxVolume = dx * dy * dz;
     else if (fabs(dx * dy * dz / _boundingBoxVolume - 1.0) > 1e-6) {  // paranoia check
-      std::cerr << "Warning: volume of bounding box changed for " << _pVolumeName << " -- was " << _boundingBoxVolume
+      RAT::warn << "Warning: volume of bounding box changed for " << _pVolumeName << " -- was " << _boundingBoxVolume
                 << ", now " << dx * dy * dz << ", fractional change " << fabs(dx * dy * dz / _boundingBoxVolume - 1.0)
-                << " -- PARANOIA IS JUSTIFIED!!!!" << std::endl;
+                << " -- PARANOIA IS JUSTIFIED!!!!" << newline;
       _boundingBoxVolume = dx * dy * dz;
     }
   }
@@ -171,11 +173,11 @@ void GLG4PosGen_Paint::GeneratePosition(G4ThreeVector &argResult) {
         // "infinite" loop test
         jloop++;
         if (jloop >= 100000) {
-          std::cerr << "GLG4PosGen_PointPaintFill::GeneratePosition(): " << iloop << "," << jloop
+          RAT::warn << "GLG4PosGen_PointPaintFill::GeneratePosition(): " << iloop << "," << jloop
                     << " loops spent looking for point within " << _thickness << "-mm-thick surface layer of "
                     << _pVolumeName;
-          if (_material) std::cerr << " with material " << _materialName;
-          std::cerr << std::endl;
+          if (_material) RAT::warn << " with material " << _materialName;
+          RAT::warn << newline;
 
           argResult = rpos;
           return;
@@ -214,8 +216,8 @@ void GLG4PosGen_Paint::GeneratePosition(G4ThreeVector &argResult) {
           double dist = solid->DistanceToIn(spos, raydir);
           if (dist >= 2.0 * Rsphere) break;
           if (dist <= 0.0) {
-            std::cerr << "GLG4PosGen_PointPaintFill: strange DistanceToIn " << dist << " on " << _pVolumeName << " at "
-                      << spos << " in dir " << raydir << " loop " << isafety << std::endl;
+            G4cerr << "GLG4PosGen_PointPaintFill: strange DistanceToIn " << dist << " on " << _pVolumeName << " at "
+                      << spos << " in dir " << raydir << " loop " << isafety << newline;
           }
           if (dist > surfaceTolerance) {
             spos += dist * raydir;
@@ -230,8 +232,8 @@ void GLG4PosGen_Paint::GeneratePosition(G4ThreeVector &argResult) {
           dist = solid->DistanceToOut(spos, raydir);
           if (dist >= 2.0 * Rsphere) break;
           if (dist <= 0.0) {
-            std::cerr << "GLG4PosGen_PointPaintFill: strange DistanceToOut " << dist << " on " << _pVolumeName << " at "
-                      << spos << " in dir " << raydir << " loop " << isafety << std::endl;
+            G4cerr << "GLG4PosGen_PointPaintFill: strange DistanceToOut " << dist << " on " << _pVolumeName << " at "
+                      << spos << " in dir " << raydir << " loop " << isafety << newline;
           }
           if (dist > surfaceTolerance) {
             spos += dist * raydir;
@@ -268,10 +270,10 @@ void GLG4PosGen_Paint::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this GLG4PosGen_Paint:\n"
+    RAT::info << "Current state of this GLG4PosGen_Paint:\n"
               << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to GLG4PosGen_Paint::SetState: \n"
+              << newline;
+    RAT::info << "Format of argument to GLG4PosGen_Paint::SetState: \n"
                  " \"x_mm y_mm z_mm [volumeName [thickness [materialName]]]\"\n"
                  " where x_mm, y_mm, z_mm are the coordinates (in mm) of a point,\n"
                  " volumeName is the name of the physicalVolume expected at the "
@@ -282,7 +284,7 @@ void GLG4PosGen_Paint::SetState(G4String newValues) {
                  " points to daughter or sibling volumes in the selected region "
                  "which\n"
                  " are composed of the given material."
-              << std::endl;
+              << newline;
     return;
   }
 
@@ -292,9 +294,9 @@ void GLG4PosGen_Paint::SetState(G4String newValues) {
   G4double x, y, z;
   is >> x >> y >> z;
   if (is.fail()) {
-    std::cerr << "GLG4PosGen_Paint::SetState: "
+    RAT::warn << "GLG4PosGen_Paint::SetState: "
                  "Could not parse three floats from input std::string"
-              << std::endl;
+              << newline;
     return;
   }
   _pos = G4ThreeVector(x, y, z);
@@ -315,8 +317,8 @@ G4String GLG4PosGen_Paint::GetState() const {
   G4String volname(_pVolumeName);
 
   if (_pVolumeName.length() == 0) {
-    std::cerr << "Warning: zero-length volume name caught in "
-              << "GLG4PosGen_Paint::GetState()" << std::endl;
+    RAT::warn << "Warning: zero-length volume name caught in "
+              << "GLG4PosGen_Paint::GetState()" << newline;
     volname = "!";
   }
 
@@ -346,9 +348,9 @@ void GLG4PosGen_Fill::GeneratePosition(G4ThreeVector &argResult) {
   G4Navigator *gNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
   pv = gNavigator->LocateGlobalPointAndSetup(_pos, 0, false);  // full setup
   if (pv == 0) {
-    std::cerr << "GLG4PosGen_Fill: "
+    G4cerr << "GLG4PosGen_Fill: "
                  "Could not find any volume at "
-              << _pos << std::endl;
+              << _pos << newline;
     return;
   }
 
@@ -358,20 +360,21 @@ void GLG4PosGen_Fill::GeneratePosition(G4ThreeVector &argResult) {
       _pVolume = pv;
       if (_pVolumeName.length() == 0 || _pVolumeName == "!") _pVolumeName = _pVolume->GetName();
       if (_pVolumeName != _pVolume->GetName()) {
-        std::cerr << "Warning: actual volume at " << _pos << " is " << _pVolume->GetName()
-                  << ", not equal to expected volume " << _pVolumeName << " in GLG4PosGen_Fill." << std::endl;
+        G4cerr << "Warning: actual volume at " << _pos << " is " << _pVolume->GetName()
+                  << ", not equal to expected volume " << _pVolumeName << " in GLG4PosGen_Fill." << newline;
       }
-    } else {
-      std::cerr << "Warning: actual volume at " << _pos << " has changed! Now " << pv->GetName() << ", was "
-                << _pVolume->GetName() << " in GLG4PosGen_PointPaintFill." << std::endl;
+    }
+    else {
+      G4cerr << "Warning: actual volume at " << _pos << " has changed! Now " << pv->GetName() << ", was "
+                << _pVolume->GetName() << " in GLG4PosGen_PointPaintFill." << newline;
       _pVolume = pv;
       _pVolumeName = pv->GetName();
     }
     if (_materialName.length() > 0 && _material == 0) {
       _material = G4Material::GetMaterial(_materialName);
       if (_material == 0) {
-        std::cerr << "ERROR from GLG4PosGen_PointPaintFill: no material named " << _materialName
-                  << ", material restriction cancelled." << std::endl;
+        RAT::warn << "ERROR from GLG4PosGen_PointPaintFill: no material named " << _materialName
+                  << ", material restriction cancelled." << newline;
         _materialName = "";
       }
     }
@@ -396,9 +399,9 @@ void GLG4PosGen_Fill::GeneratePosition(G4ThreeVector &argResult) {
     if (_boundingBoxVolume <= 0.0)
       _boundingBoxVolume = dx * dy * dz;
     else if (fabs(dx * dy * dz / _boundingBoxVolume - 1.0) > 1e-6) {  // paranoia check
-      std::cerr << "Warning: volume of bounding box changed for " << _pVolumeName << " -- was " << _boundingBoxVolume
+      RAT::warn << "Warning: volume of bounding box changed for " << _pVolumeName << " -- was " << _boundingBoxVolume
                 << ", now " << dx * dy * dz << ", fractional change " << fabs(dx * dy * dz / _boundingBoxVolume - 1.0)
-                << " -- PARANOIA IS JUSTIFIED!!!!" << std::endl;
+                << " -- PARANOIA IS JUSTIFIED!!!!" << newline;
       _boundingBoxVolume = dx * dy * dz;
     }
   }
@@ -424,10 +427,10 @@ void GLG4PosGen_Fill::GeneratePosition(G4ThreeVector &argResult) {
                            z0 + dz * G4UniformRand());  // uniform in bounding box
       jloop++;
       if (jloop >= 100000) {
-        std::cerr << "GLG4PosGen_PointPaintFill::GeneratePosition(): " << iloop << "," << jloop
+        RAT::warn << "GLG4PosGen_PointPaintFill::GeneratePosition(): " << iloop << "," << jloop
                   << " loops spent looking for point in " << _pVolumeName;
-        if (_material) std::cerr << " with material " << _materialName;
-        std::cerr << std::endl;
+        if (_material) RAT::warn << " with material " << _materialName;
+        RAT::warn << newline;
         argResult = rpos;
         return;
       }
@@ -451,10 +454,10 @@ void GLG4PosGen_Fill::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this GLG4PosGen_PointPaintFill:\n"
+    RAT::info << "Current state of this GLG4PosGen_PointPaintFill:\n"
               << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to GLG4PosGen_PointPaintFill::SetState: \n"
+              << newline;
+    RAT::info << "Format of argument to GLG4PosGen_PointPaintFill::SetState: \n"
                  " \"x_mm y_mm z_mm [fill [volumeName [materialName]]]\"\n"
                  " or\n"
                  " where x_mm, y_mm, z_mm are the coordinates (in mm) of a point,\n"
@@ -466,20 +469,20 @@ void GLG4PosGen_Fill::SetState(G4String newValues) {
                  " points to daughter or sibling volumes in the selected region "
                  "which\n"
                  " are composed of the given material."
-              << std::endl;
+              << newline;
     return;
   }
   if (newValues == "volume?") {
     if (_ntried <= 0) {
-      std::cout << "volume? inquiry can only be used after filling." << std::endl;
+      RAT::info << "volume? inquiry can only be used after filling." << newline;
     } else {
-      std::cout << "Fill volume information for " << _pVolumeName << ":" << _materialName << std::endl;
-      std::cout << "  ntried= " << _ntried << std::endl;
-      std::cout << "  nfound= " << _nfound << std::endl;
-      std::cout << "  bounding box volume: " << _boundingBoxVolume / CLHEP::meter3 << " m^3\n";
-      std::cout << "  filled volume: " << _boundingBoxVolume * _nfound / (double)_ntried / CLHEP::meter3 << " m^3\n";
-      std::cout << "  est. fractional precision: " << sqrt((_ntried - _nfound) * (double)_nfound / _ntried) / _ntried
-                << std::endl;
+      RAT::info << "Fill volume information for " << _pVolumeName << ":" << _materialName << newline;
+      RAT::info << "  ntried= " << _ntried << newline;
+      RAT::info << "  nfound= " << _nfound << newline;
+      RAT::info << "  bounding box volume: " << _boundingBoxVolume / CLHEP::meter3 << " m^3\n";
+      RAT::info << "  filled volume: " << _boundingBoxVolume * _nfound / (double)_ntried / CLHEP::meter3 << " m^3\n";
+      RAT::info << "  est. fractional precision: " << sqrt((_ntried - _nfound) * (double)_nfound / _ntried) / _ntried
+                << newline;
     }
     return;
   }
@@ -490,9 +493,9 @@ void GLG4PosGen_Fill::SetState(G4String newValues) {
   G4double x, y, z;
   is >> x >> y >> z;
   if (is.fail()) {
-    std::cerr << "GLG4PosGen_PointPaintFill::SetState: "
+    RAT::warn << "GLG4PosGen_PointPaintFill::SetState: "
                  "Could not parse three floats from input std::string"
-              << std::endl;
+              << newline;
     return;
   }
   _pos = G4ThreeVector(x, y, z);
@@ -511,8 +514,8 @@ G4String GLG4PosGen_Fill::GetState() const {
   G4String volname(_pVolumeName);
 
   if (_pVolumeName.length() == 0) {
-    std::cerr << "Warning: zero-length volume name caught in "
-              << "GLG4PosGen_FilL::GetState()" << std::endl;
+    RAT::warn << "Warning: zero-length volume name caught in "
+              << "GLG4PosGen_FilL::GetState()" << newline;
     volname = "!";
   }
 
@@ -543,8 +546,8 @@ void GLG4PosGen_FillCyl::GeneratePosition(G4ThreeVector &argResult) {
     double theVolume = theSolid->GetCubicVolume();  // in cubic meters
     double theMass = theLogVolume->GetMass(false, false);
     double theNelec = theMaterial->GetElectronDensity();
-    // std::cout << "[GLG4PosGen_FillCyl] Volume " << theVolume << " " << theMass
-    // << std::endl; std::cout << "[GLG4PosGen_FillCyl] Nelec " << theNelec << std::endl;
+    // RAT::info << "[GLG4PosGen_FillCyl] Volume " << theVolume << " " << theMass
+    // << newline; RAT::info << "[GLG4PosGen_FillCyl] Nelec " << theNelec << newline;
   }
   return;
 }
@@ -553,12 +556,12 @@ void GLG4PosGen_FillCyl::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this GLG4PosGen_FillCyl:\n"
+    RAT::info << "Current state of this GLG4PosGen_FillCyl:\n"
               << " \"" << GetState() << "\"\n"
-              << std::endl;
-    std::cout << "Format of argument to GLG4PosGen_FillCyl::SetState: \n"
+              << newline;
+    RAT::info << "Format of argument to GLG4PosGen_FillCyl::SetState: \n"
                  " height_mm radius_mm\n"
-              << std::endl;
+              << newline;
     return;
   }
 
@@ -568,9 +571,9 @@ void GLG4PosGen_FillCyl::SetState(G4String newValues) {
   G4double height, radius;
   is >> height >> radius;
   if (is.fail()) {
-    std::cerr << "GLG4PosGen_FillCyl::SetState: "
+    RAT::warn << "GLG4PosGen_FillCyl::SetState: "
                  "Could not parse two floats from input std::string"
-              << std::endl;
+              << newline;
     return;
   }
   _height = height;
@@ -615,7 +618,7 @@ void GLG4PosGen_Cosmic::GenerateVertexPositions( G4PrimaryVertex *argVertex,
     pp= pp->GetNext();
 
   if (pp == NULL) {
-    std::cerr << "Error in GLG4PosGen_Cosmic::GenerateVertexPositions: "
+    RAT::warn << "Error in GLG4PosGen_Cosmic::GenerateVertexPositions: "
 	   << "no primary track in vertex!\n";
     return;
   }
@@ -623,7 +626,7 @@ void GLG4PosGen_Cosmic::GenerateVertexPositions( G4PrimaryVertex *argVertex,
   // generate orthogonal unit std::vectors to incident direction
   G4ThreeVector dir( pp->GetMomentum().unit() );
   if (dir.x() == 0.0 && dir.y() == 0.0 && dir.z() == 0.0) {
-    std::cerr << "Error in GLG4PosGen_Cosmic::GenerateVertexPositions: "
+    RAT::warn << "Error in GLG4PosGen_Cosmic::GenerateVertexPositions: "
 	   << "primary track has zero momentum!  I don't know what to do!\n";
     return;
   }
@@ -655,10 +658,10 @@ void GLG4PosGen_Cosmic::GenerateVertexPositions( G4PrimaryVertex *argVertex,
     startPos += dist_to_in * dir;
     for (G4PrimaryVertex* v= argVertex; v!=NULL; v=v->GetNext()) {
       if (v->GetT0() > max_chain_time) {   // reached clip point of chain?
-	std::cerr << "GLG4PosGen_Cosmic::GenerateVertexPositions: Warning, "
+	RAT::warn << "GLG4PosGen_Cosmic::GenerateVertexPositions: Warning, "
 	  "vertex time exceeds clip, but splitting not supported for cosmics\n"
 	  "\t t0=" << v->GetT0() << " max_chain_time=" << max_chain_time
-	       << std::endl;
+	       << newline;
       }
       v->SetPosition( v->GetX0() + startPos.x(),
 		      v->GetY0() + startPos.y(),
@@ -687,8 +690,8 @@ void GLG4PosGen_Cosmic::GenerateVertexPositions( G4PrimaryVertex *argVertex,
 
 void GLG4PosGen_Cosmic::GeneratePosition(G4ThreeVector *)
 {
-  std::cerr << "GLG4PosGen_Cosmic::GeneratePosition: ERROR!!! "
-    "this function should never be called.  Results undefined." << std::endl;
+  RAT::warn << "GLG4PosGen_Cosmic::GeneratePosition: ERROR!!! "
+    "this function should never be called.  Results undefined." << newline;
 }
 
 void GLG4PosGen_Cosmic::SetState( G4String newValues )
@@ -696,17 +699,17 @@ void GLG4PosGen_Cosmic::SetState( G4String newValues )
   Strip(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    std::cout << "Current state of this GLG4PosGen_Cosmic:\n"
-	   << " \"" << GetState() << "\"\n" << std::endl;
-    std::cout << "Format of argument to GLG4PosGen_Cosmic::SetState: \n"
+    RAT::info << "Current state of this GLG4PosGen_Cosmic:\n"
+	   << " \"" << GetState() << "\"\n" << newline;
+    RAT::info << "Format of argument to GLG4PosGen_Cosmic::SetState: \n"
       " \"width_mm height_mm\"\n"
       " width_mm  == width of rectangular area normal to incident direction\n"
       " height_mm == height of rectangular area normal to incident direction\n"
       "See comments in header file for details.\n"
-	   << std::endl;
+	   << newline;
     return;
   }
-  
+
   std::istringstream is(newValues.c_str());
 
   // set width and height
@@ -715,8 +718,8 @@ void GLG4PosGen_Cosmic::SetState( G4String newValues )
   db[ (_dbname+".width").c_str() ]= _width;
   db[ (_dbname+".height").c_str() ]= _height;
   if (is.fail()) {
-    std::cerr << "GLG4PosGen_Cosmic::SetState: "
-      "Could not parse two floats from input std::string" << std::endl;
+    RAT::warn << "GLG4PosGen_Cosmic::SetState: "
+      "Could not parse two floats from input std::string" << newline;
     return;
   }
 }
@@ -728,7 +731,7 @@ G4String GLG4PosGen_Cosmic::GetState()
   os << _width << ' ' << _height << std::ends;
   G4String rv(os.str());
   os.freeze(0); // avoid memory leak!
-  return rv;  
+  return rv;
 }
 
 #endif

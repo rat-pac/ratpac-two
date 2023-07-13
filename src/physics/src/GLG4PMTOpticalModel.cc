@@ -280,7 +280,6 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
 
     // print verbose info
     if (_verbosity > 0) {
-        G4cout.flush();
         G4cout << "> Enter GLG4PMTOpticalModel, ipmt=" << ipmt << (whereAmI == kInVacuum ? " vacuum" : " glass")
             << ", pos=" << pos << ", dir=" << dir << ", weight=" << weight << ", pol=" << pol
             << ", energy=" << _photon_energy << ", wavelength=" << _wavelength << ", (n1,n3,n2,k2,efficiency)=(" << _n1
@@ -321,8 +320,8 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
             // advance to next interface
             dist = _inner1_solid->DistanceToOut(pos, dir);
             if (dist < 0.0) {
-                G4cerr << "GLG4PMTOpticalModel::DoIt(): "
-                    << "Warning, strangeness detected! inner1->DistanceToOut()=" << dist << G4endl;
+                RAT::warn << "GLG4PMTOpticalModel::DoIt(): "
+                    << "Warning, strangeness detected! inner1->DistanceToOut()=" << dist << newline;
                 dist = 0.0;
             }
             pos += dist * dir;
@@ -335,7 +334,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
         }
 
         if (_verbosity >= 2) {
-            G4cout << " " << iloop << " dist=" << dist << " newpos=" << pos << G4endl;
+            G4cout << " " << iloop << " dist=" << dist << " newpos=" << pos << newline;
         }
 
         // get outward-pointing normal in local coordinates at this position
@@ -352,9 +351,9 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
 #ifdef G4DEBUG
             G4cerr << "GLG4PMTOpticalModel::DoIt(): "
                 << " The normal points the wrong way!" << newline
-                << "  norm: " << norm << G4endl << "  dir:  " << dir << G4endl << "  _cos_theta1:  " << _cos_theta1
-                << G4endl << "  pos:  " << pos << G4endl << "  whereAmI:  " << (int)(whereAmI) << G4endl
-                << " Reversing normal!" << G4endl;
+                << "  norm: " << norm << newline << "  dir:  " << dir << newline << "  _cos_theta1:  " << _cos_theta1
+                << newline << "  pos:  " << pos << newline << "  whereAmI:  " << (int)(whereAmI) << newline
+                << " Reversing normal!" << newline;
 #endif
             _cos_theta1 = -_cos_theta1;
             norm = -norm;
@@ -382,10 +381,10 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
 
 #ifdef G4DEBUG
         if (A < 0.0 || A > 1.0 || collection_eff < 0.0 || collection_eff > 1.0) {
-            G4cerr << "GLG4PMTOpticalModel::DoIt(): Strange coefficients!" << newline;
-            G4cout << "T, R, A, An, weight: " << T << " " << R << " " << A << " " << An << " " << weight << G4endl;
-            G4cout << "collection eff, std QE: " << collection_eff << " " << _efficiency << G4endl;
-            G4cout << "=========================================================" << G4endl;
+            RAT::debug << "GLG4PMTOpticalModel::DoIt(): Strange coefficients!" << newline;
+            RAT::debug << "T, R, A, An, weight: " << T << " " << R << " " << A << " " << An << " " << weight << newline;
+            RAT::debug << "collection eff, std QE: " << collection_eff << " " << _efficiency << newline;
+            RAT::debug << "=========================================================" << newline;
             A = collection_eff = 0.5;  // safe values???
         }
 #endif
@@ -406,7 +405,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
                 mean_N_pe *= EfficiencyCorrection[ipmt];
             }
             else {
-                G4cout << "GLG4PMTOpticalModel[" << GetName() << "] warning: individual efficiency correction for PMT " << ipmt
+                RAT::warn << "GLG4PMTOpticalModel[" << GetName() << "] warning: individual efficiency correction for PMT " << ipmt
                     << " is " << EfficiencyCorrection[ipmt] << ", resetting to 1" << newline;
                 EfficiencyCorrection[ipmt] = 1.0;
             }
@@ -449,7 +448,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
                     break;
                 }
                 if (_verbosity >= 2) {
-                    G4cout << "GLG4PMTOpticalModel made " << N_pe << " pe" << newline;
+                    RAT::debug << "GLG4PMTOpticalModel made " << N_pe << " pe" << newline;
                 }
             }
         }
@@ -470,7 +469,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
         if (ranno_absorb < A) {
             weight = 0;
             if (_verbosity >= 2) {
-                G4cout << "GLG4PMTOpticalModel absorbed track" << newline;
+                RAT::debug << "GLG4PMTOpticalModel absorbed track" << newline;
             }
             break;
         }
@@ -479,7 +478,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
         if (G4UniformRand() < R / (R + T)) {  // reflect
             Reflect(dir, pol, norm);
             if (_verbosity >= 2) {
-                G4cout << "GLG4PMTOpticalModel reflects track" << newline;
+                RAT::debug << "GLG4PMTOpticalModel reflects track" << newline;
             }
         }
         else {  // transmit
@@ -492,7 +491,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
             }
 
             if (_verbosity >= 2) {
-                G4cout << "GLG4PMTOpticalModel transmits track, now in " << (whereAmI == kInVacuum ? " vacuum" : " glass") << G4endl;
+                RAT::debug << "GLG4PMTOpticalModel transmits track, now in " << (whereAmI == kInVacuum ? " vacuum" : " glass") << newline;
             }
         }
     }
@@ -505,7 +504,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     if (weight <= 0) {
         fastStep.ProposeTrackStatus(fStopAndKill);
         if (weight < 0) {
-            G4cerr << "GLG4PMTOpticalModel::DoIt(): Logic error, weight = " << weight << G4endl;
+            RAT::warn << "GLG4PMTOpticalModel::DoIt(): Logic error, weight = " << weight << newline;
         }
     }
     else {
@@ -514,12 +513,11 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     }
 
     if (iloop >= max_iloop) {
-        G4cerr << "GLG4PMTOpticalModel::DoIt(): Too many loops, particle trapped! Killing it." << G4endl;
+        RAT::warn << "GLG4PMTOpticalModel::DoIt(): Too many loops, particle trapped! Killing it." << newline;
         fastStep.ProposeTrackStatus(fStopAndKill);
     }
 
     if (_verbosity > 0) {
-        G4cout.flush();
         G4cout << "> Exit GLG4PMTOpticalModel, ipmt=" << ipmt << (whereAmI == kInVacuum ? " vacuum" : " glass")
             << ", pos=" << pos << ", dir=" << dir << ", weight=" << weight << ", pol=" << pol << ", iloop=" << iloop
             << newline;
@@ -655,11 +653,11 @@ void GLG4PMTOpticalModel::CalculateCoefficients()
 
 #ifdef G4DEBUG
     if (_verbosity >= 10) {
-        G4cout << "=> lam, n1, n2: " << _wavelength / nanometer << " " << _n1 << " " << _n2comp << G4endl;
-        G4cout << "=> Angles: " << real(theta1) / degree << " " << theta2 / degree << " " << theta3 / degree << G4endl;
-        G4cout << "Rper, Rpar, Tper, Tpar: " << fR_s << " " << fR_p << " " << fT_s << " " << fT_p;
-        G4cout << "\nRn, Tn : " << fR_n << " " << fT_n;
-        G4cout << "\n-------------------------------------------------------" << G4endl;
+        RAT::debug << "=> lam, n1, n2: " << _wavelength / nanometer << " " << _n1 << " " << _n2comp << newline;
+        RAT::debug << "=> Angles: " << real(theta1) / degree << " " << theta2 / degree << " " << theta3 / degree << newline;
+        RAT::debug << "Rper, Rpar, Tper, Tpar: " << fR_s << " " << fR_p << " " << fT_s << " " << fT_p;
+        RAT::debug << "\nRn, Tn : " << fR_n << " " << fT_n;
+        RAT::debug << "\n-------------------------------------------------------" << newline;
     }
 #endif
 }
@@ -711,7 +709,7 @@ void GLG4PMTOpticalModel::SetNewValue(G4UIcommand *command, G4String newValues) 
         DumpEfficiencyCorrectionTable();
     }
     else {
-        G4cerr << "No PMTOpticalModel command named " << commandName << G4endl;
+        RAT::warn << "No PMTOpticalModel command named " << commandName << newline;
     }
     return;
 }

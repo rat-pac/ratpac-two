@@ -55,7 +55,7 @@ void ReacIBDgenMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
     G4double Pu241Ampl = Pu241AmpCmd->GetNewDoubleValue(newValue);
     reacibdgen->SetPu241Amplitude(Pu241Ampl);
   } else {
-    G4cerr << "Error: Invalid ReacIBDgenMessenger \"set\" command" << G4endl;
+    RAT::warn << "Error: Invalid ReacIBDgenMessenger \"set\" command" << newline;
   }
 }
 

@@ -53,7 +53,7 @@ void GLG4VisMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
 
   G4VViewer *currentViewer = pVMan->GetCurrentViewer();
   if (!currentViewer) {
-    G4cerr << "GLG4VisMessenger::SetNewValue: no current viewer." << G4endl;
+    RAT::warn << "GLG4VisMessenger::SetNewValue: no current viewer." << newline;
     return;
   }
   G4ViewParameters vp = currentViewer->GetViewParameters();
@@ -64,24 +64,26 @@ void GLG4VisMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
     vp.SetDolly(0.);
     vp.SetViewpointDirection(G4Vector3D(0., 1., 0.));
     vp.SetUpVector(G4Vector3D(0., 0., 1.));
-    G4cout << "Target point reset to (0.0,0.0,0.0)" << newline;
-    G4cout << "Zoom factor reset to 1." << newline;
-    G4cout << "Dolly distance reset to 0." << newline;
-    G4cout << "Viewpoint direction reset to +y." << newline;
-    G4cout << "Up vector set to +z.";
-    G4cout << G4endl;
+    RAT::info << "Target point reset to (0.0,0.0,0.0)" << newline;
+    RAT::info << "Zoom factor reset to 1." << newline;
+    RAT::info << "Dolly distance reset to 0." << newline;
+    RAT::info << "Viewpoint direction reset to +y." << newline;
+    RAT::info << "Up vector set to +z.";
+    RAT::info << newline;
   } else if (commandname == "upvector") {
     G4double x, y, z;
     is >> x >> y >> z;
     if (is.fail()) {
       G4cerr << "GLG4VisMessaneger::SetNewValue: "
-             << "Could not understand arguments, up vector left as " << vp.GetUpVector() << G4endl << std::flush;
+             << "Could not understand arguments, up vector left as " << vp.GetUpVector() << newline;
       return;
-    } else {
+    }
+    else {
       vp.SetUpVector(G4Vector3D(x, y, z));
     }
-  } else {
-    G4cerr << "GLG4VisMessaneger::SetNewValue: I do not recognize this command: " << commandname << G4endl;
+  }
+  else {
+    RAT::warn << "GLG4VisMessaneger::SetNewValue: I do not recognize this command: " << commandname << newline;
     return;
   }
 

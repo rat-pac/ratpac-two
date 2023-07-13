@@ -41,7 +41,7 @@ PMTInfoParser::PMTInfoParser(DBLinkPtr lpos_table, const std::string &mother_nam
         }
     }
     catch (DBNotFoundError &e) {
-        warn << "PMTInfoParser: PMTINFO does not specify direction information" << endl;
+        warn << "PMTInfoParser: PMTINFO does not specify direction information" << newline;
         fDir.resize(0);
     }
 

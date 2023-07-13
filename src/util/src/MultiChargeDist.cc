@@ -209,7 +209,7 @@ std::vector<TGraph *> MultiChargeDist(int maxPE, double qMaxStepSize, int qBins,
   if (inorm > 0)
     warn << "WARNING--Charge PDFs " << inorm << " to " << maxPE
          << " are biased by more than 1%.  Increase number of bins"
-         << " and/or decrease the maximum bin size to reduce the bias." << endl;
+         << " and/or decrease the maximum bin size to reduce the bias." << newline;
 
   return chargeDistInterp;
 }
