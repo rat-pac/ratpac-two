@@ -194,7 +194,7 @@ class GLG4Scint : public G4UImessenger  // not creating a separate class is my l
       Entry();
       ~Entry();
 
-      void Build(const G4String &name, int material_index, G4MaterialPropertiesTable *matprops);
+      void Build(const G4String &name, const G4String &matName, int material_index, G4MaterialPropertiesTable *matprops);
     };
 
    private:

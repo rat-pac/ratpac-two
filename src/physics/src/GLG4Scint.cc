@@ -143,8 +143,8 @@ GLG4Scint::GLG4Scint(const G4String &tablename, G4double lowerMassLimit) {
   }
 
 #ifdef RATVERBOSE
-  G4cout << "GLG4Scint[" << tablename << "]"
-         << " is created " << G4endl;
+  RAT::detail << "GLG4Scint[" << tablename << "]"
+         << " is created " << newline;
 #endif
 
   // ejc
@@ -682,8 +682,8 @@ PostStepDoIt_DONE:
 #endif
 #ifdef RATVERBOSE
   if (fVerboseLevel > 1) {
-    G4cout << "\n Exiting from GLG4Scint::DoIt -- NumberOfSecondaries = " << fAParticleChange.GetNumberOfSecondaries()
-           << G4endl;
+    RAT::detail << "\n Exiting from GLG4Scint::DoIt -- NumberOfSecondaries = " << fAParticleChange.GetNumberOfSecondaries()
+           << newline;
   }
 #endif
 
@@ -803,46 +803,46 @@ GLG4Scint::MyPhysicsTable::~MyPhysicsTable() {
 ////////////////
 
 void GLG4Scint::MyPhysicsTable::Dump(void) const {
-  G4cout << " GLG4Scint::MyPhysicsTable {" << newline << "  fName="
-         << (*fName) << G4endl << "  fLength=" << fLength << G4endl << "  fUsedByCount=" << fUsedByCount << G4endl;
+  RAT::info << " GLG4Scint::MyPhysicsTable {" << newline << "  fName="
+         << (*fName) << newline << "  fLength=" << fLength << newline << "  fUsedByCount=" << fUsedByCount << newline;
   for (G4int i = 0; i < fLength; i++) {
-    G4cout << "  data[" << i << "]= { // " << (*G4Material::GetMaterialTable())[i]->GetName() << G4endl;
-    G4cout << "   spectrumIntegral=";
+    RAT::info << "  data[" << i << "]= { // " << (*G4Material::GetMaterialTable())[i]->GetName() << newline;
+    RAT::info << "   spectrumIntegral=";
     if (fData[i].fSpectrumIntegral) {
       (fData[i].fSpectrumIntegral)->DumpValues();
     }
     else {
-      G4cout << "nullptr" << G4endl;
+      RAT::info << "nullptr" << newline;
     }
 
-    G4cout << "   reemissionIntegral=";
+    RAT::info << "   reemissionIntegral=";
     if (fData[i].fReemissionIntegral) {
       (fData[i].fReemissionIntegral)->DumpValues();
     }
     else {
-      G4cout << "nullptr" << G4endl;
+      RAT::info << "nullptr" << newline;
     }
 
-    G4cout << "   timeIntegral=";
+    RAT::info << "   timeIntegral=";
     if (fData[i].fTimeIntegral) {
       (fData[i].fTimeIntegral)->DumpValues();
     }
     else {
-      G4cout << "nullptr" << G4endl;
+      RAT::info << "nullptr" << newline;
     }
 
-    G4cout << "   resolutionScale=" << fData[i].fResolutionScale << "   birksConstant=" << fData[i].fBirksConstant
-           << "   ref_dE_dx=" << fData[i].fRefdEdx << G4endl << "   light yield=" << fData[i].fLightYield << G4endl;
+    RAT::info << "   resolutionScale=" << fData[i].fResolutionScale << "   birksConstant=" << fData[i].fBirksConstant
+           << "   ref_dE_dx=" << fData[i].fRefdEdx << newline << "   light yield=" << fData[i].fLightYield << newline;
 
-    G4cout << "Quenching = ";
+    RAT::info << "Quenching = ";
     if (fData[i].fQuenchingArray != nullptr) {
       fData[i].fQuenchingArray->DumpValues();
     }
     else {
-      G4cout << "nullptr" << G4endl << "  }" << newline;
+      RAT::info << "nullptr" << newline << "  }" << newline;
     }
   }
-  G4cout << " }" << newline;
+  RAT::info << " }" << newline;
 }
 
 GLG4Scint::MyPhysicsTable *GLG4Scint::MyPhysicsTable::FindOrBuild(const G4String &name) {
@@ -888,9 +888,10 @@ void GLG4Scint::MyPhysicsTable::Build(const G4String &newname) {
   for (G4int i = 0; i < fLength; i++) {
     // look for material properties table entry.
     const G4Material *aMaterial = (*theMaterialTable)[i];
+    const G4String &matName = aMaterial->GetName();
 
     // ask data[i] to Build itself
-    fData[i].Build(*fName, i, aMaterial->GetMaterialPropertiesTable());
+    fData[i].Build(*fName, matName, i, aMaterial->GetMaterialPropertiesTable());
   }
 }
 
@@ -931,7 +932,7 @@ GLG4Scint::MyPhysicsTable::Entry::~Entry() {
 // Build for Entry
 ////////////////
 
-void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, int material_index,
+void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, const G4String &matName, int material_index,
                                              G4MaterialPropertiesTable *aMaterialPropertiesTable) {
   // delete old data, if any
   if (fSpectrumIntegral && fOwnSpectrumIntegral) {
@@ -965,45 +966,51 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, int material_
   // properties table ("SCINTILLATION")
   std::stringstream property_string;
 
-  // strncpy(property_string, ("SCINTILLATION"+name).c_str(),
-  //         sizeof(property_string));
   property_string.str("");
   property_string << "SCINTILLATION" << name;
   G4MaterialPropertyVector *theScintillationLightVector =
       aMaterialPropertiesTable->GetProperty((property_string.str()).c_str());
+
   property_string.str("");
   property_string << "SCINTILLATION_WLS" << name;
   G4MaterialPropertyVector *theReemissionLightVector =
       aMaterialPropertiesTable->GetProperty((property_string.str()).c_str());
+
   if (theScintillationLightVector && !theReemissionLightVector) {
-    RAT::warn << "GLG4Scint: No reemission spectrum for " << (name == "" ? "material" : name) << ", "
+    RAT::warn << "GLG4Scint: No reemission spectrum for material " << matName
+              << " for " << (name == "" ? "default" : name) << " scint process, "
               << "setting equal to primary scintillation spectrum" << newline;
     theReemissionLightVector = theScintillationLightVector;
   }
 
-  double num_components = 0;
+  // Next get the re-emission spectra of each component, if it exists
+  double num_comp = 0;
   if (aMaterialPropertiesTable->ConstPropertyExists("NUM_COMP")) {
-    num_components = aMaterialPropertiesTable->GetConstProperty("NUM_COMP");
+    num_comp = aMaterialPropertiesTable->GetConstProperty("NUM_COMP");
   }
 
-  if (num_components) {
-    for (int cnt = 0; cnt < num_components; cnt++) {
+  if (num_comp) {
+    for (int cnt = 0; cnt < num_comp; cnt++) {
       property_string.str("");
       property_string << "SCINTILLATION_WLS" << cnt << name;
       G4MaterialPropertyVector *reemissionVector =
           aMaterialPropertiesTable->GetProperty((property_string.str()).c_str());
+
       if (reemissionVector) {
         G4PhysicsOrderedFreeVector *tempVector = Integrate_MPV_to_POFV(reemissionVector);
         fReemissionSpectrumVector.push_back(tempVector);
       }
       else if (theReemissionLightVector) {
-        RAT::warn << "GLG4Scint: No reemission spectrum for " << name << " component " << cnt << ", "
+        RAT::warn << "GLG4Scint: No reemission spectrum for material " << matName << " component number " << cnt
+                  << " for " << (name == "" ? "default" : name) << " scint process, "
                   << "using the reemission spectrum defined for the material instead" << newline;
         fReemissionSpectrumVector.push_back(Integrate_MPV_to_POFV(theReemissionLightVector));
       }
       else {
-        RAT::warn << "GLG4Scint: No reemission spectrum for " << name << " component " << cnt << ", "
-                  << "or for the material. This will not reemit!" << newline;
+        RAT::warn << "GLG4Scint: No reemission spectrum for " << name << " scint process "
+                  << "for material " << matName << " component " << cnt << ", "
+                  << "or for the material. This will not reemit unless "
+                  << "default process has emission spectrum, which will be used!" << newline;
         fReemissionSpectrumVector.push_back(nullptr);
       }
     }
@@ -1014,32 +1021,36 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, int material_
       fLightYield = aMaterialPropertiesTable->GetConstProperty("LIGHT_YIELD");
     }
     else {
-      RAT::warn << "GLG4Scint: No light yield parameter for " << (name == "" ? "material" : name) << ", "
+      RAT::warn << "GLG4Scint: No light yield parameter for " << matName << " for "
+                << (name == "" ? "default" : name) << " scint process, "
                 << "assuming it is implicit in the scintillation integral" << newline;
     }
-    // find the integral
 
+    // find the integral
     fSpectrumIntegral = Integrate_MPV_to_POFV(theScintillationLightVector);
     fReemissionIntegral = Integrate_MPV_to_POFV(theReemissionLightVector);
     fOwnSpectrumIntegral = 1;
-
   }
   else {
     // use default integral (possibly null)
     if (aMaterialPropertiesTable->ConstPropertyExists("LIGHT_YIELD")) {
       fLightYield = aMaterialPropertiesTable->GetConstProperty("LIGHT_YIELD");
     }
+
     fSpectrumIntegral = MyPhysicsTable::GetDefault()->GetEntry(material_index)->fSpectrumIntegral;
     fReemissionIntegral = fSpectrumIntegral;
     fOwnSpectrumIntegral = 0;
+
+    if (fSpectrumIntegral) {
+      RAT::warn << "GLG4Scint: Using default process emission spectrum"
+                << " for emission and reemission for " << name
+                << " process in " << matName << newline;
+    }
   }
 
   // Retrieve vector of scintillation time profile
   // for the material from the material's optical
   // properties table ("SCINTWAVEFORM")
-
-  // strncpy(property_string, ("SCINTWAVEFORM"+name).c_str(),
-  //         sizeof(property_string));
   property_string.str("");
   property_string << "SCINTWAVEFORM" << name;
   G4MaterialPropertyVector *theWaveForm = aMaterialPropertiesTable->GetProperty((property_string.str()).c_str());
@@ -1063,7 +1074,6 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, int material_
     if (theWaveForm->GetEnergy(0) >= 0.0) {
       // we have digitized waveform (time-series) data
       // find the integral
-
       fTimeIntegral = Integrate_MPV_to_POFV(theWaveForm);
       fOwnTimeIntegral = 1;
     }
@@ -1072,10 +1082,10 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, int material_
       // sanity-check user's values:
       // issue a warning if they are nonsense, but continue
       if (theWaveForm->Energy(theWaveForm->GetVectorLength() - 1) > 0.0) {
-        G4cerr << "GLG4Scint::MyPhysicsTable::Entry::Build():  "
-               << "SCINTWAVEFORM" << name
+        RAT::warn << "GLG4Scint::MyPhysicsTable::Entry::Build():  "
+               << "SCINTWAVEFORM" << name << " for material " << matName
                << " has both positive and negative X values.  "
-                  " Undefined results will ensue!\n";
+               << " Undefined results will ensue!" << newline;
       }
 
       /* Set the bin width to 100 times smaller than the smallest
@@ -1134,11 +1144,6 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, int material_
   }
 
   // Next get the re-emission time of each component, if it exists
-  double num_comp = 0;
-  if (aMaterialPropertiesTable->ConstPropertyExists("NUM_COMP")) {
-    num_comp = aMaterialPropertiesTable->GetConstProperty("NUM_COMP");
-  }
-
   if (num_comp) {
     for (int cnt = 0; cnt < num_comp; cnt++) {
       property_string.str("");
@@ -1153,15 +1158,16 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, int material_
           // find the integral
           fReemissionTimeVector.push_back(Integrate_MPV_to_POFV(theReemitWaveForm));
           fOwnReemissionTimeVector = 1;
-        } else {
+        }
+        else {
           // we have decay-time data.
           // sanity-check user's values:
           // issue a warning if they are nonsense, but continue
           if (theReemitWaveForm->GetMaxEnergy() > 0.0) {
-            G4cerr << "GLG4Scint::MyPhysicsTable::Entry::Build():  "
-                   << "REEMITWAVEFORM" << name
+            RAT::warn << "GLG4Scint::MyPhysicsTable::Entry::Build():  "
+                   << "REEMITWAVEFORM" << cnt << " for material " << matName
                    << " has both positive and negative X values.  "
-                      " Undefined results will ensue!\n";
+                   << " Undefined results will ensue!" << newline;
           }
 
           G4double maxtime = -3.0 * (theReemitWaveForm->GetEnergy(0));
@@ -1222,10 +1228,10 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, int material_
         // sanity-check user's values:
         // issue a warning if they are nonsense, but continue
         if (theReemitWaveForm->GetMaxEnergy() > 0.0) {
-          G4cerr << "GLG4Scint::MyPhysicsTable::Entry::Build():  "
-                 << "REEMITWAVEFORM" << name
+            RAT::warn << "GLG4Scint::MyPhysicsTable::Entry::Build():  "
+                 << "REEMITWAVEFORM for material " << matName
                  << " has both positive and negative X values.  "
-                    " Undefined results will ensue!\n";
+                    " Undefined results will ensue!" << newline;
         }
 
         G4double maxtime = -3.0 * (theReemitWaveForm->GetEnergy(0));
@@ -1301,9 +1307,9 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, int material_
         fRefdEdx = value;
       }
       else {
-        G4cerr << "GLG4Scint::MyPhysicsTable::Entry::Build"
-                  ":  Warning, unknown key "
-               << key << "in SCINTMOD" << name << G4endl;
+        RAT::warn << "GLG4Scint::MyPhysicsTable::Entry::Build"
+               << ":  Warning, unknown key "
+               << key << "in SCINTMOD" << name << " for material " << matName << newline;
       }
     }
   }
@@ -1345,8 +1351,8 @@ void GLG4Scint::SetNewValue(G4UIcommand *command, G4String newValues) {
         fDoReemission = false;
       }
       else {
-        G4cerr << "Command /glg4scint/reemission given unknown parameter " << '\"' << newValues << '\"' << G4endl
-               << "  old value unchanged: " << (fDoReemission ? "on" : "off") << G4endl;
+        RAT::warn << "Command /glg4scint/reemission given unknown parameter " << '\"' << newValues << '\"' << newline
+               << "  old value unchanged: " << (fDoReemission ? "on" : "off") << newline;
       }
     }
     else {
@@ -1359,7 +1365,7 @@ void GLG4Scint::SetNewValue(G4UIcommand *command, G4String newValues) {
       fMaxTracksPerStep = i;
     }
     else {
-      G4cerr << "Value must be greater than 0, old value unchanged" << G4endl;
+      RAT::warn << "Value must be greater than 0, old value unchanged" << newline;
     }
   }
   else if (commandName == "meanPhotonsPerSecondary") {
@@ -1368,7 +1374,7 @@ void GLG4Scint::SetNewValue(G4UIcommand *command, G4String newValues) {
       fMeanPhotonsPerSecondary = d;
     }
     else {
-      G4cerr << "Value must be >= 1.0, old value unchanged" << G4endl;
+      RAT::warn << "Value must be >= 1.0, old value unchanged" << newline;
     }
   }
   else if (commandName == "verbose") {
@@ -1387,11 +1393,11 @@ void GLG4Scint::SetNewValue(G4UIcommand *command, G4String newValues) {
       fUserQF = true;
     }
     else {
-      G4cerr << "The quenching factor is <= 1.0, old value unchanged" << G4endl;
+      RAT::warn << "The quenching factor is <= 1.0, old value unchanged" << newline;
     }
   }
   else {
-    G4cerr << "No GLG4Scint command named " << commandName << G4endl;
+    RAT::warn << "No GLG4Scint command named " << commandName << newline;
   }
   return;
 }
