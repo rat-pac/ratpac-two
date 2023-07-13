@@ -23,8 +23,8 @@ class PMT : public TObject {
   virtual Int_t GetID() { return id; }
 
   /** Total charge in waveform (pC) */
-  virtual void SetCharge(Float_t _charge) { this->charge = _charge; }
-  virtual Float_t GetCharge() { return charge; }
+  virtual void SetCharge(Double_t _charge) { this->charge = _charge; }
+  virtual Double_t GetCharge() { return charge; }
 
   /** Hit time in ns */
   virtual void SetTime(Double_t _time) { this->time = _time; }
@@ -46,20 +46,24 @@ class PMT : public TObject {
   virtual void SetNCrossings(Int_t _nCrossings) { this->nCrossings = _nCrossings; }
   virtual Int_t GetNCrossings() { return nCrossings; }
 
+  virtual void SetTimeOverThreshold(Double_t _timeOverThresh) { this->timeOverThresh = _timeOverThresh; }
+  virtual Double_t GetTimeOverThreshold { timeOverThresh; }
+
   virtual void SetPedestal(Double_t _pedestal) { this->pedestal = _pedestal; }
   virtual Double_t GetPedestal() { return pedestal; }
 
-  ClassDef(PMT, 2);
+  ClassDef(PMT, 3);
 
  protected:
   Int_t id;
-  Float_t charge;
+  Double_t charge;
   Double_t time;
   Double_t dTime;
   Double_t dCharge;
   Double_t iTime;
   Int_t sTime;
   Int_t nCrossings;
+  Double_t timeOverThresh;
   Double_t pedestal;
 };
 

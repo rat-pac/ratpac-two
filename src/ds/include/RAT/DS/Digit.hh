@@ -28,8 +28,8 @@ class Digit : public TObject {
   virtual std::string GetDigitName() const { return name; };
 
   // Sampling rate
-  virtual void SetSamplingRate(Float_t _sampling_rate) { sampling_rate = _sampling_rate; };
-  virtual Float_t GetSamplingRate() const { return sampling_rate; };
+  virtual void SetSamplingRate(Double_t _sampling_rate) { sampling_rate = _sampling_rate; };
+  virtual Double_t GetSamplingRate() const { return sampling_rate; };
 
   // Total number of samples
   virtual void SetNSamples(UShort_t _nsamples) { nsamples = _nsamples; };
@@ -40,8 +40,8 @@ class Digit : public TObject {
   virtual UShort_t GetNBits() const { return nbits; };
 
   // Dynamic range (V)
-  virtual void SetDynamicRange(float _dynamic_range) { dynamic_range = _dynamic_range; };
-  virtual Float_t GetDynamicRange() const { return dynamic_range; };
+  virtual void SetDynamicRange(double _dynamic_range) { dynamic_range = _dynamic_range; };
+  virtual Double_t GetDynamicRange() const { return dynamic_range; };
 
   /// Set a waveform, overwrites existing
   virtual void SetWaveform(const UShort_t waveformID, const std::vector<UShort_t> &samples) {
@@ -70,14 +70,14 @@ class Digit : public TObject {
   /// Delete all waveforms
   virtual void PruneWaveforms() { waveforms.clear(); }
 
-  ClassDef(Digit, 1);
+  ClassDef(Digit, 2);
 
  protected:
   std::string name;
-  Float_t sampling_rate;
+  Double_t sampling_rate;
   UShort_t nsamples;
   UShort_t nbits;
-  Float_t dynamic_range;
+  Double_t dynamic_range;
   std::map<UShort_t, std::vector<UShort_t>> waveforms;  ///< Map of input number to samples
 };
 

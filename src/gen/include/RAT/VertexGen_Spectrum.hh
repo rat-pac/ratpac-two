@@ -50,34 +50,34 @@ class VertexGen_Spectrum : public GLG4VertexGen {
   virtual void InitialiseSpectrum();
 
   /** Sample energy from spectrum between bounds Elim_lo and Elim_hi */
-  virtual float SampleEnergy();
+  virtual double SampleEnergy();
 
   /** For this generator, it is possible to limit the output energies */
   virtual bool ELimitable() { return true; };
 
   /** Set the limits on the generated energy */
-  virtual void LimitEnergies(float Elo, float Ehi);
+  virtual void LimitEnergies(double Elo, double Ehi);
 
   /** Return the maximum possible energy */
-  virtual float EMaximum();
+  virtual double EMaximum();
 
   /** Return the minimum possible energy */
-  virtual float EMinimum();
+  virtual double EMinimum();
 
  private:
   G4String _particle;           // name of the particle type
   G4ParticleDefinition *_pDef;  // particle definition
   G4String _spectrum;           // name of the spectrum to use
   DBLinkPtr _lspec;             // link to spectrum entry in database
-  float _emin;                  // valid range for spectrum in MeV
-  float _emax;
+  double _emin;                  // valid range for spectrum in MeV
+  double _emax;
   std::vector<double> spec_E;       // spectrum energy values
   std::vector<double> spec_mag;     // spectrum magnitude values
   std::vector<double> spec_cummag;  // spectrum cumulative non-normalised magnitude values
-  float Elim_Ulo;                   // user applied universal lower limit to energy range
-  float Elim_Uhi;                   // user applied universal higher limit to energy range
-  float Elim_Tlo;                   // temporary lower energy limit	(applies to one event)
-  float Elim_Thi;                   // temporary higher energy limit (applies to one event)
+  double Elim_Ulo;                   // user applied universal lower limit to energy range
+  double Elim_Uhi;                   // user applied universal higher limit to energy range
+  double Elim_Tlo;                   // temporary lower energy limit	(applies to one event)
+  double Elim_Thi;                   // temporary higher energy limit (applies to one event)
 };
 
 }  // namespace RAT

@@ -40,7 +40,7 @@ class ReacIBDgen {
   //   from 2D distribution of reactor neutrinos which have interacted
   //   with a proton, so both the incident flux, and the (relative)
   //   differential cross-section are factored in.
-  void GenInteraction(float &E, float &CosThetaLab);
+  void GenInteraction(double &E, double &CosThetaLab);
 
   void SetU235Amplitude(double U235Am = U235DEFAULT);
   void SetU238Amplitude(double U238Am = U238DEFAULT);
@@ -48,7 +48,7 @@ class ReacIBDgen {
   void SetPu241Amplitude(double Pu241Am = Pu241DEFAULT);
 
   // Total cross section for inverse beta decay
-  static double CrossSection(float x);
+  static double CrossSection(double x);
 
   inline double GetU235Amplitude() { return U235Amp; };
   inline double GetU238Amplitude() { return U238Amp; };
@@ -60,7 +60,7 @@ class ReacIBDgen {
   // The function returns a random energy from the PDF based on the weighted
   // probabilities.  This function uses the same method as the CfSource file
   // to produce a random generator based on a probability density function.
-  float GetNuEnergy();
+  double GetNuEnergy();
 
   // Probability density functions of reactor neutrinos as a function of
   // energy.  Parametrization of fluxes for neutrinos from each reactor
@@ -69,19 +69,19 @@ class ReacIBDgen {
 
   // FIXME: Make the leading coefficients of these spectrums adjustable in
   // the macro file that will call this generator.
-  float U235ReacSpectrum(const float &x);
-  float Pu239ReacSpectrum(const float &x);
-  float U238ReacSpectrum(const float &x);
-  float Pu241ReacSpectrum(const float &x);
+  double U235ReacSpectrum(const double &x);
+  double Pu239ReacSpectrum(const double &x);
+  double U238ReacSpectrum(const double &x);
+  double Pu241ReacSpectrum(const double &x);
 
   // Sum of the reactor spectrums defined above.  the x value in this case is
   // the energy of the neutrino, and the function would return the value of the
   // PDF at that energy.
-  float NuReacSpectrum(const float &x);
+  double NuReacSpectrum(const double &x);
 
   // IBDEnergy which is a product of the above spectrums, the cross-section, and
   // a square root factor with the cross section and electron mass.
-  double IBDESpectrum(float x);
+  double IBDESpectrum(double x);
 
  protected:
   double Emax;

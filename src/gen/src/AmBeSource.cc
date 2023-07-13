@@ -42,8 +42,8 @@ AmBeSource::AmBeSource() {
   // Random generators according to probability densities.
   static CLHEP::RandGeneral *fGenerate = 0;
 
-  static const float flow = 0.;
-  static const float fhigh = 12.;
+  static const double flow = 0.;
+  static const double fhigh = 12.;
 
   static bool first = true;
   if (first) {
@@ -68,7 +68,7 @@ AmBeSource::AmBeSource() {
 
     // Find function values at bin centers.
     for (size_t i = 0; i != probDensSize; i++) {
-      float value = (float(i) + 0.5) * (fhigh - flow) / (float)probDensSize;
+      double value = (double(i) + 0.5) * (fhigh - flow) / (double)probDensSize;
       fspace[i] = AmBeNeutronSpectrum(value);
 #ifdef DEBUG
       debug << "   i=" << i << ", value = " << value << " f,m,g=" << fspace[i] << newline;
@@ -190,9 +190,9 @@ AmBeSource &AmBeSource::operator=(const AmBeSource &rhs) {
   return *this;
 }
 
-float AmBeSource::AmBeNeutronSpectrum(const float &x) {
+double AmBeSource::AmBeNeutronSpectrum(const double &x) {
   // return the neutron spectrum N(x)
-  float N = 0.;
+  double N = 0.;
 
   // Neutron energy spectrum of a AmBe source simulated with MCNP (NIM A Volume
   // 763, 1 November 2014, Pages 547-552)

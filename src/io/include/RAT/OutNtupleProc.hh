@@ -73,9 +73,6 @@ class OutNtupleProc : public Processor {
   std::vector<double> pmtU;
   std::vector<double> pmtV;
   std::vector<double> pmtW;
-  std::string experiment;
-  std::string geo_file;
-  int geo_index;
   // Data Branches
   Int_t mcpdg;
   double mcx, mcy, mcz;

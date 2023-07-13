@@ -42,12 +42,12 @@ class MCSummary : public TObject {
   virtual void SetEnergyRMS(const TVector3 &_energyRMS) { energyRMS = _energyRMS; }
 
   /** Convenience method to look up individual elements in CINT */
-  virtual Float_t GetEnergyLossByVolume(const char *volume) { return energyLoss[volume]; }
+  virtual Double_t GetEnergyLossByVolume(const char *volume) { return energyLoss[volume]; }
   virtual void SetEnergyLossByVolume(StringDoubleMap _energyLoss) { energyLoss = _energyLoss; }
 
   /** Total energy deposited in the scintillator in this event (MeV) */
-  virtual Float_t GetTotalScintEdep() const { return totalScintEdep; };
-  virtual void SetTotalScintEdep(Float_t _totalScintEdep) { totalScintEdep = _totalScintEdep; }
+  virtual Double_t GetTotalScintEdep() const { return totalScintEdep; };
+  virtual void SetTotalScintEdep(Double_t _totalScintEdep) { totalScintEdep = _totalScintEdep; }
 
   /** Total energy deposited in scintillator with quenched energy
    *  removed.
@@ -55,8 +55,8 @@ class MCSummary : public TObject {
    * This represents the amount of "visible energy" that was converted
    * into optical photons.
    */
-  virtual Float_t GetTotalScintEdepQuenched() const { return totalScintEdepQuenched; }
-  virtual void SetTotalScintEdepQuenched(Float_t _totalScintEdepQuenched) {
+  virtual Double_t GetTotalScintEdepQuenched() const { return totalScintEdepQuenched; }
+  virtual void SetTotalScintEdepQuenched(Double_t _totalScintEdepQuenched) {
     totalScintEdepQuenched = _totalScintEdepQuenched;
   }
 
@@ -65,8 +65,8 @@ class MCSummary : public TObject {
   virtual void SetTotalScintCentroid(const TVector3 &_totalScintCentroid) { totalScintCentroid = _totalScintCentroid; }
 
   /** Initial time of the scintillation (ns) */
-  virtual Float_t GetInitialScintTime() const { return initialScintTime; }
-  virtual void SetInitialScintTime(Float_t _initialScintTime) { initialScintTime = _initialScintTime; }
+  virtual Double_t GetInitialScintTime() const { return initialScintTime; }
+  virtual void SetInitialScintTime(Double_t _initialScintTime) { initialScintTime = _initialScintTime; }
 
   /** Number of photons produced by the scintillation process */
   virtual Int_t GetNumScintPhoton() const { return numScintPhoton; }
@@ -94,15 +94,15 @@ class MCSummary : public TObject {
 
   virtual std::vector<std::vector<double>> GetPMTPhotonInfo() { return pmtHitVector; }
 
-  ClassDef(MCSummary, 3);
+  ClassDef(MCSummary, 4);
 
  protected:
   Int_t numScintPhoton;
   Int_t numReemitPhoton;
   Int_t numCerenkovPhoton;
-  Float_t totalScintEdep;
-  Float_t totalScintEdepQuenched;
-  Float_t initialScintTime;
+  Double_t totalScintEdep;
+  Double_t totalScintEdepQuenched;
+  Double_t initialScintTime;
   TVector3 energyCentroid;
   TVector3 energyRMS;
   TVector3 opticalCentroid;

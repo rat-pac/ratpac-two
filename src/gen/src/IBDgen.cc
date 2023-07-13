@@ -40,7 +40,7 @@ void IBDgen::SetSpectrumIndex(G4String _specIndex) {
 
 void IBDgen::GenEvent(const CLHEP::Hep3Vector &nu_dir, CLHEP::HepLorentzVector &neutrino,
                       CLHEP::HepLorentzVector &positron, CLHEP::HepLorentzVector &neutron) {
-  float Enu, CosThetaLab;
+  double Enu, CosThetaLab;
 
   // Pick energy of neutrino and relative direction of positron
   GenInteraction(Enu, CosThetaLab);
@@ -72,7 +72,7 @@ void IBDgen::GenEvent(const CLHEP::Hep3Vector &nu_dir, CLHEP::HepLorentzVector &
   neutron.setE(sqrt(neutron.vect().mag2() + CLHEP::neutron_mass_c2 * CLHEP::neutron_mass_c2));
 }
 
-void IBDgen::GenInteraction(float &E, float &CosThetaLab) {
+void IBDgen::GenInteraction(double &E, double &CosThetaLab) {
   bool passed = false;
 
   while (!passed) {
@@ -82,7 +82,7 @@ void IBDgen::GenInteraction(float &E, float &CosThetaLab) {
 
     if (ApplyCrossSection) {
       // Decided whether to draw again based on relative cross-section.
-      float XCtest = XCmax * FluxMax * CLHEP::HepUniformRand();
+      double XCtest = XCmax * FluxMax * CLHEP::HepUniformRand();
       double XCWeight = CrossSection(E, CosThetaLab);
       double FluxWeight = rmpflux(E);
       passed = XCWeight * FluxWeight > XCtest;
@@ -90,7 +90,7 @@ void IBDgen::GenInteraction(float &E, float &CosThetaLab) {
       // Decide whether to draw again based on relative dSigma/dCosT cross
       // section. Find the maximum of dE1/dCosT
       double dE1dCosTMax = EvalMax(E, FluxMax);
-      float XCtest = dE1dCosTMax * CLHEP::HepUniformRand();
+      double XCtest = dE1dCosTMax * CLHEP::HepUniformRand();
       double dEdCosTWeight = dE1dCosT(E, CosThetaLab);
       double FluxWeight = rmpflux(E);
       passed = dEdCosTWeight * FluxWeight > XCtest;
@@ -176,7 +176,7 @@ double IBDgen::EvalMax(double Enu, double FluxMax) {
   // always highest at cosT = 1
   double max = 0.;
   for (int i = 0; i < 200.; i++) {
-    float cosT = (i - 100.) / 100.;
+    double cosT = (i - 100.) / 100.;
     double tmp = dE1dCosT(Enu, cosT) * FluxMax;
     if (tmp > max) max = tmp;
   }
