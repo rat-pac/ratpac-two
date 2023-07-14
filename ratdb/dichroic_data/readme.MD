@@ -51,3 +51,9 @@ ABSLENGTH_value2: [1.0e3, 1.0e3], // Assuming no absorption
 PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 }
 ```
+
+## Currently Included Data
+`knight_longpass_480nm_from_manufacturer.dat` and `knight_shortpass_450nm_from_manufacturer.dat`: Data grabbed from
+[manufacturer's data](https://www.knightoptical.com/stock/default/filters/dichroic-filters.html). Provided data points
+ are for AOI of 0 and 45 degrees. Data is linearly interpolated between the two. _This should be considered as
+ placeholder data for development purposes, and should not be used for production._
