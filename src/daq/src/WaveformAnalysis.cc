@@ -38,7 +38,9 @@ void WaveformAnalysis::RunAnalysis(DS::PMT *pmt, int pmtID, Digitizer *fDigitize
   pmt->SetInterpolatedTime(fInterpolatedTime);
   pmt->SetSampleTime(fThresholdCrossing);
   pmt->SetNCrossings(fNCrossings);
+  pmt->SetTimeOverThreshold(fTimeOverThreshold);
   pmt->SetPedestal(fPedestal);
+  pmt->SetPeakVoltage(fVoltagePeak);
 }
 
 void WaveformAnalysis::CalculatePedestal() {
@@ -128,6 +130,7 @@ void WaveformAnalysis::GetNCrossings(){
   bool fCrossed = false;
   // Start at the peak and scan backwards
   for (UShort_t i = 0; i < fDigitWfm.size(); i++) {
+
     double voltage = (fDigitWfm[i] - fPedestal) * fVoltageRes;
 
     if (voltage < fThreshold) {
@@ -137,8 +140,7 @@ void WaveformAnalysis::GetNCrossings(){
       fTimeOverThreshold += fTimeStep;
       fCrossed = true;
     }
-
-    if (voltage < fThreshold) {
+    if (voltage > fThreshold) {
       fCrossed = false;
     }
   }
@@ -155,6 +157,7 @@ double WaveformAnalysis::CalculateTime() {
   // Get the sample where the voltage thresh is crossed
   GetThresholdCrossing();
 
+  // Get the total number of threshold crossings
   GetNCrossings();
 
   if(fThresholdCrossing == INVALID || 
