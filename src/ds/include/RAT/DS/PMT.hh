@@ -47,12 +47,15 @@ class PMT : public TObject {
   virtual Int_t GetNCrossings() { return nCrossings; }
 
   virtual void SetTimeOverThreshold(Double_t _timeOverThresh) { this->timeOverThresh = _timeOverThresh; }
-  virtual Double_t GetTimeOverThreshold { timeOverThresh; }
+  virtual Double_t GetTimeOverThreshold() { return timeOverThresh; }
 
   virtual void SetPedestal(Double_t _pedestal) { this->pedestal = _pedestal; }
   virtual Double_t GetPedestal() { return pedestal; }
 
-  ClassDef(PMT, 3);
+  virtual void SetPeakVoltage(Double_t _peak) { this->peak = _peak; }
+  virtual Double_t GetPeakVoltage() { return peak; }
+
+  ClassDef(PMT, 4);
 
  protected:
   Int_t id;
@@ -65,6 +68,7 @@ class PMT : public TObject {
   Int_t nCrossings;
   Double_t timeOverThresh;
   Double_t pedestal;
+  Double_t peak;
 };
 
 }  // namespace DS
