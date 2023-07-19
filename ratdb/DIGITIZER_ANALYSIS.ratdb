@@ -5,10 +5,11 @@ valid_end: [0,0],
 
 // Lower/upper limits of pedestal window
 pedestal_window_low: 0,
-pedestal_window_high: 100,
+pedestal_window_high: 10,
 constant_fraction: 0.40,
-lookback: 100,
-integration_window_low: 10,
-integration_window_high: 50,
+lookback: 20.0,
+integration_window_low: 4,
+integration_window_high: 10,
+voltage_threshold: -5.0,
 }
 

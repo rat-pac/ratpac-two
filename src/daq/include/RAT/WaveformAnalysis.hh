@@ -33,48 +33,61 @@ class WaveformAnalysis {
   void RunAnalysis(DS::PMT *pmt, int pmtID, Digitizer *fDigitizer);
 
   // Calculate baseline (in mV)
-  double CalculatePedestal(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window);
+  void CalculatePedestal();
 
   // Linearly interpolate between two samples
-  double Interpolate(double voltage1, double voltage2, double voltage_crossing, double time_step);
+  void Interpolate(double voltage1, double voltage2);
 
   // Apply a constant fraction discriminator to
   // calculate the threshold crossing
-  double CalculateTime(std::vector<UShort_t> wfm,
-                       UShort_t low_window,   // sample #
-                       UShort_t high_window,  // sample #
-                       double dy,             // mV/ADC
-                       double sampling_rate,  // GHz
-                       double cfd_fraction = 0.60, UShort_t lookback = 30);
+  double CalculateTime();
 
   // Find the sample where a threshold crossing occurs
-  UShort_t GetThresholdCrossing(std::vector<UShort_t> wfm,
-                                double dy,             // mV/ADC
-                                double pedestal,       // ADC
-                                double peak,           // mV
-                                UShort_t peak_sample,  // sample #
-                                double cfd_fraction = 0.60, UShort_t lookback = 30);
+  void GetThresholdCrossing();
+
+  // Find the total number of threshold crossings
+  void GetNCrossings();
 
   // Calculate the peak (in mV) and corresponding sample
-  void GetPeak(std::vector<UShort_t> wfm, double dy, double pedestal, double &peak, UShort_t &peak_sample);
+  void GetPeak();
 
   // Integrate the digitized waveform to calculate charge
-  double Integrate(std::vector<UShort_t> wfm, UShort_t low_window, UShort_t high_window, double dy,
-                   double sampling_rate, int integration_window_low, int integration_window_high,
-                   double termination_ohms);
+  double Integrate();
 
  protected:
 
+  // Digitizer settings
   DBLinkPtr fDigit;
+  double fTimeStep;
+  double fVoltageRes;
+  double fTermOhms;
+
+  // Analysis constants 
   int fPedWindowLow;
   int fPedWindowHigh;
-  int fLookback;
+  double fLookback;
   int fIntWindowLow;
   int fIntWindowHigh;
   double fConstFrac;
+  int fLowIntWindow;
+  int fHighIntWindow;
+  double fVoltageCrossing;
+  double fThreshold;
+
+  // Digitized waveform
+  std::vector<UShort_t> fDigitWfm;
+
+  // Analysis variables
+  double fInterpolatedTime;
+  double fVoltagePeak;
+  UShort_t fSamplePeak;
+  double fPedestal;
+  UShort_t fThresholdCrossing;
+  UShort_t fNCrossings;
+  double fTimeOverThreshold;
 
   // Invalid value for bad waveforms
-  const UShort_t INVALID = 99999;
+  const UShort_t INVALID = 9999;
 };
 
 }  // namespace RAT

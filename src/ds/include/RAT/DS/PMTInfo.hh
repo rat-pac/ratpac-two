@@ -60,7 +60,7 @@ class PMTInfo : public TObject {
   virtual void SetNoiseRate(int id, double _rate) { individual_noise_rate.at(id) = _rate; }
 
   virtual double GetAfterPulseFraction(int id) const { return individual_afterpulse_fraction.at(id); }
-  virtual double SetAfterPulseFraction(int id, double _frac) { individual_afterpulse_fraction.at(id) = _frac; }
+  virtual void SetAfterPulseFraction(int id, double _frac) { individual_afterpulse_fraction.at(id) = _frac; }
 
   virtual int GetModel(int id) const { return modeltype.at(id); }
   virtual int SetModel(int id, std::string _model) {
