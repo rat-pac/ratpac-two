@@ -13,10 +13,6 @@ double IntegratedQuenchingCalculator::QuenchedEnergyDeposit(const G4Step& step,
                                                             const double kB){
     const G4ParticleDefinition* def = step.GetTrack()->GetParticleDefinition();
     const G4Material* mat = step.GetPostStepPoint()->GetMaterial();
-    //Short circuit issues with 0 energy steps
-    if (step.GetDeltaEnergy() == 0){
-        return 0;
-    }
     // one might think that the total energy loss is the difference in kinetic
     // energy, but alas, this is not guaranteed! we must also explicitly check
     // that we do not integrate over negative energies, for which the stopping
