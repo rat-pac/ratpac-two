@@ -1,7 +1,8 @@
 # Ratpac-two
+[![Documentation Status](https://readthedocs.org/projects/ratpac/badge/?version=latest)](https://ratpac.readthedocs.io/en/latest/?badge=latest)
 
+[ratpac.readthedocs.io](ratpac.readthedocs.io)
 ## Installation
-
 Installation requires [ROOT 6.25+](https://root.cern.ch), 
 [Geant4 11.0+](https://geant4.web.cern.ch/), and [cmake 3.22+](https://cmake.org/)
 

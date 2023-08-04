@@ -146,15 +146,8 @@ file would and make use of ``GeoFactory`` components.
 
 .. code-block::	
 
-    /rat/db/set DETECTOR experiment "Watchman"		
-    /rat/db/set DETECTOR geo_file "Watchman/Watchman.geo"		
-		
-v.s.		
-.. code-block::
-		
-    /rat/db/set DETECTOR experiment "Watchman"		
-    /rat/db/set DETECTOR detector_factory "Watchman"		
+    /rat/db/set DETECTOR experiment "Validation"		
+    /rat/db/set DETECTOR geo_file "Validation/Valid.geo"		
 		
 Example usage would be to load a normal (statically defined) ``.geo`` file into the DB and modify		
-it as necessary for the dynamic functionality. See the ``WatchmanDetectorFactor`` for example use.
-
+it as necessary for the dynamic functionality.
