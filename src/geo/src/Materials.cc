@@ -117,6 +117,10 @@ void Materials::LoadOpticalSurfaces() {
         // declaring a properties table directly.
         std::string name = std::string(iv->first.c_str());
         std::string data_file = iv->second->GetS("dichroic_property_file");
+        std::string environment = "RATSHARE";
+        try {
+          environment = iv->second->GetS("data_env");
+        } catch (DBNotFoundError &e) {}
         std::string data_base_dir = getenv("RATSHARE") + std::string("/ratdb/");
         std::string data_path = data_base_dir + data_file;
         info << "Getting dichroic data for Material: " << name 
