@@ -8,7 +8,6 @@ Table of Contents
 
    overview
    installation
-   tutorials
    command_interface
    producers_processors
    random
