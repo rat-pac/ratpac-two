@@ -19,7 +19,6 @@ Table of Contents
    pmt
    producers
    processors
-   user_processors
    root_analysis
    tracks
    rattest

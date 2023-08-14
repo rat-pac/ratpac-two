@@ -6,7 +6,6 @@ of the detector with particle tracks to debug / demonstrate the detector.
 
 Setting up GEANT4
 `````````````````
-
 In your mac directory you should create a file called vis.mac. This file will
 hold all of your visualization information. Here is an example::
 
@@ -34,12 +33,10 @@ hold all of your visualization information. Here is an example::
 
 Running rat
 ```````````
+In order to keep rat from exiting the moment the macro completes, place rat
+into interactive mode. This can either be done standalone::
 
-In order to keep rat from exiting the moment the macro completes, place rat into
-interactive mode. This can either be done standalone::
-    rat -
+    rat --vis
 
 Or even in combination with a list of macros::
-    rat vis.mac -
-
-The import part is to remember the "-" which places rat into interactive mode.
+    rat vis.mac --vis
