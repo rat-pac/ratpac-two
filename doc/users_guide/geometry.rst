@@ -1,37 +1,53 @@
 Gsim Geometry
 -------------
+The detector geometry used in Gsim is controlled by the GEO tables stored in
+RATDB.  Each piece of the detector is represented by a GEO table that gives the
+name of the element, the shape, position, material, and color (for
+visualization purposes).  This allows simple changes to the detector
+configuration to be made without having to edit the RAT source code.
 
-The detector geometry used in Gsim is controlled by the GEO tables stored in RATDB.  Each piece of the detector is represented by a GEO table that gives the name of the element, the shape, position, material, and color (for visualization purposes).  This allows simple changes to the detector configuration to be made without having to edit the RAT source code.
-
-Unlike other RATDB files, geometry files end in .geo rather than .ratdb.  Because of this, when RAT starts, no GEO tables are loaded into memory.  Instead, the program waits until the /run/initialize command is issued, and then loads the geometry file listed in the DETECTOR.geo_file field.  It also optionally loads the geometry file given in the DETECTOR.veto_file field if it exists.  Once these files have been loaded into the database, the detector is constructed from all of the GEO tables currently in memory.
+Unlike other RATDB files, geometry files end in .geo rather than .ratdb.
+Because of this, when RAT starts, no GEO tables are loaded into memory.
+Instead, the program waits until the /run/initialize command is issued, and
+then loads the geometry file listed in the DETECTOR.geo_file field.  It also
+optionally loads the geometry file given in the DETECTOR.veto_file field if it
+exists.  Once these files have been loaded into the database, the detector is
+constructed from all of the GEO tables currently in memory.
 
 Customizing the Geometry in a Macro File
 ````````````````````````````````````````
-
 There are several ways to customize the detector geometry:
 
 Change DETECTOR.geo_file
 ''''''''''''''''''''''''
-
-If you want to make drastic changes to the detector, you should start by copying one of the geometry files (like simple.geo) and editing it.  Then you can add a command like::
+If you want to make drastic changes to the detector, you should start by
+copying one of the geometry files (like simple.geo) and editing it.  Then you
+can add a command like::
 
     /rat/db/set DETECTOR geo_file "mydetector.geo"
 
-to the top of your macro (before /run/initialize).  None of the default geometry will be loaded, just your new file.  Note that this file should be placed in the data directory.
+to the top of your macro (before /run/initialize).  None of the default
+geometry will be loaded, just your new file.  Note that this file should be
+placed in the data directory.
 
 Load an additional geometry file
 ''''''''''''''''''''''''''''''''
 
-Since geometry files are just RATDB files, you can load additional GEO tables using a command like::
+Since geometry files are just RATDB files, you can load additional GEO tables
+using a command like::
 
     /rat/db/load "calibration_source.geo"
 
-This file can contain either completely new detector pieces, or it can override parts of the default geometry.  Make sure you set the validity ranges on the tables to put them in the user plane, otherwise they will be overwritten by the defaults when they are loaded.  Any extra GEO tables you create will be built right along with the defaults when /run/initialize is executed.
+This file can contain either completely new detector pieces, or it can override
+parts of the default geometry.  Make sure you set the validity ranges on the
+tables to put them in the user plane, otherwise they will be overwritten by the
+defaults when they are loaded.  Any extra GEO tables you create will be built
+right along with the defaults when /run/initialize is executed.
 
 Alter individual fields
 '''''''''''''''''''''''
-
-For a very small change, like changing just a few numbers, you can use the commands::
+For a very small change, like changing just a few numbers, you can use the
+commands::
 
     /rat/db/set GEO[av] r_max 2800.0
     /rat/db/set GEO[scint] r_max 2700.0
@@ -40,8 +56,8 @@ Unfortunately, you cannot change array fields using the set command yet.
 
 GEO Table Fields
 ````````````````
-
-GEO tables can contain a wide variety of fields to control the properties of the volume.  The common fields shared by all tables:
+GEO tables can contain a wide variety of fields to control the properties of
+the volume.  The common fields shared by all tables:
 
 ======================  ======================  ===================
 **Field**               **Type**                **Description**
@@ -132,22 +148,25 @@ PMTArray Fields:
 ======================  ==========================  ===================
 
 Creating a parameterized geometry
-`````````````````````````````````		
-Using a ``DetectorFactory`` one can build a DB defined geometry on the fly (less useful),		
-or modify a normal DB defined geometry template (more useful) before the geometry itself is built. 		
-Using only ``.geo`` files there is no nice way to have a property of a geometry component defined 		
-as a formula (a function of other geometry parameters), and no nice way to algorithmically define 		
-components of a scalable geometry, e.g. PMT positions for various photocathode coverage fractions. 		
-		
-The DetectorFactory to use is specified by name in the `DETECTOR` table under the field ``detector_factory`` 		
-and supersedes the ``geo_file`` field if used. If no ``DetectorFactory`` is specified, the ``geo_file`` specified 		
-is loaded as described above. A DetectorFactory should define tables in the DB in the same way a ``.geo`` 		
-file would and make use of ``GeoFactory`` components. 		
+`````````````````````````````````
+Using a ``DetectorFactory`` one can build a DB defined geometry on the fly
+(less useful), or modify a normal DB defined geometry template (more
+useful) before the geometry itself is built. Using only ``.geo`` files
+there is no nice way to have a property of a geometry component defined
+as a formula (a function of other geometry parameters), and no nice way to
+algorithmically define components of a scalable geometry, e.g. PMT
+positions for various photocathode coverage fractions. 
 
-.. code-block::	
+The DetectorFactory to use is specified by name in the `DETECTOR` table under
+the field ``detector_factory`` and supersedes the ``geo_file`` field if used.
+If no ``DetectorFactory`` is specified, the ``geo_file`` specified is loaded as
+described above. A DetectorFactory should define tables in the DB in the same
+way a ``.geo`` file would and make use of ``GeoFactory`` components. 
 
-    /rat/db/set DETECTOR experiment "Validation"		
-    /rat/db/set DETECTOR geo_file "Validation/Valid.geo"		
-		
-Example usage would be to load a normal (statically defined) ``.geo`` file into the DB and modify		
-it as necessary for the dynamic functionality.
+.. code-block::
+
+    /rat/db/set DETECTOR experiment "Validation"
+    /rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+
+Example usage would be to load a normal (statically defined) ``.geo`` file into
+the DB and modify it as necessary for the dynamic functionality.
