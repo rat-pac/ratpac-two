@@ -34,9 +34,9 @@ absorption, etc.  While some of the process names are straightforward enough,
 like "eIoni" and "eBrem," others like "Attenuation" are misleading (implements
 both absorption '''and''' Rayleigh scattering).  As a result of the
 interaction:
- * The energy and momentum of the particle can be altered.
- * The particle can be destroyed.  (AKA "the track is killed")
- * New particles can be created.
+* The energy and momentum of the particle can be altered.
+* The particle can be destroyed.  (AKA "the track is killed")
+* New particles can be created.
 
 However, the type of particle (electron, positron, Gd-153 nucleus, etc) cannot
 change during a track.  New particles always get new tracks.
