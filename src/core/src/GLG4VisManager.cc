@@ -29,6 +29,8 @@
 #include "G4TrajectoryModelFactories.hh"
 #include "G4VRML2File.hh"
 #include "G4Version.hh"
+#include "G4OpenGLImmediateQt.hh"
+#include "G4OpenGLStoredQt.hh"
 
 // Needing external packages or libraries...
 
@@ -60,11 +62,6 @@
 #include "G4OpenInventorX.hh"
 #endif
 
-#ifdef G4VIS_USE_OPENGLQT
-#include "G4OpenGLImmediateQt.hh"
-#include "G4OpenGLStoredQt.hh"
-#endif
-
 #ifdef G4VIS_USE_OIWIN32
 #include "G4OpenInventorWin32.hh"
 #endif
@@ -86,6 +83,8 @@ void GLG4VisManager::RegisterGraphicsSystems() {
   RegisterGraphicsSystem(new G4HepRepFile);
   RegisterGraphicsSystem(new G4RayTracer);
   RegisterGraphicsSystem(new G4VRML2File);
+  RegisterGraphicsSystem(new G4OpenGLImmediateQt);
+  RegisterGraphicsSystem(new G4OpenGLStoredQt);
 
   // Graphics systems needing external packages or libraries...
 
@@ -115,11 +114,6 @@ void GLG4VisManager::RegisterGraphicsSystems() {
 
 #ifdef G4VIS_USE_OIX
   RegisterGraphicsSystem(new G4OpenInventorX);
-#endif
-
-#ifdef G4VIS_USE_OPENGLQT
-  RegisterGraphicsSystem(new G4OpenGLImmediateQt);
-  RegisterGraphicsSystem(new G4OpenGLStoredQt);
 #endif
 
 #ifdef G4VIS_USE_OIWIN32
