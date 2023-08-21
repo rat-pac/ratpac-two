@@ -23,11 +23,17 @@ class ThinnableG4Cerenkov : public G4Cerenkov {
   ThinnableG4Cerenkov();
   void SetThinningFactor(double);
   double GetThinningFactor();
+  void SetLowerWavelengthThreshold(double);
+  double GetLowerWavelengthThreshold();
+  void SetUpperWavelengthThreshold(double);
+  double GetUpperWavelengthThreshold();
   G4VParticleChange *PostStepDoIt(const G4Track &, const G4Step &);
 
  private:
   bool should_thin;
   double thinning_factor;
+  double lower_wavelength_threshold;
+  double upper_wavelength_threshold;
   CLHEP::HepRandom heprandom;
 };
 

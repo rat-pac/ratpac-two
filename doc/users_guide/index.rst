@@ -8,7 +8,6 @@ Table of Contents
 
    overview
    installation
-   tutorials
    command_interface
    producers_processors
    random
@@ -20,7 +19,6 @@ Table of Contents
    pmt
    producers
    processors
-   user_processors
    root_analysis
    tracks
    rattest

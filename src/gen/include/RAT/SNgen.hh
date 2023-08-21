@@ -43,7 +43,7 @@ class SNgen {
   CLHEP::HepLorentzVector GenerateEvent(const G4ThreeVector &nu_dir);
 
   // Flux as a function of energy.  Interpolated from table in ES RATDB table
-  double Flux(float E) const { return rmpflux(E); };
+  double Flux(double E) const { return rmpflux(E); };
 
   void Reset();
   void Show();
@@ -93,7 +93,7 @@ class SNgen {
 
   double GetTime();
   double SetTime();
-  float banana();
+  double banana();
   int n;
 
   //        Float_t q1_f;

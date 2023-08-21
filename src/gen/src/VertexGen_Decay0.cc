@@ -274,7 +274,7 @@ void VertexGen_Decay0::SetState(G4String newValues) {
       Log::Die("VertexGen_Decay0: choose a mode from 1 to 16");
     }
     // arguments : [LoELim] [HiELim]
-    float loE = -1, hiE = -1;
+    double loE = -1, hiE = -1;
     is >> loE >> hiE;
     if (is.fail()) {
       fLoE = 0;

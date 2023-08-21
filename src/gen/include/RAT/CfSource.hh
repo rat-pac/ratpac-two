@@ -79,33 +79,33 @@ class CfSource {
    *  each Cf decay, indexed from 0 to the total number of
    *  neutrons. */
   std::vector<CLHEP::HepLorentzVector> neutronE;
-  std::vector<float> Tneutron;
+  std::vector<double> Tneutron;
 
   /** \var gammaE
    *  Array containing the momentum of the gammas from
    *  each Cf decay, indexed from 0 to the total number of
    *  gammas. */
   std::vector<CLHEP::HepLorentzVector> gammaE;
-  std::vector<float> Tgamma;
+  std::vector<double> Tgamma;
 
   // G4 particle definitions.
   static double massNeutron;
 
   /** The probability density of the prompt neutrons from the Cf
    *  decay as a function of neutron energy. */
-  static float Cf252NeutronSpectrum(const float &x);
+  static double Cf252NeutronSpectrum(const double &x);
 
   /** The probability density of the prompt gammas from the Cf
    *  decay as a function of integer gamma multiplicity (exact). */
-  static float Cf252GammaMultiplicity(const int &x);
+  static double Cf252GammaMultiplicity(const int &x);
 
   /** The probability density of the prompt gammas from the Cf
-   *  decay as a function of float gamma multiplicity (fit). */
-  static float Cf252GammaMultiplicityFit(const float &x);
+   *  decay as a function of double gamma multiplicity (fit). */
+  static double Cf252GammaMultiplicityFit(const double &x);
 
   /** The probability density of the prompt gammas from the Cf
    *  decay as a function of gamma energy. */
-  static float Cf252GammaSpectrum(const float &x);
+  static double Cf252GammaSpectrum(const double &x);
 };
 
 }  // namespace RAT

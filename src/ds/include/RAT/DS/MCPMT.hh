@@ -28,7 +28,7 @@ class MCPMT : public TObject {
   virtual void SetID(Int_t _id) { id = _id; };
 
   /** Charge */
-  virtual Float_t GetCharge() const;
+  virtual Double_t GetCharge() const;
 
   /** Creation process for photon */
   virtual std::string GetCreatorProcess() const;
@@ -51,7 +51,7 @@ class MCPMT : public TObject {
   void PruneNoiseMCPhotons() { photon.erase(std::remove_if(photon.begin(), photon.end(), [](const MCPhoton ph){return ph.IsDarkHit();}), photon.end()); }
   void PruneAfterPulseMCPhotons() { photon.erase(std::remove_if(photon.begin(), photon.end(), [](const MCPhoton ph){return ph.IsAfterPulse();}), photon.end());  }
 
-  ClassDef(MCPMT, 2);
+  ClassDef(MCPMT, 3);
 
  protected:
   Int_t id;
