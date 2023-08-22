@@ -121,7 +121,7 @@ void Materials::LoadOpticalSurfaces() {
         try {
           environment = iv->second->GetS("data_env");
         } catch (DBNotFoundError &e) {}
-        std::string data_base_dir = getenv("RATSHARE") + std::string("/ratdb/");
+        std::string data_base_dir = getenv(environment.c_str()) + std::string("/ratdb/");
         std::string data_path = data_base_dir + data_file;
         info << "Getting dichroic data for Material: " << name 
               << " from file: " << data_path << newline;
