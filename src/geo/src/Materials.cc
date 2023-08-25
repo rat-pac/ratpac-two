@@ -28,10 +28,12 @@ void Materials::LoadOpticalSurfaces() {
   std::map<std::string, G4OpticalSurfaceModel> opticalSurfaceModels;
   opticalSurfaceModels["glisur"] = glisur;
   opticalSurfaceModels["unified"] = unified;
+  opticalSurfaceModels["dichroic"] = dichroic;
 
   std::map<std::string, G4SurfaceType> opticalSurfaceTypes;
   opticalSurfaceTypes["dielectric_metal"] = dielectric_metal;
   opticalSurfaceTypes["dielectric_dielectric"] = dielectric_dielectric;
+  opticalSurfaceTypes["dielectric_dichroic"] = dielectric_dichroic;
   opticalSurfaceTypes["firsov"] = firsov;
   opticalSurfaceTypes["x_ray"] = x_ray;
 
@@ -109,10 +111,43 @@ void Materials::LoadOpticalSurfaces() {
       } catch (DBNotFoundError &e) {
       }
 
+      if (type == dielectric_dichroic){
+        // Dichroic filters need to have a environment variable 
+        // set to the transmission property file, rather than 
+        // declaring a properties table directly.
+        std::string name = std::string(iv->first.c_str());
+        std::string data_file = iv->second->GetS("dichroic_property_file");
+        std::string environment = "RATSHARE";
+        try {
+          environment = iv->second->GetS("data_env");
+        } catch (DBNotFoundError &e) {}
+        std::string data_base_dir = getenv(environment.c_str()) + std::string("/ratdb/");
+        std::string data_path = data_base_dir + data_file;
+        info << "Getting dichroic data for Material: " << name 
+              << " from file: " << data_path << newline;
+        setenv("G4DICHROICDATA", data_path.c_str(), 1);
+      }
+
       G4OpticalSurface *surf = new G4OpticalSurface(iv->first.c_str());
       surf->SetFinish(finish);
       surf->SetModel(model);
-      surf->SetType(type);
+      
+      // when dichroic filter data is read, geant4 emits unguarded printouts, spamming the log. Calls are here:
+      // [https://gitlab.cern.ch/geant4/geant4/-/blob/84a556a9dca683c2d541394a795642ecb4c07a3d/source/materials/src/G4OpticalSurface.cc#L523-562].
+      // This hack temporarily redirects cout to avoid this. Should be reverted if upstream is fixed.
+      if (type == dielectric_dichroic) {
+        std::ofstream devNull("/dev/null");
+        // save cout
+        std::streambuf * oldCout = G4cout.rdbuf();
+        G4cout.rdbuf(devNull.rdbuf());
+        surf->SetType(type);
+        G4cout.rdbuf(oldCout);
+      }
+      else {
+        surf->SetType(type);
+      }
+      
+      
       surf->SetPolish(polish);
 
       surf->SetMaterialPropertiesTable(mat->GetMaterialPropertiesTable());
@@ -403,7 +438,7 @@ G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table, std::string n
 
   if (val1.size() != val2.size()) {
     info << "Array size error in Materials: "
-              << "bad property value sizes" << newline;
+              << "bad property value sizes for " << name << newline;
     return nullptr;
   }
 
