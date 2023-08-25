@@ -176,7 +176,7 @@ bool DecayChain::ReadInputFile(const std::string dName) {
 
   int eP = 0;
   int iChain, iDecay;
-  float weight, tau;
+  double weight, tau;
 
   FILE *inputFile;
 

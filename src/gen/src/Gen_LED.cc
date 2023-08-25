@@ -38,7 +38,7 @@ void Gen_LED::GenerateEvent(G4Event *event) {
   G4ThreeVector normal = -pos.unit();
   G4ThreeVector perp = normal.orthogonal().unit();
 
-  float wavelength;
+  double wavelength;
 
   G4double t0 = NextTime();
 
@@ -121,8 +121,8 @@ void Gen_LED::GenerateEvent(G4Event *event) {
       else
         wavelength = rand_wl->shoot() * (wl_max - wl_min) + wl_min;
 
-      float energy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
-      float momentum = energy;  // GEANT uses momentum in same units as energy
+      double energy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
+      double momentum = energy;  // GEANT uses momentum in same units as energy
 
       double theta;
       if (iso_mode)
@@ -250,7 +250,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
     time_min = time.Min();
     time_max = time.Max();
     int nbins = time.Points();
-    float step = (time_max - time_min) / (nbins - 1) * 0.9999;
+    double step = (time_max - time_min) / (nbins - 1) * 0.9999;
     double *dist_time_intensity = new double[nbins];
     for (int i = 0; i < nbins; i++) dist_time_intensity[i] = time(time_min + i * step);
 
@@ -271,7 +271,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
       angle_min = angle.Min();
       angle_max = angle.Max();
       nbins = angle.Points();
-      float step = (angle_max - angle_min) / (nbins - 1) * 0.9999;
+      double step = (angle_max - angle_min) / (nbins - 1) * 0.9999;
       if (dist_angle_intensity) delete dist_angle_intensity;
       dist_angle_intensity = new double[nbins];
       for (int i = 0; i < nbins; i++) dist_angle_intensity[i] = angle(angle_min + i * step);
@@ -327,7 +327,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
     wl_min = wl.Min();
     wl_max = wl.Max();
     int nbins = wl.Points();
-    float step = (wl_max - wl_min) / (nbins - 1) * 0.9999;
+    double step = (wl_max - wl_min) / (nbins - 1) * 0.9999;
     double *dist_wl_intensity = new double[nbins];
     for (int i = 0; i < nbins; i++) dist_wl_intensity[i] = wl(wl_min + i * step);
 

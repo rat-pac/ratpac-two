@@ -15,8 +15,8 @@ std::string MCPMT::GetCreatorProcess() const {
   return process;
 }
 
-Float_t MCPMT::GetCharge() const {
-  Float_t charge = 0.0;
+Double_t MCPMT::GetCharge() const {
+  Double_t charge = 0.0;
   for (unsigned int i = 0; i < photon.size(); i++) charge += photon[i].GetCharge();
   return charge;
 }

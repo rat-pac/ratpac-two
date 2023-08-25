@@ -70,8 +70,8 @@ class EV : public TObject {
   Double_t GetCalibratedTriggerTime() const { return calibratedTriggerTime; }
 
   /** Total charge in all PMT waveforms (pC). */
-  Float_t GetTotalCharge() const { return qTotal; }
-  void SetTotalCharge(Float_t _qTotal) { qTotal = _qTotal; }
+  Double_t GetTotalCharge() const { return qTotal; }
+  void SetTotalCharge(Double_t _qTotal) { qTotal = _qTotal; }
 
   /** Fit Results **/
   virtual std::vector<FitResult *> GetFitResults() { return fitResults; }
@@ -95,12 +95,12 @@ class EV : public TObject {
   // Prune digitizer information
   virtual void PruneDigitizer() { digitizer.resize(0); }
 
-  ClassDef(EV, 1);
+  ClassDef(EV, 2);
 
  protected:
   Int_t id;
-  Float_t qTotal;
-  Float_t calibratedTriggerTime;
+  Double_t qTotal;
+  Double_t calibratedTriggerTime;
   Double_t deltat;
   TTimeStamp utc;
   std::vector<PMT> pmt;

@@ -211,14 +211,14 @@ class ESgen {
   std::vector<double> fFluxTbl;
 
   /** Recoil upper limit for the electron.*/
-  G4float fEmax;
+  G4double fEmax;
   /** Recoil lower limit for the electron.*/
-  G4float fEmin;
+  G4double fEmin;
 
   /** Recoil upper limit for the electron.*/
-  G4float fEnuMax;
+  G4double fEnuMax;
   /** Recoil lower limit for the electron.*/
-  G4float fEnuMin;
+  G4double fEnuMin;
 
   /** Maximum flux in spectrum shape */
   G4double fFluxMax;

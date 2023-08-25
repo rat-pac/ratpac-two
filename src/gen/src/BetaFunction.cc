@@ -382,8 +382,8 @@ bool BetaFunction::ReadInputFile(const std::string dName, int iZ, int iA, int iT
 
   int iSpin, nP;
   int Z, A;
-  float tau;
-  float iBr, W0, eP[nReadGamma], aC[3];
+  double tau;
+  double iBr, W0, eP[nReadGamma], aC[3];
 
   SetProbabilityCulmulative(true);
 

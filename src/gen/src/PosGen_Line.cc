@@ -32,7 +32,7 @@ void PosGen_Line::SetState(G4String newValues) {
   G4double x1, y1, z1, x2, y2, z2;
   is >> x1 >> y1 >> z1 >> x2 >> y2 >> z2;
   if (is.fail()) {
-    warn << "PosGen_Line::SetState: Could not parse six floats from input string" << newline;
+    warn << "PosGen_Line::SetState: Could not parse six doubles from input string" << newline;
     return;
   }
   fPoint1 = G4ThreeVector(x1, y1, z1);

@@ -120,7 +120,7 @@ CLHEP::HepLorentzVector SNgen::GenerateEvent(const G4ThreeVector &theNeutrino) {
     Nu = GetRandomNumber(0., E);
 
     // Decided whether to draw again based on relative cross-section.
-    float XCtest = XSecNorm * FluxMax * GetRandomNumber(0., 1.);
+    double XCtest = XSecNorm * FluxMax * GetRandomNumber(0., 1.);
     double XCWeight = GetXSec(E, Nu);
     double FluxWeight = rmpflux(E);
     passed = XCWeight * FluxWeight > XCtest;

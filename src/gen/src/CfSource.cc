@@ -48,12 +48,12 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
     static CLHEP::RandGeneral *mGenerate = 0;
     static CLHEP::RandGeneral *gGenerate = 0;
 
-    static const float flow = 0.;
-    static const float fhigh = 50.;
-    static const float mlow = 0.;
-    static const float mhigh = 25.;
-    static const float glow = 0.;
-    static const float ghigh = 25.;
+    static const double flow = 0.;
+    static const double fhigh = 50.;
+    static const double mlow = 0.;
+    static const double mhigh = 25.;
+    static const double glow = 0.;
+    static const double ghigh = 25.;
 
     static bool first = true;
     if (first) {
@@ -79,11 +79,11 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
 #endif
       // Find function values at bin centers.
       for (size_t i = 0; i != probDensSize; i++) {
-        float value = (float(i) + 0.5) * (fhigh - flow) / (float)probDensSize;
+        double value = (double(i) + 0.5) * (fhigh - flow) / (double)probDensSize;
         fspace[i] = Cf252NeutronSpectrum(value);
-        value = (float(i) + 0.5) * (mhigh - mlow) / (float)probDensSize;
+        value = (double(i) + 0.5) * (mhigh - mlow) / (double)probDensSize;
         mspace[i] = Cf252GammaMultiplicityFit(value);
-        value = (float(i) + 0.5) * (ghigh - glow) / (float)probDensSize;
+        value = (double(i) + 0.5) * (ghigh - glow) / (double)probDensSize;
         gspace[i] = Cf252GammaSpectrum(value);
 #ifdef DEBUG
         debug << "   i=" << i << " f,m,g=" << fspace[i] << "," << mspace[i] << "," << gspace[i] << newline;
@@ -115,7 +115,7 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
     bool passed = false;
 
     while (!passed) {
-      float r = CLHEP::RandFlat::shoot();  // Random number from 0 to 1.
+      double r = CLHEP::RandFlat::shoot();  // Random number from 0 to 1.
 
       for (int i = 0; i < maxNeutron + 1; i++) {
         if (p[i] > r && !passed) {
@@ -196,7 +196,7 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
       tote += energy;
 
       const size_t len2 = 2;
-      float rv[len2];
+      double rv[len2];
       for (size_t i = 0; i < len2; i++) rv[i] = CLHEP::RandFlat::shoot();
       //
       // 80% of gammas have T_1/2 = 0.01 ns and 20% have T_1/2 = 1 ns
@@ -247,15 +247,15 @@ CfSource &CfSource::operator=(const CfSource &rhs) {
   return *this;
 }
 
-float CfSource::Cf252NeutronSpectrum(const float &x) {
+double CfSource::Cf252NeutronSpectrum(const double &x) {
   // return the neutron spectrum N(x)
-  float N = 0.;
+  double N = 0.;
 
-  float scale = 1 / (2 * M_PI * 0.359);
+  double scale = 1 / (2 * M_PI * 0.359);
   // info << "scale " << scale << newline;
 
-  float fminus = exp(-(sqrt(x) - sqrt(0.359)) * (sqrt(x) - sqrt(0.359)) / 1.175);
-  float fplus = exp(-(sqrt(x) + sqrt(0.359)) * (sqrt(x) + sqrt(0.359)) / 1.175);
+  double fminus = exp(-(sqrt(x) - sqrt(0.359)) * (sqrt(x) - sqrt(0.359)) / 1.175);
+  double fplus = exp(-(sqrt(x) + sqrt(0.359)) * (sqrt(x) + sqrt(0.359)) / 1.175);
 
   N = scale * (fminus - fplus);
 
@@ -263,7 +263,7 @@ float CfSource::Cf252NeutronSpectrum(const float &x) {
   return N;
 }
 
-float CfSource::Cf252GammaMultiplicity(const int &x) {
+double CfSource::Cf252GammaMultiplicity(const int &x) {
   // return the gamma multiplicity M(x)
   double M = 0.;
 
@@ -286,12 +286,12 @@ long long factorial(int n) {
     return n * factorial(n - 1);
 }
 
-float CfSource::Cf252GammaMultiplicityFit(const float &x) {
+double CfSource::Cf252GammaMultiplicityFit(const double &x) {
   // return the gamma multiplicity M(x)
   double M = 0.;
 
-  float gaussian = 0.13345 * exp(-0.5 * ((x - 7.0322) / 2.6301) * ((x - 7.0322) / 2.6301));
-  float exponential = 0.11255 * (exp(-(sqrt(x) - sqrt(7.5987)) * (sqrt(x) - sqrt(7.5987)) / 0.56213));
+  double gaussian = 0.13345 * exp(-0.5 * ((x - 7.0322) / 2.6301) * ((x - 7.0322) / 2.6301));
+  double exponential = 0.11255 * (exp(-(sqrt(x) - sqrt(7.5987)) * (sqrt(x) - sqrt(7.5987)) / 0.56213));
 
   if (x <= 9.0) {
     M = gaussian;
@@ -304,12 +304,12 @@ float CfSource::Cf252GammaMultiplicityFit(const float &x) {
   return M;
 }
 
-float CfSource::Cf252GammaSpectrum(const float &x) {
+double CfSource::Cf252GammaSpectrum(const double &x) {
   // return the gamma spectrum N(x)
-  float N = 0.;
+  double N = 0.;
 
-  float gaussian = 1.8367 * exp(-0.5 * ((x - 0.45934) / 0.31290) * ((x - 0.45934) / 0.31290));
-  float exponential = exp(0.84774 - 0.89396 * x);
+  double gaussian = 1.8367 * exp(-0.5 * ((x - 0.45934) / 0.31290) * ((x - 0.45934) / 0.31290));
+  double exponential = exp(0.84774 - 0.89396 * x);
 
   if (x <= 0.744) {
     N = gaussian;

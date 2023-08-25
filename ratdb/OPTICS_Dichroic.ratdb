@@ -1,0 +1,40 @@
+// ----------Mateiral Properties For Dichroic Filters----------------
+{
+name: "OPTICS",
+index: "longpass_dichroic_placeholder",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+surface: 1,
+finish: "polished",
+model: "dichroic",
+type: "dielectric_dichroic",
+dichroic_property_file: "dichroic_data/knight_longpass_480nm_from_manufacturer.dat",
+polish: 0,
+RINDEX_option: "wavelength",
+RINDEX_value1: [60.0, 800.0],
+RINDEX_value2: [1.458, 1.458],
+ABSLENGTH_option: "wavelength",
+ABSLENGTH_value1: [60.0, 800.0],
+ABSLENGTH_value2: [1.0e3, 1.0e3], // Assuming no absorption
+PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
+}
+
+{
+name: "OPTICS",
+index: "shortpass_dichroic_placeholder",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+surface: 1,
+finish: "polished",
+model: "dichroic",
+type: "dielectric_dichroic",
+dichroic_property_file: "dichroic_data/knight_shortpass_450nm_from_manufacturer.dat",
+polish: 0,
+RINDEX_option: "wavelength",
+RINDEX_value1: [60.0, 800.0],
+RINDEX_value2: [1.458, 1.458],
+ABSLENGTH_option: "wavelength",
+ABSLENGTH_value1: [60.0, 800.0],
+ABSLENGTH_value2: [1.0e3, 1.0e3], // Assuming no absorption
+PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
+}

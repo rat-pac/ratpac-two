@@ -73,9 +73,6 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("pmtU", &pmtU);
   metaTree->Branch("pmtV", &pmtV);
   metaTree->Branch("pmtW", &pmtW);
-  metaTree->Branch("experiment", &experiment);
-  metaTree->Branch("geo_file", &geo_file);
-  metaTree->Branch("geo_index", &geo_index);
   this->AssignAdditionalMetaAddresses();
   dsentries = 0;
   // Data Tree
@@ -439,19 +436,6 @@ OutNtupleProc::~OutNtupleProc() {
 
   if (outputFile) {
     outputFile->cd();
-
-    DB *db = DB::Get();
-    DBLinkPtr ldetector = db->GetLink("DETECTOR");
-    experiment = ldetector->GetS("experiment");
-    geo_file = ldetector->GetS("geo_file");
-    try {
-      geo_index = ldetector->GetD("geo_index");
-    }
-    catch (DBNotFoundError& e) {
-      info << "Geometry index not found." << newline;
-      // Set invalid
-      geo_index = -9999;
-    }
 
     DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
     for (int id = 0; id < pmtinfo->GetPMTCount(); id++) {
