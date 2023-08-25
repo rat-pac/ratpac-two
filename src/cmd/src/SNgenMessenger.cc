@@ -90,7 +90,7 @@ void SNgenMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
     int MAmpl = int(ModelCmd->GetNewDoubleValue(newValue));
     sngen->SetModel(MAmpl);
   } else {
-    G4cerr << "Error: Invalid SNgenMessenger \"set\" command" << G4endl;
+    RAT::warn << "Error: Invalid SNgenMessenger \"set\" command" << newline;
   }
 }
 

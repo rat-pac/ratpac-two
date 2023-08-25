@@ -34,6 +34,8 @@
 #include "local_g4compat.hh"
 #include "meshdefs.hh"
 
+#include "RAT/Log.hh"
+
 // debugging
 #ifdef DEBUG_GLG4TorusStack
 #undef DEBUG_GLG4TorusStack
@@ -150,9 +152,9 @@ void GLG4TorusStack::SetAllParameters(G4int n_,                  // number of Z-
         if (rho_edge[i] < a[i] - radTolerance || rho_edge[i + 1] < a[i] - radTolerance) {
           b[i] = -b[i];
         } else {
-          std::cerr << "Warning: ambiguous toroid segment curvature in "
+          RAT::warn << "Warning: ambiguous toroid segment curvature in "
                        "GLG4TorusStack!"
-                    << std::endl;
+                    << newline;
         }
       }
     }
@@ -191,12 +193,12 @@ void GLG4TorusStack::CheckABRho() {
       // make sure both rho_edges are >= a[i]
       if (rho_edge[i] < a[i]) {
         if (fabs(a[i] - rho_edge[i]) > max_rho * 1e-3 + radTolerance)
-          std::cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
+          RAT::warn << "Warning: GLG4TorusStack making sizeable adjustment to "
                        "rho_edge["
                     << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (1)\n";
 #ifdef G4DEBUG
         else
-          std::cerr << "Debug info: GLG4TorusStack making small adjustment to "
+          RAT::debug << "Debug info: GLG4TorusStack making small adjustment to "
                        "rho_edge["
                     << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (1a)\n";
 #endif
@@ -205,12 +207,12 @@ void GLG4TorusStack::CheckABRho() {
       }
       if (rho_edge[i + 1] < a[i]) {
         if (fabs(a[i] - rho_edge[i + 1]) > max_rho * 1e-3 + radTolerance)
-          std::cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
+          RAT::warn << "Warning: GLG4TorusStack making sizeable adjustment to "
                        "rho_edge["
                     << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (2)\n";
 #ifdef G4DEBUG
         else
-          std::cerr << "Debug info: GLG4TorusStack making small adjustment to "
+          RAT::debug << "Debug info: GLG4TorusStack making small adjustment to "
                        "rho_edge["
                     << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (2a)\n";
 #endif
@@ -221,12 +223,12 @@ void GLG4TorusStack::CheckABRho() {
       // make sure both rho_edges are <= a[i]
       if (rho_edge[i] > a[i]) {
         if (fabs(a[i] - rho_edge[i]) > max_rho * 1e-3 + radTolerance)
-          std::cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
+          RAT::warn << "Warning: GLG4TorusStack making sizeable adjustment to "
                        "rho_edge["
                     << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (3)\n";
 #ifdef G4DEBUG
         else
-          std::cerr << "Debug info: GLG4TorusStack making small adjustment to "
+          RAT::warn << "Debug info: GLG4TorusStack making small adjustment to "
                        "rho_edge["
                     << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (3a)\n";
 #endif
@@ -235,12 +237,12 @@ void GLG4TorusStack::CheckABRho() {
       }
       if (rho_edge[i + 1] > a[i]) {
         if (fabs(a[i] - rho_edge[i + 1]) > max_rho * 1e-3 + radTolerance)
-          std::cerr << "Warning: GLG4TorusStack making sizeable adjustment to "
+          RAT::warn << "Warning: GLG4TorusStack making sizeable adjustment to "
                        "rho_edge["
                     << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (4)\n";
 #ifdef G4DEBUG
         else
-          std::cerr << "Debug info: GLG4TorusStack making small adjustment to "
+          RAT::debug << "Debug info: GLG4TorusStack making small adjustment to "
                        "rho_edge["
                     << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (4a)\n";
 #endif
@@ -257,7 +259,7 @@ void GLG4TorusStack::CheckABRho() {
 // computation & modification.
 
 void GLG4TorusStack::ComputeDimensions(G4VPVParameterisation *, const G4int, const G4VPhysicalVolume *) {
-  std::cerr << "Warning: ComputeDimensions is not defined for GLG4TorusStack. "
+  RAT::warn << "Warning: ComputeDimensions is not defined for GLG4TorusStack. "
                "It shouldn't be called.\n";
   // but note that G4Polycone just silently ignores calls to ComputeDimensions!
   // ComputeDimensions seems to be unimplemented in all classes -- just
@@ -758,11 +760,9 @@ G4ThreeVector GLG4TorusStack::SurfaceNormal(const G4ThreeVector &p) const {
     if (b[i] < 0.0)  // handle concave surface
       norm = -norm;
     if ((b[i] < 0.0) != (dr < 0.0)) {
-      std::cout.flush();
-      std::cerr << "Warning from GLG4TorusStack::SurfaceNormal: position "
+      RAT::warn << "Warning from GLG4TorusStack::SurfaceNormal: position "
                    "inconsistent with concavity\n\tb[i]="
-                << b[i] << " but a[i]=" << a[i] << " and pr=" << pr << std::endl;
-      std::cerr.flush();
+                << b[i] << " but a[i]=" << a[i] << " and pr=" << pr << newline;
     }
   }
 
@@ -1067,7 +1067,7 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
 
 #ifdef G4DEBUG
   if (dist_to_out >= kInfinity) {
-    std::cerr << "WARNING from GLG4TorusStack::DistanceToOut: "
+    RAT::debug << "WARNING from GLG4TorusStack::DistanceToOut: "
                  "did not find an intercept with the track!\n";
   }
 #endif
@@ -1103,24 +1103,20 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
           *norm = -*norm;
         *validNorm = true; /* (b[isurface] > 0.0); */
         if (dr != 0.0 && (b[isurface] < 0.0) != (dr < 0.0)) {
-          std::cout.flush();
-          std::cerr << "Warning from GLG4TorusStack::DistanceToOut (surface "
+          RAT::warn << "Warning from GLG4TorusStack::DistanceToOut (surface "
                        "normal calculation): position inconsistent with "
                        "concavity\n\tb[isurface]="
-                    << b[isurface] << " but a[isurface]=" << a[isurface] << " and pr=" << pr << std::endl;
-          std::cerr.flush();
+                    << b[isurface] << " but a[isurface]=" << a[isurface] << " and pr=" << pr << newline;
         }
       }
     }
     if ((*norm) * v <= 0.0) {
-      std::cout.flush();
-      std::cerr << "Warning from GLG4TorusStack::DistanceToOut: I have calculated "
+      G4cerr << "Warning from GLG4TorusStack::DistanceToOut: I have calculated "
                    "a normal that is antiparallel to the momentum std::vector!  I must "
                    "have done something wrong! isurface="
                 << isurface << " a[isurface]=" << a[isurface] << " b[isurface]=" << b[isurface] << " v=" << v
-                << " norm=" << (*norm) << std::endl;
+                << " norm=" << (*norm) << newline;
       *norm = -*norm;
-      std::cerr.flush();
     }
   }
 
@@ -1314,7 +1310,7 @@ GLG4PolyhedronTorusStack::GLG4PolyhedronTorusStack(const G4int n, const G4double
   //   C H E C K   I N P U T   P A R A M E T E R S
 
   if (n <= 0) {
-    std::cerr << "Error: bad parameters in GLG4PolyhedronTorusStack!" << std::endl;
+    RAT::warn << "Error: bad parameters in GLG4PolyhedronTorusStack!" << newline;
     G4Exception(__FILE__, "Invalid Parameter", FatalException, "GLG4PolyhedronTorusStack: bad parameters!");
   }
 

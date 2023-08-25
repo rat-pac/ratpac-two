@@ -16,6 +16,8 @@
 #include <RAT/BWVetGenericChamber.hh>
 #include <RAT/BWVetGenericChamberHit.hh>
 
+#include <RAT/Log.hh>
+
 namespace RAT {
 
 BWVetGenericChamber::BWVetGenericChamber(G4String name) : G4VSensitiveDetector(name) {
@@ -28,16 +30,16 @@ BWVetGenericChamber::~BWVetGenericChamber() { ; }
 
 void BWVetGenericChamber::Initialize(G4HCofThisEvent *HCE) {
   int deb = 0;  // G4int(db["veto_debugging"]);
-  if (deb != 0) std::cout << "BWVetGenericChamber::Initialize start." << std::endl;
+  if (deb) RAT::debug << "BWVetGenericChamber::Initialize start." << newline;
   _hitsCollection = new BWVetGenericChamberHitsCollection(SensitiveDetectorName, collectionName[0]);
 
-  if (deb != 0) {
-    std::cout << "BWVetGenericChamber::Initialize hit collection address is " << _hitsCollection << std::endl;
+  if (deb) {
+    RAT::debug << "BWVetGenericChamber::Initialize hit collection address is " << _hitsCollection << newline;
   }
   if (HCID < 0) {
     HCID = G4SDManager::GetSDMpointer()->GetCollectionID(_hitsCollection);
   }
-  if (deb != 0) std::cout << "BWVetGenericChamber::Initialize hit collection ID = " << HCID << std::endl;
+  if (deb) RAT::debug << "BWVetGenericChamber::Initialize hit collection ID = " << HCID << newline;
   HCE->AddHitsCollection(HCID, _hitsCollection);
 
   // store pointer to hit collection
@@ -58,7 +60,7 @@ void BWVetGenericChamber::Initialize(G4HCofThisEvent *HCE) {
   _hit_volume.clear();
   fLastTrackID = fLastEventID = -1;
 
-  if (deb != 0) std::cout << "BWVetGenericChamber::Initialize end." << std::endl;
+  if (deb) RAT::debug << "BWVetGenericChamber::Initialize end." << newline;
 }
 
 G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*ROhist*/) {
@@ -68,14 +70,14 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
 
   int deb = 0;  // G4int(db["veto_debugging"]);
 
-  if (deb != 0) {
-    std::cout << "BWVetGenericChamber::ProcessHits start." << std::endl;
-    std::cout << "BWVetGenericChamber::ProcessHits getting energy deposited." << std::endl;
+  if (deb) {
+    RAT::debug << "BWVetGenericChamber::ProcessHits start." << newline;
+    RAT::debug << "BWVetGenericChamber::ProcessHits getting energy deposited." << newline;
   }
   G4double edep = aStep->GetTotalEnergyDeposit();
   G4double dl = aStep->GetStepLength();
 
-  if (deb) std::cout << "   Energy deposited: " << edep << std::endl;
+  if (deb) RAT::debug << "   Energy deposited: " << edep << newline;
 
   //   if(edep==0.) return true;
 
@@ -84,11 +86,11 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
   int pdg = part->GetPDGEncoding();
 
   if (deb)
-    std::cout << "  track information: " << std::endl
-              << "    G4Track Pointer: " << aTrack << G4endl << "    Particle Definition Pointer: " << part << std::endl
-              << "    Particle PDG Encoding: " << pdg << G4endl;
+    RAT::debug << "  track information: " << newline
+              << "    G4Track Pointer: " << aTrack << newline << "    Particle Definition Pointer: " << part << newline
+              << "    Particle PDG Encoding: " << pdg << newline;
 
-  if (deb) std::cout << "BWVetGenericChamber::ProcessHits getting global time." << std::endl;
+  if (deb) RAT::debug << "BWVetGenericChamber::ProcessHits getting global time." << newline;
   G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
   G4Material *m = preStepPoint->GetMaterial();
   G4String mname = m->GetName();
@@ -109,10 +111,10 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
   G4int idOffset = 1;
   uid = 0;
 
-  if (deb != 0) std::cout << "History level: " << theTouchable->GetHistoryDepth() << std::endl;
+  if (deb) RAT::debug << "History level: " << theTouchable->GetHistoryDepth() << newline;
 
   while (ivol < theTouchable->GetHistoryDepth()) {
-    if (deb != 0) std::cout << " * volume layer level = " << ivol << std::endl;
+    if (deb) RAT::debug << " * volume layer level = " << ivol << newline;
     uid += theTouchable->GetVolume(ivol)->GetCopyNo() * idOffset;
     idOffset *= 100;
     ivol++;
@@ -120,31 +122,31 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
 
   G4ThreeVector worldPos = preStepPoint->GetPosition();
 
-  if (deb != 0) {
-    std::cout << "Hit material name " << mname << std::endl;
-    std::cout << "density           " << d << std::endl;
-    std::cout << "formula           " << f << std::endl;
-    std::cout << "edep " << G4BestUnit(edep, "Energy") << std::endl;
-    std::cout << "dl " << G4BestUnit(dl, "Length") << std::endl;
-    std::cout << "pid " << pdg << std::endl;
-    std::cout << "Position " << G4BestUnit(worldPos.x(), "Length") << " " << G4BestUnit(worldPos.y(), "Length") << " "
-              << G4BestUnit(worldPos.z(), "Length") << " " << std::endl;
+  if (deb) {
+    RAT::debug << "Hit material name " << mname << newline;
+    RAT::debug << "density           " << d << newline;
+    RAT::debug << "formula           " << f << newline;
+    RAT::debug << "edep " << G4BestUnit(edep, "Energy") << newline;
+    RAT::debug << "dl " << G4BestUnit(dl, "Length") << newline;
+    RAT::debug << "pid " << pdg << newline;
+    RAT::debug << "Position " << G4BestUnit(worldPos.x(), "Length") << " " << G4BestUnit(worldPos.y(), "Length") << " "
+              << G4BestUnit(worldPos.z(), "Length") << " " << newline;
 
-    std::cout << " " << std::endl;
+    RAT::debug << " " << newline;
   }
 
   G4double hitTime = preStepPoint->GetGlobalTime();
 
-  if (deb != 0)
-    std::cout << "BWVetGenericChamber::ProcessHits checking for an existing hit "
+  if (deb)
+    RAT::debug << "BWVetGenericChamber::ProcessHits checking for an existing hit "
                  "in this element."
-              << std::endl;
+              << newline;
   // check if this finger already has a hit
   G4int ix = -1;
 
-  if (deb != 0) {
-    std::cout << "BWVetGenericChamber::ProcessHits hit collection address is " << _hitsCollection << std::endl;
-    std::cout << "BWVetGenericChamber: Hit ID = " << uid << " and position: " << worldPos << std::endl;
+  if (deb) {
+    RAT::debug << "BWVetGenericChamber::ProcessHits hit collection address is " << _hitsCollection << newline;
+    G4cerr << "BWVetGenericChamber: Hit ID = " << uid << " and position: " << worldPos << newline;
   }
 
   int eventID = G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEvent();
@@ -171,31 +173,31 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
   /*G4int hitfreq = G4int(db["veto_hit_frequency"]);*/
 
   if (NULL == _hitsCollection) {
-    if (deb != 0)
-      std::cout << "BWVetGenericChamber::ProcessHits hit collection null. "
+    if (deb)
+      RAT::debug << "BWVetGenericChamber::ProcessHits hit collection null. "
                    "Reloading from HCofEThisEvent."
-                << std::endl;
+                << newline;
     if (_HCE) {
       _hitsCollection = (BWVetGenericChamberHitsCollection *)(_HCE->GetHC(HCID));
-      if (deb != 0) {
-        std::cout << "BWVetGenericChamber::ProcessHits   * hit collection address is " << _hitsCollection << std::endl;
+      if (deb) {
+        RAT::debug << "BWVetGenericChamber::ProcessHits   * hit collection address is " << _hitsCollection << newline;
       }
     } else {
-      if (deb != 0)
-        std::cout << "BWVetGenericChamber::ProcessHits   (E) HCofEThisEvent "
+      if (deb)
+        RAT::debug << "BWVetGenericChamber::ProcessHits   (E) HCofEThisEvent "
                      "pointer is NULL!"
-                  << std::endl;
+                  << newline;
     }
   }
 
   if (_hitsCollection) {
     for (G4int i = 0; i < _hitsCollection->entries(); i++) {
-      // 	std::cout << "  * BWVetGenericChamber::ProcessHits checking hit "
+      // 	RAT::debug << "  * BWVetGenericChamber::ProcessHits checking hit "
       // 	       << i + 1
       // 	       << " of "
       // 	       << _hitsCollection->entries()
-      // 	       << std::endl;
-      if (deb != 0) std::cout << "  * this hit ID is " << (*_hitsCollection)[i]->GetID() << std::endl;
+      // 	       << newline;
+      if (deb) RAT::debug << "  * this hit ID is " << (*_hitsCollection)[i]->GetID() << newline;
       if ((*_hitsCollection)[i]->GetID() == uid) {
         ix = i;
         break;
@@ -204,17 +206,17 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
 
     // if it has, then take the earlier time
     if (ix >= 0) {
-      if (deb != 0)
-        std::cout << "BWVetGenericChamber::ProcessHits use existing earlier time "
+      if (deb)
+        RAT::debug << "BWVetGenericChamber::ProcessHits use existing earlier time "
                      "for hit."
-                  << std::endl;
+                  << newline;
       if ((*_hitsCollection)[ix]->GetTime() > hitTime) {
         (*_hitsCollection)[ix]->SetTime(hitTime);
       }
     } else
     // if not, create a new hit and std::set it to the collection
     {
-      if (deb != 0) std::cout << "BWVetGenericChamber::ProcessHits creating a new hit." << std::endl;
+      if (deb) RAT::debug << "BWVetGenericChamber::ProcessHits creating a new hit." << newline;
       BWVetGenericChamberHit *aHit = new BWVetGenericChamberHit(uid, hitTime);
       G4VPhysicalVolume *thePhysical = theTouchable->GetVolume();
       aHit->SetLogV(thePhysical->GetLogicalVolume());
@@ -225,10 +227,10 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
       _hitsCollection->insert(aHit);
       aHit->Print();
       aHit->Draw();
-      if (deb != 0) std::cout << "  * Drawing Hit " << uid << std::endl;
+      if (deb) RAT::debug << "  * Drawing Hit " << uid << newline;
     }
   }
-  if (deb != 0) std::cout << "BWVetGenericChamber::ProcessHits end." << std::endl;
+  if (deb) RAT::debug << "BWVetGenericChamber::ProcessHits end." << newline;
   return true;
 }
 

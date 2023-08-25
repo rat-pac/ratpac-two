@@ -82,7 +82,7 @@ void MiniSim::UserSteppingAction(const G4Step *aStep) {
              << " type=" << track->GetDefinition()->GetParticleName()
              << "\n volume=" << (pv != 0 ? pv->GetName() : G4String("NULL"))
              << " last_process=" << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
-             << "\n position=" << track->GetPosition() << " momentum=" << track->GetMomentum() << G4endl;
+             << "\n position=" << track->GetPosition() << " momentum=" << track->GetMomentum() << newline;
       track->SetTrackStatus(fStopAndKill);
       num_zero_steps_in_a_row = 0;
     }
@@ -97,7 +97,7 @@ void MiniSim::UserSteppingAction(const G4Step *aStep) {
            << " step_no=" << track->GetCurrentStepNumber() << " type=" << track->GetDefinition()->GetParticleName()
            << "\n volume=" << (pv != 0 ? pv->GetName() : G4String("NULL"))
            << " last_process=" << (lastproc != 0 ? lastproc->GetProcessName() : G4String("NULL"))
-           << "\n position=" << track->GetPosition() << " momentum=" << track->GetMomentum() << G4endl;
+           << "\n position=" << track->GetPosition() << " momentum=" << track->GetMomentum() << newline;
     track->SetTrackStatus(fStopAndKill);
   }
 

@@ -109,7 +109,7 @@ G4VParticleChange *GLG4OpAttenuation::PostStepDoIt(const G4Track &aTrack, const 
     G4double CosTheta = 4.0 * urand / (3.0 - Cos2Theta0);
 #ifdef G4DEBUG
     if (fabs(CosTheta) > 1.0) {
-      cerr << "GLG4OpAttenution: Warning, CosTheta=" << CosTheta << " urand=" << urand << endl;
+      RAT::debug << "GLG4OpAttenution: Warning, CosTheta=" << CosTheta << " urand=" << urand << newline;
       CosTheta = CosTheta > 0.0 ? 1.0 : -1.0;
     }
 #endif
@@ -130,13 +130,13 @@ G4VParticleChange *GLG4OpAttenuation::PostStepDoIt(const G4Track &aTrack, const 
 
     postStepPoint->SetProcessDefinedStep(&fgScattering);
   } else {
-    // photon absorbed (may be re-radiated... but that is GLG4Scint's job)
-    aParticleChange.ProposeTrackStatus(fStopAndKill);
-    postStepPoint->SetProcessDefinedStep(&fgAttenuation);
+      // photon absorbed (may be re-radiated... but that is GLG4Scint's job)
+      aParticleChange.ProposeTrackStatus(fStopAndKill);
+      postStepPoint->SetProcessDefinedStep(&fgAttenuation);
 
-    if (verboseLevel > 0) {
-      G4cout << "\n** Photon absorbed! **" << G4endl;
-    }
+      if (verboseLevel > 0) {
+        RAT::debug << "\n** Photon absorbed! **" << newline;
+      }
   }
 
   return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);

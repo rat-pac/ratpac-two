@@ -50,7 +50,7 @@ void IsotopeMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
     double e = ECmd->GetNewDoubleValue(newValue);
     isotope->SetIsotopeE(e);
   } else {
-    G4cerr << "Error: Invalid IsotopeMessenger \"set\" command" << G4endl;
+    RAT::warn << "Error: Invalid IsotopeMessenger \"set\" command" << newline;
   }
 }
 

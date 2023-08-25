@@ -38,7 +38,7 @@ G4VPhysicalVolume *PMTCoverageFactory::Construct(DBLinkPtr table) {
     Nphibins = int(sqrt(num_pmt * CLHEP::pi));
     Npmt = Ncosbins * Nphibins;
 
-    info << "PMTCoverageFactory: Generated " << Npmt << "PMTs" << endl;
+    info << "PMTCoverageFactory: Generated " << Npmt << "PMTs" << newline;
 
     std::vector<double> xpmt(Npmt);
     std::vector<double> ypmt(Npmt);

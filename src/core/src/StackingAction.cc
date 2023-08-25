@@ -29,13 +29,13 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track *track
 #ifdef debug_dicebox
 
   if (nameParticle != "opticalphoton" && track->GetParentID() == 1) {
-    G4cout << "*******************************" << G4endl;
-    G4cout << "      Classify new track       " << G4endl;
-    G4cout << "*******************************" << G4endl;
+    RAT::debug << "*******************************" << newline;
+    RAT::debug << "      Classify new track       " << newline;
+    RAT::debug << "*******************************" << newline;
 
-    G4cout << "(name, parentID,trackID,stepID,status) : (" << par->GetParticleName() << "," << track->GetParentID()
+    RAT::debug << "(name, parentID,trackID,stepID,status) : (" << par->GetParticleName() << "," << track->GetParentID()
            << "," << track->GetTrackID() << "," << track->GetCurrentStepNumber() << "," << track->GetTrackStatus()
-           << ")" << G4endl;
+           << ")" << newline;
   }
 
 #endif

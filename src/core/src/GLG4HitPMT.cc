@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <limits>
 
+#include "RAT/Log.hh"
+
 #ifdef G4DEBUG
 #define IFDEBUG(A) A
 #else
@@ -81,17 +83,17 @@ void GLG4HitPMT::DetectPhoton(GLG4HitPhoton *new_photon) {
       it1--;  // it1 photon should be earlier than photon to be added
       if (new_photon->GetTime() - (*it1)->GetTime() < kMergeTime) {
         // close to earlier photon -- merge with earlier photon
-        IFDEBUG(if (new_photon->GetTime() - (*it1)->GetTime() < 0.0) G4cerr
+        IFDEBUG(if (new_photon->GetTime() - (*it1)->GetTime() < 0.0) RAT::debug
                 << "GLG4HitPMT STRANGE merge " << new_photon->GetTime() << " with non-earlier photon "
-                << (*it1)->GetTime() << G4endl);
+                << (*it1)->GetTime() << newline);
         (*it1)->AddCount(new_photon->GetCount());
         delete new_photon;
         new_photon = 0;
       } else if (it2 != fPhotons.end() && (*it2)->GetTime() - new_photon->GetTime() < kMergeTime) {
         // not after last photon, and close to later photon
-        IFDEBUG(if ((*it2)->GetTime() - new_photon->GetTime() < 0.0) G4cerr
+        IFDEBUG(if ((*it2)->GetTime() - new_photon->GetTime() < 0.0) RAT::debug
                 << "GLG4HitPMT STRANGE merge " << new_photon->GetTime() << " with non-later photon "
-                << (*it2)->GetTime() << G4endl);
+                << (*it2)->GetTime() << newline);
         (*it2)->AddCount(new_photon->GetCount());
         (*it2)->SetTime(new_photon->GetTime());
         delete new_photon;
@@ -111,22 +113,22 @@ void GLG4HitPMT::SortTimeAscending() {
 
 /// print out HitPhotons.
 void GLG4HitPMT::Print(std::ostream &os, bool fullDetailsMode) {
-  os << " PMTID= " << fID << "  number of HitPhotons = " << fPhotons.size() << G4endl;
+  os << " PMTID= " << fID << "  number of HitPhotons = " << fPhotons.size() << newline;
   if (fullDetailsMode == false) {
     for (size_t i = 0; i < fPhotons.size(); i++)
-      os << "  Hit time= " << fPhotons[i]->GetTime() << " count= " << fPhotons[i]->GetCount() << G4endl;
+      os << "  Hit time= " << fPhotons[i]->GetTime() << " count= " << fPhotons[i]->GetCount() << newline;
   } else {
     for (size_t i = 0; i < fPhotons.size(); i++) {
-      os << "  Hit time= " << fPhotons[i]->GetTime() << G4endl;
-      os << "      count= " << fPhotons[i]->GetCount() << G4endl;
-      os << "      wavelength= " << fPhotons[i]->GetWavelength() << G4endl;
+      os << "  Hit time= " << fPhotons[i]->GetTime() << newline;
+      os << "      count= " << fPhotons[i]->GetCount() << newline;
+      os << "      wavelength= " << fPhotons[i]->GetWavelength() << newline;
       double x, y, z;
       fPhotons[i]->GetPosition(x, y, z);
-      os << "      position= " << x << " " << y << " " << z << G4endl;
+      os << "      position= " << x << " " << y << " " << z << newline;
       fPhotons[i]->GetMomentum(x, y, z);
-      os << "      momentum= " << x << " " << y << " " << z << G4endl;
+      os << "      momentum= " << x << " " << y << " " << z << newline;
       fPhotons[i]->GetPolarization(x, y, z);
-      os << "      polarization= " << x << " " << y << " " << z << G4endl;
+      os << "      polarization= " << x << " " << y << " " << z << newline;
     }
   }
 }
