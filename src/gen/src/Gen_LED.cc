@@ -35,7 +35,14 @@ Gen_LED::~Gen_LED() {
 void Gen_LED::GenerateEvent(G4Event *event) {
   // Get information on next LED to fire
   G4ThreeVector pos(led_x[next_led] * CLHEP::mm, led_y[next_led] * CLHEP::mm, led_z[next_led] * CLHEP::mm);
-  G4ThreeVector normal = -pos.unit();
+  G4ThreeVector normal(led_u[next_led], led_v[next_led], led_w[next_led]);
+  if (fire_at_target) {
+    G4ThreeVector target(target_x[next_led] * CLHEP::mm, target_y[next_led] * CLHEP::mm,
+                  target_z[next_led] * CLHEP::mm);
+    // Vector from pos to target
+    normal = (target - pos).unit();
+  }
+  normal = normal.unit();
   G4ThreeVector perp = normal.orthogonal().unit();
 
   double wavelength;
@@ -63,10 +70,12 @@ void Gen_LED::GenerateEvent(G4Event *event) {
 
       for (int i = 0; i < photons_per_LED[iLED]; i++) {
         double t1 = 0;
-        if (unif_mode)
+        if (unif_mode) {
           t1 = 0;
-        else
+        }
+        else {
           t1 = rand_time->shoot() * (time_max - time_min) + time_min;
+        }
         if (mono_wl_mode)
           wavelength = led_wavelength[iLED];  // nm
         else
@@ -112,9 +121,13 @@ void Gen_LED::GenerateEvent(G4Event *event) {
       double t1 = 0;
 
       if (unif_mode)
+      {
         t1 = 0;  // sec
+      }
       else
+      {
         t1 = rand_time->shoot() * (time_max - time_min) + time_min;
+      }
 
       if (mono_wl_mode)
         wavelength = led_wavelength[next_led];  // nm
@@ -185,9 +198,37 @@ void Gen_LED::SetLEDParameters(G4String state) {
   led_x = lled->GetDArray("x");
   led_y = lled->GetDArray("y");
   led_z = lled->GetDArray("z");
+  led_u = std::vector<double>(led_x.size(), 0.0);
+  led_v = std::vector<double>(led_x.size(), 0.0);
+  led_w = std::vector<double>(led_x.size(), 1.0);
+  // target_x is an array of zeros the same length as led_x
+  target_x = std::vector<double>(led_x.size(), 0.0);
+  target_y = std::vector<double>(led_x.size(), 0.0);
+  target_z = std::vector<double>(led_x.size(), 0.0);
+
+  fire_at_target = lled->GetZ("fire_at_target");
+  if(fire_at_target) {
+    target_x = lled->GetDArray("target_x");
+    target_y = lled->GetDArray("target_y");
+    target_z = lled->GetDArray("target_z");
+  } else {
+    led_u = lled->GetDArray("dir_x");
+    led_v = lled->GetDArray("dir_y");
+    led_w = lled->GetDArray("dir_z");
+  }
+
   led_wavelength = lled->GetDArray("wavelength");
   // add some code robustness
-  Log::Assert((led_x.size() == led_y.size() && led_y.size() == led_z.size()), "Some LEDs miss some coordinate(s)\n");
+  Log::Assert(
+      (led_x.size() == led_y.size() && 
+       led_y.size() == led_z.size() &&
+       led_z.size() == led_u.size() &&
+       led_u.size() == led_v.size() &&
+       led_v.size() == led_w.size() &&
+       led_w.size() == target_x.size() &&
+       target_x.size() == target_y.size() &&
+       target_y.size() == target_z.size()
+    ), "Some LEDs miss some coordinate(s)\n");
   Log::Assert((led_x.size() <= led_wavelength.size()), "Some LEDs miss a wavelength\n");
 
   std::string intensity_mode = "single";

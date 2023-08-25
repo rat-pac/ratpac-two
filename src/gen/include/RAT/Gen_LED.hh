@@ -36,6 +36,9 @@ class Gen_LED : public GLG4Gen {
   GLG4TimeGen *timeGen;
 
   std::vector<double> led_x, led_y, led_z, led_wavelength;
+  std::vector<double> led_u, led_v, led_w;
+  bool fire_at_target;
+  std::vector<double> target_x, target_y, target_z;
   std::vector<int> photons_per_LED;
   bool iso_mode;
   bool ang_dist_mode;

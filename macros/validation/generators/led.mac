@@ -3,8 +3,6 @@
 
 /rat/db/set DETECTOR experiment "Validation"
 /rat/db/set DETECTOR geo_file "Validation/Valid.geo"
-
-
 /rat/db/set LED[default] intensity 1000
 
 # Multiple LEDs are cycled through in order
@@ -29,35 +27,22 @@
 
 # Wavelength options
 /rat/db/set LED[default] wl_mode "dist"
-/rat/db/set LED[default] dist_wl [390,400,410]
-/rat/db/set LED[default] dist_wl_intensity [0.5,1,0.5]
+/rat/db/set LED[default] dist_wl [350,355,360,365,370,375,380,385,390,395,400,405,410,415,420,425,430,435,440,445,450]
+/rat/db/set LED[default] dist_wl_intensity [0.,0.02,0.1,0.21,0.35,0.5,0.65,0.79,0.9,0.98,1.,0.98,0.9,0.79,0.65,0.5,0.35,0.21,0.1,0.02,0.]
 
+# Time options
+/rat/db/set LED[default] time_mode "dist"
+/rat/db/set LED[default] dist_time [0,5,10,15,20,25,30,35,40,45]
+/rat/db/set LED[default] dist_time_intensity [1.,0.82,0.67,0.55,0.45,0.37,0.3,0.25,0.2,0.17]
 
 /run/initialize
-
-/vis/open OGLSQt
-/vis/scene/create
-/vis/scene/add/trajectories rich smooth
 /tracking/storeTrajectory 1
-/tracking/FillPointCont 1
-/vis/scene/add/volume
-/vis/sceneHandler/attach
-/vis/viewer/set/upVector 0.0 0.0 1.0
-/vis/viewer/set/viewpointThetaPhi -90 135 
-/vis/viewer/set/style s
-#/vis/viewer/flush
-/vis/scene/endOfEventAction accumulate
-
-## Cut a plane through the detector
-/vis/viewer/addCutawayPlane -100.0 0 0 cm 1 0 0
-#/vis/viewer/addCutawayPlane 0 -100 0 cm 0 1 0
-#/vis/viewer/set/viewpointThetaPhi -90 0
-#/vis/viewer/zoomTo 10
-#/vis/viewer/panTo 10 0
+/rat/proc splitevdaq
+/rat/proc count
+/rat/procset update 100
+/rat/proclast outntuple
+/rat/procset include_tracking 1
 
 /generator/add led point:poisson
-#/generator/add combo pbomb:point:poisson
-#/generator/vtx/set 1000 400
-#/generator/pos/set 0 0 0
 
-/run/beamOn 10
+/run/beamOn 10000
