@@ -43,6 +43,6 @@
 /rat/proclast outntuple
 /rat/procset include_tracking 1
 
-/generator/add led point:poisson
+/generator/add led default
 
 /run/beamOn 10000

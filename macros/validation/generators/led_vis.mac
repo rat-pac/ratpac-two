@@ -55,9 +55,6 @@
 #/vis/viewer/zoomTo 10
 #/vis/viewer/panTo 10 0
 
-/generator/add led point:poisson
-#/generator/add combo pbomb:point:poisson
-#/generator/vtx/set 1000 400
-#/generator/pos/set 0 0 0
+/generator/add led default
 
 /run/beamOn 10
