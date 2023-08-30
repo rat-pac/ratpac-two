@@ -220,7 +220,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 
     std::vector<double> xtrack, ytrack, ztrack;
     std::vector<double> pxtrack, pytrack, pztrack;
-    std::vector<double> kinetic, localtime;
+    std::vector<double> kinetic, globaltime;
     std::vector<int> processMapID;
     for (int trk = 0; trk < nTracks; trk++) {
       DS::MCTrack *track = mc->GetMCTrack(trk);
@@ -232,7 +232,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       pytrack.clear();
       pztrack.clear();
       kinetic.clear();
-      localtime.clear();
+      globaltime.clear();
       processMapID.clear();
       int nSteps = track->GetMCTrackStepCount();
       for (int stp = 0; stp < nSteps; stp++) {
@@ -248,7 +248,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         TVector3 tv = step->GetEndpoint();
         TVector3 momentum = step->GetMomentum();
         kinetic.push_back(step->GetKE());
-        localtime.push_back(step->GetLocalTime());
+        globaltime.push_back(step->GetGlobalTime());
         xtrack.push_back(tv.X());
         ytrack.push_back(tv.Y());
         ztrack.push_back(tv.Z());
@@ -257,7 +257,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         pztrack.push_back(momentum.Z());
       }
       trackKE.push_back(kinetic);
-      trackTime.push_back(localtime);
+      trackTime.push_back(globaltime);
       trackPosX.push_back(xtrack);
       trackPosY.push_back(ytrack);
       trackPosZ.push_back(ztrack);

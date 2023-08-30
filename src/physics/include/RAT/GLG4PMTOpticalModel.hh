@@ -63,13 +63,13 @@ class GLG4PMTOpticalModel : public G4VFastSimulationModel, public G4UImessenger 
 
   void SetEfficiencyCorrection(std::map<int, double> _EffiCorr) {
     EfficiencyCorrection = _EffiCorr;
-    G4cout << GetName() << ": Individual efficiency correction table set" << newline;
+    RAT::info << GetName() << ": Individual efficiency correction table set" << newline;
   }
   void DumpEfficiencyCorrectionTable() {
-    G4cout << "Individual correction table for the PMT efficiencies of " << GetName() << ":\nPMT ID  corr. factor" << newline;
+    RAT::info << "Individual correction table for the PMT efficiencies of " << GetName() << ":\nPMT ID  corr. factor" << newline;
     for (std::map<int, double>::iterator iter = EfficiencyCorrection.begin(); iter != EfficiencyCorrection.end();
          iter++) {
-      G4cout << iter->first << "," << iter->second << newline;
+      RAT::info << iter->first << "," << iter->second << newline;
     }
   }
   void fillPMTVector(double code, double A, double An, double T, double R, double collection_eff, double N_pe, double x,

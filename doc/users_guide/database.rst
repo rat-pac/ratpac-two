@@ -3,12 +3,12 @@ The RAT Database (RATDB)
 
 RATDB is the database of constants that will be used by RAT for all adjustable
 parameters.  "Parameters" in this sense includes many things, such as:
- * physical properties of materials (density, optics, etc.)
- * geometric configuration of parts of the detector (dimensions and locations
-   of the acrylic vessel, PMTs, ...)
- * calibration constants
- * lookup tables
- * control parameters which specify how processing should be done
+* physical properties of materials (density, optics, etc.)
+* geometric configuration of parts of the detector (dimensions and locations
+of the acrylic vessel, PMTs, ...)
+* calibration constants
+* lookup tables
+* control parameters which specify how processing should be done
 
 Note that RATDB is NOT intended to hold actual event information, just everything else.
 
