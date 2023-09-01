@@ -11,6 +11,9 @@ z: [1.0],
 dir_x: [0.0],
 dir_y: [0.0],
 dir_z: [1.0],
+// Setting selectedLED to an integer >= 0 will stop the generator from
+// looping through the LED array and select an individual LED.
+selectedLED: -1,
 
 // Overrides any given direction vector and aims the led instead at a target position.
 fire_at_target: false,
