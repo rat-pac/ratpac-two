@@ -14,6 +14,12 @@ add_library(physics OBJECT
         src/PhotonThinning.cc
         src/PhysicsList.cc
         src/ThinnableG4Cerenkov.cc
+        src/quenching/EnergyLossFunction.cc
+        src/quenching/AppliedQuenchingModel.cc
+        src/quenching/BirksLaw.cc
+        src/quenching/QuenchingCalculator.cc
+        src/quenching/NaiveQuenchingCalculator.cc
+        src/quenching/IntegratedQuenchingCalculator.cc
         )
 
 # Set our include directories

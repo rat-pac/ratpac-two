@@ -10,8 +10,12 @@ add_library(util OBJECT
         src/Sampling.cc
         src/SilenceRooFitBanner.cc
         src/SimpsIntegral.cc
-        src/StringUtil.cc)
-
+        src/StringUtil.cc
+        src/quadrature/Evaluateable.cc
+        src/quadrature/Quadrature.cc
+        src/quadrature/FixedTrapezoidalQuadrature.cc
+        src/quadrature/AdaptiveSimpsonQuadrature.cc 
+        )
 # Set our include directories
 target_include_directories(util PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>

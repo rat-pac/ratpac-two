@@ -9,7 +9,8 @@
 ///  - 2022-09 : Ed Callaghan - First revision
 ///
 /// \details Evaluate quenching by approximating an average stopping power over
-///          a full track step.
+///          a full track step. WARNING: THIS IS HEAVILY DEPENDENT ON STEP SIZES
+///          USED BY GEANT4! BEST PRACTICE IS TO USE THE INTEGRATED METHOD!
 ///
 ////////////////////////////////////////////////////////////////////
 
