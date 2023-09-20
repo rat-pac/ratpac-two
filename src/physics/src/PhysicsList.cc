@@ -25,20 +25,28 @@
 #include <RAT/PhysicsList.hh>
 #include <RAT/PhysicsListMessenger.hh>
 #include <RAT/Log.hh>
+#include <RAT/DB.hh>
 
 namespace RAT {
 
-PhysicsList::PhysicsList() : Shielding(), wlsModel(NULL) {
-  this->CerenkovMaxNumPhotonsPerStep = 1;
-  this->IsCerenkovEnabled = true;
+PhysicsList::PhysicsList() : Shielding(), wlsModel(nullptr) {
+  DBLinkPtr physicsdb = DB::Get()->GetLink("PHYSICS");
+
+  // Cherenkov process settings
+  this->IsCerenkovEnabled = physicsdb->GetZ("enable_cerenkov");
+  this->CerenkovMaxNumPhotonsPerStep = physicsdb->GetI("cerenkov_max_num_photons_per_step");
+
+  // Step sizes for light ions (alpha), muons, and hadrons
+  this->stepRatioLightIons = physicsdb->GetD("step_function_light_ions_d_over_R");
+  this->finalRangeLightIons = physicsdb->GetD("step_function_light_ions_final_range");
+  this->stepRatioMuHad = physicsdb->GetD("step_function_muon_hadron_d_over_R");
+  this->finalRangeMuHad = physicsdb->GetD("step_function_muon_hadron_final_range");
+
+  // WLS settings
+  this->wlsModelName = physicsdb->GetS("wls_model_name");
 
   new PhysicsListMessenger(this);
 
-  // Step sizes for light ions (alpha), muons, and hadrons
-  this->stepRatioLightIons = 0.01;
-  this->finalRangeLightIons = 0.01 * CLHEP::um;
-  this->stepRatioMuHad = 0.01;
-  this->finalRangeMuHad = 0.1 * CLHEP::mm;
 }
 
 PhysicsList::~PhysicsList() {}
@@ -64,7 +72,7 @@ void PhysicsList::EnableThermalNeutronScattering() {
   G4ParticleDefinition *n_definition = G4Neutron::Definition();
 
   // Get the elastic scattering process used for neutrons
-  G4HadronicProcess *n_elastic_process = NULL;
+  G4HadronicProcess *n_elastic_process = nullptr;
   G4ProcessVector *proc_vec = n_definition->GetProcessManager()->GetProcessList();
   for (int i = 0; i < proc_vec->size(); i++) {
     G4VProcess *proc = proc_vec->operator[](i);
@@ -103,9 +111,14 @@ void PhysicsList::SetOpWLSModel(std::string model) {
 
   if (model == "g4") {
     this->wlsModel = new G4OpWLSBuilder();
-  } else if (model == "bnl") {
+  }
+  else if (model == "bnl") {
     this->wlsModel = new BNLOpWLSBuilder();
-  } else {
+  }
+  else if (model == "") {
+    this->wlsModel = nullptr;
+  }
+  else {
     warn << "PhysicsList::SetOpWLSModel: Unknown model \"" << model << "\"" << newline;
     throw std::runtime_error("Unknown WLS model in PhysicsList");
   }
@@ -155,6 +168,8 @@ void PhysicsList::ConstructOpticalProcesses() {
   OpRayleigh *opRayleigh = new OpRayleigh();
 
   // Wavelength shifting: User-selectable via PhysicsListMessenger
+  // Add call to SetOpWLSModel so it can be set from DB too... Need to reorganize in future
+  SetOpWLSModel(this->wlsModelName);
   if (this->wlsModel) {
     wlsModel->ConstructProcess();
   }
