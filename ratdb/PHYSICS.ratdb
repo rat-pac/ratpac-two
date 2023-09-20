@@ -11,10 +11,10 @@ cerenkov_max_num_photons_per_step: 1,
 
 step_function_light_ions_d_over_R: 0.01,
 //In mm
-step_function_light_ions_final_range: 1e-5,
+step_function_light_ions_final_range: 0.01,
 
 step_function_muon_hadron_d_over_R: 0.01,
 //In mm
-step_function_muon_hadron_final_range: 0.1,
+step_function_muon_hadron_final_range: 0.01,
 
 }
