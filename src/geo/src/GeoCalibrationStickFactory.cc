@@ -82,11 +82,11 @@ G4VPhysicalVolume *GeoCalibrationStickFactory::Construct(DBLinkPtr table) {
   G4VPhysicalVolume *bottomPhys =
       new G4PVPlacement(rotation, position - G4ThreeVector(0, 0, (stickLength + bottomThickness) / 2.0),
                         "CalibrationStick_Bottom", bottomLog, motherPhys, false, 0);
+  G4VPhysicalVolume *gasPhys =
+      new G4PVPlacement(rotation, position, "CalibrationStick_Gas", gasLog, motherPhys, false, 0);
   G4VPhysicalVolume *sourcePhys =
       new G4PVPlacement(rotation, position - G4ThreeVector(0, 0, (stickLength / 2.0) - sourcePosition),
                         "CalibrationStick_Source", sourceLog, motherPhys, false, 0);
-  G4VPhysicalVolume *gasPhys =
-      new G4PVPlacement(rotation, position, "CalibrationStick_Gas", gasLog, motherPhys, false, 0);
 
   // Set visuals
   SetVis(stickLog, table->GetDArray("stick_color"));
