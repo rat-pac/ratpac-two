@@ -82,7 +82,7 @@ void CoincidenceMessenger::SetNewValue(G4UIcommand *command, G4String newValues)
     Co_gen->SetExpoForceWindow(ExpForceWinCmd->GetNewBoolValue(newValues));
   } else {
     // Error if we reach here.
-    G4cerr << "Error: CoincidenceMessenger invalic command" << G4endl;
+    RAT::warn << "Error: CoincidenceMessenger invalic command" << newline;
   }
 }
 G4String CoincidenceMessenger::GetCurrentValue(G4UIcommand * /*command*/) {

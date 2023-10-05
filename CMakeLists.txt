@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11...3.14)
-project(ratpac VERSION 2.1.0
+project(ratpac VERSION 2.1.1
                 DESCRIPTION "RAT-PAC"
                 LANGUAGES C CXX)
 
@@ -79,6 +79,7 @@ include(${ROOT_USE_FILE})
 
 find_package(Geant4 REQUIRED COMPONENTS qt)
 include(${Geant4_USE_FILE})
+include_directories(${Geant4_INCLUDE_DIRS})
 
 find_package(Threads REQUIRED)
 

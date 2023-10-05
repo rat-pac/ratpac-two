@@ -372,10 +372,10 @@ inline GLG4Scint::MyPhysicsTable *GLG4Scint::GetMyPhysicsTable() const { return 
 
 inline void GLG4Scint::DumpInfo() const {
   if (fMyPhysicsTable) {
-    G4cout << "GLG4Scint[" << *(fMyPhysicsTable->fName) << "] {" << newline
-           << "  fLowerMassLimit=" << fLowerMassLimit << G4endl;
+    RAT::info << "GLG4Scint[" << *(fMyPhysicsTable->fName) << "] {" << newline
+           << "  fLowerMassLimit=" << fLowerMassLimit << newline;
     if (fVerboseLevel >= 2) fMyPhysicsTable->Dump();
-    G4cout << "}" << G4endl;
+    RAT::info << "}" << newline;
   }
 }
 

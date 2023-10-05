@@ -49,7 +49,7 @@ GLG4DebugMessenger::GLG4DebugMessenger(RAT::DetectorConstruction *mydetector) : 
 
   // the dumpgeom command
   DumpGeomCmd = new G4UIcommand("/glg4debug/dumpgeom", this);
-  DumpGeomCmd->SetGuidance("Dump the geometry information for the entire detector");
+  DumpGeomCmd->SetGuidance("Dump the geometry RAT::information for the entire detector");
   aParam = new G4UIparameter("physicalVolume", 's', true);  // omittable
   DumpGeomCmd->SetParameter(aParam);
 
@@ -105,34 +105,33 @@ GLG4DebugMessenger::GLG4DebugMessenger(RAT::DetectorConstruction *mydetector) : 
 GLG4DebugMessenger::~GLG4DebugMessenger() {}
 
 static void DumpGeom(G4VPhysicalVolume *pv, const char *s) {
-  G4cout << "*******************************" << newline;
-  G4cout << "Physical volume dump for " << s << G4endl;
-  G4cout << " Name: " << pv->GetName() << G4endl;
+  RAT::info << "*******************************" << newline;
+  RAT::info << "Physical volume dump for " << s << newline;
+  RAT::info << " Name: " << pv->GetName() << newline;
 
   G4LogicalVolume *lv = pv->GetLogicalVolume();
-  G4cout << " Logical volume name: " << lv->GetName() << G4endl;
-  G4cout << " Solid name: " << lv->GetSolid()->GetName() << G4endl;
+  RAT::info << " Logical volume name: " << lv->GetName() << newline;
+  RAT::info << " Solid name: " << lv->GetSolid()->GetName() << newline;
 
   G4Material *m = lv->GetMaterial();
-  G4cout << " Material: " << m->GetName() << G4endl;
-  G4cout << (*m) << G4endl;
+  RAT::info << " Material: " << m->GetName() << newline;
+  G4cout << (*m) << newline;
 
   ///  G4PhysicalVolume::GetMother() was removed in Geant4 version 06.
   // G4VPhysicalVolume* mother= pv->GetMother();
   // if ( mother )
-  //   G4cout << "Mother volume is " << mother->GetName() << G4endl;
+  //   RAT::info << "Mother volume is " << mother->GetName() << newline;
   // else
-  //   G4cout << "Has no mother!" << G4endl;
+  //   RAT::info << "Has no mother!" << newline;
 
   G4int ndaught = lv->GetNoDaughters();
   if (ndaught == 0) {
-    G4cout << "Has no daughters." << G4endl;
+    RAT::info << "Has no daughters." << newline;
   } else {
-    G4cout << "Has " << ndaught << " daughters:" << newline;
-    for (G4int i = 0; i < ndaught; i++) G4cout << "\t" << lv->GetDaughter(i)->GetName();
-    G4cout << G4endl;
+    RAT::info << "Has " << ndaught << " daughters:" << newline;
+    for (G4int i = 0; i < ndaught; i++) RAT::info << "\t" << lv->GetDaughter(i)->GetName();
+    RAT::info << newline;
   }
-  G4cout.flush();
 }
 
 static void SetMaterial(G4String newValues) {
@@ -142,8 +141,7 @@ static void SetMaterial(G4String newValues) {
   G4String matName;
   iss >> lvName >> matName;
   if (iss.fail()) {
-    G4cerr << "Could not parse volume and material name from command args" << newline;
-    G4cerr.flush();
+    RAT::warn << "Could not parse volume and material name from command args" << newline;
     return;
   }
 
@@ -158,44 +156,39 @@ static void SetMaterial(G4String newValues) {
     if (lv->GetName() == lvName) break;
   }
   if (lv == NULL || ilv >= nlv) {  // not found
-    G4cerr << "Error, logical volume named \'" << lvName << "\' not found" << newline;
-    G4cerr.flush();
+    RAT::warn << "Error, logical volume named \'" << lvName << "\' not found" << newline;
     return;
   }
 
   // access the store of materials
   G4Material *mat = G4Material::GetMaterial(matName);
   if (mat == NULL) {
-    G4cerr << "Error, material named \'" << matName << "\' not found" << newline;
-    G4cerr.flush();
+    RAT::warn << "Error, material named \'" << matName << "\' not found" << newline;
     return;
   }
 
   // set the material
   lv->SetMaterial(mat);
-  G4cout << "Set material of " << lv->GetName() << " to " << mat->GetName() << G4endl;
-  G4cout.flush();
+  RAT::info << "Set material of " << lv->GetName() << " to " << mat->GetName() << newline;
 }
 
 void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
   // DumpMaterialsCmd
   if (command == DumpMaterialsCmd) {
     if (newValues == "") {
-      G4cout << *(G4Material::GetMaterialTable()) << G4endl;
+      G4cout << *(G4Material::GetMaterialTable()) << newline;
     } else {
       G4Material *m = G4Material::GetMaterial(newValues);
       if (m == NULL) {
-        G4cerr << "Unknown material " << newValues << G4endl << std::flush;
+        RAT::warn << "Unknown material " << newValues << newline;
         return;
       }
-      G4cout << (*m) << G4endl;
+      G4cout << (*m) << newline;
       G4MaterialPropertiesTable *mpt = m->GetMaterialPropertiesTable();
       if (mpt == NULL) {
-        G4cout << "This material has no material properties table." << G4endl;
+        RAT::info << "This material has no material properties table." << newline;
       } else {
-        G4cout.flush();
         mpt->DumpTable();
-        G4cout.flush();
       }
     }
   }
@@ -216,8 +209,7 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
         if (pv->GetName() == newValues) break;
       }
       if (pv == NULL || ipv >= npv) {  // not found
-        G4cerr << "Error, name \'" << newValues << "\' not found" << newline;
-        G4cerr.flush();
+        RAT::warn << "Error, name \'" << newValues << "\' not found" << newline;
       } else {
         DumpGeom(pv, newValues);
       }
@@ -239,13 +231,12 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
 
     // if no arguments or nloop==0, list the solids
     if (nloop == 0) {
-      G4cout << "Here is a list of solid names" << newline;
+      RAT::info << "Here is a list of solid names" << newline;
       for (isolid = 0; isolid < nsolid; isolid++) {
         G4VSolid *aSolid = (*theSolidStore)[isolid];
         if (!aSolid) break;
-        G4cout << aSolid->GetName() << G4endl;
+        RAT::info << aSolid->GetName() << newline;
       }
-      G4cout.flush();
     }
     // if arguments given, find the named solid and test it
     else {
@@ -256,18 +247,16 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
         if (aSolid->GetName() == nameptr) break;
       }
       if (aSolid == NULL || isolid >= nsolid) {  // solid not found
-        G4cerr << "Error, solid name \'" << nameptr << "\' not found" << newline;
-        G4cerr << "Enter command with no parameters to get list of names" << newline;
-        G4cerr.flush();
+        RAT::warn << "Error, solid name \'" << nameptr << "\' not found" << newline;
+        RAT::warn << "Enter command with no parameters to get list of names" << newline;
       } else {  // we found the solid, now test it
         G4Timer timer;
-        G4cout << "Testing " << nameptr << " with " << nloop << " loops " << G4endl;
+        RAT::info << "Testing " << nameptr << " with " << nloop << " loops " << newline;
         timer.Start();
-        G4cout << GLG4TestSolid::Test(*((*theSolidStore)[isolid]), nloop) << G4endl;
+        RAT::info << GLG4TestSolid::Test(*((*theSolidStore)[isolid]), nloop) << newline;
         timer.Stop();
-        G4cout << "Elapsed time: User=" << timer.GetUserElapsed() << " System=" << timer.GetSystemElapsed()
-               << " Real=" << timer.GetRealElapsed() << G4endl;
-        G4cout.flush();
+        RAT::info << "Elapsed time: User=" << timer.GetUserElapsed() << " System=" << timer.GetSystemElapsed()
+               << " Real=" << timer.GetRealElapsed() << newline;
       }
     }
   }
@@ -282,8 +271,7 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
     G4double new_value;
     iss >> parameterName;
     if (iss.fail()) {
-      G4cerr << "Could not parse parameter name from command args" << newline;
-      G4cerr.flush();
+      RAT::warn << "Could not parse parameter name from command args" << newline;
       return;
     }
     iss >> new_value;
@@ -303,9 +291,9 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
     }
   } else if (command->GetCommandName() == "dumpelem") {
     if (newValues == "") {
-      G4cout << *(G4Element::GetElementTable()) << G4endl;
+      G4cout << *(G4Element::GetElementTable()) << newline;
     } else {
-      G4cout << *(G4Element::GetElement(newValues)) << G4endl;
+      G4cout << *(G4Element::GetElement(newValues)) << newline;
     }
   } else if (command->GetCommandName() == "setseed") {
     std::istringstream iss(newValues.c_str());
@@ -316,7 +304,7 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
   } else if (command->GetCommandName() == "SetRunIDCounter") {
     int i = atoi(newValues);
     G4RunManager::GetRunManager()->SetRunIDCounter(i);
-    G4cout << "Set RunIDCounter to " << i << endl;
+    RAT::info << "Set RunIDCounter to " << i << newline;
   }
 #ifdef G4DEBUG
   else if (command->GetCommandName() == "dump_illumination_map") {
@@ -327,7 +315,7 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
 
   // invalid command
   else {
-    G4cerr << "invalid GLG4 \"set\" command" << newline << std::flush;
+    RAT::warn << "invalid GLG4 \"set\" command" << newline;
   }
 }
 

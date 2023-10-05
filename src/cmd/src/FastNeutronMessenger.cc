@@ -52,7 +52,7 @@ void FastNeutronMessenger::SetNewValue(G4UIcommand *command, G4String newValue) 
     double st = STCmd->GetNewDoubleValue(newValue);
     fastneutron->SetSideBool(st);
   } else {
-    G4cerr << "Error: Invalid FastNeutronMessenger \"set\" command" << G4endl;
+    RAT::warn << "Error: Invalid FastNeutronMessenger \"set\" command" <<newline;
   }
 }
 

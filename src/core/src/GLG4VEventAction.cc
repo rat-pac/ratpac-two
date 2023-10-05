@@ -90,9 +90,9 @@ void GLG4VEventAction::SetNewValue(G4UIcommand *command, G4String newValue) {
     G4bool old_flagFullOutputMode = flagFullOutputMode;
     flagFullOutputMode = (newValue == "full");
     if (flagFullOutputMode != old_flagFullOutputMode) {
-      G4cout << "Switching output mode to " << (flagFullOutputMode ? "full" : "basic") << G4endl;
+      RAT::info << "Switching output mode to " << (flagFullOutputMode ? "full" : "basic") << newline;
     } else {
-      G4cout << "FYI: new output mode == old output mode" << G4endl;
+      RAT::info << "FYI: new output mode == old output mode" << newline;
     }
   } else if (command->GetCommandName() == "output_file") {
     // always call CloseFile() here, in case file is open
@@ -101,7 +101,7 @@ void GLG4VEventAction::SetNewValue(G4UIcommand *command, G4String newValue) {
     // open new file, if new filename given
     // (it is okay not to give a name, in case user just wants to close file)
     if (newValue.length() <= 0) {
-      // G4cerr << "Null Output File Name" << G4endl;
+      // RAT::warn << "Null Output File Name" << newline;
       return;
     } else
       OpenFile(newValue, flagFullOutputMode);
@@ -109,7 +109,7 @@ void GLG4VEventAction::SetNewValue(G4UIcommand *command, G4String newValue) {
   } else if (command->GetCommandName() == "doParameterizedScintillation") {
     fgDoParameterizedScintillation = (atoi((const char *)newValue) != 0);
   } else {
-    G4cerr << "Unknown command ``" << command->GetCommandName() << " passed to GLG4EventAction::SetNewValue" << newline;
+    RAT::warn << "Unknown command ``" << command->GetCommandName() << " passed to GLG4EventAction::SetNewValue" << newline;
   }
 }
 

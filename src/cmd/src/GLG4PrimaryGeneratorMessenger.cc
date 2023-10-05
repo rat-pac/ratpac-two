@@ -151,13 +151,13 @@ void GLG4PrimaryGeneratorMessenger::SetNewValue(G4UIcommand *command, G4String n
   } else if (command == EventWindowCmd) {
     G4double newWindow = util_to_double(newValues);
     if (newWindow <= 0.0)
-      G4cerr << "Time window must be positive" << G4endl;
+      RAT::warn << "Time window must be positive" << newline;
     else
       myAction->SetEventWindow(newWindow * CLHEP::ns);
   } else if (command == GenClearCmd) {
     myAction->ClearGenerators();  // clear all event generators
   } else {
-    G4cerr << "invalid GLG4 \"set\" command";
+    RAT::warn << "invalid GLG4 \"set\" command" << newline;
   }
 }
 

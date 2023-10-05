@@ -30,6 +30,8 @@
 #include "G4ios.hh"
 #include "local_g4compat.hh"
 
+#include "RAT/Log.hh"
+
 GLG4BoxSD::GLG4BoxSD(G4String name) : G4VSensitiveDetector(name) {
   eCut = 1.5 * CLHEP::MeV;
   gCut = 1.5 * CLHEP::MeV;
@@ -96,10 +98,9 @@ void GLG4BoxSD::EndOfEvent(G4HCofThisEvent *) {
       sum_ng += h_ng[i];
       sum_ne += h_ne[i];
     }
-    std::cout << GetName() << ":\t" << sum_ng << " neutral-x0,\t" << sum_ne << " charged-x0,\t" << tot_edep / CLHEP::MeV
+    RAT::info << GetName() << ":\t" << sum_ng << " neutral-x0,\t" << sum_ne << " charged-x0,\t" << tot_edep / CLHEP::MeV
               << " MeV\n"
-              << std::endl;
-    std::cout.flush();
+              << newline;
   }
 }
 
@@ -118,9 +119,9 @@ static void dump_histo(T *hist, int hlength, int xmin) {
   for (i = 0; i < hlength; i++) {
     if (hist[i] != 0 || nrzflag == -1) {
       if (nrzflag != -1 && nrzflag != i - 1) {
-        std::cout << (i - 1 + xmin) << "\t0\n";
+        RAT::debug << (i - 1 + xmin) << "\t0\n";
       }
-      std::cout << (i + xmin) << "\t" << hist[i] << std::endl;
+      RAT::debug << (i + xmin) << "\t" << hist[i] << newline;
       if (hist[i] == 0)
         nrzflag = i;
       else
@@ -128,19 +129,19 @@ static void dump_histo(T *hist, int hlength, int xmin) {
     }
   }
   if (nrzflag > -1) {
-    std::cout << (hlength - 1 + xmin) << "\t0\n";
+    RAT::debug << (hlength - 1 + xmin) << "\t0\n";
   }
-  std::cout << std::endl;
+  RAT::debug << newline;
 }
 
 void GLG4BoxSD::PrintAll() {
   // print histograms in compressed form
-  std::cout << "\n# " << GetName() << std::endl;
-  std::cout << "# uncharged vs. 2*rad.length" << std::endl;
+  RAT::info << "\n# " << GetName() << newline;
+  RAT::info << "# uncharged vs. 2*rad.length" << newline;
   dump_histo(h_ng, nbin, 0);
-  std::cout << "# charged vs. 2*rad.length" << std::endl;
+  RAT::info << "# charged vs. 2*rad.length" << newline;
   dump_histo(h_ne, nbin, 0);
-  std::cout << "# edep vs. 2*rad.length" << std::endl;
+  RAT::info << "# edep vs. 2*rad.length" << newline;
   dump_histo(h_edep, nbin, 0);
-  std::cout << std::endl << std::flush;
+  RAT::info << newline;
 }

@@ -12,7 +12,7 @@ class G4ParticleDefinition;
 namespace RAT {
 
 class Gen_LED : public GLG4Gen {
- public:
+public:
   Gen_LED();
   virtual ~Gen_LED();
   virtual void GenerateEvent(G4Event *event);
@@ -31,18 +31,21 @@ class Gen_LED : public GLG4Gen {
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
 
- protected:
+protected:
   G4String stateStr;
   GLG4TimeGen *timeGen;
 
   std::vector<double> led_x, led_y, led_z, led_wavelength;
+  std::vector<double> led_u, led_v, led_w;
+  bool fire_at_target;
+  std::vector<double> target_x, target_y, target_z;
   std::vector<int> photons_per_LED;
   bool iso_mode;
   bool ang_dist_mode;
   bool multi_ang_dist_mode;
   bool mono_wl_mode;
   bool unif_mode;
-  bool oneLED;  // fire one LED per event?
+  int selectedLED;
 
   CLHEP::RandGeneral *rand_angle, *rand_wl, *rand_time;
   double angle_min, angle_max, wl_min, wl_max, time_min, time_max;

@@ -12,6 +12,7 @@
 #include <RAT/LinearInterp.hh>
 #include <RAT/Log.hh>
 #include <RAT/TimeUtil.hh>
+#include <RAT/GLG4StringUtil.hh>
 #include <Randomize.hh>
 
 namespace RAT {
@@ -33,9 +34,19 @@ Gen_LED::~Gen_LED() {
 }
 
 void Gen_LED::GenerateEvent(G4Event *event) {
+  if (selectedLED >= 0 && selectedLED < led_x.size()) {
+    next_led = selectedLED;
+  }
   // Get information on next LED to fire
   G4ThreeVector pos(led_x[next_led] * CLHEP::mm, led_y[next_led] * CLHEP::mm, led_z[next_led] * CLHEP::mm);
-  G4ThreeVector normal = -pos.unit();
+  G4ThreeVector normal(led_u[next_led], led_v[next_led], led_w[next_led]);
+  if (fire_at_target) {
+    G4ThreeVector target(target_x[next_led] * CLHEP::mm, target_y[next_led] * CLHEP::mm,
+                  target_z[next_led] * CLHEP::mm);
+    // Vector from pos to target
+    normal = (target - pos).unit();
+  }
+  normal = normal.unit();
   G4ThreeVector perp = normal.orthogonal().unit();
 
   double wavelength;
@@ -53,122 +64,80 @@ void Gen_LED::GenerateEvent(G4Event *event) {
   calib->SetUTC(AddNanoseconds(exinfo->utc, (long)t0));
   exinfo->SetCalib(calib);
 
+  // Add verticies for each photon
+  for (int i = 0; i < photons_per_event; i++) {
+    double t1 = 0;
+
+    if (unif_mode)
+    {
+      t1 = 0;  // sec
+    }
+    else
+    {
+      t1 = rand_time->shoot() * (time_max - time_min) + time_min;
+    }
+
+    if (mono_wl_mode)
+      wavelength = led_wavelength[next_led];  // nm
+    else
+      wavelength = rand_wl->shoot() * (wl_max - wl_min) + wl_min;
+
+    double energy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
+    double momentum = energy;  // GEANT uses momentum in same units as energy
+
+    double theta;
+    if (iso_mode)
+      theta = acos(0.9999 * (2.0 * G4UniformRand() - 1.0));
+    else if (!multi_ang_dist_mode)
+      theta = rand_angle->shoot() * (angle_max - angle_min) + angle_min;
+    else if (next_led < int(rand_angles.size()))
+      theta = rand_angles[next_led]->shoot() * (angle_maxs[next_led] - angle_mins[next_led]) + angle_mins[next_led];
+    else {
+      warn << "Warning: missing " << next_led << "-th angular distr., only " << rand_angles.size()
+           << " exist! Reusing last distrib." << newline;
+      theta = rand_angles[rand_angles.size() - 1]->shoot() *
+                  (angle_maxs[rand_angles.size() - 1] - angle_mins[rand_angles.size() - 1]) +
+              angle_mins[rand_angles.size() - 1];
+    }
+
+    double phi = CLHEP::twopi * G4UniformRand();
+
+    // Calc momentum
+    G4ThreeVector mom(normal);
+    mom.rotate(theta, perp);  // Rotate away from LED direction (polar angle)
+    mom.rotate(phi, normal);  // Rotate around LED direction (phi)
+    mom.setMag(momentum);     // Scale to right magnitude
+
+    G4PrimaryVertex *vertex = new G4PrimaryVertex(pos, t0 + t1);
+    G4PrimaryParticle *particle = new G4PrimaryParticle(photonDef, mom.x(), mom.y(), mom.z());
+    // Generate random polarization
+    phi = (G4UniformRand() * 2.0 - 1.0) * CLHEP::pi;
+    G4ThreeVector e1 = mom.orthogonal().unit();
+    G4ThreeVector e2 = mom.unit().cross(e1);
+    G4ThreeVector pol = e1 * cos(phi) + e2 * sin(phi);
+    particle->SetPolarization(pol.x(), pol.y(), pol.z());
+    particle->SetMass(0.0);  // Seems odd, but used in GLG4VertexGen_Gun
+
+    vertex->SetPrimary(particle);
+    event->AddPrimaryVertex(vertex);
+  }
+  
   // Go to next LED, but wrap around
   next_led = (next_led + 1) % led_x.size();
-  if (!oneLED) {  // fire all LEDs in same event
-    for (int iLED = 0; iLED < int(led_x.size()); iLED++) {
-      pos.set(led_x[iLED] * CLHEP::mm, led_y[iLED] * CLHEP::mm, led_z[iLED] * CLHEP::mm);
-      normal = -pos.unit();
-      perp = normal.orthogonal().unit();
-
-      for (int i = 0; i < photons_per_LED[iLED]; i++) {
-        double t1 = 0;
-        if (unif_mode)
-          t1 = 0;
-        else
-          t1 = rand_time->shoot() * (time_max - time_min) + time_min;
-        if (mono_wl_mode)
-          wavelength = led_wavelength[iLED];  // nm
-        else
-          wavelength = rand_wl->shoot() * (wl_max - wl_min) + wl_min;
-        double energy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
-        double theta;
-        if (iso_mode)
-          theta = acos(0.9999 * (2.0 * G4UniformRand() - 1.0));
-        else if (!multi_ang_dist_mode)
-          theta = rand_angle->shoot() * (angle_max - angle_min) + angle_min;
-        else if (iLED < int(rand_angles.size()))
-          theta = rand_angles[iLED]->shoot() * (angle_maxs[iLED] - angle_mins[iLED]) + angle_mins[iLED];
-        else {
-          warn << "Warning: missing " << next_led << "-th angular distr., only " << rand_angles.size()
-               << " exist! Reusing last distrib." << newline;
-          theta = rand_angles[rand_angles.size() - 1]->shoot() *
-                      (angle_maxs[rand_angles.size() - 1] - angle_mins[rand_angles.size() - 1]) +
-                  angle_mins[rand_angles.size() - 1];
-        }
-        double phi = CLHEP::twopi * G4UniformRand();
-
-        G4ThreeVector mom(normal);
-        mom.rotate(theta, perp);
-        mom.rotate(phi, normal);
-        mom.setMag(energy);
-        G4PrimaryVertex *vertex = new G4PrimaryVertex(pos, t0 + t1);
-        G4PrimaryParticle *particle = new G4PrimaryParticle(photonDef, mom.x(), mom.y(), mom.z());
-        // set polarization
-        phi = (G4UniformRand() * 2.0 - 1.0) * CLHEP::pi;
-        G4ThreeVector e1 = mom.orthogonal().unit();
-        G4ThreeVector e2 = mom.unit().cross(e1);
-        G4ThreeVector pol = e1 * cos(phi) + e2 * sin(phi);
-        particle->SetPolarization(pol.x(), pol.y(), pol.z());
-        particle->SetMass(0.0);
-
-        vertex->SetPrimary(particle);
-        event->AddPrimaryVertex(vertex);
-      }
-    }
-  } else {  // fire single LED per event
-    // Add verticies for each photon
-    for (int i = 0; i < photons_per_event; i++) {
-      double t1 = 0;
-
-      if (unif_mode)
-        t1 = 0;  // sec
-      else
-        t1 = rand_time->shoot() * (time_max - time_min) + time_min;
-
-      if (mono_wl_mode)
-        wavelength = led_wavelength[next_led];  // nm
-      else
-        wavelength = rand_wl->shoot() * (wl_max - wl_min) + wl_min;
-
-      double energy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
-      double momentum = energy;  // GEANT uses momentum in same units as energy
-
-      double theta;
-      if (iso_mode)
-        theta = acos(0.9999 * (2.0 * G4UniformRand() - 1.0));
-      else if (!multi_ang_dist_mode)
-        theta = rand_angle->shoot() * (angle_max - angle_min) + angle_min;
-      else if (next_led < int(rand_angles.size()))
-        theta = rand_angles[next_led]->shoot() * (angle_maxs[next_led] - angle_mins[next_led]) + angle_mins[next_led];
-      else {
-        warn << "Warning: missing " << next_led << "-th angular distr., only " << rand_angles.size()
-             << " exist! Reusing last distrib." << newline;
-        theta = rand_angles[rand_angles.size() - 1]->shoot() *
-                    (angle_maxs[rand_angles.size() - 1] - angle_mins[rand_angles.size() - 1]) +
-                angle_mins[rand_angles.size() - 1];
-      }
-
-      double phi = CLHEP::twopi * G4UniformRand();
-
-      // Calc momentum
-      G4ThreeVector mom(normal);
-      mom.rotate(theta, perp);  // Rotate away from LED direction (polar angle)
-      mom.rotate(phi, normal);  // Rotate around LED direction (phi)
-      mom.setMag(momentum);     // Scale to right magnitude
-
-      G4PrimaryVertex *vertex = new G4PrimaryVertex(pos, t0 + t1);
-      G4PrimaryParticle *particle = new G4PrimaryParticle(photonDef, mom.x(), mom.y(), mom.z());
-      // Generate random polarization
-      phi = (G4UniformRand() * 2.0 - 1.0) * CLHEP::pi;
-      G4ThreeVector e1 = mom.orthogonal().unit();
-      G4ThreeVector e2 = mom.unit().cross(e1);
-      G4ThreeVector pol = e1 * cos(phi) + e2 * sin(phi);
-      particle->SetPolarization(pol.x(), pol.y(), pol.z());
-      particle->SetMass(0.0);  // Seems odd, but used in GLG4VertexGen_Gun
-
-      vertex->SetPrimary(particle);
-      event->AddPrimaryVertex(vertex);
-    }
-  }
 }
 
 void Gen_LED::ResetTime(double offset) { nextTime = timeGen->GenerateEventTime() + offset; }
 
 void Gen_LED::SetState(G4String state) {
+  state = util_strip_default(state);
+  std::vector<std::string> parts = util_split(state, ":");
+  size_t nArgs = parts.size();
   // if this LED type exists in  either plane
+  if (nArgs >= 2) {
+    selectedLED = std::stoi(parts[1]);
+  }
   if (DB::Get()->GetDefaultTable("LED", state) || DB::Get()->GetUserTable("LED", state))
-    stateStr = state;
+    stateStr = parts[0];
   else
     stateStr = "default";
   if (DB::Get()->GetLink("LED", stateStr)->GetIndex() == stateStr) SetLEDParameters(stateStr);
@@ -178,16 +147,47 @@ void Gen_LED::SetLEDParameters(G4String state) {
   // Load database values
   DBLinkPtr lled = DB::Get()->GetLink("LED", state);
   photons_per_event = lled->GetI("intensity");
+  selectedLED = -1;
+  try {
+    selectedLED = lled->GetI("selectedLED");
+  } catch (DBNotFoundError &e) {};
   try {
     photons_per_LED = lled->GetIArray("intensities");
-  } catch (DBNotFoundError &e) {
-  };
+  } catch (DBNotFoundError &e) {};
   led_x = lled->GetDArray("x");
   led_y = lled->GetDArray("y");
   led_z = lled->GetDArray("z");
+  led_u = std::vector<double>(led_x.size(), 0.0);
+  led_v = std::vector<double>(led_x.size(), 0.0);
+  led_w = std::vector<double>(led_x.size(), 1.0);
+  // target_x is an array of zeros the same length as led_x
+  target_x = std::vector<double>(led_x.size(), 0.0);
+  target_y = std::vector<double>(led_x.size(), 0.0);
+  target_z = std::vector<double>(led_x.size(), 0.0);
+
+  fire_at_target = lled->GetZ("fire_at_target");
+  if(fire_at_target) {
+    target_x = lled->GetDArray("target_x");
+    target_y = lled->GetDArray("target_y");
+    target_z = lled->GetDArray("target_z");
+  } else {
+    led_u = lled->GetDArray("dir_x");
+    led_v = lled->GetDArray("dir_y");
+    led_w = lled->GetDArray("dir_z");
+  }
+
   led_wavelength = lled->GetDArray("wavelength");
   // add some code robustness
-  Log::Assert((led_x.size() == led_y.size() && led_y.size() == led_z.size()), "Some LEDs miss some coordinate(s)\n");
+  Log::Assert(
+      (led_x.size() == led_y.size() && 
+       led_y.size() == led_z.size() &&
+       led_z.size() == led_u.size() &&
+       led_u.size() == led_v.size() &&
+       led_v.size() == led_w.size() &&
+       led_w.size() == target_x.size() &&
+       target_x.size() == target_y.size() &&
+       target_y.size() == target_z.size()
+    ), "Some LEDs miss some coordinate(s)\n");
   Log::Assert((led_x.size() <= led_wavelength.size()), "Some LEDs miss a wavelength\n");
 
   std::string intensity_mode = "single";
@@ -196,11 +196,6 @@ void Gen_LED::SetLEDParameters(G4String state) {
   } catch (DBNotFoundError &e) {
   };
   info << intensity_mode.data() << " LED mode" << newline;
-  if (intensity_mode == "single")
-    oneLED = true;
-  else if (intensity_mode == "chain")
-    oneLED = false;
-  if (oneLED == false) Log::Assert((led_x.size() <= photons_per_LED.size()), "Some LEDs miss their intensity\n");
 
   std::string time_mode = "unif";
   try {
