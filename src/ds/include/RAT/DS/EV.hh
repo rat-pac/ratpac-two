@@ -23,6 +23,7 @@
 #include <RAT/DS/FitResult.hh>
 #include <RAT/DS/LAPPD.hh>
 #include <RAT/DS/PMT.hh>
+#include <RAT/DS/DigitPMT.hh>
 #include <vector>
 
 namespace RAT {
@@ -49,6 +50,15 @@ class EV : public TObject {
     return &pmt.back();
   }
   virtual void PrunePMT() { pmt.resize(0); }
+
+  /** List of pmts with at least one charge sample in this event. */
+  virtual DigitPMT *GetDigitPMT(Int_t i) { return &digitpmt[i]; }
+  virtual Int_t GetDigitPMTCount() const { return digitpmt.size(); }
+  virtual DigitPMT *AddNewDigitPMT() {
+    digitpmt.resize(digitpmt.size() + 1);
+    return &digitpmt.back();
+  }
+  virtual void PruneDigitPMT() { digitpmt.resize(0); }
 
   /** Number of PMTs which were hit at least once. (Convenience method) */
   virtual Int_t Nhits() const { return GetPMTCount(); }
@@ -104,6 +114,7 @@ class EV : public TObject {
   Double_t deltat;
   TTimeStamp utc;
   std::vector<PMT> pmt;
+  std::vector<DigitPMT> digitpmt;
   std::vector<LAPPD> lappd;
   std::vector<FitResult *> fitResults;
   std::vector<Classifier *> classifierResults;

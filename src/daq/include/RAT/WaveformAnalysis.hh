@@ -17,7 +17,7 @@
 #define __RAT_WaveformAnalysis__
 
 #include <TObject.h>
-#include <RAT/DS/PMT.hh>
+#include <RAT/DS/DigitPMT.hh>
 #include <RAT/Digitizer.hh>
 #include <RAT/DB.hh>
 
@@ -30,7 +30,7 @@ class WaveformAnalysis {
   WaveformAnalysis();
   virtual ~WaveformAnalysis(){};
 
-  void RunAnalysis(DS::PMT *pmt, int pmtID, Digitizer *fDigitizer);
+  void RunAnalysis(DS::DigitPMT *pmt, int pmtID, Digitizer *fDigitizer);
 
   // Calculate baseline (in mV)
   void CalculatePedestal();
@@ -52,7 +52,10 @@ class WaveformAnalysis {
   void GetPeak();
 
   // Integrate the digitized waveform to calculate charge
-  double Integrate();
+  void Integrate();
+
+  // Integrate the digitized waveform to calculate charge
+  void SlidingIntegral();
 
  protected:
 
@@ -73,6 +76,8 @@ class WaveformAnalysis {
   int fHighIntWindow;
   double fVoltageCrossing;
   double fThreshold;
+  int fSlidingWindow;
+  double fChargeThresh;
 
   // Digitized waveform
   std::vector<UShort_t> fDigitWfm;
@@ -85,6 +90,9 @@ class WaveformAnalysis {
   UShort_t fThresholdCrossing;
   UShort_t fNCrossings;
   double fTimeOverThreshold;
+  double fCharge;
+  double fTotalCharge;
+  double fVoltageOverThreshold;
 
   // Invalid value for bad waveforms
   const UShort_t INVALID = 9999;

@@ -14,9 +14,11 @@ WaveformAnalysis::WaveformAnalysis(){
   fIntWindowHigh = fDigit->GetD("integration_window_high");
   fConstFrac = fDigit->GetD("constant_fraction");
   fThreshold = fDigit->GetD("voltage_threshold");
+  fSlidingWindow = fDigit->GetD("sliding_window_width");
+  fChargeThresh = fDigit->GetD("sliding_window_thresh");
 }
 
-void WaveformAnalysis::RunAnalysis(DS::PMT *pmt, int pmtID, Digitizer *fDigitizer){
+void WaveformAnalysis::RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer *fDigitizer){
 
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
   fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
@@ -31,16 +33,19 @@ void WaveformAnalysis::RunAnalysis(DS::PMT *pmt, int pmtID, Digitizer *fDigitize
   fHighIntWindow = int((digit_time + fIntWindowHigh) / fTimeStep);
   fTermOhms = fDigitizer->fTerminationOhms;
 
-  double digit_charge = Integrate();
+  Integrate();
+  SlidingIntegral(); 
 
-  pmt->SetDigitizedTime(digit_time);
-  pmt->SetDigitizedCharge(digit_charge);
-  pmt->SetInterpolatedTime(fInterpolatedTime);
-  pmt->SetSampleTime(fThresholdCrossing);
-  pmt->SetNCrossings(fNCrossings);
-  pmt->SetTimeOverThreshold(fTimeOverThreshold);
-  pmt->SetPedestal(fPedestal);
-  pmt->SetPeakVoltage(fVoltagePeak);
+  digitpmt->SetDigitizedTime(digit_time);
+  digitpmt->SetDigitizedCharge(fCharge);
+  digitpmt->SetDigitizedTotalCharge(fTotalCharge);
+  digitpmt->SetInterpolatedTime(fInterpolatedTime);
+  digitpmt->SetSampleTime(fThresholdCrossing);
+  digitpmt->SetNCrossings(fNCrossings);
+  digitpmt->SetTimeOverThreshold(fTimeOverThreshold);
+  digitpmt->SetVoltageOverThreshold(fVoltageOverThreshold);
+  digitpmt->SetPedestal(fPedestal);
+  digitpmt->SetPeakVoltage(fVoltagePeak);
 }
 
 void WaveformAnalysis::CalculatePedestal() {
@@ -126,20 +131,26 @@ void WaveformAnalysis::GetNCrossings(){
   */
   fNCrossings = 0;
   fTimeOverThreshold = 0;
+  fVoltageOverThreshold = 0;
 
   bool fCrossed = false;
-  // Start at the peak and scan backwards
+  // Scan over the entire waveform
   for (UShort_t i = 0; i < fDigitWfm.size(); i++) {
 
     double voltage = (fDigitWfm[i] - fPedestal) * fVoltageRes;
 
+    // If we crossed below threshold
     if (voltage < fThreshold) {
+      // Not already below thresh, count the crossing
       if(!fCrossed){
         fNCrossings += 1;
       }
+      // Count the time over threshold, mark that we crossed
       fTimeOverThreshold += fTimeStep;
+      fVoltageOverThreshold += voltage;
       fCrossed = true;
     }
+    // If we are above threshold
     if (voltage > fThreshold) {
       fCrossed = false;
     }
@@ -179,14 +190,15 @@ double WaveformAnalysis::CalculateTime() {
   return tcdf;
 }
 
-double WaveformAnalysis::Integrate() {
+void WaveformAnalysis::Integrate() {
   /*
-  Integrate the digitized waveform to calculate charge
+  Integrate the digitized waveform around the peak to calculate charge
   */
-  double charge = 0;
+  fCharge = 0;
 
   if(fLowIntWindow >= fDigitWfm.size()){
-    return INVALID;
+    fCharge = INVALID;
+    return;
   }
 
   // Make sure not to integrate past the end of the waveform
@@ -196,10 +208,29 @@ double WaveformAnalysis::Integrate() {
 
   for (int i = fLowIntWindow; i < fHighIntWindow; i++) {
     double voltage = (fDigitWfm[i] - fPedestal) * fVoltageRes;
-    charge += (-voltage * fTimeStep) / fTermOhms;  // in pC
+    fCharge += (-voltage * fTimeStep) / fTermOhms;  // in pC
   }
+}
 
-  return charge;
+void WaveformAnalysis::SlidingIntegral() {
+  /*
+  Integrate the digitized waveform over sliding windows to calculate a total charge
+  */
+  fTotalCharge = 0;
+  int nsliding = int(fDigitWfm.size()/fSlidingWindow); 
+
+  for (int i = 0; i < nsliding; i++){
+    double charge = 0;
+    int sample_start = i*fSlidingWindow;
+    int sample_end = (i+1)*fSlidingWindow;
+    for (int j = sample_start; j < sample_end; j++){ 
+      double voltage = (fDigitWfm[j] - fPedestal) * fVoltageRes;
+      charge += (-voltage * fTimeStep) / fTermOhms;  // in pC
+    }
+    if(charge > fChargeThresh){
+      fTotalCharge += charge;
+    }
+  }
 }
 
 }  // namespace RAT
