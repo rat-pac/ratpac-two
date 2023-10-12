@@ -119,10 +119,8 @@ class OutNtupleProc : public Processor {
   // Store PMT Hit Positions
   std::vector<int> hitPMTID;
   std::vector<double> hitPMTTime;
-  std::vector<double> hitPMTDigitizedTime;
-  std::vector<double> hitPMTInterpolatedTime;
-  std::vector<double> hitPMTSampleTime;
   std::vector<double> hitPMTCharge;
+  std::vector<double> hitPMTDigitizedTime;
   std::vector<double> hitPMTDigitizedCharge;
   std::vector<int> hitPMTNCrossings;
   // Tracking

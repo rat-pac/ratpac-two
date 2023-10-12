@@ -8,6 +8,8 @@
 #include <RAT/DS/MC.hh>
 #include <RAT/DS/MCParticle.hh>
 #include <RAT/DS/MCPMT.hh>
+#include <RAT/DS/PMT.hh>
+#include <RAT/DS/DigitPMT.hh>
 #include <RAT/DS/MCSummary.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/Root.hh>
@@ -120,10 +122,9 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("hitPMTID", &hitPMTID);
     // Information about *first* detected PE 
     outputTree->Branch("hitPMTTime", &hitPMTTime);
-    outputTree->Branch("hitPMTDigitizedTime", &hitPMTDigitizedTime);
     outputTree->Branch("hitPMTCharge", &hitPMTCharge);
-    outputTree->Branch("hitPMTInterpolatedTime", &hitPMTInterpolatedTime);
-    outputTree->Branch("hitPMTSampleTime", &hitPMTSampleTime);
+    // Output of the waveform analysis
+    outputTree->Branch("hitPMTDigitizedTime", &hitPMTDigitizedTime);
     outputTree->Branch("hitPMTDigitizedCharge", &hitPMTDigitizedCharge);
     outputTree->Branch("hitPMTNCrossings", &hitPMTNCrossings);
   }
@@ -393,31 +394,25 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     }
     nhits = ev->GetPMTCount();
     if (options.pmthits) {
+
       hitPMTID.clear();
       hitPMTTime.clear();
-      hitPMTDigitizedTime.clear();
       hitPMTCharge.clear();
+      hitPMTDigitizedTime.clear();
       hitPMTDigitizedCharge.clear();
-      hitPMTInterpolatedTime.clear();
-      hitPMTSampleTime.clear();
       hitPMTNCrossings.clear();
+
       for (int pmtc = 0; pmtc < ev->GetPMTCount(); pmtc++) {
-        double charge = ev->GetPMT(pmtc)->GetCharge();
-        double hit_time = ev->GetPMT(pmtc)->GetTime();
-        double digitized_time = ev->GetPMT(pmtc)->GetDigitizedTime();
-        double digitized_charge = ev->GetPMT(pmtc)->GetDigitizedCharge();
-        double interpolated_time = ev->GetPMT(pmtc)->GetInterpolatedTime();
-        int ncrossings = ev->GetPMT(pmtc)->GetNCrossings();
-        int sample_time = ev->GetPMT(pmtc)->GetSampleTime();
-        int pmtid = ev->GetPMT(pmtc)->GetID();
-        hitPMTID.push_back(pmtid);
-        hitPMTTime.push_back(hit_time);
-        hitPMTDigitizedTime.push_back(digitized_time);
-        hitPMTCharge.push_back(charge);
-        hitPMTDigitizedCharge.push_back(digitized_charge);
-        hitPMTInterpolatedTime.push_back(interpolated_time);
-        hitPMTSampleTime.push_back(sample_time);
-        hitPMTNCrossings.push_back(ncrossings);
+        RAT::DS::PMT* pmt = ev->GetPMT(pmtc);
+        hitPMTID.push_back(pmt->GetID());
+        hitPMTTime.push_back(pmt->GetTime());
+        hitPMTCharge.push_back(pmt->GetCharge());
+      }
+      for (int pmtc = 0; pmtc < ev->GetDigitPMTCount(); pmtc++) {
+        RAT::DS::DigitPMT* digitpmt = ev->GetDigitPMT(pmtc); 
+        hitPMTDigitizedTime.push_back(digitpmt->GetDigitizedTime());
+        hitPMTDigitizedCharge.push_back(digitpmt->GetDigitizedCharge());
+        hitPMTNCrossings.push_back(digitpmt->GetNCrossings());
       }
     }
     this->FillEvent(ds, ev);
@@ -429,9 +424,10 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
-      hitPMTDigitizedTime.clear();
       hitPMTCharge.clear();
+      hitPMTDigitizedTime.clear();
       hitPMTDigitizedCharge.clear();
+      hitPMTNCrossings.clear();
     }
     this->FillNoTriggerEvent(ds);
     outputTree->Fill();
