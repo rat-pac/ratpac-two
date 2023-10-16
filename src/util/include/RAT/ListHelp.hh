@@ -35,12 +35,6 @@ void endcopy_vector(std::vector<T *> &dest, const std::vector<T *> &src) {
   }
 }
 
-template <class T>
-class CompareFunc : public std::binary_function<T *, T *, bool> {
- public:
-  virtual bool operator()(T *, T *) = 0;
-};
-
 }  // namespace RAT
 
 #endif
