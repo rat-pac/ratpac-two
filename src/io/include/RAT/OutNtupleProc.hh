@@ -89,11 +89,12 @@ class OutNtupleProc : public Processor {
   double scintPhotons;
   double remPhotons;
   double cherPhotons;
-  // MC PMT/PE
+  // MCPMT
   int mcnhits;
   int mcpecount;
   std::vector<int> mcpmtid;
-  std::vector<int> mcpeindex;
+  std::vector<int> mcpmtnpe;
+  // MCPE
   std::vector<double> mcpetime;
   std::vector<int> mcpeprocess;
   std::vector<double> mcpewavelength;
@@ -118,9 +119,10 @@ class OutNtupleProc : public Processor {
   // Store PMT Hit Positions
   std::vector<int> hitPMTID;
   std::vector<double> hitPMTTime;
-  std::vector<double> hitPMTDigitizedTime;
   std::vector<double> hitPMTCharge;
+  std::vector<double> hitPMTDigitizedTime;
   std::vector<double> hitPMTDigitizedCharge;
+  std::vector<int> hitPMTNCrossings;
   // Tracking
   std::map<std::string, int> processCodeMap;
   std::vector<int> processCodeIndex;

@@ -6,6 +6,7 @@
 #include <RAT/SplitEVDAQProc.hh>
 #include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/PMT.hh>
+#include <RAT/DS/DigitPMT.hh>
 #include <RAT/DS/RunStore.hh>
 
 #include <algorithm>
@@ -36,14 +37,14 @@ SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
 }
 
 void SplitEVDAQProc::BeginOfRun(DS::Run *run) {
-    if (fDigitize) {
-        DS::PMTInfo *pmtinfo = run->GetPMTInfo();
-        const size_t numModels = pmtinfo->GetModelCount();
-        for (size_t i = 0; i < numModels; i++) {
-            const std::string modelName = pmtinfo->GetModelName(i);
-            fDigitizer->AddWaveformGenerator(modelName);
-        }
+  if (fDigitize) {
+    DS::PMTInfo *pmtinfo = run->GetPMTInfo();
+    const size_t numModels = pmtinfo->GetModelCount();
+    for (size_t i = 0; i < numModels; i++) {
+      const std::string modelName = pmtinfo->GetModelName(i);
+      fDigitizer->AddWaveformGenerator(modelName);
     }
+  }
 }
 
 Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
@@ -168,7 +169,9 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         if (fDigitize) {
           fDigitizer->DigitizePMT(mcpmt, pmtID, tt, pmtinfo);
           if( fAnalyze) {
-            fWaveformAnalysis->RunAnalysis(pmt, pmtID, fDigitizer);
+            DS::DigitPMT *digitpmt = ev->AddNewDigitPMT();
+            digitpmt->SetID(pmtID);
+            fWaveformAnalysis->RunAnalysis(digitpmt, pmtID, fDigitizer);
           }
         }
       }

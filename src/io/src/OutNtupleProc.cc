@@ -8,6 +8,8 @@
 #include <RAT/DS/MC.hh>
 #include <RAT/DS/MCParticle.hh>
 #include <RAT/DS/MCPMT.hh>
+#include <RAT/DS/PMT.hh>
+#include <RAT/DS/DigitPMT.hh>
 #include <RAT/DS/MCSummary.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/Root.hh>
@@ -120,14 +122,17 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("hitPMTID", &hitPMTID);
     // Information about *first* detected PE 
     outputTree->Branch("hitPMTTime", &hitPMTTime);
-    outputTree->Branch("hitPMTDigitizedTime", &hitPMTDigitizedTime);
     outputTree->Branch("hitPMTCharge", &hitPMTCharge);
+    // Output of the waveform analysis
+    outputTree->Branch("hitPMTDigitizedTime", &hitPMTDigitizedTime);
     outputTree->Branch("hitPMTDigitizedCharge", &hitPMTDigitizedCharge);
+    outputTree->Branch("hitPMTNCrossings", &hitPMTNCrossings);
   }
   if (options.mchits) {
     // Save full MC PMT hit information
     outputTree->Branch("mcPMTID", &mcpmtid);
-    outputTree->Branch("mcPEIndex", &mcpeindex);
+    outputTree->Branch("mcPMTNPE", &mcpmtnpe);
+
     outputTree->Branch("mcPETime", &mcpetime);
     // Production process
     // 1=Cherenkov, 0=Dark noise, 2=Scint., 3=Reem., 4=Unknown
@@ -276,15 +281,17 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   remPhotons = mcs->GetNumReemitPhoton();
   cherPhotons = mcs->GetNumCerenkovPhoton();
 
-  // MC hits and PE
+  // MCPMT information
+  mcpmtid.clear();
+  mcpmtnpe.clear();
+
+  // MCPE information
   mcpetime.clear();
   mcpeprocess.clear();
-  mcpeindex.clear();
   mcpewavelength.clear();
   mcpex.clear();
   mcpey.clear();
   mcpez.clear();
-  mcpmtid.clear();
 
   mcnhits = mc->GetMCPMTCount();
   mcpecount = mc->GetNumPE();
@@ -292,10 +299,10 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     for (int ipmt = 0; ipmt < mc->GetMCPMTCount(); ipmt++){
       DS::MCPMT* mcpmt = mc->GetMCPMT(ipmt);
       mcpmtid.push_back(mcpmt->GetID());
+      mcpmtnpe.push_back(mcpmt->GetMCPhotonCount());
       TVector3 position = pmtinfo->GetPosition(mcpmt->GetID());
       for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++){
         RAT::DS::MCPhoton* mcph = mcpmt->GetMCPhoton(ipe);
-        mcpeindex.push_back(ipe);
         mcpetime.push_back(mcph->GetFrontEndTime());
         mcpewavelength.push_back(mcph->GetLambda());
         mcpex.push_back(position.X());
@@ -387,22 +394,25 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     }
     nhits = ev->GetPMTCount();
     if (options.pmthits) {
+
       hitPMTID.clear();
       hitPMTTime.clear();
-      hitPMTDigitizedTime.clear();
       hitPMTCharge.clear();
+      hitPMTDigitizedTime.clear();
       hitPMTDigitizedCharge.clear();
+      hitPMTNCrossings.clear();
+
       for (int pmtc = 0; pmtc < ev->GetPMTCount(); pmtc++) {
-        double charge = ev->GetPMT(pmtc)->GetCharge();
-        double hit_time = ev->GetPMT(pmtc)->GetTime();
-        double digitized_time = ev->GetPMT(pmtc)->GetDigitizedTime();
-        double digitized_charge = ev->GetPMT(pmtc)->GetDigitizedCharge();
-        int pmtid = ev->GetPMT(pmtc)->GetID();
-        hitPMTID.push_back(pmtid);
-        hitPMTTime.push_back(hit_time);
-        hitPMTDigitizedTime.push_back(digitized_time);
-        hitPMTCharge.push_back(charge);
-        hitPMTDigitizedCharge.push_back(digitized_charge);
+        RAT::DS::PMT* pmt = ev->GetPMT(pmtc);
+        hitPMTID.push_back(pmt->GetID());
+        hitPMTTime.push_back(pmt->GetTime());
+        hitPMTCharge.push_back(pmt->GetCharge());
+      }
+      for (int pmtc = 0; pmtc < ev->GetDigitPMTCount(); pmtc++) {
+        RAT::DS::DigitPMT* digitpmt = ev->GetDigitPMT(pmtc); 
+        hitPMTDigitizedTime.push_back(digitpmt->GetDigitizedTime());
+        hitPMTDigitizedCharge.push_back(digitpmt->GetDigitizedCharge());
+        hitPMTNCrossings.push_back(digitpmt->GetNCrossings());
       }
     }
     this->FillEvent(ds, ev);
@@ -414,9 +424,10 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
-      hitPMTDigitizedTime.clear();
       hitPMTCharge.clear();
+      hitPMTDigitizedTime.clear();
       hitPMTDigitizedCharge.clear();
+      hitPMTNCrossings.clear();
     }
     this->FillNoTriggerEvent(ds);
     outputTree->Fill();

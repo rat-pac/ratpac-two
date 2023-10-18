@@ -3,12 +3,20 @@ name: "DIGITIZER_ANALYSIS",
 valid_begin: [0,0],
 valid_end: [0,0],
 
-// Lower/upper limits of pedestal window
+// Lower/upper limits of pedestal window, in samples
 pedestal_window_low: 0,
-pedestal_window_high: 100,
+pedestal_window_high: 10,
 constant_fraction: 0.40,
-lookback: 100,
-integration_window_low: 10,
-integration_window_high: 50,
+// Number of samples to look back after the peak
+lookback: 20.0,
+// Integration window, in samples
+integration_window_low: 4,
+integration_window_high: 10,
+// Sliding integration window, in samples
+sliding_window_width: 10,
+// Charge threshold to contribute to total charge
+sliding_window_thresh: 0.2,
+// Threshold in mV
+voltage_threshold: -2.5,
 }
 
