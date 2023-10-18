@@ -26,18 +26,28 @@
 #include <RAT/PhysicsList.hh>
 #include <RAT/PhysicsListMessenger.hh>
 #include <RAT/Log.hh>
+#include <RAT/DB.hh>
 
 namespace RAT {
 
-PhysicsList::PhysicsList() : Shielding(), wlsModel(NULL) {
-  this->CerenkovMaxNumPhotonsPerStep = 1;
-  this->IsCerenkovEnabled = true;
-  new PhysicsListMessenger(this);
+PhysicsList::PhysicsList() : Shielding(), wlsModel(nullptr) {
+  DBLinkPtr physicsdb = DB::Get()->GetLink("PHYSICS");
+
+  // Cherenkov process settings
+  this->IsCerenkovEnabled = physicsdb->GetZ("enable_cerenkov");
+  this->CerenkovMaxNumPhotonsPerStep = physicsdb->GetI("cerenkov_max_num_photons_per_step");
+
   // Step sizes for light ions (alpha), muons, and hadrons
-  this->stepRatioLightIons = 0.01;
-  this->finalRangeLightIons = 0.01 * CLHEP::um;
-  this->stepRatioMuHad = 0.01;
-  this->finalRangeMuHad = 0.1 * CLHEP::mm;
+  this->stepRatioLightIons = physicsdb->GetD("step_function_light_ions_d_over_R");
+  this->finalRangeLightIons = physicsdb->GetD("step_function_light_ions_final_range");
+  this->stepRatioMuHad = physicsdb->GetD("step_function_muon_hadron_d_over_R");
+  this->finalRangeMuHad = physicsdb->GetD("step_function_muon_hadron_final_range");
+
+  // WLS settings
+  this->wlsModelName = physicsdb->GetS("wls_model_name");
+
+  new PhysicsListMessenger(this);
+
 }
 
 PhysicsList::~PhysicsList() {}
@@ -63,7 +73,7 @@ void PhysicsList::EnableThermalNeutronScattering() {
   G4ParticleDefinition *n_definition = G4Neutron::Definition();
 
   // Get the elastic scattering process used for neutrons
-  G4HadronicProcess *n_elastic_process = NULL;
+  G4HadronicProcess *n_elastic_process = nullptr;
   G4ProcessVector *proc_vec = n_definition->GetProcessManager()->GetProcessList();
   for (int i = 0; i < proc_vec->size(); i++) {
     G4VProcess *proc = proc_vec->operator[](i);
@@ -102,9 +112,14 @@ void PhysicsList::SetOpWLSModel(std::string model) {
 
   if (model == "g4") {
     this->wlsModel = new G4OpWLSBuilder();
-  } else if (model == "bnl") {
+  }
+  else if (model == "bnl") {
     this->wlsModel = new BNLOpWLSBuilder();
-  } else {
+  }
+  else if (model == "") {
+    this->wlsModel = nullptr;
+  }
+  else {
     warn << "PhysicsList::SetOpWLSModel: Unknown model \"" << model << "\"" << newline;
     throw std::runtime_error("Unknown WLS model in PhysicsList");
   }
@@ -137,11 +152,19 @@ void PhysicsList::ConstructOpticalProcesses() {
 
   // Scintillation: RAT's GLG4Scint
   //
-  // Create three scintillation processes which depend on the mass.
+  // Create scintillation processes which depend on the mass.
+  // Particles use following processes depending on mass:
+  // - 0 < m < 0.9*proton (844 MeV) -- use default process (electron)
+  // - 0.9*proton (844 MeV) < m < 0.999*neutron (938.6 MeV) -- use proton process
+  // - 0.999*neutron (938.6 MeV) < m < 0.9*alpha (3.35 GeV) -- use neutron process
+  // - m > 0.9*alpha (3.35 GeV) -- use alpha process
   G4double protonMass = G4Proton::Proton()->GetPDGMass();
+  G4double neutronMass = G4Neutron::Neutron()->GetPDGMass();
   G4double alphaMass = G4Alpha::Alpha()->GetPDGMass();
+
   GLG4Scint *defaultScintProcess = new GLG4Scint();
-  GLG4Scint *nucleonScintProcess = new GLG4Scint("nucleon", 0.9 * protonMass);
+  GLG4Scint *protonScintProcess = new GLG4Scint("proton", 0.9 * protonMass);
+  GLG4Scint *neutronScintProcess = new GLG4Scint("neutron", 0.999 * neutronMass);
   GLG4Scint *alphaScintProcess = new GLG4Scint("alpha", 0.9 * alphaMass);
 
   // Optical boundary processes: default G4
@@ -150,6 +173,8 @@ void PhysicsList::ConstructOpticalProcesses() {
   OpRayleigh *opRayleigh = new OpRayleigh();
 
   // Wavelength shifting: User-selectable via PhysicsListMessenger
+  // Add call to SetOpWLSModel so it can be set from DB too... Need to reorganize in future
+  SetOpWLSModel(this->wlsModelName);
   if (this->wlsModel) {
     wlsModel->ConstructProcess();
   }
@@ -161,7 +186,8 @@ void PhysicsList::ConstructOpticalProcesses() {
     }
     attenuationProcess->DumpInfo();
     defaultScintProcess->DumpInfo();
-    nucleonScintProcess->DumpInfo();
+    protonScintProcess->DumpInfo();
+    neutronScintProcess->DumpInfo();
     alphaScintProcess->DumpInfo();
     opBoundaryProcess->DumpInfo();
   }
@@ -171,7 +197,8 @@ void PhysicsList::ConstructOpticalProcesses() {
   }
   attenuationProcess->SetVerboseLevel(verboseLevel - 1);
   defaultScintProcess->SetVerboseLevel(verboseLevel - 1);
-  nucleonScintProcess->SetVerboseLevel(verboseLevel - 1);
+  protonScintProcess->SetVerboseLevel(verboseLevel - 1);
+  neutronScintProcess->SetVerboseLevel(verboseLevel - 1);
   alphaScintProcess->SetVerboseLevel(verboseLevel - 1);
   opBoundaryProcess->SetVerboseLevel(verboseLevel - 1);
 
