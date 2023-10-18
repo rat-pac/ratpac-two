@@ -1,7 +1,7 @@
 // CCCrossSec.cc
 // Contact person: Max Smiley <masmiley@berkeley.edu>
 // See CCCrossSec.hh for more details
-//———————————————————————//
+// ———————————————————————//
 
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>

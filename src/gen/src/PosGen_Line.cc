@@ -1,6 +1,6 @@
 #include <RAT/GLG4StringUtil.hh>
-#include <RAT/PosGen_Line.hh>
 #include <RAT/Log.hh>
+#include <RAT/PosGen_Line.hh>
 #include <Randomize.hh>
 #include <sstream>
 
@@ -19,10 +19,9 @@ void PosGen_Line::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    info << "Current state of this GLG4PosGen_Line:" << newline
-              << " \"" << GetState() << "\"" << newline << newline;
-    info << "Format of argument to PosGen_Line::SetState: " << newline
-              <<  " \"x1_mm y1_mm z1_mm x2_mm y2_mm z2_mm\"" << newline;
+    info << "Current state of this GLG4PosGen_Line:" << newline << " \"" << GetState() << "\"" << newline << newline;
+    info << "Format of argument to PosGen_Line::SetState: " << newline << " \"x1_mm y1_mm z1_mm x2_mm y2_mm z2_mm\""
+         << newline;
     return;
   }
 

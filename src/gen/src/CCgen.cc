@@ -137,8 +137,7 @@ void CCgen::LoadGenerator() {
 
   // If it reaches this point without failing then everything should be fine
   fGenLoaded = true;
-  info << "Rate per target for CC of " << fNuType.c_str() << " flux on Li7 is: " << GetRatePerTarget()
-            << newline;
+  info << "Rate per target for CC of " << fNuType.c_str() << " flux on Li7 is: " << GetRatePerTarget() << newline;
 }
 
 CCgen::~CCgen() {
@@ -397,7 +396,7 @@ G4double CCgen::GetRatePerTarget() {
     }
   }
   info << "Interaction rate: " << intRate << " XS norm: " << fXS->CrossSecNorm() << " Total Flux: " << fTotalFlux
-            << newline;
+       << newline;
   // don't forget the scale factor from the cross section
   // nor the total flux
   return intRate * fXS->CrossSecNorm() * fTotalFlux;

@@ -116,7 +116,7 @@ AmBeSource::AmBeSource() {
     double pz = neutronP * cosTheta;
 #ifdef DEBUG
     debug << "AmBeSource::AmBeSource() - neutron energy " << nn << " = " << energy << ", KE=" << neutronKE
-              << ", (px,py,pz)=(" << px << "," << py << "," << pz << ")" << newline;
+          << ", (px,py,pz)=(" << px << "," << py << "," << pz << ")" << newline;
 #endif
     CLHEP::HepLorentzVector momentum(px, py, pz, energy);
     neutronE.push_back(momentum);
@@ -139,7 +139,7 @@ AmBeSource::AmBeSource() {
 
 #ifdef DEBUG
   debug << "AmBeSource::AmBeSource - "
-            << "m=" << m << " => " << Ngamma << " photons" << newline;
+        << "m=" << m << " => " << Ngamma << " photons" << newline;
 #endif
   // pick a momentum for each gamma
   //
@@ -154,8 +154,8 @@ AmBeSource::AmBeSource() {
     double py = energy * sinTheta * sin(phi);
     double pz = energy * cosTheta;
 #ifdef DEBUG
-    debug << "AmBeSource::AmBeSource() - gamma energy " << nn << " = " << energy << ", (px,py,pz)=(" << px << ","
-              << py << "," << pz << ")" << newline;
+    debug << "AmBeSource::AmBeSource() - gamma energy " << nn << " = " << energy << ", (px,py,pz)=(" << px << "," << py
+          << "," << pz << ")" << newline;
 #endif
     CLHEP::HepLorentzVector momentum(px, py, pz, energy);
     gammaE.push_back(momentum);

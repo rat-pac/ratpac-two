@@ -4,19 +4,19 @@
 #include <TVector3.h>
 
 #include <RAT/DB.hh>
+#include <RAT/DS/DigitPMT.hh>
 #include <RAT/DS/EV.hh>
 #include <RAT/DS/MC.hh>
-#include <RAT/DS/MCParticle.hh>
 #include <RAT/DS/MCPMT.hh>
-#include <RAT/DS/PMT.hh>
-#include <RAT/DS/DigitPMT.hh>
+#include <RAT/DS/MCParticle.hh>
 #include <RAT/DS/MCSummary.hh>
+#include <RAT/DS/PMT.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/DS/RunStore.hh>
-#include <RAT/OutNtupleProc.hh>
 #include <RAT/Log.hh>
+#include <RAT/OutNtupleProc.hh>
 #include <iostream>
 #include <numeric>
 #include <sstream>
@@ -120,7 +120,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   if (options.pmthits) {
     // Save full PMT hit informations
     outputTree->Branch("hitPMTID", &hitPMTID);
-    // Information about *first* detected PE 
+    // Information about *first* detected PE
     outputTree->Branch("hitPMTTime", &hitPMTTime);
     outputTree->Branch("hitPMTCharge", &hitPMTCharge);
     // Output of the waveform analysis
@@ -295,34 +295,31 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 
   mcnhits = mc->GetMCPMTCount();
   mcpecount = mc->GetNumPE();
-  if (options.mchits){
-    for (int ipmt = 0; ipmt < mc->GetMCPMTCount(); ipmt++){
-      DS::MCPMT* mcpmt = mc->GetMCPMT(ipmt);
+  if (options.mchits) {
+    for (int ipmt = 0; ipmt < mc->GetMCPMTCount(); ipmt++) {
+      DS::MCPMT *mcpmt = mc->GetMCPMT(ipmt);
       mcpmtid.push_back(mcpmt->GetID());
       mcpmtnpe.push_back(mcpmt->GetMCPhotonCount());
       TVector3 position = pmtinfo->GetPosition(mcpmt->GetID());
-      for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++){
-        RAT::DS::MCPhoton* mcph = mcpmt->GetMCPhoton(ipe);
+      for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++) {
+        RAT::DS::MCPhoton *mcph = mcpmt->GetMCPhoton(ipe);
         mcpetime.push_back(mcph->GetFrontEndTime());
         mcpewavelength.push_back(mcph->GetLambda());
         mcpex.push_back(position.X());
         mcpey.push_back(position.Y());
         mcpez.push_back(position.Z());
-        if(mcph->IsDarkHit()){
+        if (mcph->IsDarkHit()) {
           mcpeprocess.push_back(noise);
           continue;
         }
         std::string process = mcph->GetCreatorProcess();
-        if(process.find("Cerenkov") != std::string::npos){
+        if (process.find("Cerenkov") != std::string::npos) {
           mcpeprocess.push_back(cherenkov);
-        }
-        else if(process.find("Scintillation") != std::string::npos){
+        } else if (process.find("Scintillation") != std::string::npos) {
           mcpeprocess.push_back(scintillation);
-        }
-        else if(process.find("Reemission") != std::string::npos){
+        } else if (process.find("Reemission") != std::string::npos) {
           mcpeprocess.push_back(reemission);
-        }
-        else{
+        } else {
           mcpeprocess.push_back(unknown);
         }
       }
@@ -394,7 +391,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     }
     nhits = ev->GetPMTCount();
     if (options.pmthits) {
-
       hitPMTID.clear();
       hitPMTTime.clear();
       hitPMTCharge.clear();
@@ -403,13 +399,13 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       hitPMTNCrossings.clear();
 
       for (int pmtc = 0; pmtc < ev->GetPMTCount(); pmtc++) {
-        RAT::DS::PMT* pmt = ev->GetPMT(pmtc);
+        RAT::DS::PMT *pmt = ev->GetPMT(pmtc);
         hitPMTID.push_back(pmt->GetID());
         hitPMTTime.push_back(pmt->GetTime());
         hitPMTCharge.push_back(pmt->GetCharge());
       }
       for (int pmtc = 0; pmtc < ev->GetDigitPMTCount(); pmtc++) {
-        RAT::DS::DigitPMT* digitpmt = ev->GetDigitPMT(pmtc); 
+        RAT::DS::DigitPMT *digitpmt = ev->GetDigitPMT(pmtc);
         hitPMTDigitizedTime.push_back(digitpmt->GetDigitizedTime());
         hitPMTDigitizedCharge.push_back(digitpmt->GetDigitizedCharge());
         hitPMTNCrossings.push_back(digitpmt->GetNCrossings());
@@ -444,7 +440,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 }
 
 OutNtupleProc::~OutNtupleProc() {
-
   if (outputFile) {
     outputFile->cd();
 

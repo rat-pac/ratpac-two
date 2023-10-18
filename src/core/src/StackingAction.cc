@@ -5,13 +5,14 @@
 
 #include "RAT/StackingAction.hh"
 
+#include <RAT/Log.hh>
+
 #include "G4Electron.hh"
 #include "G4Gamma.hh"
 #include "G4NeutrinoE.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4VProcess.hh"
-#include <RAT/Log.hh>
 
 // constructor
 StackingAction::StackingAction() {}
@@ -34,8 +35,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track *track
     RAT::debug << "*******************************" << newline;
 
     RAT::debug << "(name, parentID,trackID,stepID,status) : (" << par->GetParticleName() << "," << track->GetParentID()
-           << "," << track->GetTrackID() << "," << track->GetCurrentStepNumber() << "," << track->GetTrackStatus()
-           << ")" << newline;
+               << "," << track->GetTrackID() << "," << track->GetCurrentStepNumber() << "," << track->GetTrackStatus()
+               << ")" << newline;
   }
 
 #endif

@@ -16,9 +16,9 @@
 #include <G4ThreeVector.hh>
 #include <RAT/GLG4PosGen.hh>
 #include <RAT/GLG4StringUtil.hh>
+#include <RAT/Log.hh>
 #include <RAT/SNgen.hh>
 #include <RAT/VertexGen_SN.hh>
-#include <RAT/Log.hh>
 #include <Randomize.hh>
 #include <cmath>
 #include <globals.hh>
@@ -55,8 +55,7 @@ void VertexGen_SN::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G
     G4double phi = 2.0 * G4UniformRand() * CLHEP::pi;
     nu_dir.setRThetaPhi(1.0, theta, phi);  // Changed such that nu_dir is changed, not e_nu_dir
     info << "You have chosen an isotropic configuration, for supernovae this "
-           << "does not make sense.\n Picking a new direction for you. ("
-           << theta << " " << phi << ")" << newline;
+         << "does not make sense.\n Picking a new direction for you. (" << theta << " " << phi << ")" << newline;
   }
 
   // Pick an interaction for the supernova and then randomly pick a neutrino
@@ -101,14 +100,11 @@ void VertexGen_SN::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);  // from GLG4StringUtil
   if (newValues.length() == 0) {
     // print help and current state
-    info << "Current state of this VertexGen_SN:" << newline
-            << " \"" << GetState() << "\"" << newline
-            << newline;
-    info << "Format of argument to VertexGen_SN::SetState: " << newline
-            << " \"nu_dir_x nu_dir_y nu_dir_z\"\n"
-            << " where nu_dir is the initial direction of the reactor antineutrino.\n"
-            << " Does not have to be normalized.  Set to \"0. 0. 0.\" for isotropic\n"
-            << " neutrino direction." << newline;
+    info << "Current state of this VertexGen_SN:" << newline << " \"" << GetState() << "\"" << newline << newline;
+    info << "Format of argument to VertexGen_SN::SetState: " << newline << " \"nu_dir_x nu_dir_y nu_dir_z\"\n"
+         << " where nu_dir is the initial direction of the reactor antineutrino.\n"
+         << " Does not have to be normalized.  Set to \"0. 0. 0.\" for isotropic\n"
+         << " neutrino direction." << newline;
     return;
   }
 
@@ -511,8 +507,8 @@ CLHEP::HepLorentzVector VertexGen_SN::GetEmomentum(G4double enu, G4double eelect
       acos((sqrt(((eelectron * (pow((m_e + enu), 2))) / ((2 * m_e * (pow(enu, 2))) + ((pow(enu, 2)) * eelectron))))));
 
 #ifdef DEBUG
-  debug << "Neutrino std::vector = {" << neutrino_dir.x() << ", " << neutrino_dir.y() << ", " << neutrino_dir.z()
-            << "}" << newline;
+  debug << "Neutrino std::vector = {" << neutrino_dir.x() << ", " << neutrino_dir.y() << ", " << neutrino_dir.z() << "}"
+        << newline;
   debug << "Cosine scattering angle (cos(theta)) = " << cos(theta) << newline;
 #endif
 
@@ -533,8 +529,8 @@ CLHEP::HepLorentzVector VertexGen_SN::GetEmomentum(G4double enu, G4double eelect
   e_momentum.setE(eelectron + m_e);
 
 #ifdef DEBUG
-  debug << "Electron std::vector = {" << e_direction.x() << ", " << e_direction.y() << ", " << e_direction.z()
-            << "}" << newline;
+  debug << "Electron std::vector = {" << e_direction.x() << ", " << e_direction.y() << ", " << e_direction.z() << "}"
+        << newline;
   debug << "-----------------------------------------" << newline;
 #endif
 

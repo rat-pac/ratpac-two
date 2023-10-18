@@ -8,9 +8,9 @@
 #include <G4UIcmdWithADouble.hh>
 #include <G4UIcommand.hh>
 #include <G4UIdirectory.hh>
+#include <RAT/Log.hh>
 #include <RAT/ReacIBDgen.hh>
 #include <RAT/ReacIBDgenMessenger.hh>
-#include <RAT/Log.hh>
 
 namespace RAT {
 ReacIBDgenMessenger::ReacIBDgenMessenger(ReacIBDgen *re) : reacibdgen(re) {

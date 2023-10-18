@@ -111,43 +111,41 @@ void Materials::LoadOpticalSurfaces() {
       } catch (DBNotFoundError &e) {
       }
 
-      if (type == dielectric_dichroic){
-        // Dichroic filters need to have a environment variable 
-        // set to the transmission property file, rather than 
+      if (type == dielectric_dichroic) {
+        // Dichroic filters need to have a environment variable
+        // set to the transmission property file, rather than
         // declaring a properties table directly.
         std::string name = std::string(iv->first.c_str());
         std::string data_file = iv->second->GetS("dichroic_property_file");
         std::string environment = "RATSHARE";
         try {
           environment = iv->second->GetS("data_env");
-        } catch (DBNotFoundError &e) {}
+        } catch (DBNotFoundError &e) {
+        }
         std::string data_base_dir = getenv(environment.c_str()) + std::string("/ratdb/");
         std::string data_path = data_base_dir + data_file;
-        info << "Getting dichroic data for Material: " << name 
-              << " from file: " << data_path << newline;
+        info << "Getting dichroic data for Material: " << name << " from file: " << data_path << newline;
         setenv("G4DICHROICDATA", data_path.c_str(), 1);
       }
 
       G4OpticalSurface *surf = new G4OpticalSurface(iv->first.c_str());
       surf->SetFinish(finish);
       surf->SetModel(model);
-      
+
       // when dichroic filter data is read, geant4 emits unguarded printouts, spamming the log. Calls are here:
       // [https://gitlab.cern.ch/geant4/geant4/-/blob/84a556a9dca683c2d541394a795642ecb4c07a3d/source/materials/src/G4OpticalSurface.cc#L523-562].
       // This hack temporarily redirects cout to avoid this. Should be reverted if upstream is fixed.
       if (type == dielectric_dichroic) {
         std::ofstream devNull("/dev/null");
         // save cout
-        std::streambuf * oldCout = G4cout.rdbuf();
+        std::streambuf *oldCout = G4cout.rdbuf();
         G4cout.rdbuf(devNull.rdbuf());
         surf->SetType(type);
         G4cout.rdbuf(oldCout);
-      }
-      else {
+      } else {
         surf->SetType(type);
       }
-      
-      
+
       surf->SetPolish(polish);
 
       surf->SetMaterialPropertiesTable(mat->GetMaterialPropertiesTable());
@@ -366,7 +364,7 @@ bool Materials::BuildMaterial(std::string namedb, DBLinkPtr table) {
 
     if (elemname.size() != elemprop.size()) {
       info << "Death...oh Materials material reader, "
-                << " how you have forsaken me" << newline;  // fixme tk
+           << " how you have forsaken me" << newline;  // fixme tk
       exit(-1);
     }
 
@@ -381,7 +379,7 @@ bool Materials::BuildMaterial(std::string namedb, DBLinkPtr table) {
 
     if (elemname.size() != elemprop.size()) {
       info << "Death...oh Materials material reader, "
-                << "how you have forsaken me" << newline;  // fixme tk
+           << "how you have forsaken me" << newline;  // fixme tk
       exit(-1);
     }
 
@@ -438,7 +436,7 @@ G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table, std::string n
 
   if (val1.size() != val2.size()) {
     info << "Array size error in Materials: "
-              << "bad property value sizes for " << name << newline;
+         << "bad property value sizes for " << name << newline;
     return nullptr;
   }
 
@@ -585,7 +583,7 @@ void Materials::LoadOptics() {
     G4Material *material = G4Material::GetMaterial(name);
     if (material == nullptr) {
       info << "While loading optics in Materials, "
-                << "there was a bad material name: " << name << newline;
+           << "there was a bad material name: " << name << newline;
       continue;
     }
 

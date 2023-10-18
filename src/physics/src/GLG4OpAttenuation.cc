@@ -12,6 +12,8 @@
 
 #include "RAT/GLG4OpAttenuation.hh"
 
+#include <RAT/Log.hh>
+
 #include "G4DynamicParticle.hh"
 #include "G4GeometryTolerance.hh"
 #include "G4Material.hh"
@@ -21,7 +23,6 @@
 #include "Randomize.hh"
 #include "globals.hh"
 #include "templates.hh"
-#include <RAT/Log.hh>
 
 /////////////////
 // Hidden static variables and functions
@@ -130,13 +131,13 @@ G4VParticleChange *GLG4OpAttenuation::PostStepDoIt(const G4Track &aTrack, const 
 
     postStepPoint->SetProcessDefinedStep(&fgScattering);
   } else {
-      // photon absorbed (may be re-radiated... but that is GLG4Scint's job)
-      aParticleChange.ProposeTrackStatus(fStopAndKill);
-      postStepPoint->SetProcessDefinedStep(&fgAttenuation);
+    // photon absorbed (may be re-radiated... but that is GLG4Scint's job)
+    aParticleChange.ProposeTrackStatus(fStopAndKill);
+    postStepPoint->SetProcessDefinedStep(&fgAttenuation);
 
-      if (verboseLevel > 0) {
-        RAT::debug << "\n** Photon absorbed! **" << newline;
-      }
+    if (verboseLevel > 0) {
+      RAT::debug << "\n** Photon absorbed! **" << newline;
+    }
   }
 
   return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);

@@ -1,11 +1,10 @@
-#include <RAT/WaveformAnalysis.hh>
 #include <RAT/Log.hh>
+#include <RAT/WaveformAnalysis.hh>
 #include <iostream>
 
 namespace RAT {
 
-WaveformAnalysis::WaveformAnalysis(){
-
+WaveformAnalysis::WaveformAnalysis() {
   fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS");
   fPedWindowLow = fDigit->GetI("pedestal_window_low");
   fPedWindowHigh = fDigit->GetI("pedestal_window_high");
@@ -18,12 +17,11 @@ WaveformAnalysis::WaveformAnalysis(){
   fChargeThresh = fDigit->GetD("sliding_window_thresh");
 }
 
-void WaveformAnalysis::RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer *fDigitizer){
-
+void WaveformAnalysis::RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer *fDigitizer) {
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
   fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
 
-  fDigitWfm = fDigitizer->fDigitWaveForm[pmtID]; 
+  fDigitWfm = fDigitizer->fDigitWaveForm[pmtID];
 
   CalculatePedestal();
 
@@ -34,7 +32,7 @@ void WaveformAnalysis::RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer 
   fTermOhms = fDigitizer->fTerminationOhms;
 
   Integrate();
-  SlidingIntegral(); 
+  SlidingIntegral();
 
   digitpmt->SetDigitizedTime(digit_time);
   digitpmt->SetDigitizedCharge(fCharge);
@@ -54,10 +52,9 @@ void WaveformAnalysis::CalculatePedestal() {
   */
   fPedestal = 0;
 
-  if(fPedWindowLow > fDigitWfm.size()){
+  if (fPedWindowLow > fDigitWfm.size()) {
     Log::Die("WaveformAnalysis: Start of pedestal window must be smaller than waveform size.");
-  }
-  else if(fPedWindowLow > fPedWindowHigh){
+  } else if (fPedWindowLow > fPedWindowHigh) {
     Log::Die("WaveformAnalysis: Start of pedestal window must be smaller than end of pedestal window.");
   }
 
@@ -70,7 +67,7 @@ void WaveformAnalysis::CalculatePedestal() {
   fPedestal /= (fPedWindowHigh - fPedWindowLow);
 }
 
-void WaveformAnalysis::Interpolate(double voltage1, double voltage2){
+void WaveformAnalysis::Interpolate(double voltage1, double voltage2) {
   /*
   Linearly interpolate between two samples
   */
@@ -79,7 +76,7 @@ void WaveformAnalysis::Interpolate(double voltage1, double voltage2){
   fInterpolatedTime = dx * fTimeStep;
 }
 
-void WaveformAnalysis::GetPeak(){
+void WaveformAnalysis::GetPeak() {
   /*
   Calculate the peak (in mV) and the corresponding sample.
   */
@@ -96,15 +93,15 @@ void WaveformAnalysis::GetPeak(){
   }
 }
 
-void WaveformAnalysis::GetThresholdCrossing(){
+void WaveformAnalysis::GetThresholdCrossing() {
   /*
   Identifies the sample at which the constant-fraction threshold crossing occurs
    */
   fThresholdCrossing = 0;
   fVoltageCrossing = fConstFrac * fVoltagePeak;
 
-  // Make sure we don't scan passed the beginning of the waveform 
-  Int_t lb = Int_t(fSamplePeak) - Int_t(fLookback/fTimeStep);
+  // Make sure we don't scan passed the beginning of the waveform
+  Int_t lb = Int_t(fSamplePeak) - Int_t(fLookback / fTimeStep);
   UShort_t back_window = (lb > 0) ? lb : 0;
 
   // Start at the peak and scan backwards
@@ -118,14 +115,14 @@ void WaveformAnalysis::GetThresholdCrossing(){
 
     // Reached the begining of the waveform
     // returned an invalid value
-    if (i == 0){
+    if (i == 0) {
       fThresholdCrossing = INVALID;
       break;
     }
   }
 }
 
-void WaveformAnalysis::GetNCrossings(){
+void WaveformAnalysis::GetNCrossings() {
   /*
   Calculates the total number of threshold crossings
   */
@@ -136,13 +133,12 @@ void WaveformAnalysis::GetNCrossings(){
   bool fCrossed = false;
   // Scan over the entire waveform
   for (UShort_t i = 0; i < fDigitWfm.size(); i++) {
-
     double voltage = (fDigitWfm[i] - fPedestal) * fVoltageRes;
 
     // If we crossed below threshold
     if (voltage < fThreshold) {
       // Not already below thresh, count the crossing
-      if(!fCrossed){
+      if (!fCrossed) {
         fNCrossings += 1;
       }
       // Count the time over threshold, mark that we crossed
@@ -171,13 +167,12 @@ double WaveformAnalysis::CalculateTime() {
   // Get the total number of threshold crossings
   GetNCrossings();
 
-  if(fThresholdCrossing == INVALID || 
-     fThresholdCrossing >= fDigitWfm.size()){
+  if (fThresholdCrossing == INVALID || fThresholdCrossing >= fDigitWfm.size()) {
     return INVALID;
   }
 
-  if(fThresholdCrossing >= fDigitWfm.size()){
-    Log::Die("WaveformAnalysis: Threshold crossing sample larger than waveform window."); 
+  if (fThresholdCrossing >= fDigitWfm.size()) {
+    Log::Die("WaveformAnalysis: Threshold crossing sample larger than waveform window.");
   }
 
   // Interpolate between the two samples where the CFD threshold is crossed
@@ -196,7 +191,7 @@ void WaveformAnalysis::Integrate() {
   */
   fCharge = 0;
 
-  if(fLowIntWindow >= fDigitWfm.size()){
+  if (fLowIntWindow >= fDigitWfm.size()) {
     fCharge = INVALID;
     return;
   }
@@ -217,17 +212,17 @@ void WaveformAnalysis::SlidingIntegral() {
   Integrate the digitized waveform over sliding windows to calculate a total charge
   */
   fTotalCharge = 0;
-  int nsliding = int(fDigitWfm.size()/fSlidingWindow); 
+  int nsliding = int(fDigitWfm.size() / fSlidingWindow);
 
-  for (int i = 0; i < nsliding; i++){
+  for (int i = 0; i < nsliding; i++) {
     double charge = 0;
-    int sample_start = i*fSlidingWindow;
-    int sample_end = (i+1)*fSlidingWindow;
-    for (int j = sample_start; j < sample_end; j++){ 
+    int sample_start = i * fSlidingWindow;
+    int sample_end = (i + 1) * fSlidingWindow;
+    for (int j = sample_start; j < sample_end; j++) {
       double voltage = (fDigitWfm[j] - fPedestal) * fVoltageRes;
       charge += (-voltage * fTimeStep) / fTermOhms;  // in pC
     }
-    if(charge > fChargeThresh){
+    if (charge > fChargeThresh) {
       fTotalCharge += charge;
     }
   }

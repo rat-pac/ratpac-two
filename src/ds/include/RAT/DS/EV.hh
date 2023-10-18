@@ -20,10 +20,10 @@
 #include <TTimeStamp.h>
 
 #include <RAT/DS/Digit.hh>
+#include <RAT/DS/DigitPMT.hh>
 #include <RAT/DS/FitResult.hh>
 #include <RAT/DS/LAPPD.hh>
 #include <RAT/DS/PMT.hh>
-#include <RAT/DS/DigitPMT.hh>
 #include <vector>
 
 namespace RAT {

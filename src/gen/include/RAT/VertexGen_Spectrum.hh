@@ -69,15 +69,15 @@ class VertexGen_Spectrum : public GLG4VertexGen {
   G4ParticleDefinition *_pDef;  // particle definition
   G4String _spectrum;           // name of the spectrum to use
   DBLinkPtr _lspec;             // link to spectrum entry in database
-  double _emin;                  // valid range for spectrum in MeV
+  double _emin;                 // valid range for spectrum in MeV
   double _emax;
   std::vector<double> spec_E;       // spectrum energy values
   std::vector<double> spec_mag;     // spectrum magnitude values
   std::vector<double> spec_cummag;  // spectrum cumulative non-normalised magnitude values
-  double Elim_Ulo;                   // user applied universal lower limit to energy range
-  double Elim_Uhi;                   // user applied universal higher limit to energy range
-  double Elim_Tlo;                   // temporary lower energy limit	(applies to one event)
-  double Elim_Thi;                   // temporary higher energy limit (applies to one event)
+  double Elim_Ulo;                  // user applied universal lower limit to energy range
+  double Elim_Uhi;                  // user applied universal higher limit to energy range
+  double Elim_Tlo;                  // temporary lower energy limit	(applies to one event)
+  double Elim_Thi;                  // temporary higher energy limit (applies to one event)
 };
 
 }  // namespace RAT

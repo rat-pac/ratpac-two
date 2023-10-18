@@ -7,40 +7,38 @@ PMTWaveformGenerator::PMTWaveformGenerator(std::string modelName) {
   // PMT pulse model specification
   fModelName = modelName;
   try {
-      lpulse = DB::Get()->GetLink("PMTPULSE", modelName);
+    lpulse = DB::Get()->GetLink("PMTPULSE", modelName);
+    lpulse->GetS("index");
+    info << "PMTWaveformGenerator: Found pulse table for " << modelName << "." << newline;
+  } catch (DBNotFoundError &e) {
+    info << "PMTWaveformGenerator: Could not find pulse table for " << modelName << ". Trying default." << newline;
+    try {
+      lpulse = DB::Get()->GetLink("PMTPULSE", "");
       lpulse->GetS("index");
-      info << "PMTWaveformGenerator: Found pulse table for " << modelName << "." << newline;
-  }
-  catch (DBNotFoundError &e) {
-      info << "PMTWaveformGenerator: Could not find pulse table for " << modelName << ". Trying default." << newline;
-      try {
-          lpulse = DB::Get()->GetLink("PMTPULSE", "");
-          lpulse->GetS("index");
-          info << "PMTWaveformGenerator: Using default pulse table for " << modelName << "." << newline;
-      }
-      catch (DBNotFoundError &e) {
-          Log::Die("PMTWaveformGenerator: No default pulse table found.");
-      }
+      info << "PMTWaveformGenerator: Using default pulse table for " << modelName << "." << newline;
+    } catch (DBNotFoundError &e) {
+      Log::Die("PMTWaveformGenerator: No default pulse table found.");
+    }
   }
   try {
-      fPMTPulseType = lpulse->GetS("pulse_type");
-      info << "PMTWaveformGenerator: Using " << fPMTPulseType << " pulse for " << modelName << "." << newline;
-  }
-  catch (DBNotFoundError &e) {
-      info << "PMTWaveformGenerator: Could not find pulse type for " << modelName << ". Using analytic as default." << newline;
-      fPMTPulseShape = "analytic";
+    fPMTPulseType = lpulse->GetS("pulse_type");
+    info << "PMTWaveformGenerator: Using " << fPMTPulseType << " pulse for " << modelName << "." << newline;
+  } catch (DBNotFoundError &e) {
+    info << "PMTWaveformGenerator: Could not find pulse type for " << modelName << ". Using analytic as default."
+         << newline;
+    fPMTPulseShape = "analytic";
   }
 
   fPMTPulseShape == "";
   if (fPMTPulseType == "analytic") {
-      try {
-          fPMTPulseShape = lpulse->GetS("pulse_shape");
-          info << "PMTWaveformGenerator: Using " << fPMTPulseShape << " pulse for " << modelName << "." << newline;
-      }
-      catch (DBNotFoundError &e) {
-          info << "PMTWaveformGenerator: Could not find pulse shape for " << modelName << ". Using lognormal as default." << newline;
-          fPMTPulseShape = "lognormal";
-      }
+    try {
+      fPMTPulseShape = lpulse->GetS("pulse_shape");
+      info << "PMTWaveformGenerator: Using " << fPMTPulseShape << " pulse for " << modelName << "." << newline;
+    } catch (DBNotFoundError &e) {
+      info << "PMTWaveformGenerator: Could not find pulse shape for " << modelName << ". Using lognormal as default."
+           << newline;
+      fPMTPulseShape = "lognormal";
+    }
   }
 
   fPMTPulseOffset = lpulse->GetD("pulse_offset");
@@ -50,14 +48,14 @@ PMTWaveformGenerator::PMTWaveformGenerator(std::string modelName) {
   fPMTPulsePolarity = lpulse->GetZ("pulse_polarity_negative");
 
   if (fPMTPulseType == "analytic") {
-      if (fPMTPulseShape == "lognormal") {
-          fPMTPulseWidth = lpulse->GetD("pulse_width");
-          fPMTPulseMean = lpulse->GetD("pulse_mean");
-      }
+    if (fPMTPulseShape == "lognormal") {
+      fPMTPulseWidth = lpulse->GetD("pulse_width");
+      fPMTPulseMean = lpulse->GetD("pulse_mean");
+    }
   }
   if (fPMTPulseType == "datadriven") {
-      fPMTPulseShapeTimes = lpulse->GetDArray("pulse_shape_times");
-      fPMTPulseShapeValues = lpulse->GetDArray("pulse_values_times");
+    fPMTPulseShapeTimes = lpulse->GetDArray("pulse_shape_times");
+    fPMTPulseShapeValues = lpulse->GetDArray("pulse_values_times");
   }
 }
 
@@ -89,6 +87,5 @@ PMTWaveform PMTWaveformGenerator::GenerateWaveforms(DS::MCPMT *mcpmt, double tri
 
   return pmtwf;
 }
-
 
 }  // namespace RAT

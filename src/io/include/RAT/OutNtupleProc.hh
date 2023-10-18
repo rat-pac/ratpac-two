@@ -16,7 +16,7 @@ class OutNtupleProc : public Processor {
   OutNtupleProc();
   virtual ~OutNtupleProc();
 
-  enum mc_pe_type{ noise=0, cherenkov=1, scintillation=2, reemission=3, unknown=4 };
+  enum mc_pe_type { noise = 0, cherenkov = 1, scintillation = 2, reemission = 3, unknown = 4 };
 
   // file - string, name of file to open for output, file will be erased
   // updatefile - string, name of file to append to
@@ -36,11 +36,11 @@ class OutNtupleProc : public Processor {
   virtual void SetS(std::string param, std::string value);
 
   // Extensible functions
-  virtual void AssignAdditionalAddresses() {};
-  virtual void AssignAdditionalMetaAddresses() {};
-  virtual void FillEvent(DS::Root*, DS::EV*) {};
-  virtual void FillNoTriggerEvent(DS::Root*) {};
-  virtual void FillMeta() {};
+  virtual void AssignAdditionalAddresses(){};
+  virtual void AssignAdditionalMetaAddresses(){};
+  virtual void FillEvent(DS::Root *, DS::EV *){};
+  virtual void FillNoTriggerEvent(DS::Root *){};
+  virtual void FillMeta(){};
 
   // Exposed members for external tools
   DS::Run *runBranch;

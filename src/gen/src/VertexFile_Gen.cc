@@ -1,7 +1,7 @@
 //  VertexFile_Gen.cc
 // Contact person: R. Bonventre <rbonventre@lbl.gov>
 // See  VertexFile_Gen.hh for more details
-//———————————————————————//
+// ———————————————————————//
 
 #include <TFile.h>
 #include <TROOT.h>

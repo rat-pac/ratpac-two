@@ -1,7 +1,7 @@
 // ESCrossSec.cc
 // Contact person: Nuno Barros <nfbarros@hep.upenn.edu>
 // See ESCrossSec.hh for more details
-//———————————————————————//
+// ———————————————————————//
 
 // -- Geant4 includes
 #include <G4ParticleDefinition.hh>

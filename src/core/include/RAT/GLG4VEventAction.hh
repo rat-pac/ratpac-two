@@ -15,7 +15,7 @@
 #include "G4UserEventAction.hh"
 #include "fstream"
 #include "globals.hh"
-//#include "GLG4HitPhotonCollection.hh"
+// #include "GLG4HitPhotonCollection.hh"
 #include "G4DigiManager.hh"
 #include "G4Event.hh"
 #include "G4EventManager.hh"

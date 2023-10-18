@@ -15,7 +15,6 @@
 #include <G4ios.hh>
 #include <RAT/BWVetGenericChamber.hh>
 #include <RAT/BWVetGenericChamberHit.hh>
-
 #include <RAT/Log.hh>
 
 namespace RAT {
@@ -86,9 +85,9 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
   int pdg = part->GetPDGEncoding();
 
   if (deb)
-    RAT::debug << "  track information: " << newline
-              << "    G4Track Pointer: " << aTrack << newline << "    Particle Definition Pointer: " << part << newline
-              << "    Particle PDG Encoding: " << pdg << newline;
+    RAT::debug << "  track information: " << newline << "    G4Track Pointer: " << aTrack << newline
+               << "    Particle Definition Pointer: " << part << newline << "    Particle PDG Encoding: " << pdg
+               << newline;
 
   if (deb) RAT::debug << "BWVetGenericChamber::ProcessHits getting global time." << newline;
   G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
@@ -130,7 +129,7 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
     RAT::debug << "dl " << G4BestUnit(dl, "Length") << newline;
     RAT::debug << "pid " << pdg << newline;
     RAT::debug << "Position " << G4BestUnit(worldPos.x(), "Length") << " " << G4BestUnit(worldPos.y(), "Length") << " "
-              << G4BestUnit(worldPos.z(), "Length") << " " << newline;
+               << G4BestUnit(worldPos.z(), "Length") << " " << newline;
 
     RAT::debug << " " << newline;
   }
@@ -139,8 +138,8 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
 
   if (deb)
     RAT::debug << "BWVetGenericChamber::ProcessHits checking for an existing hit "
-                 "in this element."
-              << newline;
+                  "in this element."
+               << newline;
   // check if this finger already has a hit
   G4int ix = -1;
 
@@ -175,8 +174,8 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
   if (NULL == _hitsCollection) {
     if (deb)
       RAT::debug << "BWVetGenericChamber::ProcessHits hit collection null. "
-                   "Reloading from HCofEThisEvent."
-                << newline;
+                    "Reloading from HCofEThisEvent."
+                 << newline;
     if (_HCE) {
       _hitsCollection = (BWVetGenericChamberHitsCollection *)(_HCE->GetHC(HCID));
       if (deb) {
@@ -185,8 +184,8 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
     } else {
       if (deb)
         RAT::debug << "BWVetGenericChamber::ProcessHits   (E) HCofEThisEvent "
-                     "pointer is NULL!"
-                  << newline;
+                      "pointer is NULL!"
+                   << newline;
     }
   }
 
@@ -208,8 +207,8 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
     if (ix >= 0) {
       if (deb)
         RAT::debug << "BWVetGenericChamber::ProcessHits use existing earlier time "
-                     "for hit."
-                  << newline;
+                      "for hit."
+                   << newline;
       if ((*_hitsCollection)[ix]->GetTime() > hitTime) {
         (*_hitsCollection)[ix]->SetTime(hitTime);
       }

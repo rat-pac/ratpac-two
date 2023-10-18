@@ -100,14 +100,11 @@ void VertexGen_FastNeutron::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);  // from GLG4StringUtil
   if (newValues.length() == 0) {
     // print help and current state
-    info << "Current state of this VertexGen_ES:" << newline
-              << " \"" << GetState() << "\"" << newline
-              << newline;
-    info << "Format of argument to VertexGen_ES::SetState: " << newline
-              << " \"nu_dir_x nu_dir_y nu_dir_z\"\n"
-              << " where nu_dir is the initial direction of the reactor antineutrino.\n"
-              << " Does not have to be normalized.  Set to \"0. 0. 0.\" for isotropic\n"
-              << " neutrino direction." << newline;
+    info << "Current state of this VertexGen_ES:" << newline << " \"" << GetState() << "\"" << newline << newline;
+    info << "Format of argument to VertexGen_ES::SetState: " << newline << " \"nu_dir_x nu_dir_y nu_dir_z\"\n"
+         << " where nu_dir is the initial direction of the reactor antineutrino.\n"
+         << " Does not have to be normalized.  Set to \"0. 0. 0.\" for isotropic\n"
+         << " neutrino direction." << newline;
     return;
   }
 
@@ -227,8 +224,8 @@ void VertexGen_FastNeutron::LoadTangHortonSmithCosTheta(double depth) {
 
   Double_t density = 2.65;  // Density of rock material used by range equation below
   depth = depth / density / 1000.;
-  fL->SetParameter(0, 6378.0);  //#Radius of earth
-  fL->SetParameter(1, 0.0);     //#Height with respect to ocean of muon
+  fL->SetParameter(0, 6378.0);  // #Radius of earth
+  fL->SetParameter(1, 0.0);     // #Height with respect to ocean of muon
   fL->SetParameter(2, depth);   // # WATCHBOY
 
   // Energy bins

@@ -21,11 +21,15 @@ void PhotonThinning::Init() {
   SetCherenkovThinningFactor(DB::Get()->GetLink("PHOTON_THINNING")->GetD("cherenkov_thinning_factor"));
   SetScintillationThinningFactor(DB::Get()->GetLink("PHOTON_THINNING")->GetD("scintillation_thinning_factor"));
 
-  SetCherenkovLowerWavelengthThreshold(DB::Get()->GetLink("PHOTON_THINNING")->GetD("cherenkov_lower_wavelength_threshold"));
-  SetScintillationLowerWavelengthThreshold(DB::Get()->GetLink("PHOTON_THINNING")->GetD("scintillation_lower_wavelength_threshold"));
+  SetCherenkovLowerWavelengthThreshold(
+      DB::Get()->GetLink("PHOTON_THINNING")->GetD("cherenkov_lower_wavelength_threshold"));
+  SetScintillationLowerWavelengthThreshold(
+      DB::Get()->GetLink("PHOTON_THINNING")->GetD("scintillation_lower_wavelength_threshold"));
 
-  SetCherenkovUpperWavelengthThreshold(DB::Get()->GetLink("PHOTON_THINNING")->GetD("cherenkov_upper_wavelength_threshold"));
-  SetScintillationUpperWavelengthThreshold(DB::Get()->GetLink("PHOTON_THINNING")->GetD("scintillation_upper_wavelength_threshold"));
+  SetCherenkovUpperWavelengthThreshold(
+      DB::Get()->GetLink("PHOTON_THINNING")->GetD("cherenkov_upper_wavelength_threshold"));
+  SetScintillationUpperWavelengthThreshold(
+      DB::Get()->GetLink("PHOTON_THINNING")->GetD("scintillation_upper_wavelength_threshold"));
 }
 
 void PhotonThinning::SetFactor(double factor) {

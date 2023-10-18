@@ -23,14 +23,14 @@
 #include "G4DAWNFILE.hh"
 #include "G4HepRepFile.hh"
 #include "G4HitFilterFactories.hh"
+#include "G4OpenGLImmediateQt.hh"
+#include "G4OpenGLStoredQt.hh"
 #include "G4RayTracer.hh"
 #include "G4TrajectoryDrawByParticleID.hh"
 #include "G4TrajectoryFilterFactories.hh"
 #include "G4TrajectoryModelFactories.hh"
 #include "G4VRML2File.hh"
 #include "G4Version.hh"
-#include "G4OpenGLImmediateQt.hh"
-#include "G4OpenGLStoredQt.hh"
 
 // Needing external packages or libraries...
 

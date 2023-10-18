@@ -31,10 +31,9 @@
 #include "G4VisExtent.hh"
 #include "G4VoxelLimits.hh"
 #include "G4ios.hh"  // for std::cerr
+#include "RAT/Log.hh"
 #include "local_g4compat.hh"
 #include "meshdefs.hh"
-
-#include "RAT/Log.hh"
 
 // debugging
 #ifdef DEBUG_GLG4TorusStack
@@ -199,8 +198,8 @@ void GLG4TorusStack::CheckABRho() {
 #ifdef G4DEBUG
         else
           RAT::debug << "Debug info: GLG4TorusStack making small adjustment to "
-                       "rho_edge["
-                    << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (1a)\n";
+                        "rho_edge["
+                     << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (1a)\n";
 #endif
         // valid intercept is on other side of a[i]
         rho_edge[i] = a[i] + (a[i] - rho_edge[i]);
@@ -213,8 +212,8 @@ void GLG4TorusStack::CheckABRho() {
 #ifdef G4DEBUG
         else
           RAT::debug << "Debug info: GLG4TorusStack making small adjustment to "
-                       "rho_edge["
-                    << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (2a)\n";
+                        "rho_edge["
+                     << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (2a)\n";
 #endif
         // valid intercept is on other side of a[i]
         rho_edge[i + 1] = a[i] + (a[i] - rho_edge[i + 1]);
@@ -243,8 +242,8 @@ void GLG4TorusStack::CheckABRho() {
 #ifdef G4DEBUG
         else
           RAT::debug << "Debug info: GLG4TorusStack making small adjustment to "
-                       "rho_edge["
-                    << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (4a)\n";
+                        "rho_edge["
+                     << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (4a)\n";
 #endif
         // valid intercept is on other side of a[i]
         rho_edge[i + 1] = a[i] - (rho_edge[i + 1] - a[i]);
@@ -1068,7 +1067,7 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
 #ifdef G4DEBUG
   if (dist_to_out >= kInfinity) {
     RAT::debug << "WARNING from GLG4TorusStack::DistanceToOut: "
-                 "did not find an intercept with the track!\n";
+                  "did not find an intercept with the track!\n";
   }
 #endif
 
@@ -1112,10 +1111,10 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
     }
     if ((*norm) * v <= 0.0) {
       G4cerr << "Warning from GLG4TorusStack::DistanceToOut: I have calculated "
-                   "a normal that is antiparallel to the momentum std::vector!  I must "
-                   "have done something wrong! isurface="
-                << isurface << " a[isurface]=" << a[isurface] << " b[isurface]=" << b[isurface] << " v=" << v
-                << " norm=" << (*norm) << newline;
+                "a normal that is antiparallel to the momentum std::vector!  I must "
+                "have done something wrong! isurface="
+             << isurface << " a[isurface]=" << a[isurface] << " b[isurface]=" << b[isurface] << " v=" << v
+             << " norm=" << (*norm) << newline;
       *norm = -*norm;
     }
   }

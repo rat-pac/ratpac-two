@@ -9,6 +9,7 @@
 
 #include "RAT/GLG4VisMessenger.hh"
 
+#include <RAT/Log.hh>
 #include <sstream>
 
 #include "G4UIcmdWithAString.hh"
@@ -18,7 +19,6 @@
 #include "RAT/GLG4VisManager.hh"
 #include "globals.hh"
 #include "local_g4compat.hh"
-#include <RAT/Log.hh>
 
 GLG4VisMessenger::GLG4VisMessenger(GLG4VisManager *pVMan_) : pVMan(pVMan_) {
   // the glg4vis directory
@@ -77,12 +77,10 @@ void GLG4VisMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
       G4cerr << "GLG4VisMessaneger::SetNewValue: "
              << "Could not understand arguments, up vector left as " << vp.GetUpVector() << newline;
       return;
-    }
-    else {
+    } else {
       vp.SetUpVector(G4Vector3D(x, y, z));
     }
-  }
-  else {
+  } else {
     RAT::warn << "GLG4VisMessaneger::SetNewValue: I do not recognize this command: " << commandname << newline;
     return;
   }

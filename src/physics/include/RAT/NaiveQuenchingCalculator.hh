@@ -19,14 +19,15 @@
 
 #include <RAT/QuenchingCalculator.hh>
 
-class NaiveQuenchingCalculator: public QuenchingCalculator{
-  public:
-    NaiveQuenchingCalculator(BirksLaw model);
-    virtual double QuenchedEnergyDeposit(const G4Step& step, const double kB);
-  protected:
-    /**/
-  private:
-    /**/
+class NaiveQuenchingCalculator : public QuenchingCalculator {
+ public:
+  NaiveQuenchingCalculator(BirksLaw model);
+  virtual double QuenchedEnergyDeposit(const G4Step& step, const double kB);
+
+ protected:
+  /**/
+ private:
+  /**/
 };
 
 #endif

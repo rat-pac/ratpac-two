@@ -54,14 +54,10 @@ void VertexGen_Isotope::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx,
 void VertexGen_Isotope::SetState(G4String newValues) {
   if (newValues.length() == 0) {
     // print help and current state
-    info << "Current state of this VertexGen_Isotope:" << newline
-              << " \"" << GetState() << "\"" << newline
-              << newline;
-    info << "Format of argument to VertexGen_Isotope::SetState: " << newline
-              << " \"pname  specname  (Elo Ehi)\"" << newline
-              << " pname = particle name " << newline
-              << " specname = Isotope name as given in ratdb " << newline
-              << " Elo Ehi = optional limits on energy range of generated particles " << newline;
+    info << "Current state of this VertexGen_Isotope:" << newline << " \"" << GetState() << "\"" << newline << newline;
+    info << "Format of argument to VertexGen_Isotope::SetState: " << newline << " \"pname  specname  (Elo Ehi)\""
+         << newline << " pname = particle name " << newline << " specname = Isotope name as given in ratdb " << newline
+         << " Elo Ehi = optional limits on energy range of generated particles " << newline;
     return;
   }
 

@@ -4,15 +4,15 @@
 // Provide user commands to allow the user to change
 // the Isotope parameters via the command line.
 
-//#include <RAT/IsotopeMessenger.hh>
-//#include <RAT/VertexGen_Isotope.hh>
+// #include <RAT/IsotopeMessenger.hh>
+// #include <RAT/VertexGen_Isotope.hh>
 
 #include <G4String.hh>
 #include <G4UIcmdWithADouble.hh>
 #include <G4UIcommand.hh>
 #include <G4UIdirectory.hh>
-#include <RAT/VertexGen_Isotope.hh>
 #include <RAT/Log.hh>
+#include <RAT/VertexGen_Isotope.hh>
 
 namespace RAT {
 

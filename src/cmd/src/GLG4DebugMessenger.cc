@@ -256,7 +256,7 @@ void GLG4DebugMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
         RAT::info << GLG4TestSolid::Test(*((*theSolidStore)[isolid]), nloop) << newline;
         timer.Stop();
         RAT::info << "Elapsed time: User=" << timer.GetUserElapsed() << " System=" << timer.GetSystemElapsed()
-               << " Real=" << timer.GetRealElapsed() << newline;
+                  << " Real=" << timer.GetRealElapsed() << newline;
       }
     }
   }

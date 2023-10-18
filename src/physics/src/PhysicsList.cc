@@ -16,17 +16,17 @@
 #include <G4ProcessManager.hh>
 #include <G4RunManager.hh>
 #include <RAT/BNLOpWLSBuilder.hh>
+#include <RAT/DB.hh>
 #include <RAT/G4OpWLSBuilder.hh>
 #include <RAT/GLG4OpAttenuation.hh>
 #include <RAT/GLG4Scint.hh>
 #include <RAT/GLG4SteppingAction.hh>
+#include <RAT/Log.hh>
 #include <RAT/OpRayleigh.hh>
-#include <RAT/ThinnableG4Cerenkov.hh>
 #include <RAT/PhotonThinning.hh>
 #include <RAT/PhysicsList.hh>
 #include <RAT/PhysicsListMessenger.hh>
-#include <RAT/Log.hh>
-#include <RAT/DB.hh>
+#include <RAT/ThinnableG4Cerenkov.hh>
 
 namespace RAT {
 
@@ -47,7 +47,6 @@ PhysicsList::PhysicsList() : Shielding(), wlsModel(nullptr) {
   this->wlsModelName = physicsdb->GetS("wls_model_name");
 
   new PhysicsListMessenger(this);
-
 }
 
 PhysicsList::~PhysicsList() {}
@@ -84,7 +83,7 @@ void PhysicsList::EnableThermalNeutronScattering() {
   }
   if (!n_elastic_process) {
     warn << "PhysicsList::EnableThermalNeutronScattering: "
-              << " couldn't find hadron elastic scattering process." << newline;
+         << " couldn't find hadron elastic scattering process." << newline;
     throw std::runtime_error(std::string("Missing") + " hadron elastic" + " scattering process in PhysicsList");
   }
 
@@ -92,8 +91,8 @@ void PhysicsList::EnableThermalNeutronScattering() {
   G4HadronicInteraction *n_elastic_hp = G4HadronicInteractionRegistry::Instance()->FindModel("NeutronHPElastic");
   if (!n_elastic_hp) {
     warn << "PhysicsList::EnableThermalNeutronScattering: "
-              << " couldn't find high-precision neutron elastic"
-              << " scattering interaction." << newline;
+         << " couldn't find high-precision neutron elastic"
+         << " scattering interaction." << newline;
     throw std::runtime_error(std::string("Missing") + " NeutronHPElastic" + " scattering interaction in PhysicsList");
   }
 
@@ -112,14 +111,11 @@ void PhysicsList::SetOpWLSModel(std::string model) {
 
   if (model == "g4") {
     this->wlsModel = new G4OpWLSBuilder();
-  }
-  else if (model == "bnl") {
+  } else if (model == "bnl") {
     this->wlsModel = new BNLOpWLSBuilder();
-  }
-  else if (model == "") {
+  } else if (model == "") {
     this->wlsModel = nullptr;
-  }
-  else {
+  } else {
     warn << "PhysicsList::SetOpWLSModel: Unknown model \"" << model << "\"" << newline;
     throw std::runtime_error("Unknown WLS model in PhysicsList");
   }
@@ -137,7 +133,7 @@ void PhysicsList::ConstructOpticalProcesses() {
   ThinnableG4Cerenkov *cerenkovProcess = nullptr;
   if (this->IsCerenkovEnabled) {
     cerenkovProcess = new ThinnableG4Cerenkov();
-    double thinning = 1.0/RAT::PhotonThinning::GetCherenkovThinningFactor();
+    double thinning = 1.0 / RAT::PhotonThinning::GetCherenkovThinningFactor();
     cerenkovProcess->SetThinningFactor(thinning);
     cerenkovProcess->SetLowerWavelengthThreshold(RAT::PhotonThinning::GetCherenkovLowerWavelengthThreshold());
     cerenkovProcess->SetUpperWavelengthThreshold(RAT::PhotonThinning::GetCherenkovUpperWavelengthThreshold());

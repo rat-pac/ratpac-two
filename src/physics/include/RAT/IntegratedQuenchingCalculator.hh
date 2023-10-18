@@ -18,14 +18,15 @@
 
 #include <RAT/QuenchingCalculator.hh>
 
-class IntegratedQuenchingCalculator: public QuenchingCalculator{
-  public:
-    IntegratedQuenchingCalculator(BirksLaw model, Quadrature* quadrature);
-    virtual double QuenchedEnergyDeposit(const G4Step& step, const double kB);
-  protected:
-    /**/
-  private:
-    Quadrature* fQuadrature;
+class IntegratedQuenchingCalculator : public QuenchingCalculator {
+ public:
+  IntegratedQuenchingCalculator(BirksLaw model, Quadrature* quadrature);
+  virtual double QuenchedEnergyDeposit(const G4Step& step, const double kB);
+
+ protected:
+  /**/
+ private:
+  Quadrature* fQuadrature;
 };
 
 #endif

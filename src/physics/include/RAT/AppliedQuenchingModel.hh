@@ -19,28 +19,26 @@
 #ifndef __AppliedQuenchingModel__
 #define __AppliedQuenchingModel__
 
-#include <G4ParticleDefinition.hh>
 #include <G4Material.hh>
+#include <G4ParticleDefinition.hh>
 #include <RAT/BirksLaw.hh>
 #include <RAT/EnergyLossFunction.hh>
 #include <RAT/Evaluateable.hh>
-
 #include <memory>
 
-class AppliedQuenchingModel: public Evaluateable{
-  public:
-    AppliedQuenchingModel();
-    AppliedQuenchingModel(const BirksLaw _model,
-                          const G4ParticleDefinition* def,
-                          const G4Material* mat,
-                          const double _kB);
-    double Evaluate(double);
-  protected:
-    /**/
-  private:
-    const BirksLaw model; // TODO abstract to reference to general model
-    const double kB;      // TODO abstract to vector/array of parameters
-    std::unique_ptr<EnergyLossFunction> loss;
+class AppliedQuenchingModel : public Evaluateable {
+ public:
+  AppliedQuenchingModel();
+  AppliedQuenchingModel(const BirksLaw _model, const G4ParticleDefinition* def, const G4Material* mat,
+                        const double _kB);
+  double Evaluate(double);
+
+ protected:
+  /**/
+ private:
+  const BirksLaw model;  // TODO abstract to reference to general model
+  const double kB;       // TODO abstract to vector/array of parameters
+  std::unique_ptr<EnergyLossFunction> loss;
 };
 
 #endif

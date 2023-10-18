@@ -18,9 +18,10 @@
 class G4UImessenger;  // for G4ProcessTable.hh
 #include <CLHEP/Units/PhysicalConstants.h>
 
+#include <RAT/Log.hh>
+
 #include "G4ProcessTable.hh"
 #include "RAT/GLG4PrimaryGeneratorAction.hh"
-#include <RAT/Log.hh>
 
 ////////////////////////////////////////////////////////////////
 

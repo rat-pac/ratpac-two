@@ -1,10 +1,10 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 
+#include <RAT/Log.hh>
 #include <RAT/TrackCursor.hh>
 #include <RAT/TrackNode.hh>
 #include <RAT/dprintf.hpp>
 #include <RAT/string_utilities.hpp>
-#include <RAT/Log.hh>
 #include <iostream>
 
 namespace RAT {

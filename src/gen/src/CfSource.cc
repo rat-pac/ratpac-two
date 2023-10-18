@@ -99,8 +99,8 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
       debug << " Random generator test (f,m,g):" << newline;
       for (size_t i = 0; i != 20; i++) {
         debug << i << ": " << fGenerate->shoot() * (fhigh - flow) + flow << ", "
-                  << mGenerate->shoot() * (mhigh - mlow) + mlow << ", " << gGenerate->shoot() * (ghigh - glow) + glow
-                  << newline;
+              << mGenerate->shoot() * (mhigh - mlow) + mlow << ", " << gGenerate->shoot() * (ghigh - glow) + glow
+              << newline;
       }
 
 #endif
@@ -142,7 +142,7 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
       double pz = neutronP * cosTheta;
 #ifdef DEBUG
       debug << "CfSource::CfSource() - neutron energy " << nn << " = " << energy << ", KE=" << neutronKE
-                << ", (px,py,pz)=(" << px << "," << py << "," << pz << ")" << newline;
+            << ", (px,py,pz)=(" << px << "," << py << "," << pz << ")" << newline;
 #endif
       CLHEP::HepLorentzVector momentum(px, py, pz, energy);
       neutronE.push_back(momentum);
@@ -173,7 +173,7 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
 
 #ifdef DEBUG
     debug << "CfSource::CfSource - "
-              << "m=" << m << " => " << Ngamma << " photons" << newline;
+          << "m=" << m << " => " << Ngamma << " photons" << newline;
 #endif
     // pick a momentum for each gamma
     //
@@ -188,8 +188,8 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
       double py = energy * sinTheta * sin(phi);
       double pz = energy * cosTheta;
 #ifdef DEBUG
-      debug << "CfSource::CfSource() - gamma energy " << nn << " = " << energy << ", (px,py,pz)=(" << px << ","
-                << py << "," << pz << ")" << newline;
+      debug << "CfSource::CfSource() - gamma energy " << nn << " = " << energy << ", (px,py,pz)=(" << px << "," << py
+            << "," << pz << ")" << newline;
 #endif
       CLHEP::HepLorentzVector momentum(px, py, pz, energy);
       gammaE.push_back(momentum);

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11...3.14)
-project(ratpac VERSION 2.1.2
+project(ratpac VERSION 2.1.3
                 DESCRIPTION "RAT-PAC"
                 LANGUAGES C CXX)
 

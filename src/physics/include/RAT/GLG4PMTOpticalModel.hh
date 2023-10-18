@@ -14,6 +14,7 @@
 #ifndef __GLG4PMTOpticalModel_hh__
 #define __GLG4PMTOpticalModel_hh__
 
+#include <RAT/Log.hh>
 #include <map>
 #include <utility>
 #include <vector>
@@ -24,7 +25,6 @@
 #include "G4OpticalSurface.hh"
 #include "G4UImessenger.hh"
 #include "G4VFastSimulationModel.hh"
-#include <RAT/Log.hh>
 
 class G4UIcommand;
 class G4UIdirectory;
@@ -66,7 +66,8 @@ class GLG4PMTOpticalModel : public G4VFastSimulationModel, public G4UImessenger 
     RAT::info << GetName() << ": Individual efficiency correction table set" << newline;
   }
   void DumpEfficiencyCorrectionTable() {
-    RAT::info << "Individual correction table for the PMT efficiencies of " << GetName() << ":\nPMT ID  corr. factor" << newline;
+    RAT::info << "Individual correction table for the PMT efficiencies of " << GetName() << ":\nPMT ID  corr. factor"
+              << newline;
     for (std::map<int, double>::iterator iter = EfficiencyCorrection.begin(); iter != EfficiencyCorrection.end();
          iter++) {
       RAT::info << iter->first << "," << iter->second << newline;

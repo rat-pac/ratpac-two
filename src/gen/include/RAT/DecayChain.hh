@@ -49,9 +49,9 @@ class DecayChain {
   int GetElementDecay(int iBranch);
   double GetElementWt(int iBranch);
   double GetLifetime(int iBranch);
-  inline void SetInMiddleChain(bool inMiddle = false) {fInMiddleChain = inMiddle;};
-  inline void SetAlphaDecayStart(bool alphaStart = false) {fAlphaDecayStart = alphaStart;};
-  inline void SetGammaDecayStart(bool gammaStart = false) {fGammaDecayStart = gammaStart;};
+  inline void SetInMiddleChain(bool inMiddle = false) { fInMiddleChain = inMiddle; };
+  inline void SetAlphaDecayStart(bool alphaStart = false) { fAlphaDecayStart = alphaStart; };
+  inline void SetGammaDecayStart(bool gammaStart = false) { fGammaDecayStart = gammaStart; };
 
   void GenerateDecayElement(int iBranch);
   void GenerateDecayElement(const std::string iElement);
@@ -85,26 +85,26 @@ class DecayChain {
 
   double GetRandomNumber(double rmin = 0., double rmax = 1.);
 
-  inline void SetVerbose(bool iSet = false) {isVerbose = iSet;};
-  inline void SetFileName(const std::string Name) {inputFileName = Name;};
-  inline void SetChainName(const std::string Name) {ChainName = Name;};
-  inline void SetEquilibrium(bool iEq = true) {isEquilibrium = iEq;};
-  inline void SelectParent(const std::string iElement = "ALL") {oneParent = iElement;};
-  inline void SetNGenerated(int nP) {NumberOfParticles = nP;};
-  inline void IncludeDaughter(bool iSelect = true) {CreateDaughter = iSelect;};
+  inline void SetVerbose(bool iSet = false) { isVerbose = iSet; };
+  inline void SetFileName(const std::string Name) { inputFileName = Name; };
+  inline void SetChainName(const std::string Name) { ChainName = Name; };
+  inline void SetEquilibrium(bool iEq = true) { isEquilibrium = iEq; };
+  inline void SelectParent(const std::string iElement = "ALL") { oneParent = iElement; };
+  inline void SetNGenerated(int nP) { NumberOfParticles = nP; };
+  inline void IncludeDaughter(bool iSelect = true) { CreateDaughter = iSelect; };
 
-  inline bool GetEquilibrium() {return isEquilibrium;};
+  inline bool GetEquilibrium() { return isEquilibrium; };
 
-  inline int GetNElements() {return NumberOfElements;};
-  inline int GetElementNumber() {return ElementNumber;};
-  inline int GetNGenerated() {return NumberOfParticles;};
+  inline int GetNElements() { return NumberOfElements; };
+  inline int GetElementNumber() { return ElementNumber; };
+  inline int GetNGenerated() { return NumberOfParticles; };
 
-  inline const std::string GetFileName() {return inputFileName;};
-  inline const std::string GetChainName() {return ChainName;};
+  inline const std::string GetFileName() { return inputFileName; };
+  inline const std::string GetChainName() { return ChainName; };
 
  private:
-  inline void SetParentName(int iParent, const std::string name) {ParentName[iParent] = name;};
-  inline void SetDaughterName(int iDaughter, const std::string name) {DaughterName[iDaughter] = name;};
+  inline void SetParentName(int iParent, const std::string name) { ParentName[iParent] = name; };
+  inline void SetDaughterName(int iDaughter, const std::string name) { DaughterName[iDaughter] = name; };
 
   bool isVerbose;
   bool isEquilibrium;

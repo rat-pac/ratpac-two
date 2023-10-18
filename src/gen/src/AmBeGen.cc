@@ -56,8 +56,7 @@ void AmBeGen::GenerateEvent(G4Event *event) {
   int numberGammas = ambeSource.GetNumGamma();
 
 #ifdef DEBUG
-  debug << "RAT::AmBeGen::GenerateEvent: " << numberNeutrons << " neutrons, " << numberGammas << " photons"
-            << newline;
+  debug << "RAT::AmBeGen::GenerateEvent: " << numberNeutrons << " neutrons, " << numberGammas << " photons" << newline;
 #endif
 
   // For each neutron...
@@ -78,9 +77,8 @@ void AmBeGen::GenerateEvent(G4Event *event) {
 
 #ifdef DEBUG
     debug << "RAT::AmBeGen::GenerateEvent: "
-              << "Neutron " << i << " of " << numberNeutrons << "    time=" << G4BestUnit(time, "Time")
-              << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy")
-              << newline;
+          << "Neutron " << i << " of " << numberNeutrons << "    time=" << G4BestUnit(time, "Time")
+          << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy") << newline;
 #endif
 
   }  // for each neutron
@@ -104,9 +102,8 @@ void AmBeGen::GenerateEvent(G4Event *event) {
 
 #ifdef DEBUG
     debug << "RAT::AmBeGen::GenerateEvent: "
-              << "Gamma " << i << " of " << numberGammas << "    time=" << G4BestUnit(time, "Time")
-              << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy")
-              << newline;
+          << "Gamma " << i << " of " << numberGammas << "    time=" << G4BestUnit(time, "Time")
+          << ", position=" << G4BestUnit(position, "Length") << ", momentum=" << G4BestUnit(p, "Energy") << newline;
 #endif
 
   }  // for each prompt photon
@@ -117,8 +114,8 @@ void AmBeGen::ResetTime(double offset) {
   nextTime = eventTime + offset;
 #ifdef DEBUG
   debug << "RAT::AmBeGen::ResetTime:"
-            << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
-            << ", nextTime=" << G4BestUnit(nextTime, "Time") << newline;
+        << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
+        << ", nextTime=" << G4BestUnit(nextTime, "Time") << newline;
 #endif
 }
 
@@ -182,8 +179,8 @@ void AmBeGen::SetPosState(G4String state) {
     posGen->SetState(state);
   else
     warn << "AmBeGen error: Cannot set position state, no position generator "
-                 "selected"
-              << newline;
+            "selected"
+         << newline;
 }
 
 G4String AmBeGen::GetPosState() const {

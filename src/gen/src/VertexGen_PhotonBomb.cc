@@ -61,12 +61,10 @@ void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &
 void VertexGen_PhotonBomb::SetState(G4String newValues) {
   if (newValues.length() == 0) {
     // print help and current state
-    info << "Current state of this VertexGen_PhotonBomb:" << newline
-              << " \"" << GetState() << "\"" << newline
-              << newline;
-    info << "Format of argument to VertexGen_PhotonBomb::SetState: " << newline
-              << " \"num_photons wavelength_nm\"\n"
-              << newline;
+    info << "Current state of this VertexGen_PhotonBomb:" << newline << " \"" << GetState() << "\"" << newline
+         << newline;
+    info << "Format of argument to VertexGen_PhotonBomb::SetState: " << newline << " \"num_photons wavelength_nm\"\n"
+         << newline;
     return;
   }
 

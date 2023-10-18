@@ -7,12 +7,12 @@
 #include <G4Track.hh>
 #include <RAT/DB.hh>
 #include <RAT/EventInfo.hh>
+#include <RAT/GLG4StringUtil.hh>
 #include <RAT/GLG4TimeGen.hh>
 #include <RAT/Gen_LED.hh>
 #include <RAT/LinearInterp.hh>
 #include <RAT/Log.hh>
 #include <RAT/TimeUtil.hh>
-#include <RAT/GLG4StringUtil.hh>
 #include <Randomize.hh>
 
 namespace RAT {
@@ -42,7 +42,7 @@ void Gen_LED::GenerateEvent(G4Event *event) {
   G4ThreeVector normal(led_u[next_led], led_v[next_led], led_w[next_led]);
   if (fire_at_target) {
     G4ThreeVector target(target_x[next_led] * CLHEP::mm, target_y[next_led] * CLHEP::mm,
-                  target_z[next_led] * CLHEP::mm);
+                         target_z[next_led] * CLHEP::mm);
     // Vector from pos to target
     normal = (target - pos).unit();
   }
@@ -68,12 +68,9 @@ void Gen_LED::GenerateEvent(G4Event *event) {
   for (int i = 0; i < photons_per_event; i++) {
     double t1 = 0;
 
-    if (unif_mode)
-    {
+    if (unif_mode) {
       t1 = 0;  // sec
-    }
-    else
-    {
+    } else {
       t1 = rand_time->shoot() * (time_max - time_min) + time_min;
     }
 
@@ -121,7 +118,7 @@ void Gen_LED::GenerateEvent(G4Event *event) {
     vertex->SetPrimary(particle);
     event->AddPrimaryVertex(vertex);
   }
-  
+
   // Go to next LED, but wrap around
   next_led = (next_led + 1) % led_x.size();
 }
@@ -150,10 +147,12 @@ void Gen_LED::SetLEDParameters(G4String state) {
   selectedLED = -1;
   try {
     selectedLED = lled->GetI("selectedLED");
-  } catch (DBNotFoundError &e) {};
+  } catch (DBNotFoundError &e) {
+  };
   try {
     photons_per_LED = lled->GetIArray("intensities");
-  } catch (DBNotFoundError &e) {};
+  } catch (DBNotFoundError &e) {
+  };
   led_x = lled->GetDArray("x");
   led_y = lled->GetDArray("y");
   led_z = lled->GetDArray("z");
@@ -166,7 +165,7 @@ void Gen_LED::SetLEDParameters(G4String state) {
   target_z = std::vector<double>(led_x.size(), 0.0);
 
   fire_at_target = lled->GetZ("fire_at_target");
-  if(fire_at_target) {
+  if (fire_at_target) {
     target_x = lled->GetDArray("target_x");
     target_y = lled->GetDArray("target_y");
     target_z = lled->GetDArray("target_z");
@@ -178,16 +177,10 @@ void Gen_LED::SetLEDParameters(G4String state) {
 
   led_wavelength = lled->GetDArray("wavelength");
   // add some code robustness
-  Log::Assert(
-      (led_x.size() == led_y.size() && 
-       led_y.size() == led_z.size() &&
-       led_z.size() == led_u.size() &&
-       led_u.size() == led_v.size() &&
-       led_v.size() == led_w.size() &&
-       led_w.size() == target_x.size() &&
-       target_x.size() == target_y.size() &&
-       target_y.size() == target_z.size()
-    ), "Some LEDs miss some coordinate(s)\n");
+  Log::Assert((led_x.size() == led_y.size() && led_y.size() == led_z.size() && led_z.size() == led_u.size() &&
+               led_u.size() == led_v.size() && led_v.size() == led_w.size() && led_w.size() == target_x.size() &&
+               target_x.size() == target_y.size() && target_y.size() == target_z.size()),
+              "Some LEDs miss some coordinate(s)\n");
   Log::Assert((led_x.size() <= led_wavelength.size()), "Some LEDs miss a wavelength\n");
 
   std::string intensity_mode = "single";
@@ -347,9 +340,7 @@ G4String Gen_LED::GetTimeState() const {
     return G4String("Gen_LED error: no time generator selected");
 }
 
-void Gen_LED::SetVertexState(G4String /*state*/) {
-  warn << "Gen_LED error: Cannot set vertex state." << newline;
-}
+void Gen_LED::SetVertexState(G4String /*state*/) { warn << "Gen_LED error: Cannot set vertex state." << newline; }
 
 G4String Gen_LED::GetVertexState() const { return G4String("Gen_LED error: no vertex generator"); }
 

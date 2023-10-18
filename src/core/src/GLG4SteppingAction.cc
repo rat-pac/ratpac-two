@@ -16,8 +16,8 @@
 
 #include "RAT/GLG4SteppingAction.hh"
 
-#include <RAT/TrackInfo.hh>
 #include <RAT/Log.hh>
+#include <RAT/TrackInfo.hh>
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "G4OpticalPhoton.hh"
@@ -113,7 +113,8 @@ int GLG4SteppingAction_dump_IlluminationMap(void) {
       static char filename[] = "map#.ppm";
       filename[3] = kmap + '0';
       std::ofstream of(filename);
-      of << "P6\n# Illumination map " << kmap << newline << nrowIlluminationMap << ' ' << nrowIlluminationMap << " 255" << newline;
+      of << "P6\n# Illumination map " << kmap << newline << nrowIlluminationMap << ' ' << nrowIlluminationMap << " 255"
+         << newline;
       for (int irow = 0; irow < nrowIlluminationMap; irow++) {
         for (int jcol = 0; jcol < ncolIlluminationMap; jcol++)
           for (int kcol = 0; kcol < 3; kcol++) {
@@ -164,7 +165,7 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   // check for very high number of steps
   if (track->GetCurrentStepNumber() % GLG4SteppingAction_MaxStepNumber == 0) {
     RAT::warn << "warning:  step_no=" << track->GetCurrentStepNumber() << "  %  " << GLG4SteppingAction_MaxStepNumber
-           << " == 0 for particle: " << track->GetDefinition()->GetParticleName() << newline;
+              << " == 0 for particle: " << track->GetDefinition()->GetParticleName() << newline;
   }
 
   if (track->GetCurrentStepNumber() > GLG4SteppingAction_MaxStepNumber &&
@@ -236,7 +237,8 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
 #ifdef debug_dicebox158Gd
         G4cout << "(i,name,pos,momentum,erg,time) : (" << lp1 << "," << par->GetParticleName() << ","
                << (*fSecondary)[lp1]->GetPosition() << "," << (*fSecondary)[lp1]->GetMomentum() << ","
-               << (*fSecondary)[lp1]->GetKineticEnergy() << "," << (*fSecondary)[lp1]->GetGlobalTime() << ")" << newline;
+               << (*fSecondary)[lp1]->GetKineticEnergy() << "," << (*fSecondary)[lp1]->GetGlobalTime() << ")"
+               << newline;
 
         G4cout << "(parentID,trackID,stepID,status) : (" << (*fSecondary)[lp1]->GetParentID() << ","
                << (*fSecondary)[lp1]->GetTrackID() << "," << (*fSecondary)[lp1]->GetCurrentStepNumber() << ","
@@ -282,12 +284,12 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
       G4ParticleDefinition *par = (*secondary)[lp]->GetDefinition();
 
       RAT::debug << "(i,name,pos,momentum,erg,time) : (" << lp << "," << par->GetParticleName() << ","
-             << (*secondary)[lp]->GetPosition() << "," << (*secondary)[lp]->GetMomentum() << ","
-             << (*secondary)[lp]->GetKineticEnergy() << "," << (*secondary)[lp]->GetGlobalTime() << ")" << newline;
+                 << (*secondary)[lp]->GetPosition() << "," << (*secondary)[lp]->GetMomentum() << ","
+                 << (*secondary)[lp]->GetKineticEnergy() << "," << (*secondary)[lp]->GetGlobalTime() << ")" << newline;
 
       RAT::debug << "(parentID,trackID,stepID,status) : (" << (*secondary)[lp]->GetParentID() << ","
-             << (*secondary)[lp]->GetTrackID() << "," << (*secondary)[lp]->GetCurrentStepNumber() << ","
-             << (*secondary)[lp]->GetTrackStatus() << ")" << newline;
+                 << (*secondary)[lp]->GetTrackID() << "," << (*secondary)[lp]->GetCurrentStepNumber() << ","
+                 << (*secondary)[lp]->GetTrackStatus() << ")" << newline;
     }
   }
 

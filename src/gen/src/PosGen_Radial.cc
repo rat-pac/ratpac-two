@@ -1,6 +1,6 @@
 #include <RAT/GLG4StringUtil.hh>
-#include <RAT/PosGen_Radial.hh>
 #include <RAT/Log.hh>
+#include <RAT/PosGen_Radial.hh>
 #include <Randomize.hh>
 #include <sstream>
 
@@ -21,11 +21,8 @@ void PosGen_Radial::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    info << "Current state of this PosGen_Radial:" << newline
-              << " \"" << GetState() << "\"" << newline
-              << newline;
-    info << "Format of argument to PosGen_Radial::SetState: " << newline
-              << " \"x_mm y_mm z_mm R_mm\"" << newline;
+    info << "Current state of this PosGen_Radial:" << newline << " \"" << GetState() << "\"" << newline << newline;
+    info << "Format of argument to PosGen_Radial::SetState: " << newline << " \"x_mm y_mm z_mm R_mm\"" << newline;
     return;
   }
 

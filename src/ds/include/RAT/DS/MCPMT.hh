@@ -48,8 +48,14 @@ class MCPMT : public TObject {
   void PruneMCPhoton() { photon.resize(0); }
   void SortMCPhotons() { std::sort(photon.begin(), photon.end()); }
 
-  void PruneNoiseMCPhotons() { photon.erase(std::remove_if(photon.begin(), photon.end(), [](const MCPhoton ph){return ph.IsDarkHit();}), photon.end()); }
-  void PruneAfterPulseMCPhotons() { photon.erase(std::remove_if(photon.begin(), photon.end(), [](const MCPhoton ph){return ph.IsAfterPulse();}), photon.end());  }
+  void PruneNoiseMCPhotons() {
+    photon.erase(std::remove_if(photon.begin(), photon.end(), [](const MCPhoton ph) { return ph.IsDarkHit(); }),
+                 photon.end());
+  }
+  void PruneAfterPulseMCPhotons() {
+    photon.erase(std::remove_if(photon.begin(), photon.end(), [](const MCPhoton ph) { return ph.IsAfterPulse(); }),
+                 photon.end());
+  }
 
   ClassDef(MCPMT, 3);
 

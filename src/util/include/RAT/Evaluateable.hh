@@ -16,15 +16,16 @@
 #ifndef __Evaluateable__
 #define __Evaluateable__
 
-class Evaluateable{
-  public:
-    Evaluateable();
-    double operator()(double x);
-    long GetCallCount();
-    void ResetCallCount();
-    virtual double Evaluate(double x) = 0;
-  private:
-    long count;
+class Evaluateable {
+ public:
+  Evaluateable();
+  double operator()(double x);
+  long GetCallCount();
+  void ResetCallCount();
+  virtual double Evaluate(double x) = 0;
+
+ private:
+  long count;
 };
 
 #endif

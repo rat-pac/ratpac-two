@@ -22,9 +22,9 @@
 #include <G4ParticleTable.hh>
 #include <G4ThreeVector.hh>
 #include <RAT/DB.hh>
+#include <RAT/Log.hh>
 #include <RAT/SNgen.hh>
 #include <RAT/SNgenMessenger.hh>
-#include <RAT/Log.hh>
 #include <Randomize.hh>
 #include <cmath>
 
@@ -548,9 +548,9 @@ void SNgen::LoadSpectra() {
   // Load in the Livermore model
   if (model == 1) {
     info << "\nUsing the livermore model. Within the this model the "
-                 "following rates are present.\nThese rates are not used in the "
-                 "processing of these events, but may be set by the user\nmanualy "
-              << newline;
+            "following rates are present.\nThese rates are not used in the "
+            "processing of these events, but may be set by the user\nmanualy "
+         << newline;
 
     //////////////////////////// IBD
     /////////////////////////////////////////////////////////
@@ -827,15 +827,14 @@ void SNgen::LoadSpectra() {
 
     Double_t tot = totIBD + totES + totCC + totICC + totNC;
     info << "(ibd,es,cc,icc,nc): "
-              << "(" << totIBD / tot << ", " << totES / tot << ", " << totCC / tot << ", " << totICC / tot << ", "
-              << totNC / tot << ")" << newline
-              << newline;
+         << "(" << totIBD / tot << ", " << totES / tot << ", " << totCC / tot << ", " << totICC / tot << ", "
+         << totNC / tot << ")" << newline << newline;
   }  // GVKM MODELgvkm
   else if (model == 2) {
     info << "\nUsing the gvkm model. Within the this model the following "
-                 "rates are present.\nThese rates are not used in the processing "
-                 "of these events, but may be set by the user\nmanualy  "
-              << newline;
+            "rates are present.\nThese rates are not used in the processing "
+            "of these events, but may be set by the user\nmanualy  "
+         << newline;
 
     //////////////////////////// IBD
     /////////////////////////////////////////////////////////
@@ -1094,9 +1093,8 @@ void SNgen::LoadSpectra() {
 
     Double_t tot = totIBD + totES + totCC + totICC + totNC;
     info << "(ibd,es,cc,icc,nc): "
-              << "(" << totIBD / tot << ", " << totES / tot << ", " << totCC / tot << ", " << totICC / tot << ", "
-              << totNC / tot << ")" << newline
-              << newline;
+         << "(" << totIBD / tot << ", " << totES / tot << ", " << totCC / tot << ", " << totICC / tot << ", "
+         << totNC / tot << ")" << newline << newline;
   }
 
   // Neutral current event get a special treatment.

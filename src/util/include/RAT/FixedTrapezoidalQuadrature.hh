@@ -17,16 +17,17 @@
 
 #include <RAT/Quadrature.hh>
 
-class FixedTrapezoidalQuadrature: public Quadrature{
-  public:
-    FixedTrapezoidalQuadrature(){ /**/ };
-    FixedTrapezoidalQuadrature(double);
-    virtual double Integrate(Evaluateable& f,
-                             const double xlo, const double xhi);
-  protected:
-    double fSpacing;
-  private:
-    /**/
+class FixedTrapezoidalQuadrature : public Quadrature {
+ public:
+  FixedTrapezoidalQuadrature(){/**/};
+  FixedTrapezoidalQuadrature(double);
+  virtual double Integrate(Evaluateable& f, const double xlo, const double xhi);
+
+ protected:
+  double fSpacing;
+
+ private:
+  /**/
 };
 
 #endif

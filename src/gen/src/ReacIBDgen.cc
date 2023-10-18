@@ -3,15 +3,15 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 
 #include <RAT/DB.hh>
+#include <RAT/Log.hh>
 #include <RAT/ReacIBDgen.hh>
 #include <RAT/ReacIBDgenMessenger.hh>
-#include <RAT/Log.hh>
 #include <fstream>
 #include <iostream>
 
 namespace RAT {
 
-//#define DEBUG
+// #define DEBUG
 
 // Additional constants
 const double DELTA = CLHEP::neutron_mass_c2 - CLHEP::proton_mass_c2;
@@ -170,8 +170,8 @@ double ReacIBDgen::GetNuEnergy() {
       std::ofstream fout("TheProbFunc.txt");
       if (fout.is_open()) {
         debug << "Your file is open.  Let's put the probability density "
-                     "function into it..."
-                  << newline;
+                 "function into it..."
+              << newline;
         for (int i = 0; i < probDensSize; i++) {
           fout << i << " " << fspace[i] << newline;
         }
