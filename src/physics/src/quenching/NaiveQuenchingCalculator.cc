@@ -1,6 +1,7 @@
 #include <RAT/NaiveQuenchingCalculator.hh>
 
-NaiveQuenchingCalculator::NaiveQuenchingCalculator(BirksLaw model) : QuenchingCalculator(model) { /* */ }
+NaiveQuenchingCalculator::NaiveQuenchingCalculator(BirksLaw model) : QuenchingCalculator(model) { /* */
+}
 
 double NaiveQuenchingCalculator::QuenchedEnergyDeposit(const G4Step& step, const double kB) {
   const double E = step.GetPreStepPoint()->GetKineticEnergy();

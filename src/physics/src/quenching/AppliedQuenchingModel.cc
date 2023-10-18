@@ -1,7 +1,8 @@
 #include <RAT/AppliedQuenchingModel.hh>
 #include <memory>
 
-AppliedQuenchingModel::AppliedQuenchingModel() : kB(0.0) { /* */ }
+AppliedQuenchingModel::AppliedQuenchingModel() : kB(0.0) { /* */
+}
 
 AppliedQuenchingModel::AppliedQuenchingModel(const BirksLaw _model, const G4ParticleDefinition* def,
                                              const G4Material* mat, const double _kB)

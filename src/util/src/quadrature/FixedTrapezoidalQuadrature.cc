@@ -1,6 +1,7 @@
 #include <RAT/FixedTrapezoidalQuadrature.hh>
 
-FixedTrapezoidalQuadrature::FixedTrapezoidalQuadrature(double _spacing) : fSpacing(_spacing) { /**/ }
+FixedTrapezoidalQuadrature::FixedTrapezoidalQuadrature(double _spacing) : fSpacing(_spacing) { /**/
+}
 
 double FixedTrapezoidalQuadrature::Integrate(Evaluateable& f, const double xlo, const double xhi) {
   double rv = 0.0;

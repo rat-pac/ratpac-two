@@ -2,7 +2,8 @@
 #include <RAT/Log.hh>
 #include <cmath>
 
-AdaptiveSimpsonQuadrature::AdaptiveSimpsonQuadrature(double _tolerance) : fTolerance(_tolerance) { /* */ }
+AdaptiveSimpsonQuadrature::AdaptiveSimpsonQuadrature(double _tolerance) : fTolerance(_tolerance) { /* */
+}
 
 double AdaptiveSimpsonQuadrature::Integrate(Evaluateable& f, double xlo, double xhi) {
   double xmd, fmd;
