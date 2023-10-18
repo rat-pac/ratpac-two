@@ -4,15 +4,15 @@
 // Provide user commands to allow the user to change
 // the FastNeutron parameters via the command line.
 
-//#include <RAT/FastNeutronMessenger.hh>
-//#include <RAT/VertexGen_FastNeutron.hh>
+// #include <RAT/FastNeutronMessenger.hh>
+// #include <RAT/VertexGen_FastNeutron.hh>
 
 #include <G4String.hh>
 #include <G4UIcmdWithADouble.hh>
 #include <G4UIcommand.hh>
 #include <G4UIdirectory.hh>
-#include <RAT/VertexGen_FastNeutron.hh>
 #include <RAT/Log.hh>
+#include <RAT/VertexGen_FastNeutron.hh>
 
 namespace RAT {
 
@@ -52,7 +52,7 @@ void FastNeutronMessenger::SetNewValue(G4UIcommand *command, G4String newValue) 
     double st = STCmd->GetNewDoubleValue(newValue);
     fastneutron->SetSideBool(st);
   } else {
-    RAT::warn << "Error: Invalid FastNeutronMessenger \"set\" command" <<newline;
+    RAT::warn << "Error: Invalid FastNeutronMessenger \"set\" command" << newline;
   }
 }
 

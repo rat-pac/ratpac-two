@@ -20,15 +20,16 @@
 #include <RAT/BirksLaw.hh>
 #include <RAT/Quadrature.hh>
 
-class QuenchingCalculator{
-  public:
-    QuenchingCalculator(BirksLaw model);
-    virtual double QuenchedEnergyDeposit(const G4Step& step,
-                                         const double kB) = 0;
-  protected:
-    BirksLaw model;
-  private:
-    /**/
+class QuenchingCalculator {
+ public:
+  QuenchingCalculator(BirksLaw model);
+  virtual double QuenchedEnergyDeposit(const G4Step& step, const double kB) = 0;
+
+ protected:
+  BirksLaw model;
+
+ private:
+  /**/
 };
 
 #endif

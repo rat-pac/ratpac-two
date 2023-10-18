@@ -16,14 +16,15 @@
 #ifndef __BirksLaw__
 #define __BirksLaw__
 
-class BirksLaw{
-  public:
-    BirksLaw(){ /* */ };
-    double Evaluate(const double E, const double dEdx, const double kB) const;
-  protected:
-    /**/
-  private:
-    /**/
+class BirksLaw {
+ public:
+  BirksLaw(){/* */};
+  double Evaluate(const double E, const double dEdx, const double kB) const;
+
+ protected:
+  /**/
+ private:
+  /**/
 };
 
 #endif

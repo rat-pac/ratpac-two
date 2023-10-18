@@ -95,7 +95,7 @@ int DB::LoadTable(DBTable *table) {
       DBTable *oldtable = FindTable(id.name, id.index, id.run);
       if (oldtable) {
         warn << "DB: Replacing " << id.name << "[" << id.index << "]"
-                  << " for run " << id.run << " in database." << newline;
+             << " for run " << id.run << " in database." << newline;
       }
 
       tables[id] = tablePtr;

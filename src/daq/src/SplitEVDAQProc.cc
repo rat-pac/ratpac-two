@@ -3,12 +3,11 @@
  * data and produce combined datasets.
  */
 #include <G4ThreeVector.hh>
-#include <RAT/SplitEVDAQProc.hh>
+#include <RAT/DS/DigitPMT.hh>
 #include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/PMT.hh>
-#include <RAT/DS/DigitPMT.hh>
 #include <RAT/DS/RunStore.hh>
-
+#include <RAT/SplitEVDAQProc.hh>
 #include <algorithm>
 #include <vector>
 
@@ -17,7 +16,7 @@ namespace RAT {
 SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   // Trigger Specifications
 
-  ldaq = DB::Get()->GetLink("DAQ","SplitEVDAQ");
+  ldaq = DB::Get()->GetLink("DAQ", "SplitEVDAQ");
   fEventCounter = 0;
   fPulseWidth = ldaq->GetD("pulse_width");
   fTriggerThreshold = ldaq->GetD("trigger_threshold");
@@ -168,7 +167,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         totalEVCharge += integratedCharge;
         if (fDigitize) {
           fDigitizer->DigitizePMT(mcpmt, pmtID, tt, pmtinfo);
-          if( fAnalyze) {
+          if (fAnalyze) {
             DS::DigitPMT *digitpmt = ev->AddNewDigitPMT();
             digitpmt->SetID(pmtID);
             fWaveformAnalysis->RunAnalysis(digitpmt, pmtID, fDigitizer);

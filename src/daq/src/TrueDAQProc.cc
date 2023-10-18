@@ -29,7 +29,7 @@
 namespace RAT {
 
 TrueDAQProc::TrueDAQProc() : Processor("truedaq") {
-  ldaq = DB::Get()->GetLink("DAQ","TrueDAQ");
+  ldaq = DB::Get()->GetLink("DAQ", "TrueDAQ");
   fEventCounter = 0;
   fTriggerWindow = ldaq->GetD("trigger_window");
   fTriggerLockout = ldaq->GetD("trigger_lockout");

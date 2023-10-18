@@ -220,8 +220,8 @@ void HeGen::ResetTime(double offset) {
   nextTime = eventTime + offset;
 #ifdef DEBUG
   debug << "RAT::HeGen::ResetTime:"
-            << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
-            << ", nextTime=" << G4BestUnit(nextTime, "Time") << newline;
+        << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
+        << ", nextTime=" << G4BestUnit(nextTime, "Time") << newline;
 #endif
 }
 
@@ -293,8 +293,8 @@ void HeGen::SetPosState(G4String state) {
     posGen->SetState(state);
   else
     warn << "HeGen error: Cannot set position state, no position generator "
-                 "selected"
-              << newline;
+            "selected"
+         << newline;
 }
 
 G4String HeGen::GetPosState() const {

@@ -17,10 +17,10 @@
 #define __RAT_WaveformAnalysis__
 
 #include <TObject.h>
+
+#include <RAT/DB.hh>
 #include <RAT/DS/DigitPMT.hh>
 #include <RAT/Digitizer.hh>
-#include <RAT/DB.hh>
-
 #include <vector>
 
 namespace RAT {
@@ -58,14 +58,13 @@ class WaveformAnalysis {
   void SlidingIntegral();
 
  protected:
-
   // Digitizer settings
   DBLinkPtr fDigit;
   double fTimeStep;
   double fVoltageRes;
   double fTermOhms;
 
-  // Analysis constants 
+  // Analysis constants
   int fPedWindowLow;
   int fPedWindowHigh;
   double fLookback;

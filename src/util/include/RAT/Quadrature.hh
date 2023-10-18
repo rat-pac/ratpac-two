@@ -18,15 +18,15 @@
 
 #include <RAT/Evaluateable.hh>
 
-class Quadrature{
-  public:
-    virtual ~Quadrature() = 0;
-    virtual double Integrate(Evaluateable& f,
-                             const double xlo, const double xhi) = 0;
-  protected:
-    /**/
-  private:
-    /**/
+class Quadrature {
+ public:
+  virtual ~Quadrature() = 0;
+  virtual double Integrate(Evaluateable& f, const double xlo, const double xhi) = 0;
+
+ protected:
+  /**/
+ private:
+  /**/
 };
 
 #endif

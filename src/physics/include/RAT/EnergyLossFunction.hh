@@ -20,22 +20,21 @@
 #include <G4EmCalculator.hh>
 #include <G4Material.hh>
 #include <G4ParticleDefinition.hh>
-
 #include <memory>
 
-class EnergyLossFunction{
-  public:
-    EnergyLossFunction(){ /**/ };
-   ~EnergyLossFunction(){ /**/ };
-    EnergyLossFunction(const G4ParticleDefinition* _def,
-                       const G4Material* _mat);
-    double Evaluate(double x);
-  protected:
-    /**/
-  private:
-    const G4ParticleDefinition* fDef;
-    const G4Material* fMat;
-    std::unique_ptr<G4EmCalculator> fCalculator;
+class EnergyLossFunction {
+ public:
+  EnergyLossFunction(){/**/};
+  ~EnergyLossFunction(){/**/};
+  EnergyLossFunction(const G4ParticleDefinition* _def, const G4Material* _mat);
+  double Evaluate(double x);
+
+ protected:
+  /**/
+ private:
+  const G4ParticleDefinition* fDef;
+  const G4Material* fMat;
+  std::unique_ptr<G4EmCalculator> fCalculator;
 };
 
 #endif

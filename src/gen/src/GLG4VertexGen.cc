@@ -162,19 +162,18 @@ void GLG4VertexGen_Gun::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    RAT::info << "Current state of this GLG4VertexGen_Gun:" << newline
-              << " \"" << GetState() << "\"" << newline
+    RAT::info << "Current state of this GLG4VertexGen_Gun:" << newline << " \"" << GetState() << "\"" << newline
               << newline;
     RAT::info << "Format of argument to GLG4VertexGen_Gun::SetState: " << newline
-              <<  " \"pname  momx_MeV momy_MeV momz_MeV  KE_MeV  polx poly polz "
-              <<  "mult\"\n"
-              <<  " where pname is the name of a particle type (e-, mu-, U238, ...)\n"
-              <<  " mom*_MeV is a momentum in MeV/c\n"
-              <<  " KE_MeV is an optional override for kinetic energy\n"
-              <<  " pol* is an optional polarization std::vector.\n"
-              <<  " mult is an optional multiplicity of the particles.\n"
-              <<  "mom*_MeV==0 and KE_MeV!=0 --> random isotropic directions chosen\n"
-              <<  "pol*==0 --> random transverse polarization for photons.\n"
+              << " \"pname  momx_MeV momy_MeV momz_MeV  KE_MeV  polx poly polz "
+              << "mult\"\n"
+              << " where pname is the name of a particle type (e-, mu-, U238, ...)\n"
+              << " mom*_MeV is a momentum in MeV/c\n"
+              << " KE_MeV is an optional override for kinetic energy\n"
+              << " pol* is an optional polarization std::vector.\n"
+              << " mult is an optional multiplicity of the particles.\n"
+              << "mom*_MeV==0 and KE_MeV!=0 --> random isotropic directions chosen\n"
+              << "pol*==0 --> random transverse polarization for photons.\n"
               << newline;
     return;
   }
@@ -397,8 +396,7 @@ void GLG4VertexGen_Gun2::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    RAT::info << "Current state of this GLG4VertexGen_Gun:" << newline
-              << " \"" << GetState() << "\"" << newline
+    RAT::info << "Current state of this GLG4VertexGen_Gun:" << newline << " \"" << GetState() << "\"" << newline
               << newline;
     RAT::info << "Format of argument to GLG4VertexGen_Gun::SetState: " << newline
               << " \"pname  momx_MeV momy_MeV momz_MeV angle KE1_MeV  KE2_MeV polx "
@@ -698,8 +696,8 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
   if (istat != 1) {
     // this should never happen: GetDataLine() should make sure integer is ok
     // -- but the test above is cheap and a good cross-check, so leave it.
-    RAT::warn << "Bad data in " << _filename << ", expecting NHEP but got:" << newline
-              << buffer << " --> closing file." << newline;
+    RAT::warn << "Bad data in " << _filename << ", expecting NHEP but got:" << newline << buffer << " --> closing file."
+              << newline;
     Close();
     return;
   }
@@ -899,12 +897,10 @@ void GLG4VertexGen_HEPEvt::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // print help and current state
-    RAT::info << "Current state of this GLG4VertexGen_HEPEvt:" << newline
-              << " \"" << GetState() << "\"" << newline
+    RAT::info << "Current state of this GLG4VertexGen_HEPEvt:" << newline << " \"" << GetState() << "\"" << newline
               << newline;
     RAT::info << "Format of argument to GLG4VertexGen_HEPEvt::SetState: " << newline
-              << "either \"filename\" or \"shell_command (arguments) |\"" << newline
-              << newline;
+              << "either \"filename\" or \"shell_command (arguments) |\"" << newline << newline;
     return;
   }
 

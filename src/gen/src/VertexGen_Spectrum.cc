@@ -82,14 +82,10 @@ void VertexGen_Spectrum::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx
 void VertexGen_Spectrum::SetState(G4String newValues) {
   if (newValues.length() == 0) {
     // print help and current state
-    info << "Current state of this VertexGen_Spectrum:" << newline
-              << " \"" << GetState() << "\"" << newline
-              << newline;
-    info << "Format of argument to VertexGen_Spectrum::SetState: " << newline
-              << " \"pname  specname  (Elo Ehi)\"" << newline
-              << " pname = particle name " << newline
-              << " specname = spectrum name as given in ratdb " << newline
-              << " Elo Ehi = optional limits on energy range of generated particles " << newline;
+    info << "Current state of this VertexGen_Spectrum:" << newline << " \"" << GetState() << "\"" << newline << newline;
+    info << "Format of argument to VertexGen_Spectrum::SetState: " << newline << " \"pname  specname  (Elo Ehi)\""
+         << newline << " pname = particle name " << newline << " specname = spectrum name as given in ratdb " << newline
+         << " Elo Ehi = optional limits on energy range of generated particles " << newline;
     return;
   }
 
@@ -293,10 +289,9 @@ void VertexGen_Spectrum::LimitEnergies(double Elo, double Ehi) {
   // Set the limits for the generated energy range
   // first check this makes sense
   if ((Elo > _emax) || (Elo > Elim_Uhi) || (Ehi < _emin) || (Ehi < Elim_Ulo) || ((Ehi - Elo) <= 0)) {
-    info << "Spectrum Vertex: temporary energy limits " << Elo << " - " << Ehi
-              << " don't make sense, not applied " << newline
-              << "spectrum in range " << _emin << " - " << _emax << " MeV with universal limits " << Elim_Ulo << " - "
-              << Elim_Uhi << newline;
+    info << "Spectrum Vertex: temporary energy limits " << Elo << " - " << Ehi << " don't make sense, not applied "
+         << newline << "spectrum in range " << _emin << " - " << _emax << " MeV with universal limits " << Elim_Ulo
+         << " - " << Elim_Uhi << newline;
     return;
   }
   Elim_Tlo = Elo;

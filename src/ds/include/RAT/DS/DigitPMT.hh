@@ -9,6 +9,7 @@
 #define __RAT_DS_DigitPMT__
 
 #include <Rtypes.h>
+#include <TObject.h>
 
 namespace RAT {
 namespace DS {

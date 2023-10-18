@@ -3,9 +3,7 @@
 #include <RAT/DecayChain.hh>
 #include <RAT/FermiFunction.hh>
 #include <RAT/Log.hh>
-
 #include <Randomize.hh>
-
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -14,9 +12,7 @@
 
 namespace RAT {
 
-DecayChain::DecayChain() {
-    Reset();
-}
+DecayChain::DecayChain() { Reset(); }
 
 DecayChain::DecayChain(const std::string Name) {
 #ifdef DEBUG
@@ -27,9 +23,7 @@ DecayChain::DecayChain(const std::string Name) {
   SetChainName(Name);
 }
 
-DecayChain::~DecayChain() {
-    Reset();
-}
+DecayChain::~DecayChain() { Reset(); }
 
 void DecayChain::Reset() {
 #ifdef DEBUG
@@ -58,22 +52,20 @@ void DecayChain::Reset() {
   char *path = getenv("RATDecayDataDir");
   std::string dirName;
   if (path == 0) {
-      // RATDecayDataDir enviornment variable not found.
-      // Check to see if RATSHARE is set
-      path = getenv("RATSHARE");
-      if (path == 0) {
-          // Environment variable not found... so just use a name
-          // relative to the current directory.
-          dirName = "./data";
-      }
-      else {
-          // RATSHARE enviornment variable found.
-          // Add data subdir to get the correct directory.
-          dirName = static_cast<std::string>(getenv("RATSHARE")) + "/ratdb";
-      }
-  }
-  else {
-      dirName = std::string(path);
+    // RATDecayDataDir enviornment variable not found.
+    // Check to see if RATSHARE is set
+    path = getenv("RATSHARE");
+    if (path == 0) {
+      // Environment variable not found... so just use a name
+      // relative to the current directory.
+      dirName = "./data";
+    } else {
+      // RATSHARE enviornment variable found.
+      // Add data subdir to get the correct directory.
+      dirName = static_cast<std::string>(getenv("RATSHARE")) + "/ratdb";
+    }
+  } else {
+    dirName = std::string(path);
   }
   std::string fileName = dirName + "/beta_decays.dat";
   SetFileName(fileName);
@@ -83,15 +75,14 @@ void DecayChain::Show() {
   printf("Decay Chain Name: %s .\n", GetChainName().c_str());
   int nE = GetNElements();
   if (nE > 0) {
-      printf("Elements : %d \n", nE);
-      printf("Name \t Branch \t Decay Type \t Half-Life \t Weight \t Prob \t Level \n");
-      for (int i = 0; i < nE; i++) {
-          printf("%s \t %d \t %d \t %g \t %g \t %g \t %d \n", GetElementName(i).c_str(), GetElementBranch(i),
-               GetElementDecay(i), GetLifetime(i), GetElementWt(i), GetElementProb(i), CheckChainLevel(i));
-      }
-  }
-  else {
-      printf("No elements defined. \n");
+    printf("Elements : %d \n", nE);
+    printf("Name \t Branch \t Decay Type \t Half-Life \t Weight \t Prob \t Level \n");
+    for (int i = 0; i < nE; i++) {
+      printf("%s \t %d \t %d \t %g \t %g \t %g \t %d \n", GetElementName(i).c_str(), GetElementBranch(i),
+             GetElementDecay(i), GetLifetime(i), GetElementWt(i), GetElementProb(i), CheckChainLevel(i));
+    }
+  } else {
+    printf("No elements defined. \n");
   }
   printf(" \n");
 }
@@ -122,46 +113,46 @@ void DecayChain::AddElement(const std::string Name, int iLocation, int iDecay, d
   SetDecaySequence();
 
   if (isVerbose) {
-      if (!iFound) {
-          printf("No such element found in decay scheme. \n");
-      }
-      Element[iChain]->Show();
+    if (!iFound) {
+      printf("No such element found in decay scheme. \n");
+    }
+    Element[iChain]->Show();
   }
 }
 
 void DecayChain::SetElementName(int iBranch, const std::string Name) {
   if (iBranch <= NumberOfElements) {
-      ElementName[iBranch] = Name;
+    ElementName[iBranch] = Name;
   }
 }
 
 void DecayChain::SetElementNumber(int iBranch) {
   if (iBranch <= NumberOfElements) {
-      ElementNumber = iBranch;
+    ElementNumber = iBranch;
   }
 }
 
 void DecayChain::SetElementBranch(int iBranch, int iLocation) {
   if (iBranch <= NumberOfElements) {
-      ElementBranch[iBranch] = iLocation;
+    ElementBranch[iBranch] = iLocation;
   }
 }
 
 void DecayChain::SetElementWt(int iBranch, double wt) {
   if (iBranch <= NumberOfElements) {
-      ElementWeight[iBranch] = wt;
+    ElementWeight[iBranch] = wt;
   }
 }
 
 void DecayChain::SetElementDecay(int iBranch, int iDecay) {
   if (iBranch <= NumberOfElements) {
-      ElementDecay[iBranch] = iDecay;
+    ElementDecay[iBranch] = iDecay;
   }
 }
 
 void DecayChain::SetLifetime(int iBranch, double tau) {
   if (iBranch <= NumberOfElements) {
-      ElementLife[iBranch] = tau;
+    ElementLife[iBranch] = tau;
   }
 }
 
@@ -183,83 +174,80 @@ bool DecayChain::ReadInputFile(const std::string dName) {
   inputFile = fopen(GetFileName().c_str(), "r");
 
   if (!inputFile) {
-      printf("Error opening file : %s \n", GetFileName().c_str());
-      return iFound;
+    printf("Error opening file : %s \n", GetFileName().c_str());
+    return iFound;
   }
 
   bool iRead = true;
 
   while ((iRead) && (!iFound)) {
-      iRead = (fscanf(inputFile, "%s", dummy) > 0);
-      std::string iString(dummy);
+    iRead = (fscanf(inputFile, "%s", dummy) > 0);
+    std::string iString(dummy);
 
-      if (iString == dProbe) {
-          fscanf(inputFile, "%s", tName);
-          std::string iString2(tName);
-          if (dName == iString2) {
-              if (!fAlphaDecayStart) {
-                  iFound = true;
-              }
-              fscanf(inputFile, "%d", &eP);
-              if (isVerbose) {
-                  printf("Reading %s \n \n", tName);
-              }
-              for (int j = 0; j < eP; j++) {
-                  fscanf(inputFile, "%s %d %f %d %f", sName, &iChain, &weight, &iDecay, &tau);
-                  std::string iString3(sName);
-                  if (iDecay != NullParticle && !fAlphaDecayStart) {
-                      AddElement(iString3, iChain, iDecay, (double) tau, (double) weight);
-                  }
-                  if (fAlphaDecayStart && iDecay == 2 && iString3 == dName)  {
-                      info << "ADDING ELEMENT " << iString3 << " " << iDecay << newline;
-                      weight = 1;
-                      AddElement(iString3, iChain, iDecay, (double) tau, (double) weight);
-                      iFound = true;
-                  }
-              }
+    if (iString == dProbe) {
+      fscanf(inputFile, "%s", tName);
+      std::string iString2(tName);
+      if (dName == iString2) {
+        if (!fAlphaDecayStart) {
+          iFound = true;
+        }
+        fscanf(inputFile, "%d", &eP);
+        if (isVerbose) {
+          printf("Reading %s \n \n", tName);
+        }
+        for (int j = 0; j < eP; j++) {
+          fscanf(inputFile, "%s %d %f %d %f", sName, &iChain, &weight, &iDecay, &tau);
+          std::string iString3(sName);
+          if (iDecay != NullParticle && !fAlphaDecayStart) {
+            AddElement(iString3, iChain, iDecay, (double)tau, (double)weight);
           }
-          else if (iString == eProbe) {
-            iRead = false;
+          if (fAlphaDecayStart && iDecay == 2 && iString3 == dName) {
+            info << "ADDING ELEMENT " << iString3 << " " << iDecay << newline;
+            weight = 1;
+            AddElement(iString3, iChain, iDecay, (double)tau, (double)weight);
+            iFound = true;
           }
+        }
+      } else if (iString == eProbe) {
+        iRead = false;
       }
+    }
   }  // end while
 
   fclose(inputFile);
   if (iFound) {
-      if (isVerbose) {
-          Show();
-      }
-  }
-  else {
-      printf("No such chain found: %s .\n  Looking for element only...\n", dName.c_str());
-      info << "NO SUCH CHAIN FOUND" << newline;
+    if (isVerbose) {
+      Show();
+    }
+  } else {
+    printf("No such chain found: %s .\n  Looking for element only...\n", dName.c_str());
+    info << "NO SUCH CHAIN FOUND" << newline;
 
-      if (fAlphaDecayStart) {
-          printf("The element %s undergoes alpha decay...\n", dName.c_str());
-          info << "THE ELEMENT UNDERGOES ALPHA DECAY " << newline;
-          AddElement(dName, 1, 2);
-          iFound = true;
-      }
-      else {
-          printf("The element %s undergoes beta decay...\n", dName.c_str());
-          info << "THE ELEMENT UNDERGOES BETA DECAY " << newline;
-          AddElement(dName);
-          iFound = true;
-      }
+    if (fAlphaDecayStart) {
+      printf("The element %s undergoes alpha decay...\n", dName.c_str());
+      info << "THE ELEMENT UNDERGOES ALPHA DECAY " << newline;
+      AddElement(dName, 1, 2);
+      iFound = true;
+    } else {
+      printf("The element %s undergoes beta decay...\n", dName.c_str());
+      info << "THE ELEMENT UNDERGOES BETA DECAY " << newline;
+      AddElement(dName);
+      iFound = true;
+    }
   }
   return iFound;
 }
 
 const std::string DecayChain::GetElementName(int iBranch) {
   if (iBranch > GetNElements()) {
-      return "";
+    return "";
   }
   return ElementName[iBranch];
 }
 
 int DecayChain::GetElementBranch(int iBranch) {
   if (iBranch > GetNElements()) {
-      return 0;
+    return 0;
   }
 
   return ElementBranch[iBranch];
@@ -267,7 +255,7 @@ int DecayChain::GetElementBranch(int iBranch) {
 
 int DecayChain::GetElementDecay(int iBranch) {
   if (iBranch > GetNElements()) {
-      return 0;
+    return 0;
   }
 
   return ElementDecay[iBranch];
@@ -275,7 +263,7 @@ int DecayChain::GetElementDecay(int iBranch) {
 
 double DecayChain::GetElementWt(int iBranch) {
   if (iBranch > GetNElements()) {
-      return 0.;
+    return 0.;
   }
 
   return ElementWeight[iBranch];
@@ -283,7 +271,7 @@ double DecayChain::GetElementWt(int iBranch) {
 
 double DecayChain::GetLifetime(int iBranch) {
   if (iBranch > GetNElements()) {
-      return 0.;
+    return 0.;
   }
 
   return ElementLife[iBranch];
@@ -293,7 +281,7 @@ void DecayChain::GenerateDecayElement(int i) {
   int nE = GetNElements();
 
   if (nE <= 0) {
-      return;
+    return;
   }
 
   Element[i]->GenerateEvent();
@@ -302,49 +290,49 @@ void DecayChain::GenerateDecayElement(int i) {
   tstart += Element[i]->GetEventTime();
 
   if (nP > 0) {
-      int iStart = GetNGenerated();
+    int iStart = GetNGenerated();
 
-      for (int j = 0; j < nP; j++) {
-          int k = iStart + j;
-          SetParentName(k, Element[i]->GetName());
-          int iNext = i;
-          if (i > GetNElements() - 1) {
-              for (int q = GetNElements() - 1; q > i; q--) {
-                  if (CheckInChain(i, q)) {
-                      iNext = q;
-                  }
-              }
+    for (int j = 0; j < nP; j++) {
+      int k = iStart + j;
+      SetParentName(k, Element[i]->GetName());
+      int iNext = i;
+      if (i > GetNElements() - 1) {
+        for (int q = GetNElements() - 1; q > i; q--) {
+          if (CheckInChain(i, q)) {
+            iNext = q;
           }
-          SetDaughterName(k, Element[iNext]->GetName());
-          ParticleID[k] = Element[i]->GetEventID(j);
-          ParticleEnergy[k] = Element[i]->GetEventEnergy(j);
-          SetEventTime(k, tstart);
-          SetParticleInfo(i, j, k);
+        }
       }
+      SetDaughterName(k, Element[iNext]->GetName());
+      ParticleID[k] = Element[i]->GetEventID(j);
+      ParticleEnergy[k] = Element[i]->GetEventEnergy(j);
+      SetEventTime(k, tstart);
+      SetParticleInfo(i, j, k);
+    }
 
-      bool iDaughter = ((CreateDaughter) && (isEquilibrium));
-      if (iDaughter) {
-          int k = iStart + nP;
-          int isoID = 100000000;
-          isoID += (int) (Element[i]->GetTargetMass()) * 1000;
-          isoID += (int) (Element[i]->GetCharge());
-          ParticleInfo_t theDaughter = AddDaughterInfo(i);
-          SetParentName(k, Element[i]->GetName());
-          int iNext = i;
-          if (i > GetNElements() - 1) {
-              for (int q = GetNElements() - 1; q > i; q--) {
-                  if (CheckInChain(i, q)) {
-                      iNext = q;
-                  }
-              }
+    bool iDaughter = ((CreateDaughter) && (isEquilibrium));
+    if (iDaughter) {
+      int k = iStart + nP;
+      int isoID = 100000000;
+      isoID += (int)(Element[i]->GetTargetMass()) * 1000;
+      isoID += (int)(Element[i]->GetCharge());
+      ParticleInfo_t theDaughter = AddDaughterInfo(i);
+      SetParentName(k, Element[i]->GetName());
+      int iNext = i;
+      if (i > GetNElements() - 1) {
+        for (int q = GetNElements() - 1; q > i; q--) {
+          if (CheckInChain(i, q)) {
+            iNext = q;
           }
-          SetDaughterName(k, Element[iNext]->GetName());
-          ParticleID[k] = isoID;
-          ParticleEnergy[k] = theDaughter.vector.e();
-          SetEventTime(k, tstart);
-          theParticleInfo[k] = theDaughter;
-          nP++;
+        }
       }
+      SetDaughterName(k, Element[iNext]->GetName());
+      ParticleID[k] = isoID;
+      ParticleEnergy[k] = theDaughter.vector.e();
+      SetEventTime(k, tstart);
+      theParticleInfo[k] = theDaughter;
+      nP++;
+    }
   }
 
   SetNGenerated(GetNGenerated() + nP);
@@ -353,11 +341,11 @@ void DecayChain::GenerateDecayElement(int i) {
 
 void DecayChain::GenerateDecayElement(const std::string iElement) {
   for (int i = 0; i < NumberOfElements; i++) {
-      const std::string tName = GetElementName(i);
-      if (tName == iElement) {
-          GenerateDecayElement(i);
-          return;
-      }
+    const std::string tName = GetElementName(i);
+    if (tName == iElement) {
+      GenerateDecayElement(i);
+      return;
+    }
   }
 }
 
@@ -369,19 +357,19 @@ void DecayChain::GenerateDecayChain(const std::string iNameStart) {
   int iEnd = nE;
 
   if (nE <= 0) {
-      return;
+    return;
   }
 
   for (int i = iStart; i < iEnd; i++) {
-      const std::string tName = GetElementName(i);
-      if (tName == iNameStart) {
-          iStart = i;
-      }
+    const std::string tName = GetElementName(i);
+    if (tName == iNameStart) {
+      iStart = i;
+    }
   }
 
   double rMax = 0.;
   for (int i = iStart; i < iEnd; i++) {
-      rMax = rMax + GetElementProb(i);
+    rMax = rMax + GetElementProb(i);
   }
 
   SetNGenerated(0);
@@ -390,10 +378,10 @@ void DecayChain::GenerateDecayChain(const std::string iNameStart) {
   double Prob = 0.;
   int iTag = -1;
   for (int i = iStart; i < iEnd; i++) {
-      Prob = Prob + GetElementProb(i);
-      if ((iTag < 0) && (r < Prob)) {
-          iTag = i;
-      }
+    Prob = Prob + GetElementProb(i);
+    if ((iTag < 0) && (r < Prob)) {
+      iTag = i;
+    }
   }
 
   tstart = 0.;
@@ -403,7 +391,7 @@ void DecayChain::GenerateDecayChain(const std::string iNameStart) {
 void DecayChain::GenerateDecayChain(int iBranch) {
   int nE = GetNElements();
   if (iBranch > nE) {
-      return;
+    return;
   }
 
   const std::string tName = GetElementName(iBranch);
@@ -412,7 +400,7 @@ void DecayChain::GenerateDecayChain(int iBranch) {
 
 const std::string DecayChain::GetParentName(int iEvent) {
   if (iEvent > GetNGenerated()) {
-      return "";
+    return "";
   }
 
   return ParentName[iEvent];
@@ -420,17 +408,17 @@ const std::string DecayChain::GetParentName(int iEvent) {
 
 const std::string DecayChain::GetDaughterName(int iEvent) {
   if (iEvent > GetNGenerated()) {
-      return "";
+    return "";
   }
   return DaughterName[iEvent];
 }
 
 int DecayChain::GetEventID(int iEvent) {
   if (iEvent > GetNGenerated()) {
-      return 0;
+    return 0;
   }
   if (!CheckParentMatch(iEvent)) {
-      return 0;
+    return 0;
   }
 
   return ParticleID[iEvent];
@@ -438,10 +426,10 @@ int DecayChain::GetEventID(int iEvent) {
 
 double DecayChain::GetEventEnergy(int iEvent) {
   if (iEvent > GetNGenerated()) {
-      return 0.;
+    return 0.;
   }
   if (!CheckParentMatch(iEvent)) {
-      return 0.;
+    return 0.;
   }
 
   return ParticleEnergy[iEvent];
@@ -449,33 +437,31 @@ double DecayChain::GetEventEnergy(int iEvent) {
 
 double DecayChain::GetEventTime(int iEvent) {
   if (iEvent > GetNGenerated()) {
-      return 0.;
+    return 0.;
   }
   if (!CheckParentMatch(iEvent)) {
-      return 0.;
+    return 0.;
   }
 
   return ParticleTime[iEvent];
 }
 
-void DecayChain::SetEventTime(int iEvent, double time) {
-    ParticleTime[iEvent] = time;
-}
+void DecayChain::SetEventTime(int iEvent, double time) { ParticleTime[iEvent] = time; }
 
 void DecayChain::GenerateFullChain(const std::string iElement) {
   SetEquilibrium(false);
   int nE = GetNElements();
   if (nE <= 0) {
-      return;
+    return;
   }
 
   int iStart = 0;
   for (int i = 0; i < nE; i++) {
-      const std::string tName = GetElementName(i);
+    const std::string tName = GetElementName(i);
 
-      if (tName == iElement) {
-          iStart = i;
-      }
+    if (tName == iElement) {
+      iStart = i;
+    }
   }
 
   int iBefore = iStart;
@@ -488,46 +474,45 @@ void DecayChain::GenerateFullChain(const std::string iElement) {
   isChainElement = false;
 
   for (int j = iStart; j < nE; j++) {
-      bool iCheck = (CheckInChain(j, iStart) && CheckInChain(j, iBefore));
+    bool iCheck = (CheckInChain(j, iStart) && CheckInChain(j, iBefore));
 
-      if (iReject > 0) {
-          iCheck = ((iCheck) && (!CheckInChain(j, iReject)));
-      }
+    if (iReject > 0) {
+      iCheck = ((iCheck) && (!CheckInChain(j, iReject)));
+    }
 
-      if (iCheck) {
-          Br = GetElementWt(j);
-          double Prob = RelWt * GetRandomNumber();
-          if (Prob <= Br) {
-              GenerateDecayElement(j);
-              iBefore = j;
-              iReject = -1;
-              RelWt = 1.;
-          }
-          else {
-              RelWt = RelWt - Br;
-              iReject = j;
-          }
+    if (iCheck) {
+      Br = GetElementWt(j);
+      double Prob = RelWt * GetRandomNumber();
+      if (Prob <= Br) {
+        GenerateDecayElement(j);
+        iBefore = j;
+        iReject = -1;
+        RelWt = 1.;
+      } else {
+        RelWt = RelWt - Br;
+        iReject = j;
       }
-      isChainElement = true;
+    }
+    isChainElement = true;
   }
   isChainElement = false;
 
   double tMax = 1.0e+99;
   for (int i = 0; i < GetNGenerated(); i++) {
-      if (GetEventTime(i) < tMax) {
-          tMax = GetEventTime(i);
-      }
+    if (GetEventTime(i) < tMax) {
+      tMax = GetEventTime(i);
+    }
   }
 
   for (int i = 0; i < GetNGenerated(); i++) {
-      SetEventTime(i, GetEventTime(i) - tMax);
+    SetEventTime(i, GetEventTime(i) - tMax);
   }
 }
 
 void DecayChain::GenerateFullChain(int iBranch) {
   int nE = GetNElements();
   if (iBranch > nE) {
-      return;
+    return;
   }
 
   const std::string tName = GetElementName(iBranch);
@@ -538,16 +523,16 @@ bool DecayChain::CheckParentMatch(int iEvent) {
   bool iPass = false;
 
   if (oneParent == "all") {
-      iPass = true;
+    iPass = true;
   }
   if (oneParent == "ALL") {
-      iPass = true;
+    iPass = true;
   }
   if (oneParent == "0/") {
-      iPass = true;
+    iPass = true;
   }
   if (oneParent == GetParentName(iEvent)) {
-      iPass = true;
+    iPass = true;
   }
 
   return iPass;
@@ -558,54 +543,54 @@ void DecayChain::SetDecaySequence() {
   int iEnd = GetNElements();
   double BrL[5];
   for (int j = iStart; j < iEnd; j++) {
-      int jLevel = CheckChainLevel(j);
-      BrL[jLevel] = GetElementWt(j);
-      for (int k = iStart; k < j; k++) {
-          int kLevel = CheckChainLevel(k);
-          if (CheckInChain(k, j)) {
-              BrL[kLevel] = BrL[kLevel] * GetElementWt(k);
-          }
+    int jLevel = CheckChainLevel(j);
+    BrL[jLevel] = GetElementWt(j);
+    for (int k = iStart; k < j; k++) {
+      int kLevel = CheckChainLevel(k);
+      if (CheckInChain(k, j)) {
+        BrL[kLevel] = BrL[kLevel] * GetElementWt(k);
+      }
+    }
+
+    double Br = 1;
+    for (int l = 0; l <= jLevel; l++) {
+      Br *= BrL[l];
+    }
+
+    if (CheckInChain(iStart, j)) {
+      double weight = 1.;
+      double A_Source = Element[j]->GetTargetMass();
+
+      if (A_Source > 0) {
+        double Lambda = log(2.) / GetLifetime(iStart);
+        double Lambda_d = log(2.) / GetLifetime(j);
+        double LTau = 1.;
+
+        if (Lambda_d > 1.e-12) {
+          LTau = (1. - exp(-1. * Lambda_d)) / Lambda_d;
+        }
+
+        weight = Br * (N_A / A_Source) * Lambda * LTau;
       }
 
-      double Br = 1;
-      for (int l = 0; l <= jLevel; l++) {
-          Br *= BrL[l];
+      if (GetEquilibrium()) {
+        weight = Br;
       }
 
-      if (CheckInChain(iStart, j)) {
-          double weight = 1.;
-          double A_Source = Element[j]->GetTargetMass();
-
-          if (A_Source > 0) {
-              double Lambda = log(2.) / GetLifetime(iStart);
-              double Lambda_d = log(2.) / GetLifetime(j);
-              double LTau = 1.;
-
-              if (Lambda_d > 1.e-12) {
-                  LTau = (1. - exp(-1. * Lambda_d)) / Lambda_d;
-              }
-
-              weight = Br * (N_A / A_Source) * Lambda * LTau;
-          }
-
-          if (GetEquilibrium()) {
-              weight = Br;
-          }
-
-          SetElementProb(j, weight);
-      }
+      SetElementProb(j, weight);
+    }
   }
 }
 
 void DecayChain::SetElementProb(int iBranch, double prob) {
   if (iBranch <= GetNElements()) {
-      ElementProb[iBranch] = prob;
+    ElementProb[iBranch] = prob;
   }
 }
 
 double DecayChain::GetElementProb(int iBranch) {
   if (iBranch > GetNElements()) {
-      return 0;
+    return 0;
   }
 
   return ElementProb[iBranch];
@@ -616,12 +601,12 @@ bool DecayChain::CheckInChain(int iElement, int jElement) {
   int index0 = 0;
   int index1 = 0;
   for (int l = 0; l < 3; l++) {
-      int divisor = (int) pow(10., 1. * l);
-      index0 = (GetElementBranch(iElement) / divisor) % 10;
-      index1 = (GetElementBranch(jElement) / divisor) % 10;
-      if (((index0 * index1) != 0) && (index1 != index0)) {
-          inChain = false;
-      }
+    int divisor = (int)pow(10., 1. * l);
+    index0 = (GetElementBranch(iElement) / divisor) % 10;
+    index1 = (GetElementBranch(jElement) / divisor) % 10;
+    if (((index0 * index1) != 0) && (index1 != index0)) {
+      inChain = false;
+    }
   }
   return inChain;
 }
@@ -629,11 +614,11 @@ bool DecayChain::CheckInChain(int iElement, int jElement) {
 int DecayChain::CheckChainLevel(int iElement) {
   int level = 0;
   for (int l = 0; l < 3; l++) {
-      int divisor = (int) pow(10., 1. * l);
-      int index = (GetElementBranch(iElement) / divisor) % 10;
-      if (index != 0) {
-          level = l;
-      }
+    int divisor = (int)pow(10., 1. * l);
+    int index = (GetElementBranch(iElement) / divisor) % 10;
+    if (index != 0) {
+      level = l;
+    }
   }
   return level;
 }
@@ -643,10 +628,10 @@ void DecayChain::SetParticleInfo(int iTag, int jTag, int kTag) {
 
   double mass = 0.;
   if ((pid == DecayBeta) || (pid == DecayEC)) {
-      mass = ElectronMass;
+    mass = ElectronMass;
   }
   if (pid == DecayAlpha) {
-      mass = AlphaMass;
+    mass = AlphaMass;
   }
 
   double energy = Element[iTag]->GetEventEnergy(jTag);
@@ -677,22 +662,22 @@ DecayChain::ParticleInfo_t DecayChain::AddDaughterInfo(int iTag) {
     double deltaZ = 0.;*/
   double massI = 0.;
   if (iType == DecayBeta) { /*deltaZ = +1.;*/
-      massI = ElectronMass;
+    massI = ElectronMass;
   }
   if (iType == DecayEC) { /*deltaZ = -1.;*/
-      massI = ElectronMass;
+    massI = ElectronMass;
   }
   if (iType == DecayAlpha) { /*deltaA = -4.;deltaZ = -2.;*/
-      massI = AlphaMass;
+    massI = AlphaMass;
   }
 
   double MassD = Nucl_Mass(A, Z);
   double Q = 0.;
   for (int i = 0; i < Element[iTag]->GetNParticles(0); i++) {
-      Q += Element[iTag]->GetEnergy(0, i);
+    Q += Element[iTag]->GetEnergy(0, i);
   }
 
-  double TRecoil = Q * (massI/MassD) + pow(Q, 2.) / (2. * MassD);
+  double TRecoil = Q * (massI / MassD) + pow(Q, 2.) / (2. * MassD);
   double ERecoil = TRecoil + MassD;
   double PRecoil = sqrt(pow(ERecoil, 2.) - pow(MassD, 2.));
   double cz = GetRandomNumber(-1., 1.);
@@ -703,8 +688,8 @@ DecayChain::ParticleInfo_t DecayChain::AddDaughterInfo(int iTag) {
   double pz = PRecoil * cz;
 
   int isoID = 100000000;
-  isoID += (int) A * 1000;
-  isoID += (int) Z;
+  isoID += (int)A * 1000;
+  isoID += (int)Z;
 
   theDaughterInfo.vector.setE(ERecoil);
   theDaughterInfo.vector.setPx(px);
@@ -719,10 +704,10 @@ DecayChain::ParticleInfo_t DecayChain::GetParticleInfo(int iEvent) {
   ParticleInfo_t blankInfo = {0, CLHEP::HepLorentzVector()};
 
   if (iEvent > GetNGenerated()) {
-      return blankInfo;
+    return blankInfo;
   }
   if (!CheckParentMatch(iEvent)) {
-      return blankInfo;
+    return blankInfo;
   }
 
   return theParticleInfo[iEvent];

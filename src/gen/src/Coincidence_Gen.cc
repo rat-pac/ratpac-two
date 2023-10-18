@@ -140,8 +140,8 @@ void Coincidence_Gen::GenerateEvent(G4Event *event) {
     if (lo < 0) lo = 0;
     if (hi < 0) {
       warn << "Coincidence_Gen: cannot achieve selected energy range with "
-                   "these generators."
-                << newline;
+              "these generators."
+           << newline;
     }
     if (vertexGen->ELimitable()) {
       vertexGen->LimitEnergies(lo, hi);
@@ -289,13 +289,12 @@ void Coincidence_Gen::SetEnergyRange(G4String newValues) {
   newValues = util_strip_default(newValues);
   if (newValues.length() == 0) {
     // Print help and current state
-    info << " Current limits on Coincidence_Gen generated energy range = " << fLoEnergy << " - " << fHiEnergy
-              << " MeV" << newline
-              << " To change use syntax:  Elo  Ehi " << newline
-              << " Elo = lower energy limit in MeV, Ehi = upper energy limit in MeV"
-              << " !!!! But note that this option will be very slow for vertex "
-                 "generators whose energy cannot be limited !!! "
-              << newline;
+    info << " Current limits on Coincidence_Gen generated energy range = " << fLoEnergy << " - " << fHiEnergy << " MeV"
+         << newline << " To change use syntax:  Elo  Ehi " << newline
+         << " Elo = lower energy limit in MeV, Ehi = upper energy limit in MeV"
+         << " !!!! But note that this option will be very slow for vertex "
+            "generators whose energy cannot be limited !!! "
+         << newline;
   }
   std::istringstream is(newValues.c_str());
   double Elo, Ehi;
@@ -304,11 +303,11 @@ void Coincidence_Gen::SetEnergyRange(G4String newValues) {
     fLoEnergy = Elo;
     fHiEnergy = Ehi;
     info << "Coincidence_Gen: Restricting generated energy range to " << Elo << " - " << Ehi << " MeV" << newline
-              << " !!!! But note that this option will be very slow for vertex "
-                 "generators whose energy cannot be limited !!!! "
-              << " !!!! And does not work when event energy comes from "
-                 "radioactive decay !!!! "
-              << newline;
+         << " !!!! But note that this option will be very slow for vertex "
+            "generators whose energy cannot be limited !!!! "
+         << " !!!! And does not work when event energy comes from "
+            "radioactive decay !!!! "
+         << newline;
   } else {
     warn << "Coincidence_Gen error: Elo must be less than Ehi!" << newline;
   }
@@ -320,8 +319,8 @@ void Coincidence_Gen::SetTimeState(G4String state) {
     timeGen->SetState(state);
   } else {
     warn << "Coincidence_Gen error: Cannot set time state, no time generator "
-                 "selected"
-              << newline;
+            "selected"
+         << newline;
   }
 }
 
@@ -341,8 +340,8 @@ void Coincidence_Gen::SetPosState(G4String state) {
     posGen->SetState(state);
   } else {
     warn << "Coincidence_Gen error: Cannot set position state, no position "
-                 "generator selected"
-              << newline;
+            "generator selected"
+         << newline;
   }
 }
 
@@ -363,8 +362,8 @@ void Coincidence_Gen::SetVertexState(G4String state) {
     vertexGen->SetState(state);
   } else {
     warn << "Coincidence_Gen error: Cannot set vertex state, no vertex "
-                 "generator selected"
-              << newline;
+            "generator selected"
+         << newline;
   }
 }
 
@@ -432,8 +431,8 @@ void Coincidence_Gen::SetExtraPosState(G4String state) {
     info << "Setting extra interaction " << nExtra << ", position type to " << state << newline;
   } else {
     warn << "Coincidence_Gen error: Cannot set extra position state, no "
-                 "extra interaction selected"
-              << newline;
+            "extra interaction selected"
+         << newline;
   }
 }
 
@@ -455,8 +454,8 @@ void Coincidence_Gen::SetExtraVertexState(G4String state) {
     info << "Setting extra interaction " << nExtra << ", vertex type to " << state << newline;
   } else {
     warn << "Coincidence_Gen error: Cannot set extra vertex state, no extra "
-                 "interaction selected"
-              << newline;
+            "interaction selected"
+         << newline;
   }
 }
 
@@ -482,13 +481,13 @@ void Coincidence_Gen::SetExponentials(G4String newValues) {
   for (int i = 0; i < nExtra; ++i) {
     is >> fExponent[i];
     if (is.good()) {
-      info << "Coincidence_Gen: Setting extra interaction " << i + 1 << " exponential time constant to "
-                << fExponent[i] << newline;
+      info << "Coincidence_Gen: Setting extra interaction " << i + 1 << " exponential time constant to " << fExponent[i]
+           << newline;
     } else {
       warn << "Coincidence_Gen error: "
-                << "Exponential timing selected, but insufficient time constants "
-                   "provided "
-                << newline;
+           << "Exponential timing selected, but insufficient time constants "
+              "provided "
+           << newline;
     }
   }
 }

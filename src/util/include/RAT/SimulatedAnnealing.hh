@@ -3,11 +3,11 @@
 
 #include <TRandom.h>
 
+#include <RAT/Log.hh>
 #include <cfloat>
 #include <cmath>
 #include <iostream>
 #include <vector>
-#include <RAT/Log.hh>
 
 namespace RAT {
 

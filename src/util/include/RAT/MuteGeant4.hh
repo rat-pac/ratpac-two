@@ -6,12 +6,10 @@
 namespace RAT {
 
 class discard_streambuf : public std::streambuf {
-public:
-  discard_streambuf() { };
+ public:
+  discard_streambuf(){};
 
-  virtual int_type overflow(int_type c) {
-    return c;
-  };
+  virtual int_type overflow(int_type c) { return c; };
 };
 
 discard_streambuf discard;
@@ -31,4 +29,3 @@ void mute_g4unmute() {
 }  // namespace RAT
 
 #endif
-

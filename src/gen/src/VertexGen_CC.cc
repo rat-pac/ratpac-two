@@ -17,10 +17,10 @@
 #include <RAT/CCgen.hh>
 #include <RAT/GLG4PosGen.hh>
 #include <RAT/GLG4StringUtil.hh>
+#include <RAT/Log.hh>
 #include <RAT/PrimaryVertexInformation.hh>
 #include <RAT/StringUtil.hh>
 #include <RAT/VertexGen_CC.hh>
-#include <RAT/Log.hh>
 #include <Randomize.hh>
 #include <cmath>
 #include <globals.hh>
@@ -110,16 +110,13 @@ void VertexGen_CC::SetState(G4String newValues) {
   newValues = util_strip_default(newValues);  // from GLG4StringUtil
   if (newValues.length() == 0) {
     // print help and current state
-    info << "Current state of this VertexGen_CC:" << newline
-              << " \"" << GetState() << "\"" << newline
-              << newline;
+    info << "Current state of this VertexGen_CC:" << newline << " \"" << GetState() << "\"" << newline << newline;
     info << "Format of argument to VertexGen_CC::SetState: " << newline
-              << " \"nu_dir_x nu_dir_y nu_dir_z [db_name:][db_flux:nu_flavor]\"\n"
-              << " where fNuDir is the initial direction of the incoming neutrino.\n"
-              << " Does not have to be normalized.  Set to \"0. 0. 0.\" for "
-              << "isotropic\n"
-              << " neutrino direction."
-              << newline;
+         << " \"nu_dir_x nu_dir_y nu_dir_z [db_name:][db_flux:nu_flavor]\"\n"
+         << " where fNuDir is the initial direction of the incoming neutrino.\n"
+         << " Does not have to be normalized.  Set to \"0. 0. 0.\" for "
+         << "isotropic\n"
+         << " neutrino direction." << newline;
     return;
   }
 
@@ -158,7 +155,8 @@ void VertexGen_CC::SetState(G4String newValues) {
     case 1:
       this->SetDBName(params[0]);
     default:
-      info << "VertexGen_CC : Detected only " << params.size() << " neutrino state terms (1,2, or 3 expected)." << newline;
+      info << "VertexGen_CC : Detected only " << params.size() << " neutrino state terms (1,2, or 3 expected)."
+           << newline;
       return;
   }
 }

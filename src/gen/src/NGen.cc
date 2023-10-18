@@ -21,8 +21,8 @@
 #include <RAT/GLG4PosGen.hh>
 #include <RAT/GLG4StringUtil.hh>
 #include <RAT/GLG4TimeGen.hh>
-#include <RAT/NGen.hh>
 #include <RAT/Log.hh>
+#include <RAT/NGen.hh>
 #include <Randomize.hh>
 #include <numeric>
 #include <string>
@@ -180,8 +180,8 @@ void NGen::ResetTime(double offset) {
   nextTime = eventTime + offset;
 #ifdef DEBUG
   debug << "RAT::NGen::ResetTime:"
-            << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
-            << ", nextTime=" << G4BestUnit(nextTime, "Time") << newline;
+        << " eventTime=" << G4BestUnit(eventTime, "Time") << ", offset=" << G4BestUnit(offset, "Time")
+        << ", nextTime=" << G4BestUnit(nextTime, "Time") << newline;
 #endif
 }
 
@@ -253,8 +253,8 @@ void NGen::SetPosState(G4String state) {
     posGen->SetState(state);
   else
     warn << "NGen error: Cannot set position state, no position generator "
-                 "selected"
-              << newline;
+            "selected"
+         << newline;
 }
 
 G4String NGen::GetPosState() const {

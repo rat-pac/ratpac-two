@@ -6,6 +6,8 @@
 
 #include "RAT/GLG4VEventAction.hh"
 
+#include <RAT/Log.hh>
+
 #include "G4DigiManager.hh"
 #include "G4Event.hh"
 #include "G4EventManager.hh"
@@ -23,7 +25,6 @@
 #include "G4ios.hh"
 #include "RAT/GLG4Scint.hh"  // for doScintilllation and total energy deposition info
 #include "local_g4compat.hh"
-#include <RAT/Log.hh>
 
 // GLG4HitPhotonCollection GLG4VEventAction :: theHitPhotons=
 // GLG4HitPhotonCollection();
@@ -109,7 +110,8 @@ void GLG4VEventAction::SetNewValue(G4UIcommand *command, G4String newValue) {
   } else if (command->GetCommandName() == "doParameterizedScintillation") {
     fgDoParameterizedScintillation = (atoi((const char *)newValue) != 0);
   } else {
-    RAT::warn << "Unknown command ``" << command->GetCommandName() << " passed to GLG4EventAction::SetNewValue" << newline;
+    RAT::warn << "Unknown command ``" << command->GetCommandName() << " passed to GLG4EventAction::SetNewValue"
+              << newline;
   }
 }
 

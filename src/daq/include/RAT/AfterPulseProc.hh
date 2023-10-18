@@ -13,8 +13,8 @@ class AfterPulseProc : public Processor {
  public:
   AfterPulseProc();
   virtual ~AfterPulseProc(){};
-  virtual Processor::Result DSEvent(DS::Root *ds);
-  void BeginOfRun(DS::Run *run);
+  virtual Processor::Result DSEvent(DS::Root* ds);
+  void BeginOfRun(DS::Run* run);
   void UpdatePMTModels(DS::PMTInfo* pmtinfo);
 
   void GenerateAfterPulses(DS::MC* mc, DS::PMTInfo* pmtinfo, uint64_t eventTime);
@@ -37,8 +37,8 @@ class AfterPulseProc : public Processor {
   std::map<std::string, std::vector<double>> fModelAPTimeMap;
   std::map<std::string, std::vector<double>> fModelAPProbMap;
 
-  std::vector<RAT::PMTTime *> fPMTTime;
-  std::vector<RAT::PMTCharge *> fPMTCharge;
+  std::vector<RAT::PMTTime*> fPMTTime;
+  std::vector<RAT::PMTCharge*> fPMTCharge;
 
   std::map<int, std::vector<uint64_t>> fAfterPulseTime;
 };

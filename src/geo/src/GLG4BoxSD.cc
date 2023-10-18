@@ -28,9 +28,8 @@
 #include "G4TouchableHistory.hh"
 #include "G4Track.hh"
 #include "G4ios.hh"
-#include "local_g4compat.hh"
-
 #include "RAT/Log.hh"
+#include "local_g4compat.hh"
 
 GLG4BoxSD::GLG4BoxSD(G4String name) : G4VSensitiveDetector(name) {
   eCut = 1.5 * CLHEP::MeV;

@@ -1,6 +1,6 @@
 #include <RAT/DSReader.hh>
-#include <iostream>
 #include <RAT/Log.hh>
+#include <iostream>
 
 namespace RAT {
 
@@ -14,7 +14,7 @@ DSReader::DSReader(const char *filename) : T("T"), runT("runT") {
 
 #ifdef DEBUG
   debug << "DSReader::DSReader - "
-            << "filename='" << filename << "', total=" << total << newline;
+        << "filename='" << filename << "', total=" << total << newline;
 #endif
 
   ds = new DS::Root();
@@ -30,7 +30,7 @@ void DSReader::Add(const char *filename) {
 
 #ifdef DEBUG
   debug << "DSReader::Add - "
-            << "filename='" << filename << "', total=" << total << newline;
+        << "filename='" << filename << "', total=" << total << newline;
 #endif
 }
 

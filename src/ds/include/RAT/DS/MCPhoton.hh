@@ -78,7 +78,7 @@ class MCPhoton : public TObject {
   virtual void SetCreatorProcess(const std::string &_process) { process = _process; }
 
   /** Creation time of this PE */
-  virtual void SetCreationTime(Double_t _creationTime){ creationTime = _creationTime;}
+  virtual void SetCreationTime(Double_t _creationTime) { creationTime = _creationTime; }
   virtual Double_t GetCreationTime() const { return creationTime; }
 
   /** Operator overload **/

@@ -22,7 +22,8 @@ class PMTInfo : public TObject {
   virtual ~PMTInfo() {}
 
   virtual void AddPMT(const TVector3& _pos, const TVector3& _dir, const int _type, const std::string _model,
-                      const double _individual_efficiency_corr, const double _individual_noise_rate, const double _individual_afterpulse_fraction) {
+                      const double _individual_efficiency_corr, const double _individual_noise_rate,
+                      const double _individual_afterpulse_fraction) {
     pos.push_back(_pos);
     dir.push_back(_dir);
     type.push_back(_type);
@@ -54,7 +55,9 @@ class PMTInfo : public TObject {
   virtual void SetType(int id, int _type) { type.at(id) = _type; }
 
   virtual double GetEfficiencyCorr(int id) const { return individual_efficiency_corr.at(id); }
-  virtual void SetEfficiencyCorr(int id, double _individual_efficiency_corr) { individual_efficiency_corr.at(id) = _individual_efficiency_corr; }
+  virtual void SetEfficiencyCorr(int id, double _individual_efficiency_corr) {
+    individual_efficiency_corr.at(id) = _individual_efficiency_corr;
+  }
 
   virtual double GetNoiseRate(int id) const { return individual_noise_rate.at(id); }
   virtual void SetNoiseRate(int id, double _rate) { individual_noise_rate.at(id) = _rate; }

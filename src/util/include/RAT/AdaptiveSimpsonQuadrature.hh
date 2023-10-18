@@ -18,24 +18,20 @@
 
 #include <RAT/Quadrature.hh>
 
-class AdaptiveSimpsonQuadrature:public Quadrature{
-  public:
-    AdaptiveSimpsonQuadrature(){ /**/ };
-   ~AdaptiveSimpsonQuadrature(){ /**/ };
-    AdaptiveSimpsonQuadrature(double _tolerance);
-    virtual double Integrate(Evaluateable& f,
-                             const double xlo, const double xhi);
-  protected:
-    double fTolerance;
-    virtual double evaluate(Evaluateable& f, double xlo,  double& flo,
-                                             double& xmd, double& fmd,
-                                             double xhi,  double& fhi);
-    double refine(Evaluateable& f, double whole,
-                                   double xlo, double flo,
-                                   double xmd, double fmd,
-                                   double xhi, double fhi);
-  private:
-    /**/
+class AdaptiveSimpsonQuadrature : public Quadrature {
+ public:
+  AdaptiveSimpsonQuadrature(){/**/};
+  ~AdaptiveSimpsonQuadrature(){/**/};
+  AdaptiveSimpsonQuadrature(double _tolerance);
+  virtual double Integrate(Evaluateable& f, const double xlo, const double xhi);
+
+ protected:
+  double fTolerance;
+  virtual double evaluate(Evaluateable& f, double xlo, double& flo, double& xmd, double& fmd, double xhi, double& fhi);
+  double refine(Evaluateable& f, double whole, double xlo, double flo, double xmd, double fmd, double xhi, double fhi);
+
+ private:
+  /**/
 };
 
 #endif

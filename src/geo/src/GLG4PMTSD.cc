@@ -12,6 +12,7 @@
 
 #include "RAT/GLG4PMTSD.hh"
 
+#include <RAT/Log.hh>
 #include <string>  // for memset
 
 #include "G4HCofThisEvent.hh"
@@ -24,7 +25,6 @@
 #include "RAT/GLG4Scint.hh"  // for doScintilllation and total energy deposition info
 #include "RAT/GLG4VEventAction.hh"
 #include "Randomize.hh"
-#include <RAT/Log.hh>
 
 GLG4PMTSD::GLG4PMTSD(G4String name, int arg_max_pmts, int arg_pmt_no_offset, int arg_my_id_pmt_size)
     : G4VSensitiveDetector(name) {

@@ -5,8 +5,8 @@
 #include <TObject.h>
 
 #include <RAT/DB.hh>
-#include <RAT/PMTPulse.hh>
 #include <RAT/DS/MCPMT.hh>
+#include <RAT/PMTPulse.hh>
 #include <vector>
 
 namespace RAT {
@@ -18,7 +18,6 @@ class PMTWaveform {
   virtual double GetHeight(double time);
 
   std::vector<PMTPulse *> fPulse;
-
 };
 
 }  // namespace RAT

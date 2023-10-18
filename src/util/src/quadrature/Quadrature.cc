@@ -1,3 +1,4 @@
 #include <RAT/Quadrature.hh>
 
-Quadrature::~Quadrature(){ /**/ }
+Quadrature::~Quadrature() { /**/
+}

@@ -12,7 +12,7 @@ class G4ParticleDefinition;
 namespace RAT {
 
 class Gen_LED : public GLG4Gen {
-public:
+ public:
   Gen_LED();
   virtual ~Gen_LED();
   virtual void GenerateEvent(G4Event *event);
@@ -31,7 +31,7 @@ public:
   virtual void SetPosState(G4String state);
   virtual G4String GetPosState() const;
 
-protected:
+ protected:
   G4String stateStr;
   GLG4TimeGen *timeGen;
 

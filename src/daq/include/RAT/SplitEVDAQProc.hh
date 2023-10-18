@@ -20,7 +20,6 @@ class SplitEVDAQProc : public Processor {
   void BeginOfRun(DS::Run *run);
 
  protected:
-
   int fEventCounter;
   double fPulseWidth;
   double fTriggerThreshold;

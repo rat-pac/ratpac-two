@@ -27,7 +27,6 @@
 #include "RAT/Log.hh"
 #include "Randomize.hh"
 
-
 // To support GEANT4.6 and up
 #define std std
 
@@ -91,8 +90,8 @@ void GLG4PosGen_Paint::GeneratePosition(G4ThreeVector &argResult) {
   pv = gNavigator->LocateGlobalPointAndSetup(_pos, 0, false);  // full setup
   if (pv == 0) {
     G4cerr << "GLG4PosGen_Paint: "
-                 "Could not find any volume at "
-              << _pos << newline;
+              "Could not find any volume at "
+           << _pos << newline;
     return;
   }
 
@@ -103,11 +102,11 @@ void GLG4PosGen_Paint::GeneratePosition(G4ThreeVector &argResult) {
       if (_pVolumeName.length() == 0 || _pVolumeName == "!") _pVolumeName = _pVolume->GetName();
       if (_pVolumeName != _pVolume->GetName()) {
         G4cerr << "Warning: actual volume at " << _pos << " is " << _pVolume->GetName()
-                  << ", not equal to expected volume " << _pVolumeName << " in GLG4PosGen_Paint." << newline;
+               << ", not equal to expected volume " << _pVolumeName << " in GLG4PosGen_Paint." << newline;
       }
     } else {
       G4cerr << "Warning: actual volume at " << _pos << " has changed! Now " << pv->GetName() << ", was "
-                << _pVolume->GetName() << " in GLG4PosGen_Paint." << newline;
+             << _pVolume->GetName() << " in GLG4PosGen_Paint." << newline;
       _pVolume = pv;
       _pVolumeName = pv->GetName();
     }
@@ -217,7 +216,7 @@ void GLG4PosGen_Paint::GeneratePosition(G4ThreeVector &argResult) {
           if (dist >= 2.0 * Rsphere) break;
           if (dist <= 0.0) {
             G4cerr << "GLG4PosGen_PointPaintFill: strange DistanceToIn " << dist << " on " << _pVolumeName << " at "
-                      << spos << " in dir " << raydir << " loop " << isafety << newline;
+                   << spos << " in dir " << raydir << " loop " << isafety << newline;
           }
           if (dist > surfaceTolerance) {
             spos += dist * raydir;
@@ -233,7 +232,7 @@ void GLG4PosGen_Paint::GeneratePosition(G4ThreeVector &argResult) {
           if (dist >= 2.0 * Rsphere) break;
           if (dist <= 0.0) {
             G4cerr << "GLG4PosGen_PointPaintFill: strange DistanceToOut " << dist << " on " << _pVolumeName << " at "
-                      << spos << " in dir " << raydir << " loop " << isafety << newline;
+                   << spos << " in dir " << raydir << " loop " << isafety << newline;
           }
           if (dist > surfaceTolerance) {
             spos += dist * raydir;
@@ -349,8 +348,8 @@ void GLG4PosGen_Fill::GeneratePosition(G4ThreeVector &argResult) {
   pv = gNavigator->LocateGlobalPointAndSetup(_pos, 0, false);  // full setup
   if (pv == 0) {
     G4cerr << "GLG4PosGen_Fill: "
-                 "Could not find any volume at "
-              << _pos << newline;
+              "Could not find any volume at "
+           << _pos << newline;
     return;
   }
 
@@ -361,12 +360,11 @@ void GLG4PosGen_Fill::GeneratePosition(G4ThreeVector &argResult) {
       if (_pVolumeName.length() == 0 || _pVolumeName == "!") _pVolumeName = _pVolume->GetName();
       if (_pVolumeName != _pVolume->GetName()) {
         G4cerr << "Warning: actual volume at " << _pos << " is " << _pVolume->GetName()
-                  << ", not equal to expected volume " << _pVolumeName << " in GLG4PosGen_Fill." << newline;
+               << ", not equal to expected volume " << _pVolumeName << " in GLG4PosGen_Fill." << newline;
       }
-    }
-    else {
+    } else {
       G4cerr << "Warning: actual volume at " << _pos << " has changed! Now " << pv->GetName() << ", was "
-                << _pVolume->GetName() << " in GLG4PosGen_PointPaintFill." << newline;
+             << _pVolume->GetName() << " in GLG4PosGen_PointPaintFill." << newline;
       _pVolume = pv;
       _pVolumeName = pv->GetName();
     }

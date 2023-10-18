@@ -3,8 +3,8 @@
 
 #include <TObject.h>
 
-#include <RAT/PMTWaveform.hh>
 #include <RAT/DS/MCPMT.hh>
+#include <RAT/PMTWaveform.hh>
 #include <vector>
 
 namespace RAT {
@@ -22,18 +22,18 @@ class PMTWaveformGenerator {
   std::string fPMTPulseType;
   std::string fPMTPulseShape;
 
-  //Universal pulse parameters
+  // Universal pulse parameters
   double fPMTPulseMin;
   double fPMTPulseOffset;
   double fPMTPulseTimeOffset;
   double fTerminationOhms;
-  bool fPMTPulsePolarity; //negative is true, positive is false
+  bool fPMTPulsePolarity;  // negative is true, positive is false
 
-  //Shape parameters
+  // Shape parameters
   double fPMTPulseWidth;
   double fPMTPulseMean;
 
-  //Explicit shape for data-driven pulses
+  // Explicit shape for data-driven pulses
   std::vector<double> fPMTPulseShapeTimes;
   std::vector<double> fPMTPulseShapeValues;
 };

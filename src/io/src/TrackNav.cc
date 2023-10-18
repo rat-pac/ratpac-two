@@ -1,6 +1,6 @@
 #include <G4ThreeVector.hh>
-#include <RAT/TrackNav.hh>
 #include <RAT/Log.hh>
+#include <RAT/TrackNav.hh>
 #include <iostream>
 #include <map>
 #include <set>
@@ -144,9 +144,9 @@ void TrackNav::Load(DS::MC *mc, bool verbose) {
   // All done, let's make sure we are really done
   if (idYetToLoad.size() != 0) {
     warn << "TrackNav: Error! Not all tracks were reachable from initial "
-                 "particles.\n"
-                 "             Still "
-              << idYetToLoad.size() << " left in queue." << newline;
+            "particles.\n"
+            "             Still "
+         << idYetToLoad.size() << " left in queue." << newline;
   }
 }
 

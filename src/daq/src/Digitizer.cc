@@ -1,13 +1,11 @@
 #include <CLHEP/Random/RandGauss.h>
 
-#include <RAT/Digitizer.hh>
 #include <RAT/DS/Digit.hh>
+#include <RAT/Digitizer.hh>
 
 namespace RAT {
 
-Digitizer::Digitizer(std::string digitName) {
-  SetDigitizerType(digitName);
-}
+Digitizer::Digitizer(std::string digitName) { SetDigitizerType(digitName); }
 
 void Digitizer::SetDigitizerType(std::string digitName) {
   fDigitName = digitName;
@@ -31,21 +29,19 @@ void Digitizer::SetDigitizerType(std::string digitName) {
 }
 
 void Digitizer::AddWaveformGenerator(std::string modelName) {
-    fPMTWaveformGenerators[modelName] = new PMTWaveformGenerator(modelName);
+  fPMTWaveformGenerators[modelName] = new PMTWaveformGenerator(modelName);
 }
 
-void Digitizer::DigitizePMT(DS::MCPMT *mcpmt, int pmtID, double triggerTime, DS::PMTInfo* pmtinfo){
+void Digitizer::DigitizePMT(DS::MCPMT* mcpmt, int pmtID, double triggerTime, DS::PMTInfo* pmtinfo) {
   PMTWaveform pmtwfm = fPMTWaveformGenerators[pmtinfo->GetModelNameByID(pmtID)]->GenerateWaveforms(mcpmt, triggerTime);
   AddChannel(pmtID, pmtwfm);
 }
 
-void Digitizer::DigitizeSum(DS::EV* ev){
-
+void Digitizer::DigitizeSum(DS::EV* ev) {
   DS::Digit digit;
 
   std::map<UShort_t, std::vector<UShort_t>> waveforms = fDigitWaveForm;
-  for (std::map<UShort_t, std::vector<UShort_t>>::const_iterator it = waveforms.begin(); it != waveforms.end();
-       it++) {
+  for (std::map<UShort_t, std::vector<UShort_t>>::const_iterator it = waveforms.begin(); it != waveforms.end(); it++) {
     digit.SetWaveform(UShort_t(it->first), waveforms[UShort_t(it->first)]);
   }
 

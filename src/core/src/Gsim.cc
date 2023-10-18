@@ -558,8 +558,7 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
       std::string process = photon->GetCreatorProcess();
       if (StoreOpticalTrackID) {
         AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), exinfo, process);
-      }
-      else {
+      } else {
         AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), NULL, process);
       }
     }
@@ -567,10 +566,9 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   mc->SetNumPE(numPE);
 }
 
-void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon,
-                       EventInfo * /*exinfo*/, std::string process) {
+void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo * /*exinfo*/, std::string process) {
   DS::MCPhoton *rat_mcphoton = rat_mcpmt->AddNewMCPhoton();
-  //Only real photons are added in Gsim, noise and afterpulsing handled in processors
+  // Only real photons are added in Gsim, noise and afterpulsing handled in processors
   rat_mcphoton->SetDarkHit(false);
   rat_mcphoton->SetAfterPulse(false);
 

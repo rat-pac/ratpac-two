@@ -8,9 +8,9 @@
 #include <G4UIcmdWithADouble.hh>
 #include <G4UIcommand.hh>
 #include <G4UIdirectory.hh>
+#include <RAT/Log.hh>
 #include <RAT/SNgen.hh>
 #include <RAT/SNgenMessenger.hh>
-#include <RAT/Log.hh>
 
 namespace RAT {
 
