@@ -7,7 +7,7 @@
 
 namespace RAT {
 
-class TrackTest : public std::unary_function<TrackNode *, bool> {
+class TrackTest {
  public:
   virtual bool operator()(TrackNode *) = 0;
 };  // Common predicates at the end
@@ -87,15 +87,6 @@ class TrackTest_Particle : public TrackTest {
   TrackTest_Particle(const std::string &particleName) : fParticleName(particleName){};
   virtual bool operator()(TrackNode *c) { return fParticleName == c->GetParticleName(); };
 };
-
-// class TrackTest_HasProcess : public TrackTest {
-//   std::string fProcess;
-// public:
-//   TrackTest_Particle(std::string process) : fProcess(process) { };
-//   virtual bool operator() (TrackNode *c) {
-//     int totalSteps;
-//   };
-// };
 
 }  // namespace RAT
 
