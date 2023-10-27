@@ -752,7 +752,43 @@ void GDMLWriteSolids::TorusWrite(xercesc::DOMElement* solElement,
 void GDMLWriteSolids::GLG4TorusStackWrite( xercesc::DOMElement* solElement,
     const GLG4TorusStack* const tstack )
 {
+  const G4String& name = GenerateName(tstack->GetName(), tstack);
+  const int bincount = 16;
+  const int numsides = 32;
+  //std::vector<double> tstack->GetZAxis( bincount );
+  //std::vector<double> tstack->GetOuterRho( bincount );
+  //std::vector<double> tstack->GetInnerRho( bincount );
 
+  // Get the info from the statck
+  std::cout << "GDML TorusStack:> " << tstack->GetName() << std::endl;
+  int ts_n = tstack->GetN();
+  double minZ = 9999, maxZ = -9999;
+  for( int i=0; i<=ts_n; i++ ){
+    double zedge = tstack->GetZEdge(i);
+    if( zedge < minZ ) minZ = zedge;
+    if( zedge > maxZ ) maxZ = zedge;
+  }
+
+  xercesc::DOMElement* polyhedraElement = NewElement("polyhedra");
+  polyhedraElement->setAttributeNode(NewAttribute("name", name));
+  polyhedraElement->setAttributeNode(NewAttribute(
+    "startphi", 0.0 ));
+  polyhedraElement->setAttributeNode(NewAttribute(
+    "deltaphi", 360.0 ));
+  polyhedraElement->setAttributeNode(
+    NewAttribute("numsides", numsides ));
+  polyhedraElement->setAttributeNode(NewAttribute("aunit", "deg"));
+  polyhedraElement->setAttributeNode(NewAttribute("lunit", "mm"));
+
+  for( int bin=0; bin<=bincount; bin++ ){
+    double zSelect = minZ + static_cast<double>(bin)/bincount*(maxZ-minZ);
+    double rho = tstack->DistanceToOut(G4ThreeVector(0, 0, zSelect),G4ThreeVector(1,0,0));
+    double mrho = rho > 10.0 ? rho - 10.0 : 0.0;
+    ZplaneWrite(polyhedraElement, zSelect, 0, rho);
+    //std::cout << tstack->DistanceToOut(G4ThreeVector(0, 0, zSelect),G4ThreeVector(1,0,0)) << ",";
+  }
+  solElement->appendChild(polyhedraElement);
+  // Custom element called "pmt"
 }
 
 // --------------------------------------------------------------------
@@ -1115,6 +1151,7 @@ void GDMLWriteSolids::SolidsWrite(xercesc::DOMElement* gdmlElement)
 // --------------------------------------------------------------------
 void GDMLWriteSolids::AddSolid(const G4VSolid* const solidPtr)
 {
+  std::cout << "GDML:> " << solidPtr->GetName() << " -> " << solidPtr->GetEntityType() << std::endl;
   for(std::size_t i = 0; i < solidList.size(); ++i)  // Check if solid is
   {                                                  // already in the list!
     if(solidList[i] == solidPtr)

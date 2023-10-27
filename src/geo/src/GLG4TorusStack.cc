@@ -63,9 +63,10 @@ double GLG4TorusStack::angTolerance = 0.0;
 double GLG4TorusStack::radTolerance = 0.0;
 
 // Constructor
-GLG4TorusStack::GLG4TorusStack(const G4String &pName) : G4CSGSolid(pName) {
+GLG4TorusStack::GLG4TorusStack(const G4String &pName, bool skip) : G4CSGSolid(pName) {
   n = 0;
   inner = 0;
+  skipGDML = skip;
   G4GeometryTolerance *geoTolerance = G4GeometryTolerance::GetInstance();
   surfaceTolerance = geoTolerance->GetSurfaceTolerance();
   radTolerance = geoTolerance->GetRadialTolerance();

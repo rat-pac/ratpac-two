@@ -287,7 +287,7 @@ G4LogicalVolume *ToroidalPMTConstruction::BuildVolume(const std::string &prefix)
 }
 
 G4VSolid *ToroidalPMTConstruction::BuildSolid(const std::string &_name) {
-  GLG4TorusStack *body = new GLG4TorusStack(_name);
+  GLG4TorusStack *body = new GLG4TorusStack(_name, false);
   body->SetAllParameters(fParams.zOrigin.size(), &fParams.zEdge[0], &fParams.rhoEdge[0], &fParams.zOrigin[0]);
   return body;
 }

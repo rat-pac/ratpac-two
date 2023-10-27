@@ -62,7 +62,7 @@
 namespace RAT {
 class GLG4TorusStack : public G4CSGSolid {
  public:
-  GLG4TorusStack(const G4String &pName);
+  GLG4TorusStack(const G4String &pName, bool skip=true);
 
   virtual ~GLG4TorusStack();
 
@@ -77,11 +77,13 @@ class GLG4TorusStack : public G4CSGSolid {
   G4bool CalculateExtent(const EAxis pAxis, const G4VoxelLimits &pVoxelLimit, const G4AffineTransform &pTransform,
                          G4double &pmin, G4double &pmax) const;
 
-  G4double GetN() const { return n; }
+  int GetN() const { return n; }
   G4double GetZEdge(int i) const { return z_edge[i]; }
   G4double GetZo(int i) const { return z_o[i]; }
   G4double GetA(int i) const { return a[i]; }
   G4double GetB(int i) const { return b[i]; }
+  G4double GetRadTolerance() const { return myRadTolerance; }
+  bool SkipGDML() const { return skipGDML; }
 
   EInside Inside(const G4ThreeVector &p) const;
 
@@ -159,6 +161,7 @@ class GLG4TorusStack : public G4CSGSolid {
   static double radTolerance;      // in GEANT4.9.0 it is not a global const
   static double angTolerance;      // in GEANT4.9.0 it is not a global const
   GLG4TorusStack *inner;           // because G4SubtractionSolid is bad
+  bool skipGDML;
 };
 
 }
