@@ -1,23 +1,21 @@
 #include "RAT/GDMLMessenger.hh"
-#include "RAT/GDMLParser.hh"
 
-#include "globals.hh"
-#include "G4RunManager.hh"
-#include "G4UIdirectory.hh"
-#include "G4UIcmdWithAString.hh"
-#include "G4UIcmdWithABool.hh"
-#include "G4UIcmdWithoutParameter.hh"
 #include "G4GeometryManager.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4PhysicalVolumeStore.hh"
+#include "G4RunManager.hh"
 #include "G4SolidStore.hh"
+#include "G4UIcmdWithABool.hh"
+#include "G4UIcmdWithAString.hh"
+#include "G4UIcmdWithoutParameter.hh"
+#include "G4UIdirectory.hh"
+#include "RAT/GDMLParser.hh"
+#include "globals.hh"
 
 namespace RAT {
 
 // --------------------------------------------------------------------
-GDMLMessenger::GDMLMessenger(GDMLParser* myPars)
-  : myParser(myPars)
-{
+GDMLMessenger::GDMLMessenger(GDMLParser* myPars) : myParser(myPars) {
   persistencyDir = new G4UIdirectory("/persistency/");
   persistencyDir->SetGuidance("UI commands specific to persistency.");
 
@@ -91,8 +89,7 @@ GDMLMessenger::GDMLMessenger(GDMLParser* myPars)
 }
 
 // --------------------------------------------------------------------
-GDMLMessenger::~GDMLMessenger()
-{
+GDMLMessenger::~GDMLMessenger() {
   delete ReaderCmd;
   delete WriterCmd;
   delete ClearCmd;
@@ -107,61 +104,50 @@ GDMLMessenger::~GDMLMessenger()
 }
 
 // --------------------------------------------------------------------
-void GDMLMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
-{
-  if(command == StripCmd)
-  {
+void GDMLMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
+  if (command == StripCmd) {
     G4bool mode = StripCmd->GetNewBoolValue(newValue);
     myParser->SetStripFlag(mode);
   }
 
-  if(command == AppendCmd)
-  {
+  if (command == AppendCmd) {
     pFlag = AppendCmd->GetNewBoolValue(newValue);
     myParser->SetAddPointerToName(pFlag);
   }
 
-  if(command == ReaderCmd)
-  {
+  if (command == ReaderCmd) {
     G4GeometryManager::GetInstance()->OpenGeometry();
     myParser->Read(newValue);
-    G4RunManager::GetRunManager()->DefineWorldVolume(
-      myParser->GetWorldVolume());
+    G4RunManager::GetRunManager()->DefineWorldVolume(myParser->GetWorldVolume());
     G4RunManager::GetRunManager()->GeometryDirectlyUpdated();
   }
 
-  if(command == RegionCmd)
-  {
+  if (command == RegionCmd) {
     G4bool mode = RegionCmd->GetNewBoolValue(newValue);
     myParser->SetRegionExport(mode);
   }
 
-  if(command == EcutsCmd)
-  {
+  if (command == EcutsCmd) {
     G4bool mode = EcutsCmd->GetNewBoolValue(newValue);
     myParser->SetEnergyCutsExport(mode);
   }
 
-  if(command == SDCmd)
-  {
+  if (command == SDCmd) {
     G4bool mode = SDCmd->GetNewBoolValue(newValue);
     myParser->SetSDExport(mode);
   }
 
-  if(command == TopVolCmd)
-  {
+  if (command == TopVolCmd) {
     topvol = G4LogicalVolumeStore::GetInstance()->GetVolume(newValue);
   }
 
-  if(command == WriterCmd)
-  {
+  if (command == WriterCmd) {
     myParser->Write(newValue, topvol, pFlag);
   }
 
-  if(command == ClearCmd)
-  {
+  if (command == ClearCmd) {
     myParser->Clear();
     G4RunManager::GetRunManager()->ReinitializeGeometry(true);
   }
 }
-}
+}  // namespace RAT

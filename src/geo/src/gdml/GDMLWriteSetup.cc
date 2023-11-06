@@ -1,22 +1,16 @@
 #include "RAT/GDMLWriteSetup.hh"
+
 #include "G4LogicalVolume.hh"
 
 namespace RAT {
 // --------------------------------------------------------------------
-GDMLWriteSetup::GDMLWriteSetup()
-  : GDMLWriteSolids()
-{
-}
+GDMLWriteSetup::GDMLWriteSetup() : GDMLWriteSolids() {}
 
 // --------------------------------------------------------------------
-GDMLWriteSetup::~GDMLWriteSetup()
-{
-}
+GDMLWriteSetup::~GDMLWriteSetup() {}
 
 // --------------------------------------------------------------------
-void GDMLWriteSetup::SetupWrite(xercesc::DOMElement* gdmlElement,
-                                  const G4LogicalVolume* const logvol)
-{
+void GDMLWriteSetup::SetupWrite(xercesc::DOMElement* gdmlElement, const G4LogicalVolume* const logvol) {
 #ifdef G4VERBOSE
   G4cout << "GDML: Writing setup..." << G4endl;
 #endif
@@ -30,4 +24,4 @@ void GDMLWriteSetup::SetupWrite(xercesc::DOMElement* gdmlElement,
   setupElement->appendChild(worldElement);
   gdmlElement->appendChild(setupElement);
 }
-}
+}  // namespace RAT
