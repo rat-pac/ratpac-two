@@ -76,8 +76,9 @@ class GLG4TorusStack : public G4CSGSolid {
   G4bool CalculateExtent(const EAxis pAxis, const G4VoxelLimits &pVoxelLimit, const G4AffineTransform &pTransform,
                          G4double &pmin, G4double &pmax) const;
 
-  G4double GetN() const { return n; }
+  G4int GetN() const { return n; }
   G4double GetZEdge(int i) const { return z_edge[i]; }
+  G4double GetRhoEdge(int i) const { return rho_edge[i]; }
   G4double GetZo(int i) const { return z_o[i]; }
   G4double GetA(int i) const { return a[i]; }
   G4double GetB(int i) const { return b[i]; }

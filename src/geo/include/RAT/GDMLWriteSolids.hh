@@ -36,6 +36,7 @@ class G4TwistedTrd;
 class G4TwistedTubs;
 class G4VSolid;
 class G4OpticalSurface;
+class GLG4TorusStack;
 
 namespace RAT {
 
@@ -102,6 +103,7 @@ class GDMLWriteSolids : public G4GDMLWriteMaterials
     void TwistedtrapWrite(xercesc::DOMElement*, const G4TwistedTrap* const);
     void TwistedtrdWrite(xercesc::DOMElement*, const G4TwistedTrd* const);
     void TwistedtubsWrite(xercesc::DOMElement*, const G4TwistedTubs* const);
+    void GLG4TorusStackWrite(xercesc::DOMElement*, const GLG4TorusStack* const);
     void ZplaneWrite(xercesc::DOMElement*, const G4double&, const G4double&,
                      const G4double&);
     void RZPointWrite(xercesc::DOMElement*, const G4double&, const G4double&);

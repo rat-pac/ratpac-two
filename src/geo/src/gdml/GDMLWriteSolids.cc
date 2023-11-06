@@ -37,6 +37,7 @@
 #include "G4SurfaceProperty.hh"
 #include "G4MaterialPropertiesTable.hh"
 
+#include "RAT/GLG4TorusStack.hh"
 namespace RAT {
 
 // --------------------------------------------------------------------
@@ -1005,6 +1006,36 @@ void GDMLWriteSolids::TwistedtubsWrite(xercesc::DOMElement* solElement,
 }
 
 // --------------------------------------------------------------------
+void GDMLWriteSolids::GLG4TorusStackWrite(xercesc::DOMElement* solElement,
+                                       const GLG4TorusStack* const torusStack)
+{
+  const G4String& name = GenerateName(torusStack->GetName(), torusStack);
+  xercesc::DOMElement* torusStackElement = NewElement("torusstack");
+  torusStackElement->setAttributeNode(NewAttribute("name", name));
+  torusStackElement->setAttributeNode(NewAttribute("lunit", "mm"));
+  int n_segments = torusStack->GetN();
+  for(int i = 0; i < n_segments+1; i++){
+    xercesc::DOMElement* edgeElement = NewElement("edge");
+    edgeElement->setAttributeNode(NewAttribute("z", torusStack->GetZEdge(i) / mm));
+    edgeElement->setAttributeNode(NewAttribute("rho", torusStack->GetRhoEdge(i) / mm));
+    torusStackElement->appendChild(edgeElement);
+    if (i < n_segments){
+      xercesc::DOMElement* originElement = NewElement("origin");
+      originElement->setAttributeNode(NewAttribute("z", torusStack->GetZo(i) / mm));
+      originElement->setAttributeNode(NewAttribute("rho", torusStack->GetA(i) / mm));
+      torusStackElement->appendChild(originElement);
+    }
+  }
+  solElement->appendChild(torusStackElement);
+  GLG4TorusStack* inner = torusStack->GetInner();
+  if (inner) {
+    xercesc::DOMElement* innerElement = NewElement("inner");
+    GLG4TorusStackWrite(innerElement, inner);
+    torusStackElement->appendChild(innerElement);
+  }
+}
+
+// --------------------------------------------------------------------
 void GDMLWriteSolids::ZplaneWrite(xercesc::DOMElement* element,
                                     const G4double& z, const G4double& rmin,
                                     const G4double& rmax)
@@ -1277,6 +1308,12 @@ void GDMLWriteSolids::AddSolid(const G4VSolid* const solidPtr)
     const G4TwistedTubs* const twistedtubsPtr =
       static_cast<const G4TwistedTubs*>(solidPtr);
     TwistedtubsWrite(solidsElement, twistedtubsPtr);
+  }
+  else if(solidPtr->GetEntityType() == "GLG4TorusStack")
+  {
+    const GLG4TorusStack* const torusStack =
+      static_cast<const GLG4TorusStack*>(solidPtr);
+    GLG4TorusStackWrite(solidsElement, torusStack);
   }
   else
   {
