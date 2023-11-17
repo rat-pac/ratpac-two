@@ -1,4 +1,5 @@
 #include <TVector3.h>
+
 #include <G4GeometryManager.hh>
 #include <G4LogicalVolumeStore.hh>
 #include <G4PhysicalVolumeStore.hh>
@@ -9,13 +10,13 @@
 #include <RAT/DB.hh>
 #include <RAT/DetectorConstruction.hh>
 #include <RAT/DetectorFactory.hh>
+#include <RAT/GDMLParser.hh>
 #include <RAT/GeoBuilder.hh>
 #include <RAT/Log.hh>
 #include <RAT/Materials.hh>
 #include <RAT/PhotonThinning.hh>
 #include <RAT/Rat.hh>
 #include <string>
-#include <RAT/GDMLParser.hh>
 
 namespace RAT {
 
@@ -82,6 +83,24 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
   GeoBuilder geo;
   fWorldPhys = geo.ConstructAll();
+
+  // Dump gdml Geo
+  try {
+    bool dump_geo = ldetector->GetZ("dump_geometry");
+    if (dump_geo) {
+      try {
+        std::string dump_file_name = ldetector->GetS("dump_file_name");
+        info << "Writing gdml geometry file to " << dump_file_name << newline;
+        GDMLParser parser;
+        parser.SetOutputFileOverwrite(true);
+        parser.Write(dump_file_name, fWorldPhys);
+      } catch (DBNotFoundError) {
+        Log::Die("Geometry dump is requested, but variable dump_file_name is not set!");
+      }
+    }
+  } catch (DBNotFoundError &e) {
+    info << "dump_geometry is not defined, gdml is not exported." << newline;
+  }
 
   return fWorldPhys;
 }
