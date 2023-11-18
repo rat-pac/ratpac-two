@@ -7,10 +7,11 @@
   License:   BSD License, see ../docs/license.html
 
   ------------------------------------------------------------------------------*/
-#include "os_fixes.hpp"
-#include "format_types.hpp"
-#include <vector>
 #include <string>
+#include <vector>
+
+#include "format_types.hpp"
+#include "os_fixes.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Builtin error codes - you can add your own when you create a new derivative
@@ -33,14 +34,13 @@ extern const int textio_open_failed;
 class obuff;
 class itext;
 
-class otext
-{
-protected:
+class otext {
+ protected:
   friend class obuff;
   friend class itext;
   obuff* m_buffer;
 
-public:
+ public:
   ////////////////////////////////////////////////////////////////////////////////
   // Local Types
   // These local enumerations are in the otext namespace
@@ -49,13 +49,12 @@ public:
   // The user of TextIO should always use '\n' for newlines, then TextIO will do the conversions
   // default: native
   // I appended the _mode suffix to avoid conflicts with macros
-  enum newline_t
-  {
-    binary_mode, // no end of line conversion
-    unix_mode,   // Unix conversions (LF)
-    msdos_mode,  // MS-DOS conversion (CR-LF)
-    macos_mode,  // MacOS conversion (CR)
-    // the mode of the platform you compiled this on
+  enum newline_t {
+    binary_mode,  // no end of line conversion
+    unix_mode,    // Unix conversions (LF)
+    msdos_mode,   // MS-DOS conversion (CR-LF)
+    macos_mode,   // MacOS conversion (CR)
+                  // the mode of the platform you compiled this on
 #if defined(_WIN32)
     native_mode = msdos_mode
 #else
@@ -69,8 +68,7 @@ public:
 #endif
   // Open Mode
   // only used for otext devices where the two modes make sense, e.g. files but not pipes
-  enum open_t
-  {
+  enum open_t {
     overwrite,  // destroy previous contents (default)
     append      // append to previous contents
   };
@@ -108,7 +106,7 @@ public:
 
   // copy and assign create aliases - no deep copy is available - no deep copy makes sense!
   otext(const otext&);
-  otext& operator = (const otext&);
+  otext& operator=(const otext&);
 
   // test the buffer's error function
   bool error(void) const;
@@ -168,8 +166,8 @@ public:
   void flush(void);
 
   // test whether the device is capable of accepting/not accepting output
-  operator bool (void) const;
-  bool operator ! (void) const;
+  operator bool(void) const;
+  bool operator!(void) const;
 
   // the pipe operators << are the main functions used with otext and its derivates
   // they are used in the form:
@@ -177,39 +175,39 @@ public:
 
   // single character
   // TODO - wide char
-  otext& operator << (char);
-  otext& operator << (signed char);
-  otext& operator << (unsigned char);
+  otext& operator<<(char);
+  otext& operator<<(signed char);
+  otext& operator<<(unsigned char);
 
   // string output
-  otext& operator << (const char*);
-  otext& operator << (const std::string&);
+  otext& operator<<(const char*);
+  otext& operator<<(const std::string&);
 
   // string vector - writes whole array as a series of newline separated strings
-  otext& operator << (const std::vector<std::string>&);
+  otext& operator<<(const std::vector<std::string>&);
 
   // integer output
-  otext& operator << (bool);
-  otext& operator << (short);
-  otext& operator << (unsigned short);
-  otext& operator << (int);
-  otext& operator << (unsigned int);
-  otext& operator << (long); 
-  otext& operator << (unsigned long);
+  otext& operator<<(bool);
+  otext& operator<<(short);
+  otext& operator<<(unsigned short);
+  otext& operator<<(int);
+  otext& operator<<(unsigned int);
+  otext& operator<<(long);
+  otext& operator<<(unsigned long);
 
   // floating point output
-  otext& operator << (float);
-  otext& operator << (double);
+  otext& operator<<(float);
+  otext& operator<<(double);
 
   // pointer output, compatible with >> operator for void*;
-  otext& operator << (const void*);
+  otext& operator<<(const void*);
 
   // manipulator - applies passed function to stream;
-  otext& operator << (manipulator_function);
+  otext& operator<<(manipulator_function);
 
   // pipe operator - pours one stream into the other until eof();
   // this is an easy way to copy one device into another
-  otext& operator << (itext&);
+  otext& operator<<(itext&);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -241,22 +239,20 @@ const char null = '\0';
 
 class ibuff;
 
-class itext
-{
-protected:
+class itext {
+ protected:
   friend class otext;
   friend class ibuff;
   ibuff* m_buffer;
 
-public:
+ public:
   ////////////////////////////////////////////////////////////////////////////////
   // Newline conversion
   // When conversion is on, all end-of-line conventions (LF, CR-LF, CR) will be converted into a '\n'
   // When conversion is off, data comes in unmodified - note that this can make the eoln() test act strangely
-  enum newline_t
-  {
-    binary_mode,      // no end of line conversion
-    convert_mode      // recognise and convert all end-of-line conventions
+  enum newline_t {
+    binary_mode,  // no end of line conversion
+    convert_mode  // recognise and convert all end-of-line conventions
   };
 #ifndef __CINT__
   friend std::string to_string(newline_t);
@@ -266,7 +262,7 @@ public:
 
   typedef void (*manipulator_function)(itext&);
 
-public:
+ public:
   // create an uninitialised itext
   itext(void);
 
@@ -275,7 +271,7 @@ public:
 
   // closes the itext if it is open and destroys any structures - including the buffer
   virtual ~itext(void);
-   
+
   // test whether the itext has a buffer attached
   bool initialised(void) const;
 
@@ -287,8 +283,8 @@ public:
 
   // copy and assignment create aliases - it is not sensible to allow a deep copy (think about it)
   itext(const itext&);
-  itext& operator = (const itext&);
-   
+  itext& operator=(const itext&);
+
   // test the buffer's error flag or retrieve its value
   bool error(void) const;
   int error_number(void) const;
@@ -312,7 +308,7 @@ public:
   // Both return -1 to indicate EOF
   int peek(void);
   int get(void);
-   
+
   // number of characters read through the itext member functions
   unsigned long bytes(void) const;
   // line and column for last character read
@@ -321,10 +317,10 @@ public:
   unsigned column(void) const;
 
   // tests for whether an itext has/hasn't got text to be read
-  bool good (void);
-  operator bool (void);
-  bool operator ! (void);
-   
+  bool good(void);
+  operator bool(void);
+  bool operator!(void);
+
   ////////////////////////////////////////////////////////////////////////////////
   // input-pipe operators are the main usage of itext
   // used in the form:
@@ -332,46 +328,46 @@ public:
   // device is any derivative of itext, object is any type with a >> operator defined (you can overload)
 
   // just get next character, including any whitespace or end of line character;
-  itext& operator >> (char&);
-  itext& operator >> (signed char&);
-  itext& operator >> (unsigned char&);
+  itext& operator>>(char&);
+  itext& operator>>(signed char&);
+  itext& operator>>(unsigned char&);
 
   // skipwhite before reading then read until a whitespace is found
   // this is a kind of tokenising operator
-  itext& operator >> (std::string&);
+  itext& operator>>(std::string&);
   // gets the whole line
   bool getline(std::string& line);
 
   // get the whole file as a vector of strings, using newlines to split the input
-  itext& operator >> (std::vector<std::string>&);
+  itext& operator>>(std::vector<std::string>&);
 
   // integer operations: skipwhite then read an integer in any of the recognised formats:
   // decimal: 12345
   // octal:   012345
   // hex:     0x12345
   // hash:    13#12345
-  itext& operator >> (bool&);
-  itext& operator >> (short&);
-  itext& operator >> (unsigned short&);
-  itext& operator >> (int&);
-  itext& operator >> (unsigned int&);
-  itext& operator >> (long&);
-  itext& operator >> (unsigned long&);
+  itext& operator>>(bool&);
+  itext& operator>>(short&);
+  itext& operator>>(unsigned short&);
+  itext& operator>>(int&);
+  itext& operator>>(unsigned int&);
+  itext& operator>>(long&);
+  itext& operator>>(unsigned long&);
 
   // real operations, skipwhite then read floating-point number - fraction and exponent are optional
-  itext& operator >> (float&);
-  itext& operator >> (double&);
+  itext& operator>>(float&);
+  itext& operator>>(double&);
 
   // Hide this function to make some GCC versions happy
   // pointer operator, skipwhite, then reads a pointer written by << operator for void*
-  //itext& operator >> (void*&);
+  // itext& operator >> (void*&);
 
   // manipulator - applies passed manipulator function to stream;
-  itext& operator >> (manipulator_function);
+  itext& operator>>(manipulator_function);
 
   // pipe operator - pours one stream into the other until eof();
   // this is the easiest way to make a copy
-  itext& operator >> (otext&);
+  itext& operator>>(otext&);
 };
 
 // manipulators, used in the form: fin >> skipwhite >> ch
@@ -400,9 +396,8 @@ void close(itext&);
 
 // Output Buffer
 
-class obuff
-{
-public:
+class obuff {
+ public:
   // constructor initialises output buffer with the mode fields - line buffering mode and newline conversion mode
   obuff(bool line_buffer = false, otext::newline_t newline = otext::native_mode);
 
@@ -427,22 +422,22 @@ public:
   unsigned integer_width(void) const;
   void set_integer_width(unsigned);
   // base for integer display - from 2-36, default: 10
-  unsigned integer_radix(void) const; 
-  void set_integer_radix(unsigned); 
+  unsigned integer_radix(void) const;
+  void set_integer_radix(unsigned);
   // how to display an integer - see string_utilities, default: c_style_or_hash
-  radix_display_t integer_display(void) const; 
-  void set_integer_display(radix_display_t); 
+  radix_display_t integer_display(void) const;
+  void set_integer_display(radix_display_t);
 
   // Real formatting fields
   // field width for next formattable real type, default: 0
   unsigned real_width(void) const;
   void set_real_width(unsigned);
   // number of significant digits
-  unsigned real_precision(void) const; 
-  void set_real_precision(unsigned); 
+  unsigned real_precision(void) const;
+  void set_real_precision(unsigned);
   // how to display a real - see string_utilities, default: display_mixed
-  real_display_t real_display(void) const; 
-  void set_real_display(real_display_t); 
+  real_display_t real_display(void) const;
+  void set_real_display(real_display_t);
 
   // Error number
   // zero if there is no error, any integer for an error
@@ -480,12 +475,12 @@ public:
   // the default destructor does nothing - overload this only if you need to
   virtual ~obuff(void);
 
-private:
+ private:
   // disallow copying
-  obuff& operator = (const obuff&);
+  obuff& operator=(const obuff&);
   obuff(const obuff&);
 
-protected:
+ protected:
   friend class otext;
   bool m_line_buffer;
   otext::newline_t m_newline;
@@ -504,9 +499,8 @@ protected:
 
 // Input Buffer
 
-class ibuff
-{
-public:
+class ibuff {
+ public:
   ibuff(itext::newline_t newline = itext::convert_mode);
 
   // Total number of characters read through get()
@@ -530,7 +524,6 @@ public:
   int error_number(void) const;
   virtual std::string error_string(void) const;
 
-
   // Customisation
   // create a new buffer by customising the following functions
   // you should also provide a destructor (also virtual) if your buffer needs closedown actions
@@ -546,12 +539,12 @@ public:
   // default destructor does nothing
   virtual ~ibuff(void);
 
-private:
+ private:
   // disallow copying
-  ibuff& operator = (const ibuff&);
+  ibuff& operator=(const ibuff&);
   ibuff(const ibuff&);
 
-protected:
+ protected:
   friend class itext;
   itext::newline_t m_newline_mode;
   unsigned long m_bytes;

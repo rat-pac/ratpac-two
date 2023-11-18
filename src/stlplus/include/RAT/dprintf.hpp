@@ -62,7 +62,7 @@ The result supports the following "C" format codes:
    h    - short or unsigned short
    l    - long or unsigned long
    L    - long double
-   
+
  conversions:
    d, i - short/int/long as decimal
    u    - short/int/long as unsigned decimal
@@ -78,14 +78,16 @@ The result supports the following "C" format codes:
    n    - int* as recipient of length of formatted string so far
 
 ------------------------------------------------------------------------------*/
-#include "os_fixes.hpp"
-#include <string>
 #include <stdarg.h>
-#include <cstring>
-int dprintf (std::string& formatted, const char* format, ...);
-int vdprintf (std::string& formatted, const char* format, va_list args);
 
-std::string dformat (const char* format, ...);
-std::string vdformat (const char* format, va_list);
+#include <cstring>
+#include <string>
+
+#include "os_fixes.hpp"
+int dprintf(std::string& formatted, const char* format, ...);
+int vdprintf(std::string& formatted, const char* format, va_list args);
+
+std::string dformat(const char* format, ...);
+std::string vdformat(const char* format, va_list);
 
 #endif

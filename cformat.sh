@@ -2,7 +2,7 @@
 
 echo "Checking formatting..."
 changes=0
-for file in `find ./src \( -name "*.cc" -o -name "*.hh" -o -name "*.icc" -o -name "*.cpp" \)`;
+for file in `find ./src \( -name "*.cc" -o -name "*.hh" -o -name "*.icc" -o -name "*.cpp" -o -name "*.hpp" \)`;
 do
     retval=`clang-format -style=file -n -Werror $file`
     if [ $? -eq 1 ]; then

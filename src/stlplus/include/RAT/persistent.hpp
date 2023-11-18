@@ -7,20 +7,22 @@
   License:   BSD License, see ../docs/license.html
 
   ------------------------------------------------------------------------------*/
-#include "os_fixes.hpp"
-#include "textio.hpp"
-#include "clonable.hpp"
 #include <stdlib.h>
+
+#include <bitset>
 #include <complex>
 #include <deque>
-#include <bitset>
-#include <set>
-#include <map>
 #include <list>
-#include <vector>
+#include <map>
+#include <set>
+#include <stdexcept>
 #include <string>
 #include <typeinfo>
-#include <stdexcept>
+#include <vector>
+
+#include "clonable.hpp"
+#include "os_fixes.hpp"
+#include "textio.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 // The format version number currently supported
@@ -32,26 +34,23 @@ extern unsigned char PersistentVersion;
 // Exceptions thrown by the persistence functions
 
 // exception thrown if you try to dump or restore an illegal polymorphic type
-class persistent_illegal_type : public std::logic_error
-{
-public:
+class persistent_illegal_type : public std::logic_error {
+ public:
   persistent_illegal_type(const std::string& type) throw();
   persistent_illegal_type(unsigned short key) throw();
   ~persistent_illegal_type(void) throw();
 };
 
 // exception thrown if a dump fails for any reason - but typically because the output stream couldn't take the data
-class persistent_dump_failed : public std::runtime_error
-{
-public:
+class persistent_dump_failed : public std::runtime_error {
+ public:
   persistent_dump_failed(const std::string& message) throw();
   ~persistent_dump_failed(void) throw();
 };
 
 // exception thrown if you try to restore from an out of date or unrecognised byte stream
-class persistent_restore_failed : public std::runtime_error
-{
-public:
+class persistent_restore_failed : public std::runtime_error {
+ public:
   persistent_restore_failed(const std::string& message) throw();
   ~persistent_restore_failed(void) throw();
 };
@@ -62,15 +61,14 @@ public:
 
 class dump_context_body;
 
-class dump_context
-{
-public:
+class dump_context {
+ public:
   // types used in making polymorphous classes persistent using the callback approach
 
   // callback function for dumping the class
-  typedef void (*dump_callback)(dump_context&,const void*);
+  typedef void (*dump_callback)(dump_context&, const void*);
   // data stored per class registered
-  typedef std::pair<unsigned short,dump_callback> callback_data;
+  typedef std::pair<unsigned short, dump_callback> callback_data;
 
   // type of callback function used to install all polymorphic classes for either approach
   typedef void (*installer)(dump_context&);
@@ -95,7 +93,7 @@ public:
 
   // Assist functions for Pointers
   // the return pair is a flag saying whether this is a new pointer and the magic key to dump to file
-  std::pair<bool,unsigned> pointer_map(const void* const pointer);
+  std::pair<bool, unsigned> pointer_map(const void* const pointer);
 
   // Assist functions for Polymorphous classes (i.e. subclasses) using callback approach
   unsigned short register_type(const std::type_info& info, dump_callback);
@@ -110,7 +108,7 @@ public:
   // Register all Polymorphous classes using either approach by calling an installer callback
   void register_all(installer);
 
-private:
+ private:
   friend class dump_context_body;
   dump_context_body* m_body;
 
@@ -125,23 +123,22 @@ private:
 class persistent;
 class restore_context_body;
 
-class restore_context
-{
-public:
+class restore_context {
+ public:
   // types used in making polymorphous classes persistent using the callback approach
 
   // callback function for creating a new object of the class and returning the pointer
   typedef void* (*create_callback)(void);
   // callback for restoring the contents of a new object created by the create_callback
   // and passed as the second argument
-  typedef void (*restore_callback)(restore_context&,void*);
+  typedef void (*restore_callback)(restore_context&, void*);
   // data stored per class registered
   typedef std::pair<create_callback, restore_callback> callback_data;
 
   // types used in making polymorphous classes persistent using the interface approach
 
   friend class persistent;
-  typedef std::pair<unsigned short,persistent*> interface_data;
+  typedef std::pair<unsigned short, persistent*> interface_data;
 
   // type of callback function used to install all polymorphic classes for either approach
   typedef void (*installer)(restore_context&);
@@ -165,11 +162,11 @@ public:
   bool little_endian(void) const;
 
   // Assist functions for Pointers
-  std::pair<bool,void*> pointer_map(unsigned magic);
+  std::pair<bool, void*> pointer_map(unsigned magic);
   void pointer_add(unsigned magic, void* new_pointer);
 
   // Assist functions for Polymorphous classes using the callback approach
-  unsigned short register_type(create_callback,restore_callback);
+  unsigned short register_type(create_callback, restore_callback);
   bool is_callback(unsigned short) const;
   callback_data lookup_type(unsigned short) const throw();
 
@@ -182,7 +179,7 @@ public:
   // Register all Polymorphous classes using either approach by calling an installer callback
   void register_all(installer);
 
-private:
+ private:
   friend class restore_context_body;
   restore_context_body* m_body;
 
@@ -197,12 +194,11 @@ private:
 // Note that it is derived from the clonable interface - so you must provide
 // that interface too
 
-class persistent : public clonable
-{
-public:
+class persistent : public clonable {
+ public:
   virtual void dump(dump_context&) const throw() = 0;
-  virtual void restore(restore_context&)  throw() = 0;
-  virtual ~persistent() {};
+  virtual void restore(restore_context&) throw() = 0;
+  virtual ~persistent(){};
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -245,9 +241,9 @@ void restore(restore_context&, double& data) throw();
 ////////////////////////////////////////////////////////////////////////////////
 // enumeration types
 
-template<typename T>
+template <typename T>
 void dump_enum(dump_context&, const T& data) throw();
-template<typename T>
+template <typename T>
 void restore_enum(restore_context&, T& data) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -270,10 +266,10 @@ void restore(restore_context&, char*& data) throw();
 ////////////////////////////////////////////////////////////////////////////////
 // STL strings
 
-template<typename charT, typename traits, typename allocator>
-void dump_basic_string(dump_context&, const std::basic_string<charT,traits,allocator>& data) throw();
-template<typename charT, typename traits, typename allocator>
-void restore_basic_string(restore_context&, std::basic_string<charT,traits,allocator>& data) throw();
+template <typename charT, typename traits, typename allocator>
+void dump_basic_string(dump_context&, const std::basic_string<charT, traits, allocator>& data) throw();
+template <typename charT, typename traits, typename allocator>
+void restore_basic_string(restore_context&, std::basic_string<charT, traits, allocator>& data) throw();
 
 void dump(dump_context&, const std::string& data) throw();
 void restore(restore_context&, std::string& data) throw();
@@ -294,10 +290,10 @@ void restore(restore_context&, std::string& data) throw();
 // only restored once and the magic keys are matched up so that the other
 // pointers now pojnt to the restored object.
 
-template<typename T>
+template <typename T>
 void dump_pointer(dump_context&, const T* const data) throw();
 
-template<typename T>
+template <typename T>
 void restore_pointer(restore_context&, T*& data) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -314,10 +310,10 @@ void restore_pointer(restore_context&, T*& data) throw();
 // These functions will throw an exception if the cross-reference points to
 // something not dumped before.
 
-template<typename T>
+template <typename T>
 void dump_xref(dump_context&, const T* const data) throw();
 
-template<typename T>
+template <typename T>
 void restore_xref(restore_context&, T*& data) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -330,10 +326,10 @@ void restore_xref(restore_context&, T*& data) throw();
 // Only classes registered with the context can be dumped and restored as
 // polymorphic types - see dump_context::register_type and restore_context::register_type.
 
-template<typename T>
+template <typename T>
 void dump_polymorph(dump_context&, const T* const data) throw();
 
-template<typename T>
+template <typename T>
 void restore_polymorph(restore_context&, T*& data) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -346,63 +342,63 @@ void restore_polymorph(restore_context&, T*& data) throw();
 // Only classes registered with the context can be dumped and restored as
 // polymorphic types - see dump_context::register_interface and restore_context::register_interface
 
-template<typename T>
+template <typename T>
 void dump_interface(dump_context&, const T* const data) throw();
 
-template<typename T>
+template <typename T>
 void restore_interface(restore_context&, T*& data) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
 // STL Containers
 
-template<size_t N>
+template <size_t N>
 void dump_bitset(dump_context&, const std::bitset<N>& data) throw();
-template<size_t N>
+template <size_t N>
 void restore_bitset(restore_context&, std::bitset<N>& data) throw();
 
-template<typename T>
+template <typename T>
 void dump_complex(dump_context&, const std::complex<T>& data) throw();
-template<typename T>
+template <typename T>
 void restore_complex(restore_context&, std::complex<T>& data) throw();
 
-template<typename T>
+template <typename T>
 void dump_deque(dump_context&, const std::deque<T>& data) throw();
-template<typename T>
+template <typename T>
 void restore_deque(restore_context&, std::deque<T>& data) throw();
 
-template<typename T>
+template <typename T>
 void dump_list(dump_context&, const std::list<T>& data) throw();
-template<typename T>
+template <typename T>
 void restore_list(restore_context&, std::list<T>& data) throw();
 
-template<typename K, typename T>
-void dump_pair(dump_context&, const std::pair<K,T>& data) throw();
-template<typename K, typename T>
-void restore_pair(restore_context&, std::pair<K,T>& data) throw();
+template <typename K, typename T>
+void dump_pair(dump_context&, const std::pair<K, T>& data) throw();
+template <typename K, typename T>
+void restore_pair(restore_context&, std::pair<K, T>& data) throw();
 
-template<typename K, typename T, typename P>
-void dump_map(dump_context&, const std::map<K,T,P>& data) throw();
-template<typename K, typename T, typename P>
-void restore_map(restore_context&, std::map<K,T,P>& data) throw();
+template <typename K, typename T, typename P>
+void dump_map(dump_context&, const std::map<K, T, P>& data) throw();
+template <typename K, typename T, typename P>
+void restore_map(restore_context&, std::map<K, T, P>& data) throw();
 
-template<typename K, typename T, typename P>
-void dump_multimap(dump_context&, const std::multimap<K,T,P>& data) throw();
-template<typename K, typename T, typename P>
-void restore_multimap(restore_context&, std::multimap<K,T,P>& data) throw();
+template <typename K, typename T, typename P>
+void dump_multimap(dump_context&, const std::multimap<K, T, P>& data) throw();
+template <typename K, typename T, typename P>
+void restore_multimap(restore_context&, std::multimap<K, T, P>& data) throw();
 
-template<typename K, typename P>
-void dump_set(dump_context&, const std::set<K,P>& data) throw();
-template<typename K, typename P>
-void restore_set(restore_context&, std::set<K,P>& data) throw();
+template <typename K, typename P>
+void dump_set(dump_context&, const std::set<K, P>& data) throw();
+template <typename K, typename P>
+void restore_set(restore_context&, std::set<K, P>& data) throw();
 
-template<typename K, typename P>
-void dump_multiset(dump_context&, const std::multiset<K,P>& data) throw();
-template<typename K, typename P>
-void restore_multiset(restore_context&, std::multiset<K,P>& data) throw();
+template <typename K, typename P>
+void dump_multiset(dump_context&, const std::multiset<K, P>& data) throw();
+template <typename K, typename P>
+void restore_multiset(restore_context&, std::multiset<K, P>& data) throw();
 
-template<typename T>
+template <typename T>
 void dump_vector(dump_context&, const std::vector<T>& data) throw();
-template<typename T>
+template <typename T>
 void restore_vector(restore_context&, std::vector<T>& data) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -412,26 +408,20 @@ void restore_vector(restore_context&, std::vector<T>& data) throw();
 // polymorphic type handlers required. If there are no polymorphic types used
 // in the data structure, then the callback can be set to null (i.e. 0).
 
-template<typename T>
-void dump_to_device(const T& source, otext& result, dump_context::installer installer)
-  throw();
-template<typename T>
-void restore_from_device(itext& source, T& result, restore_context::installer installer)
-  throw();
+template <typename T>
+void dump_to_device(const T& source, otext& result, dump_context::installer installer) throw();
+template <typename T>
+void restore_from_device(itext& source, T& result, restore_context::installer installer) throw();
 
-template<typename T>
-void dump_to_string(const T& source, std::string& result, dump_context::installer installer)
-  throw();
-template<typename T>
-void restore_from_string(const std::string& source, T& result, restore_context::installer installer)
-  throw();
+template <typename T>
+void dump_to_string(const T& source, std::string& result, dump_context::installer installer) throw();
+template <typename T>
+void restore_from_string(const std::string& source, T& result, restore_context::installer installer) throw();
 
-template<typename T>
-void dump_to_file(const T& source, const std::string& filename, dump_context::installer installer)
-  throw();
-template<typename T>
-void restore_from_file(const std::string& filename, T& result, restore_context::installer installer)
-  throw();
+template <typename T>
+void dump_to_file(const T& source, const std::string& filename, dump_context::installer installer) throw();
+template <typename T>
+void restore_from_file(const std::string& filename, T& result, restore_context::installer installer) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
 #include "persistent.tpp"
