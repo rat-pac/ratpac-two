@@ -5,15 +5,15 @@
   License:   BSD License, see ../docs/license.html
 
   ------------------------------------------------------------------------------*/
-#include "RAT/dprintf.hpp"
+#include "dprintf.hpp"
 
 #include <ctype.h>
 #include <float.h>
 #include <limits.h>
 #include <stdio.h>
 
-#include "RAT/debug.hpp"
-#include "RAT/string_utilities.hpp"
+#include "debug.hpp"
+#include "string_utilities.hpp"
 
 /*--------------------------------------------------------------------------------
 

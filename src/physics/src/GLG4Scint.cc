@@ -28,7 +28,7 @@
 #include <RAT/NaiveQuenchingCalculator.hh>
 #include <RAT/PhotonThinning.hh>
 #include <RAT/TrackInfo.hh>
-#include <RAT/fileio.hpp>
+#include <fileio.hpp>
 
 #include "G4Timer.hh"
 #include "G4TrackFastVector.hh"  // for G4TrackFastVectorSize

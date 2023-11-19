@@ -7,8 +7,8 @@
 #include <RAT/MiniCleanPMTCharge.hh>
 #include <RAT/MultiChargeDist.hh>
 #include <RAT/PDFPMTCharge.hh>
-#include <RAT/string_utilities.hpp>
 #include <cassert>
+#include <string_utilities.hpp>
 
 namespace RAT {
 

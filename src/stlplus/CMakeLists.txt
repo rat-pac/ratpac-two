@@ -15,6 +15,8 @@ add_library(stlplus OBJECT
         src/textio.cc)
 
 # Set our include directories
+target_include_directories(stlplus SYSTEM PUBLIC 
+        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(stlplus PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)
