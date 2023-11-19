@@ -196,7 +196,7 @@ bool DecayChain::ReadInputFile(const std::string dName) {
           printf("Reading %s \n \n", tName);
         }
         for (int j = 0; j < eP; j++) {
-          fscanf(inputFile, "%s %d %f %d %f", sName, &iChain, &weight, &iDecay, &tau);
+          fscanf(inputFile, "%s %d %lf %d %lf", sName, &iChain, &weight, &iDecay, &tau);
           std::string iString3(sName);
           if (iDecay != NullParticle && !fAlphaDecayStart) {
             AddElement(iString3, iChain, iDecay, (double)tau, (double)weight);

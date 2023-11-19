@@ -401,7 +401,7 @@ bool BetaFunction::ReadInputFile(const std::string dName, int iZ, int iA, int iT
     std::string iString(dummy);
     if (iString == dProbe) {
       fscanf(inputFile, "%s", tName);
-      fscanf(inputFile, "%d %d %f", &Z, &A, &tau);
+      fscanf(inputFile, "%d %d %lf", &Z, &A, &tau);
       std::string iString2(tName);
       iFound = (dName == iString2);
       iFound = ((iFound) || ((iA == A) && (iZ == Z)));
@@ -414,13 +414,13 @@ bool BetaFunction::ReadInputFile(const std::string dName, int iZ, int iA, int iT
 
         bool iScan = true;
         while (iScan) {
-          bool parseSuccess = fscanf(inputFile, "%f %d %f %d", &iBr, &iSpin, &W0, &nP) == 4;
+          bool parseSuccess = fscanf(inputFile, "%lf %d %lf %d", &iBr, &iSpin, &W0, &nP) == 4;
           SetBranches((double)iBr, iSpin, (double)W0);
           for (int j = 0; j < nReadGamma; j++) {
             parseSuccess &= fscanf(inputFile, "%f", &eP[j]) == 1;
             if (eP[j] > 0.) SetGammas((double)eP[j]);
           }
-          parseSuccess &= fscanf(inputFile, "%f %f %f", &aC[0], &aC[1], &aC[2]) == 3;
+          parseSuccess &= fscanf(inputFile, "%lf %lf %lf", &aC[0], &aC[1], &aC[2]) == 3;
           if (iBr >= 1.) {
             iScan = false;
           }
