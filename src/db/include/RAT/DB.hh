@@ -243,6 +243,14 @@ class DB : public DBFieldCallback {
   // DO THIS AFTER loading files from disk, or your changes will be
   // stomped on later.
 
+  /** Obtain a reference to all tables stored in the databse.
+   *
+   *  This is useful if you want to iterate over all the tables in
+   *  the database.
+   *  @todo: Should also implement this for server tables.
+   */
+  const DBTableSet &GetAllTables() { return tables; };
+
   /** Set field in user plane, no table index. */
   template <typename T>
   void Set(const std::string &tblname, const std::string &fieldname, const T &val);
@@ -259,6 +267,11 @@ class DB : public DBFieldCallback {
   template <typename T>
   void SetArrayIndex(const std::string &tblname, const std::string &index, const std::string &fieldname, size_t idx,
                      const T &val);
+
+  /** Dump all tables in the db to a JSON file.
+   * @todo: Currently doesn't support server tables
+   * */
+  void DumpContentsToJson(std::ostream &stream);
 
   /************************DBLink interface********************/
   // This is the low level interface that DBLinks use.
