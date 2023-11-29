@@ -1,0 +1,39 @@
+name: Build RatpacExperiment
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: 
+      image: stjimmys/ratpac2-deps:latest
+      options: --user root
+    steps:
+    - name: Checkout Ratpac2
+      uses: actions/checkout@v4
+      with:
+        path: ratpac2
+    
+    - name: Checkout RatpacExperiment
+      uses: actions/checkout@v4
+      with:
+        repository: rat-pac/RatpacExperiment
+        path: ratpacExperiment
+    
+    - name: Build Ratpac2
+      working-directory: ratpac2
+      shell: bash
+      run: |
+        source /ratpac-setup/env.sh
+        make -j$(nproc)
+      
+    - name: Build RatpacExperiment
+      working-directory: ratpacExperiment
+      shell: bash
+      run: |
+        source /ratpac-setup/env.sh
+        source ../ratpac2/ratpac.sh
+        make -j$(nproc)
