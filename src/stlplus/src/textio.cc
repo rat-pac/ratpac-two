@@ -5,13 +5,13 @@
   License:   BSD License, see ../docs/license.html
 
   ------------------------------------------------------------------------------*/
-#include "RAT/textio.hpp"
+#include "textio.hpp"
 
 #include <ctype.h>
 
-#include "RAT/dprintf.hpp"
-#include "RAT/os_fixes.hpp"
-#include "RAT/string_utilities.hpp"
+#include "dprintf.hpp"
+#include "os_fixes.hpp"
+#include "string_utilities.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 // error codes

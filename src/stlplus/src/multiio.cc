@@ -5,11 +5,11 @@
   License:   BSD License, see ../docs/license.html
 
 ------------------------------------------------------------------------------*/
-#include "RAT/multiio.hpp"
+#include "multiio.hpp"
 
 #include <algorithm>
 
-#include "RAT/debug.hpp"
+#include "debug.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Output

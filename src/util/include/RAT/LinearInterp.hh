@@ -42,7 +42,7 @@ class LinearInterp {
   std::vector<NumType> x, y;
 };
 
-#include "../LinearInterp.icc"
+#include "LinearInterp.icc"
 
 }  // namespace RAT
 

@@ -12,8 +12,8 @@
 
 #include <RAT/DBFieldCallback.hh>
 #include <RAT/HashFunc.hh>
-#include <RAT/hash.hpp>
 #include <RAT/json.hh>
+#include <hash.hpp>
 #include <string>
 #include <vector>
 
