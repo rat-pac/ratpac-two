@@ -16,7 +16,7 @@ NoiseProc::NoiseProc() : Processor("noise") {}
 void NoiseProc::BeginOfRun(DS::Run *run) {
   DBLinkPtr lnoise = DB::Get()->GetLink("NOISEPROC");
 
-  fNoiseFlag = lnoise->GetD("noise_flag");
+  fNoiseFlag = lnoise->GetI("noise_flag");
   fDefaultNoiseRate = lnoise->GetD("default_noise_rate");
   fLookback = lnoise->GetD("noise_lookback");
   fLookforward = lnoise->GetD("noise_lookforward");

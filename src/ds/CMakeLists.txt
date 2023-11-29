@@ -6,6 +6,8 @@ add_library(ds OBJECT
         src/MCPMT.cc
         src/RunStore.cc)
 # Set our include directories
+target_include_directories(ds SYSTEM PUBLIC 
+        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(ds PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)
@@ -55,6 +57,8 @@ root_generate_dictionary(G__RATDict
         DEPENDENCIES core ds db io)
 
 add_library(RATDict OBJECT G__RATDict.cxx)
+target_include_directories(RATDict SYSTEM PUBLIC 
+        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(RATDict PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)

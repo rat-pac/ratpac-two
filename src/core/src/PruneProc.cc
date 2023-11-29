@@ -1,7 +1,7 @@
 #include <RAT/Log.hh>
 #include <RAT/PruneProc.hh>
-#include <RAT/string_utilities.hpp>
 #include <algorithm>
+#include <string_utilities.hpp>
 #include <vector>
 
 namespace RAT {

@@ -11,6 +11,8 @@ add_library(db OBJECT
         src/DBTable.cc)
 
 # Set our include directories
+target_include_directories(db SYSTEM PUBLIC 
+        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(db PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)

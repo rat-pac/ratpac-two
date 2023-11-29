@@ -99,8 +99,8 @@ class hash_iterator {
   hash_element<K, T>* m_element;
 
   void check_owner(const hash<K, T, H, E>* owner) const throw();
-  void check_non_null(void) const throw();
-  void check_non_end(void) const throw();
+  void check_non_null(void) const;
+  void check_non_end(void) const;
   void check_valid(void) const throw();
   void check(const hash<K, T, H, E>* owner) const throw();
 

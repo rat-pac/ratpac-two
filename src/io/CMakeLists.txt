@@ -13,6 +13,8 @@ add_library(io OBJECT
         src/TrackNav.cc)
 
 # Set our include directories
+target_include_directories(io SYSTEM PUBLIC 
+        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(io PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)

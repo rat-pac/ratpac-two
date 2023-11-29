@@ -20,6 +20,8 @@ add_library(cmd OBJECT
         src/TrackingMessenger.cc)
 
 # Set our include directories
+target_include_directories(cmd SYSTEM PUBLIC 
+        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(cmd PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)
