@@ -91,6 +91,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   // _| |__| |___| |___
   int nbins = floor((end - start) / fTriggerResolution) + 1;
   double bw = fTriggerResolution;
+
   std::vector<double> triggerTrain(nbins);
   for (auto v : trigPulses) {
     int select = int((v - start) / bw);
@@ -108,7 +109,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   for (int i = 0; i < nbins; i++) {
     double x = triggerTrain[i];
     if (x > 0) {
-      for (int j = i; j < i + fPulseWidth; j++) {
+      for (int j = i; j < i + int(fPulseWidth/bw); j++) {
         if (j >= nbins) break;
         triggerHistogram[j] += x;
       }
