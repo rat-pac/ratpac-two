@@ -16,7 +16,7 @@
   version
 
   ------------------------------------------------------------------------------*/
-#include "file_system.hpp"
+#include "RAT/file_system.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,10 +24,10 @@
 
 #include <algorithm>
 
-#include "debug.hpp"
-#include "fileio.hpp"
-#include "os_fixes.hpp"
-#include "string_utilities.hpp"
+#include "RAT/debug.hpp"
+#include "RAT/fileio.hpp"
+#include "RAT/os_fixes.hpp"
+#include "RAT/string_utilities.hpp"
 
 #ifdef _WIN32
 #include <direct.h>

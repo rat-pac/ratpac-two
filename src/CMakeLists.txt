@@ -56,22 +56,9 @@ add_library(RATEvent SHARED
        stlplus/src/stringio.cc
        stlplus/src/textio.cc
        util/src/ReadFile.cc)
-target_include_directories(RATEvent SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS}/stlplus)
 target_include_directories(RATEvent PUBLIC ${RATPAC_INCLUDE_DIR})
 target_link_libraries(RATEvent PUBLIC 
        ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RATDict)
-set_source_files_properties(
-       stlplus/src/debug.cc
-       stlplus/src/dprintf.cc
-       stlplus/src/exceptions.cc
-       stlplus/src/file_system.cc
-       stlplus/src/fileio.cc
-       stlplus/src/multiio.cc
-       stlplus/src/string_utilities.cc
-       stlplus/src/stringio.cc
-       stlplus/src/textio.cc
-       PROPERTIES COMPILE_FLAGS -w
-)
 
 # This copies the root dict files to <build>/lib
 add_custom_command(TARGET RATEvent POST_BUILD

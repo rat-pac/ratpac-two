@@ -1,7 +1,5 @@
 #include <CLHEP/Vector/LorentzVector.h>
 
-#include <G4Exception.hh>
-#include <G4ExceptionSeverity.hh>
 #include <RAT/DecayChain.hh>
 #include <RAT/FermiFunction.hh>
 #include <RAT/Log.hh>
@@ -187,27 +185,18 @@ bool DecayChain::ReadInputFile(const std::string dName) {
     std::string iString(dummy);
 
     if (iString == dProbe) {
-      bool parseSuccess = fscanf(inputFile, "%s", tName) == 1;
-      if (!parseSuccess) {
-        G4Exception("DecayChain::ReadInputFile", "InvalidInput", FatalException, "Error reading input file");
-      }
+      fscanf(inputFile, "%s", tName);
       std::string iString2(tName);
       if (dName == iString2) {
         if (!fAlphaDecayStart) {
           iFound = true;
         }
-        parseSuccess = fscanf(inputFile, "%d", &eP) == 1;
-        if (!parseSuccess) {
-          G4Exception("DecayChain::ReadInputFile", "InvalidInput", FatalException, "Error reading input file");
-        }
+        fscanf(inputFile, "%d", &eP);
         if (isVerbose) {
           printf("Reading %s \n \n", tName);
         }
         for (int j = 0; j < eP; j++) {
-          parseSuccess &= fscanf(inputFile, "%s %d %lf %d %lf", sName, &iChain, &weight, &iDecay, &tau) == 5;
-          if (!parseSuccess) {
-            G4Exception("DecayChain::ReadInputFile", "InvalidInput", FatalException, "Error reading input file");
-          }
+          fscanf(inputFile, "%s %d %f %d %f", sName, &iChain, &weight, &iDecay, &tau);
           std::string iString3(sName);
           if (iDecay != NullParticle && !fAlphaDecayStart) {
             AddElement(iString3, iChain, iDecay, (double)tau, (double)weight);

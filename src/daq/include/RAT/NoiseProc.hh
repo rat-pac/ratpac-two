@@ -29,8 +29,8 @@ class NoiseProc : public Processor {
   double fLookback;
   double fLookforward;
   double fMaxTime;
-  int fNearHits;
-  int fNoiseFlag;
+  bool fNearHits;
+  bool fNoiseFlag;
   std::vector<RAT::PMTTime *> fPMTTime;
   std::vector<RAT::PMTCharge *> fPMTCharge;
   std::map<std::string, double> fModelNoiseMap;
