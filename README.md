@@ -1,6 +1,10 @@
 # Ratpac-two
 [![Documentation Status](https://readthedocs.org/projects/ratpac/badge/?version=latest)](https://ratpac.readthedocs.io/en/latest/?badge=latest)
 
+[![Build RatpacExperiment](https://github.com/rat-pac/ratpac-two/actions/workflows/build-experiment.yml/badge.svg)](https://github.com/rat-pac/ratpac-two/actions/workflows/build-experiment.yml)
+
+[![clang-format Check](https://github.com/rat-pac/ratpac-two/actions/workflows/check-format.yml/badge.svg)](https://github.com/rat-pac/ratpac-two/actions/workflows/check-format.yml)
+
 [ratpac.readthedocs.io](ratpac.readthedocs.io)
 ## Installation
 Installation requires [ROOT 6.25+](https://root.cern.ch), 
