@@ -17,8 +17,6 @@ add_library(util OBJECT
         src/quadrature/AdaptiveSimpsonQuadrature.cc 
         )
 # Set our include directories
-target_include_directories(util SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(util PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)

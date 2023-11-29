@@ -5,12 +5,12 @@
   License:   BSD License, see ../docs/license.html
 
   ------------------------------------------------------------------------------*/
-#include "debug.hpp"
+#include "RAT/debug.hpp"
 
 #include <stdlib.h>
 
-#include "file_system.hpp"
-#include "string_utilities.hpp"
+#include "RAT/file_system.hpp"
+#include "RAT/string_utilities.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

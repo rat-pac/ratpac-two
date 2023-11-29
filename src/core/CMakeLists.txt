@@ -25,8 +25,6 @@ add_library(core OBJECT
         src/GLG4HitPMTCollection.cc)
 
 # Set our include directories
-target_include_directories(core SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(core PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)

@@ -10,8 +10,6 @@ add_library(fit OBJECT
 
 
 # Set our include directories
-target_include_directories(fit SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(fit PUBLIC
   $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
   $<INSTALL_INTERFACE:include>)

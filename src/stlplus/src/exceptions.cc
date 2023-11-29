@@ -6,10 +6,10 @@
 
   ------------------------------------------------------------------------------*/
 
-#include "exceptions.hpp"
+#include "RAT/exceptions.hpp"
 
-#include "debug.hpp"
-#include "fileio.hpp"
+#include "RAT/debug.hpp"
+#include "RAT/fileio.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

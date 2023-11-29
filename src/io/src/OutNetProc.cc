@@ -3,7 +3,7 @@
 #include <RAT/Config.hh>
 #include <RAT/Log.hh>
 #include <RAT/OutNetProc.hh>
-#include <string_utilities.hpp>
+#include <RAT/string_utilities.hpp>
 #include <vector>
 
 namespace RAT {

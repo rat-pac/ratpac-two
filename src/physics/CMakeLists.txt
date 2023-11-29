@@ -23,8 +23,6 @@ add_library(physics OBJECT
         )
 
 # Set our include directories
-target_include_directories(physics SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(physics PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)

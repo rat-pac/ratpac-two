@@ -20,8 +20,6 @@ add_library(daq OBJECT
   )
 
 # Set our include directories
-target_include_directories(daq SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(daq PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)
