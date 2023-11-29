@@ -3,9 +3,9 @@
 #include <RAT/Log.hh>
 #include <RAT/TrackCursor.hh>
 #include <RAT/TrackNode.hh>
-#include <RAT/dprintf.hpp>
-#include <RAT/string_utilities.hpp>
+#include <dprintf.hpp>
 #include <iostream>
+#include <string_utilities.hpp>
 
 namespace RAT {
 

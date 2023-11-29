@@ -41,7 +41,6 @@ void hash_iterator<K,T,H,E,V>::check_owner(const hash<K,T,H,E>* _owner) const
 
 template<typename K, typename T, class H, class E, typename V>
 void hash_iterator<K,T,H,E,V>::check_non_null(void) const
-  throw()
 {
   if (null())
     throw null_dereference("hash iterator");
@@ -49,7 +48,6 @@ void hash_iterator<K,T,H,E,V>::check_non_null(void) const
 
 template<typename K, typename T, class H, class E, typename V>
 void hash_iterator<K,T,H,E,V>::check_non_end(void) const
-  throw()
 {
   if (end())
     throw end_dereference("hash iterator");

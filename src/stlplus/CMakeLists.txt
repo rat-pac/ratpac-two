@@ -14,7 +14,10 @@ add_library(stlplus OBJECT
         src/stringio.cc
         src/textio.cc)
 
+target_compile_options(stlplus PUBLIC -w)
 # Set our include directories
+target_include_directories(stlplus SYSTEM PUBLIC 
+        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(stlplus PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)

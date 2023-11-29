@@ -5,10 +5,10 @@
   License:   BSD License, see ../docs/license.html
 
   ------------------------------------------------------------------------------*/
-#include "RAT/os_fixes.hpp"
+#include "os_fixes.hpp"
 
-#include "RAT/debug.hpp"
-#include "RAT/string_utilities.hpp"
+#include "debug.hpp"
+#include "string_utilities.hpp"
 
 #if defined(_MSC_VER)
 #include "windows.h"

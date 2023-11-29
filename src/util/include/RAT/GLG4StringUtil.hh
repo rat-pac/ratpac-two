@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "RAT/format_types.hpp"
+#include "format_types.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Conversions of Integer types to string

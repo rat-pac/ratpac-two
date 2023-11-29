@@ -5,10 +5,10 @@
   License:   BSD License, see ../docs/license.html
 
   ------------------------------------------------------------------------------*/
-#include "RAT/stringio.hpp"
+#include "stringio.hpp"
 
-#include "RAT/debug.hpp"
-#include "RAT/os_fixes.hpp"
+#include "debug.hpp"
+#include "os_fixes.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
