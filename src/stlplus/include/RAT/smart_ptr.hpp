@@ -17,12 +17,13 @@
     - smart_ptr_nocopy for any class that cannot or should no be copied
 
   ------------------------------------------------------------------------------*/
-#include "os_fixes.hpp"
-#include "exceptions.hpp"
-#include "persistent.hpp"
-#include "textio.hpp"
 #include <map>
 #include <string>
+
+#include "exceptions.hpp"
+#include "os_fixes.hpp"
+#include "persistent.hpp"
+#include "textio.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,10 +31,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-template<typename T>
-class simple_ptr
-{
-public:
+template <typename T>
+class simple_ptr {
+ public:
   //////////////////////////////////////////////////////////////////////////////
   // member type definitions
 
@@ -48,7 +48,7 @@ public:
   simple_ptr(void);
 
   // create a pointer containing a *copy* of the object
-  // this copy is taken because the pointer class maintains a dynamically allocated object 
+  // this copy is taken because the pointer class maintains a dynamically allocated object
   // and the T& may not be (usually is not) dynamically allocated
   // constructor form
   simple_ptr(const T& data);
@@ -65,7 +65,7 @@ public:
   // constructor form - must be called in the form simple_ptr<type> x(new type(args))
   explicit simple_ptr(T* data);
   // assignment form
-  simple_ptr<T>& operator= (T* data);
+  simple_ptr<T>& operator=(T* data);
 
   // destructor decrements the reference count and delete only when the last reference is destroyed
   ~simple_ptr(void);
@@ -117,14 +117,16 @@ public:
   // used in the form if(a.aliases(b))
   bool aliases(const simple_ptr<T>&) const;
 
-  // find the number of aliases - used when you need to know whether an object is still referred to from elsewhere (rare!)
+  // find the number of aliases - used when you need to know whether an object is still referred to from elsewhere
+  // (rare!)
   unsigned alias_count(void) const;
 
   // make this pointer unique with respect to any other references to the same object
   // if this pointer is already unique, it does nothing - otherwise it copies the object
   void make_unique(void);
 
-  // delete the object and make the pointer null - does not make it unique first, so all other pointers to this will be null too
+  // delete the object and make the pointer null - does not make it unique first, so all other pointers to this will be
+  // null too
   void clear(void);
 
   // make the pointer unique and null in one step - does not affect other pointers that were pointing to the same object
@@ -140,7 +142,7 @@ public:
   void dump(dump_context& str) const throw();
   void restore(restore_context& str) throw();
 
-protected:
+ protected:
   T* m_pointer;
   unsigned* m_count;
 };
@@ -153,22 +155,22 @@ protected:
 // these funcions are defined as non-members so that you only need provide
 // the underlying T::operator< and == if you are going to use these functions
 
-template<typename T>
+template <typename T>
 bool operator==(const simple_ptr<T>&, const simple_ptr<T>&);
 
-template<typename T>
+template <typename T>
 bool operator<(const simple_ptr<T>&, const simple_ptr<T>&);
 
 ////////////////////////////////////////////////////////////////////////////////
 // string/print utilities
 
-template<typename T>
+template <typename T>
 std::string simple_ptr_to_string(const simple_ptr<T>& ptr, std::string null_string);
 
-template<typename T>
+template <typename T>
 otext& print_simple_ptr(otext& str, const simple_ptr<T>& ptr, std::string null_string);
 
-template<typename T>
+template <typename T>
 otext& print_simple_ptr(otext& str, const simple_ptr<T>& ptr, unsigned indent, std::string null_string);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -177,10 +179,10 @@ otext& print_simple_ptr(otext& str, const simple_ptr<T>& ptr, unsigned indent, s
 // similarly the restore routine calls restore_pointer
 // so therefore the class T should have non-member dump/restore functions
 
-template<typename T>
+template <typename T>
 void dump_simple_ptr(dump_context& str, const simple_ptr<T>& data) throw();
 
-template<typename T>
+template <typename T>
 void restore_simple_ptr(restore_context& str, simple_ptr<T>& data) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -190,10 +192,9 @@ void restore_simple_ptr(restore_context& str, simple_ptr<T>& data) throw();
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-template<typename T>
-class simple_ptr_clone
-{
-public:
+template <typename T>
+class simple_ptr_clone {
+ public:
   //////////////////////////////////////////////////////////////////////////////
   // member type definitions
 
@@ -208,7 +209,7 @@ public:
   simple_ptr_clone(void);
 
   // create a pointer containing a *copy* of the object
-  // this copy is taken because the pointer class maintains a dynamically allocated object 
+  // this copy is taken because the pointer class maintains a dynamically allocated object
   // and the T& may not be (usually is not) dynamically allocated
   // constructor form
   simple_ptr_clone(const T& data);
@@ -225,7 +226,7 @@ public:
   // constructor form - must be called in the form simple_ptr_clone<type> x(new type(args))
   explicit simple_ptr_clone(T* data);
   // assignment form
-  simple_ptr_clone<T>& operator= (T* data);
+  simple_ptr_clone<T>& operator=(T* data);
 
   // destructor decrements the reference count and delete only when the last reference is destroyed
   ~simple_ptr_clone(void);
@@ -277,14 +278,16 @@ public:
   // used in the form if(a.aliases(b))
   bool aliases(const simple_ptr_clone<T>&) const;
 
-  // find the number of aliases - used when you need to know whether an object is still referred to from elsewhere (rare!)
+  // find the number of aliases - used when you need to know whether an object is still referred to from elsewhere
+  // (rare!)
   unsigned alias_count(void) const;
 
   // make this pointer unique with respect to any other references to the same object
   // if this pointer is already unique, it does nothing - otherwise it copies the object
   void make_unique(void);
 
-  // delete the object and make the pointer null - does not make it unique first, so all other pointers to this will be null too
+  // delete the object and make the pointer null - does not make it unique first, so all other pointers to this will be
+  // null too
   void clear(void);
 
   // make the pointer unique and null in one step - does not affect other pointers that were pointing to the same object
@@ -300,7 +303,7 @@ public:
   void dump(dump_context& str) const throw();
   void restore(restore_context& str) throw();
 
-protected:
+ protected:
   T* m_pointer;
   unsigned* m_count;
 };
@@ -313,22 +316,22 @@ protected:
 // these funcions are defined as non-members so that you only need provide
 // the underlying T::operator< and == if you are going to use these functions
 
-template<typename T>
+template <typename T>
 bool operator==(const simple_ptr_clone<T>&, const simple_ptr_clone<T>&);
 
-template<typename T>
+template <typename T>
 bool operator<(const simple_ptr_clone<T>&, const simple_ptr_clone<T>&);
 
 ////////////////////////////////////////////////////////////////////////////////
 // string/print utilities
 
-template<typename T>
+template <typename T>
 std::string simple_ptr_clone_to_string(const simple_ptr_clone<T>& ptr, std::string null_string);
 
-template<typename T>
+template <typename T>
 otext& print_simple_ptr_clone(otext& str, const simple_ptr_clone<T>& ptr, std::string null_string);
 
-template<typename T>
+template <typename T>
 otext& print_simple_ptr_clone(otext& str, const simple_ptr_clone<T>& ptr, unsigned indent, std::string null_string);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,10 +340,10 @@ otext& print_simple_ptr_clone(otext& str, const simple_ptr_clone<T>& ptr, unsign
 // similarly the restore routine calls restore_interface
 // so therefore the class T should implement the persistent interface defined by the class persistent in persistent.hpp
 
-template<typename T>
+template <typename T>
 void dump_simple_ptr_clone(dump_context& str, const simple_ptr_clone<T>& data) throw();
 
-template<typename T>
+template <typename T>
 void restore_simple_ptr_clone(restore_context& str, simple_ptr_clone<T>& data) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -349,10 +352,9 @@ void restore_simple_ptr_clone(restore_context& str, simple_ptr_clone<T>& data) t
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-template<typename T>
-class simple_ptr_nocopy
-{
-public:
+template <typename T>
+class simple_ptr_nocopy {
+ public:
   //////////////////////////////////////////////////////////////////////////////
   // member type definitions
 
@@ -376,7 +378,7 @@ public:
   // constructor form - must be called in the form simple_ptr_nocopy<type> x(new type(args))
   explicit simple_ptr_nocopy(T* data);
   // assignment form
-  simple_ptr_nocopy<T>& operator= (T* data);
+  simple_ptr_nocopy<T>& operator=(T* data);
 
   // destructor decrements the reference count and delete only when the last reference is destroyed
   ~simple_ptr_nocopy(void);
@@ -426,16 +428,18 @@ public:
   // used in the form if(a.aliases(b))
   bool aliases(const simple_ptr_nocopy<T>&) const;
 
-  // find the number of aliases - used when you need to know whether an object is still referred to from elsewhere (rare!)
+  // find the number of aliases - used when you need to know whether an object is still referred to from elsewhere
+  // (rare!)
   unsigned alias_count(void) const;
 
-  // delete the object and make the pointer null - does not make it unique first, so all other pointers to this will be null too
+  // delete the object and make the pointer null - does not make it unique first, so all other pointers to this will be
+  // null too
   void clear(void);
 
   // make the pointer unique and null in one step - does not affect other pointers that were pointing to the same object
-  //void clear_unique(void); FIXME
+  // void clear_unique(void); FIXME
 
-protected:
+ protected:
   T* m_pointer;
   unsigned* m_count;
 };
@@ -448,22 +452,22 @@ protected:
 // these funcions are defined as non-members so that you only need provide
 // the underlying T::operator< and == if you are going to use these functions
 
-template<typename T>
+template <typename T>
 bool operator==(const simple_ptr_nocopy<T>&, const simple_ptr_nocopy<T>&);
 
-template<typename T>
+template <typename T>
 bool operator<(const simple_ptr_nocopy<T>&, const simple_ptr_nocopy<T>&);
 
 ////////////////////////////////////////////////////////////////////////////////
 // string/print utilities
 
-template<typename T>
+template <typename T>
 std::string simple_ptr_nocopy_to_string(const simple_ptr_nocopy<T>& ptr, std::string null_string);
 
-template<typename T>
+template <typename T>
 otext& print_simple_ptr_nocopy(otext& str, const simple_ptr_nocopy<T>& ptr, std::string null_string);
 
-template<typename T>
+template <typename T>
 otext& print_simple_ptr_nocopy(otext& str, const simple_ptr_nocopy<T>& ptr, unsigned indent, std::string null_string);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -479,14 +483,14 @@ otext& print_simple_ptr_nocopy(otext& str, const simple_ptr_nocopy<T>& ptr, unsi
 ////////////////////////////////////////////////////////////////////////////////
 // internals
 
-template<typename T> class smart_ptr_holder;
+template <typename T>
+class smart_ptr_holder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template<typename T>
-class smart_ptr
-{
-public:
+template <typename T>
+class smart_ptr {
+ public:
   //////////////////////////////////////////////////////////////////////////////
   // member type definitions
 
@@ -501,7 +505,7 @@ public:
   smart_ptr(void);
 
   // create a pointer containing a *copy* of the object
-  // this copy is taken because the pointer class maintains a dynamically allocated object 
+  // this copy is taken because the pointer class maintains a dynamically allocated object
   // and the T& may not be (usually is not) dynamically allocated
   // constructor form
   smart_ptr(const T& data);
@@ -518,7 +522,7 @@ public:
   // constructor form - must be called in the form smart_ptr<type> x(new type(args))
   explicit smart_ptr(T* data);
   // assignment form
-  smart_ptr<T>& operator= (T* data);
+  smart_ptr<T>& operator=(T* data);
 
   // destructor decrements the reference count and delete only when the last reference is destroyed
   ~smart_ptr(void);
@@ -570,14 +574,16 @@ public:
   // used in the form if(a.aliases(b))
   bool aliases(const smart_ptr<T>&) const;
 
-  // find the number of aliases - used when you need to know whether an object is still referred to from elsewhere (rare!)
+  // find the number of aliases - used when you need to know whether an object is still referred to from elsewhere
+  // (rare!)
   unsigned alias_count(void) const;
 
   // make this pointer unique with respect to any other references to the same object
   // if this pointer is already unique, it does nothing - otherwise it copies the object
   void make_unique(void);
 
-  // delete the object and make the pointer null - does not make it unique first, so all other pointers to this will be null too
+  // delete the object and make the pointer null - does not make it unique first, so all other pointers to this will be
+  // null too
   void clear(void);
 
   // make the pointer unique and null in one step - does not affect other pointers that were pointing to the same object
@@ -593,7 +599,7 @@ public:
   void dump(dump_context& str) const throw();
   void restore(restore_context& str) throw();
 
-protected:
+ protected:
   smart_ptr_holder<T>* m_holder;
 };
 
@@ -605,22 +611,22 @@ protected:
 // these funcions are defined as non-members so that you only need provide
 // the underlying T::operator< and == if you are going to use these functions
 
-template<typename T>
+template <typename T>
 bool operator==(const smart_ptr<T>&, const smart_ptr<T>&);
 
-template<typename T>
+template <typename T>
 bool operator<(const smart_ptr<T>&, const smart_ptr<T>&);
 
 ////////////////////////////////////////////////////////////////////////////////
 // string/print utilities
 
-template<typename T>
+template <typename T>
 std::string smart_ptr_to_string(const smart_ptr<T>& ptr, std::string null_string);
 
-template<typename T>
+template <typename T>
 otext& print_smart_ptr(otext& str, const smart_ptr<T>& ptr, std::string null_string);
 
-template<typename T>
+template <typename T>
 otext& print_smart_ptr(otext& str, const smart_ptr<T>& ptr, unsigned indent, std::string null_string);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -629,10 +635,10 @@ otext& print_smart_ptr(otext& str, const smart_ptr<T>& ptr, unsigned indent, std
 // similarly the restore routine calls restore_pointer
 // so therefore the class T should have non-member dump/restore functions
 
-template<typename T>
+template <typename T>
 void dump_smart_ptr(dump_context& str, const smart_ptr<T>& data) throw();
 
-template<typename T>
+template <typename T>
 void restore_smart_ptr(restore_context& str, smart_ptr<T>& data) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -642,10 +648,9 @@ void restore_smart_ptr(restore_context& str, smart_ptr<T>& data) throw();
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-template<typename T>
-class smart_ptr_clone
-{
-public:
+template <typename T>
+class smart_ptr_clone {
+ public:
   //////////////////////////////////////////////////////////////////////////////
   // member type definitions
 
@@ -660,7 +665,7 @@ public:
   smart_ptr_clone(void);
 
   // create a pointer containing a *copy* of the object
-  // this copy is taken because the pointer class maintains a dynamically allocated object 
+  // this copy is taken because the pointer class maintains a dynamically allocated object
   // and the T& may not be (usually is not) dynamically allocated
   // constructor form
   smart_ptr_clone(const T& data);
@@ -677,7 +682,7 @@ public:
   // constructor form - must be called in the form smart_ptr_clone<type> x(new type(args))
   explicit smart_ptr_clone(T* data);
   // assignment form
-  smart_ptr_clone<T>& operator= (T* data);
+  smart_ptr_clone<T>& operator=(T* data);
 
   // destructor decrements the reference count and delete only when the last reference is destroyed
   ~smart_ptr_clone(void);
@@ -729,14 +734,16 @@ public:
   // used in the form if(a.aliases(b))
   bool aliases(const smart_ptr_clone<T>&) const;
 
-  // find the number of aliases - used when you need to know whether an object is still referred to from elsewhere (rare!)
+  // find the number of aliases - used when you need to know whether an object is still referred to from elsewhere
+  // (rare!)
   unsigned alias_count(void) const;
 
   // make this pointer unique with respect to any other references to the same object
   // if this pointer is already unique, it does nothing - otherwise it copies the object
   void make_unique(void);
 
-  // delete the object and make the pointer null - does not make it unique first, so all other pointers to this will be null too
+  // delete the object and make the pointer null - does not make it unique first, so all other pointers to this will be
+  // null too
   void clear(void);
 
   // make the pointer unique and null in one step - does not affect other pointers that were pointing to the same object
@@ -752,7 +759,7 @@ public:
   void dump(dump_context& str) const throw();
   void restore(restore_context& str) throw();
 
-protected:
+ protected:
   smart_ptr_holder<T>* m_holder;
 };
 
@@ -764,22 +771,22 @@ protected:
 // these funcions are defined as non-members so that you only need provide
 // the underlying T::operator< and == if you are going to use these functions
 
-template<typename T>
+template <typename T>
 bool operator==(const smart_ptr_clone<T>&, const smart_ptr_clone<T>&);
 
-template<typename T>
+template <typename T>
 bool operator<(const smart_ptr_clone<T>&, const smart_ptr_clone<T>&);
 
 ////////////////////////////////////////////////////////////////////////////////
 // string/print utilities
 
-template<typename T>
+template <typename T>
 std::string smart_ptr_clone_to_string(const smart_ptr_clone<T>& ptr, std::string null_string);
 
-template<typename T>
+template <typename T>
 otext& print_smart_ptr_clone(otext& str, const smart_ptr_clone<T>& ptr, std::string null_string);
 
-template<typename T>
+template <typename T>
 otext& print_smart_ptr_clone(otext& str, const smart_ptr_clone<T>& ptr, unsigned indent, std::string null_string);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -788,10 +795,10 @@ otext& print_smart_ptr_clone(otext& str, const smart_ptr_clone<T>& ptr, unsigned
 // similarly the restore routine calls restore_interface
 // so therefore the class T should implement the persistent interface defined by the class persistent in persistent.hpp
 
-template<typename T>
+template <typename T>
 void dump_smart_ptr_clone(dump_context& str, const smart_ptr_clone<T>& data) throw();
 
-template<typename T>
+template <typename T>
 void restore_smart_ptr_clone(restore_context& str, smart_ptr_clone<T>& data) throw();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -800,10 +807,9 @@ void restore_smart_ptr_clone(restore_context& str, smart_ptr_clone<T>& data) thr
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-template<typename T>
-class smart_ptr_nocopy
-{
-public:
+template <typename T>
+class smart_ptr_nocopy {
+ public:
   //////////////////////////////////////////////////////////////////////////////
   // member type definitions
 
@@ -827,7 +833,7 @@ public:
   // constructor form - must be called in the form smart_ptr_nocopy<type> x(new type(args))
   explicit smart_ptr_nocopy(T* data);
   // assignment form
-  smart_ptr_nocopy<T>& operator= (T* data);
+  smart_ptr_nocopy<T>& operator=(T* data);
 
   // destructor decrements the reference count and delete only when the last reference is destroyed
   ~smart_ptr_nocopy(void);
@@ -877,16 +883,18 @@ public:
   // used in the form if(a.aliases(b))
   bool aliases(const smart_ptr_nocopy<T>&) const;
 
-  // find the number of aliases - used when you need to know whether an object is still referred to from elsewhere (rare!)
+  // find the number of aliases - used when you need to know whether an object is still referred to from elsewhere
+  // (rare!)
   unsigned alias_count(void) const;
 
-  // delete the object and make the pointer null - does not make it unique first, so all other pointers to this will be null too
+  // delete the object and make the pointer null - does not make it unique first, so all other pointers to this will be
+  // null too
   void clear(void);
 
   // make the pointer unique and null in one step - does not affect other pointers that were pointing to the same object
   void clear_unique(void);
 
-protected:
+ protected:
   smart_ptr_holder<T>* m_holder;
 };
 
@@ -898,22 +906,22 @@ protected:
 // these funcions are defined as non-members so that you only need provide
 // the underlying T::operator< and == if you are going to use these functions
 
-template<typename T>
+template <typename T>
 bool operator==(const smart_ptr_nocopy<T>&, const smart_ptr_nocopy<T>&);
 
-template<typename T>
+template <typename T>
 bool operator<(const smart_ptr_nocopy<T>&, const smart_ptr_nocopy<T>&);
 
 ////////////////////////////////////////////////////////////////////////////////
 // string/print utilities
 
-template<typename T>
+template <typename T>
 std::string smart_ptr_nocopy_to_string(const smart_ptr_nocopy<T>& ptr, std::string null_string);
 
-template<typename T>
+template <typename T>
 otext& print_smart_ptr_nocopy(otext& str, const smart_ptr_nocopy<T>& ptr, std::string null_string);
 
-template<typename T>
+template <typename T>
 otext& print_smart_ptr_nocopy(otext& str, const smart_ptr_nocopy<T>& ptr, unsigned indent, std::string null_string);
 
 ////////////////////////////////////////////////////////////////////////////////

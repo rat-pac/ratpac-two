@@ -9,15 +9,15 @@
   The set of general exceptions thrown by STLplus components
 
   ------------------------------------------------------------------------------*/
-#include "os_fixes.hpp"
 #include <stdexcept>
+
+#include "os_fixes.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Thrown if a pointer or an iterator is dereferenced when it is null
 
-class null_dereference : public std::logic_error
-{
-public:
+class null_dereference : public std::logic_error {
+ public:
   null_dereference(const std::string& description) throw();
   ~null_dereference(void) throw();
 };
@@ -25,9 +25,8 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Thrown if an iterator is dereferenced when it is pointing to the end element
 
-class end_dereference : public std::logic_error
-{
-public:
+class end_dereference : public std::logic_error {
+ public:
   end_dereference(const std::string& description) throw();
   ~end_dereference(void) throw();
 };
@@ -38,9 +37,8 @@ public:
 // that iterator is then used with a different container, this exception is
 // thrown.
 
-class wrong_object : public std::logic_error
-{
-public:
+class wrong_object : public std::logic_error {
+ public:
   wrong_object(const std::string& description) throw();
   ~wrong_object(void) throw();
 };

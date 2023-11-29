@@ -13,10 +13,12 @@
   to port all file handling.
 
 ------------------------------------------------------------------------------*/
-#include "os_fixes.hpp"
+#include <time.h>
+
 #include <string>
 #include <vector>
-#include <time.h>
+
+#include "os_fixes.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 // classifying functions
@@ -33,9 +35,9 @@ bool file_readable(const std::string& filespec);
 bool file_writable(const std::string& filespec);
 size_t file_size(const std::string& filespec);
 bool file_delete(const std::string& filespec);
-bool file_rename (const std::string& old_filespec, const std::string& new_filespec);
-bool file_move (const std::string& old_filespec, const std::string& new_filespec);
-bool file_copy (const std::string& old_filespec, const std::string& new_filespec);
+bool file_rename(const std::string& old_filespec, const std::string& new_filespec);
+bool file_move(const std::string& old_filespec, const std::string& new_filespec);
+bool file_copy(const std::string& old_filespec, const std::string& new_filespec);
 
 // Read-only versus read-write control. This is equivalent to chmod on Unix,
 // but I've insulated the user from the low-level routine because of
@@ -91,7 +93,7 @@ bool folder_exists(const std::string& folder);
 bool folder_readable(const std::string& folder);
 bool folder_writable(const std::string& folder);
 bool folder_delete(const std::string& folder, bool recurse = false);
-bool folder_rename (const std::string& old_directory, const std::string& new_directory);
+bool folder_rename(const std::string& old_directory, const std::string& new_directory);
 bool folder_empty(const std::string& folder);
 
 bool folder_set_current(const std::string& folder);
@@ -104,7 +106,8 @@ std::string folder_up(const std::string& folder, unsigned levels = 1);
 std::vector<std::string> folder_subdirectories(const std::string& folder);
 std::vector<std::string> folder_files(const std::string& folder);
 std::vector<std::string> folder_all(const std::string& folder);
-std::vector<std::string> folder_wildcard(const std::string& folder, const std::string& wildcard, bool subdirs = true, bool files = true);
+std::vector<std::string> folder_wildcard(const std::string& folder, const std::string& wildcard, bool subdirs = true,
+                                         bool files = true);
 
 ////////////////////////////////////////////////////////////////////////////////
 // path functions
@@ -155,13 +158,13 @@ std::vector<std::string> filespec_elements(const std::string& filespec);
 // The lookup normally carried out by the shell to find a command in a
 // directory in the PATH. Give this function the name of a command and it
 // will return the full path. It returns an empty string on failure.
-std::string path_lookup (const std::string& command);
+std::string path_lookup(const std::string& command);
 
 // Generalised form of the above, takes a second argument
 // - the list to search. This can be used to do other path lookups,
 // such as LD_LIBRARY_PATH. The third argument specifies the splitter -
 // the default value of PATH_SPLITTER is appropriate for environment variables.
-std::string lookup (const std::string& file, const std::string& path, const std::string& splitter = PATH_SPLITTER);
+std::string lookup(const std::string& file, const std::string& path, const std::string& splitter = PATH_SPLITTER);
 
 // utility function for finding the folder that contains the current executable
 // the argument is the argv[0] parameter passed to main

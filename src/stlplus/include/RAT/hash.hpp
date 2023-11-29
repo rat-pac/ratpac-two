@@ -9,36 +9,38 @@
   A chained hash table using STL semantics
 
 ------------------------------------------------------------------------------*/
-#include "os_fixes.hpp"
-#include "textio.hpp"
-#include "persistent.hpp"
-#include "exceptions.hpp"
 #include <map>
+
+#include "exceptions.hpp"
+#include "os_fixes.hpp"
+#include "persistent.hpp"
+#include "textio.hpp"
 
 namespace stlplus {
 ////////////////////////////////////////////////////////////////////////////////
 // internals
 
-template<typename K, typename T, class H, class E> class hash;
-template<typename K, typename T> class hash_element;
+template <typename K, typename T, class H, class E>
+class hash;
+template <typename K, typename T>
+class hash_element;
 
 ////////////////////////////////////////////////////////////////////////////////
 // iterator class
 
-template<typename K, typename T, class H, class E, typename V>
-class hash_iterator
-{
-public:
-  friend class hash<K,T,H,E>;
+template <typename K, typename T, class H, class E, typename V>
+class hash_iterator {
+ public:
+  friend class hash<K, T, H, E>;
 
   // local type definitions
   // an iterator points to a value whilst a const_iterator points to a const value
-  typedef V                                                  value_type;
-  typedef hash_iterator<K,T,H,E,std::pair<const K,T> >       iterator;
-  typedef hash_iterator<K,T,H,E,const std::pair<const K,T> > const_iterator;
-  typedef hash_iterator<K,T,H,E,V>                           this_iterator;
-  typedef V&                                                 reference;
-  typedef V*                                                 pointer;
+  typedef V value_type;
+  typedef hash_iterator<K, T, H, E, std::pair<const K, T> > iterator;
+  typedef hash_iterator<K, T, H, E, const std::pair<const K, T> > const_iterator;
+  typedef hash_iterator<K, T, H, E, V> this_iterator;
+  typedef V& reference;
+  typedef V* pointer;
 
   // constructor to create a null iterator - you must assign a valid value to this iterator before using it
   // any attempt to dereference or use a null iterator is an error
@@ -59,7 +61,7 @@ public:
 
   // get the hash container that created this iterator
   // a null iterator doesn't have an owner so returns a null pointer
-  const hash<K,T,H,E>* owner(void) const;
+  const hash<K, T, H, E>* owner(void) const;
 
   // Type conversion methods allow const_iterator and iterator to be converted
   // convert an iterator/const_iterator to a const_iterator
@@ -71,49 +73,40 @@ public:
   // it is only legal to increment a valid iterator
   // there's no decrement - I've only implemented this as a unidirectional iterator
   // pre-increment
-  this_iterator& operator ++ (void)
-    throw();
+  this_iterator& operator++(void) throw();
   // post-increment
-  this_iterator operator ++ (int)
-    throw();
+  this_iterator operator++(int) throw();
 
   // tests useful for putting iterators into other STL structures and for testing whether iteration has completed
-  bool operator == (const this_iterator& r) const;
-  bool operator != (const this_iterator& r) const;
-  bool operator < (const this_iterator& r) const;
+  bool operator==(const this_iterator& r) const;
+  bool operator!=(const this_iterator& r) const;
+  bool operator<(const this_iterator& r) const;
 
   // access the value - a const_iterator gives you a const value, an iterator a non-const value
   // it is illegal to dereference an invalid (i.e. null or end) iterator
-  reference operator*(void) const
-    throw();
-  pointer operator->(void) const
-    throw();
+  reference operator*(void) const throw();
+  pointer operator->(void) const throw();
 
   // Note: hash iterators are not persistent for a good reason: they are
   // invalidated by rehashing and so it is not a good idea to build data
   // structures containing hash iterators in the first place
 
-private:
-  friend class hash_element<K,T>;
+ private:
+  friend class hash_element<K, T>;
 
-  const hash<K,T,H,E>* m_owner;
+  const hash<K, T, H, E>* m_owner;
   unsigned m_bin;
-  hash_element<K,T>* m_element;
+  hash_element<K, T>* m_element;
 
-  void check_owner(const hash<K,T,H,E>* owner) const
-    throw();
-  void check_non_null(void) const
-    throw();
-  void check_non_end(void) const
-    throw();
-  void check_valid(void) const
-    throw();
-  void check(const hash<K,T,H,E>* owner) const
-    throw();
+  void check_owner(const hash<K, T, H, E>* owner) const throw();
+  void check_non_null(void) const throw();
+  void check_non_end(void) const throw();
+  void check_valid(void) const throw();
+  void check(const hash<K, T, H, E>* owner) const throw();
 
   // constructor used by hash to create a non-null iterator
   // you cannot create a valid iterator except by calling a hash method that returns one
-  hash_iterator(const hash<K,T,H,E>* owner, unsigned bin, hash_element<K,T>* element);
+  hash_iterator(const hash<K, T, H, E>* owner, unsigned bin, hash_element<K, T>* element);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -123,17 +116,16 @@ private:
 // H = hash function object with the profile 'unsigned H(const K&)'
 // E = equal function object with the profile 'bool E(const K&, const K&)' defaults to equal_to which in turn calls '=='
 
-template<typename K, typename T, class H, class E = std::equal_to<K> >
-class hash
-{
-public:
-  typedef unsigned                                size_type;
-  typedef K                                       key_type;
-  typedef T                                       data_type;
-  typedef T                                       mapped_type;
-  typedef std::pair<const K, T>                   value_type;
-  typedef hash_iterator<K,T,H,E,value_type>       iterator;
-  typedef hash_iterator<K,T,H,E,const value_type> const_iterator;
+template <typename K, typename T, class H, class E = std::equal_to<K> >
+class hash {
+ public:
+  typedef unsigned size_type;
+  typedef K key_type;
+  typedef T data_type;
+  typedef T mapped_type;
+  typedef std::pair<const K, T> value_type;
+  typedef hash_iterator<K, T, H, E, value_type> iterator;
+  typedef hash_iterator<K, T, H, E, const value_type> const_iterator;
 
   // construct a hash table with specified number of bins
   // the default 0 bins means leave it to the table to decide
@@ -143,15 +135,16 @@ public:
 
   // copy and equality copy the data elements but not the size of the copied table
   hash(const hash&);
-  hash& operator = (const hash&);
+  hash& operator=(const hash&);
 
-  // test for an empty table and for the size of a table - efficient because the size is stored separately from the table contents
+  // test for an empty table and for the size of a table - efficient because the size is stored separately from the
+  // table contents
   bool empty(void) const;
   unsigned size(void) const;
 
   // test for equality - two hashes are equal if they contain equal values
-  bool operator == (const hash&) const;
-  bool operator != (const hash&) const;
+  bool operator==(const hash&) const;
+  bool operator!=(const hash&) const;
 
   // switch auto-rehash on
   void auto_rehash(void);
@@ -190,10 +183,11 @@ public:
   const_iterator find(const K& key) const;
   iterator find(const K& key);
   // returns the data corresponding to the key
-  // the const version is used by the compiler on const hashes and cannot change the hash, so find failure causes an exception
-  // the non-const version is used by the compiler on non-const hashes and is like map - it creates a new key/data pair if find fails
-  const T& operator[] (const K& key) const;
-  T& operator[] (const K& key);
+  // the const version is used by the compiler on const hashes and cannot change the hash, so find failure causes an
+  // exception the non-const version is used by the compiler on non-const hashes and is like map - it creates a new
+  // key/data pair if find fails
+  const T& operator[](const K& key) const;
+  T& operator[](const K& key);
 
   // iterators allow the hash table to be traversed
   // iterators remain valid unless an item is removed or unless a rehash happens
@@ -208,43 +202,39 @@ public:
   std::string debug_report(unsigned indent = 0) const;
 
   // persistence methods
-  void dump(dump_context&) const
-    throw();
-  void restore(restore_context&)
-    throw();
+  void dump(dump_context&) const throw();
+  void restore(restore_context&) throw();
 
   // internals
-private:
-  friend class hash_element<K,T>;
-  friend class hash_iterator<K,T,H,E,std::pair<const K,T> >;
-  friend class hash_iterator<K,T,H,E,const std::pair<const K,T> >;
+ private:
+  friend class hash_element<K, T>;
+  friend class hash_iterator<K, T, H, E, std::pair<const K, T> >;
+  friend class hash_iterator<K, T, H, E, const std::pair<const K, T> >;
 
   unsigned m_rehash;
   unsigned m_bins;
   unsigned m_size;
-  hash_element<K,T>** m_values;
+  hash_element<K, T>** m_values;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template<typename K, typename T, class H, class E>
-otext& print(otext& str, const hash<K,T,H,E>& table, unsigned indent = 0);
+template <typename K, typename T, class H, class E>
+otext& print(otext& str, const hash<K, T, H, E>& table, unsigned indent = 0);
 
-template<typename K, typename T, class H, class E>
-otext& operator << (otext& str, const hash<K,T,H,E>& table);
-
-////////////////////////////////////////////////////////////////////////////////
-
-template<typename K, typename T, class H, class E>
-void dump_hash(dump_context& str, const hash<K,T,H,E>& data)
-  throw();
-
-template<typename K, typename T, class H, class E>
-void restore_hash(restore_context& str, hash<K,T,H,E>& data)
-  throw();
+template <typename K, typename T, class H, class E>
+otext& operator<<(otext& str, const hash<K, T, H, E>& table);
 
 ////////////////////////////////////////////////////////////////////////////////
-}
+
+template <typename K, typename T, class H, class E>
+void dump_hash(dump_context& str, const hash<K, T, H, E>& data) throw();
+
+template <typename K, typename T, class H, class E>
+void restore_hash(restore_context& str, hash<K, T, H, E>& data) throw();
+
+////////////////////////////////////////////////////////////////////////////////
+}  // namespace stlplus
 
 #include "hash.tpp"
 #endif

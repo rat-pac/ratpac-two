@@ -15,9 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Output
 
-class omtext : public otext
-{
-public:
+class omtext : public otext {
+ public:
   omtext(void);
   omtext(const otext&);
   omtext(const otext&, const otext&);
@@ -34,9 +33,8 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Input
 
-class imtext : public itext
-{
-public:
+class imtext : public itext {
+ public:
   imtext(void);
   imtext(const itext&);
   imtext(const itext&, const itext&);
@@ -53,49 +51,49 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Internals
 
-class ombuff : public obuff
-{
+class ombuff : public obuff {
   friend class omtext;
-public:
+
+ public:
   ombuff(void);
   unsigned add(const otext&);
   void remove(unsigned);
 
-  virtual unsigned put (unsigned char);
+  virtual unsigned put(unsigned char);
 
   unsigned count(void) const;
   otext& device(unsigned);
   const otext& device(unsigned) const;
 
-private:
+ private:
   std::vector<otext> m_devices;
 
   // make this class uncopyable
   ombuff(const ombuff&);
-  ombuff& operator = (const ombuff&);
+  ombuff& operator=(const ombuff&);
 };
 
-class imbuff : public ibuff
-{
+class imbuff : public ibuff {
   friend class imtext;
-public:
+
+ public:
   imbuff(void);
   unsigned add(const itext&);
   void remove(unsigned);
 
-  virtual int peek (void);
-  virtual int get (void);
+  virtual int peek(void);
+  virtual int get(void);
 
   unsigned count(void) const;
   itext& device(unsigned);
   const itext& device(unsigned) const;
 
-private:
+ private:
   std::vector<itext> m_devices;
 
   // make this class uncopyable
   imbuff(const imbuff&);
-  imbuff& operator = (const imbuff&);
+  imbuff& operator=(const imbuff&);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

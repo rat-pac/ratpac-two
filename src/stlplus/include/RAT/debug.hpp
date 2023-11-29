@@ -10,18 +10,19 @@
   NDEBUG compiler directive
 
   ------------------------------------------------------------------------------*/
-#include "os_fixes.hpp"
-#include "exceptions.hpp"
 #include <assert.h>
 #include <stdio.h>
+
 #include <string>
+
+#include "exceptions.hpp"
+#include "os_fixes.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Exception thrown if an assertion fails
 
-class assert_failed : public std::logic_error
-{
-public:
+class assert_failed : public std::logic_error {
+ public:
   assert_failed(const char* file, int line, const char* function, const std::string& message) throw();
   ~assert_failed(void) throw();
 };
@@ -31,17 +32,24 @@ public:
 
 #ifndef NDEBUG
 
-#define DEBUG_TRACE _debug_trace _debug_trace_(__FILE__,__LINE__,__FUNCTION__)
-#define IF_DEBUG(stmts) {if (_debug_trace_.debug()){_debug_trace_.prefix(__LINE__);stmts;}}
-#define DEBUG_REPORT(str) IF_DEBUG(_debug_trace_.report(__LINE__,str))
-#define DEBUG_ERROR(str) _debug_trace_.error(__LINE__,str)
-#define DEBUG_STACKDUMP(str) _debug_trace_.stackdump(__LINE__,str)
-#define DEBUG_ON _debug_trace_.debug_on(__LINE__,true)
-#define DEBUG_ON_LOCAL _debug_trace_.debug_on(__LINE__,false)
-#define DEBUG_ON_GLOBAL _debug_global(__FILE__,__LINE__,__FUNCTION__,true)
-#define DEBUG_OFF_GLOBAL _debug_global(__FILE__,__LINE__,__FUNCTION__,false)
+#define DEBUG_TRACE _debug_trace _debug_trace_(__FILE__, __LINE__, __FUNCTION__)
+#define IF_DEBUG(stmts)               \
+  {                                   \
+    if (_debug_trace_.debug()) {      \
+      _debug_trace_.prefix(__LINE__); \
+      stmts;                          \
+    }                                 \
+  }
+#define DEBUG_REPORT(str) IF_DEBUG(_debug_trace_.report(__LINE__, str))
+#define DEBUG_ERROR(str) _debug_trace_.error(__LINE__, str)
+#define DEBUG_STACKDUMP(str) _debug_trace_.stackdump(__LINE__, str)
+#define DEBUG_ON _debug_trace_.debug_on(__LINE__, true)
+#define DEBUG_ON_LOCAL _debug_trace_.debug_on(__LINE__, false)
+#define DEBUG_ON_GLOBAL _debug_global(__FILE__, __LINE__, __FUNCTION__, true)
+#define DEBUG_OFF_GLOBAL _debug_global(__FILE__, __LINE__, __FUNCTION__, false)
 #define DEBUG_OFF _debug_trace_.debug_off(__LINE__)
-#define DEBUG_ASSERT(test) if (!(test))_debug_assert_fail(__FILE__,__LINE__,__FUNCTION__,#test)
+#define DEBUG_ASSERT(test) \
+  if (!(test)) _debug_assert_fail(__FILE__, __LINE__, __FUNCTION__, #test)
 
 #else
 
@@ -65,9 +73,8 @@ public:
 void _debug_global(const char* file, int line, const char* function, bool state = true);
 void _debug_assert_fail(const char* file, int line, const char* function, const char* test) throw();
 
-class _debug_trace
-{
-public:
+class _debug_trace {
+ public:
   _debug_trace(const char* f, int l, const char* fn);
   ~_debug_trace(void);
   const char* file(void) const;
@@ -84,7 +91,7 @@ public:
   void stackdump(const std::string& message) const;
   void stackdump(void) const;
 
-private:
+ private:
   const char* m_file;
   int m_line;
   const char* m_function;
@@ -97,7 +104,7 @@ private:
 
   // make this class uncopyable
   _debug_trace(const _debug_trace&);
-  _debug_trace& operator = (const _debug_trace&);
+  _debug_trace& operator=(const _debug_trace&);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -9,7 +9,7 @@
   This abstract class defines the clonable interface
 
   The clonable interface is used by smart_ptr_clone and by the persistence
-  functions for polymorphic types. 
+  functions for polymorphic types.
 
   If you make any class a subclass of clonable, then you must provide a
   clone() method with the type profile specified here. This method must copy
@@ -21,9 +21,8 @@
 
   ------------------------------------------------------------------------------*/
 
-class clonable
-{
-public:
+class clonable {
+ public:
   virtual clonable* clone(void) const = 0;
 };
 

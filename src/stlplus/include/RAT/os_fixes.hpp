@@ -29,7 +29,7 @@
 //   4290 - VC6, C++ exception specification ignored
 //   4800 - VC6, forcing value to bool 'true' or 'false' (performance warning)
 //   4675 - VC7.1, "change" in function overload resolution _might_ have altered program
-#pragma warning(disable: 4275 4786 4305 4503 4309 4290 4800 4675)
+#pragma warning(disable : 4275 4786 4305 4503 4309 4290 4800 4675)
 #endif
 
 #if defined(__BORLANDC__)
@@ -54,10 +54,10 @@
 //          label or the end of a loop or function. The compiler checks while,
 //          do, and for loops with a constant test condition, and attempts to
 //          recognize loops that can't fall through.
-#pragma warn -8022
-#pragma warn -8008
-#pragma warn -8060
-#pragma warn -8066
+#pragma warn - 8022
+#pragma warn - 8008
+#pragma warn - 8060
+#pragma warn - 8066
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,16 +83,27 @@
 #undef min
 // replace missing template definitions in VC6
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-namespace std 
-{
-  template<typename T> const T& max(const T& l, const T& r) {return l > r ? l : r;}
-  template<typename T> const T& min(const T& l, const T& r) {return l < r ? l : r;}
+namespace std {
+template <typename T>
+const T& max(const T& l, const T& r) {
+  return l > r ? l : r;
 }
+template <typename T>
+const T& min(const T& l, const T& r) {
+  return l < r ? l : r;
+}
+}  // namespace std
 #endif
 #endif
 
-template<typename T> const T& maximum(const T& l, const T& r) {return l > r ? l : r;}
-template<typename T> const T& minimum(const T& l, const T& r) {return l < r ? l : r;}
+template <typename T>
+const T& maximum(const T& l, const T& r) {
+  return l > r ? l : r;
+}
+template <typename T>
+const T& minimum(const T& l, const T& r) {
+  return l < r ? l : r;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Problem with missing __FUNCTION__ macro
@@ -122,12 +133,9 @@ template<typename T> const T& minimum(const T& l, const T& r) {return l < r ? l 
 // do *not* try to move the contents of std::rel_ops into namespace std
 
 #if defined(__GNUC__)
-namespace std
-{
-  namespace rel_ops
-  {
-  }
-}
+namespace std {
+namespace rel_ops {}
+}  // namespace std
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -212,7 +220,7 @@ unsigned sleep(unsigned seconds);
 // Function for establishing endian-ness
 ////////////////////////////////////////////////////////////////////////////////
 // Different machine architectures store data using different byte orders.
-// This is referred to as Big- and Little-Endian Byte Ordering. 
+// This is referred to as Big- and Little-Endian Byte Ordering.
 //
 // The issue is: where does a pointer to an integer type actually point?
 //
