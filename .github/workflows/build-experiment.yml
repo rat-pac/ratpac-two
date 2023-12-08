@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: 
-      image: stjimmys/ratpac2-deps:latest
+      image: ratpac/ratpac-two:latest-base
       options: --user root
     steps:
     - name: Checkout Ratpac2
