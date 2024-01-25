@@ -852,6 +852,42 @@ void GDMLWriteSolids::OpticalSurfaceWrite(xercesc::DOMElement* solElement, const
   if (surf->GetMaterialPropertiesTable()) {
     PropertyWrite(optElement, surf);
   }
+  const G4Physics2DVector* const dichroic_vector = const_cast<G4OpticalSurface*>(surf)->GetDichroicVector();
+  xercesc::DOMElement* propElement;
+  if (dichroic_vector) {
+    propElement = NewElement("dichroic_data");
+    size_t length_x = dichroic_vector->GetLengthX();
+    size_t length_y = dichroic_vector->GetLengthY();
+    propElement->setAttributeNode(NewAttribute("x_length", length_x));
+    propElement->setAttributeNode(NewAttribute("y_length", length_y));
+    xercesc::DOMElement* x_element = NewElement("x");
+    xercesc::DOMElement* y_element = NewElement("y");
+    std::ostringstream xvalues;
+    std::ostringstream yvalues;
+    for (size_t i = 0; i < length_x; i++) {
+      if (i != 0) xvalues << " ";
+      xvalues << dichroic_vector->GetX(i);
+    }
+    x_element->setAttributeNode(NewAttribute("values", xvalues.str()));
+    for (size_t i = 0; i < length_y; i++) {
+      if (i != 0) yvalues << " ";
+      yvalues << dichroic_vector->GetY(i);
+    }
+    y_element->setAttributeNode(NewAttribute("values", yvalues.str()));
+    propElement->appendChild(x_element);
+    propElement->appendChild(y_element);
+    xercesc::DOMElement* data = NewElement("data");
+    std::ostringstream data_values;
+    for (size_t i = 0; i < length_x; i++) {
+      for (size_t j = 0; j < length_y; j++) {
+        if (i != 0 || j != 0) data_values << " ";
+        data_values << dichroic_vector->GetValue(i, j);
+      }
+    }
+    data->setAttributeNode(NewAttribute("values", data_values.str()));
+    propElement->appendChild(data);
+    optElement->appendChild(propElement);
+  }
 
   solElement->appendChild(optElement);
 }
