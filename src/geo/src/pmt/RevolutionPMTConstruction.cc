@@ -107,7 +107,7 @@ G4LogicalVolume *RevolutionPMTConstruction::BuildVolume(const std::string &prefi
 
   // tolerance gap between inner1 and inner2, needed to prevent overlap due to
   // floating point roundoff
-  G4double hhgap = 0.5e-7;  // half the needed gap between the front and back of the PMT
+  G4double hhgap = 0.5e-3;  // half the needed gap between the front and back of the PMT
   G4double toleranceGapRadius = fParams.rInner[inner_equator_idx];  // gap goes at equator
 
   G4Tubs *central_gap_solid =
