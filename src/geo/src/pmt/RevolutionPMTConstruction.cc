@@ -85,6 +85,26 @@ G4LogicalVolume *RevolutionPMTConstruction::BuildVolume(const std::string &prefi
       break;
     }
   }
+  if (inner_equator_idx == 0) {
+    Log::Die("RevolutionPMTConstruction: inner equator not found");
+  }
+  // Snap to zero for inner equator, since we need to transition from photocathode to mirror at z=0
+  if (abs(fParams.zInner[inner_equator_idx]) < 1e-3) {
+    fParams.zInner[inner_equator_idx] = 0.0;
+  } else if (abs(fParams.zInner[inner_equator_idx - 1]) < 1e-3) {
+    fParams.zInner[inner_equator_idx - 1] = 0.0;
+    inner_equator_idx -= 1;
+  } else {
+    // linear interpolate what the radius should be at z=0
+    double &za = fParams.zInner[inner_equator_idx - 1];
+    double &zb = fParams.zInner[inner_equator_idx];
+    double &ra = fParams.rInner[inner_equator_idx - 1];
+    double &rb = fParams.rInner[inner_equator_idx];
+    double r0 = ra + (rb - ra) * (0.0 - za) / (zb - za);
+    fParams.zInner.insert(fParams.zInner.begin() + inner_equator_idx, 0.0);
+    fParams.rInner.insert(fParams.rInner.begin() + inner_equator_idx, r0);
+  }
+
   size_t edge_equator_idx;  // defined as zero in z
   for (edge_equator_idx = 0; edge_equator_idx < fParams.zEdge.size(); edge_equator_idx++) {
     if (fParams.zEdge[edge_equator_idx] <= 0.0) {
