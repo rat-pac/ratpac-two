@@ -80,8 +80,9 @@ class GLG4TorusStack : public G4CSGSolid {
   G4double GetZEdge(int i) const { return z_edge[i]; }
   G4double GetRhoEdge(int i) const { return rho_edge[i]; }
   G4double GetZo(int i) const { return z_o[i]; }
-  G4double GetA(int i) const { return a[i]; }
-  G4double GetB(int i) const { return b[i]; }
+  G4double GetRo(int i) const { return r_o[i]; }
+  G4double GetRadius(int i) const { return radius[i]; }
+  GLG4TorusStack *GetInner() const { return inner; }
 
   EInside Inside(const G4ThreeVector &p) const;
 
@@ -151,8 +152,8 @@ class GLG4TorusStack : public G4CSGSolid {
   double *z_edge;                  // n+1 edges of Z-segments
   double *rho_edge;                // n+1 2-d distance from Z-axis at each edge
   double *z_o;                     // z-origins, one for each toroid segment (n total)
-  double *a;                       // swept radii, one for each toroid segment (n total)
-  double *b;                       // torus radii, one for each toroid segment (n total)
+  double *r_o;                     // swept radii, one for each toroid segment (n total)
+  double *radius;                  // torus radii, one for each toroid segment (n total)
   double max_rho;                  // maxium distance of surface from Z axis
   double myRadTolerance;           // because Geant4.1.0 default is too small
   static double surfaceTolerance;  // in GEANT4.9.0 it is not a global const

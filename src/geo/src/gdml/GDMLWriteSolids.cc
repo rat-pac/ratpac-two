@@ -803,7 +803,7 @@ void GDMLWriteSolids::GLG4TorusStackWrite(xercesc::DOMElement* solElement, const
     if (i < n_segments) {
       xercesc::DOMElement* originElement = NewElement("origin");
       originElement->setAttributeNode(NewAttribute("z", torusStack->GetZo(i) / mm));
-      originElement->setAttributeNode(NewAttribute("rho", torusStack->GetA(i) / mm));
+      originElement->setAttributeNode(NewAttribute("rho", torusStack->GetRo(i) / mm));
       torusStackElement->appendChild(originElement);
     }
   }

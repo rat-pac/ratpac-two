@@ -22,6 +22,8 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
+#include <Randomize.hh>
+
 #include "G4AffineTransform.hh"
 #include "G4GeometryTolerance.hh"
 #include "G4Polyhedron.hh"
@@ -85,8 +87,8 @@ void GLG4TorusStack::SetAllParameters(G4int n_,                  // number of Z-
     delete[] z_edge;
     delete[] rho_edge;
     delete[] z_o;
-    delete[] a;
-    delete[] b;
+    delete[] r_o;
+    delete[] radius;
     n = 0;
   }
   if (n_ <= 0) return;
@@ -96,8 +98,8 @@ void GLG4TorusStack::SetAllParameters(G4int n_,                  // number of Z-
   z_edge = new G4double[n + 1];
   rho_edge = new G4double[n + 1];
   z_o = new G4double[n];
-  a = new G4double[n];
-  b = new G4double[n];
+  r_o = new G4double[n];
+  radius = new G4double[n];
 
   // copy arrays, and check for monotonicity
   n_increasing = 0;
@@ -139,17 +141,17 @@ void GLG4TorusStack::SetAllParameters(G4int n_,                  // number of Z-
                   " (Please subdivide your TorusStack)");
     }
     if (rho_edge[i] == rho_edge[i + 1]) {  // cylinder -- special case!
-      a[i] = rho_edge[i];
-      b[i] = 0.0;
+      r_o[i] = rho_edge[i];
+      radius[i] = 0.0;
     } else {
-      a[i] =
+      r_o[i] =
           (((z_edge[i + 1] - z_edge[i]) * (z_edge[i + 1] + z_edge[i] - 2 * z_o[i]) / (rho_edge[i + 1] - rho_edge[i])) +
            (rho_edge[i + 1] + rho_edge[i])) /
           2.0;
-      b[i] = sqrt(square(z_edge[i] - z_o[i]) + square(rho_edge[i] - a[i]));
-      if (rho_edge[i] < a[i] + radTolerance && rho_edge[i + 1] < a[i] + radTolerance) {
-        if (rho_edge[i] < a[i] - radTolerance || rho_edge[i + 1] < a[i] - radTolerance) {
-          b[i] = -b[i];
+      radius[i] = sqrt(square(z_edge[i] - z_o[i]) + square(rho_edge[i] - r_o[i]));
+      if (rho_edge[i] < r_o[i] + radTolerance && rho_edge[i + 1] < r_o[i] + radTolerance) {
+        if (rho_edge[i] < r_o[i] - radTolerance || rho_edge[i + 1] < r_o[i] - radTolerance) {
+          radius[i] = -radius[i];
         } else {
           RAT::warn << "Warning: ambiguous toroid segment curvature in "
                        "GLG4TorusStack!"
@@ -188,13 +190,13 @@ void GLG4TorusStack::CheckABRho() {
 
   for (int i = 0; i < n; i++) {
     // check validity of rho_edges given derived a[i] values
-    if (b[i] > 0) {
+    if (radius[i] > 0) {
       // make sure both rho_edges are >= a[i]
-      if (rho_edge[i] < a[i]) {
-        if (fabs(a[i] - rho_edge[i]) > max_rho * 1e-3 + radTolerance)
+      if (rho_edge[i] < r_o[i]) {
+        if (fabs(r_o[i] - rho_edge[i]) > max_rho * 1e-3 + radTolerance)
           RAT::warn << "Warning: GLG4TorusStack making sizeable adjustment to "
                        "rho_edge["
-                    << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (1)\n";
+                    << i << "]: old " << rho_edge[i] << ", new " << r_o[i] << " (1)\n";
 #ifdef G4DEBUG
         else
           RAT::debug << "Debug info: GLG4TorusStack making small adjustment to "
@@ -202,13 +204,13 @@ void GLG4TorusStack::CheckABRho() {
                      << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (1a)\n";
 #endif
         // valid intercept is on other side of a[i]
-        rho_edge[i] = a[i] + (a[i] - rho_edge[i]);
+        rho_edge[i] = r_o[i] + (r_o[i] - rho_edge[i]);
       }
-      if (rho_edge[i + 1] < a[i]) {
-        if (fabs(a[i] - rho_edge[i + 1]) > max_rho * 1e-3 + radTolerance)
+      if (rho_edge[i + 1] < r_o[i]) {
+        if (fabs(r_o[i] - rho_edge[i + 1]) > max_rho * 1e-3 + radTolerance)
           RAT::warn << "Warning: GLG4TorusStack making sizeable adjustment to "
                        "rho_edge["
-                    << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (2)\n";
+                    << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << r_o[i] << " (2)\n";
 #ifdef G4DEBUG
         else
           RAT::debug << "Debug info: GLG4TorusStack making small adjustment to "
@@ -216,15 +218,15 @@ void GLG4TorusStack::CheckABRho() {
                      << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (2a)\n";
 #endif
         // valid intercept is on other side of a[i]
-        rho_edge[i + 1] = a[i] + (a[i] - rho_edge[i + 1]);
+        rho_edge[i + 1] = r_o[i] + (r_o[i] - rho_edge[i + 1]);
       }
     } else {
       // make sure both rho_edges are <= a[i]
-      if (rho_edge[i] > a[i]) {
-        if (fabs(a[i] - rho_edge[i]) > max_rho * 1e-3 + radTolerance)
+      if (rho_edge[i] > r_o[i]) {
+        if (fabs(r_o[i] - rho_edge[i]) > max_rho * 1e-3 + radTolerance)
           RAT::warn << "Warning: GLG4TorusStack making sizeable adjustment to "
                        "rho_edge["
-                    << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (3)\n";
+                    << i << "]: old " << rho_edge[i] << ", new " << r_o[i] << " (3)\n";
 #ifdef G4DEBUG
         else
           RAT::warn << "Debug info: GLG4TorusStack making small adjustment to "
@@ -232,13 +234,13 @@ void GLG4TorusStack::CheckABRho() {
                     << i << "]: old " << rho_edge[i] << ", new " << a[i] << " (3a)\n";
 #endif
         // valid intercept is on other side of a[i]
-        rho_edge[i] = a[i] - (rho_edge[i] - a[i]);
+        rho_edge[i] = r_o[i] - (rho_edge[i] - r_o[i]);
       }
-      if (rho_edge[i + 1] > a[i]) {
-        if (fabs(a[i] - rho_edge[i + 1]) > max_rho * 1e-3 + radTolerance)
+      if (rho_edge[i + 1] > r_o[i]) {
+        if (fabs(r_o[i] - rho_edge[i + 1]) > max_rho * 1e-3 + radTolerance)
           RAT::warn << "Warning: GLG4TorusStack making sizeable adjustment to "
                        "rho_edge["
-                    << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (4)\n";
+                    << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << r_o[i] << " (4)\n";
 #ifdef G4DEBUG
         else
           RAT::debug << "Debug info: GLG4TorusStack making small adjustment to "
@@ -246,7 +248,7 @@ void GLG4TorusStack::CheckABRho() {
                      << i + 1 << "]: old " << rho_edge[i + 1] << ", new " << a[i] << " (4a)\n";
 #endif
         // valid intercept is on other side of a[i]
-        rho_edge[i + 1] = a[i] - (rho_edge[i + 1] - a[i]);
+        rho_edge[i + 1] = r_o[i] - (rho_edge[i + 1] - r_o[i]);
       }
     }
   }
@@ -695,13 +697,13 @@ EInside GLG4TorusStack::Inside1(const G4ThreeVector &p) const {
 
   // detailed check
   G4double drtor;
-  if (b[i] == 0.0) {
-    drtor = rp - a[i];
+  if (radius[i] == 0.0) {
+    drtor = rp - r_o[i];
   } else {
-    if ((b[i] > 0.0) ? (rp >= a[i]) : (rp <= a[i])) {
-      drtor = 0.5 * ((square(rp - a[i]) + square(p.z() - z_o[i])) / b[i] - b[i]);
+    if ((radius[i] > 0.0) ? (rp >= r_o[i]) : (rp <= r_o[i])) {
+      drtor = 0.5 * ((square(rp - r_o[i]) + square(p.z() - z_o[i])) / radius[i] - radius[i]);
     } else {
-      drtor = 0.5 * (square(p.z() - z_o[i]) / b[i] - b[i]);
+      drtor = 0.5 * (square(p.z() - z_o[i]) / radius[i] - radius[i]);
     }
   }
 
@@ -745,23 +747,23 @@ G4ThreeVector GLG4TorusStack::SurfaceNormal(const G4ThreeVector &p) const {
     norm = G4ThreeVector(0.0, 0.0, +1.0);
   } else if (pr == 0.0) {  // point is on z-axis -- it is silly!
     norm = G4ThreeVector(0.0, 0.0, +1.0);
-  } else if (b[i] == 0.0) {  // cylindrical surface
+  } else if (radius[i] == 0.0) {  // cylindrical surface
     norm = G4ThreeVector(p.x() / pr, p.y() / pr, 0.0);
   } else {  // toroidal surface
     G4double dz = pz - z_o[i];
-    G4double dr = pr - a[i];
+    G4double dr = pr - r_o[i];
     G4double nrm = glg4_hypot(dz, dr);
     if (nrm == 0.0) {  // point is at center of toroid x-section -- ok
       norm = G4ThreeVector(p.x() / pr, p.y() / pr, 0.0);
     } else {  // this is the usual case
       norm = G4ThreeVector(p.x() * dr / (pr * nrm), p.y() * dr / (pr * nrm), dz / nrm);
     }
-    if (b[i] < 0.0)  // handle concave surface
+    if (radius[i] < 0.0)  // handle concave surface
       norm = -norm;
-    if ((b[i] < 0.0) != (dr < 0.0)) {
+    if ((radius[i] < 0.0) != (dr < 0.0)) {
       RAT::warn << "Warning from GLG4TorusStack::SurfaceNormal: position "
                    "inconsistent with concavity\n\tb[i]="
-                << b[i] << " but a[i]=" << a[i] << " and pr=" << pr << newline;
+                << radius[i] << " but a[i]=" << r_o[i] << " and pr=" << pr << newline;
     }
   }
 
@@ -881,8 +883,8 @@ G4double GLG4TorusStack::DistanceToIn(const G4ThreeVector &p, const G4ThreeVecto
         s = tmin + sqrt(tmin * tmin + (r_out2 - rp2) / rv2) + myRadTolerance;
         if (s1 < s && s2 > s) s2 = s;  // clip maximum distance of root
       }
-      nroots = FindFirstTorusRoot(a[iedge],                                         // swept radius
-                                  b[iedge],                                         // cross-section radius
+      nroots = FindFirstTorusRoot(r_o[iedge],                                       // swept radius
+                                  radius[iedge],                                    // cross-section radius
                                   G4ThreeVector(p.x(), p.y(), p.z() - z_o[iedge]),  // start
                                   v,                                                // ray direction
                                   s1, s2, true,
@@ -1035,8 +1037,8 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
         s = tmin + sqrt(tmin * tmin + (max_rho * max_rho - rp2) / rv2) + myRadTolerance;
         if (s1 < s && s2 > s) s2 = s;  // clip maximum distance of root
       }
-      nroots = FindFirstTorusRoot(a[iedge],                                         // swept radius
-                                  b[iedge],                                         // cross-section radius
+      nroots = FindFirstTorusRoot(r_o[iedge],                                       // swept radius
+                                  radius[iedge],                                    // cross-section radius
                                   G4ThreeVector(p.x(), p.y(), p.z() - z_o[iedge]),  // start
                                   v,                                                // ray direction
                                   s1, s2, false,
@@ -1086,26 +1088,26 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
       if (pr == 0.0) {  // point is on z-axis -- it is silly!
         *norm = G4ThreeVector(0.0, 0.0, +1.0);
         *validNorm = false;
-      } else if (b[isurface] == 0.0) {  // cylindrical surface
+      } else if (radius[isurface] == 0.0) {  // cylindrical surface
         *norm = G4ThreeVector(psurf.x() / pr, psurf.y() / pr, 0.0);
         *validNorm = true;
       } else {  // toroidal surface
         G4double dz = pz - z_o[isurface];
-        G4double dr = pr - a[isurface];
+        G4double dr = pr - r_o[isurface];
         G4double nrm = glg4_hypot(dz, dr);
         if (nrm == 0.0) {  // point is at center of toroid x-section -- ok
           *norm = G4ThreeVector(psurf.x() / pr, psurf.y() / pr, 0.0);
         } else {  // this is the usual case
           *norm = G4ThreeVector(psurf.x() * dr / (pr * nrm), psurf.y() * dr / (pr * nrm), dz / nrm);
         }
-        if (b[isurface] < 0.0)  // handle concave surface
+        if (radius[isurface] < 0.0)  // handle concave surface
           *norm = -*norm;
         *validNorm = true; /* (b[isurface] > 0.0); */
-        if (dr != 0.0 && (b[isurface] < 0.0) != (dr < 0.0)) {
+        if (dr != 0.0 && (radius[isurface] < 0.0) != (dr < 0.0)) {
           RAT::warn << "Warning from GLG4TorusStack::DistanceToOut (surface "
                        "normal calculation): position inconsistent with "
                        "concavity\n\tb[isurface]="
-                    << b[isurface] << " but a[isurface]=" << a[isurface] << " and pr=" << pr << newline;
+                    << radius[isurface] << " but a[isurface]=" << r_o[isurface] << " and pr=" << pr << newline;
         }
       }
     }
@@ -1113,7 +1115,7 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
       G4cerr << "Warning from GLG4TorusStack::DistanceToOut: I have calculated "
                 "a normal that is antiparallel to the momentum std::vector!  I must "
                 "have done something wrong! isurface="
-             << isurface << " a[isurface]=" << a[isurface] << " b[isurface]=" << b[isurface] << " v=" << v
+             << isurface << " a[isurface]=" << r_o[isurface] << " b[isurface]=" << radius[isurface] << " v=" << v
              << " norm=" << (*norm) << newline;
       *norm = -*norm;
     }
@@ -1375,9 +1377,9 @@ GLG4PolyhedronTorusStack::GLG4PolyhedronTorusStack(const G4int n, const G4double
 
 G4Polyhedron *GLG4TorusStack::CreatePolyhedron() const {
   if (inner == NULL) {
-    return new GLG4PolyhedronTorusStack(n, z_edge, rho_edge, z_o, a, b, 0, NULL, NULL, NULL, NULL, NULL);
+    return new GLG4PolyhedronTorusStack(n, z_edge, rho_edge, z_o, r_o, radius, 0, NULL, NULL, NULL, NULL, NULL);
   } else {
-    return new GLG4PolyhedronTorusStack(n, z_edge, rho_edge, z_o, a, b, inner->n, inner->z_edge, inner->rho_edge,
-                                        inner->z_o, inner->a, inner->b);
+    return new GLG4PolyhedronTorusStack(n, z_edge, rho_edge, z_o, r_o, radius, inner->n, inner->z_edge, inner->rho_edge,
+                                        inner->z_o, inner->r_o, inner->radius);
   }
 }
