@@ -3,6 +3,24 @@
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
+inline static std::string s_recv(zmq::socket_t& socket, int flags = 0) {
+  zmq::message_t message;
+  auto recv_flags = (flags == 0) ? zmq::recv_flags::none : zmq::recv_flags::dontwait;
+  (void)socket.recv(message, recv_flags);
+
+  return std::string(static_cast<const char*>(message.data()), message.size());
+}
+
+template <typename T>
+inline static void copy_to_vector(zmq::message_t& msg, std::vector<T>& dest) {
+  dest.resize(msg.size() / sizeof(T));
+  std::memcpy(dest.data(), msg.data(), msg.size());
+}
+
+inline static zmq::send_result_t send_string(zmq::socket_t& client, const std::string& msg) {
+  return client.send(zmq::buffer(msg), zmq::send_flags::none);
+}
+
 namespace RAT {
 
 void PhotonData::resize(uint32_t _numphotons) {
@@ -20,22 +38,72 @@ void PhotonData::resize(uint32_t _numphotons) {
   t.resize(_numphotons);
 }
 
-void *PhotonData::fillmsg(void *dest) {
-  // TODO
-  return dest;
+void PhotonData::clear() {
+  numphotons = 0;
+  x.clear();
+  y.clear();
+  z.clear();
+  dx.clear();
+  dy.clear();
+  dz.clear();
+  polx.clear();
+  poly.clear();
+  polz.clear();
+  wavelength.clear();
+  t.clear();
 }
 
-void *PhotonData::readmsg(void *src, size_t size) {
-  // TODO
-  return src;
+zmq::send_result_t PhotonData::send(zmq::socket_t& client) {
+  info << "CHROMA-ZMQ: Sending photon data to Chroma..." << newline;
+  std::vector<zmq::mutable_buffer> msg;
+  std::string header = PHOTONDATA;
+  msg.push_back(zmq::buffer(header));
+  std::vector<uint32_t> metadata = {event, numphotons};
+  msg.push_back(zmq::buffer(metadata));
+  msg.push_back(zmq::buffer(x));
+  msg.push_back(zmq::buffer(y));
+  msg.push_back(zmq::buffer(z));
+  msg.push_back(zmq::buffer(dx));
+  msg.push_back(zmq::buffer(dy));
+  msg.push_back(zmq::buffer(dz));
+  msg.push_back(zmq::buffer(polx));
+  msg.push_back(zmq::buffer(poly));
+  msg.push_back(zmq::buffer(polz));
+  msg.push_back(zmq::buffer(wavelength));
+  msg.push_back(zmq::buffer(t));
+  return zmq::send_multipart(client, msg);
 }
 
-size_t PhotonData::size() {
-  // FIXME: WTF is all this magic numbers?
-  return 2 * sizeof(uint32_t) + 11 * sizeof(float) * numphotons;
+void PEData::resize(uint32_t _num_pe) {
+  numPE = _num_pe;
+  channel_ids.resize(_num_pe);
+  wavelengths.resize(_num_pe);
+  times.resize(_num_pe);
 }
 
-void Chroma::addPhoton(const G4ThreeVector &pos, const G4ThreeVector &dir, const G4ThreeVector &pol, const float energy,
+void PEData::clear() {
+  numPE = 0;
+  channel_ids.clear();
+  wavelengths.clear();
+  times.clear();
+}
+
+bool PEData::readmsg(std::vector<zmq::message_t>& recv_msgs) {
+  std::string header = recv_msgs[0].to_string();
+  if (header == SIM_COMPLETE && recv_msgs.size() > 4 && *(recv_msgs[1].data<uint32_t>()) == event) {
+    info << "CHROMA-ZMQ: Received PE data!" << newline;
+    copy_to_vector<uint32_t>(recv_msgs[2], channel_ids);
+    copy_to_vector<float>(recv_msgs[3], times);
+    copy_to_vector<float>(recv_msgs[4], wavelengths);
+    numPE = channel_ids.size();
+    return true;
+  }
+  warn << "CHROMA-ZMQ: PE DATA RESPONSE DID NOT PASS VALIDATION!" << newline;
+  warn << "Header: " << header << newline;
+  return false;
+}
+
+void Chroma::addPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float energy,
                        const float t) {
   photons.numphotons++;
   photons.x.push_back(pos.x() / CLHEP::mm);
@@ -51,40 +119,125 @@ void Chroma::addPhoton(const G4ThreeVector &pos, const G4ThreeVector &dir, const
   photons.t.push_back(t / CLHEP::ns);
 }
 
-Chroma::Chroma(const std::string filename) {
+Chroma::Chroma(DBLinkPtr chroma_db)
+    : address(chroma_db->GetS("address")), timeout(chroma_db->GetI("timeout")), retries(chroma_db->GetI("retries")) {
+  initializeTree(chroma_db->GetS("filename"));
+  context = zmq::context_t();
+  // perform ping handshake
+  bool good_ping = do_send_and_recv(
+      [this](zmq::socket_t& client) -> zmq::send_result_t { return send_string(client, PING); },
+      [this](std::vector<zmq::message_t>& recv_msgs) -> bool { return recv_msgs[0].to_string() == PONG; });
+  if (good_ping) {
+    info << "CHROMA-ZMQ: PING SUCCESSFUL -- Server is online!" << newline;
+  } else {
+    Log::Die("CHROMA-ZMQ: PING FAILED -- No response from server!");
+  }
+
+  // get detector info from chroma
+  bool good_detinfo = do_send_and_recv(
+      [this](zmq::socket_t& client) -> zmq::send_result_t { return send_string(client, DETECTOR_INFO); },
+      [this](std::vector<zmq::message_t>& recv_msgs) -> bool { return process_detinfo_reply(recv_msgs); });
+  if (good_detinfo) {
+    info << "CHROMA-ZMQ: DETECTOR INFO SUCCESSFUL!" << newline;
+  } else {
+    Log::Die("CHROMA-ZMQ: DETECTOR INFO FAILED!");
+  }
+}
+
+void Chroma::initializeTree(const std::string& filename) {
   file = new TFile(filename.c_str(), "RECREATE");
-  tree = new TTree("photons", "Photon information");
-  tree->Branch("nPhotons", &(photons.numphotons));
-  tree->Branch("x", &(photons.x));
-  tree->Branch("y", &(photons.y));
-  tree->Branch("z", &(photons.z));
-  tree->Branch("u", &(photons.dx));
-  tree->Branch("v", &(photons.dy));
-  tree->Branch("w", &(photons.dz));
-  tree->Branch("polx", &(photons.polx));
-  tree->Branch("poly", &(photons.poly));
-  tree->Branch("polz", &(photons.polz));
-  tree->Branch("wavelength", &(photons.wavelength));
-  tree->Branch("t", &(photons.t));
+  tree = new TTree("MCPEs", "MC Photoelectron information");
+  tree->Branch("nPEs", &(pes.numPE));
+  tree->Branch("evt_id", &(pes.event));
+  tree->Branch("channel_id", &(pes.channel_ids));
+  tree->Branch("wavelength", &(pes.wavelengths));
+  tree->Branch("t", &(pes.times));
 }
 
-void Chroma::fillEvent() {
-  tree->Fill();
-  photons.numphotons = 0;
-  photons.x.clear();
-  photons.y.clear();
-  photons.z.clear();
-  photons.dx.clear();
-  photons.dy.clear();
-  photons.dz.clear();
-  photons.polx.clear();
-  photons.poly.clear();
-  photons.polz.clear();
-  photons.wavelength.clear();
-  photons.t.clear();
+zmq::socket_t Chroma::s_client_socket() {
+  zmq::socket_t client(context, ZMQ_REQ);
+  client.connect(address);
+  //  Configure socket to not wait at close time
+  int linger = 0;
+  client.set(zmq::sockopt::linger, linger);
+  return client;
 }
 
-void Chroma::writeTree() {
+void Chroma::eventAction() {
+  pes.event = photons.event;
+  bool good_reply =
+      do_send_and_recv([this](zmq::socket_t& client) -> zmq::send_result_t { return photons.send(client); },
+                       [this](std::vector<zmq::message_t>& recv_msgs) -> bool { return pes.readmsg(recv_msgs); });
+  if (!good_reply) {
+    warn << "CHROMA-ZMQ: Failed to receive valid response from server!" << newline;
+  } else {
+    tree->Fill();
+  }
+  /////////////////////
+  photons.clear();
+  pes.clear();
+}
+
+bool Chroma::process_detinfo_reply(std::vector<zmq::message_t>& recv_msgs) {
+  std::string header = recv_msgs[0].to_string();
+  if (header == DETECTOR_INFO) {
+    info << "CHROMA-ZMQ: Received detector info!" << newline;
+    std::vector<float> pmt_x, pmt_y, pmt_z;
+    copy_to_vector<float>(recv_msgs[1], pmt_x);
+    copy_to_vector<float>(recv_msgs[2], pmt_y);
+    copy_to_vector<float>(recv_msgs[3], pmt_z);
+    std::vector<int32_t> pmt_type;
+    copy_to_vector<int32_t>(recv_msgs[4], pmt_type);
+    TTree* pmt_tree = new TTree("DetInfo", "Detector Information");
+    pmt_tree->Branch("pmt_x", &pmt_x);
+    pmt_tree->Branch("pmt_y", &pmt_y);
+    pmt_tree->Branch("pmt_z", &pmt_z);
+    pmt_tree->Branch("pmt_type", &pmt_type);
+    pmt_tree->Fill();
+    pmt_tree->Write();
+    return true;
+  }
+  warn << "CHROMA-ZMQ: DETECTOR INFO RESPONSE DID NOT PASS VALIDATION!" << newline;
+  return false;
+}
+
+bool Chroma::do_send_and_recv(std::function<zmq::send_result_t(zmq::socket_t&)> send_fn,
+                              std::function<bool(std::vector<zmq::message_t>&)> recv_fn) {
+  zmq::socket_t client = Chroma::s_client_socket();
+  size_t retries_left = retries;
+  if (!send_fn(client)) warn << "Send has failed!" << newline;
+
+  bool expect_reply = true;
+  bool valid_response = false;
+  while (expect_reply) {
+    zmq::pollitem_t items[] = {{client, 0, ZMQ_POLLIN, 0}};
+    zmq::poll(&items[0], 1, timeout);
+    retries_left--;
+    if (items[0].revents & ZMQ_POLLIN) {  // received reply
+      std::vector<zmq::message_t> recv_msgs;
+      const zmq::recv_result_t recv_flag = zmq::recv_multipart(client, std::back_inserter(recv_msgs));
+      if (!recv_flag) warn << "RECV FAILED!" << newline;
+      valid_response = recv_fn(recv_msgs);
+      if (valid_response) {
+        expect_reply = false;
+      } else {
+        warn << "did not receive valid response, retrying..." << newline;
+      }
+    } else if (retries_left == 0) {
+      warn << "server seems to be offline, abandoning..." << newline;
+      expect_reply = false;
+    } else {
+      warn << "no response from server, retrying..." << newline;
+      // old socket is confused; close it and open a new one
+      client = Chroma::s_client_socket();
+      // send message again
+      if (!send_fn(client)) warn << "Send has failed!" << newline;
+    }
+  }
+  return valid_response;
+}
+
+void Chroma::endOfRun() {
   tree->Write();
   tree->Print();
   file->Write();

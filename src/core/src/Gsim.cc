@@ -169,11 +169,11 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
   DBLinkPtr lmc = DB::Get()->GetLink("MC");
   runID = DB::Get()->GetDefaultRun();
   utc = TTimeStamp();  // default to now
-  abort_photons = lmc->GetZ("abort_photons");
-  if (abort_photons) {
+  use_chroma = lmc->GetZ("use_chroma");
+  if (use_chroma) {
     warn << "Gsim: Aborting photons at user request" << newline;
-    std::string photon_dump_fname = lmc->GetS("photon_dump_file");
-    chroma = new Chroma(photon_dump_fname);
+    DBLinkPtr lchroma = DB::Get()->GetLink("CHROMA");
+    chroma = new Chroma(lchroma);
   }
 
   info << "Gsim: Simulating run " << runID << newline;
@@ -238,8 +238,8 @@ void Gsim::EndOfRunAction(const G4Run * /*arun*/) {
     info << "Gsim: Tracking aborted for " << nabort << " events exceeding " << maxpe << " photoelectrons" << newline;
   }
   mainBlock->EndOfRun(run);
-  if (abort_photons) {
-    chroma->writeTree();
+  if (use_chroma) {
+    chroma->endOfRun();
   }
 }
 
@@ -258,6 +258,9 @@ void Gsim::BeginOfEventAction(const G4Event *anEvent) {
   if (StoreOpticalTrackID) {
     OpticalPhotonIDs.resize(10000);
   }
+  if (use_chroma) {
+    chroma->setEventID(anEvent->GetEventID());
+  }
 }
 
 void Gsim::EndOfEventAction(const G4Event *anEvent) {
@@ -270,8 +273,8 @@ void Gsim::EndOfEventAction(const G4Event *anEvent) {
 
   // Let main processor block process the event
   mainBlock->DSEvent(ds);
-  if (abort_photons) {
-    chroma->fillEvent();
+  if (use_chroma) {
+    chroma->eventAction();
   }
 
   delete ds;
@@ -351,7 +354,7 @@ void Gsim::PreUserTrackingAction(const G4Track *aTrack) {
       eventInfo->numCerenkovPhoton++;
     }
 
-    if (abort_photons) {
+    if (use_chroma) {
       const G4ThreeVector pos = aTrack->GetPosition();
       const G4ThreeVector dir = aTrack->GetMomentumDirection();
       const G4ThreeVector pol = aTrack->GetPolarization();

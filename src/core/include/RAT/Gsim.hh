@@ -92,7 +92,7 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
   TTimeStamp utc;
   int maxpe;
   int nabort;
-  bool abort_photons;
+  bool use_chroma;
   Chroma *chroma;
 
   /** PMT and noise simulation */

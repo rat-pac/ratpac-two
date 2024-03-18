@@ -58,6 +58,17 @@ else()
   set(TENSORFLOW_LIBRARIES "")
 endif()
 
+set (ZeroMQ_Enabled 0)
+find_package(ZeroMQ)
+if(ZeroMQ_FOUND)
+  message(STATUS "Compiling with ZeroMQ")
+  message(STATUS ${ZeroMQ_INCLUDE_DIR})
+  include_directories(${ZeroMQ_INCLUDE_DIR})
+  set(ZeroMQ_Enabled 1)
+else()
+  message(WARNING "ZeroMQ Not Found")
+  set(ZeroMQ_LIBRARY "")
+endif()
 
 ###########################################################
 # Options
