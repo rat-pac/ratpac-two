@@ -516,9 +516,9 @@ Writer::Writer(std::ostream &stream) : out(stream) {}
 
 Writer::~Writer() {}
 
-void Writer::putValue(const Value &value) {
+void Writer::putValue(const Value &value, const std::string &delim) {
   writeValue(value, "");
-  out << '\n';
+  out << delim;
 }
 
 void Writer::writeValue(const Value &value, const std::string &depth) {

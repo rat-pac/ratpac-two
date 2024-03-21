@@ -1,0 +1,236 @@
+#include <RAT/GDMLParser.hh>
+#include <RAT/GDMLWriteStructure.hh>
+
+#include "G4LogicalVolumeStore.hh"
+#include "G4ProductionCuts.hh"
+#include "G4ReflectionFactory.hh"
+#include "G4RegionStore.hh"
+#include "G4Track.hh"
+#include "G4UnitsTable.hh"
+#include "G4UserLimits.hh"
+
+namespace RAT {
+
+// --------------------------------------------------------------------
+GDMLParser::GDMLParser() : strip(true) {
+  reader = new G4GDMLReadStructure;
+  writer = new GDMLWriteStructure;
+  messenger = new GDMLMessenger(this);
+
+  xercesc::XMLPlatformUtils::Initialize();
+}
+
+// --------------------------------------------------------------------
+GDMLParser::GDMLParser(G4GDMLReadStructure* extr) : urcode(true), strip(true) {
+  reader = extr;
+  writer = new GDMLWriteStructure;
+  messenger = new GDMLMessenger(this);
+
+  xercesc::XMLPlatformUtils::Initialize();
+}
+
+// --------------------------------------------------------------------
+GDMLParser::GDMLParser(G4GDMLReadStructure* extr, GDMLWriteStructure* extw) : urcode(true), uwcode(true), strip(true) {
+  reader = extr;
+  writer = extw;
+  messenger = new GDMLMessenger(this);
+
+  xercesc::XMLPlatformUtils::Initialize();
+}
+
+// --------------------------------------------------------------------
+GDMLParser::~GDMLParser() {
+  xercesc::XMLPlatformUtils::Terminate();
+  if (!urcode) {
+    delete reader;
+  }
+  if (!uwcode) {
+    delete writer;
+  }
+  delete ullist;
+  delete rlist;
+
+  delete messenger;
+}
+
+// --------------------------------------------------------------------
+void GDMLParser::ImportRegions() {
+  G4ReflectionFactory* reflFactory = G4ReflectionFactory::Instance();
+  const G4GDMLAuxListType* auxInfoList = GetAuxList();
+  for (auto iaux = auxInfoList->cbegin(); iaux != auxInfoList->cend(); ++iaux) {
+    if (iaux->type != "Region") continue;
+
+    G4String name = iaux->value;
+    if (strip) {
+      reader->StripName(name);
+    }
+    if (G4StrUtil::contains(name, "DefaultRegionForTheWorld")) continue;
+
+    if (!iaux->auxList) {
+      G4Exception("GDMLParser::ImportRegions()", "ReadError", FatalException,
+                  "Invalid definition of geometrical region!");
+    } else  // Create region and loop over all region attributes
+    {
+      G4Region* aRegion = new G4Region(name);
+      G4ProductionCuts* pcuts = new G4ProductionCuts();
+      aRegion->SetProductionCuts(pcuts);
+      for (auto raux = iaux->auxList->cbegin(); raux != iaux->auxList->cend(); ++raux) {
+        const G4String& tag = raux->type;
+        if (tag == "volume") {
+          G4String volname = raux->value;
+          if (strip) {
+            reader->StripName(volname);
+          }
+          G4LogicalVolumeStore* store = G4LogicalVolumeStore::GetInstance();
+          auto pos = store->GetMap().find(volname);
+          if (pos != store->GetMap().cend()) {
+            // Scan for all possible volumes with same name
+            // and set them as root logical volumes for the region...
+            // Issue a notification in case more than one logical volume
+            // with same name exist and get set.
+            //
+            if (pos->second.size() > 1) {
+              std::ostringstream message;
+              message << "There exists more than ONE logical volume "
+                      << "in store named: " << volname << "." << G4endl
+                      << "NOTE: assigning all such volumes as root logical "
+                      << "volumes for region: " << name << "!";
+              G4Exception("GDMLParser::ImportRegions()", "Notification", JustWarning, message);
+            }
+            for (auto vpos = pos->second.cbegin(); vpos != pos->second.cend(); ++vpos) {
+              aRegion->AddRootLogicalVolume(*vpos);
+              if (reflFactory->IsConstituent(*vpos)) aRegion->AddRootLogicalVolume(reflFactory->GetReflectedLV(*vpos));
+            }
+          } else {
+            std::ostringstream message;
+            message << "Volume NOT found in store !" << G4endl << "        Volume " << volname
+                    << " NOT found in store !" << G4endl << "        No region is being set.";
+            G4Exception("GDMLParser::ImportRegions()", "InvalidSetup", JustWarning, message);
+          }
+        } else if (tag == "pcut") {
+          const G4String& cvalue = raux->value;
+          const G4String& cunit = raux->unit;
+          if (G4UnitDefinition::GetCategory(cunit) != "Length") {
+            G4Exception("GDMLParser::ImportRegions()", "InvalidRead", FatalException, "Invalid unit for length!");
+          }
+          G4double cut = eval.Evaluate(cvalue) * G4UnitDefinition::GetValueOf(cunit);
+          pcuts->SetProductionCut(cut, "proton");
+        } else if (tag == "ecut") {
+          const G4String& cvalue = raux->value;
+          const G4String& cunit = raux->unit;
+          if (G4UnitDefinition::GetCategory(cunit) != "Length") {
+            G4Exception("GDMLParser::ImportRegions()", "InvalidRead", FatalException, "Invalid unit for length!");
+          }
+          G4double cut = eval.Evaluate(cvalue) * G4UnitDefinition::GetValueOf(cunit);
+          pcuts->SetProductionCut(cut, "e-");
+        } else if (tag == "poscut") {
+          const G4String& cvalue = raux->value;
+          const G4String& cunit = raux->unit;
+          if (G4UnitDefinition::GetCategory(cunit) != "Length") {
+            G4Exception("GDMLParser::ImportRegions()", "InvalidRead", FatalException, "Invalid unit for length!");
+          }
+          G4double cut = eval.Evaluate(cvalue) * G4UnitDefinition::GetValueOf(cunit);
+          pcuts->SetProductionCut(cut, "e+");
+        } else if (tag == "gamcut") {
+          const G4String& cvalue = raux->value;
+          const G4String& cunit = raux->unit;
+          if (G4UnitDefinition::GetCategory(cunit) != "Length") {
+            G4Exception("GDMLParser::ImportRegions()", "InvalidRead", FatalException, "Invalid unit for length!");
+          }
+          G4double cut = eval.Evaluate(cvalue) * G4UnitDefinition::GetValueOf(cunit);
+          pcuts->SetProductionCut(cut, "gamma");
+        } else if (tag == "ulimits") {
+          G4double ustepMax = DBL_MAX, utrakMax = DBL_MAX, utimeMax = DBL_MAX;
+          G4double uekinMin = 0., urangMin = 0.;
+          const G4String& ulname = raux->value;
+          for (auto uaux = raux->auxList->cbegin(); uaux != raux->auxList->cend(); ++uaux) {
+            const G4String& ultag = uaux->type;
+            const G4String& uvalue = uaux->value;
+            const G4String& uunit = uaux->unit;
+            G4double ulvalue = eval.Evaluate(uvalue) * eval.Evaluate(uunit);
+            if (ultag == "ustepMax") {
+              ustepMax = ulvalue;
+            } else if (ultag == "utrakMax") {
+              utrakMax = ulvalue;
+            } else if (ultag == "utimeMax") {
+              utimeMax = ulvalue;
+            } else if (ultag == "uekinMin") {
+              uekinMin = ulvalue;
+            } else if (ultag == "urangMin") {
+              urangMin = ulvalue;
+            } else {
+              G4Exception("GDMLParser::ImportRegions()", "ReadError", FatalException,
+                          "Invalid definition of user-limits!");
+            }
+          }
+          G4UserLimits* ulimits = new G4UserLimits(ulname, ustepMax, utrakMax, utimeMax, uekinMin, urangMin);
+          aRegion->SetUserLimits(ulimits);
+        } else
+          continue;  // Ignore unknown tags
+      }
+    }
+  }
+}
+
+// --------------------------------------------------------------------
+void GDMLParser::ExportRegions(G4bool storeReferences) {
+  G4RegionStore* rstore = G4RegionStore::GetInstance();
+  G4ReflectionFactory* reflFactory = G4ReflectionFactory::Instance();
+  for (std::size_t i = 0; i < rstore->size(); ++i)
+  // Skip default regions associated to worlds
+  {
+    const G4String& tname = (*rstore)[i]->GetName();
+    if (G4StrUtil::contains(tname, "DefaultRegionForParallelWorld")) continue;
+    const G4String& rname = writer->GenerateName(tname, (*rstore)[i]);
+    rlist = new G4GDMLAuxListType();
+    G4GDMLAuxStructType raux = {"Region", rname, "", rlist};
+    auto rlvol_iter = (*rstore)[i]->GetRootLogicalVolumeIterator();
+    for (std::size_t j = 0; j < (*rstore)[i]->GetNumberOfRootVolumes(); ++j) {
+      G4LogicalVolume* rlvol = *rlvol_iter;
+      if (reflFactory->IsReflected(rlvol)) continue;
+      G4String vname = writer->GenerateName(rlvol->GetName(), rlvol);
+      if (!storeReferences) {
+        reader->StripName(vname);
+      }
+      G4GDMLAuxStructType rsubaux = {"volume", vname, "", 0};
+      rlist->push_back(rsubaux);
+      ++rlvol_iter;
+    }
+    G4double gam_cut = (*rstore)[i]->GetProductionCuts()->GetProductionCut("gamma");
+    G4GDMLAuxStructType caux1 = {"gamcut", eval.ConvertToString(gam_cut), "mm", 0};
+    rlist->push_back(caux1);
+    G4double e_cut = (*rstore)[i]->GetProductionCuts()->GetProductionCut("e-");
+    G4GDMLAuxStructType caux2 = {"ecut", eval.ConvertToString(e_cut), "mm", 0};
+    rlist->push_back(caux2);
+    G4double pos_cut = (*rstore)[i]->GetProductionCuts()->GetProductionCut("e+");
+    G4GDMLAuxStructType caux3 = {"poscut", eval.ConvertToString(pos_cut), "mm", 0};
+    rlist->push_back(caux3);
+    G4double p_cut = (*rstore)[i]->GetProductionCuts()->GetProductionCut("proton");
+    G4GDMLAuxStructType caux4 = {"pcut", eval.ConvertToString(p_cut), "mm", 0};
+    rlist->push_back(caux4);
+    if ((*rstore)[i]->GetUserLimits()) {
+      const G4Track fake_trk;
+      ullist = new G4GDMLAuxListType();
+      const G4String& utype = (*rstore)[i]->GetUserLimits()->GetType();
+      G4GDMLAuxStructType uaux = {"ulimits", utype, "mm", ullist};
+      G4double max_step = (*rstore)[i]->GetUserLimits()->GetMaxAllowedStep(fake_trk);
+      G4GDMLAuxStructType ulaux1 = {"ustepMax", eval.ConvertToString(max_step), "mm", 0};
+      ullist->push_back(ulaux1);
+      G4double max_trk = (*rstore)[i]->GetUserLimits()->GetUserMaxTrackLength(fake_trk);
+      G4GDMLAuxStructType ulaux2 = {"utrakMax", eval.ConvertToString(max_trk), "mm", 0};
+      ullist->push_back(ulaux2);
+      G4double max_time = (*rstore)[i]->GetUserLimits()->GetUserMaxTime(fake_trk);
+      G4GDMLAuxStructType ulaux3 = {"utimeMax", eval.ConvertToString(max_time), "mm", 0};
+      ullist->push_back(ulaux3);
+      G4double min_ekin = (*rstore)[i]->GetUserLimits()->GetUserMinEkine(fake_trk);
+      G4GDMLAuxStructType ulaux4 = {"uekinMin", eval.ConvertToString(min_ekin), "mm", 0};
+      ullist->push_back(ulaux4);
+      G4double min_rng = (*rstore)[i]->GetUserLimits()->GetUserMinRange(fake_trk);
+      G4GDMLAuxStructType ulaux5 = {"urangMin", eval.ConvertToString(min_rng), "mm", 0};
+      ullist->push_back(ulaux5);
+      rlist->push_back(uaux);
+    }
+    AddAuxiliary(raux);
+  }
+}
+}  // namespace RAT
