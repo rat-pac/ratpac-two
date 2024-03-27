@@ -44,6 +44,14 @@ PMTInfoParser::PMTInfoParser(DBLinkPtr lpos_table, const std::string &mother_nam
     fDir.resize(0);
   }
 
+  try {
+    fChannelNumber = lpos_table->GetIArray("channel_number");
+    Log::Assert(fPos.size() == fChannelNumber.size(), "PMTInfoParser: PMTInfo arrays must be same length!");
+  } catch (DBNotFoundError &e) {
+    fChannelNumber.resize(0);
+    fill(fChannelNumber.begin(), fChannelNumber.end(), -1);
+  }
+
   // Logical type of PMT (e.g. normal, veto, etc)
   try {
     fType = lpos_table->GetIArray("type");  // functional type (e.g. inner, veto, etc. - arbitrary integers)

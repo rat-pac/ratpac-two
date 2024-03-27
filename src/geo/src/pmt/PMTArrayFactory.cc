@@ -17,6 +17,7 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
   PMTInfoParser pmtinfo(lpos_table, mother_name);
 
   const std::vector<int> &pmtinfo_types = pmtinfo.GetTypes();
+  const std::vector<int> &pmtinfo_channel_numbers = pmtinfo.GetChannelNumbers();
   const std::vector<G4ThreeVector> &pmtinfo_pos = pmtinfo.GetPMTLocations();
   const std::vector<G4ThreeVector> &pmtinfo_dir = pmtinfo.GetPMTDirections();
   const G4ThreeVector local_offset = pmtinfo.GetLocalOffset();
@@ -102,7 +103,8 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
     }
   }
 
-  return ConstructPMTs(table, pos, dir, ptypes, pmtinfo_effcorrs, pmtinfo_noiserates, pmtinfo_afterpulse_fraction);
+  return ConstructPMTs(table, pos, dir, ptypes, pmtinfo_channel_numbers, pmtinfo_effcorrs, pmtinfo_noiserates,
+                       pmtinfo_afterpulse_fraction);
 }
 
 }  // namespace RAT
