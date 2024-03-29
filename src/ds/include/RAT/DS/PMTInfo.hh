@@ -27,10 +27,10 @@ class PMTInfo : public TObject {
     pos.push_back(_pos);
     dir.push_back(_dir);
     type.push_back(_type);
-    channel.push_back(_ch);
     individual_efficiency_corr.push_back(_individual_efficiency_corr);
     individual_noise_rate.push_back(_individual_noise_rate);
     individual_afterpulse_fraction.push_back(_individual_afterpulse_fraction);
+    channel_num.push_back(_ch);
     std::vector<std::string>::iterator which = std::find(models.begin(), models.end(), _model);
     if (which != models.end()) {
       modeltype.push_back(which - models.begin());
@@ -52,8 +52,8 @@ class PMTInfo : public TObject {
   virtual TVector3 GetDirection(int id) const { return dir.at(id); }
   virtual void SetDirection(int id, const TVector3& _dir) { dir.at(id) = _dir; }
 
-  virtual int GetChannelNumber(int id) const { return channel.at(id); }
-  virtual void SetChannelNumber(int id, int _ch) { channel.at(id) = _ch; }
+  virtual int GetChannelNumber(int id) const { return channel_num.at(id); }
+  virtual void SetChannelNumber(int id, int _ch) { channel_num.at(id) = _ch; }
 
   virtual int GetType(int id) const { return type.at(id); }
   virtual void SetType(int id, int _type) { type.at(id) = _type; }
@@ -93,7 +93,7 @@ class PMTInfo : public TObject {
   std::vector<TVector3> pos;
   std::vector<TVector3> dir;
   std::vector<int> type;
-  std::vector<int> channel;
+  std::vector<int> channel_num;
   std::vector<int> modeltype;
   std::vector<std::string> models;
   std::vector<double> individual_efficiency_corr;

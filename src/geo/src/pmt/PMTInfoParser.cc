@@ -48,7 +48,7 @@ PMTInfoParser::PMTInfoParser(DBLinkPtr lpos_table, const std::string &mother_nam
     fChannelNumber = lpos_table->GetIArray("channel_number");
     Log::Assert(fPos.size() == fChannelNumber.size(), "PMTInfoParser: PMTInfo arrays must be same length!");
   } catch (DBNotFoundError &e) {
-    fChannelNumber.resize(0);
+    fChannelNumber.resize(fPos.size());
     fill(fChannelNumber.begin(), fChannelNumber.end(), -1);
   }
 
