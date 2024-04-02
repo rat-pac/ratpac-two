@@ -26,6 +26,7 @@
 #include <RAT/SimpleDAQProc.hh>
 #include <RAT/SplitEVDAQProc.hh>
 #include <RAT/TrueDAQProc.hh>
+#include <RAT/UserAnalProc.hh>
 
 namespace RAT {
 
@@ -91,6 +92,8 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   // Misc
   AppendProcessor<CountProc>();
   AppendProcessor<PruneProc>();
+  // User processors
+  AppendProcessor<UserAnalProc>();
   // Escape Hatch
   AppendProcessor<PythonProc>();
 
