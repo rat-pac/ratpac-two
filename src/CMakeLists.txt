@@ -12,10 +12,11 @@ add_subdirectory(fit)
 add_subdirectory(gen)
 add_subdirectory(geo)
 add_subdirectory(io)
+add_subdirectory(user)
 add_subdirectory(physics)
 add_subdirectory(stlplus)
 add_subdirectory(util)
-# ds has to come last to avoid race condition with ratdict 
+# ds has to come last to avoid race condition with ratdict
 add_subdirectory(ds)
 add_subdirectory(ratbase)
 
@@ -24,9 +25,9 @@ add_subdirectory(ratbase)
 
 # RAT shared library
 add_library(RATPAC SHARED)
-target_link_libraries(RATPAC PUBLIC 
+target_link_libraries(RATPAC PUBLIC
   ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} ${CRY_LIBRARIES} ${TENSORFLOW_LIBRARIES}
-  cmd core daq db ds fit gen geo io physics ratbase stlplus util RATDict)
+  cmd core daq db ds fit gen geo io user physics ratbase stlplus util RATDict)
 
 
 ### Target: library for ROOT
@@ -58,7 +59,7 @@ add_library(RATEvent SHARED
        util/src/ReadFile.cc)
 target_include_directories(RATEvent SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS}/stlplus)
 target_include_directories(RATEvent PUBLIC ${RATPAC_INCLUDE_DIR})
-target_link_libraries(RATEvent PUBLIC 
+target_link_libraries(RATEvent PUBLIC
        ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RATDict)
 set_source_files_properties(
        stlplus/src/debug.cc
@@ -87,7 +88,7 @@ add_custom_command(TARGET RATEvent POST_BUILD
        ${CMAKE_CURRENT_BINARY_DIR}/ds/libRATDict.rootmap
        ${PROJECT_BINARY_DIR}/bin)
 
-set_target_properties(RATPAC RATEvent 
+set_target_properties(RATPAC RATEvent
     PROPERTIES
        ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
@@ -98,5 +99,5 @@ install(TARGETS RATPAC RATEvent
         ARCHIVE DESTINATION lib)
 
 ### Install the global headers
-install(DIRECTORY ${RATPAC_INCLUDE_DIR} 
+install(DIRECTORY ${RATPAC_INCLUDE_DIR}
        DESTINATION ${CMAKE_INSTALL_PREFIX})
