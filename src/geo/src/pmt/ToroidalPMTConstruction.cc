@@ -132,7 +132,7 @@ G4LogicalVolume *ToroidalPMTConstruction::BuildVolume(const std::string &prefix)
 
   // tolerance gap between inner1 and inner2, needed to prevent overlap due to
   // floating point roundoff
-  G4double hhgap = 0.5e-7;  // half the needed gap between the front and back of the PMT
+  G4double hhgap = 0.5e-3;  // half the needed gap between the front and back of the PMT
   G4double toleranceGapRadius = innerRhoEdge[equatorIndex];  // the outer radius of the gap needs to be
   // equal to the inner radius of the PMT where
   // inner1 and inner2 join

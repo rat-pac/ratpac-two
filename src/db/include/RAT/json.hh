@@ -437,7 +437,7 @@ class Writer {
   // truncate into signed Ultimately produces object-indented text with
   // value-per-line mentality with arrays on a single line which is similar
   // enough to how RATDB looks without too much effort.
-  void putValue(const Value &value);
+  void putValue(const Value &value, const std::string &delim = "\n");
 
  protected:
   // The stream to write to
