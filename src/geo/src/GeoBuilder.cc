@@ -15,6 +15,7 @@
 #include <RAT/GeoPerfTubeFactory.hh>
 #include <RAT/GeoPolyArrayFactory.hh>
 #include <RAT/GeoPolygonFactory.hh>
+#include <RAT/GeoGenericPolygonFactory.hh>
 #include <RAT/GeoReflectorFactory.hh>
 #include <RAT/GeoReflectorWaveguideFactory.hh>
 #include <RAT/GeoRevArrayFactory.hh>
@@ -61,6 +62,7 @@ GeoBuilder::GeoBuilder() {
   new GeoPerfBoxFactory();
   new GeoCutTubeFactory();
   new GeoPolyArrayFactory();
+  new GeoGenericPolygonFactory();
   new WLSPFactory();
   new WLSPCoverFactory();
 
