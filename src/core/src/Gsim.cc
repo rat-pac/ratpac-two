@@ -169,6 +169,12 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
   DBLinkPtr lmc = DB::Get()->GetLink("MC");
   runID = DB::Get()->GetDefaultRun();
   utc = TTimeStamp();  // default to now
+  abort_photons = lmc->GetZ("abort_photons");
+  if (abort_photons) {
+    warn << "Gsim: Aborting photons at user request" << newline;
+    std::string photon_dump_fname = lmc->GetS("photon_dump_file");
+    chroma = new Chroma(photon_dump_fname);
+  }
 
   info << "Gsim: Simulating run " << runID << newline;
   info << "Gsim: Run start at " << utc.AsString() << newline;
@@ -232,6 +238,9 @@ void Gsim::EndOfRunAction(const G4Run * /*arun*/) {
     info << "Gsim: Tracking aborted for " << nabort << " events exceeding " << maxpe << " photoelectrons" << newline;
   }
   mainBlock->EndOfRun(run);
+  if (abort_photons) {
+    chroma->writeTree();
+  }
 }
 
 void Gsim::BeginOfEventAction(const G4Event *anEvent) {
@@ -261,6 +270,9 @@ void Gsim::EndOfEventAction(const G4Event *anEvent) {
 
   // Let main processor block process the event
   mainBlock->DSEvent(ds);
+  if (abort_photons) {
+    chroma->fillEvent();
+  }
 
   delete ds;
 
@@ -338,6 +350,16 @@ void Gsim::PreUserTrackingAction(const G4Track *aTrack) {
     } else if (creatorProcessName == "Cerenkov") {
       eventInfo->numCerenkovPhoton++;
     }
+
+    if (abort_photons) {
+      const G4ThreeVector pos = aTrack->GetPosition();
+      const G4ThreeVector dir = aTrack->GetMomentumDirection();
+      const G4ThreeVector pol = aTrack->GetPolarization();
+      const float energy = aTrack->GetKineticEnergy();
+      const float t = aTrack->GetGlobalTime();
+      chroma->addPhoton(pos, dir, pol, energy, t);
+      const_cast<G4Track *>(aTrack)->SetTrackStatus(fStopAndKill);
+    }
   }
 }
 
@@ -400,10 +422,12 @@ void Gsim::PostUserTrackingAction(const G4Track *aTrack) {
     // With bulk TPB model:    Not made by OpWLS, but killed by OpWLS
     if ((aTrack->GetDefinition()->GetParticleName() == "opticalphoton") && (creatorProcessName != "Reemission") &&
         (creatorProcessName != "OpWLS")) {
-      destroyerProcessName = aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
-      if ((destroyerProcessName == "SurfaceAbsorption") || (destroyerProcessName == "OpWLS")) {
-        G4ThreeVector startPosition = aTrack->GetVertexPosition();
-        eventInfo->opticalCentroid.Fill(TVector3(startPosition.x(), startPosition.y(), startPosition.z()));
+      if (aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()) {
+        destroyerProcessName = aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
+        if ((destroyerProcessName == "SurfaceAbsorption") || (destroyerProcessName == "OpWLS")) {
+          G4ThreeVector startPosition = aTrack->GetVertexPosition();
+          eventInfo->opticalCentroid.Fill(TVector3(startPosition.x(), startPosition.y(), startPosition.z()));
+        }
       }
     }
     if (StoreOpticalTrackID) {

@@ -22,7 +22,8 @@ add_library(core OBJECT
         src/SignalHandler.cc
         src/TrackInfo.cc
         src/Log.cc
-        src/GLG4HitPMTCollection.cc)
+        src/GLG4HitPMTCollection.cc
+        src/Chroma.cc)
 
 # Set our include directories
 target_include_directories(core SYSTEM PUBLIC 

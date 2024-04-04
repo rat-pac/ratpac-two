@@ -9,6 +9,7 @@
 #include <G4UserEventAction.hh>
 #include <G4UserRunAction.hh>
 #include <G4UserTrackingAction.hh>
+#include <RAT/Chroma.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
@@ -91,6 +92,8 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
   TTimeStamp utc;
   int maxpe;
   int nabort;
+  bool abort_photons;
+  Chroma *chroma;
 
   /** PMT and noise simulation */
   int npmts;
