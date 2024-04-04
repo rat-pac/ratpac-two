@@ -9,13 +9,13 @@
 #include <RAT/GeoCherenkovSourceFactory.hh>
 #include <RAT/GeoConvexLensFactory.hh>
 #include <RAT/GeoCutTubeFactory.hh>
+#include <RAT/GeoGenericPolygonFactory.hh>
 #include <RAT/GeoLensFactory.hh>
 #include <RAT/GeoPerfBoxFactory.hh>
 #include <RAT/GeoPerfSphereFactory.hh>
 #include <RAT/GeoPerfTubeFactory.hh>
 #include <RAT/GeoPolyArrayFactory.hh>
 #include <RAT/GeoPolygonFactory.hh>
-#include <RAT/GeoGenericPolygonFactory.hh>
 #include <RAT/GeoReflectorFactory.hh>
 #include <RAT/GeoReflectorWaveguideFactory.hh>
 #include <RAT/GeoRevArrayFactory.hh>
