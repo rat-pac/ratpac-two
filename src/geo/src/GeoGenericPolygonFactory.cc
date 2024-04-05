@@ -44,13 +44,13 @@ G4VSolid* GeoGenericPolygonFactory::ConstructSolid(DBLinkPtr table) {
   // Build the base solid
   G4TwoVector zero_offset(0, 0);
 
-  G4VSolid* base_solid = new G4ExtrudedSolid(volume_name, polygon, size_z / 2, zero_offset, 1, zero_offset, 1);
+  G4VSolid* base_solid = new G4ExtrudedSolid(volume_name, polygon, size_z, zero_offset, 1, zero_offset, 1);
 
   // Subtract polygons
   for (auto subpoly : subpolygons) {
-    // Note: the height is changed to size_z/2 -> size_z to clearly cut out
+    // Note: the height is changed to size_z -> 2*size_z to clearly cut out
     G4VSolid* sub_solid =
-        new G4ExtrudedSolid(volume_name + "_sub_solid", subpoly, size_z, zero_offset, 1, zero_offset, 1);
+        new G4ExtrudedSolid(volume_name + "_sub_solid", subpoly, 2 * size_z, zero_offset, 1, zero_offset, 1);
     base_solid = new G4SubtractionSolid(volume_name, base_solid, sub_solid, 0, G4ThreeVector(0.0, 0.0, 0.0));
   }
 
