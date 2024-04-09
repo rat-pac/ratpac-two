@@ -94,12 +94,32 @@ elemprop: [0.71, 0.19, 0.1],
 
 {
 name: "MATERIAL",
+index: "stainless_steel_304H",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+// Taken from https://www.sandmeyersteel.com/304H.html
+// Taking median amount of some elements. Iron makes up the remainder.
+density: 7.90,
+nelements: 9,
+nmaterials: 0,
+elements: [
+  "Carbon",     "Manganese", "Silicon",  "Chromium", "Nickel",
+  "Phosphorus", "Sulphur",   "Nitrogen", "Iron"
+],
+elemprop:[
+  0.0008, 0.0200,  0.0075,  0.1900, 0.0925,
+  0.00045, 0.00030, 0.0010, 0.68745
+],
+}
+
+{
+name: "MATERIAL",
 index: "stainless_steel_316L",
 valid_begin : [0, 0],
 valid_end : [0, 0],
-// taken from http://www.sandmeyersteel.com/316-316L.html
-// and assuming the MAXIMUM permitted amounts of each element by the code. Iron makes up the remainder
-density: 8.027,
+// Taken from http://www.sandmeyersteel.com/316-316L.html
+// Taking median amount of some elements. Iron makes up the remainder.
+density: 7.90,
 nelements: 10,
 nmaterials: 0,
 elements: [
@@ -107,8 +127,8 @@ elements: [
   "Molybdenum", "Phosphorus", "Sulphur", "Nitrogen", "Iron"
 ],
 elemprop:[
-  0.00030, 0.0200,  0.0075,  0.1800, 0.1400,
-  0.0300,  0.00045, 0.00030, 0.0010, 0.62045
+  0.00030, 0.0200,  0.0075, 0.1700, 0.1200,
+  0.0250,  0.00045, 0.0003, 0.001,  0.65545
 ],
 }
 
