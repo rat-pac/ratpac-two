@@ -1,6 +1,7 @@
-#include <Shielding.hh>
 #include <stdexcept>
 #include <string>
+
+#include "RAT/MyShielding.hh"
 // Required for G4 > 10.5
 #include <G4EmParameters.hh>
 #include <G4FastSimulationManagerProcess.hh>
@@ -30,7 +31,7 @@
 
 namespace RAT {
 
-PhysicsList::PhysicsList() : Shielding(), wlsModel(nullptr) {
+PhysicsList::PhysicsList() : MyShielding(), wlsModel(nullptr) {
   DBLinkPtr physicsdb = DB::Get()->GetLink("PHYSICS");
 
   // Cherenkov process settings
@@ -52,7 +53,7 @@ PhysicsList::PhysicsList() : Shielding(), wlsModel(nullptr) {
 PhysicsList::~PhysicsList() {}
 
 void PhysicsList::ConstructParticle() {
-  Shielding::ConstructParticle();
+  MyShielding::ConstructParticle();
   G4OpticalPhoton::OpticalPhotonDefinition();
 }
 
@@ -62,7 +63,7 @@ void PhysicsList::ConstructProcess() {
   param->SetStepFunctionMuHad(this->stepRatioMuHad, this->finalRangeMuHad);
 
   AddParameterization();
-  Shielding::ConstructProcess();
+  MyShielding::ConstructProcess();
   ConstructOpticalProcesses();
   EnableThermalNeutronScattering();
 }

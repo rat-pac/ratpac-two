@@ -12,12 +12,13 @@
 #define __RAT_PhysicsList__
 
 #include <G4VUserPhysicsList.hh>
-#include <Shielding.hh>
 #include <string>
+
+#include "RAT/MyShielding.hh"
 
 namespace RAT {
 
-class PhysicsList : public Shielding {
+class PhysicsList : public MyShielding {
  public:
   PhysicsList();
 
