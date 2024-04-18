@@ -40,6 +40,7 @@ add_library(geo OBJECT
         src/GeoTubeArrayFactory.cc
         src/GeoTubeFactory.cc
         src/GeoTubeIntersectionFactory.cc
+        src/GeoLoftFactory.cc
         src/GeoWaterBoxArrayFactory.cc
         src/Materials.cc
         src/TubeFacetSolid.cc
