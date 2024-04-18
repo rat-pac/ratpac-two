@@ -5,6 +5,8 @@
 #include <G4QuadrangularFacet.hh>
 #include <G4SubtractionSolid.hh>
 #include <G4TessellatedSolid.hh>
+#include <G4TriangularFacet.hh>
+#include <utility>
 
 namespace RAT {
 
@@ -14,62 +16,62 @@ G4VSolid* GeoLoftFactory::ConstructSolid(DBLinkPtr table) {
   // We assume to build bottom-to-up, base at z=0
   // NOTE: Maybe we can have extend to have multiple heights and xN,yN's
   const std::vector<double> z = table->GetDArray("z");
-  const double thickness = table->GetD("thickness");
 
-  const std::vector<double>& x1 = table->GetDArray("x1");
-  const std::vector<double>& y1 = table->GetDArray("y1");
+  const std::vector<double>& xo1 = table->GetDArray("out_x1");
+  const std::vector<double>& yo1 = table->GetDArray("out_y1");
+  const std::vector<double>& xo2 = table->GetDArray("out_x2");
+  const std::vector<double>& yo2 = table->GetDArray("out_y2");
 
-  const std::vector<double>& x2 = table->GetDArray("x2");
-  const std::vector<double>& y2 = table->GetDArray("y2");
+  const std::vector<double>& xi1 = table->GetDArray("in_x1");
+  const std::vector<double>& yi1 = table->GetDArray("in_y1");
+  const std::vector<double>& xi2 = table->GetDArray("in_x2");
+  const std::vector<double>& yi2 = table->GetDArray("in_y2");
 
   // Number of points has to be same
-  const size_t n = x1.size();
-  assert(n == x2.size());
-  assert(n == y1.size());
-  assert(n == y2.size());
+  const size_t n = xo1.size();
+  assert(n >= 3);
+  assert(n == yo1.size());
+  assert(n == xo2.size());
+  assert(n == yo2.size());
+  assert(n == xi1.size());
+  assert(n == yi1.size());
+  assert(n == xi2.size());
+  assert(n == yi2.size());
 
-  // Build outer loft-shape
+  G4TessellatedSolid* solid = new G4TessellatedSolid(volume_name);
+
   const double z1 = z[0] * CLHEP::mm, z2 = z[1] * CLHEP::mm;
-  G4TessellatedSolid* base_solid = new G4TessellatedSolid(volume_name);
-  G4VSolid* solid = nullptr;
-
-  double xmin = 0, xmax = 0;  // to set the scale value
   for (size_t i = 0; i < n; ++i) {
-    if (i == 0 or xmin > x1[i]) xmin = x1[i];
-    if (i == 0 or xmax < x1[i]) xmax = x1[i];
     const int j = (i + 1) % n;
 
-    const G4ThreeVector pA(x1[i] * CLHEP::mm, y1[i] * CLHEP::mm, z1);
-    const G4ThreeVector pB(x1[j] * CLHEP::mm, y1[j] * CLHEP::mm, z1);
-    const G4ThreeVector pC(x2[j] * CLHEP::mm, y2[j] * CLHEP::mm, z2);
-    const G4ThreeVector pD(x2[i] * CLHEP::mm, y2[i] * CLHEP::mm, z2);
+    // Build the outer-wall
+    const G4ThreeVector voA(xo1[i] * CLHEP::mm, yo1[i] * CLHEP::mm, z1);
+    const G4ThreeVector voB(xo1[j] * CLHEP::mm, yo1[j] * CLHEP::mm, z1);
+    const G4ThreeVector voC(xo2[j] * CLHEP::mm, yo2[j] * CLHEP::mm, z2);
+    const G4ThreeVector voD(xo2[i] * CLHEP::mm, yo2[i] * CLHEP::mm, z2);
 
-    G4QuadrangularFacet* facet = new G4QuadrangularFacet(pA, pB, pC, pD, ABSOLUTE);
-    base_solid->AddFacet(facet);
+    G4QuadrangularFacet* facetOut = new G4QuadrangularFacet(voA, voB, voC, voD, ABSOLUTE);
+    solid->AddFacet(facetOut);
+
+    // Build the inner-wall
+    const G4ThreeVector viA(xi1[i] * CLHEP::mm, yi1[i] * CLHEP::mm, z1);
+    const G4ThreeVector viB(xi1[j] * CLHEP::mm, yi1[j] * CLHEP::mm, z1);
+    const G4ThreeVector viC(xi2[j] * CLHEP::mm, yi2[j] * CLHEP::mm, z2);
+    const G4ThreeVector viD(xi2[i] * CLHEP::mm, yi2[i] * CLHEP::mm, z2);
+
+    G4QuadrangularFacet* facetIn = new G4QuadrangularFacet(viD, viC, viB, viA, ABSOLUTE);
+    solid->AddFacet(facetIn);
+
+    // Finish bottom rim
+    G4QuadrangularFacet* facetBot = new G4QuadrangularFacet(voA, viA, viB, voB, ABSOLUTE);
+    solid->AddFacet(facetBot);
+
+    // Finish upper rim
+    G4QuadrangularFacet* facetTop = new G4QuadrangularFacet(voD, voC, viC, viD, ABSOLUTE);
+    solid->AddFacet(facetTop);
   }
 
-  // Build inner loft-shape
-  if (thickness <= 0) {
-    solid = base_solid;
-  } else {
-    const double scale = 1 - 2 * thickness / (xmax - xmin);
-    G4TessellatedSolid* sub_solid = new G4TessellatedSolid(volume_name + "_sub");
-
-    for (size_t i = 0; i < n; ++i) {
-      const int j = (i + 1) % n;
-
-      const G4ThreeVector pA(x1[i] * scale * CLHEP::mm, y1[i] * scale * CLHEP::mm, z1);
-      const G4ThreeVector pB(x1[j] * scale * CLHEP::mm, y1[j] * scale * CLHEP::mm, z1);
-      const G4ThreeVector pC(x2[j] * scale * CLHEP::mm, y2[j] * scale * CLHEP::mm, z2);
-      const G4ThreeVector pD(x2[i] * scale * CLHEP::mm, y2[i] * scale * CLHEP::mm, z2);
-
-      G4QuadrangularFacet* facet = new G4QuadrangularFacet(pA, pB, pC, pD, ABSOLUTE);
-      sub_solid->AddFacet(facet);
-    }
-
-    solid = new G4SubtractionSolid(volume_name, base_solid, sub_solid);
-  }
-
+  solid->SetSolidClosed(true);
   return solid;
 }
 

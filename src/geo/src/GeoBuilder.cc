@@ -9,6 +9,7 @@
 #include <RAT/GeoCherenkovSourceFactory.hh>
 #include <RAT/GeoConvexLensFactory.hh>
 #include <RAT/GeoCutTubeFactory.hh>
+#include <RAT/GeoGenericPolygonFactory.hh>
 #include <RAT/GeoLensFactory.hh>
 #include <RAT/GeoPerfBoxFactory.hh>
 #include <RAT/GeoPerfSphereFactory.hh>
@@ -63,6 +64,7 @@ GeoBuilder::GeoBuilder() {
   new GeoCutTubeFactory();
   new GeoPolyArrayFactory();
   new GeoLoftFactory();
+  new GeoGenericPolygonFactory();
   new WLSPFactory();
   new WLSPCoverFactory();
 
