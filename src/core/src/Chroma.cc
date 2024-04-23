@@ -2,6 +2,10 @@
 
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
+#include <TMap.h>
+#include <TVector3.h>
+
+#include "RAT/DS/PMTInfo.hh"
 
 inline static std::string s_recv(zmq::socket_t& socket, int flags = 0) {
   zmq::message_t message;
@@ -54,7 +58,7 @@ void PhotonData::clear() {
 }
 
 zmq::send_result_t PhotonData::send(zmq::socket_t& client) {
-  info << "CHROMA-ZMQ: Sending photon data to Chroma..." << newline;
+  debug << "CHROMA-ZMQ: Sending photon data to Chroma..." << newline;
   std::vector<zmq::mutable_buffer> msg;
   std::string header = PHOTONDATA;
   msg.push_back(zmq::buffer(header));
@@ -91,7 +95,7 @@ void PEData::clear() {
 bool PEData::readmsg(std::vector<zmq::message_t>& recv_msgs) {
   std::string header = recv_msgs[0].to_string();
   if (header == SIM_COMPLETE && recv_msgs.size() > 4 && *(recv_msgs[1].data<uint32_t>()) == event) {
-    info << "CHROMA-ZMQ: Received PE data!" << newline;
+    debug << "CHROMA-ZMQ: Received PE data!" << newline;
     copy_to_vector<uint32_t>(recv_msgs[2], channel_ids);
     copy_to_vector<float>(recv_msgs[3], times);
     copy_to_vector<float>(recv_msgs[4], wavelengths);
@@ -119,9 +123,9 @@ void Chroma::addPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const
   photons.t.push_back(t / CLHEP::ns);
 }
 
-Chroma::Chroma(DBLinkPtr chroma_db)
+Chroma::Chroma(DBLinkPtr chroma_db, DS::PMTInfo* pmt_info, std::vector<PMTTime*>& pmt_time,
+               std::vector<PMTCharge*>& pmt_charge)
     : address(chroma_db->GetS("address")), timeout(chroma_db->GetI("timeout")), retries(chroma_db->GetI("retries")) {
-  initializeTree(chroma_db->GetS("filename"));
   context = zmq::context_t();
   // perform ping handshake
   bool good_ping = do_send_and_recv(
@@ -139,19 +143,52 @@ Chroma::Chroma(DBLinkPtr chroma_db)
       [this](std::vector<zmq::message_t>& recv_msgs) -> bool { return process_detinfo_reply(recv_msgs); });
   if (good_detinfo) {
     info << "CHROMA-ZMQ: DETECTOR INFO SUCCESSFUL!" << newline;
+    rat_pmt_info = pmt_info;
+    rat_pmt_time = pmt_time;
+    rat_pmt_charge = pmt_charge;
+    rat_pmt_id.clear();
+    // use PMT position and type to generate a mapping between chroma PMTs and rat PMTs
+    // THere is a possible local offset. Remove this effect by subtracting positions by the difference of the averages.
+
+    std::cout << "PMT Average positions:" << std::endl;
+    TVector3 chroma_pmt_avg_pos(0, 0, 0);
+    for (size_t i = 0; i < pmt_x.size(); i++) {
+      chroma_pmt_avg_pos += TVector3(pmt_x[i], pmt_y[i], pmt_z[i]);
+    }
+    chroma_pmt_avg_pos *= (1.0 / pmt_x.size());
+
+    TVector3 rat_pmt_avg_pos(0, 0, 0);
+    for (size_t i = 0; i < rat_pmt_info->GetPMTCount(); i++) {
+      rat_pmt_avg_pos += rat_pmt_info->GetPosition(i);
+    }
+    rat_pmt_avg_pos *= (1.0 / rat_pmt_info->GetPMTCount());
+    TVector3 offset = rat_pmt_avg_pos - chroma_pmt_avg_pos;
+    info << "Detected a local offset: ( " << offset.x() << ", " << offset.y() << ", " << offset.z() << " )" << newline;
+    // Yes, this is O(n^2), but do you want to figure out how to put TVectors as a key in a hashmap? Yeah, me neither.
+    for (size_t i = 0; i < pmt_x.size(); i++) {
+      TVector3 chroma_pmt_pos(pmt_x[i], pmt_y[i], pmt_z[i]);
+      chroma_pmt_pos += offset;
+      bool match_found = false;
+      for (int j = 0; j < rat_pmt_info->GetPMTCount(); j++) {
+        TVector3 rat_pmt_pos = rat_pmt_info->GetPosition(j);
+        if ((rat_pmt_pos - chroma_pmt_pos).Mag() < 1e-2) {
+          rat_pmt_id.push_back(j);
+          match_found = true;
+          break;
+        }
+      }
+      if (!match_found) {
+        warn << "CHROMA-ZMQ: PMT MAPPING FAILED!" << newline;
+      }
+    }
+
+    std::cout << "Chroma to RAT PMT Mapping: " << std::endl;
+    for (size_t i = 0; i < rat_pmt_id.size(); i++) {
+      info << "Chroma PMT " << i << " -> RAT PMT " << rat_pmt_id[i] << newline;
+    }
   } else {
     Log::Die("CHROMA-ZMQ: DETECTOR INFO FAILED!");
   }
-}
-
-void Chroma::initializeTree(const std::string& filename) {
-  file = new TFile(filename.c_str(), "RECREATE");
-  tree = new TTree("MCPEs", "MC Photoelectron information");
-  tree->Branch("nPEs", &(pes.numPE));
-  tree->Branch("evt_id", &(pes.event));
-  tree->Branch("channel_id", &(pes.channel_ids));
-  tree->Branch("wavelength", &(pes.wavelengths));
-  tree->Branch("t", &(pes.times));
 }
 
 zmq::socket_t Chroma::s_client_socket() {
@@ -163,15 +200,39 @@ zmq::socket_t Chroma::s_client_socket() {
   return client;
 }
 
-void Chroma::eventAction() {
+void Chroma::eventAction(DS::Root* ds) {
   pes.event = photons.event;
   bool good_reply =
       do_send_and_recv([this](zmq::socket_t& client) -> zmq::send_result_t { return photons.send(client); },
                        [this](std::vector<zmq::message_t>& recv_msgs) -> bool { return pes.readmsg(recv_msgs); });
   if (!good_reply) {
     warn << "CHROMA-ZMQ: Failed to receive valid response from server!" << newline;
-  } else {
-    tree->Fill();
+  }
+  if (rat_pmt_info == nullptr) {
+    Log::Die("CHROMA-ZMQ: PMT INFO NOT FOUND!");
+  }
+  DS::MC* mc = ds->GetMC();
+  mc->SetNumPE(pes.GetNumPE());
+  std::unordered_map<int, int> mcpmts;
+  for (size_t i = 0; i < pes.GetNumPE(); i++) {
+    int chroma_ch = pes.channel_ids[i];
+    int rat_ch = rat_pmt_id[chroma_ch];
+    if (mcpmts.find(rat_ch) == mcpmts.end()) {
+      DS::MCPMT* mcpmt = mc->AddNewMCPMT();
+      mcpmts[rat_ch] = mc->GetMCPMTCount() - 1;
+      mcpmt->SetID(rat_ch);
+      mcpmt->SetType(rat_pmt_info->GetType(rat_ch));
+    }
+    DS::MCPMT* mcpmt = mc->GetMCPMT(mcpmts[rat_ch]);
+    DS::MCPhoton* mcphoton = mcpmt->AddNewMCPhoton();
+    mcphoton->SetDarkHit(false);
+    mcphoton->SetAfterPulse(false);
+    mcphoton->SetLambda(pes.wavelengths[i]);
+    mcphoton->SetPosition(TVector3(pmt_x[chroma_ch], pmt_y[chroma_ch], pmt_z[chroma_ch]));
+    // TODO: add momentum, polarization, creation time, creatorprocess
+    mcphoton->SetHitTime(pes.times[i]);
+    mcphoton->SetFrontEndTime(rat_pmt_time[rat_pmt_info->GetModel(rat_ch)]->PickTime(pes.times[i]));
+    mcphoton->SetCharge(rat_pmt_charge[rat_pmt_info->GetModel(rat_ch)]->PickCharge());
   }
   /////////////////////
   photons.clear();
@@ -182,19 +243,11 @@ bool Chroma::process_detinfo_reply(std::vector<zmq::message_t>& recv_msgs) {
   std::string header = recv_msgs[0].to_string();
   if (header == DETECTOR_INFO) {
     info << "CHROMA-ZMQ: Received detector info!" << newline;
-    std::vector<float> pmt_x, pmt_y, pmt_z;
     copy_to_vector<float>(recv_msgs[1], pmt_x);
     copy_to_vector<float>(recv_msgs[2], pmt_y);
     copy_to_vector<float>(recv_msgs[3], pmt_z);
     std::vector<int32_t> pmt_type;
     copy_to_vector<int32_t>(recv_msgs[4], pmt_type);
-    TTree* pmt_tree = new TTree("DetInfo", "Detector Information");
-    pmt_tree->Branch("pmt_x", &pmt_x);
-    pmt_tree->Branch("pmt_y", &pmt_y);
-    pmt_tree->Branch("pmt_z", &pmt_z);
-    pmt_tree->Branch("pmt_type", &pmt_type);
-    pmt_tree->Fill();
-    pmt_tree->Write();
     return true;
   }
   warn << "CHROMA-ZMQ: DETECTOR INFO RESPONSE DID NOT PASS VALIDATION!" << newline;
@@ -237,11 +290,6 @@ bool Chroma::do_send_and_recv(std::function<zmq::send_result_t(zmq::socket_t&)> 
   return valid_response;
 }
 
-void Chroma::endOfRun() {
-  tree->Write();
-  tree->Print();
-  file->Write();
-  file->Close();
-}
+void Chroma::endOfRun() {}
 
 }  // namespace RAT

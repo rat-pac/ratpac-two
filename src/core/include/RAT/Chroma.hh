@@ -12,7 +12,11 @@
 #include <vector>
 
 #include "RAT/DB.hh"
+#include "RAT/DS/Root.hh"
+#include "RAT/DS/Run.hh"
 #include "RAT/Log.hh"
+#include "RAT/PDFPMTCharge.hh"
+#include "RAT/PDFPMTTime.hh"
 #include "zmq.hpp"
 #include "zmq_addon.hpp"
 
@@ -87,7 +91,7 @@ class Chroma {
   // use_timeout of 0 means no timeout, otherwise timeout in seconds for propagations
   // if use_broker is true, conn is an endpoint of a Chroma broker used to find a GPU endpoint
   // otherwise conn is a GPU endpoint ready to receive PhotonData
-  Chroma(DBLinkPtr);
+  Chroma(DBLinkPtr, DS::PMTInfo *, std::vector<PMTTime *> &, std::vector<PMTCharge *> &);
   virtual ~Chroma() {}
 
   // appends a photon to the next propagation request
@@ -95,7 +99,7 @@ class Chroma {
                  const float t);
   void setEventID(const G4int evtid) { photons.event = evtid; }
 
-  void eventAction();
+  void eventAction(DS::Root *);
   void endOfRun();
 
  protected:
@@ -103,8 +107,6 @@ class Chroma {
   PEData pes;
 
  private:
-  void initializeTree(const std::string &);
-
   zmq::socket_t s_client_socket();
 
   /**
@@ -120,13 +122,17 @@ class Chroma {
                         std::function<bool(std::vector<zmq::message_t> &)>);
   bool process_detinfo_reply(std::vector<zmq::message_t> &);
 
-  TFile *file;
-  TTree *tree;
   zmq::context_t context;
 
   const std::string address;
   const size_t retries;
   const std::chrono::milliseconds timeout;
+
+  std::vector<float> pmt_x, pmt_y, pmt_z;
+  DS::PMTInfo *rat_pmt_info;
+  std::vector<PMTTime *> rat_pmt_time;
+  std::vector<PMTCharge *> rat_pmt_charge;
+  std::vector<int> rat_pmt_id;  // rat_pmt_id[chroma_pmt_id] = rat_pmt_id
 
   // DBLinkPtr chroma_db;
 };

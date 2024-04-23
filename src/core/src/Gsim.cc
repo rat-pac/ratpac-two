@@ -170,11 +170,6 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
   runID = DB::Get()->GetDefaultRun();
   utc = TTimeStamp();  // default to now
   use_chroma = lmc->GetZ("use_chroma");
-  if (use_chroma) {
-    warn << "Gsim: Aborting photons at user request" << newline;
-    DBLinkPtr lchroma = DB::Get()->GetLink("CHROMA");
-    chroma = new Chroma(lchroma);
-  }
 
   info << "Gsim: Simulating run " << runID << newline;
   info << "Gsim: Run start at " << utc.AsString() << newline;
@@ -207,6 +202,11 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
     } catch (DBNotFoundError &e) {
       // fallback to default table if model is not avaliable
       fPMTCharge[i] = new RAT::PDFPMTCharge();
+    }
+
+    if (use_chroma) {
+      DBLinkPtr lchroma = DB::Get()->GetLink("CHROMA");
+      chroma = new Chroma(lchroma, fPMTInfo, fPMTTime, fPMTCharge);
     }
   }
 
@@ -270,12 +270,12 @@ void Gsim::EndOfEventAction(const G4Event *anEvent) {
   ds->SetRunID(runID);
   ds->AppendProcResult("gsim", Processor::OK);
   ds->SetRatVersion(RATVERSION);
+  if (use_chroma) {
+    chroma->eventAction(ds);
+  }
 
   // Let main processor block process the event
   mainBlock->DSEvent(ds);
-  if (use_chroma) {
-    chroma->eventAction();
-  }
 
   delete ds;
 
@@ -562,35 +562,38 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   // GLG4PMTOpticalModel::pmtHitVector.resize(0);
 
   /** PMT and noise simulation */
-  GLG4HitPMTCollection *hitpmts = GLG4VEventAction::GetTheHitPMTCollection();
-  int numPE = 0;
+  // only do this is chroma is not used, since Chroma writes the PMT hits by itself
+  if (!use_chroma) {
+    GLG4HitPMTCollection *hitpmts = GLG4VEventAction::GetTheHitPMTCollection();
+    int numPE = 0;
 
-  for (int ipmt = 0; ipmt < hitpmts->GetEntries(); ipmt++) {
-    GLG4HitPMT *a_pmt = hitpmts->GetPMT(ipmt);
-    a_pmt->SortTimeAscending();
+    for (int ipmt = 0; ipmt < hitpmts->GetEntries(); ipmt++) {
+      GLG4HitPMT *a_pmt = hitpmts->GetPMT(ipmt);
+      a_pmt->SortTimeAscending();
 
-    // Create and initialize a RAT DS::MCPMT
-    // note that GLG4HitPMTs are given IDs which are their index
-    DS::MCPMT *rat_mcpmt = mc->AddNewMCPMT();
-    // the index of the PMT we just added
-    rat_mcpmt->SetID(a_pmt->GetID());
-    rat_mcpmt->SetType(fPMTInfo->GetType(a_pmt->GetID()));
+      // Create and initialize a RAT DS::MCPMT
+      // note that GLG4HitPMTs are given IDs which are their index
+      DS::MCPMT *rat_mcpmt = mc->AddNewMCPMT();
+      // the index of the PMT we just added
+      rat_mcpmt->SetID(a_pmt->GetID());
+      rat_mcpmt->SetType(fPMTInfo->GetType(a_pmt->GetID()));
 
-    numPE += a_pmt->GetEntries();
+      numPE += a_pmt->GetEntries();
 
-    /** Add "real" hits from actual simulated photons */
-    for (int i = 0; i < a_pmt->GetEntries(); i++) {
-      // Find the optical process responsible
-      auto photon = a_pmt->GetPhoton(i);
-      std::string process = photon->GetCreatorProcess();
-      if (StoreOpticalTrackID) {
-        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), exinfo, process);
-      } else {
-        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), NULL, process);
+      /** Add "real" hits from actual simulated photons */
+      for (int i = 0; i < a_pmt->GetEntries(); i++) {
+        // Find the optical process responsible
+        auto photon = a_pmt->GetPhoton(i);
+        std::string process = photon->GetCreatorProcess();
+        if (StoreOpticalTrackID) {
+          AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), exinfo, process);
+        } else {
+          AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), NULL, process);
+        }
       }
     }
+    mc->SetNumPE(numPE);
   }
-  mc->SetNumPE(numPE);
 }
 
 void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo * /*exinfo*/, std::string process) {

@@ -6,5 +6,4 @@
   address: "tcp://127.0.1:5555",
   retries: 3,
   timeout: 2500, // milliseconds
-  filename: "chroma_dump.root"
 }
