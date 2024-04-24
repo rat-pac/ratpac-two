@@ -41,7 +41,7 @@ class PMTInfo : public TObject {
   }
 
   virtual void AddPMT(const TVector3& _pos, const TVector3& _dir, const int _type) {
-    AddPMT(_pos, _dir, _type, -1.0, "", 1.0, 0.0, 0.0);
+    AddPMT(_pos, _dir, _type, -1, "", 1.0, 0.0, 0.0);
   }
 
   virtual Int_t GetPMTCount() const { return pos.size(); }
