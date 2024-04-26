@@ -67,6 +67,7 @@ class OutNtupleProc : public Processor {
   std::string macro;
   std::vector<int> pmtType;
   std::vector<int> pmtId;
+  std::vector<int> pmtChannel;
   std::vector<double> pmtX;
   std::vector<double> pmtY;
   std::vector<double> pmtZ;
