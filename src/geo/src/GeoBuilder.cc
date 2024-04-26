@@ -27,6 +27,7 @@
 #include <RAT/GeoTubeArrayFactory.hh>
 #include <RAT/GeoTubeFactory.hh>
 #include <RAT/GeoTubeIntersectionFactory.hh>
+#include <RAT/GeoLoftFactory.hh>
 #include <RAT/GeoWaterBoxArrayFactory.hh>
 #include <RAT/Log.hh>
 #include <RAT/PMTArrayFactory.hh>
@@ -62,6 +63,7 @@ GeoBuilder::GeoBuilder() {
   new GeoPerfBoxFactory();
   new GeoCutTubeFactory();
   new GeoPolyArrayFactory();
+  new GeoLoftFactory();
   new GeoGenericPolygonFactory();
   new WLSPFactory();
   new WLSPCoverFactory();
