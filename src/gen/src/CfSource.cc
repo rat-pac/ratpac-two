@@ -132,7 +132,7 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
       double neutronKE = fGenerate->shoot() * (fhigh - flow) + flow;
       double energy = massNeutron + neutronKE;
       // Generate momentum direction uniformly in phi and cos(theta).
-      double phi = CLHEP::RandFlat::shoot(0., M_PI);
+      double phi = CLHEP::RandFlat::shoot(0., 2.0*M_PI);
       double cosTheta = CLHEP::RandFlat::shoot(-1., 1.);
       double sinTheta = sqrt(1. - cosTheta * cosTheta);
       double neutronP2 = std::max(0., energy * energy - massNeutron * massNeutron);
@@ -181,7 +181,7 @@ CfSource::CfSource(int newIsotope) : Isotope(newIsotope) {
     for (int nn = 0; nn < Ngamma; nn++) {
       double energy = gGenerate->shoot() * (ghigh - glow) + glow;
       // Generate momentum direction uniformly in phi and cos(theta).
-      double phi = CLHEP::RandFlat::shoot(0., M_PI);
+      double phi = CLHEP::RandFlat::shoot(0., 2.0*M_PI);
       double cosTheta = CLHEP::RandFlat::shoot(-1., 1.);
       double sinTheta = sqrt(1. - cosTheta * cosTheta);
       double px = energy * sinTheta * cos(phi);
