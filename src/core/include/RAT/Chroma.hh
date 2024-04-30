@@ -28,6 +28,11 @@
 #define UNKNOWN_REQUEST "UNKNOWN_REQUEST"
 #define SIM_COMPLETE "SIM_COMPLETE"
 #define DETECTOR_INFO "DETECTOR_INFO"
+#define PEDATA_NPARTS 11
+#define CHERENKOV_BIT (0x1 << 10)
+#define SCINTILLATION_BIT (0x1 << 11)
+#define BULK_REEMIT_BIT (0x1 << 9)
+#define SURF_REEMIT_BIT (0x1 << 7)
 namespace RAT {
 
 class Chroma;
@@ -57,11 +62,13 @@ class PhotonData {
   std::vector<float> GetPolarizationY() { return poly; }
   std::vector<float> GetPolarizationZ() { return polz; }
   std::vector<float> GetWavelength() { return wavelength; }
+  std::vector<uint32_t> GetFlags() { return flags; }
   std::vector<float> GetTime() { return t; }
 
  protected:
   uint32_t numphotons, event;
   std::vector<float> x, y, z, dx, dy, dz, polx, poly, polz, wavelength, t;
+  std::vector<uint32_t> flags;
 };
 
 class PEData {
@@ -82,8 +89,8 @@ class PEData {
 
  protected:
   uint32_t numPE, event;
-  std::vector<uint32_t> channel_ids;
-  std::vector<float> times, wavelengths;
+  std::vector<uint32_t> channel_ids, flags;
+  std::vector<float> times, wavelengths, dx, dy, dz, polx, poly, polz;
 };
 
 class Chroma {
@@ -96,7 +103,7 @@ class Chroma {
 
   // appends a photon to the next propagation request
   void addPhoton(const G4ThreeVector &pos, const G4ThreeVector &dir, const G4ThreeVector &pol, const float energy,
-                 const float t);
+                 const float t, const std::string &process);
   void setEventID(const G4int evtid) { photons.event = evtid; }
 
   void eventAction(DS::Root *);

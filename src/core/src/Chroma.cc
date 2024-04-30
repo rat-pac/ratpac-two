@@ -2,7 +2,6 @@
 
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/SystemOfUnits.h>
-#include <TMap.h>
 #include <TVector3.h>
 
 #include "RAT/DS/PMTInfo.hh"
@@ -55,6 +54,7 @@ void PhotonData::clear() {
   polz.clear();
   wavelength.clear();
   t.clear();
+  flags.clear();
 }
 
 zmq::send_result_t PhotonData::send(zmq::socket_t& client) {
@@ -75,6 +75,7 @@ zmq::send_result_t PhotonData::send(zmq::socket_t& client) {
   msg.push_back(zmq::buffer(polz));
   msg.push_back(zmq::buffer(wavelength));
   msg.push_back(zmq::buffer(t));
+  msg.push_back(zmq::buffer(flags));
   return zmq::send_multipart(client, msg);
 }
 
@@ -94,11 +95,18 @@ void PEData::clear() {
 
 bool PEData::readmsg(std::vector<zmq::message_t>& recv_msgs) {
   std::string header = recv_msgs[0].to_string();
-  if (header == SIM_COMPLETE && recv_msgs.size() > 4 && *(recv_msgs[1].data<uint32_t>()) == event) {
+  if (header == SIM_COMPLETE && recv_msgs.size() > PEDATA_NPARTS && *(recv_msgs[1].data<uint32_t>()) == event) {
     debug << "CHROMA-ZMQ: Received PE data!" << newline;
     copy_to_vector<uint32_t>(recv_msgs[2], channel_ids);
-    copy_to_vector<float>(recv_msgs[3], times);
-    copy_to_vector<float>(recv_msgs[4], wavelengths);
+    copy_to_vector<float>(recv_msgs[3], dx);
+    copy_to_vector<float>(recv_msgs[4], dy);
+    copy_to_vector<float>(recv_msgs[5], dz);
+    copy_to_vector<float>(recv_msgs[6], polx);
+    copy_to_vector<float>(recv_msgs[7], poly);
+    copy_to_vector<float>(recv_msgs[8], polz);
+    copy_to_vector<float>(recv_msgs[9], wavelengths);
+    copy_to_vector<float>(recv_msgs[10], times);
+    copy_to_vector<uint32_t>(recv_msgs[11], flags);
     numPE = channel_ids.size();
     return true;
   }
@@ -108,7 +116,7 @@ bool PEData::readmsg(std::vector<zmq::message_t>& recv_msgs) {
 }
 
 void Chroma::addPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const G4ThreeVector& pol, const float energy,
-                       const float t) {
+                       const float t, const std::string& process) {
   photons.numphotons++;
   photons.x.push_back(pos.x() / CLHEP::mm);
   photons.y.push_back(pos.y() / CLHEP::mm);
@@ -121,6 +129,13 @@ void Chroma::addPhoton(const G4ThreeVector& pos, const G4ThreeVector& dir, const
   photons.polz.push_back(pol.z());
   photons.wavelength.push_back((CLHEP::h_Planck * CLHEP::c_light / energy) / CLHEP::nanometer);
   photons.t.push_back(t / CLHEP::ns);
+  if (process == "Cerenkov") {
+    photons.flags.push_back(CHERENKOV_BIT);
+  } else if (process == "Scintillation") {
+    photons.flags.push_back(SCINTILLATION_BIT);
+  } else {
+    photons.flags.push_back(0);
+  }
 }
 
 Chroma::Chroma(DBLinkPtr chroma_db, DS::PMTInfo* pmt_info, std::vector<PMTTime*>& pmt_time,
@@ -227,12 +242,28 @@ void Chroma::eventAction(DS::Root* ds) {
     DS::MCPhoton* mcphoton = mcpmt->AddNewMCPhoton();
     mcphoton->SetDarkHit(false);
     mcphoton->SetAfterPulse(false);
-    mcphoton->SetLambda(pes.wavelengths[i]);
+    mcphoton->SetLambda(pes.wavelengths[i] / CLHEP::nm * CLHEP::mm);
     mcphoton->SetPosition(TVector3(pmt_x[chroma_ch], pmt_y[chroma_ch], pmt_z[chroma_ch]));
-    // TODO: add momentum, polarization, creation time, creatorprocess
+    // TODO: add creation time
+    TVector3 direction = TVector3(pes.dx[i], pes.dy[i], pes.dz[i]);
+    float momentum_mag = CLHEP::h_Planck * CLHEP::c_light / pes.wavelengths[i] * CLHEP::nm / CLHEP::MeV;
+    mcphoton->SetMomentum(momentum_mag * direction);
+    mcphoton->SetPolarization(TVector3(pes.polx[i], pes.poly[i], pes.polz[i]));
     mcphoton->SetHitTime(pes.times[i]);
     mcphoton->SetFrontEndTime(rat_pmt_time[rat_pmt_info->GetModel(rat_ch)]->PickTime(pes.times[i]));
     mcphoton->SetCharge(rat_pmt_charge[rat_pmt_info->GetModel(rat_ch)]->PickCharge());
+    uint32_t flag = pes.flags[i];
+    if ((flag & BULK_REEMIT_BIT) || (flag & SURF_REEMIT_BIT)) {
+      // Note: This behavior is different from RAT. RAT creates a new photon track for re-emission, whereas Chroma
+      // modifies the existing photon.
+      mcphoton->SetCreatorProcess("Reemission");
+    } else if (flag & CHERENKOV_BIT) {
+      mcphoton->SetCreatorProcess("Cerenkov");
+    } else if (flag & SCINTILLATION_BIT) {
+      mcphoton->SetCreatorProcess("Scintillation");
+    } else {
+      mcphoton->SetCreatorProcess("Unknown");
+    }
   }
   /////////////////////
   photons.clear();

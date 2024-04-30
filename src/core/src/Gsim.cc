@@ -360,7 +360,7 @@ void Gsim::PreUserTrackingAction(const G4Track *aTrack) {
       const G4ThreeVector pol = aTrack->GetPolarization();
       const float energy = aTrack->GetKineticEnergy();
       const float t = aTrack->GetGlobalTime();
-      chroma->addPhoton(pos, dir, pol, energy, t);
+      chroma->addPhoton(pos, dir, pol, energy, t, creatorProcessName);
       const_cast<G4Track *>(aTrack)->SetTrackStatus(fStopAndKill);
     }
   }
