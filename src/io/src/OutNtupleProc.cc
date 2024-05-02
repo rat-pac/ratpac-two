@@ -134,7 +134,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("mcPMTID", &mcpmtid);
     outputTree->Branch("mcPMTNPE", &mcpmtnpe);
 
-    outputTree->Branch("mcPETime", &mcpetime);
+    outputTree->Branch("mcPEHitTime", &mcpehittime);
     outputTree->Branch("mcPEFrontEndTime", &mcpefrontendtime);
     // Production process
     // 1=Cherenkov, 0=Dark noise, 2=Scint., 3=Reem., 4=Unknown
@@ -288,7 +288,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcpmtnpe.clear();
 
   // MCPE information
-  mcpetime.clear();
+  mcpehittime.clear();
   mcpefrontendtime.clear();
   mcpeprocess.clear();
   mcpewavelength.clear();
@@ -306,7 +306,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       TVector3 position = pmtinfo->GetPosition(mcpmt->GetID());
       for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++) {
         RAT::DS::MCPhoton *mcph = mcpmt->GetMCPhoton(ipe);
-        mcpetime.push_back(mcph->GetHitTime());
+        mcpehittime.push_back(mcph->GetHitTime());
         mcpefrontendtime.push_back(mcph->GetFrontEndTime());
         mcpewavelength.push_back(mcph->GetLambda());
         mcpex.push_back(position.X());
