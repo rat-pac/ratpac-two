@@ -1,6 +1,7 @@
 #ifndef __RAT_Chroma__
 #define __RAT_Chroma__
 
+#include <TClassTable.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TVector3.h>
@@ -21,12 +22,15 @@
 #include "zmq_addon.hpp"
 
 #define PING "PING"
-#define PONG "PONG"
+#define ACK "ACK"
+#define RUN_BEGIN "RUN_BEGIN"
+#define RUN_END "RUN_END"
 #define PHOTONDATA "PHOTONDATA"
 #define NO_WORKERS "NO_WORKERS"
 #define SIM_FAILED "SIM_FAILED"
 #define UNKNOWN_REQUEST "UNKNOWN_REQUEST"
 #define SIM_COMPLETE "SIM_COMPLETE"
+#define SIM_COMPLETE_ASYNC "SIM_COMPLETE_ASYNC"
 #define DETECTOR_INFO "DETECTOR_INFO"
 #define PEDATA_NPARTS 11
 #define CHERENKOV_BIT (0x1 << 10)
@@ -34,6 +38,8 @@
 #define BULK_REEMIT_BIT (0x1 << 9)
 #define SURF_REEMIT_BIT (0x1 << 7)
 namespace RAT {
+
+enum class ChromaRunMode { ZMQ, ROOTFILE };
 
 class Chroma;
 
@@ -98,16 +104,17 @@ class Chroma {
   // use_timeout of 0 means no timeout, otherwise timeout in seconds for propagations
   // if use_broker is true, conn is an endpoint of a Chroma broker used to find a GPU endpoint
   // otherwise conn is a GPU endpoint ready to receive PhotonData
-  Chroma(DBLinkPtr, DS::PMTInfo *, std::vector<PMTTime *> &, std::vector<PMTCharge *> &);
+  Chroma(ChromaRunMode, DBLinkPtr, DS::PMTInfo *, std::vector<PMTTime *> &, std::vector<PMTCharge *> &);
   virtual ~Chroma() {}
 
   // appends a photon to the next propagation request
   void addPhoton(const G4ThreeVector &pos, const G4ThreeVector &dir, const G4ThreeVector &pol, const float energy,
                  const float t, const std::string &process);
   void setEventID(const G4int evtid) { photons.event = evtid; }
-
   void eventAction(DS::Root *);
   void endOfRun();
+
+  ChromaRunMode runMode;
 
  protected:
   PhotonData photons;
@@ -115,7 +122,10 @@ class Chroma {
 
  private:
   zmq::socket_t s_client_socket();
-
+  void init_zmq(DBLinkPtr, DS::PMTInfo *, std::vector<PMTTime *> &, std::vector<PMTCharge *> &);
+  void init_rootfile(DBLinkPtr, DS::PMTInfo *, std::vector<PMTTime *> &, std::vector<PMTCharge *> &);
+  void eventAction_zmq(DS::Root *);
+  void eventAction_rootfile(DS::Root *);
   /**
    * @brief Perform a send action, with the proper error handling, retries, and timeouts.
    * Process and validate the server reply.
@@ -128,6 +138,8 @@ class Chroma {
   bool do_send_and_recv(std::function<zmq::send_result_t(zmq::socket_t &)>,
                         std::function<bool(std::vector<zmq::message_t> &)>);
   bool process_detinfo_reply(std::vector<zmq::message_t> &);
+  void match_chroma_and_rat_pmts();
+  void write_pes_to_ratds(DS::Root *);
 
   zmq::context_t context;
 
@@ -141,6 +153,11 @@ class Chroma {
   std::vector<PMTCharge *> rat_pmt_charge;
   std::vector<int> rat_pmt_id;  // rat_pmt_id[chroma_pmt_id] = rat_pmt_id
 
+  size_t current_evt;
+  TFile *rootfile;
+  TTree *pe_data;
+  TBranch *b_event_id;
+  TBranch *b_nchannel_id;
   // DBLinkPtr chroma_db;
 };
 

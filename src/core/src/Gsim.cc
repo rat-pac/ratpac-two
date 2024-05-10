@@ -203,11 +203,10 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
       // fallback to default table if model is not avaliable
       fPMTCharge[i] = new RAT::PDFPMTCharge();
     }
-
-    if (use_chroma) {
-      DBLinkPtr lchroma = DB::Get()->GetLink("CHROMA");
-      chroma = new Chroma(lchroma, fPMTInfo, fPMTTime, fPMTCharge);
-    }
+  }
+  if (use_chroma) {
+    DBLinkPtr lchroma = DB::Get()->GetLink("CHROMA");
+    chroma = new Chroma(ChromaRunMode::ZMQ, lchroma, fPMTInfo, fPMTTime, fPMTCharge);
   }
 
   // Tell the generator when the run starts
@@ -240,6 +239,7 @@ void Gsim::EndOfRunAction(const G4Run * /*arun*/) {
   mainBlock->EndOfRun(run);
   if (use_chroma) {
     chroma->endOfRun();
+    delete chroma;
   }
 }
 
