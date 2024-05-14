@@ -24,6 +24,19 @@
 #include "G4Threading.hh"
 #include "RAT/GdNeutronHPCaptureFS.hh"
 
+G4int MODEL = 4; // 1:ggarnet, 2:glg4sim, 3:Geant4 default 4:ANNRI-Gd
+// When you choose both "Gd target" and "ggarnet" or "glg4sim", you have to define the type of Gd.
+// CAPTURE = 1:natural , 2:enriched 157Gd, 3:enriched 155Gd
+G4int Gd_CAPTURE = 1;
+// CASCADE = 1:discrete paek + continuum part, 2:discrete peaks, 3:continuum part
+G4int Gd_CASCADE = 1;
+// When you choose "Gd target", "ggarnet" and "continuum part", you have to define the continuum parameter.
+// org:RIPL-3&&kopecky, yano_0908:newly yano tuning, yano_0909:use Iwamoto's parameter, ...
+G4String Gd157_File = "cont_dat/Gd157_org.dat";  //"cont_dat/Gd157_yano_0909.dat";
+G4String Gd157_ROOTFile = "cont_dat/158GdContTbl__E1SLO4__HFB.root";
+G4String Gd155_File = "cont_dat/Gd155.dat";
+G4String Gd155_ROOTFile = "cont_dat/156GdContTbl__E1SLO4__HFB.root";
+
 GdNeutronHPCapture::GdNeutronHPCapture() : G4HadronicInteraction("NeutronHPCapture_ANNRI") {
   SetMinEnergy(0.0);
   SetMaxEnergy(20. * MeV);
@@ -89,6 +102,11 @@ G4HadFinalState* GdNeutronHPCapture::ApplyYourself(const G4HadProjectile& aTrack
    G4cout << "Target Material of this reaction is " << theMaterial->GetName() << G4endl;
    G4cout << "Target Element of this reaction is " << target_element->GetName() << G4endl;
    G4cout << "Target Isotope of this reaction is " << target_isotope->GetName() << G4endl;
+   std::string gd_155_for_keyword = "Gd155";
+   std::string gd_157_for_keyword = "Gd157";
+   if (gd_155_for_keyword.compare(target_isotope->GetName())==0) Gd_CAPTURE = 3;
+   if (gd_157_for_keyword.compare(target_isotope->GetName())==0) Gd_CAPTURE = 2;
+  G4cout << "Gd_CAPTURE number" << Gd_CAPTURE << G4endl;
   aNucleus.SetIsotope(target_isotope);
 
   G4ParticleHPManager::GetInstance()->CloseReactionWhiteBoard();
@@ -109,7 +127,7 @@ void GdNeutronHPCapture::SetVerboseLevel(G4int newValue) {
 void GdNeutronHPCapture::BuildPhysicsTable(const G4ParticleDefinition&) {
   G4ParticleHPManager* hpmanager = G4ParticleHPManager::GetInstance();
   theCapture = hpmanager->GetCaptureFinalStates();
-          G4cout << "Check Calling BuildPhysicsTable"<<numEle << G4endl; //this line will be remove in next commit
+          G4cout << "Check Calling BuildPhysicsTable (numEle): "<<numEle << G4endl; //this line will be remove in next commit
   if (G4Threading::IsMasterThread()) {
     if (theCapture == nullptr) theCapture = new std::vector<G4ParticleHPChannel*>;
     if (numEle == (G4int)G4Element::GetNumberOfElements()) return;

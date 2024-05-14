@@ -37,30 +37,29 @@ namespace AGd = ANNRIGdGammaSpecModel;
 
 #define File_Name "GdNeutronHPCaptireFS.cc"
 
+extern G4int    MODEL;      //1:garnet, 2:glg4sim, 4:ANNRI-Gd
+extern G4int    Gd_CAPTURE; //1:natural , 2:enriched 157Gd, 3:enriched 155Gd
+extern G4int    Gd_CASCADE; //1:discrete + continuum; 2:discrete, 3:continuum
+extern G4String Gd157_ROOTFile;
+extern G4String Gd155_ROOTFile;
+
+/*
 // When you choose "Gd target", which model do you use?
 // 1:ggarnet, 2:glg4sim, 3:Geant4 default 4:ANNRI-Gd
 G4int MODEL = 4;
 // When you choose both "Gd target" and "ggarnet" or "glg4sim", you have to define the type of Gd.
 // CAPTURE = 1:natural , 2:enriched 157Gd, 3:enriched 155Gd
 // CASCADE = 1:discrete paek + continuum part, 2:discrete peaks, 3:continuum part
-
 G4int Gd_CAPTURE = 1;
 G4int Gd_CASCADE = 1;
-
 // When you choose "Gd target", "ggarnet" and "continuum part", you have to define the continuum parameter.
 // org:RIPL-3&&kopecky, yano_0908:newly yano tuning, yano_0909:use Iwamoto's parameter, ...
 G4String Gd157_File = "cont_dat/Gd157_org.dat";  //"cont_dat/Gd157_yano_0909.dat";
 G4String Gd157_ROOTFile = "cont_dat/158GdContTbl__E1SLO4__HFB.root";
 G4String Gd155_File = "cont_dat/Gd155.dat";
 G4String Gd155_ROOTFile = "cont_dat/156GdContTbl__E1SLO4__HFB.root";
-
-/*
-extern G4int    MODEL;      //1:garnet, 2:glg4sim, 4:ANNRI-Gd
-extern G4int    Gd_CAPTURE; //1:natural , 2:enriched 157Gd, 3:enriched 155Gd
-extern G4int    Gd_CASCADE; //1:discrete + continuum; 2:discrete, 3:continuum
-extern G4String Gd157_ROOTFile;
-extern G4String Gd155_ROOTFile;
 */
+
 // use a static generator to avoid the construction and loading of data
 // files for each Gd isotope
 AGd::ANNRIGd_GdNCaptureGammaGenerator* GdNeutronHPCaptureFS::sAnnriGammaGen = 0;
