@@ -106,7 +106,7 @@ G4HadFinalState* GdNeutronHPCapture::ApplyYourself(const G4HadProjectile& aTrack
    std::string gd_157_for_keyword = "Gd157";
    if (gd_155_for_keyword.compare(target_isotope->GetName())==0) Gd_CAPTURE = 3;
    if (gd_157_for_keyword.compare(target_isotope->GetName())==0) Gd_CAPTURE = 2;
-  G4cout << "Gd_CAPTURE number" << Gd_CAPTURE << G4endl;
+  G4cout << "Gd_CAPTURE (Gd155 = 3 or Gd157 = 2):" << Gd_CAPTURE << G4endl;
   aNucleus.SetIsotope(target_isotope);
 
   G4ParticleHPManager::GetInstance()->CloseReactionWhiteBoard();

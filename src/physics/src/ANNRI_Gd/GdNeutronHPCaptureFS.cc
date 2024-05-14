@@ -117,6 +117,7 @@ G4HadFinalState* GdNeutronHPCaptureFS::ApplyYourself(const G4HadProjectile& theT
   ///////////////////dice the photons////////////////////
   G4ReactionProductVector* thePhotons = nullptr;
   G4ParticleHPManager* hpmanager = G4ParticleHPManager::GetInstance();
+  G4cout << "Gd_CAPTURE (Gd155 = 3, Gd157 = 2 in CaptureFS):" << Gd_CAPTURE << G4endl;
   thePhotons = GenerateWithANNRIGdGenerator();
         G4cout << "thePhotons = GenerateWithANNRIGdGenerator();" <<G4endl;//this line will be remove in next commit
   // Add them to the final state
