@@ -100,7 +100,7 @@ AmBeSource::AmBeSource() {
     double energy = massNeutron + neutronKE;
     // 	  info << "energy = " << energy*CLHEP::MeV << newline;
     // Generate momentum direction uniformly in phi and cos(theta).
-    double phi = CLHEP::RandFlat::shoot(0., M_PI);
+    double phi = CLHEP::RandFlat::shoot(0., 2.0 * M_PI);
     double cosTheta = CLHEP::RandFlat::shoot(-1., 1.);
     double sinTheta = sqrt(1. - cosTheta * cosTheta);
 
@@ -147,7 +147,7 @@ AmBeSource::AmBeSource() {
   for (int nn = 0; nn < Ngamma; nn++) {
     double energy = 4.43;  // from the C12 first excited state
     // Generate momentum direction uniformly in phi and cos(theta).
-    double phi = CLHEP::RandFlat::shoot(0., M_PI);
+    double phi = CLHEP::RandFlat::shoot(0., 2.0 * M_PI);
     double cosTheta = CLHEP::RandFlat::shoot(-1., 1.);
     double sinTheta = sqrt(1. - cosTheta * cosTheta);
     double px = energy * sinTheta * cos(phi);

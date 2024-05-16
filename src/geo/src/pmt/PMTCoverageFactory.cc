@@ -59,12 +59,14 @@ G4VPhysicalVolume *PMTCoverageFactory::Construct(DBLinkPtr table) {
   std::vector<double> individual_noise_rates(Npmt, 0.0);
   std::vector<double> individual_afterpulse_fraction(Npmt, 0.0);
   std::vector<int> type(Npmt, 0);
+  std::vector<int> channel_number(Npmt, -1);
   std::vector<double> effi_corr(Npmt, 1.0);
   for (int i = 0; i < Npmt; i++) {
     pos[i].set(xpmt[i], ypmt[i], zpmt[i]);
     dir[i].set(-xpmt[i], -ypmt[i], zpmt[i]);
   }
 
-  return ConstructPMTs(table, pos, dir, type, effi_corr, individual_noise_rates, individual_afterpulse_fraction);
+  return ConstructPMTs(table, pos, dir, type, channel_number, effi_corr, individual_noise_rates,
+                       individual_afterpulse_fraction);
 }
 }  // namespace RAT

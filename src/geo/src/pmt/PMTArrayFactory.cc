@@ -23,6 +23,7 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
   const std::vector<double> &pmtinfo_effcorrs = pmtinfo.GetEfficiencyCorrections();
   const std::vector<double> &pmtinfo_noiserates = pmtinfo.GetPMTNoiseRates();
   const std::vector<double> &pmtinfo_afterpulse_fraction = pmtinfo.GetPMTAfterPulseFraction();
+  const std::vector<int> &pmtinfo_channel_numbers = pmtinfo.GetChannelNumbers();
 
   int start_idx, end_idx;
   try {
@@ -82,9 +83,11 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
 
   std::vector<G4ThreeVector> pos(end_idx - start_idx + 1), dir(end_idx - start_idx + 1);
   std::vector<int> ptypes(end_idx - start_idx + 1);
+  std::vector<int> channels(end_idx - start_idx + 1);
   for (int idx = start_idx, i = 0; idx <= end_idx; idx++, i++) {
     pos[i] = pmtinfo_pos[idx];
     ptypes[i] = pmtinfo_types[idx];
+    channels[i] = pmtinfo_channel_numbers[idx];
     if (rescale_radius) {
       pos[i].setMag(new_radius);
     }
@@ -102,7 +105,8 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
     }
   }
 
-  return ConstructPMTs(table, pos, dir, ptypes, pmtinfo_effcorrs, pmtinfo_noiserates, pmtinfo_afterpulse_fraction);
+  return ConstructPMTs(table, pos, dir, ptypes, channels, pmtinfo_effcorrs, pmtinfo_noiserates,
+                       pmtinfo_afterpulse_fraction);
 }
 
 }  // namespace RAT

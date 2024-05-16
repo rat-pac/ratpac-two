@@ -23,12 +23,10 @@ namespace RAT {
 
 DS::PMTInfo PMTFactoryBase::pmtinfo;
 
-G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vector<G4ThreeVector> &pmt_pos,
-                                                 const std::vector<G4ThreeVector> &pmt_dir,
-                                                 const std::vector<int> &pmt_type,
-                                                 const std::vector<double> &pmt_effi_corr,
-                                                 const std::vector<double> &individual_noise_rate,
-                                                 const std::vector<double> &individual_afterpulse_fraction) {
+G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
+    DBLinkPtr table, const std::vector<G4ThreeVector> &pmt_pos, const std::vector<G4ThreeVector> &pmt_dir,
+    const std::vector<int> &pmt_type, const std::vector<int> &channel_number, const std::vector<double> &pmt_effi_corr,
+    const std::vector<double> &individual_noise_rate, const std::vector<double> &individual_afterpulse_fraction) {
   std::string volume_name = table->GetS("index");
   std::string mother_name = table->GetS("mother");
   std::string pmt_model = table->GetS("pmt_model");
@@ -245,7 +243,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(DBLinkPtr table, const std::vec
     // NOTE: Since the BField stuff isn't used currently, add the efficiency here.
     // If we revive the BField code, this needs to be moved after so that the efficiency is correct
     pmtinfo.AddPMT(TVector3(pmtpos.x(), pmtpos.y(), pmtpos.z()), TVector3(pmtdir.x(), pmtdir.y(), pmtdir.z()),
-                   pmt_type[i], pmt_model, pmt_effi_corr[i], individual_noise_rate[i],
+                   pmt_type[i], channel_number[i], pmt_model, pmt_effi_corr[i], individual_noise_rate[i],
                    individual_afterpulse_fraction[i]);
 
     // if requested, generates the magnetic efficiency corrections as the PMTs
