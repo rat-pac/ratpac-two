@@ -37,11 +37,13 @@ class PMTInfoParser {
   const std::vector<double> &GetPMTNoiseRates() { return fNoiseRate; }
   const std::vector<double> &GetPMTAfterPulseFraction() { return fAfterPulseFraction; }
   const std::vector<int> &GetTypes() { return fType; }
+  const std::vector<int> &GetChannelNumbers() { return fChannelNumber; }
 
  protected:
   G4ThreeVector fLocalOffset;
   std::vector<G4ThreeVector> fPos;
   std::vector<G4ThreeVector> fDir;
+  std::vector<int> fChannelNumber;
   std::vector<int> fType;
   std::vector<double> fEfficiencyCorrection;
   std::vector<double> fNoiseRate;

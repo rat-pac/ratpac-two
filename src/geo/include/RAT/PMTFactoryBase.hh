@@ -13,6 +13,7 @@ class PMTFactoryBase : public GeoFactory {
  protected:
   virtual G4VPhysicalVolume *ConstructPMTs(DBLinkPtr table, const std::vector<G4ThreeVector> &pmt_pos,
                                            const std::vector<G4ThreeVector> &pmt_dir, const std::vector<int> &pmt_type,
+                                           const std::vector<int> &pmt_channel_number,
                                            const std::vector<double> &pmt_effi_corr,
                                            const std::vector<double> &individual_noise_rate,
                                            const std::vector<double> &individual_afterpulse_fraction);
