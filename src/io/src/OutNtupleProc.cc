@@ -69,6 +69,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("macro", &macro);
   metaTree->Branch("pmtType", &pmtType);
   metaTree->Branch("pmtId", &pmtId);
+  metaTree->Branch("pmtChannel", &pmtChannel);
   metaTree->Branch("pmtX", &pmtX);
   metaTree->Branch("pmtY", &pmtY);
   metaTree->Branch("pmtZ", &pmtZ);
@@ -446,10 +447,12 @@ OutNtupleProc::~OutNtupleProc() {
     DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
     for (int id = 0; id < pmtinfo->GetPMTCount(); id++) {
       int type = pmtinfo->GetType(id);
+      int channel = pmtinfo->GetChannelNumber(id);
       TVector3 position = pmtinfo->GetPosition(id);
       TVector3 direction = pmtinfo->GetDirection(id);
       pmtType.push_back(type);
       pmtId.push_back(id);
+      pmtChannel.push_back(channel);
       pmtX.push_back(position.X());
       pmtY.push_back(position.Y());
       pmtZ.push_back(position.Z());
