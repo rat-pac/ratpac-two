@@ -96,7 +96,8 @@ class OutNtupleProc : public Processor {
   std::vector<int> mcpmtid;
   std::vector<int> mcpmtnpe;
   // MCPE
-  std::vector<double> mcpetime;
+  std::vector<double> mcpehittime;
+  std::vector<double> mcpefrontendtime;
   std::vector<int> mcpeprocess;
   std::vector<double> mcpewavelength;
   std::vector<double> mcpex;
