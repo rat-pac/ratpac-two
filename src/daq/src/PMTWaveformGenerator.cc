@@ -68,7 +68,8 @@ PMTWaveform PMTWaveformGenerator::GenerateWaveforms(DS::MCPMT *mcpmt, double tri
   for (int iph = 0; iph < mcpmt->GetMCPhotonCount(); iph++) {
     DS::MCPhoton *mcpe = mcpmt->GetMCPhoton(iph);
 
-    PMTPulse *pmtpulse = new PMTPulse(fPMTPulseType, fPMTPulseShape);
+    pmtwf.fPulse.push_back(PMTPulse(fPMTPulseType, fPMTPulseShape));
+    PMTPulse *pmtpulse = &pmtwf.fPulse.back();
     pmtpulse->SetPulseCharge(mcpe->GetCharge() * fTerminationOhms);
     pmtpulse->SetPulseMin(fPMTPulseMin);
     pmtpulse->SetPulseOffset(fPMTPulseOffset);
@@ -81,8 +82,6 @@ PMTWaveform PMTWaveformGenerator::GenerateWaveforms(DS::MCPMT *mcpmt, double tri
 
     pmtpulse->SetPulseTimes(fPMTPulseShapeTimes);
     pmtpulse->SetPulseValues(fPMTPulseShapeValues);
-
-    pmtwf.fPulse.push_back(pmtpulse);
   }
 
   return pmtwf;
