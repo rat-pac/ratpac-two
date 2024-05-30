@@ -133,6 +133,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     // Save full MC PMT hit information
     outputTree->Branch("mcPMTID", &mcpmtid);
     outputTree->Branch("mcPMTNPE", &mcpmtnpe);
+    outputTree->Branch("mcPMTCharge", &mcpmtcharge);
 
     outputTree->Branch("mcPEHitTime", &mcpehittime);
     outputTree->Branch("mcPEFrontEndTime", &mcpefrontendtime);
@@ -143,6 +144,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("mcPEx", &mcpex);
     outputTree->Branch("mcPEy", &mcpey);
     outputTree->Branch("mcPEz", &mcpez);
+    outputTree->Branch("mcPECharge", &mcpecharge);
   }
   if (options.tracking) {
     // Save particle tracking information
@@ -286,6 +288,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   // MCPMT information
   mcpmtid.clear();
   mcpmtnpe.clear();
+  mcpmtcharge.clear();
 
   // MCPE information
   mcpehittime.clear();
@@ -295,6 +298,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcpex.clear();
   mcpey.clear();
   mcpez.clear();
+  mcpecharge.clear();
 
   mcnhits = mc->GetMCPMTCount();
   mcpecount = mc->GetNumPE();
@@ -303,6 +307,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       DS::MCPMT *mcpmt = mc->GetMCPMT(ipmt);
       mcpmtid.push_back(mcpmt->GetID());
       mcpmtnpe.push_back(mcpmt->GetMCPhotonCount());
+      mcpmtcharge.push_back(mcpmt->GetCharge());
       TVector3 position = pmtinfo->GetPosition(mcpmt->GetID());
       for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++) {
         RAT::DS::MCPhoton *mcph = mcpmt->GetMCPhoton(ipe);
@@ -312,6 +317,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         mcpex.push_back(position.X());
         mcpey.push_back(position.Y());
         mcpez.push_back(position.Z());
+        mcpecharge.push_back(mcph->GetCharge());
         if (mcph->IsDarkHit()) {
           mcpeprocess.push_back(noise);
           continue;
