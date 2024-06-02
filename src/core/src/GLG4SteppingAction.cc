@@ -183,8 +183,8 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   if (max_global_time > 0.0) {
     double gtime = track->GetGlobalTime();
     if (gtime > max_global_time) {
-      /*
-        KJP 8/17/2011 Commented out annoying error message that fills logs
+      
+      //  KJP 8/17/2011 Commented out annoying error message that fills logs
       const G4VPhysicalVolume* pv= track->GetVolume();
       const G4VProcess* lastproc= track->GetStep()->GetPostStepPoint()
         ->GetProcessDefinedStep();
@@ -200,7 +200,7 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
              << "\n position=" << track->GetPosition()
              << " momentum=" << track->GetMomentum()
              << newline;
-      */
+      
 
       track->SetTrackStatus(fStopAndKill);
     }
@@ -209,7 +209,7 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   //===========================================================================//
   // DICEBOX 158Gd //
   //===========================================================================//
-
+/*
 #define debug_dicebox158Gd
 #undef debug_dicebox158Gd
 
@@ -253,7 +253,8 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
 
   // If the step is neutron capture on 157Gd, then postpone all of its
   // secondaries except the Gd158. Then we get the new secondaries from dicebox.
-  if (nCap157Gd) {
+  //if (nCap157Gd) {
+  if (false) {
     for (size_t lp1 = (*fSecondary).size() - numSecondaries; lp1 < (*fSecondary).size(); lp1++) {
       G4ParticleDefinition *particle = (*fSecondary)[lp1]->GetDefinition();
       G4String nameParticle = particle->GetParticleName();
@@ -298,7 +299,7 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   //===========================================================================//
   // END OF DICEBOX //
   //===========================================================================//
-
+*/
 #ifdef G4DEBUG
   static G4Timer timer;
 

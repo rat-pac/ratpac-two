@@ -106,8 +106,8 @@ G4HadFinalState* GdNeutronHPCaptureFS::ApplyYourself(const G4HadProjectile& theT
   const G4Material* theMaterial = theTrack.GetMaterial();
   std::size_t index = theMaterial->GetElement(0)->GetIndex();
   const G4Element* target_element = (*G4Element::GetElementTable())[index];  
-  G4cout << "Target Material of FinalState is " << theMaterial->GetName() << G4endl;
-  G4cout << "Target Element of FinalState is " << target_element->GetName() << G4endl;
+  //G4cout << "Target Material of FinalState is " << theMaterial->GetName() << G4endl;
+  //G4cout << "Target Element of FinalState is " << target_element->GetName() << G4endl;
 // (end) this block will be remove in next commit
 
   // Put neutron in nucleus rest system
@@ -117,12 +117,12 @@ G4HadFinalState* GdNeutronHPCaptureFS::ApplyYourself(const G4HadProjectile& theT
   ///////////////////dice the photons////////////////////
   G4ReactionProductVector* thePhotons = nullptr;
   G4ParticleHPManager* hpmanager = G4ParticleHPManager::GetInstance();
-  G4cout << "Gd_CAPTURE (Gd155 = 3, Gd157 = 2 in CaptureFS):" << Gd_CAPTURE << G4endl;
+  //G4cout << "Gd_CAPTURE (Gd155 = 3 || Gd157 = 2 // CaptureFS):" << Gd_CAPTURE << G4endl;
   thePhotons = GenerateWithANNRIGdGenerator();
-        G4cout << "thePhotons = GenerateWithANNRIGdGenerator();" <<G4endl;//this line will be remove in next commit
+        //G4cout << "thePhotons = GenerateWithANNRIGdGenerator();" <<G4endl;//this line will be remove in next commit
   // Add them to the final state
   G4int nPhotons = (G4int)thePhotons->size();
-        G4cout << "Check nPhotons or thePhotons->size() : " << nPhotons << G4endl;//this line will be remove in next commit
+        //G4cout << "Check thePhotons->size() : " << nPhotons << G4endl;//this line will be remove in next commit
   if (!hpmanager->GetDoNotAdjustFinalState()) {
     // Make at least one photon
     // 101203 TK
@@ -172,15 +172,17 @@ G4HadFinalState* GdNeutronHPCaptureFS::ApplyYourself(const G4HadProjectile& theT
     theOne->SetMomentum(thePhotons->operator[](i)->GetMomentum());
     theResult.Get()->AddSecondary(theOne, secID);
     // (begin) this block will be remove in next commit
+    /*
     if (thePhotons->operator[](i)->GetDefinition() == G4Gamma::Gamma())
         {
-          G4cout << "thePhotons->operator[](i)->GetDefinition() is Gamma " << G4endl;
+          G4cout << "thePhotons->operator[]("<<i<<")->GetDefinition() is Gamma " << G4endl;
         }
     if (thePhotons->operator[](i)->GetDefinition() == G4Electron::Electron())
         {
-          G4cout << "thePhotons->operator[](i)->GetDefinition() is Internal Conversion Electron " << G4endl;
+          G4cout << "thePhotons->operator[]("<<i<<")->GetDefinition() is Internal Conversion Electron " << G4endl;
         }
-        G4cout << "thePhotons->operator[](i)->GetMomentum() : " << thePhotons->operator[](i)->GetMomentum() << G4endl;
+        G4cout << "thePhotons->operator[]("<<i<<")->GetMomentum() : " << thePhotons->operator[](i)->GetMomentum() << G4endl;
+    */
     // (end) this block will be remove in next commit
     delete thePhotons->operator[](i);
   }

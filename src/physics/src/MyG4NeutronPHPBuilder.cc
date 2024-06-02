@@ -76,10 +76,11 @@ void MyG4NeutronPHPBuilder::Build(G4NeutronCaptureProcess* aP) {
     MyHPCapture = new GdNeutronHPCapture;
     MyHPCapture->SetMinEnergy(theMin);
     MyHPCapture->SetMaxEnergy(theMax);
-    aP->RegisterMe(MyHPCapture);
+    //aP->RegisterMe(MyHPCapture);
     if (theHPCaptureData == 0) theHPCaptureData = new G4ParticleHPCaptureData;
-    pmanager->AddDiscreteProcess(aP);
+    //pmanager->AddDiscreteProcess(aP);
     aP->AddDataSet(theHPCaptureData);
+    aP->RegisterMe(MyHPCapture);
   } else {
     if (theHPCapture == 0) theHPCapture = new G4ParticleHPCapture;
     theHPCapture->SetMinEnergy(theMin);

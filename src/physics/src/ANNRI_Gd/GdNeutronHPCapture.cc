@@ -99,14 +99,14 @@ G4HadFinalState* GdNeutronHPCapture::ApplyYourself(const G4HadProjectile& aTrack
     target_isotope = target_element->GetIsotope(j);
     if (target_isotope->GetN() == G4ParticleHPManager::GetInstance()->GetReactionWhiteBoard()->GetTargA()) break;
   }
-   G4cout << "Target Material of this reaction is " << theMaterial->GetName() << G4endl;
-   G4cout << "Target Element of this reaction is " << target_element->GetName() << G4endl;
-   G4cout << "Target Isotope of this reaction is " << target_isotope->GetName() << G4endl;
+   //G4cout << "Target Material of this reaction is " << theMaterial->GetName() << G4endl;
+   //G4cout << "Target Element of this reaction is " << target_element->GetName() << G4endl;
+   //G4cout << "Target Isotope of this reaction is " << target_isotope->GetName() << G4endl;
    std::string gd_155_for_keyword = "Gd155";
    std::string gd_157_for_keyword = "Gd157";
    if (gd_155_for_keyword.compare(target_isotope->GetName())==0) Gd_CAPTURE = 3;
    if (gd_157_for_keyword.compare(target_isotope->GetName())==0) Gd_CAPTURE = 2;
-  G4cout << "Gd_CAPTURE (Gd155 = 3 or Gd157 = 2):" << Gd_CAPTURE << G4endl;
+  //G4cout << "Gd_CAPTURE (Gd155 = 3 || Gd157 = 2):" << Gd_CAPTURE << G4endl;
   aNucleus.SetIsotope(target_isotope);
 
   G4ParticleHPManager::GetInstance()->CloseReactionWhiteBoard();
@@ -127,7 +127,7 @@ void GdNeutronHPCapture::SetVerboseLevel(G4int newValue) {
 void GdNeutronHPCapture::BuildPhysicsTable(const G4ParticleDefinition&) {
   G4ParticleHPManager* hpmanager = G4ParticleHPManager::GetInstance();
   theCapture = hpmanager->GetCaptureFinalStates();
-          G4cout << "Check Calling BuildPhysicsTable (numEle): "<<numEle << G4endl; //this line will be remove in next commit
+          //G4cout << "Check Calling BuildPhysicsTable (numEle): "<<numEle << G4endl; //this line will be remove in next commit
   if (G4Threading::IsMasterThread()) {
     if (theCapture == nullptr) theCapture = new std::vector<G4ParticleHPChannel*>;
     if (numEle == (G4int)G4Element::GetNumberOfElements()) return;
@@ -145,12 +145,14 @@ void GdNeutronHPCapture::BuildPhysicsTable(const G4ParticleDefinition&) {
     dirName = dirName + tString;
     auto theFS = new G4NeutronHPCaptureFS;
     auto theGdFS = new GdNeutronHPCaptureFS;
-          G4cout << "Check numEle at outer loop"<<numEle << G4endl;//this line will be remove in next commit
+          //G4cout << "Check numEle at outer loop"<<numEle << G4endl;//this line will be remove in next commit
     for (G4int i = numEle; i < (G4int)G4Element::GetNumberOfElements(); ++i) {
-          G4cout << "Check iter i at inner loop:" << i <<G4endl;//this line will be remove in next commit
+          //G4cout << "Check iter i at inner loop:" << i <<G4endl;//this line will be remove in next commit
       theCapture->push_back(new G4ParticleHPChannel);
-          G4cout << "Check value (*(G4Element::GetElementTable()))[i]->GetZ() : "
-                  << (*(G4Element::GetElementTable()))[i]->GetZ() << G4endl;//this line will be remove in next commit
+         // G4cout << "Check value (*(G4Element::GetElementTable()))["
+	//	  <<i
+	//  <<"]->GetZ() : "
+        //          << (*(G4Element::GetElementTable()))[i]->GetZ() << G4endl;//this line will be remove in next commit
       if ((*(G4Element::GetElementTable()))[i]->GetZ() != 64) 
       {
         ((*theCapture)[i])->Init((*(G4Element::GetElementTable()))[i], dirName);

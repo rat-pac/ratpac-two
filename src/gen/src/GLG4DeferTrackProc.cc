@@ -49,7 +49,8 @@ G4double GLG4DeferTrackProc::PostStepGetPhysicalInteractionLength(const G4Track 
                                                                   G4double /* previousStepSize */,
                                                                   G4ForceCondition *condition) {
   // condition is set to "Not Forced"
-  *condition = NotForced;
+  *condition = Forced;
+  //*condition = NotForced;
 
   // apply maximum time limit
   G4double dTime = (_generator->GetEventWindow() - aTrack.GetGlobalTime());
