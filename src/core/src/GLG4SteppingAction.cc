@@ -183,7 +183,7 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   if (max_global_time > 0.0) {
     double gtime = track->GetGlobalTime();
     if (gtime > max_global_time) {
-      
+     /* 
       //  KJP 8/17/2011 Commented out annoying error message that fills logs
       const G4VPhysicalVolume* pv= track->GetVolume();
       const G4VProcess* lastproc= track->GetStep()->GetPostStepPoint()
@@ -200,7 +200,7 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
              << "\n position=" << track->GetPosition()
              << " momentum=" << track->GetMomentum()
              << newline;
-      
+     */
 
       track->SetTrackStatus(fStopAndKill);
     }
