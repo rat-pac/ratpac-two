@@ -30,6 +30,7 @@
 #include <RAT/PDFPMTCharge.hh>
 #include <RAT/PDFPMTTime.hh>
 #include <RAT/PMTFactoryBase.hh>
+#include <RAT/GeoNestedSolidArrayFactoryBase.hh>
 #include <RAT/PhysicsList.hh>
 #include <RAT/PrimaryVertexInformation.hh>
 #include <RAT/ProcBlock.hh>
@@ -179,6 +180,7 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
 
   run = DS::RunStore::GetRun(runID);
   fPMTInfo = run->GetPMTInfo();
+  fNestedTubeInfo = run->GetNestedTubeInfo();
 
   for (size_t i = 0; i < fPMTTime.size(); i++) {
     delete fPMTTime[i];
@@ -421,6 +423,7 @@ void Gsim::MakeRun(int _runID) {
   run->SetType((unsigned)lrun->GetI("runtype"));
   run->SetStartTime(utc);
   run->SetPMTInfo(&PMTFactoryBase::GetPMTInfo());
+  run->SetNestedTubeInfo(&GeoNestedSolidArrayFactoryBase::GetNestedTubeInfo());
 
   DS::RunStore::AddNewRun(run);
 }

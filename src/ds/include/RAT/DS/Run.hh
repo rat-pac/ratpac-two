@@ -12,6 +12,7 @@
 #include <TTimeStamp.h>
 
 #include <RAT/DS/PMTInfo.hh>
+#include <RAT/DS/NestedTubeInfo.hh>
 #include <vector>
 
 namespace RAT {
@@ -50,6 +51,22 @@ class Run : public TObject {
   virtual bool ExistPMTInfo() { return !pmtinfo.empty(); }
   virtual void PrunePMTInfo() { pmtinfo.resize(0); }
 
+  /** Nested tube information */
+  virtual NestedTubeInfo *GetNestedTubeInfo() {
+    if (nestedtubeinfo.empty()) {
+      nestedtubeinfo.resize(1);
+    }
+    return &nestedtubeinfo[0];
+  }
+  virtual void SetNestedTubeInfo(const NestedTubeInfo *_nestedtubeinfo) {
+    if (nestedtubeinfo.empty()) {
+      nestedtubeinfo.resize(1);
+    }
+    nestedtubeinfo[0] = *_nestedtubeinfo;
+  }
+  virtual bool ExistNestedTubeInfo() { return !nestedtubeinfo.empty(); }
+  virtual void PruneNestedTubeInfo() { nestedtubeinfo.resize(0); }
+
   ClassDef(Run, 2);
 
  protected:
@@ -57,6 +74,7 @@ class Run : public TObject {
   ULong64_t type;
   TTimeStamp startTime;
   std::vector<PMTInfo> pmtinfo;
+  std::vector<NestedTubeInfo> nestedtubeinfo;
 };
 
 }  // namespace DS

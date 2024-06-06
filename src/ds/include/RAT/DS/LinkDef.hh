@@ -2,6 +2,7 @@
 
 #pragma link C++ class RAT::DS::Root + ;
 #pragma link C++ class RAT::DS::PMTInfo + ;
+#pragma link C++ class RAT::DS::NestedTubeInfo + ;
 
 #pragma link C++ class RAT::DS::MC + ;
 #pragma link C++ class RAT::DS::MCParticle + ;
