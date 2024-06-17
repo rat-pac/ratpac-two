@@ -80,6 +80,7 @@ Allowed types:
  * tubearray - Array of tubes
  * lgarray - Array of tubes where one end has the PMT face cut out 
  * pmtarray - Array of PMTs
+ * nestedtubearray - Array of three nested tubes. Useful to simulate optical fibers
  * waterboxarray - Array of standard cubitainer water boxes
  * extpolyarray - Array of extruded polygonal solids
  * bubble - Collection of bubbles
@@ -145,6 +146,28 @@ PMTArray Fields:
 ``orientation``         ``string``                  Method of determining PMT direction.  "point" will aim all PMTs at a point in space.  "manual" requires that the position table also contain dir_x, dir_y, and dir_z fields which define the direction vector for each PMT.
 ``orient_point``        ``float[3]`` (optional)     Point (mm) in mother volume to aim all PMTs toward.
 ``rescale_radius``      ``float`` (optional)        Assumes all PMTs are spherically arranged around the center of the mother volume and rescales their positions to a particular radius.  By default, no rescaling is done.
+======================  ==========================  ===================
+
+NestedTubeArray Fields:
+
+======================  ==========================  ===================
+**Field**               **Type**                    **Description**
+======================  ==========================  ===================
+``pos_table``           ``string``                  Specifies the table containing position (and direction) arrays specifying how to place PMTs
+``core_r``           ``float``                  The radius of the core tube (mm)
+``inner_r``           ``float``                  The radius of the inner tube (mm)
+``outer_r``           ``float``                  The radius of the outer tube (mm)
+``material_core``           ``string``                  The material of the core tube
+``material_inner``           ``string``                  The material of the inner tube
+``material_outer``           ``string``                  The material of the outer tube
+``Dz``              ``float``                   Half-height of tube (mm)
+``phi_start``           ``float`` (optional)        Angle (deg) where tube segment starts.  Default is 0.0
+``phi_delta``           ``float`` (optional)        Angle span (deg) of tube segment.  Default is 360.0
+``start_idx``           ``int`` (optional)          Index to start building nested tubes in the ``NESTEDTUBEINFO`` table specified (inclusive, defaults to 0)
+``end_idx``             ``int`` (optional)          Index to stop building nested tubes in the ``NESTEDTUBEINFO`` table specified (inclusive, defaults to length-1)
+``orientation``         ``string``                  Method of determining nested tube direction.  "point" will aim all nested tubes at a point in space.  "manual" requires that the position table also contain dir_x, dir_y, and dir_z fields which define the direction vector for each PMT.
+``orient_point``        ``float[3]`` (optional)     Point (mm) in mother volume to aim all tubes toward.
+``rescale_radius``      ``float`` (optional)        Assumes all tubes are spherically arranged around the center of the mother volume and rescales their positions to a particular radius.  By default, no rescaling is done.
 ======================  ==========================  ===================
 
 Creating a parameterized geometry
