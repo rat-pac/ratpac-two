@@ -29,6 +29,7 @@
 #include <RAT/GeoWaterBoxArrayFactory.hh>
 #include <RAT/Log.hh>
 #include <RAT/PMTArrayFactory.hh>
+#include <RAT/GeoNestedTubeArrayFactory.hh>
 #include <RAT/PMTCoverageFactory.hh>
 #include <RAT/WLSPCoverFactory.hh>
 #include <RAT/WLSPFactory.hh>
@@ -44,6 +45,7 @@ GeoBuilder::GeoBuilder() {
   new GeoReflectorFactory();
   new GeoReflectorWaveguideFactory();
   new PMTArrayFactory();
+  new GeoNestedTubeArrayFactory();
   new PMTCoverageFactory();
   new GeoWaterBoxArrayFactory();
   new GeoBubbleFactory();
