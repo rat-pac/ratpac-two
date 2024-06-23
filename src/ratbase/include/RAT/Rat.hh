@@ -17,6 +17,7 @@ class Rat {
   std::string input_filename;
   std::string output_filename;
   std::string vector_filename;
+  std::string chroma_filename;
   std::vector<std::string> python_processors;
   int run;
   bool vis;
