@@ -37,6 +37,7 @@ root_generate_dictionary(G__RATDict
         RAT/DS/RunStore.hh
         RAT/DS/Run.hh
         RAT/DS/PMTInfo.hh
+        RAT/DS/NestedTubeInfo.hh
         RAT/DS/MCTrack.hh
         RAT/DS/MCTrackStep.hh
         RAT/DS/Calib.hh
