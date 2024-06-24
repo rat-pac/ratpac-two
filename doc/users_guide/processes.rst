@@ -128,7 +128,7 @@ below.
 Wavelength Shifting
 ```````````````````
 There are a few ways of doing bulk wavelength shifting in RAT. The default
-behavior is for GLG4Scint to handle optical photons as well as charged
+behavior is for GLG4Scint to handle opticalphotons as well as charged
 particles. Alternatively, you can also let GLG4Scint handle the primary
 scintillation, then use Geant4's G4OpWLS process or the custom BNLOpWLSModel
 to do the reemission.
