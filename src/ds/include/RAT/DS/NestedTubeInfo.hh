@@ -2,13 +2,14 @@
  * @class DS::NestedTubeInfo
  * Data Structure: Fiber properties
  *
- * Information about nested tubes (fibers), including positions, rotations, and lengths 
+ * Information about nested tubes (fibers), including positions, rotations, and lengths
  */
 
 #ifndef __RAT_DS_NestedTubeInfo__
 #define __RAT_DS_NestedTubeInfo__
 
 #include <TObject.h>
+
 #include <G4ThreeVector.hh>
 #include <algorithm>
 
@@ -20,14 +21,10 @@ class NestedTubeInfo : public TObject {
   NestedTubeInfo() : TObject() {};
   virtual ~NestedTubeInfo() = default;
 
-  virtual void AddNestedTube(const G4ThreeVector& _pos, const G4ThreeVector& _dir, 
-                      const double _length, 
-                      const double _core_r, 
-                      const double _inner_r, 
-                      const double _outer_r, 
-                      const std::string _core_material,
-                      const std::string _inner_material,
-                      const std::string _outer_material) {
+  virtual void AddNestedTube(const G4ThreeVector& _pos, const G4ThreeVector& _dir, const double _length,
+                             const double _core_r, const double _inner_r, const double _outer_r,
+                             const std::string _core_material, const std::string _inner_material,
+                             const std::string _outer_material) {
     pos.push_back(_pos);
     dir.push_back(_dir);
     length.push_back(_length);
@@ -87,6 +84,6 @@ class NestedTubeInfo : public TObject {
 };
 
 }  // namespace DS
-}  // namespace RAT 
+}  // namespace RAT
 
 #endif

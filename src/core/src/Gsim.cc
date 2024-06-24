@@ -21,6 +21,7 @@
 #include <RAT/GLG4VertexGen.hh>
 #include <RAT/GdGen.hh>
 #include <RAT/Gen_LED.hh>
+#include <RAT/GeoNestedSolidArrayFactoryBase.hh>
 #include <RAT/Gsim.hh>
 #include <RAT/HeGen.hh>
 #include <RAT/LiGen.hh>
@@ -30,7 +31,6 @@
 #include <RAT/PDFPMTCharge.hh>
 #include <RAT/PDFPMTTime.hh>
 #include <RAT/PMTFactoryBase.hh>
-#include <RAT/GeoNestedSolidArrayFactoryBase.hh>
 #include <RAT/PhysicsList.hh>
 #include <RAT/PrimaryVertexInformation.hh>
 #include <RAT/ProcBlock.hh>

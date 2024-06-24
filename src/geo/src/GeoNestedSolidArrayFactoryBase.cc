@@ -6,12 +6,12 @@
 #include <G4SDManager.hh>
 #include <G4VisAttributes.hh>
 #include <RAT/DB.hh>
+#include <RAT/DS/NestedTubeInfo.hh>
+#include <RAT/GeoFactory.hh>
 #include <RAT/GeoNestedSolidArrayFactoryBase.hh>
 #include <RAT/GeoNestedTubeConstruction.hh>
 #include <RAT/Log.hh>
 #include <RAT/Materials.hh>
-#include <RAT/GeoFactory.hh>
-#include <RAT/DS/NestedTubeInfo.hh>
 #include <vector>
 
 namespace RAT {
@@ -33,7 +33,8 @@ G4VPhysicalVolume *GeoNestedSolidArrayFactoryBase::Construct(DBLinkPtr table) {
   // G4LogicalVolume *log_tube = construction->BuildVolume(volume_name);
 
   // Read Solid positions
-  // TODO: The programmers guide gives an alternative for GetDArray that will be faster when you have large arrays -> our arrays will be on order 6k so we should switch
+  // TODO: The programmers guide gives an alternative for GetDArray that will be faster when you have large arrays ->
+  // our arrays will be on order 6k so we should switch
   std::string pos_table_name = table->GetS("pos_table");
   DBLinkPtr lpos_table = DB::Get()->GetLink(pos_table_name);
   const std::vector<double> &pos_x = lpos_table->GetDArray("x");
@@ -112,7 +113,7 @@ G4VPhysicalVolume *GeoNestedSolidArrayFactoryBase::Construct(DBLinkPtr table) {
 
   // Optionally can rescale Solid radius from mother volume center for
   // case where Solids have spherical layout symmetry
-  
+
   bool rescale_radius = false;
   double new_radius = 1.0;
   try {
@@ -169,26 +170,25 @@ G4VPhysicalVolume *GeoNestedSolidArrayFactoryBase::Construct(DBLinkPtr table) {
       // * each Solid occurs only once in one physical volume.  This saves
       // * the GeometryManager some work. -GHS.
       // ****************************************************************
-      
+
       // Write the real fiber positions and directions.
       // This goes into the DS by way of Gsim
-      double length = lpos_table->GetDArray("Dz")[solidID]*2;
+      double length = lpos_table->GetDArray("Dz")[solidID] * 2;
       double core_r = table->GetD("core_r");
       double inner_r = table->GetD("inner_r");
       double outer_r = table->GetD("outer_r");
       std::string core_material = table->GetS("material_core");
       std::string inner_material = table->GetS("material_inner");
       std::string outer_material = table->GetS("material_outer");
-      nestedtubeinfo.AddNestedTube(tubepos, soliddir, length,
-                   core_r, inner_r, outer_r, 
-                   core_material, inner_material, outer_material);
+      nestedtubeinfo.AddNestedTube(tubepos, soliddir, length, core_r, inner_r, outer_r, core_material, inner_material,
+                                   outer_material);
 
       // instance of physical volume for fibre inside mother volume
       construction->PlaceNestedTube(tuberot, tubepos, tubename, log_tube, phys_mother, false, solidID);
-      
+
     }  // end loop over solidID
   }
   return 0;
 }
 
-}  // namespace RAT 
+}  // namespace RAT

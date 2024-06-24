@@ -66,7 +66,8 @@ G4VPhysicalVolume *GeoNestedTubeArrayFactory::Construct(DBLinkPtr table) {
     G4RotationMatrix *fliprot = new G4RotationMatrix(G4ThreeVector(1, 0, 0), CLHEP::pi);
   }
 
-  //TODO: all the above parameters are ignored and only the table parameters are used. For wider usability the above parameters should be included in the array construction
+  // TODO: all the above parameters are ignored and only the table parameters are used. For wider usability the above
+  // parameters should be included in the array construction
   return GeoNestedSolidArrayFactoryBase::Construct(table);
 }
 

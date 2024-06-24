@@ -1,17 +1,18 @@
-#include <G4Tubs.hh>
 #include <G4LogicalBorderSurface.hh>
 #include <G4LogicalSkinSurface.hh>
-#include <G4VisAttributes.hh>
 #include <G4Material.hh>
+#include <G4Tubs.hh>
+#include <G4VisAttributes.hh>
+#include <RAT/DB.hh>
 #include <RAT/GeoNestedTubeConstruction.hh>
 #include <RAT/Log.hh>
-#include <RAT/DB.hh>
 #include <RAT/Materials.hh>
 #include <algorithm>
 
 namespace RAT {
 
-GeoNestedTubeConstruction::GeoNestedTubeConstruction(DBLinkPtr table, DBLinkPtr postable, G4LogicalVolume *mother, int ID) {
+GeoNestedTubeConstruction::GeoNestedTubeConstruction(DBLinkPtr table, DBLinkPtr postable, G4LogicalVolume *mother,
+                                                     int ID) {
   inner_phys = 0;
   core_phys = 0;
 
@@ -54,16 +55,14 @@ G4LogicalVolume *GeoNestedTubeConstruction::BuildVolume(const std::string &prefi
     return log_tube;
   }
 
-  // fibre outer 
+  // fibre outer
   G4Tubs *outer_solid = (G4Tubs *)BuildSolid(prefix + "_outer_solid");
 
-  // fibre inner 
-  G4Tubs *inner_solid = 
-      new G4Tubs(prefix + "_inner_solid", 0.0, fParams.inner_r, fParams.Dz, 0.0, CLHEP::twopi);
+  // fibre inner
+  G4Tubs *inner_solid = new G4Tubs(prefix + "_inner_solid", 0.0, fParams.inner_r, fParams.Dz, 0.0, CLHEP::twopi);
 
   // fibre core
-  G4Tubs *core_solid =
-      new G4Tubs(prefix + "_core_solid", 0.0, fParams.core_r, fParams.Dz, 0.0, CLHEP::twopi);
+  G4Tubs *core_solid = new G4Tubs(prefix + "_core_solid", 0.0, fParams.core_r, fParams.Dz, 0.0, CLHEP::twopi);
 
   // ------------ Logical Volumes -------------
   G4LogicalVolume *outer_log, *inner_log, *core_log;
@@ -76,7 +75,7 @@ G4LogicalVolume *GeoNestedTubeConstruction::BuildVolume(const std::string &prefi
   G4ThreeVector noTranslation(0., 0., 0.);
 
   // Place the core solids in the inner solid to produce the physical volumes
-  inner_phys = new G4PVPlacement(0,                     // no rotation
+  inner_phys = new G4PVPlacement(0,                       // no rotation
                                  noTranslation,           // place inner tube concentric to outer
                                  inner_log,               // the logical volume
                                  prefix + "_inner_phys",  // a name for this physical volume
@@ -84,13 +83,13 @@ G4LogicalVolume *GeoNestedTubeConstruction::BuildVolume(const std::string &prefi
                                  false,                   // no boolean ops
                                  0);                      // copy number
 
-  core_phys = new G4PVPlacement(0,                      // no rotation
-                                noTranslation,            // place inner tube concentric to outer
-                                core_log,                 // the logical volume
-                                prefix + "_" + std::to_string(ID) + "_core",    // a name for this physical volume
-                                inner_log,                // the mother volume
-                                false,                    // no boolean ops
-                                0);                       // copy number
+  core_phys = new G4PVPlacement(0,                                            // no rotation
+                                noTranslation,                                // place inner tube concentric to outer
+                                core_log,                                     // the logical volume
+                                prefix + "_" + std::to_string(ID) + "_core",  // a name for this physical volume
+                                inner_log,                                    // the mother volume
+                                false,                                        // no boolean ops
+                                0);                                           // copy number
 
   // ------------ Vis Attributes -------------
   G4VisAttributes *vis = new G4VisAttributes();
@@ -98,17 +97,15 @@ G4LogicalVolume *GeoNestedTubeConstruction::BuildVolume(const std::string &prefi
   G4VisAttributes *vis_core = new G4VisAttributes();
   try {
     const std::vector<double> &color = myTable->GetDArray("color");
-    if (color.size() == 3) {  // RGB 
+    if (color.size() == 3) {  // RGB
       vis->SetColour(G4Colour(color[0], color[1], color[2]));
       vis_inner->SetColour(G4Colour(color[2], color[0], color[1]));
       vis_core->SetColour(G4Colour(color[1], color[2], color[0]));
-      }
-    else if (color.size() == 4) { // RGBA
+    } else if (color.size() == 4) {  // RGBA
       vis->SetColour(G4Colour(color[0], color[1], color[2], color[3]));
       vis_inner->SetColour(G4Colour(color[2], color[0], color[1], color[3]));
       vis_core->SetColour(G4Colour(color[1], color[2], color[0], color[3]));
-      }
-    else
+    } else
       warn << "GeoNestedTubeConstruction error: " << myTable->GetName() << "[" << myTable->GetIndex()
            << "].color must have 3 or 4 components" << newline;
   } catch (DBNotFoundError &e) {
@@ -119,13 +116,11 @@ G4LogicalVolume *GeoNestedTubeConstruction::BuildVolume(const std::string &prefi
       vis->SetForceWireframe(true);
       vis_inner->SetForceWireframe(true);
       vis_core->SetForceWireframe(true);
-      }
-    else if (drawstyle == "solid") {
+    } else if (drawstyle == "solid") {
       vis->SetForceSolid(true);
       vis_inner->SetForceSolid(true);
       vis_core->SetForceSolid(true);
-      }
-    else
+    } else
       warn << "GeoNestedTubeConstruction error: " << myTable->GetName() << "[" << myTable->GetIndex()
            << "].drawstyle must be either \"wireframe\" or \"solid\".";
   } catch (DBNotFoundError &e) {
@@ -134,15 +129,14 @@ G4LogicalVolume *GeoNestedTubeConstruction::BuildVolume(const std::string &prefi
   // Check for invisible flag last
   try {
     int invisible = myTable->GetI("invisible");
-    if (invisible) 
-    {
+    if (invisible) {
       outer_log->SetVisAttributes(G4VisAttributes::GetInvisible());
       inner_log->SetVisAttributes(G4VisAttributes::GetInvisible());
       core_log->SetVisAttributes(G4VisAttributes::GetInvisible());
     }
   } catch (DBNotFoundError &e) {
   };
-  
+
   outer_log->SetVisAttributes(vis);
   inner_log->SetVisAttributes(vis_inner);
   core_log->SetVisAttributes(vis_core);
@@ -157,9 +151,10 @@ G4VSolid *GeoNestedTubeConstruction::BuildSolid(const std::string &name) {
   return outer;
 }
 
-G4PVPlacement *GeoNestedTubeConstruction::PlaceNestedTube(G4RotationMatrix *tuberot, G4ThreeVector tubepos, const std::string &name,
-                                              G4LogicalVolume *logi_tube, G4VPhysicalVolume *mother_phys,
-                                              bool booleanSolid, int copyNo) {
+G4PVPlacement *GeoNestedTubeConstruction::PlaceNestedTube(G4RotationMatrix *tuberot, G4ThreeVector tubepos,
+                                                          const std::string &name, G4LogicalVolume *logi_tube,
+                                                          G4VPhysicalVolume *mother_phys, bool booleanSolid,
+                                                          int copyNo) {
   G4PVPlacement *outer_phys = new G4PVPlacement(tuberot, tubepos, name, logi_tube, mother_phys, booleanSolid, copyNo);
 
   // core surface

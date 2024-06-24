@@ -16,16 +16,14 @@
 namespace RAT {
 
 struct GeoNestedTubeConstructionParams {
-  GeoNestedTubeConstructionParams() {
-    invisible = false;
-  };
+  GeoNestedTubeConstructionParams() { invisible = false; };
 
   bool invisible;
 
   double outer_r;
   double inner_r;
   double core_r;
-  double Dz; // half length
+  double Dz;  // half length
 
   G4Material *outer;
   G4Material *inner;
@@ -33,7 +31,6 @@ struct GeoNestedTubeConstructionParams {
 
   // G4OpticalSurface *outer_inner;
   G4OpticalSurface *inner_core;
-
 };
 
 class GeoNestedTubeConstruction {
@@ -44,8 +41,8 @@ class GeoNestedTubeConstruction {
   virtual G4LogicalVolume *BuildVolume(const std::string &prefix, int ID);
   virtual G4VSolid *BuildSolid(const std::string &prefix);
   virtual G4PVPlacement *PlaceNestedTube(G4RotationMatrix *tuberot, G4ThreeVector tubepos, const std::string &name,
-                                  G4LogicalVolume *logi_tube, G4VPhysicalVolume *mother_phys, bool booleanSolid,
-                                  int copyNo);
+                                         G4LogicalVolume *logi_tube, G4VPhysicalVolume *mother_phys, bool booleanSolid,
+                                         int copyNo);
 
  protected:
   // physical volumes

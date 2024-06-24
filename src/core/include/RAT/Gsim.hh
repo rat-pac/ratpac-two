@@ -9,8 +9,8 @@
 #include <G4UserEventAction.hh>
 #include <G4UserRunAction.hh>
 #include <G4UserTrackingAction.hh>
-#include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/NestedTubeInfo.hh>
+#include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/EventInfo.hh>

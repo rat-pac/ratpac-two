@@ -10,6 +10,7 @@
 #include <RAT/GeoConvexLensFactory.hh>
 #include <RAT/GeoCutTubeFactory.hh>
 #include <RAT/GeoLensFactory.hh>
+#include <RAT/GeoNestedTubeArrayFactory.hh>
 #include <RAT/GeoPerfBoxFactory.hh>
 #include <RAT/GeoPerfSphereFactory.hh>
 #include <RAT/GeoPerfTubeFactory.hh>
@@ -29,7 +30,6 @@
 #include <RAT/GeoWaterBoxArrayFactory.hh>
 #include <RAT/Log.hh>
 #include <RAT/PMTArrayFactory.hh>
-#include <RAT/GeoNestedTubeArrayFactory.hh>
 #include <RAT/PMTCoverageFactory.hh>
 #include <RAT/WLSPCoverFactory.hh>
 #include <RAT/WLSPFactory.hh>
