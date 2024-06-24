@@ -18,8 +18,8 @@ namespace DS {
 
 class NestedTubeInfo : public TObject {
  public:
-  NestedTubeInfo() : TObject() {};
-  virtual ~NestedTubeInfo() = default;
+  NestedTubeInfo() : TObject() {}
+  virtual ~NestedTubeInfo() {}
 
   virtual void AddNestedTube(const G4ThreeVector& _pos, const G4ThreeVector& _dir, const double _length,
                              const double _core_r, const double _inner_r, const double _outer_r,

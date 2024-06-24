@@ -7,7 +7,7 @@
 namespace RAT {
 class GeoNestedSolidArrayFactoryBase : public GeoFactory {
  public:
-  GeoNestedSolidArrayFactoryBase(const std::string &name) : GeoFactory(name) {};
+  GeoNestedSolidArrayFactoryBase(const std::string &name) : GeoFactory(name){};
   static const DS::NestedTubeInfo &GetNestedTubeInfo() { return nestedtubeinfo; }
 
  protected:
