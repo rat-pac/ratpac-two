@@ -105,6 +105,7 @@ class OutNtupleProc : public Processor {
   std::vector<double> mcpez;
   // MCParticles
   int mcpcount;
+  int mcid;
   std::vector<Int_t> pdgcodes;
   std::vector<double> mcKEnergies;
   std::vector<double> mcPosx;

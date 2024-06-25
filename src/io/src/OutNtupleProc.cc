@@ -96,6 +96,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("nhits", &nhits);
   outputTree->Branch("triggerTime", &triggerTime);
   // MC Information
+  outputTree->Branch("mcid", &mcid);
   outputTree->Branch("mcparticlecount", &mcpcount);
   outputTree->Branch("mcpecount", &mcpecount);
   outputTree->Branch("mcnhits", &mcnhits);
@@ -185,6 +186,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcTime.clear();
 
   DS::MC *mc = ds->GetMC();
+  mcid = mc->GetID();
   mcpcount = mc->GetMCParticleCount();
   for (int pid = 0; pid < mcpcount; pid++) {
     DS::MCParticle *particle = mc->GetMCParticle(pid);
