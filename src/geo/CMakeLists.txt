@@ -18,6 +18,8 @@ add_library(geo OBJECT
         src/GeoCalibrationStickFactory.cc
         src/GeoCherenkovSourceFactory.cc
         src/GeoConvexLensFactory.cc
+        src/GeoFiberSensitiveDetector.cc
+        src/GeoFiberSensitiveDetectorHit.cc
         src/GeoCutTubeFactory.cc
         src/GeoEosFactory.cc
         src/GeoFactory.cc

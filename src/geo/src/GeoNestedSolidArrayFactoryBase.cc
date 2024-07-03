@@ -131,7 +131,7 @@ G4VPhysicalVolume *GeoNestedSolidArrayFactoryBase::Construct(DBLinkPtr table) {
     if ((sub_type == -1) || (sub_type == sub_type_array[solidID])) {
       // construct
       GeoNestedTubeConstruction *construction = new GeoNestedTubeConstruction(table, lpos_table, mother, solidID);
-      G4LogicalVolume *log_tube = construction->BuildVolume(volume_name, solidID);
+      G4LogicalVolume *log_tube = construction->BuildVolume(volume_name, solidID, table);
       // name
       std::string tubename = volume_name + "_" + ::to_string(solidID);
 
@@ -177,9 +177,9 @@ G4VPhysicalVolume *GeoNestedSolidArrayFactoryBase::Construct(DBLinkPtr table) {
       double core_r = table->GetD("core_r");
       double inner_r = table->GetD("inner_r");
       double outer_r = table->GetD("outer_r");
-      std::string core_material = table->GetS("material_core");
-      std::string inner_material = table->GetS("material_inner");
-      std::string outer_material = table->GetS("material_outer");
+      std::string core_material = table->GetS("core_material");
+      std::string inner_material = table->GetS("inner_material");
+      std::string outer_material = table->GetS("outer_material");
       nestedtubeinfo.AddNestedTube(tubepos, soliddir, length, core_r, inner_r, outer_r, core_material, inner_material,
                                    outer_material);
 

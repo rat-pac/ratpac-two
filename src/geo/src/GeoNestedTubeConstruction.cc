@@ -2,9 +2,12 @@
 #include <G4LogicalSkinSurface.hh>
 #include <G4Material.hh>
 #include <G4Tubs.hh>
+#include <G4SDManager.hh>
 #include <G4VisAttributes.hh>
 #include <RAT/DB.hh>
 #include <RAT/GeoNestedTubeConstruction.hh>
+#include <RAT/GeoNestedSolidArrayFactoryBase.hh>
+#include <RAT/GeoFiberSensitiveDetector.hh>
 #include <RAT/Log.hh>
 #include <RAT/Materials.hh>
 #include <algorithm>
@@ -26,11 +29,11 @@ GeoNestedTubeConstruction::GeoNestedTubeConstruction(DBLinkPtr table, DBLinkPtr 
   fParams.core_r = table->GetD("core_r");
 
   // Materials
-  fParams.outer = G4Material::GetMaterial(table->GetS("material_outer"));
-  fParams.inner = G4Material::GetMaterial(table->GetS("material_inner"));
-  fParams.core = G4Material::GetMaterial(table->GetS("material_core"));
+  fParams.outer = G4Material::GetMaterial(table->GetS("outer_material"));
+  fParams.inner = G4Material::GetMaterial(table->GetS("inner_material"));
+  fParams.core = G4Material::GetMaterial(table->GetS("core_material"));
   DB *db = DB::Get();
-  std::string core_surface_name = table->GetS("material_core");
+  std::string core_surface_name = table->GetS("core_material");
   if (Materials::optical_surface.count(core_surface_name) == 0)
     Log::Die("GeoSolidFactory: Surface " + core_surface_name + " does not exist");
   fParams.inner_core = Materials::optical_surface[core_surface_name];
@@ -50,7 +53,7 @@ GeoNestedTubeConstruction::GeoNestedTubeConstruction(DBLinkPtr table, DBLinkPtr 
   Log::Assert(fParams.inner_core, "GeoNestedTubeConstruction: " + tube_name + " has an invalid core surface material");
 }
 
-G4LogicalVolume *GeoNestedTubeConstruction::BuildVolume(const std::string &prefix, int ID) {
+G4LogicalVolume *GeoNestedTubeConstruction::BuildVolume(const std::string &prefix, int ID, DBLinkPtr table) {
   if (log_tube) {
     return log_tube;
   }
@@ -70,6 +73,16 @@ G4LogicalVolume *GeoNestedTubeConstruction::BuildVolume(const std::string &prefi
   outer_log = new G4LogicalVolume(outer_solid, fParams.outer, prefix + "_outer_logic");
   inner_log = new G4LogicalVolume(inner_solid, fParams.inner, prefix + "_inner_logic");
   core_log = new G4LogicalVolume(core_solid, fParams.core, prefix + "_core_logic");
+  // set as sensitive detector if applicable
+  try {
+    std::string sensitive_detector = table->GetS("sensitive_detector");
+    GeoFiberSensitiveDetector* sensitive = new GeoFiberSensitiveDetector(sensitive_detector+std::to_string(ID));
+    G4SDManager *sdman = G4SDManager::GetSDMpointer();
+    sdman->AddNewDetector(sensitive);
+    core_log->SetSensitiveDetector(sensitive);
+  }
+  catch (DBNotFoundError &e) {
+  }
 
   // ------------ Physical Volumes -------------
   G4ThreeVector noTranslation(0., 0., 0.);
