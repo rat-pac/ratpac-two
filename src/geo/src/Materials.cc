@@ -460,6 +460,7 @@ G4MaterialPropertyVector *Materials::LoadProperty(DBLinkPtr table, std::string n
       if (E_value != 0.0) {
         double lam = E_value;
         E_value = CLHEP::twopi * CLHEP::hbarc / (lam * CLHEP::nanometer);
+        if (wavelength_opt == 1) p_value *= 1.0 / (E_value * E_value);
         if (wavelength_opt == 2) p_value *= lam / E_value;
       } else {
         warn << "Materials property std::vector zero wavelength!" << newline;
