@@ -17,6 +17,7 @@
 #include <TTimeStamp.h>
 
 #include <RAT/DS/MCPMT.hh>
+#include <RAT/DS/MCNestedTube.hh>
 #include <RAT/DS/MCParticle.hh>
 #include <RAT/DS/MCSummary.hh>
 #include <RAT/DS/MCTrack.hh>
@@ -102,6 +103,15 @@ class MC : public TObject {
   };
   virtual void PrunePMT() { pmt.resize(0); }
 
+  /** List of optical fibers which captured at least one photon */
+  virtual MCNestedTube *GetMCNestedTube(int i) { return &nt[i]; }
+  virtual int GetMCNestedTubeCount() const { return nt.size(); }
+  virtual MCNestedTube *AddNewMCNestedTube() {
+    nt.resize(nt.size() + 1);
+    return &nt.back();
+  };
+  virtual void PruneNestedTube() { nt.resize(0); }
+
   /** Total number of photoelectrons generated in this event */
   virtual int GetNumPE() const { return numPE; }
   virtual void SetNumPE(int _numPE) { numPE = _numPE; }
@@ -132,6 +142,7 @@ class MC : public TObject {
   std::vector<MCParticle> parent;
   std::vector<MCTrack> track;
   std::vector<MCPMT> pmt;
+  std::vector<MCNestedTube> nt;
 };
 
 }  // namespace DS

@@ -11,6 +11,7 @@
 #include <G4UserTrackingAction.hh>
 #include <RAT/DS/NestedTubeInfo.hh>
 #include <RAT/DS/PMTInfo.hh>
+#include <RAT/GeoFiberSensitiveDetectorHit.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/EventInfo.hh>
@@ -74,6 +75,7 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
   void Init();  // the real constructor
   void AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo *exinfo = NULL,
                    std::string process = "unknown");
+  void AddMCNestedTubeHit(DS::MCNestedTube *rat_mcnt, const GeoFiberSensitiveDetectorHit *hit);
 
   /* Storing optical creation track ID and step */
   void PhotonRecurse(std::vector<int> &PhotonIDs, int trackID, int &parentID, int &firstCreatedID);

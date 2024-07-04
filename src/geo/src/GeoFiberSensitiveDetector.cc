@@ -17,7 +17,7 @@ namespace RAT {
 
 GeoFiberSensitiveDetector::GeoFiberSensitiveDetector(G4String name) : G4VSensitiveDetector(name) {
   G4String HCname;
-  collectionName.insert(HCname = "CustomSenDet");
+  collectionName.insert(HCname = "FiberSenDet");
   HCID = -1;
 }
 
@@ -130,7 +130,7 @@ G4bool GeoFiberSensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory 
 	  G4int ix = -1;
 
 	  debug << "GeoFiberSensitiveDetector::ProcessHits hit collection address is " << _hitsCollection << newline;
-	  G4cerr << "GeoFiberSensitiveDetector: Hit ID = " << uid << " and position: " << worldPos << newline;
+	  // G4cerr << "GeoFiberSensitiveDetector: Hit ID = " << uid << " and position: " << worldPos << newline;
 
 	  int eventID = G4RunManager::GetRunManager()->GetCurrentRun()->GetNumberOfEvent();
 	  int trackID = aStep->GetTrack()->GetTrackID();
