@@ -66,7 +66,7 @@ the volume.  The common fields shared by all tables:
 ``mother``              ``string``              Name of the mother volume.  The mother volume should fully contain this volume.  The world volume has the mother "".
 ``enable``              ``int`` (optional)      If set to zero, this volume is skipped and not constructed.
 ``type``                ``string``              Shape of this volume, see below for list.
-``sensitive_detector``  ``string`` (optional)   Name of sensitive detector if this volume should register hits.  Limited to ''/mydet/pmt/inner'' and ''/mydet/veto/genericchamber''
+``sensitive_detector``  ``string`` (optional)   Name of sensitive detector if this volume should register hits.  Limited to ''/mydet/pmt/inner'', ''/mydet/fibers'' and ''/mydet/veto/genericchamber''
 ======================  ======================  ===================
 
 Allowed types:
@@ -168,6 +168,7 @@ NestedTubeArray Fields:
 ``orientation``         ``string``                  Method of determining nested tube direction.  "point" will aim all nested tubes at a point in space.  "manual" requires that the position table also contain dir_x, dir_y, and dir_z fields which define the direction vector for each PMT.
 ``orient_point``        ``float[3]`` (optional)     Point (mm) in mother volume to aim all tubes toward.
 ``rescale_radius``      ``float`` (optional)        Assumes all tubes are spherically arranged around the center of the mother volume and rescales their positions to a particular radius.  By default, no rescaling is done.
+``sensitive_detector``  ``string`` (optional)   Name of sensitive detector if this volume should register hits. Limited to ''/mydet/fibers''.'
 ======================  ==========================  ===================
 
 Creating a parameterized geometry
