@@ -157,9 +157,9 @@ NestedTubeArray Fields:
 ``core_r``           ``float``                  The radius of the core tube (mm)
 ``inner_r``           ``float``                  The radius of the inner tube (mm)
 ``outer_r``           ``float``                  The radius of the outer tube (mm)
-``material_core``           ``string``                  The material of the core tube
-``material_inner``           ``string``                  The material of the inner tube
-``material_outer``           ``string``                  The material of the outer tube
+``core_material``           ``string``                  The material of the core tube
+``inner_material``           ``string``                  The material of the inner tube
+``outer_material``           ``string``                  The material of the outer tube
 ``Dz``              ``float``                   Half-height of tube (mm)
 ``phi_start``           ``float`` (optional)        Angle (deg) where tube segment starts.  Default is 0.0
 ``phi_delta``           ``float`` (optional)        Angle span (deg) of tube segment.  Default is 360.0
