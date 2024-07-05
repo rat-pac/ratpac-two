@@ -139,7 +139,8 @@ G4bool GeoFiberSensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory 
 	  // note that this volume name may not be unique
 	  G4String vol = theTouchable->GetVolume()->GetName();
 
-	  if (fLastEventID != eventID || fLastTrackID != trackID) {
+	  // if (fLastEventID != eventID || fLastTrackID != trackID) {
+	  if (fLastTrackID != trackID) {
 	    // Fill the hit information
 	    _hit_x.push_back(worldPos.x());
 	    _hit_y.push_back(worldPos.y());
@@ -170,43 +171,18 @@ G4bool GeoFiberSensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory 
 	  }
 
 	  if (_hitsCollection) {
-	    for (G4int i = 0; i < _hitsCollection->entries(); i++) {
-	      // 	RAT::debug << "  * GeoFiberSensitiveDetector::ProcessHits checking hit "
-	      // 	       << i + 1
-	      // 	       << " of "
-	      // 	       << _hitsCollection->entries()
-	      // 	       << newline;
-	      debug << "  * this hit ID is " << (*_hitsCollection)[i]->GetID() << newline;
-	      if ((*_hitsCollection)[i]->GetID() == uid) {
-					ix = i;
-					break;
-	      }
-	    }
-
-	    // if it has, then take the earlier time
-	    if (ix >= 0) {
-				debug << "GeoFiberSensitiveDetector::ProcessHits use existing earlier time "
-			        "for hit."
-					    << newline;
-	      if ((*_hitsCollection)[ix]->GetTime() > hitTime) {
-		(*_hitsCollection)[ix]->SetTime(hitTime);
-	      }
-	    } else
-	    // if not, create a new hit and std::set it to the collection
-	    {
-	      debug << "GeoFiberSensitiveDetector::ProcessHits creating a new hit." << newline;
-	      GeoFiberSensitiveDetectorHit *aHit = new GeoFiberSensitiveDetectorHit(uid, hitTime);
-	      G4VPhysicalVolume *thePhysical = theTouchable->GetVolume();
-	      aHit->SetLogV(thePhysical->GetLogicalVolume());
-	      G4AffineTransform aTrans = theTouchable->GetHistory()->GetTopTransform();
-	      aTrans.Invert();
-	      aHit->SetRot(aTrans.NetRotation());
-	      aHit->SetPos(aTrans.NetTranslation());
-	      _hitsCollection->insert(aHit);
-	      aHit->Print();
-	      aHit->Draw();
-	      debug << "  * Drawing Hit " << uid << newline;
-	    }
+	    debug << "GeoFiberSensitiveDetector::ProcessHits creating a new hit." << newline;
+	    GeoFiberSensitiveDetectorHit *aHit = new GeoFiberSensitiveDetectorHit(uid, hitTime);
+	    G4VPhysicalVolume *thePhysical = theTouchable->GetVolume();
+	    aHit->SetLogV(thePhysical->GetLogicalVolume());
+	    G4AffineTransform aTrans = theTouchable->GetHistory()->GetTopTransform();
+	    aTrans.Invert();
+	    aHit->SetRot(aTrans.NetRotation());
+	    aHit->SetPos(aTrans.NetTranslation());
+	    _hitsCollection->insert(aHit);
+	    aHit->Print();
+	    aHit->Draw();
+	    debug << "  * Drawing Hit " << uid << newline;
 	  }
 	  debug << "GeoFiberSensitiveDetector::ProcessHits end." << newline;
 	  return true;
