@@ -180,8 +180,8 @@ G4bool GeoFiberSensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory 
 	    aHit->SetRot(aTrans.NetRotation());
 	    aHit->SetPos(aTrans.NetTranslation());
 	    _hitsCollection->insert(aHit);
-	    aHit->Print();
-	    aHit->Draw();
+	    // aHit->Print();
+	    // aHit->Draw();
 	    debug << "  * Drawing Hit " << uid << newline;
 	  }
 	  debug << "GeoFiberSensitiveDetector::ProcessHits end." << newline;
