@@ -574,7 +574,7 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   G4HCofThisEvent *HC = g4ev->GetHCofThisEvent();
   for (int hc = 0; hc < HC->GetNumberOfCollections(); hc++) {
     GeoFiberSensitiveDetectorHitsCollection *hit_collection = (GeoFiberSensitiveDetectorHitsCollection*)HC->GetHC(hc);
-    if (hit_collection->GetName() != "FiberSenDet")
+    if (hit_collection->GetName() != "FiberSenDet" || hit_collection->GetSize() == 0)
       continue;
     DS::MCNestedTube *rat_mcnt = mc->AddNewMCNestedTube();
     G4String det_name = hit_collection->GetSDname();
