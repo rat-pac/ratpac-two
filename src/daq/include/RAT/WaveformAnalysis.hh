@@ -28,9 +28,11 @@ namespace RAT {
 class WaveformAnalysis {
  public:
   WaveformAnalysis();
+  WaveformAnalysis(std::string analyzer_name);
   virtual ~WaveformAnalysis(){};
 
   void RunAnalysis(DS::DigitPMT *pmt, int pmtID, Digitizer *fDigitizer);
+  double RunAnalysisOnTrigger(int pmtID, Digitizer *fDigitizer);
 
   // Calculate baseline (in mV)
   void CalculatePedestal();
@@ -40,7 +42,15 @@ class WaveformAnalysis {
 
   // Apply a constant fraction discriminator to
   // calculate the threshold crossing
-  double CalculateTime();
+  double CalculateTimeCFD();
+
+  // Calculate the time a threshold crossing occurs, with a linear interpolation
+  double CalculateThresholdCrossingTime();
+
+  double CalculateThresholdCrossingTime(double voltage_threshold) {
+    fVoltageCrossing = voltage_threshold;
+    return CalculateThresholdCrossingTime();
+  }
 
   // Find the sample where a threshold crossing occurs
   void GetThresholdCrossing();
@@ -56,6 +66,8 @@ class WaveformAnalysis {
 
   // Integrate the digitized waveform to calculate charge
   void SlidingIntegral();
+
+  double DigitToVoltage(UShort_t digit) { return (digit - fPedestal) * fVoltageRes; }
 
  protected:
   // Digitizer settings

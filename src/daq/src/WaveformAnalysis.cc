@@ -4,8 +4,10 @@
 
 namespace RAT {
 
-WaveformAnalysis::WaveformAnalysis() {
-  fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS");
+WaveformAnalysis::WaveformAnalysis() { WaveformAnalysis(""); }
+
+WaveformAnalysis::WaveformAnalysis(std::string analyzer_name) {
+  fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", analyzer_name);
   fPedWindowLow = fDigit->GetI("pedestal_window_low");
   fPedWindowHigh = fDigit->GetI("pedestal_window_high");
   fLookback = fDigit->GetD("lookback");
@@ -25,7 +27,10 @@ void WaveformAnalysis::RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer 
 
   CalculatePedestal();
 
-  double digit_time = CalculateTime();
+  double digit_time = CalculateTimeCFD();
+
+  // Get the total number of threshold crossings
+  GetNCrossings();
 
   fLowIntWindow = int((digit_time - fIntWindowLow) / fTimeStep);
   fHighIntWindow = int((digit_time + fIntWindowHigh) / fTimeStep);
@@ -44,6 +49,33 @@ void WaveformAnalysis::RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer 
   digitpmt->SetVoltageOverThreshold(fVoltageOverThreshold);
   digitpmt->SetPedestal(fPedestal);
   digitpmt->SetPeakVoltage(fVoltagePeak);
+}
+
+double WaveformAnalysis::RunAnalysisOnTrigger(int pmtID, Digitizer *fDigitizer) {
+  fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
+  fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
+
+  fDigitWfm = fDigitizer->fDigitWaveForm[pmtID];
+
+  CalculatePedestal();
+  double trigger_threshold = fThreshold;
+  double trigger_lookback = fLookback;
+  try {
+    trigger_threshold = fDigit->GetD("trigger_voltage_threshold");
+    trigger_lookback = fDigit->GetD("trigger_lookback");
+  } catch (DBNotFoundError &e) {
+    warn << "WaveformAnalysis: Trigger threshold and lookback not found in database. "
+         << "Using the same parameters as PMT Waveforms." << newline;
+  }
+  fVoltageRes *= -1;  // Invert the voltage since the waveform goes ABOVE threshold when a trigger occurs
+  trigger_threshold *= -1;
+  GetPeak();
+  // HACK: Store the old lookback value, restore after a trigger time analysis is done.
+  double old_lookback = fLookback;
+  fLookback = trigger_lookback;
+  double trigger_time = CalculateThresholdCrossingTime(trigger_threshold);
+  fLookback = old_lookback;
+  return trigger_time;
 }
 
 void WaveformAnalysis::CalculatePedestal() {
@@ -83,7 +115,7 @@ void WaveformAnalysis::GetPeak() {
   fVoltagePeak = 999;
   fSamplePeak = -999;
   for (size_t i = 0; i < fDigitWfm.size(); i++) {
-    double voltage = (fDigitWfm[i] - fPedestal) * fVoltageRes;
+    double voltage = DigitToVoltage(fDigitWfm[i]);
 
     // Downward going pulse
     if (voltage < fVoltagePeak) {
@@ -95,11 +127,9 @@ void WaveformAnalysis::GetPeak() {
 
 void WaveformAnalysis::GetThresholdCrossing() {
   /*
-  Identifies the sample at which the constant-fraction threshold crossing occurs
+  Identifies the sample at which threshold crossing occurs
    */
   fThresholdCrossing = 0;
-  fVoltageCrossing = fConstFrac * fVoltagePeak;
-
   // Make sure we don't scan passed the beginning of the waveform
   Int_t lb = Int_t(fSamplePeak) - Int_t(fLookback / fTimeStep);
   UShort_t back_window = (lb > 0) ? lb : 0;
@@ -133,7 +163,7 @@ void WaveformAnalysis::GetNCrossings() {
   bool fCrossed = false;
   // Scan over the entire waveform
   for (UShort_t i = 0; i < fDigitWfm.size(); i++) {
-    double voltage = (fDigitWfm[i] - fPedestal) * fVoltageRes;
+    double voltage = DigitToVoltage(fDigitWfm[i]);
 
     // If we crossed below threshold
     if (voltage < fThreshold) {
@@ -153,19 +183,12 @@ void WaveformAnalysis::GetNCrossings() {
   }
 }
 
-double WaveformAnalysis::CalculateTime() {
+double WaveformAnalysis::CalculateThresholdCrossingTime() {
   /*
-  Apply constant-fraction discriminator to digitized PMT waveforms.
+  Calculate the time a threshold crossing occurs, with a linear interpolation
   */
-
-  // Calculate peak in mV
-  GetPeak();
-
   // Get the sample where the voltage thresh is crossed
   GetThresholdCrossing();
-
-  // Get the total number of threshold crossings
-  GetNCrossings();
 
   if (fThresholdCrossing == INVALID || fThresholdCrossing >= fDigitWfm.size()) {
     return INVALID;
@@ -176,13 +199,24 @@ double WaveformAnalysis::CalculateTime() {
   }
 
   // Interpolate between the two samples where the CFD threshold is crossed
-  double v1 = (fDigitWfm[fThresholdCrossing + 1] - fPedestal) * fVoltageRes;
-  double v2 = (fDigitWfm[fThresholdCrossing] - fPedestal) * fVoltageRes;
+  double v1 = DigitToVoltage(fDigitWfm[fThresholdCrossing + 1]);
+  double v2 = DigitToVoltage(fDigitWfm[fThresholdCrossing]);
   Interpolate(v1, v2);
 
-  double tcdf = double(fThresholdCrossing) * fTimeStep + fInterpolatedTime;
+  double interpolated_time = double(fThresholdCrossing) * fTimeStep + fInterpolatedTime;
 
-  return tcdf;
+  return interpolated_time;
+}
+
+double WaveformAnalysis::CalculateTimeCFD() {
+  /*
+  Apply constant-fraction discriminator to digitized PMT waveforms.
+  */
+
+  // Calculate peak in mV
+  GetPeak();
+  fVoltageCrossing = fConstFrac * fVoltagePeak;
+  return CalculateThresholdCrossingTime();
 }
 
 void WaveformAnalysis::Integrate() {
@@ -202,7 +236,7 @@ void WaveformAnalysis::Integrate() {
   fLowIntWindow = (fLowIntWindow < 0) ? 0 : fLowIntWindow;
 
   for (int i = fLowIntWindow; i < fHighIntWindow; i++) {
-    double voltage = (fDigitWfm[i] - fPedestal) * fVoltageRes;
+    double voltage = DigitToVoltage(fDigitWfm[i]);
     fCharge += (-voltage * fTimeStep) / fTermOhms;  // in pC
   }
 }
@@ -219,7 +253,7 @@ void WaveformAnalysis::SlidingIntegral() {
     int sample_start = i * fSlidingWindow;
     int sample_end = (i + 1) * fSlidingWindow;
     for (int j = sample_start; j < sample_end; j++) {
-      double voltage = (fDigitWfm[j] - fPedestal) * fVoltageRes;
+      double voltage = DigitToVoltage(fDigitWfm[j]);
       charge += (-voltage * fTimeStep) / fTermOhms;  // in pC
     }
     if (charge > fChargeThresh) {
