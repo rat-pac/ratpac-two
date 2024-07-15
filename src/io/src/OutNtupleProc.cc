@@ -203,14 +203,14 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     mcTime.push_back(particle->GetTime());
   }
   // First particle's position, direction, and time
-  mcpdg = pdgcodes[0];
-  mcx = mcPosx[0];
-  mcy = mcPosy[0];
-  mcz = mcPosz[0];
-  mcu = mcDirx[0];
-  mcv = mcDiry[0];
-  mcw = mcDirz[0];
-  mct = mcTime[0];
+  mcpdg = mcpcount ? pdgcodes[0] : -9999;
+  mcx = mcpcount ? mcPosx[0] : -9999;
+  mcy = mcpcount ? mcPosy[0] : -9999;
+  mcz = mcpcount ? mcPosz[0] : -9999;
+  mcu = mcpcount ? mcDirx[0] : -9999;
+  mcv = mcpcount ? mcDiry[0] : -9999;
+  mcw = mcpcount ? mcDirz[0] : -9999;
+  mct = mcpcount ? mcTime[0] : -9999;
   mcke = accumulate(mcKEnergies.begin(), mcKEnergies.end(), 0.0);
   // Tracking
   if (options.tracking) {
