@@ -128,6 +128,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("hitPMTDigitizedTime", &hitPMTDigitizedTime);
     outputTree->Branch("hitPMTDigitizedCharge", &hitPMTDigitizedCharge);
     outputTree->Branch("hitPMTNCrossings", &hitPMTNCrossings);
+    outputTree->Branch("hitPMTDigitizedLocalTriggerTime", &hitPMTDigitizedLocalTriggerTime);
   }
   if (options.mchits) {
     // Save full MC PMT hit information
@@ -407,6 +408,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       hitPMTDigitizedTime.clear();
       hitPMTDigitizedCharge.clear();
       hitPMTNCrossings.clear();
+      hitPMTDigitizedLocalTriggerTime.clear();
 
       for (int pmtc = 0; pmtc < ev->GetPMTCount(); pmtc++) {
         RAT::DS::PMT *pmt = ev->GetPMT(pmtc);
@@ -419,6 +421,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         hitPMTDigitizedTime.push_back(digitpmt->GetDigitizedTime());
         hitPMTDigitizedCharge.push_back(digitpmt->GetDigitizedCharge());
         hitPMTNCrossings.push_back(digitpmt->GetNCrossings());
+        hitPMTDigitizedLocalTriggerTime.push_back(digitpmt->GetLocalTriggerTime());
       }
     }
     this->FillEvent(ds, ev);
@@ -434,6 +437,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       hitPMTDigitizedTime.clear();
       hitPMTDigitizedCharge.clear();
       hitPMTNCrossings.clear();
+      hitPMTDigitizedLocalTriggerTime.clear();
     }
     this->FillNoTriggerEvent(ds);
     outputTree->Fill();
