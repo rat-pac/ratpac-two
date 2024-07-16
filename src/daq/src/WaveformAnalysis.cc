@@ -312,18 +312,19 @@ void WaveformAnalysis::FitWaveform(){
     double bf = fDigitTime - fFitWindowLow;
     double tf = fDigitTime + fFitWindowHigh;
 
-    // Check the range is within the digitizer window 
+    // Check the fit range is within the digitizer window 
     bf = (bf > 0) ? bf : 0;
     tf = (tf > fDigitWfm.size()*fTimeStep) ? fDigitWfm.size()*fTimeStep : tf;
 
-    double high = fDigitTime+50.0;
-    high = (high > fDigitWfm.size()*fTimeStep) ? fDigitWfm.size()*fTimeStep : high;
+    // Check the timing range is within the digitizer window 
+    double thigh = fDigitTime + fFitScale + fFitWindowHigh;
+    thigh = (thigh > fDigitWfm.size()*fTimeStep) ? fDigitWfm.size()*fTimeStep : thigh;
 
-    double med = fDigitTime-8.0;
-    med = (med > 0) ? med : 0;
+    double tmed = fDigitTime - fFitScale;
+    tmed = (tmed > 0) ? tmed : 0;
 
-    double low = fDigitTime-50.0;
-    low = (low > 0) ? low : 0;
+    double tlow = fDigitTime - fFitScale - fFitWindowLow;
+    tlow = (tlow > 0) ? tlow : 0;
    
     const int ndf = 3;
     TF1* ln_fit = new TF1("ln_fit",SingleLognormal,bf,tf,ndf);
@@ -331,8 +332,8 @@ void WaveformAnalysis::FitWaveform(){
     // Fit assumes SPE waveform of limited size
     ln_fit->SetParLimits(0, 1.0, 400.0);
     // Fitted time around the peak
-    ln_fit->SetParameter(1, med);
-    ln_fit->SetParLimits(1, low, high);
+    ln_fit->SetParameter(1, tmed);
+    ln_fit->SetParLimits(1, tlow, thigh);
     // Baseline centered around zero
     ln_fit->SetParameter(2, 0.0);
     ln_fit->SetParLimits(2, -1.0, 1.0);
