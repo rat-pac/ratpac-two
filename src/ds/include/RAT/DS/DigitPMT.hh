@@ -64,20 +64,25 @@ class DigitPMT : public TObject {
   virtual void SetPeakVoltage(Double_t _peak) { this->peak = _peak; }
   virtual Double_t GetPeakVoltage() { return peak; }
 
-  ClassDef(DigitPMT, 1);
+  /** Local trigger time at the location of the PMT. Useful for PMT timing corrections */
+  virtual void SetLocalTriggerTime(Double_t _trigger_time) { this->local_trigger_time = _trigger_time; }
+  virtual Double_t GetLocalTriggerTime() { return local_trigger_time; }
+
+  ClassDef(DigitPMT, 2);
 
  protected:
-  Int_t id;
-  Double_t dTime;
-  Double_t dCharge;
-  Double_t dTCharge;
-  Double_t iTime;
-  Int_t sTime;
-  Int_t nCrossings;
-  Double_t timeOverThresh;
-  Double_t voltageOverThresh;
-  Double_t pedestal;
-  Double_t peak;
+  Int_t id = -9999;
+  Double_t dTime = -9999;
+  Double_t dCharge = -9999;
+  Double_t dTCharge = -9999;
+  Double_t iTime = -9999;
+  Int_t sTime = -9999;
+  Int_t nCrossings = -9999;
+  Double_t timeOverThresh = -9999;
+  Double_t voltageOverThresh = -9999;
+  Double_t pedestal = -9999;
+  Double_t peak = -9999;
+  Double_t local_trigger_time = -9999;
 };
 
 }  // namespace DS
