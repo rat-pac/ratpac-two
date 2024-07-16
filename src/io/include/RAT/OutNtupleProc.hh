@@ -128,6 +128,7 @@ class OutNtupleProc : public Processor {
   std::vector<double> hitPMTDigitizedTime;
   std::vector<double> hitPMTDigitizedCharge;
   std::vector<int> hitPMTNCrossings;
+  std::vector<double> hitPMTDigitizedLocalTriggerTime;
   // Tracking
   std::map<std::string, int> processCodeMap;
   std::vector<int> processCodeIndex;

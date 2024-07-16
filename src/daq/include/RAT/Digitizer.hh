@@ -47,7 +47,7 @@ class Digitizer {
   int fNSamples;            // Total number of samples per digitized trace
   double fTerminationOhms;  // Input impedence of digitizer
   // Channel:Digitized waveform for each channel
-  std::map<UShort_t, std::vector<UShort_t>> fDigitWaveForm;
+  std::map<int, std::vector<UShort_t>> fDigitWaveForm;
 
   std::map<std::string, PMTWaveformGenerator *> fPMTWaveformGenerators;
 

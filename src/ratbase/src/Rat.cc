@@ -15,7 +15,6 @@
 #include <RAT/OutROOTProc.hh>
 #include <RAT/ProcBlock.hh>
 #include <RAT/ProcBlockManager.hh>
-#include <RAT/ProducerBlock.hh>
 #include <RAT/PythonProc.hh>
 #include <RAT/Rat.hh>
 #include <RAT/SignalHandler.hh>
@@ -140,10 +139,8 @@ void Rat::Begin() {
       info << "Setting default vector file to " << this->vector_filename << newline;
     }
 
-    // Build event producers
-    ProducerBlock *prodBlock = new ProducerBlock();
     // Main analysis block
-    ProcBlock *mainBlock = new ProcBlock(prodBlock);
+    ProcBlock *mainBlock = new ProcBlock(&prodBlock);
     // Process block manager -- supplies user commands to construct analyis
     // sequence and does the processor creation
     ProcBlockManager *blockManager = new ProcBlockManager(mainBlock);
@@ -184,7 +181,6 @@ void Rat::Begin() {
 
     delete blockManager;
     delete mainBlock;
-    delete prodBlock;
     delete rdb_messenger;
     delete trackingMessenger;
   } catch (DBNotFoundError &e) {
