@@ -49,6 +49,8 @@ class OutNtupleProc : public Processor {
     bool tracking;
     bool mcparticles;
     bool pmthits;
+    bool digitizerhits;
+    bool digitizerfits;
     bool untriggered;
     bool mchits;
   };
@@ -95,15 +97,19 @@ class OutNtupleProc : public Processor {
   int mcpecount;
   std::vector<int> mcpmtid;
   std::vector<int> mcpmtnpe;
+  std::vector<double> mcpmtcharge;
   // MCPE
-  std::vector<double> mcpetime;
+  std::vector<double> mcpehittime;
+  std::vector<double> mcpefrontendtime;
   std::vector<int> mcpeprocess;
   std::vector<double> mcpewavelength;
   std::vector<double> mcpex;
   std::vector<double> mcpey;
   std::vector<double> mcpez;
+  std::vector<double> mcpecharge;
   // MCParticles
   int mcpcount;
+  int mcid;
   std::vector<Int_t> pdgcodes;
   std::vector<double> mcKEnergies;
   std::vector<double> mcPosx;
@@ -121,9 +127,17 @@ class OutNtupleProc : public Processor {
   std::vector<int> hitPMTID;
   std::vector<double> hitPMTTime;
   std::vector<double> hitPMTCharge;
-  std::vector<double> hitPMTDigitizedTime;
-  std::vector<double> hitPMTDigitizedCharge;
-  std::vector<int> hitPMTNCrossings;
+  // Store PMT information from digitized waveform
+  std::vector<double> digitPeak;
+  std::vector<double> digitTime;
+  std::vector<double> digitCharge;
+  std::vector<double> digitLocalTriggerTime;
+  std::vector<int> digitNCrossings;
+  std::vector<int> digitPMTID;
+  // Information from fit to the waveforms
+  std::vector<double> fitTime;
+  std::vector<double> fitBaseline;
+  std::vector<double> fitPeak;
   // Tracking
   std::map<std::string, int> processCodeMap;
   std::vector<int> processCodeIndex;
