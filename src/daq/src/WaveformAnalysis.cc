@@ -145,7 +145,7 @@ void WaveformAnalysis::GetThresholdCrossing() {
 
     // Reached the begining of the waveform
     // returned an invalid value
-    if (i == 0) {
+    if (i == back_window) {
       fThresholdCrossing = INVALID;
       break;
     }
