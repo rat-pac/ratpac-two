@@ -42,7 +42,6 @@ void WaveformAnalysis::RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer 
   CalculateTimeCFD();
 
   // Get the total number of threshold crossings
-  // Also fills the contencts of wfm, for the fit.
   GetNCrossings();
 
   fTermOhms = fDigitizer->fTerminationOhms;
