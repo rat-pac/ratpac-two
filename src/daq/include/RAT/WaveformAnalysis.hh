@@ -17,7 +17,6 @@
 #define __RAT_WaveformAnalysis__
 
 #include <TObject.h>
-#include <TH1D.h>
 
 #include <RAT/DB.hh>
 #include <RAT/DS/DigitPMT.hh>

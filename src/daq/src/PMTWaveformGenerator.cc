@@ -74,7 +74,7 @@ PMTWaveform PMTWaveformGenerator::GenerateWaveforms(DS::MCPMT *mcpmt, double tri
     pmtpulse->SetPulseMin(fPMTPulseMin);
     pmtpulse->SetPulseOffset(fPMTPulseOffset);
     pmtpulse->SetPulseTimeOffset(fPMTPulseTimeOffset);
-    pmtpulse->SetPulseStartTime(mcpe->GetFrontEndTime());
+    pmtpulse->SetPulseStartTime(mcpe->GetFrontEndTime() - triggerTime);
     pmtpulse->SetPulsePolarity(fPMTPulsePolarity);
 
     pmtpulse->SetPulseWidth(fPMTPulseWidth);
