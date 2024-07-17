@@ -70,10 +70,10 @@ class WaveformAnalysis {
   // ADC counts to voltage (mV)
   double DigitToVoltage(UShort_t digit) { return (digit - fPedestal) * fVoltageRes; }
 
- protected:
   // Fit the digitized waveform using a lognormal function
   void FitWaveform();
 
+ protected:
   // Digitizer settings
   DBLinkPtr fDigit;
   double fTimeStep;

@@ -284,12 +284,13 @@ double SingleLognormal(double* x, double* par) {
   /*
   Lognormal distribution
   */
-  double m = 10.5;
-  double s = 0.15;
 
   double mag = par[0];
   double theta = par[1];
   double baseline = par[2];
+
+  double m = par[3];
+  double s = par[4];
 
   if (x[0] <= theta) {
     return baseline;
@@ -327,7 +328,7 @@ void WaveformAnalysis::FitWaveform() {
   double tlow = fDigitTime - fFitScale - fFitWindowLow;
   tlow = (tlow > 0) ? tlow : 0;
 
-  const int ndf = 3;
+  const int ndf = 5;
   TF1* ln_fit = new TF1("ln_fit", SingleLognormal, bf, tf, ndf);
   ln_fit->SetParameter(0, 40.0);
   // Fit assumes SPE waveform of limited size
@@ -338,6 +339,10 @@ void WaveformAnalysis::FitWaveform() {
   // Baseline centered around zero
   ln_fit->SetParameter(2, 0.0);
   ln_fit->SetParLimits(2, -1.0, 1.0);
+
+  ln_fit->FixParameter(3, fFitScale);
+  ln_fit->FixParameter(4, fFitShape);
+
   wfm->Fit("ln_fit", "0QR", "", bf, tf);
 
   fFittedHeight = ln_fit->GetParameter(0);
