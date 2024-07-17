@@ -4,7 +4,7 @@
 
 namespace RAT {
 
-WaveformAnalysis::WaveformAnalysis() { WaveformAnalysis(""); }
+WaveformAnalysis::WaveformAnalysis() : WaveformAnalysis::WaveformAnalysis("") {}
 
 WaveformAnalysis::WaveformAnalysis(std::string analyzer_name) {
   fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", analyzer_name);
