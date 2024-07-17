@@ -467,14 +467,14 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       hitPMTTime.clear();
       hitPMTCharge.clear();
     }
-    if (options.digitizerhits){
+    if (options.digitizerhits) {
       digitTime.clear();
       digitCharge.clear();
       digitNCrossings.clear();
       digitPeak.clear();
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
-      if (options.digitizerfits){
+      if (options.digitizerfits) {
         fitTime.clear();
         fitBaseline.clear();
         fitPeak.clear();

@@ -1,8 +1,9 @@
+#include <TF1.h>
+#include <TH1D.h>
+#include <TMath.h>
+
 #include <RAT/Log.hh>
 #include <RAT/WaveformAnalysis.hh>
-#include <TF1.h>
-#include <TMath.h>
-#include <TH1D.h>
 
 namespace RAT {
 
@@ -26,7 +27,7 @@ WaveformAnalysis::WaveformAnalysis(std::string analyzer_name) {
   fFitScale = fDigit->GetD("lognormal_scale");
 }
 
-void WaveformAnalysis::RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer *fDigitizer) {
+void WaveformAnalysis::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer* fDigitizer) {
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
   fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
 
@@ -49,7 +50,7 @@ void WaveformAnalysis::RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer 
   Integrate();
   SlidingIntegral();
 
-  if(fRunFit){
+  if (fRunFit) {
     FitWaveform();
   }
 
@@ -68,7 +69,7 @@ void WaveformAnalysis::RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer 
   digitpmt->SetPeakVoltage(fVoltagePeak);
 }
 
-double WaveformAnalysis::RunAnalysisOnTrigger(int pmtID, Digitizer *fDigitizer) {
+double WaveformAnalysis::RunAnalysisOnTrigger(int pmtID, Digitizer* fDigitizer) {
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
   fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
 
@@ -80,7 +81,7 @@ double WaveformAnalysis::RunAnalysisOnTrigger(int pmtID, Digitizer *fDigitizer) 
   try {
     trigger_threshold = fDigit->GetD("trigger_voltage_threshold");
     trigger_lookback = fDigit->GetD("trigger_lookback");
-  } catch (DBNotFoundError &e) {
+  } catch (DBNotFoundError& e) {
     warn << "WaveformAnalysis: Trigger threshold and lookback not found in database. "
          << "Using the same parameters as PMT Waveforms." << newline;
   }
@@ -279,74 +280,73 @@ void WaveformAnalysis::SlidingIntegral() {
   }
 }
 
-double SingleLognormal(double* x, double* par){
-    /*
-    Lognormal distribution
-    */
-    double m = 10.5;
-    double s = 0.15;
+double SingleLognormal(double* x, double* par) {
+  /*
+  Lognormal distribution
+  */
+  double m = 10.5;
+  double s = 0.15;
 
-    double mag = par[0];
-    double theta = par[1];
-    double baseline = par[2];
+  double mag = par[0];
+  double theta = par[1];
+  double baseline = par[2];
 
-    if(x[0] <= theta){
-        return baseline;
-    }
+  if (x[0] <= theta) {
+    return baseline;
+  }
 
-    double q = baseline - mag * TMath::LogNormal(x[0], s, theta, m);
-    return q;
+  double q = baseline - mag * TMath::LogNormal(x[0], s, theta, m);
+  return q;
 }
 
-void WaveformAnalysis::FitWaveform(){
-    /*
-    Fit the PMT pulse to a lognormal distribution
-    */
-    // Fit around the peak
-    TH1D* wfm = new TH1D("wfm","wfm",fDigitWfm.size(),0,fDigitWfm.size()*fTimeStep);
-    for (UShort_t i = 0; i < fDigitWfm.size(); i++) {
-      wfm->SetBinContent(i, DigitToVoltage(fDigitWfm[i]));
-      // Arb. choice, TODO
-      wfm->SetBinError(i, fVoltageRes*2.0);
-    }
-    double bf = fDigitTime - fFitWindowLow;
-    double tf = fDigitTime + fFitWindowHigh;
+void WaveformAnalysis::FitWaveform() {
+  /*
+  Fit the PMT pulse to a lognormal distribution
+  */
+  // Fit around the peak
+  TH1D* wfm = new TH1D("wfm", "wfm", fDigitWfm.size(), 0, fDigitWfm.size() * fTimeStep);
+  for (UShort_t i = 0; i < fDigitWfm.size(); i++) {
+    wfm->SetBinContent(i, DigitToVoltage(fDigitWfm[i]));
+    // Arb. choice, TODO
+    wfm->SetBinError(i, fVoltageRes * 2.0);
+  }
+  double bf = fDigitTime - fFitWindowLow;
+  double tf = fDigitTime + fFitWindowHigh;
 
-    // Check the fit range is within the digitizer window 
-    bf = (bf > 0) ? bf : 0;
-    tf = (tf > fDigitWfm.size()*fTimeStep) ? fDigitWfm.size()*fTimeStep : tf;
+  // Check the fit range is within the digitizer window
+  bf = (bf > 0) ? bf : 0;
+  tf = (tf > fDigitWfm.size() * fTimeStep) ? fDigitWfm.size() * fTimeStep : tf;
 
-    // Check the timing range is within the digitizer window 
-    double thigh = fDigitTime + fFitScale + fFitWindowHigh;
-    thigh = (thigh > fDigitWfm.size()*fTimeStep) ? fDigitWfm.size()*fTimeStep : thigh;
+  // Check the timing range is within the digitizer window
+  double thigh = fDigitTime + fFitScale + fFitWindowHigh;
+  thigh = (thigh > fDigitWfm.size() * fTimeStep) ? fDigitWfm.size() * fTimeStep : thigh;
 
-    double tmed = fDigitTime - fFitScale;
-    tmed = (tmed > 0) ? tmed : 0;
+  double tmed = fDigitTime - fFitScale;
+  tmed = (tmed > 0) ? tmed : 0;
 
-    double tlow = fDigitTime - fFitScale - fFitWindowLow;
-    tlow = (tlow > 0) ? tlow : 0;
-   
-    const int ndf = 3;
-    TF1* ln_fit = new TF1("ln_fit",SingleLognormal,bf,tf,ndf);
-    ln_fit->SetParameter(0, 40.0);
-    // Fit assumes SPE waveform of limited size
-    ln_fit->SetParLimits(0, 1.0, 400.0);
-    // Fitted time around the peak
-    ln_fit->SetParameter(1, tmed);
-    ln_fit->SetParLimits(1, tlow, thigh);
-    // Baseline centered around zero
-    ln_fit->SetParameter(2, 0.0);
-    ln_fit->SetParLimits(2, -1.0, 1.0);
-    wfm->Fit("ln_fit","0QR","",bf,tf);
+  double tlow = fDigitTime - fFitScale - fFitWindowLow;
+  tlow = (tlow > 0) ? tlow : 0;
 
-    fFittedHeight = ln_fit->GetParameter(0);
-    fFittedTime = ln_fit->GetParameter(1) + fFitScale;
-    fFittedBaseline = ln_fit->GetParameter(2);
-    fChi2NDF = ln_fit->GetChisquare()/ln_fit->GetNDF();
+  const int ndf = 3;
+  TF1* ln_fit = new TF1("ln_fit", SingleLognormal, bf, tf, ndf);
+  ln_fit->SetParameter(0, 40.0);
+  // Fit assumes SPE waveform of limited size
+  ln_fit->SetParLimits(0, 1.0, 400.0);
+  // Fitted time around the peak
+  ln_fit->SetParameter(1, tmed);
+  ln_fit->SetParLimits(1, tlow, thigh);
+  // Baseline centered around zero
+  ln_fit->SetParameter(2, 0.0);
+  ln_fit->SetParLimits(2, -1.0, 1.0);
+  wfm->Fit("ln_fit", "0QR", "", bf, tf);
 
-    delete wfm;
-    delete ln_fit;
+  fFittedHeight = ln_fit->GetParameter(0);
+  fFittedTime = ln_fit->GetParameter(1) + fFitScale;
+  fFittedBaseline = ln_fit->GetParameter(2);
+  fChi2NDF = ln_fit->GetChisquare() / ln_fit->GetNDF();
+
+  delete wfm;
+  delete ln_fit;
 }
-
 
 }  // namespace RAT

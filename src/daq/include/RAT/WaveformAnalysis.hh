@@ -71,7 +71,6 @@ class WaveformAnalysis {
   double DigitToVoltage(UShort_t digit) { return (digit - fPedestal) * fVoltageRes; }
 
  protected:
-
   // Fit the digitized waveform using a lognormal function
   void FitWaveform();
 
