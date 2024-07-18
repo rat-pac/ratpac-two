@@ -96,15 +96,19 @@ PMTInfoParser::PMTInfoParser(DBLinkPtr lpos_table, const std::string &mother_nam
   if (phys_mother == 0) {
     Log::Die("PMTParser: PMT mother physical volume " + mother_name + " not found");
   }
+  fLocalOffset = ComputeLocalOffset(mother_name);
+}
 
+G4ThreeVector PMTInfoParser::ComputeLocalOffset(const std::string &mother_name) {
   // PMTINFO is always in global coordinates - so calculate the local offset first
-  fLocalOffset = G4ThreeVector(0.0, 0.0, 0.0);
+  G4ThreeVector offset(0.0, 0.0, 0.0);
   for (string parent_name = mother_name; parent_name != "";) {
     G4VPhysicalVolume *parent_phys = GeoFactory::FindPhysMother(parent_name);
-    fLocalOffset -= parent_phys->GetFrameTranslation();
+    offset -= parent_phys->GetFrameTranslation();
     DBLinkPtr parent_table = DB::Get()->GetLink("GEO", parent_name);
     parent_name = parent_table->GetS("mother");
   }
+  return offset;
 }
 
 G4RotationMatrix PMTInfoParser::GetPMTRotation(int i) const {
