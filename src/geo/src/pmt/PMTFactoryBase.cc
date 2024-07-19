@@ -9,6 +9,7 @@
 #include <RAT/Materials.hh>
 #include <RAT/PMTConstruction.hh>
 #include <RAT/PMTFactoryBase.hh>
+#include <RAT/PMTInfoParser.hh>
 #include <algorithm>
 #include <vector>
 
@@ -42,6 +43,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
   if (phys_mother == 0) {
     Log::Die("PMTParser: PMT mother physical volume " + mother_name + " not found");
   }
+  G4ThreeVector local_offset = PMTInfoParser::ComputeLocalOffset(mother_name);
 
   PMTConstruction *construction = PMTConstruction::NewConstruction(lpmt, mother);
   G4LogicalVolume *log_pmt = construction->BuildVolume(volume_name);
@@ -234,6 +236,9 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
 
     G4ThreeVector pmtpos = pmt_pos[i];
     G4ThreeVector pmtdir = pmt_dir[i];
+    // Compute PMT position in global coordinate system
+    // TODO: We should also account for a rotation of the mother volume at some point
+    G4ThreeVector pmtpos_global = pmtpos + local_offset;
 
     // Store individual efficiency
     EfficiencyCorrection[id] = pmt_effi_corr[i];
@@ -242,10 +247,11 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
     // This goes into the DS by way of Gsim
     // NOTE: Since the BField stuff isn't used currently, add the efficiency here.
     // If we revive the BField code, this needs to be moved after so that the efficiency is correct
-    pmtinfo.AddPMT(TVector3(pmtpos.x(), pmtpos.y(), pmtpos.z()), TVector3(pmtdir.x(), pmtdir.y(), pmtdir.z()),
-                   pmt_type[i], channel_number[i], pmt_model, pmt_effi_corr[i], individual_noise_rate[i],
-                   individual_afterpulse_fraction[i]);
+    pmtinfo.AddPMT(TVector3(pmtpos_global.x(), pmtpos_global.y(), pmtpos_global.z()),
+                   TVector3(pmtdir.x(), pmtdir.y(), pmtdir.z()), pmt_type[i], channel_number[i], pmt_model,
+                   pmt_effi_corr[i], individual_noise_rate[i], individual_afterpulse_fraction[i]);
 
+    // TODO: Check if logic below should use pmtpos or pmtpos_global
     // if requested, generates the magnetic efficiency corrections as the PMTs
     // are created
     if (BFieldOn) {

@@ -23,6 +23,7 @@ class PMTInfoParser {
   // Returns the offset between local and global coordinates
   // e.g. local = global - offset
   G4ThreeVector GetLocalOffset() { return fLocalOffset; }
+  static G4ThreeVector ComputeLocalOffset(const std::string &);
 
   // Returns the direction vector of the front face of the PMTs
   const std::vector<G4ThreeVector> &GetPMTDirections() const { return fDir; };
