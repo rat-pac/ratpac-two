@@ -18,5 +18,12 @@ sliding_window_width: 10,
 sliding_window_thresh: 0.2,
 // Threshold in mV
 voltage_threshold: -2.5,
-}
 
+run_fitting: 0,
+// Fit window, in ns
+fit_window_low: 10.0,
+fit_window_high: 15.0,
+// Fit shape
+lognormal_shape: 0.15,
+lognormal_scale: 10.5,
+}

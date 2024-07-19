@@ -1,45 +1,69 @@
+#include <TF1.h>
+#include <TH1D.h>
+#include <TMath.h>
+
 #include <RAT/Log.hh>
 #include <RAT/WaveformAnalysis.hh>
-#include <iostream>
 
 namespace RAT {
 
 WaveformAnalysis::WaveformAnalysis() : WaveformAnalysis::WaveformAnalysis("") {}
 
 WaveformAnalysis::WaveformAnalysis(std::string analyzer_name) {
-  fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", analyzer_name);
-  fPedWindowLow = fDigit->GetI("pedestal_window_low");
-  fPedWindowHigh = fDigit->GetI("pedestal_window_high");
-  fLookback = fDigit->GetD("lookback");
-  fIntWindowLow = fDigit->GetD("integration_window_low");
-  fIntWindowHigh = fDigit->GetD("integration_window_high");
-  fConstFrac = fDigit->GetD("constant_fraction");
-  fThreshold = fDigit->GetD("voltage_threshold");
-  fSlidingWindow = fDigit->GetD("sliding_window_width");
-  fChargeThresh = fDigit->GetD("sliding_window_thresh");
+  try {
+    fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", analyzer_name);
+    fPedWindowLow = fDigit->GetI("pedestal_window_low");
+    fPedWindowHigh = fDigit->GetI("pedestal_window_high");
+    fLookback = fDigit->GetD("lookback");
+    fIntWindowLow = fDigit->GetD("integration_window_low");
+    fIntWindowHigh = fDigit->GetD("integration_window_high");
+    fConstFrac = fDigit->GetD("constant_fraction");
+    fThreshold = fDigit->GetD("voltage_threshold");
+    fSlidingWindow = fDigit->GetD("sliding_window_width");
+    fChargeThresh = fDigit->GetD("sliding_window_thresh");
+    fRunFit = fDigit->GetI("run_fitting");
+    if (fRunFit) {
+      fFitWindowLow = fDigit->GetD("fit_window_low");
+      fFitWindowHigh = fDigit->GetD("fit_window_high");
+      fFitShape = fDigit->GetD("lognormal_shape");
+      fFitScale = fDigit->GetD("lognormal_scale");
+    }
+  } catch (DBNotFoundError) {
+    RAT::Log::Die("WaveformAnalysis: Unable to find analysis parameters.");
+  }
 }
 
-void WaveformAnalysis::RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer *fDigitizer) {
+void WaveformAnalysis::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer* fDigitizer) {
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
   fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
 
   fDigitWfm = fDigitizer->fDigitWaveForm[pmtID];
 
+  // Calculate baseline in mV
   CalculatePedestal();
 
-  double digit_time = CalculateTimeCFD();
+  // Calculate peak in mV
+  GetPeak();
+
+  // Calculate the constant-fraction hit-time
+  CalculateTimeCFD();
 
   // Get the total number of threshold crossings
   GetNCrossings();
 
-  fLowIntWindow = int((digit_time - fIntWindowLow) / fTimeStep);
-  fHighIntWindow = int((digit_time + fIntWindowHigh) / fTimeStep);
   fTermOhms = fDigitizer->fTerminationOhms;
-
+  // Integrate the waveform to calculate the charge
   Integrate();
   SlidingIntegral();
 
-  digitpmt->SetDigitizedTime(digit_time);
+  if (fRunFit) {
+    FitWaveform();
+  }
+
+  digitpmt->SetDigitizedTime(fDigitTime);
+  digitpmt->SetFittedTime(fFittedTime);
+  digitpmt->SetFittedBaseline(fFittedBaseline);
+  digitpmt->SetFittedHeight(fFittedHeight);
   digitpmt->SetDigitizedCharge(fCharge);
   digitpmt->SetDigitizedTotalCharge(fTotalCharge);
   digitpmt->SetInterpolatedTime(fInterpolatedTime);
@@ -51,7 +75,7 @@ void WaveformAnalysis::RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer 
   digitpmt->SetPeakVoltage(fVoltagePeak);
 }
 
-double WaveformAnalysis::RunAnalysisOnTrigger(int pmtID, Digitizer *fDigitizer) {
+double WaveformAnalysis::RunAnalysisOnTrigger(int pmtID, Digitizer* fDigitizer) {
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
   fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
 
@@ -63,7 +87,7 @@ double WaveformAnalysis::RunAnalysisOnTrigger(int pmtID, Digitizer *fDigitizer) 
   try {
     trigger_threshold = fDigit->GetD("trigger_voltage_threshold");
     trigger_lookback = fDigit->GetD("trigger_lookback");
-  } catch (DBNotFoundError &e) {
+  } catch (DBNotFoundError& e) {
     warn << "WaveformAnalysis: Trigger threshold and lookback not found in database. "
          << "Using the same parameters as PMT Waveforms." << newline;
   }
@@ -208,15 +232,12 @@ double WaveformAnalysis::CalculateThresholdCrossingTime() {
   return interpolated_time;
 }
 
-double WaveformAnalysis::CalculateTimeCFD() {
+void WaveformAnalysis::CalculateTimeCFD() {
   /*
   Apply constant-fraction discriminator to digitized PMT waveforms.
   */
-
-  // Calculate peak in mV
-  GetPeak();
   fVoltageCrossing = fConstFrac * fVoltagePeak;
-  return CalculateThresholdCrossingTime();
+  fDigitTime = CalculateThresholdCrossingTime();
 }
 
 void WaveformAnalysis::Integrate() {
@@ -224,6 +245,9 @@ void WaveformAnalysis::Integrate() {
   Integrate the digitized waveform around the peak to calculate charge
   */
   fCharge = 0;
+
+  fLowIntWindow = fSamplePeak - fIntWindowLow;
+  fHighIntWindow = fSamplePeak + fIntWindowHigh;
 
   if (fLowIntWindow >= fDigitWfm.size()) {
     fCharge = INVALID;
@@ -260,6 +284,80 @@ void WaveformAnalysis::SlidingIntegral() {
       fTotalCharge += charge;
     }
   }
+}
+
+double SingleLognormal(double* x, double* par) {
+  /*
+  Lognormal distribution
+  */
+
+  double mag = par[0];
+  double theta = par[1];
+  double baseline = par[2];
+
+  double m = par[3];
+  double s = par[4];
+
+  if (x[0] <= theta) {
+    return baseline;
+  }
+
+  double q = baseline - mag * TMath::LogNormal(x[0], s, theta, m);
+  return q;
+}
+
+void WaveformAnalysis::FitWaveform() {
+  /*
+  Fit the PMT pulse to a lognormal distribution
+  */
+  // Fit around the peak
+  TH1D* wfm = new TH1D("wfm", "wfm", fDigitWfm.size(), 0, fDigitWfm.size() * fTimeStep);
+  for (UShort_t i = 0; i < fDigitWfm.size(); i++) {
+    wfm->SetBinContent(i, DigitToVoltage(fDigitWfm[i]));
+    // Arb. choice, TODO
+    wfm->SetBinError(i, fVoltageRes * 2.0);
+  }
+  double bf = fDigitTime - fFitWindowLow;
+  double tf = fDigitTime + fFitWindowHigh;
+
+  // Check the fit range is within the digitizer window
+  bf = (bf > 0) ? bf : 0;
+  tf = (tf > fDigitWfm.size() * fTimeStep) ? fDigitWfm.size() * fTimeStep : tf;
+
+  // Check the timing range is within the digitizer window
+  double thigh = fDigitTime + fFitScale + fFitWindowHigh;
+  thigh = (thigh > fDigitWfm.size() * fTimeStep) ? fDigitWfm.size() * fTimeStep : thigh;
+
+  double tmed = fDigitTime - fFitScale;
+  tmed = (tmed > 0) ? tmed : 0;
+
+  double tlow = fDigitTime - fFitScale - fFitWindowLow;
+  tlow = (tlow > 0) ? tlow : 0;
+
+  const int ndf = 5;
+  TF1* ln_fit = new TF1("ln_fit", SingleLognormal, bf, tf, ndf);
+  ln_fit->SetParameter(0, 40.0);
+  // Fit assumes SPE waveform of limited size
+  ln_fit->SetParLimits(0, 1.0, 400.0);
+  // Fitted time around the peak
+  ln_fit->SetParameter(1, tmed);
+  ln_fit->SetParLimits(1, tlow, thigh);
+  // Baseline centered around zero
+  ln_fit->SetParameter(2, 0.0);
+  ln_fit->SetParLimits(2, -1.0, 1.0);
+
+  ln_fit->FixParameter(3, fFitScale);
+  ln_fit->FixParameter(4, fFitShape);
+
+  wfm->Fit("ln_fit", "0QR", "", bf, tf);
+
+  fFittedHeight = ln_fit->GetParameter(0);
+  fFittedTime = ln_fit->GetParameter(1) + fFitScale;
+  fFittedBaseline = ln_fit->GetParameter(2);
+  fChi2NDF = ln_fit->GetChisquare() / ln_fit->GetNDF();
+
+  delete wfm;
+  delete ln_fit;
 }
 
 }  // namespace RAT

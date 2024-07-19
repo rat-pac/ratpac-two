@@ -46,6 +46,8 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.tracking = table->GetZ("include_tracking");
     options.mcparticles = table->GetZ("include_mcparticles");
     options.pmthits = table->GetZ("include_pmthits");
+    options.digitizerhits = table->GetZ("include_digitizerhits");
+    options.digitizerfits = table->GetZ("include_digitizerfits");
     options.untriggered = table->GetZ("include_untriggered_events");
     options.mchits = table->GetZ("include_mchits");
   } catch (DBNotFoundError &e) {
@@ -125,11 +127,21 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     // Information about *first* detected PE
     outputTree->Branch("hitPMTTime", &hitPMTTime);
     outputTree->Branch("hitPMTCharge", &hitPMTCharge);
+  }
+  if (options.digitizerhits) {
     // Output of the waveform analysis
-    outputTree->Branch("hitPMTDigitizedTime", &hitPMTDigitizedTime);
-    outputTree->Branch("hitPMTDigitizedCharge", &hitPMTDigitizedCharge);
-    outputTree->Branch("hitPMTNCrossings", &hitPMTNCrossings);
-    outputTree->Branch("hitPMTDigitizedLocalTriggerTime", &hitPMTDigitizedLocalTriggerTime);
+    outputTree->Branch("digitPMTID", &digitPMTID);
+    outputTree->Branch("digitTime", &digitTime);
+    outputTree->Branch("digitCharge", &digitCharge);
+    outputTree->Branch("digitNCrossings", &digitNCrossings);
+    outputTree->Branch("digitPeak", &digitPeak);
+    outputTree->Branch("digitLocalTriggerTime", &digitLocalTriggerTime);
+    if (options.digitizerfits) {
+      // From the lognormal fit to the waveforms
+      outputTree->Branch("fitTime", &fitTime);
+      outputTree->Branch("fitBaseline", &fitBaseline);
+      outputTree->Branch("fitPeak", &fitPeak);
+    }
   }
   if (options.mchits) {
     // Save full MC PMT hit information
@@ -407,10 +419,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       hitPMTID.clear();
       hitPMTTime.clear();
       hitPMTCharge.clear();
-      hitPMTDigitizedTime.clear();
-      hitPMTDigitizedCharge.clear();
-      hitPMTNCrossings.clear();
-      hitPMTDigitizedLocalTriggerTime.clear();
 
       for (int pmtc = 0; pmtc < ev->GetPMTCount(); pmtc++) {
         RAT::DS::PMT *pmt = ev->GetPMT(pmtc);
@@ -418,12 +426,34 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         hitPMTTime.push_back(pmt->GetTime());
         hitPMTCharge.push_back(pmt->GetCharge());
       }
+    }
+    if (options.digitizerhits) {
+      digitTime.clear();
+      digitCharge.clear();
+      digitNCrossings.clear();
+      digitPeak.clear();
+      digitPMTID.clear();
+      digitLocalTriggerTime.clear();
+
+      if (options.digitizerfits) {
+        fitTime.clear();
+        fitBaseline.clear();
+        fitPeak.clear();
+      }
+
       for (int pmtc = 0; pmtc < ev->GetDigitPMTCount(); pmtc++) {
         RAT::DS::DigitPMT *digitpmt = ev->GetDigitPMT(pmtc);
-        hitPMTDigitizedTime.push_back(digitpmt->GetDigitizedTime());
-        hitPMTDigitizedCharge.push_back(digitpmt->GetDigitizedCharge());
-        hitPMTNCrossings.push_back(digitpmt->GetNCrossings());
-        hitPMTDigitizedLocalTriggerTime.push_back(digitpmt->GetLocalTriggerTime());
+        digitPMTID.push_back(digitpmt->GetID());
+        digitTime.push_back(digitpmt->GetDigitizedTime());
+        digitCharge.push_back(digitpmt->GetDigitizedCharge());
+        digitNCrossings.push_back(digitpmt->GetNCrossings());
+        digitPeak.push_back(digitpmt->GetPeakVoltage());
+        digitLocalTriggerTime.push_back(digitpmt->GetLocalTriggerTime());
+        if (options.digitizerfits) {
+          fitTime.push_back(digitpmt->GetFittedTime());
+          fitBaseline.push_back(digitpmt->GetFittedBaseline());
+          fitPeak.push_back(digitpmt->GetFittedHeight());
+        }
       }
     }
     this->FillEvent(ds, ev);
@@ -436,10 +466,19 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       hitPMTID.clear();
       hitPMTTime.clear();
       hitPMTCharge.clear();
-      hitPMTDigitizedTime.clear();
-      hitPMTDigitizedCharge.clear();
-      hitPMTNCrossings.clear();
-      hitPMTDigitizedLocalTriggerTime.clear();
+    }
+    if (options.digitizerhits) {
+      digitTime.clear();
+      digitCharge.clear();
+      digitNCrossings.clear();
+      digitPeak.clear();
+      digitPMTID.clear();
+      digitLocalTriggerTime.clear();
+      if (options.digitizerfits) {
+        fitTime.clear();
+        fitBaseline.clear();
+        fitPeak.clear();
+      }
     }
     this->FillNoTriggerEvent(ds);
     outputTree->Fill();
