@@ -10,21 +10,27 @@ namespace RAT {
 WaveformAnalysis::WaveformAnalysis() : WaveformAnalysis::WaveformAnalysis("") {}
 
 WaveformAnalysis::WaveformAnalysis(std::string analyzer_name) {
-  fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", analyzer_name);
-  fPedWindowLow = fDigit->GetI("pedestal_window_low");
-  fPedWindowHigh = fDigit->GetI("pedestal_window_high");
-  fLookback = fDigit->GetD("lookback");
-  fIntWindowLow = fDigit->GetD("integration_window_low");
-  fIntWindowHigh = fDigit->GetD("integration_window_high");
-  fConstFrac = fDigit->GetD("constant_fraction");
-  fThreshold = fDigit->GetD("voltage_threshold");
-  fSlidingWindow = fDigit->GetD("sliding_window_width");
-  fChargeThresh = fDigit->GetD("sliding_window_thresh");
-  fRunFit = fDigit->GetI("run_fitting");
-  fFitWindowLow = fDigit->GetD("fit_window_low");
-  fFitWindowHigh = fDigit->GetD("fit_window_high");
-  fFitShape = fDigit->GetD("lognormal_shape");
-  fFitScale = fDigit->GetD("lognormal_scale");
+  try {
+    fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", analyzer_name);
+    fPedWindowLow = fDigit->GetI("pedestal_window_low");
+    fPedWindowHigh = fDigit->GetI("pedestal_window_high");
+    fLookback = fDigit->GetD("lookback");
+    fIntWindowLow = fDigit->GetD("integration_window_low");
+    fIntWindowHigh = fDigit->GetD("integration_window_high");
+    fConstFrac = fDigit->GetD("constant_fraction");
+    fThreshold = fDigit->GetD("voltage_threshold");
+    fSlidingWindow = fDigit->GetD("sliding_window_width");
+    fChargeThresh = fDigit->GetD("sliding_window_thresh");
+    fRunFit = fDigit->GetI("run_fitting");
+    if (fRunFit) {
+      fFitWindowLow = fDigit->GetD("fit_window_low");
+      fFitWindowHigh = fDigit->GetD("fit_window_high");
+      fFitShape = fDigit->GetD("lognormal_shape");
+      fFitScale = fDigit->GetD("lognormal_scale");
+    }
+  } catch (DBNotFoundError) {
+    RAT::Log::Die("WaveformAnalysis: Unable to find analysis parameters.");
+  }
 }
 
 void WaveformAnalysis::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer* fDigitizer) {
