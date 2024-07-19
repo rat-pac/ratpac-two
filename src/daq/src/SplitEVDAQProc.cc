@@ -30,9 +30,15 @@ SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   fDigitizerType = ldaq->GetS("digitizer_name");
   fDigitize = ldaq->GetZ("digitize");
   fAnalyze = ldaq->GetZ("analyze");
+  std::string analyzer_name = "";
+  try {
+    analyzer_name = ldaq->GetZ("analyzer_name");
+  } catch (DBNotFoundError &e) {
+    info << "Analyzer not specified, using default";
+  }
 
   fDigitizer = new Digitizer(fDigitizerType);
-  fWaveformAnalysis = new WaveformAnalysis();
+  fWaveformAnalysis = new WaveformAnalysis(analyzer_name);
 }
 
 void SplitEVDAQProc::BeginOfRun(DS::Run *run) {
