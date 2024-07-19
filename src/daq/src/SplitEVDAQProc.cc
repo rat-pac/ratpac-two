@@ -32,7 +32,7 @@ SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   fAnalyze = ldaq->GetZ("analyze");
   std::string analyzer_name = "";
   try {
-    analyzer_name = ldaq->GetZ("analyzer_name");
+    analyzer_name = ldaq->GetS("analyzer_name");
   } catch (DBNotFoundError &e) {
     info << "Analyzer not specified, using default";
   }
