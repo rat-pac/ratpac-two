@@ -345,14 +345,15 @@ void WaveformAnalysis::FitWaveform() {
   // Baseline centered around zero
   ln_fit->SetParameter(2, 0.0);
   ln_fit->SetParLimits(2, -1.0, 1.0);
+  ln_fit->SetParameter(3, fFitScale);
+  ln_fit->SetParLimits(3, fFitScale - 5.0, fFitScale + 5.0);
 
-  ln_fit->FixParameter(3, fFitScale);
   ln_fit->FixParameter(4, fFitShape);
 
   wfm->Fit("ln_fit", "0QR", "", bf, tf);
 
   fFittedHeight = ln_fit->GetParameter(0);
-  fFittedTime = ln_fit->GetParameter(1) + fFitScale;
+  fFittedTime = ln_fit->GetParameter(1) + ln_fit->GetParameter(2);
   fFittedBaseline = ln_fit->GetParameter(2);
   fChi2NDF = ln_fit->GetChisquare() / ln_fit->GetNDF();
 
