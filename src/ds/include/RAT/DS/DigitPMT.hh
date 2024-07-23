@@ -24,6 +24,10 @@ class DigitPMT : public TObject {
   virtual void SetID(Int_t _id) { this->id = _id; }
   virtual Int_t GetID() { return id; }
 
+  /** Channel number of PMT */
+  virtual void SetChannel(Int_t _ch) { this->ch = _ch; }
+  virtual Int_t GetChannel() { return ch; }
+
   /** Threshold crossing time in ns */
   virtual void SetDigitizedTime(Double_t _dTime) { this->dTime = _dTime; }
   virtual Double_t GetDigitizedTime() { return dTime; }
@@ -80,10 +84,11 @@ class DigitPMT : public TObject {
   virtual void SetLocalTriggerTime(Double_t _trigger_time) { this->local_trigger_time = _trigger_time; }
   virtual Double_t GetLocalTriggerTime() { return local_trigger_time; }
 
-  ClassDef(DigitPMT, 3);
+  ClassDef(DigitPMT, 4);
 
  protected:
   Int_t id = -9999;
+  Int_t ch = -9999;
   Double_t dTime = -9999;
   Double_t dCharge = -9999;
   Double_t dTCharge = -9999;

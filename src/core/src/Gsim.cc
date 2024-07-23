@@ -548,6 +548,7 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
     // the index of the PMT we just added
     rat_mcpmt->SetID(a_pmt->GetID());
     rat_mcpmt->SetType(fPMTInfo->GetType(a_pmt->GetID()));
+    rat_mcpmt->SetChannel(fPMTInfo->GetChannelNumber(a_pmt->GetID()));
 
     numPE += a_pmt->GetEntries();
 

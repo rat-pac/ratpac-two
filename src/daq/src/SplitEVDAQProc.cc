@@ -142,6 +142,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     for (int imcpmt = 0; imcpmt < mc->GetMCPMTCount(); imcpmt++) {
       DS::MCPMT *mcpmt = mc->GetMCPMT(imcpmt);
       int pmtID = mcpmt->GetID();
+      int channel = mcpmt->GetChannel();
       // Check if the mcpmt has a time within one pulsewidth of the trigger window
       bool pmtInEvent = false;
       double integratedCharge = 0;
@@ -161,6 +162,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
       if (pmtInEvent) {
         DS::PMT *pmt = ev->AddNewPMT();
         pmt->SetID(pmtID);
+        pmt->SetChannel(channel);
         double front_end_hit_time = *std::min_element(hitTimes.begin(), hitTimes.end());
         // PMT Hit time relative to the trigger
         pmt->SetTime(front_end_hit_time - tt);
@@ -171,6 +173,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
           if (fAnalyze) {
             DS::DigitPMT *digitpmt = ev->AddNewDigitPMT();
             digitpmt->SetID(pmtID);
+            digitpmt->SetChannel(channel);
             fWaveformAnalysis->RunAnalysis(digitpmt, pmtID, fDigitizer);
           }
         }

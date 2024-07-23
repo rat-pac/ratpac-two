@@ -27,6 +27,10 @@ class MCPMT : public TObject {
   virtual Int_t GetID() const { return id; };
   virtual void SetID(Int_t _id) { id = _id; };
 
+  /** Channel number of PMT */
+  virtual void SetChannel(Int_t _ch) { this->ch = _ch; }
+  virtual Int_t GetChannel() { return ch; }
+
   /** Charge */
   virtual Double_t GetCharge() const;
 
@@ -57,10 +61,11 @@ class MCPMT : public TObject {
                  photon.end());
   }
 
-  ClassDef(MCPMT, 3);
+  ClassDef(MCPMT, 4);
 
  protected:
   Int_t id;
+  Int_t ch;
   Int_t type;
   std::vector<MCPhoton> photon;
 };

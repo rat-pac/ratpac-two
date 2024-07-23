@@ -124,6 +124,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   if (options.pmthits) {
     // Save full PMT hit informations
     outputTree->Branch("hitPMTID", &hitPMTID);
+    outputTree->Branch("hitChannel", &hitChannel);
     // Information about *first* detected PE
     outputTree->Branch("hitPMTTime", &hitPMTTime);
     outputTree->Branch("hitPMTCharge", &hitPMTCharge);
@@ -131,6 +132,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   if (options.digitizerhits) {
     // Output of the waveform analysis
     outputTree->Branch("digitPMTID", &digitPMTID);
+    outputTree->Branch("digitChannel", &digitChannel);
     outputTree->Branch("digitTime", &digitTime);
     outputTree->Branch("digitCharge", &digitCharge);
     outputTree->Branch("digitNCrossings", &digitNCrossings);
@@ -146,6 +148,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   if (options.mchits) {
     // Save full MC PMT hit information
     outputTree->Branch("mcPMTID", &mcpmtid);
+    outputTree->Branch("mcPMTChannel", &mcpmtchannel);
     outputTree->Branch("mcPMTNPE", &mcpmtnpe);
     outputTree->Branch("mcPMTCharge", &mcpmtcharge);
 
@@ -302,6 +305,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 
   // MCPMT information
   mcpmtid.clear();
+  mcpmtchannel.clear();
   mcpmtnpe.clear();
   mcpmtcharge.clear();
 
@@ -321,6 +325,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     for (int ipmt = 0; ipmt < mc->GetMCPMTCount(); ipmt++) {
       DS::MCPMT *mcpmt = mc->GetMCPMT(ipmt);
       mcpmtid.push_back(mcpmt->GetID());
+      mcpmtchannel.push_back(mcpmt->GetChannel());
       mcpmtnpe.push_back(mcpmt->GetMCPhotonCount());
       mcpmtcharge.push_back(mcpmt->GetCharge());
       TVector3 position = pmtinfo->GetPosition(mcpmt->GetID());
@@ -417,22 +422,25 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     nhits = ev->GetPMTCount();
     if (options.pmthits) {
       hitPMTID.clear();
+      hitChannel.clear();
       hitPMTTime.clear();
       hitPMTCharge.clear();
 
       for (int pmtc = 0; pmtc < ev->GetPMTCount(); pmtc++) {
         RAT::DS::PMT *pmt = ev->GetPMT(pmtc);
         hitPMTID.push_back(pmt->GetID());
+        hitChannel.push_back(pmt->GetChannel());
         hitPMTTime.push_back(pmt->GetTime());
         hitPMTCharge.push_back(pmt->GetCharge());
       }
     }
     if (options.digitizerhits) {
+      digitPMTID.clear();
+      digitChannel.clear();
       digitTime.clear();
       digitCharge.clear();
       digitNCrossings.clear();
       digitPeak.clear();
-      digitPMTID.clear();
       digitLocalTriggerTime.clear();
 
       if (options.digitizerfits) {
@@ -444,6 +452,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       for (int pmtc = 0; pmtc < ev->GetDigitPMTCount(); pmtc++) {
         RAT::DS::DigitPMT *digitpmt = ev->GetDigitPMT(pmtc);
         digitPMTID.push_back(digitpmt->GetID());
+        digitChannel.push_back(digitpmt->GetChannel());
         digitTime.push_back(digitpmt->GetDigitizedTime());
         digitCharge.push_back(digitpmt->GetDigitizedCharge());
         digitNCrossings.push_back(digitpmt->GetNCrossings());
@@ -464,15 +473,17 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     triggerTime = 0;
     if (options.pmthits) {
       hitPMTID.clear();
+      hitChannel.clear();
       hitPMTTime.clear();
       hitPMTCharge.clear();
     }
     if (options.digitizerhits) {
+      digitPMTID.clear();
+      digitChannel.clear();
       digitTime.clear();
       digitCharge.clear();
       digitNCrossings.clear();
       digitPeak.clear();
-      digitPMTID.clear();
       digitLocalTriggerTime.clear();
       if (options.digitizerfits) {
         fitTime.clear();

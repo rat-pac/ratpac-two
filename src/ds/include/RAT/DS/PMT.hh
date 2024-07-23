@@ -22,6 +22,10 @@ class PMT : public TObject {
   virtual void SetID(Int_t _id) { this->id = _id; }
   virtual Int_t GetID() { return id; }
 
+  /** Channel number of PMT */
+  virtual void SetChannel(Int_t _ch) { this->ch = _ch; }
+  virtual Int_t GetChannel() { return ch; }
+
   /** Total charge in waveform (pC) */
   virtual void SetCharge(Double_t _charge) { this->charge = _charge; }
   virtual Double_t GetCharge() { return charge; }
@@ -61,10 +65,11 @@ class PMT : public TObject {
   virtual void SetPeakVoltage(Double_t _peak) { this->peak = _peak; }
   virtual Double_t GetPeakVoltage() { return peak; }
 
-  ClassDef(PMT, 4);
+  ClassDef(PMT, 5);
 
  protected:
   Int_t id;
+  Int_t ch;
   Double_t charge;
   Double_t time;
   Double_t dTime;

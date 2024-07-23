@@ -96,6 +96,7 @@ class OutNtupleProc : public Processor {
   int mcnhits;
   int mcpecount;
   std::vector<int> mcpmtid;
+  std::vector<int> mcpmtchannel;
   std::vector<int> mcpmtnpe;
   std::vector<double> mcpmtcharge;
   // MCPE
@@ -125,15 +126,17 @@ class OutNtupleProc : public Processor {
   std::vector<double> fitu, fitv, fitw;
   // Store PMT Hit Positions
   std::vector<int> hitPMTID;
+  std::vector<int> hitChannel;
   std::vector<double> hitPMTTime;
   std::vector<double> hitPMTCharge;
   // Store PMT information from digitized waveform
+  std::vector<int> digitPMTID;
+  std::vector<int> digitChannel;
   std::vector<double> digitPeak;
   std::vector<double> digitTime;
   std::vector<double> digitCharge;
   std::vector<double> digitLocalTriggerTime;
   std::vector<int> digitNCrossings;
-  std::vector<int> digitPMTID;
   // Information from fit to the waveforms
   std::vector<double> fitTime;
   std::vector<double> fitBaseline;
