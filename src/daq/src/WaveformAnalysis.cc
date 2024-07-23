@@ -353,7 +353,7 @@ void WaveformAnalysis::FitWaveform() {
   wfm->Fit("ln_fit", "0QR", "", bf, tf);
 
   fFittedHeight = ln_fit->GetParameter(0);
-  fFittedTime = ln_fit->GetParameter(1) + ln_fit->GetParameter(2);
+  fFittedTime = ln_fit->GetParameter(1) + ln_fit->GetParameter(3);
   fFittedBaseline = ln_fit->GetParameter(2);
   fChi2NDF = ln_fit->GetChisquare() / ln_fit->GetNDF();
 
