@@ -86,6 +86,7 @@ class OutNtupleProc : public Processor {
   int subev;
   int nhits;
   double triggerTime;
+  double timeSinceLastTrigger_us;
   // MC Summary Information
   double scintEdep;
   double scintEdepQuenched;
@@ -128,6 +129,7 @@ class OutNtupleProc : public Processor {
   std::vector<double> hitPMTTime;
   std::vector<double> hitPMTCharge;
   // Store PMT information from digitized waveform
+  int digitNhits;
   std::vector<double> digitPeak;
   std::vector<double> digitTime;
   std::vector<double> digitCharge;
