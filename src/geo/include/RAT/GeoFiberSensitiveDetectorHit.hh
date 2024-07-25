@@ -31,6 +31,7 @@ class GeoFiberSensitiveDetectorHit : public G4VHit {
   G4ThreeVector pos;
   G4RotationMatrix rot;
   const G4LogicalVolume *pLogV;
+  std::string proc;
 
  public:
   inline G4int GetID() const { return id; }
@@ -42,6 +43,8 @@ class GeoFiberSensitiveDetectorHit : public G4VHit {
   inline G4RotationMatrix GetRot() const { return rot; }
   inline void SetLogV(G4LogicalVolume *val) { pLogV = val; }
   inline const G4LogicalVolume *GetLogV() const { return pLogV; }
+  inline void SetProcess(std::string *val) { proc = val; }
+  inline const G4LogicalVolume *GetProcess() const { return proc; }
 };
 
 typedef G4THitsCollection<GeoFiberSensitiveDetectorHit> GeoFiberSensitiveDetectorHitsCollection;

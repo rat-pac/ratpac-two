@@ -59,6 +59,13 @@ G4bool GeoFiberSensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory 
   // We ONLY want to store optical photons
   if (aStep->GetTrack()->GetDefinition()->GetParticleName() == "opticalphoton") {
 
+		// only store information from steps where the photon is attenuated
+	  G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
+	  G4StepPoint *postStepPoint = aStep->GetPostStepPoint();
+		std::string proc = postStepPoint->GetProcessDefinedStep()->GetProcessName();
+		if (proc != "Attenuation")
+			return true;
+
 	  debug << "GeoFiberSensitiveDetector::ProcessHits start." << newline;
 	  debug << "GeoFiberSensitiveDetector::ProcessHits getting energy deposited." << newline;
 
@@ -79,7 +86,6 @@ G4bool GeoFiberSensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory 
 
 	  debug << "GeoFiberSensitiveDetector::ProcessHits getting global time." << newline;
 
-	  G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
 	  G4Material *m = preStepPoint->GetMaterial();
 	  G4String mname = m->GetName();
 	  G4double d = m->GetDensity();
