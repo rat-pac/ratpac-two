@@ -177,7 +177,9 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
           if (fAnalyze) {
             DS::DigitPMT *digitpmt = ev->AddNewDigitPMT();
             digitpmt->SetID(pmtID);
-            fWaveformAnalysis->RunAnalysis(digitpmt, pmtID, fDigitizer);
+            double timing_offset =
+                fDigitizer->fPMTWaveformGenerators[pmtinfo->GetModelNameByID(pmtID)]->fPMTPulseTimeOffset;
+            fWaveformAnalysis->RunAnalysis(digitpmt, pmtID, fDigitizer, timing_offset);
           }
         }
       }
