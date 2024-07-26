@@ -33,7 +33,7 @@ WaveformAnalysis::WaveformAnalysis(std::string analyzer_name) {
   }
 }
 
-void WaveformAnalysis::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer* fDigitizer) {
+void WaveformAnalysis::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer* fDigitizer, double timeOffset) {
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
   fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
 
@@ -60,8 +60,9 @@ void WaveformAnalysis::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer*
     FitWaveform();
   }
 
-  digitpmt->SetDigitizedTime(fDigitTime);
-  digitpmt->SetFittedTime(fFittedTime);
+  digitpmt->SetDigitizedTime(fDigitTime - timeOffset);
+  digitpmt->SetFittedTime(fFittedTime - timeOffset);
+  digitpmt->SetTimeOffsetApplied(timeOffset);
   digitpmt->SetFittedBaseline(fFittedBaseline);
   digitpmt->SetFittedHeight(fFittedHeight);
   digitpmt->SetDigitizedCharge(fCharge);

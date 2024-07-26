@@ -31,7 +31,7 @@ class WaveformAnalysis {
   WaveformAnalysis(std::string analyzer_name);
   virtual ~WaveformAnalysis(){};
 
-  void RunAnalysis(DS::DigitPMT *pmt, int pmtID, Digitizer *fDigitizer);
+  void RunAnalysis(DS::DigitPMT *pmt, int pmtID, Digitizer *fDigitizer, double timeOffset = 0.0);
   double RunAnalysisOnTrigger(int pmtID, Digitizer *fDigitizer);
 
   // Calculate baseline (in mV)

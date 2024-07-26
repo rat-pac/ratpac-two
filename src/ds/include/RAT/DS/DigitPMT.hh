@@ -80,7 +80,11 @@ class DigitPMT : public TObject {
   virtual void SetLocalTriggerTime(Double_t _trigger_time) { this->local_trigger_time = _trigger_time; }
   virtual Double_t GetLocalTriggerTime() { return local_trigger_time; }
 
-  ClassDef(DigitPMT, 3);
+  /** Time offset applied to the waveform */
+  virtual void SetTimeOffsetApplied(Double_t _time_offset) { this->time_offset_applied = _time_offset; }
+  virtual Double_t GetTimeOffsetApplied() { return time_offset_applied; }
+
+  ClassDef(DigitPMT, 4);
 
  protected:
   Int_t id = -9999;
@@ -98,6 +102,7 @@ class DigitPMT : public TObject {
   Double_t fMag = -9999;
   Double_t fBas = -9999;
   Double_t local_trigger_time = -9999;
+  Double_t time_offset_applied = 0;
 };
 
 }  // namespace DS
