@@ -97,6 +97,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("subev", &subev);
   outputTree->Branch("nhits", &nhits);
   outputTree->Branch("triggerTime", &triggerTime);
+  outputTree->Branch("timeSinceLastTrigger_us", &timeSinceLastTrigger_us);
   // MC Information
   outputTree->Branch("mcid", &mcid);
   outputTree->Branch("mcparticlecount", &mcpcount);
@@ -130,6 +131,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   }
   if (options.digitizerhits) {
     // Output of the waveform analysis
+    outputTree->Branch("digitNhits", &digitNhits);
     outputTree->Branch("digitPMTID", &digitPMTID);
     outputTree->Branch("digitTime", &digitTime);
     outputTree->Branch("digitCharge", &digitCharge);
@@ -356,6 +358,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     DS::EV *ev = ds->GetEV(subev);
     evid = ev->GetID();
     triggerTime = ev->GetCalibratedTriggerTime();
+    timeSinceLastTrigger_us = ev->GetDeltaT();
     auto fitVector = ev->GetFitResults();
     std::map<std::string, double *> fitvalues;
     std::map<std::string, bool *> fitvalids;
@@ -428,6 +431,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       }
     }
     if (options.digitizerhits) {
+      digitNhits = 0;
       digitTime.clear();
       digitCharge.clear();
       digitNCrossings.clear();
@@ -446,6 +450,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         digitPMTID.push_back(digitpmt->GetID());
         digitTime.push_back(digitpmt->GetDigitizedTime());
         digitCharge.push_back(digitpmt->GetDigitizedCharge());
+        if (digitpmt->GetNCrossings() > 0) {
+          digitNhits++;
+        }
         digitNCrossings.push_back(digitpmt->GetNCrossings());
         digitPeak.push_back(digitpmt->GetPeakVoltage());
         digitLocalTriggerTime.push_back(digitpmt->GetLocalTriggerTime());
@@ -462,12 +469,14 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   if (options.untriggered && ds->GetEVCount() == 0) {
     evid = -1;
     triggerTime = 0;
+    timeSinceLastTrigger_us = 0;
     if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
       hitPMTCharge.clear();
     }
     if (options.digitizerhits) {
+      digitNhits = 0;
       digitTime.clear();
       digitCharge.clear();
       digitNCrossings.clear();
