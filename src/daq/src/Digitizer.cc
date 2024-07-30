@@ -42,7 +42,7 @@ void Digitizer::DigitizeSum(DS::EV* ev) {
 
   std::map<int, std::vector<UShort_t>> waveforms = fDigitWaveForm;
   for (std::map<int, std::vector<UShort_t>>::const_iterator it = waveforms.begin(); it != waveforms.end(); it++) {
-    digit.SetWaveform(it->first, waveforms[UShort_t(it->first)]);
+    digit.SetWaveform(it->first, waveforms[it->first]);
   }
 
   digit.SetDigitName(fDigitName);
