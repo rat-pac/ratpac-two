@@ -26,4 +26,5 @@ fit_window_high: 15.0,
 // Fit shape
 lognormal_shape: 0.15,
 lognormal_scale: 10.5,
+apply_cable_offset: 0,
 }
