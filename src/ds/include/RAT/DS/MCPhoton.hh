@@ -8,7 +8,7 @@
  * photocathode of the PMT.  The time jitter and delay in transit to the
  * anode are not included here, but the distribution of charge is,
  * which is slightly incongruous.
- *
+ 
  * Note that we require that the photon generates a photoelectron.
  * Absorbed photons are not included here.
  */

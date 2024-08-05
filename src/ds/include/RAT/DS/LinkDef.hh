@@ -2,13 +2,16 @@
 
 #pragma link C++ class RAT::DS::Root + ;
 #pragma link C++ class RAT::DS::PMTInfo + ;
+#pragma link C++ class RAT::DS::NestedTubeInfo + ;
 
 #pragma link C++ class RAT::DS::MC + ;
 #pragma link C++ class RAT::DS::MCParticle + ;
 #pragma link C++ class RAT::DS::MCTrack + ;
 #pragma link C++ class RAT::DS::MCTrackStep + ;
 #pragma link C++ class RAT::DS::MCPMT + ;
+#pragma link C++ class RAT::DS::MCNestedTube + ;
 #pragma link C++ class RAT::DS::MCPhoton + ;
+#pragma link C++ class RAT::DS::MCNestedTubeHit + ;
 #pragma link C++ class RAT::DS::MCSummary + ;
 #pragma link C++ class RAT::DS::Calib + ;
 #pragma link C++ class RAT::DS::FitResult + ;
