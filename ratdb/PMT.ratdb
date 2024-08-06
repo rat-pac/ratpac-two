@@ -239,7 +239,7 @@ construction: "toroidal",
 dynode_material: "stainless_steel",
 glass_material: "glass",
 pmt_vacuum_material: "pmt_vacuum",
-photocathode_surface: "photocathode_R1408", //need to implement photocathode surface
+photocathode_surface: "photocathode_R7081HQE",
 mirror_surface: "mirror",
 dynode_surface: "stainless_steel",
 
@@ -265,7 +265,7 @@ construction: "toroidal",
 dynode_material: "stainless_steel",
 glass_material: "glass",
 pmt_vacuum_material: "pmt_vacuum",
-photocathode_surface: "photocathode_R1408", //used the 1408 photocathode in SNO+ rat 
+photocathode_surface: "photocathode_R7081HQE", // using HQE curve for now
 mirror_surface: "mirror",
 dynode_surface: "stainless_steel",
 
@@ -292,7 +292,7 @@ construction: "revolution",
 dynode_material: "stainless_steel",
 glass_material: "glass",
 pmt_vacuum_material: "pmt_vacuum",
-photocathode_surface: "photocathode_R1408", //used the 1408 photocathode in SNO+ rat 
+photocathode_surface: "photocathode_R7081HQE", // using HQE curve for now
 mirror_surface: "mirror",
 dynode_surface: "stainless_steel",
 
