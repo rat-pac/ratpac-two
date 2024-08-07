@@ -18,8 +18,8 @@
   termination_ohms: 50.0,
 
   //Shape parameters (should only be used for analytic type option, if necessary)
-  pulse_width: 0.4,
-  pulse_mean: 6.0,
+  pulse_width: 0.15,
+  pulse_mean: 10.5,
 
   //Explicit pulse shape (should only be used for datadriven type option)
   //This entry is a discretized version of lognormal with the above params

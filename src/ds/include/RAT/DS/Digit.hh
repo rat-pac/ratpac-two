@@ -32,8 +32,8 @@ class Digit : public TObject {
   virtual Double_t GetSamplingRate() const { return sampling_rate; };
 
   // Total number of samples
-  virtual void SetNSamples(UShort_t _nsamples) { nsamples = _nsamples; };
-  virtual UShort_t GetNSamples() const { return nsamples; };
+  virtual void SetNSamples(uint32_t _nsamples) { nsamples = _nsamples; };
+  virtual uint32_t GetNSamples() const { return nsamples; };
 
   // ADC bits
   virtual void SetNBits(UShort_t _nbits) { nbits = _nbits; };
@@ -44,24 +44,23 @@ class Digit : public TObject {
   virtual Double_t GetDynamicRange() const { return dynamic_range; };
 
   /// Set a waveform, overwrites existing
-  virtual void SetWaveform(const UShort_t waveformID, const std::vector<UShort_t> &samples) {
+  virtual void SetWaveform(const int waveformID, const std::vector<UShort_t> &samples) {
     waveforms[waveformID] = samples;
   }
 
   // Get a map of waveform IDs to digitized waveforms
-  virtual std::map<UShort_t, std::vector<UShort_t>> GetAllWaveforms() const { return waveforms; }
+  virtual std::map<int, std::vector<UShort_t>> GetAllWaveforms() const { return waveforms; }
 
   // Get the waveform for a digitizer
-  virtual std::vector<UShort_t> GetWaveform(const UShort_t waveformID) const { return waveforms.at(waveformID); }
+  virtual std::vector<UShort_t> GetWaveform(const int waveformID) const { return waveforms.at(waveformID); }
 
   /// Check if a waveform exists
-  Bool_t ExistsWaveform(const UShort_t waveformID) const { return waveforms.count(waveformID) > 0; }
+  Bool_t ExistsWaveform(const int waveformID) const { return waveforms.count(waveformID) > 0; }
 
   /// Get a list (vector) of all the IDs that are available
-  std::vector<UShort_t> GetIDs() const {
-    std::vector<UShort_t> ret;
-    for (std::map<UShort_t, std::vector<UShort_t>>::const_iterator it = waveforms.begin(); it != waveforms.end();
-         it++) {
+  std::vector<int> GetIDs() const {
+    std::vector<int> ret;
+    for (std::map<int, std::vector<UShort_t>>::const_iterator it = waveforms.begin(); it != waveforms.end(); it++) {
       ret.push_back(it->first);
     }
     return ret;
@@ -70,15 +69,15 @@ class Digit : public TObject {
   /// Delete all waveforms
   virtual void PruneWaveforms() { waveforms.clear(); }
 
-  ClassDef(Digit, 2);
+  ClassDef(Digit, 3);
 
  protected:
   std::string name;
   Double_t sampling_rate;
-  UShort_t nsamples;
+  uint32_t nsamples;
   UShort_t nbits;
   Double_t dynamic_range;
-  std::map<UShort_t, std::vector<UShort_t>> waveforms;  ///< Map of input number to samples
+  std::map<int, std::vector<UShort_t>> waveforms;  ///< Map of input number to samples
 };
 
 }  // namespace DS

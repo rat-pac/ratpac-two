@@ -70,6 +70,19 @@ elemprop: [1.0],
 
 {
 name: "MATERIAL",
+index: "brass",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 8.73,
+nelements: 2,
+nmaterials: 0,
+elements: ["Copper", "Zinc"],
+elemprop: [0.66, 0.34],
+}
+
+
+{
+name: "MATERIAL",
 index: "steel",
 valid_begin : [0, 0],
 valid_end : [0, 0],
@@ -500,6 +513,19 @@ elements: ["Potassium"],
 elemprop: [1.0],
 }
 
+// E.Keener at Penn, copied from photocathode_R7081HQE
+{
+name: "MATERIAL",
+index: "photocathode_R7081",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 5.0,
+nelements: 1,
+nmaterials: 0,
+elements: ["Potassium"],
+elemprop: [1.0],
+}
+
 {
 name: "MATERIAL",
 index: "photocathode_R3600",
@@ -885,6 +911,18 @@ elemprop: [0.0774, 0.9226],
 {
 name: "MATERIAL",
 index: "delrin",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 1.425, // from NIST database
+nelements: 3,
+nmaterials: 0,
+elements: ["Hydrogen", "Carbon","Oxygen"],
+elemprop: [0.067135, 0.400017, 0.532848],
+}
+
+{
+name: "MATERIAL",
+index: "delrin_black",
 valid_begin : [0, 0],
 valid_end : [0, 0],
 density: 1.425, // from NIST database

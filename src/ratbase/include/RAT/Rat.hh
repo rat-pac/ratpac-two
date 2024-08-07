@@ -5,6 +5,7 @@
 #include <RAT/AnyParse.hh>
 #include <RAT/DB.hh>
 #include <RAT/DBMessenger.hh>
+#include <RAT/ProducerBlock.hh>
 #include <RAT/RatMessenger.hh>
 #include <set>
 
@@ -26,6 +27,7 @@ class Rat {
   DB *rdb;
   DBMessenger *rdb_messenger;
   RatMessenger *rat_messenger;
+  ProducerBlock prodBlock;
 
  public:
   inline static std::set<std::string> ratdb_directories = {};

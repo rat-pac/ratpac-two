@@ -715,6 +715,20 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 
 {
 name: "OPTICS",
+index: "delrin_black", // identical to acrylic_black
+valid_begin : [0, 0],
+valid_end : [0, 0],
+REFLECTIVITY_option: "wavelength",
+REFLECTIVITY_value1: [60.0, 800.0, ],
+REFLECTIVITY_value2: [0.0, 0.0, ],
+ABSLENGTH_option: "wavelength",
+ABSLENGTH_value1: [60.0, 800.0, ],
+ABSLENGTH_value2: [1e-3, 1e-3, ],
+PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
+}
+
+{
+name: "OPTICS",
 index: "nylon",
 valid_begin : [0, 0],
 valid_end : [0, 0],
