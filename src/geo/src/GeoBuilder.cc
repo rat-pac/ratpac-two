@@ -10,6 +10,7 @@
 #include <RAT/GeoConvexLensFactory.hh>
 #include <RAT/GeoCutTubeFactory.hh>
 #include <RAT/GeoLensFactory.hh>
+#include <RAT/GeoNestedTubeArrayFactory.hh>
 #include <RAT/GeoPerfBoxFactory.hh>
 #include <RAT/GeoPerfSphereFactory.hh>
 #include <RAT/GeoPerfTubeFactory.hh>
@@ -44,6 +45,7 @@ GeoBuilder::GeoBuilder() {
   new GeoReflectorFactory();
   new GeoReflectorWaveguideFactory();
   new PMTArrayFactory();
+  new GeoNestedTubeArrayFactory();
   new PMTCoverageFactory();
   new GeoWaterBoxArrayFactory();
   new GeoBubbleFactory();
