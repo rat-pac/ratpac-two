@@ -420,7 +420,11 @@ void Gsim::MakeRun(int _runID) {
   run->SetID(_runID);
   run->SetType((unsigned)lrun->GetI("runtype"));
   run->SetStartTime(utc);
-  run->SetPMTInfo(&PMTFactoryBase::GetPMTInfo());
+  const DS::PMTInfo *pmtinfo = &PMTFactoryBase::GetPMTInfo();
+  run->SetPMTInfo(pmtinfo);
+  DS::ChannelStatus ch_status;
+  ch_status.Load(pmtinfo, lrun->GetS("channel_status"));
+  run->SetChannelStatus(ch_status);
 
   DS::RunStore::AddNewRun(run);
 }
