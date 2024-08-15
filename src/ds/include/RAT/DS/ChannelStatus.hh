@@ -50,19 +50,16 @@ class ChannelStatus : public TObject {
   }
   virtual void Load(const PMTInfo* pmtinfo, const std::string index = "") {
     try {
+      info << "Using channel status table with index: " << index << newline;
       DBLinkPtr lChStatus = DB::Get()->GetLink("channel_status", index);
-      info << "Found Table" << newline;
       std::vector<int> lcns = lChStatus->GetIArray("channel_number");
-      info << "Found lcns" << newline;
       std::vector<int> onlines = lChStatus->GetIArray("online");
-      info << "Found online" << newline;
       std::vector<double> offsets = lChStatus->GetDArray("offset");
-      info << "Found offsets" << newline;
       for (size_t idx = 0; idx < lcns.size(); idx++) {
         AddChannel(lcns[idx], onlines[idx], offsets[idx]);
       }
     } catch (DBNotFoundError& e) {
-      warn << "DB Not found!" << newline;
+      warn << "Channel Status table Not found!" << newline;
     }
     for (int pmtid = 0; pmtid < pmtinfo->GetPMTCount(); pmtid++) {
       int lcn = pmtinfo->GetChannelNumber(pmtid);
