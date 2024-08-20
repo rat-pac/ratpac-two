@@ -8,8 +8,8 @@
 #ifndef __RAT_DS_Digit__
 #define __RAT_DS_Digit__
 
-#include <TObject.h>
 #include <TMath.h>
+#include <TObject.h>
 
 #include <iostream>
 #include <map>
