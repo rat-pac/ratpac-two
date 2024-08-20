@@ -9,6 +9,7 @@
 #define __RAT_DS_Digit__
 
 #include <TObject.h>
+#include <TMath.h>
 
 #include <iostream>
 #include <map>
@@ -39,9 +40,19 @@ class Digit : public TObject {
   virtual void SetNBits(UShort_t _nbits) { nbits = _nbits; };
   virtual UShort_t GetNBits() const { return nbits; };
 
-  // Dynamic range (V)
+  // Dynamic range (mV)
   virtual void SetDynamicRange(double _dynamic_range) { dynamic_range = _dynamic_range; };
   virtual Double_t GetDynamicRange() const { return dynamic_range; };
+
+  // Termination ohms
+  virtual void SetTerminationOhms(double _termination_ohms) { termination_ohms = _termination_ohms; };
+  virtual Double_t GetTerminationOhms() const { return termination_ohms; };
+
+  // Calculate time step (ns)
+  virtual Double_t GetTimeStepNS() const { return 1.0 / sampling_rate; };
+
+  // Calculate voltage resolution (mV)
+  virtual Double_t GetVoltageResolution() const { return dynamic_range / pow(2, nbits); };
 
   /// Set a waveform, overwrites existing
   virtual void SetWaveform(const int waveformID, const std::vector<UShort_t> &samples) {
@@ -69,7 +80,7 @@ class Digit : public TObject {
   /// Delete all waveforms
   virtual void PruneWaveforms() { waveforms.clear(); }
 
-  ClassDef(Digit, 3);
+  ClassDef(Digit, 4);
 
  protected:
   std::string name;
@@ -77,6 +88,7 @@ class Digit : public TObject {
   uint32_t nsamples;
   UShort_t nbits;
   Double_t dynamic_range;
+  Double_t termination_ohms;
   std::map<int, std::vector<UShort_t>> waveforms;  ///< Map of input number to samples
 };
 

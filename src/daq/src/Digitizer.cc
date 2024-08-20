@@ -50,6 +50,7 @@ void Digitizer::DigitizeSum(DS::EV* ev) {
   digit.SetNBits(UShort_t(fNBits));
   digit.SetDynamicRange((fVhigh - fVlow));
   digit.SetSamplingRate(fSamplingRate);
+  digit.SetTerminationOhms(fTerminationOhms);
 
   ev->SetDigitizer(digit);
 }
