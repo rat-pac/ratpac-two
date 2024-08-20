@@ -179,6 +179,7 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
 
   run = DS::RunStore::GetRun(runID);
   fPMTInfo = run->GetPMTInfo();
+  GLG4VEventAction::GetTheHitPMTCollection()->SetChannelStatus(&run->GetChannelStatus());
 
   for (size_t i = 0; i < fPMTTime.size(); i++) {
     delete fPMTTime[i];
@@ -420,7 +421,11 @@ void Gsim::MakeRun(int _runID) {
   run->SetID(_runID);
   run->SetType((unsigned)lrun->GetI("runtype"));
   run->SetStartTime(utc);
-  run->SetPMTInfo(&PMTFactoryBase::GetPMTInfo());
+  const DS::PMTInfo *pmtinfo = &PMTFactoryBase::GetPMTInfo();
+  run->SetPMTInfo(pmtinfo);
+  DS::ChannelStatus ch_status;
+  ch_status.Load(pmtinfo, lrun->GetS("channel_status"));
+  run->SetChannelStatus(ch_status);
 
   DS::RunStore::AddNewRun(run);
 }
