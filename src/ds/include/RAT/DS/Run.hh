@@ -11,6 +11,7 @@
 #include <TObject.h>
 #include <TTimeStamp.h>
 
+#include <RAT/DS/ChannelStatus.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <vector>
 
@@ -50,13 +51,18 @@ class Run : public TObject {
   virtual bool ExistPMTInfo() { return !pmtinfo.empty(); }
   virtual void PrunePMTInfo() { pmtinfo.resize(0); }
 
-  ClassDef(Run, 2);
+  /** Channel status */
+  virtual ChannelStatus const &GetChannelStatus() const { return ch_status; }
+  virtual void SetChannelStatus(const ChannelStatus &_ch_status) { ch_status = _ch_status; }
+
+  ClassDef(Run, 3);
 
  protected:
   Int_t id;
   ULong64_t type;
   TTimeStamp startTime;
-  std::vector<PMTInfo> pmtinfo;
+  std::vector<PMTInfo> pmtinfo;  // ah.. why is this a vector?
+  ChannelStatus ch_status;
 };
 
 }  // namespace DS

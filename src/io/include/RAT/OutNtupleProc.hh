@@ -70,6 +70,8 @@ class OutNtupleProc : public Processor {
   std::vector<int> pmtType;
   std::vector<int> pmtId;
   std::vector<int> pmtChannel;
+  std::vector<bool> pmtIsOnline;
+  std::vector<double> pmtCableOffset;
   std::vector<double> pmtX;
   std::vector<double> pmtY;
   std::vector<double> pmtZ;
