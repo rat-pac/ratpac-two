@@ -29,6 +29,7 @@ void WaveformAnalysis::Configure(const std::string& analyzer_name) {
     fSlidingWindow = fDigit->GetD("sliding_window_width");
     fChargeThresh = fDigit->GetD("sliding_window_thresh");
     fRunFit = fDigit->GetI("run_fitting");
+    fApplyCableOffset = fDigit->GetI("apply_cable_offset");
     if (fRunFit) {
       fFitWindowLow = fDigit->GetD("fit_window_low");
       fFitWindowHigh = fDigit->GetD("fit_window_high");
@@ -438,8 +439,7 @@ Processor::Result WaveformAnalysis::Event(DS::Root* ds, DS::EV* ev) {
   for (int pmt_id : pmt_ids) {
     // Do not analyze negative pmtid channels, since they do not correspond to real PMTs.
     if (pmt_id < 0) continue;
-    DS::DigitPMT* digitpmt = ev->AddNewDigitPMT();
-    digitpmt->SetID(pmt_id);
+    DS::DigitPMT* digitpmt = ev->GetDigitPMT(pmt_id);
     double time_offset = fApplyCableOffset ? ch_status.GetCableOffsetByPMTID(pmt_id) : 0.0;
     RunAnalysis(digitpmt, pmt_id, dsdigit, time_offset);
   }
