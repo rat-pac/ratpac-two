@@ -439,6 +439,7 @@ Processor::Result WaveformAnalysis::Event(DS::Root* ds, DS::EV* ev) {
   for (int pmt_id : pmt_ids) {
     // Do not analyze negative pmtid channels, since they do not correspond to real PMTs.
     if (pmt_id < 0) continue;
+    if (!ch_status.GetOnlineByPMTID(pmt_id)) continue;
     DS::DigitPMT* digitpmt = ev->GetDigitPMT(pmt_id);
     double time_offset = fApplyCableOffset ? ch_status.GetCableOffsetByPMTID(pmt_id) : 0.0;
     RunAnalysis(digitpmt, pmt_id, dsdigit, time_offset);
