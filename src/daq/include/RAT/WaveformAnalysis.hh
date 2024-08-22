@@ -132,6 +132,7 @@ class WaveformAnalysis : public Processor {
 
   // USe Cable offsets specified in channel status?
   int fApplyCableOffset;
+  int fZeroSuppress;
 
   // Invalid value for bad waveforms
   const UShort_t INVALID = 9999;

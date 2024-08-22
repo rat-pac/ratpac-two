@@ -30,6 +30,7 @@ void WaveformAnalysis::Configure(const std::string& analyzer_name) {
     fChargeThresh = fDigit->GetD("sliding_window_thresh");
     fRunFit = fDigit->GetI("run_fitting");
     fApplyCableOffset = fDigit->GetI("apply_cable_offset");
+    fZeroSuppress = fDigit->GetI("zero_suppress");
     if (fRunFit) {
       fFitWindowLow = fDigit->GetD("fit_window_low");
       fFitWindowHigh = fDigit->GetD("fit_window_high");
@@ -58,6 +59,8 @@ void WaveformAnalysis::SetI(std::string param, int value) {
     fPedWindowHigh = value;
   } else if (param == "apply_cable_offset") {
     fApplyCableOffset = value;
+  } else if (param == "zero_suppress") {
+    fZeroSuppress = value;
   } else {
     throw Processor::ParamUnknown(param);
   }
@@ -443,6 +446,14 @@ Processor::Result WaveformAnalysis::Event(DS::Root* ds, DS::EV* ev) {
     DS::DigitPMT* digitpmt = ev->GetDigitPMT(pmt_id);
     double time_offset = fApplyCableOffset ? ch_status.GetCableOffsetByPMTID(pmt_id) : 0.0;
     RunAnalysis(digitpmt, pmt_id, dsdigit, time_offset);
+    if (fZeroSuppress) {
+      if (digitpmt->GetNCrossings() <= 0) {
+        size_t nerased = ev->EraseDigitPMT(pmt_id);
+        if (nerased != 1)
+          warn << "WaveformAnalysis: Removed " << nerased
+               << " digitPMTs with a single call to EraseDigitPMT. Impossible!" << newline;
+      }
+    }
   }
   return Processor::Result::OK;
 }

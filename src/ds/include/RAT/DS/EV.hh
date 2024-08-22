@@ -55,6 +55,10 @@ class EV : public TObject {
     digitpmt[id].SetID(id);
     return &digitpmt[id];
   }
+  virtual size_t EraseDigitPMT(Int_t id) {
+    size_t n_erased = digitpmt.erase(id);
+    return n_erased;
+  }
   virtual Int_t GetDigitPMTCount() const { return digitpmt.size(); }
   virtual void PruneDigitPMT() { digitpmt.clear(); }
 
