@@ -467,7 +467,10 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     outputTree->Fill();
   }
   if (options.untriggered && ds->GetEVCount() == 0) {
+    // EV information
     evid = -1;
+    subev = -1;
+    nhits = -1;
     triggerTime = 0;
     timeSinceLastTrigger_us = 0;
     if (options.pmthits) {
