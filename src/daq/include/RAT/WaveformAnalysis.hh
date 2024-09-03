@@ -21,17 +21,21 @@
 #include <RAT/DB.hh>
 #include <RAT/DS/DigitPMT.hh>
 #include <RAT/Digitizer.hh>
+#include <RAT/Processor.hh>
 #include <vector>
 
 namespace RAT {
 
-class WaveformAnalysis {
+class WaveformAnalysis : public Processor {
  public:
   WaveformAnalysis();
   WaveformAnalysis(std::string analyzer_name);
   virtual ~WaveformAnalysis(){};
 
-  void RunAnalysis(DS::DigitPMT *pmt, int pmtID, Digitizer *fDigitizer, double timeOffset = 0.0);
+  void Configure(const std::string &analyzer_name);
+  void RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer *fDigitizer, double timeOffset = 0.0);
+  void RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, DS::Digit *dsdigit, double timeOffset = 0.0);
+
   double RunAnalysisOnTrigger(int pmtID, Digitizer *fDigitizer);
 
   // Calculate baseline (in mV)
@@ -72,6 +76,11 @@ class WaveformAnalysis {
 
   // Fit the digitized waveform using a lognormal function
   void FitWaveform();
+
+  virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
+  virtual void SetS(std::string param, std::string value);
+  virtual void SetD(std::string param, double value);
+  virtual void SetI(std::string param, int value);
 
  protected:
   // Digitizer settings
@@ -121,8 +130,14 @@ class WaveformAnalysis {
   double fFittedBaseline;
   double fChi2NDF;
 
+  // USe Cable offsets specified in channel status?
+  int fApplyCableOffset;
+  int fZeroSuppress;
+
   // Invalid value for bad waveforms
   const UShort_t INVALID = 9999;
+
+  void DoAnalysis(DS::DigitPMT *pmt, double timeOffset);
 };
 
 }  // namespace RAT
