@@ -37,7 +37,7 @@ Processor::Result SimpleDAQProc::DSEvent(DS::Root *ds) {
 
     if (mcpmt->GetMCPhotonCount() > 0) {
       // Need at least one photon to trigger
-      DS::PMT *pmt = ev->GetPMT(pmtID);
+      DS::PMT *pmt = ev->GetOrCreatePMT(pmtID);
 
       // Create one sample, hit time is determined by first hit,
       // "infinite" charge integration time

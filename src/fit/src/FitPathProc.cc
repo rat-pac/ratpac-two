@@ -203,7 +203,7 @@ Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
   DS::PMTInfo *pmtinfo = run->GetPMTInfo();
 
   for (int i = 0; i < ev->GetPMTCount(); i++) {
-    DS::PMT *pmt = ev->GetPMT(i);
+    DS::PMT *pmt = ev->GetOrCreatePMT(i);
     TVector3 pmtpos = pmtinfo->GetPosition(pmt->GetID());
     TVector3 pmtdir = pmtinfo->GetDirection(pmt->GetID());
     fHits[i].x = pmtpos.X();

@@ -14,7 +14,7 @@ Processor::Result ClassifyChargeBalance::Event(DS::Root *ds, DS::EV *ev) {
   double qsumsquare = 0;
   double qsum = 0;
   for (int pmtc = 0; pmtc < hitcount; pmtc++) {
-    DS::PMT *pmt = ev->GetPMT(pmtc);
+    DS::PMT *pmt = ev->GetOrCreatePMT(pmtc);
     double charge = pmt->GetCharge();
     qsumsquare += pow(charge, 2);
     qsum += charge;
