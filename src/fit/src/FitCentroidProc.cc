@@ -32,7 +32,7 @@ Processor::Result FitCentroidProc::Event(DS::Root *ds, DS::EV *ev) {
   double totalQ = 0;
   TVector3 centroid(0.0, 0.0, 0.0);
 
-  for (int i = 0; i < ev->GetPMTCount(); i++) {
+  for (int i : ev->GetAllPMTIDs()) {
     DS::PMT *pmt = ev->GetOrCreatePMT(i);
 
     double Qpow = 0.0;
