@@ -165,8 +165,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
       }
       std::sort(hitTimes.begin(), hitTimes.end());
       if (pmtInEvent) {
-        DS::PMT *pmt = ev->AddNewPMT();
-        pmt->SetID(pmtID);
+        DS::PMT *pmt = ev->GetOrCreatePMT(pmtID);
         double front_end_hit_time = *std::min_element(hitTimes.begin(), hitTimes.end());
         // PMT Hit time relative to the trigger
         pmt->SetTime(front_end_hit_time - tt);
@@ -175,8 +174,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         if (fDigitize) {
           fDigitizer->DigitizePMT(mcpmt, pmtID, tt, pmtinfo);
           if (fAnalyze) {
-            DS::DigitPMT *digitpmt = ev->AddNewDigitPMT();
-            digitpmt->SetID(pmtID);
+            DS::DigitPMT *digitpmt = ev->GetOrCreateDigitPMT(pmtID);
             double timing_offset =
                 fDigitizer->fPMTWaveformGenerators[pmtinfo->GetModelNameByID(pmtID)]->fPMTPulseTimeOffset;
             fWaveformAnalysis->RunAnalysis(digitpmt, pmtID, fDigitizer, timing_offset);

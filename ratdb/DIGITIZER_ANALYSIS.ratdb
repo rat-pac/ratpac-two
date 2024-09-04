@@ -26,4 +26,8 @@ fit_window_high: 15.0,
 // Fit shape
 lognormal_shape: 0.15,
 lognormal_scale: 10.5,
+
+// Run configuration
+apply_cable_offset: 0,
+zero_suppress: 1  // If true, do not keep digitPMTs if the waveform never passes threshold
 }
