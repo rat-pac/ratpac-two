@@ -68,8 +68,8 @@ cppflow::tensor FitTensorProc::CreateProjection(DS::EV *ev, DS::PMTInfo *pmtinfo
   float red[xdim][ydim];
   float green[xdim][ydim];
 
-  for (int pmtid = 0; pmtid < ev->GetPMTCount(); pmtid++) {
-    DS::PMT *pmt = ev->GetPMT(pmtid);
+  for (int pmtid : ev->GetAllPMTIDs()) {
+    DS::PMT *pmt = ev->GetOrCreatePMT(pmtid);
     TVector3 pmtpos = pmtinfo->GetPosition(pmt->GetID());
     TVector3 pos = pmtpos - coordinates;
     double hittime = pmt->GetTime();
