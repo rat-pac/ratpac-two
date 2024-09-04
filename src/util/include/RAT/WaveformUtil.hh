@@ -10,7 +10,7 @@ namespace RAT {
 std::vector<double> ADCtoVoltage(const std::vector<UShort_t>& adcWaveform, double voltageRes);
 
 // Calculate baseline (in mV)
-double CalculatePedestal(const std::vector<double>& waveform, double pedWindowLow, double pedWindowHigh);
+double CalculatePedestal(const std::vector<double>& waveform, int pedWindowLow, int pedWindowHigh);
 
 std::pair<int, double> FindHighestPeak(
     const std::vector<double>& voltageWaveform);  // Returns pair (peak_sample, peak_voltage)
@@ -19,7 +19,8 @@ std::pair<int, double> FindHighestPeak(
 int GetThresholdCrossing(const std::vector<double>& waveform, int peak, double voltageThreshold, double lookBack,
                          double timeStep);
 
-void GetNCrossings(const std::vector<double>& waveform, double voltageThreshold, double timeStep);
+std::tuple<int, double, double> GetNCrossings(const std::vector<double>& waveform, double voltageThreshold,
+                                              double timeStep);
 
 // Integrate waveform in sliding windows
 double IntegrateSliding(const std::vector<double>& waveform, int slidingWindow, double chargeThresh, double timeStep,

@@ -1,3 +1,6 @@
+#include <RtypesCore.h>
+
+#include <RAT/Log.hh>
 #include <RAT/WaveformUtil.hh>
 
 namespace RAT {
@@ -6,25 +9,25 @@ std::vector<double> ADCtoVoltage(const std::vector<UShort_t>& adcWaveform, doubl
   std::vector<double> voltageWaveform;
   voltageWaveform.reserve(adcWaveform.size());
 
-  for (int adcVal : adcWaveform) {
-    result.push_back(adc_val * voltageRes);
+  for (UShort_t adcVal : adcWaveform) {
+    voltageWaveform.push_back(adcVal * voltageRes);
   }
 
   return voltageWaveform;
 }
 
-double CalculatePedestal(const std::vector<double>& waveform, double pedWindowLow, double pedWindowHigh) {
+double CalculatePedestal(const std::vector<double>& waveform, int pedWindowLow, int pedWindowHigh) {
   /*
   Calculate the baseline in the window between low - high samples.
   */
   double pedestal = 0;
 
   if (pedWindowLow > waveform.size()) {
-    Log::Die("AnalysisProc: Start of pedestal window must be before end of waveform.");
+    Log::Die("Start of pedestal window must be before end of waveform.");
   } else if (pedWindowLow >= pedWindowHigh) {
-    Log::Die("AnalysisProc: Start of pedestal window must be before end of pedestal window.");
+    Log::Die("Start of pedestal window must be before end of pedestal window.");
   } else if (pedWindowHigh > waveform.size()) {
-    Log::Die("AnalysisProc: End of pedestal window must be at most end of waveform.")
+    Log::Die("End of pedestal window must be at most end of waveform.");
   }
 
   // Ensure end of pedestal window is less than waveform size
@@ -76,7 +79,7 @@ int GetThresholdCrossing(const std::vector<double>& waveform, int peak, double v
     // Reached the begining of the waveform
     // returned an invalid value
     if (i == back_window) {
-      thresholdCrossing = INVALID;
+      thresholdCrossing = 9999;  // Invalid value for bad waveforms
       break;
     }
   }
@@ -113,7 +116,7 @@ std::tuple<int, double, double> GetNCrossings(const std::vector<double>& wavefor
       crossed = false;
     }
   }
-  return std::make_tuple<nCrossings, timeOverThreshold, voltageOVerThreshold>
+  return std::make_tuple(nCrossings, timeOverThreshold, voltageOverThreshold);
 }
 
 int CalculateTimeCFD(const std::vector<double>& waveform, double constFrac, double timeStep) {
@@ -121,9 +124,9 @@ int CalculateTimeCFD(const std::vector<double>& waveform, double constFrac, doub
   Apply constant-fraction discriminator to digitized PMT waveforms.
   */
   std::pair peak = FindHighestPeak(waveform);
-  double voltageThreshold = constFrac * peak.second();
-  double lookbBack = 10;
-  int time = GetThresholdCrossing(waveform, peak.first(), voltageThreshold, lookBack, timeStep);
+  double voltageThreshold = constFrac * peak.second;
+  double lookBack = 10;
+  int time = GetThresholdCrossing(waveform, peak.first, voltageThreshold, lookBack, timeStep);
   return time;
 }
 
@@ -147,7 +150,7 @@ double IntegrateSliding(const std::vector<double>& waveform, int slidingWindow, 
       total_charge += charge;
     }
   }
-  return charge;
+  return total_charge;
 }
 
 double IntegratePeak(const std::vector<double>& waveform, int peak, int intWindowLow, int intWindowHigh,
@@ -156,10 +159,11 @@ double IntegratePeak(const std::vector<double>& waveform, int peak, int intWindo
   Integrate the digitized waveform around the peak to calculate charge
   */
   double charge = 0;
-  windowEnd = peak + intWindowHigh;
+  int windowStart = peak - intWindowLow;
+  int windowEnd = peak + intWindowHigh;
 
   if (windowStart >= waveform.size()) {
-    charge = INVALID;
+    charge = 9999;  // Invalid value for bad waveforms
     return charge;
   }
 
