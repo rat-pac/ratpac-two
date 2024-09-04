@@ -425,8 +425,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       hitPMTTime.clear();
       hitPMTCharge.clear();
 
-      for (int pmtc = 0; pmtc < ev->GetPMTCount(); pmtc++) {
-        RAT::DS::PMT *pmt = ev->GetPMT(pmtc);
+      for (int pmtc : ev->GetAllPMTIDs()) {
+        RAT::DS::PMT *pmt = ev->GetOrCreatePMT(pmtc);
         hitPMTID.push_back(pmt->GetID());
         hitPMTTime.push_back(pmt->GetTime());
         hitPMTCharge.push_back(pmt->GetCharge());
@@ -447,8 +447,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         fitPeak.clear();
       }
 
-      for (int pmtc = 0; pmtc < ev->GetDigitPMTCount(); pmtc++) {
-        RAT::DS::DigitPMT *digitpmt = ev->GetDigitPMT(pmtc);
+      for (int pmtc : ev->GetAllDigitPMTIDs()) {
+        RAT::DS::DigitPMT *digitpmt = ev->GetOrCreateDigitPMT(pmtc);
         digitPMTID.push_back(digitpmt->GetID());
         digitTime.push_back(digitpmt->GetDigitizedTime());
         digitCharge.push_back(digitpmt->GetDigitizedCharge());

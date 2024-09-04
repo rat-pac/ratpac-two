@@ -190,7 +190,7 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
 
     // we can then set these events on the PMT for one subevent
     for (unsigned long dd = 0; dd < idGroup.size(); dd++) {
-      pmt = ev->GetPMT(idGroup[dd]);
+      pmt = ev->GetOrCreatePMT(idGroup[dd]);
       pmt->SetTime(tGroup[dd]);
       pmt->SetCharge(qGroup[dd]);
     }

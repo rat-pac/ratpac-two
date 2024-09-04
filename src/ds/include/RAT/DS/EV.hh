@@ -43,17 +43,31 @@ class EV : public TObject {
   virtual void SetUTC(const TTimeStamp &_utc) { utc = _utc; }
 
   /** List of pmts with at least one charge sample in this event. */
-  virtual PMT *GetPMT(Int_t id) {
+  virtual PMT *GetOrCreatePMT(Int_t id) {
     pmt[id].SetID(id);
     return &pmt[id];
+  }
+  const std::vector<Int_t> GetAllPMTIDs() {
+    std::vector<Int_t> result;
+    for (auto const &kv : pmt) {
+      result.push_back(kv.first);
+    }
+    return result;
   }
   virtual Int_t GetPMTCount() const { return pmt.size(); }
   virtual void PrunePMT() { pmt.clear(); }
 
   /** List of pmts with at least one charge sample in this event. */
-  virtual DigitPMT *GetDigitPMT(Int_t id) {
+  virtual DigitPMT *GetOrCreateDigitPMT(Int_t id) {
     digitpmt[id].SetID(id);
     return &digitpmt[id];
+  }
+  const std::vector<Int_t> GetAllDigitPMTIDs() {
+    std::vector<Int_t> result;
+    for (auto const &kv : digitpmt) {
+      result.push_back(kv.first);
+    }
+    return result;
   }
   virtual size_t EraseDigitPMT(Int_t id) {
     size_t n_erased = digitpmt.erase(id);
