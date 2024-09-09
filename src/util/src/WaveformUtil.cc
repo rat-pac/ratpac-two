@@ -1,9 +1,9 @@
-#include <RtypesCore.h>
-
 #include <RAT/Log.hh>
 #include <RAT/WaveformUtil.hh>
 
 namespace RAT {
+
+namespace WaveformUtil {
 
 std::vector<double> ADCtoVoltage(const std::vector<UShort_t>& adcWaveform, double voltageRes) {
   std::vector<double> voltageWaveform;
@@ -57,21 +57,21 @@ std::pair<int, double> FindHighestPeak(const std::vector<double>& voltageWavefor
   return std::make_pair(samplePeak, voltagePeak);
 }
 
-int GetThresholdCrossing(const std::vector<double>& waveform, int peak, double voltageThreshold, double lookBack,
+int GetThresholdCrossing(const std::vector<double>& waveform, int peakSample, double voltageThreshold, int lookBack,
                          double timeStep) {
   /*
   Identifies the sample at which threshold crossing occurs
    */
   int thresholdCrossing = 0;
   // Make sure we don't scan passed the beginning of the waveform
-  int lb = peak - int(lookBack / timeStep);
+  int lb = peakSample - int(lookBack / timeStep);
   int back_window = (lb > 0) ? lb : 0;
 
   // Start at the peak and scan backwards
-  for (int i = peak; i > back_window; i--) {
+  for (int i = peakSample; i > back_window; i--) {
     double voltage = waveform[i];
 
-    if (voltage < -voltageThreshold) {
+    if (voltage > voltageThreshold) {
       thresholdCrossing = i;
       break;
     }
@@ -101,7 +101,7 @@ std::tuple<int, double, double> GetNCrossings(const std::vector<double>& wavefor
     double voltage = waveform[i];
 
     // If we crossed below threshold
-    if (voltage < -voltageThreshold) {
+    if (voltage < voltageThreshold) {
       // Not already below thresh, count the crossing
       if (!crossed) {
         nCrossings += 1;
@@ -118,16 +118,43 @@ std::tuple<int, double, double> GetNCrossings(const std::vector<double>& wavefor
   }
   return std::make_tuple(nCrossings, timeOverThreshold, voltageOverThreshold);
 }
-
-int CalculateTimeCFD(const std::vector<double>& waveform, double constFrac, double timeStep) {
+double CalculateTimeCFD(const std::vector<double>& waveform, std::pair<int, double> peak, double constFrac,
+                        int lookBack, double timeStep) {
   /*
   Apply constant-fraction discriminator to digitized PMT waveforms.
   */
-  std::pair peak = FindHighestPeak(waveform);
   double voltageThreshold = constFrac * peak.second;
-  double lookBack = 10;
   int time = GetThresholdCrossing(waveform, peak.first, voltageThreshold, lookBack, timeStep);
-  return time;
+  // Linearly interpolate threshold crossing time
+  double deltav = waveform[time + 1] - waveform[time];
+  double dt = timeStep / deltav * (voltageThreshold - waveform[time]);
+  return time * timeStep + dt;
+}
+
+double IntegratePeak(const std::vector<double>& waveform, int peakSample, int intWindowLow, int intWindowHigh,
+                     double timeStep, double termOhms) {
+  /*
+  Integrate the digitized waveform around the peak to calculate charge
+  */
+  double charge = 0;
+  int windowStart = peakSample - intWindowLow;
+  int windowEnd = peakSample + intWindowHigh;
+
+  if (windowStart >= waveform.size()) {
+    charge = 9999;  // Invalid value for bad waveforms
+    return charge;
+  }
+
+  // Make sure not to integrate past the end of the waveform
+  windowEnd = (windowEnd > waveform.size()) ? waveform.size() : windowEnd;
+  // Make sure not to integrate before the waveform starts
+  windowStart = (windowStart < 0) ? 0 : windowStart;
+
+  for (int i = windowStart; i < windowEnd; i++) {
+    double voltage = waveform[i];
+    charge += (-voltage * timeStep) / termOhms;  // in pC
+  }
+  return charge;
 }
 
 double IntegrateSliding(const std::vector<double>& waveform, int slidingWindow, double chargeThresh, double timeStep,
@@ -153,30 +180,6 @@ double IntegrateSliding(const std::vector<double>& waveform, int slidingWindow, 
   return total_charge;
 }
 
-double IntegratePeak(const std::vector<double>& waveform, int peak, int intWindowLow, int intWindowHigh,
-                     double timeStep, double termOhms) {
-  /*
-  Integrate the digitized waveform around the peak to calculate charge
-  */
-  double charge = 0;
-  int windowStart = peak - intWindowLow;
-  int windowEnd = peak + intWindowHigh;
-
-  if (windowStart >= waveform.size()) {
-    charge = 9999;  // Invalid value for bad waveforms
-    return charge;
-  }
-
-  // Make sure not to integrate past the end of the waveform
-  windowEnd = (windowEnd > waveform.size()) ? waveform.size() : windowEnd;
-  // Make sure not to integrate before the waveform starts
-  windowStart = (windowStart < 0) ? 0 : windowStart;
-
-  for (int i = windowStart; i < windowEnd; i++) {
-    double voltage = waveform[i];
-    charge += (-voltage * timeStep) / termOhms;  // in pC
-  }
-  return charge;
-}
+}  // namespace WaveformUtil
 
 }  // namespace RAT
