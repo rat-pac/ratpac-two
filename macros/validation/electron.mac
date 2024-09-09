@@ -13,7 +13,6 @@
 /rat/proc classifychargebalance
 
 /rat/proclast outroot
-/rat/proclast outntuple
 
 /generator/add combo gun:point:poisson
 /generator/vtx/set e- 0.0 0.0 0.0 2.5
@@ -21,4 +20,4 @@
 /generator/rate/set 2.0
 
 
-/run/beamOn 1000
+/run/beamOn 100

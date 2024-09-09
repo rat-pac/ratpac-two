@@ -142,6 +142,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     DS::EV *ev = ds->AddNewEV();
     ev->SetID(fEventCounter++);
     ev->SetCalibratedTriggerTime(tt);
+    ev->SetUTC(mc->GetUTC());
     ev->SetDeltaT(tt - lastTrigger);
     lastTrigger = tt;
     double totalEVCharge = 0;  // What does total charge get used for?
