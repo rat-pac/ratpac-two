@@ -98,7 +98,8 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("evid", &evid);
   outputTree->Branch("subev", &subev);
   outputTree->Branch("nhits", &nhits);
-  outputTree->Branch("triggerTime", &triggerTime);
+  outputTree->Branch("triggerTime", &triggerTime);// Local trigger time
+  outputTree->Branch("timestamp",&timestamp);     // Global trigger time
   outputTree->Branch("timeSinceLastTrigger_us", &timeSinceLastTrigger_us);
   // MC Information
   outputTree->Branch("mcid", &mcid);
@@ -360,6 +361,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     DS::EV *ev = ds->GetEV(subev);
     evid = ev->GetID();
     triggerTime = ev->GetCalibratedTriggerTime();
+    timestamp = (mc->GetUTC().GetSec() -runBranch->GetStartTime().GetSec() )* 1e9 + \
+(mc->GetUTC().GetNanoSec() - runBranch->GetStartTime().GetNanoSec()) + triggerTime; 
     timeSinceLastTrigger_us = ev->GetDeltaT();
     auto fitVector = ev->GetFitResults();
     std::map<std::string, double *> fitvalues;
