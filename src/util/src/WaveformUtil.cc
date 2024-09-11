@@ -5,8 +5,6 @@ namespace RAT {
 
 namespace WaveformUtil {
 
-const int INVALID = 9999;
-
 std::vector<double> ADCtoVoltage(const std::vector<UShort_t>& adcWaveform, double voltageRes, double pedestal) {
   /*
   Convert a waveform from ADC units to voltage (mV), and optionally subtract a pedestal (given in ADC units)
@@ -21,60 +19,12 @@ std::vector<double> ADCtoVoltage(const std::vector<UShort_t>& adcWaveform, doubl
   return voltageWaveform;
 }
 
-double CalculatePedestal(const std::vector<UShort_t>& waveform, int pedWindowLow, int pedWindowHigh) {
-  /*
-  Calculate the baseline (in ADC counts) in the window between low - high samples.
-  */
-  double pedestal = 0;
-
-  if (pedWindowLow > waveform.size()) {
-    Log::Die("WaveformUtil: Start of pedestal window must be before end of waveform.");
-  } else if (pedWindowLow >= pedWindowHigh) {
-    Log::Die("WaveformUtil: Start of pedestal window must be before end of pedestal window.");
-  } else if (pedWindowHigh > waveform.size()) {
-    Log::Die("WaveformUtil: End of pedestal window must be at most end of waveform.");
-  }
-
-  // Ensure end of pedestal window is less than waveform size
-  pedWindowHigh = (pedWindowHigh > waveform.size()) ? waveform.size() : pedWindowHigh;
-
-  for (int i = pedWindowLow; i < pedWindowHigh; i++) {
-    pedestal += waveform[i];
-  }
-  pedestal /= (pedWindowHigh - pedWindowLow);
-  return pedestal;
-}
-
-double CalculatePedestal(const std::vector<double>& waveform, int pedWindowLow, int pedWindowHigh) {
-  /*
-  Calculate the baseline (in mV) in the window between low - high samples.
-  */
-  double pedestal = 0;
-
-  if (pedWindowLow > waveform.size()) {
-    Log::Die("WaveformUtil: Start of pedestal window must be before end of waveform.");
-  } else if (pedWindowLow >= pedWindowHigh) {
-    Log::Die("WaveformUtil: Start of pedestal window must be before end of pedestal window.");
-  } else if (pedWindowHigh > waveform.size()) {
-    Log::Die("WaveformUtil: End of pedestal window must be at most end of waveform.");
-  }
-
-  // Ensure end of pedestal window is less than waveform size
-  pedWindowHigh = (pedWindowHigh > waveform.size()) ? waveform.size() : pedWindowHigh;
-
-  for (int i = pedWindowLow; i < pedWindowHigh; i++) {
-    pedestal += waveform[i];
-  }
-  pedestal /= (pedWindowHigh - pedWindowLow);
-  return pedestal;
-}
-
 std::pair<int, double> FindHighestPeak(const std::vector<double>& voltageWaveform) {
   /*
   Calculate the highest peak (in mV) and the corresponding sample.
   */
   double voltagePeak = INVALID;
-  int samplePeak = -INVALID;
+  int samplePeak = INVALID;
   for (int i = 0; i < voltageWaveform.size(); i++) {
     double voltage = voltageWaveform[i];
     // Downward going pulse
@@ -92,16 +42,18 @@ int GetThresholdCrossingBeforePeak(const std::vector<double>& waveform, int peak
   Identifies the sample at which threshold crossing occurs before a given peak
    */
   int thresholdCrossing = 0;
-  // Make sure we don't scan passed the beginning of the waveform
+  // Make sure we don't scan past the beginning of the waveform
   int lb = peakSample - int(lookBack / timeStep);
   int back_window = (lb > 0) ? lb : 0;
 
-  if (back_window > waveform.size()) {
+  if (back_window >= waveform.size()) {
     Log::Die("WaveformUtil: Start of lookback window must be before end of waveform.");
-  } else if (back_window > peakSample) {
+  } else if (back_window >= peakSample) {
     Log::Die("WaveformUtil: Start of lookback window must be before peak.");
-  } else if (peakSample > waveform.size()) {
+  } else if (peakSample >= waveform.size()) {
     Log::Die("WaveformUtil: Peak must be before end of waveform.");
+  } else if (waveform.at(peakSample) > voltageThreshold) {
+    Log::Die("WaveformUtil: Peak must be above threshold.");
   }
 
   // Start at the peak and scan backwards
@@ -184,17 +136,20 @@ std::tuple<int, double, double> GetCrossingsInfo(const std::vector<double>& wave
   return std::make_tuple(nCrossings, timeOverThreshold, voltageOverThreshold);
 }
 
-double CalculateTimeCFD(const std::vector<double>& waveform, std::pair<int, double> peak, double constFrac,
-                        int lookBack, double timeStep) {
+double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, double constFrac, int lookBack,
+                        double timeStep) {
   /*
   Apply constant-fraction discriminator for a given peak
   */
-  double voltageThreshold = constFrac * peak.second;
-  int time = GetThresholdCrossingBeforePeak(waveform, peak.first, voltageThreshold, lookBack, timeStep);
-  // Linearly interpolate threshold crossing time
-  double deltav = waveform.at(time + 1) - waveform.at(time);
-  double dt = timeStep / deltav * (voltageThreshold - waveform.at(time));
-  return time * timeStep + dt;
+  double voltageThreshold = constFrac * waveform.at(peakSample);
+  int time = GetThresholdCrossingBeforePeak(waveform, peakSample, voltageThreshold, lookBack, timeStep);
+  // Linearly interpolate threshold crossing time, if time is not last sample of waveform
+  double dt = 0;
+  if (time < waveform.size() - 1) {
+    double deltav = waveform.at(time + 1) - waveform.at(time);
+    dt = (voltageThreshold - waveform.at(time)) / deltav;
+  }
+  return (time + dt) * timeStep;
 }
 
 double IntegratePeak(const std::vector<double>& waveform, int peakSample, int intWindowLow, int intWindowHigh,

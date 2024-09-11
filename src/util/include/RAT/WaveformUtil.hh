@@ -10,12 +10,47 @@ namespace RAT {
 
 namespace WaveformUtil {
 
+const int INVALID = 9999;
+
 // converts waveform from ADC counts to voltage (mV); expects pedestal in ADC counts if given
 std::vector<double> ADCtoVoltage(const std::vector<UShort_t>& adcWaveform, double voltageRes, double pedestal = 0);
 
-// Calculate baseline (in ADC counts or mV, depending on input)
-double CalculatePedestal(const std::vector<UShort_t>& waveform, int pedWindowLow, int pedWindowHigh);
-double CalculatePedestal(const std::vector<double>& waveform, int pedWindowLow, int pedWindowHigh);
+// Calculate baseline
+template <typename T>
+double CalculatePedestal(const std::vector<T>& waveform, int pedWindowLow, int pedWindowHigh) {
+  /*
+  Template: Calculate the baseline in the window between low - high samples.
+  */
+
+  double pedestal = 0;
+
+  if (pedWindowLow >= waveform.size()) {
+    Log::Die("WaveformUtil: Start of pedestal window must be before end of waveform.");
+  } else if (pedWindowLow >= pedWindowHigh) {
+    Log::Die("WaveformUtil: Start of pedestal window must be before end of pedestal window.");
+  } else if (pedWindowHigh > waveform.size()) {
+    Log::Die("WaveformUtil: End of pedestal window must be at most end of waveform.");
+  }
+
+  // Ensure end of pedestal window is less than waveform size
+  pedWindowHigh = (pedWindowHigh > waveform.size()) ? waveform.size() : pedWindowHigh;
+
+  for (int i = pedWindowLow; i < pedWindowHigh; i++) {
+    pedestal += waveform[i];
+  }
+  pedestal /= (pedWindowHigh - pedWindowLow);
+  return pedestal;
+}
+
+// Calculate baseline in ADC counts
+inline double CalculatePedestalADC(const std::vector<UShort_t>& waveform, int pedWindowLow, int pedWindowHigh) {
+  return CalculatePedestal<UShort_t>(waveform, pedWindowLow, pedWindowHigh);
+};
+
+// Calculate baseline in mV
+inline double CalculatePedestalmV(const std::vector<double>& waveform, int pedWindowLow, int pedWindowHigh) {
+  return CalculatePedestal<double>(waveform, pedWindowLow, pedWindowHigh);
+};
 
 std::pair<int, double> FindHighestPeak(
     const std::vector<double>& voltageWaveform);  // Returns pair (peak_sample, peak_voltage)
@@ -33,8 +68,8 @@ std::tuple<int, double, double> GetCrossingsInfo(
     double timeStep);  // Return tuple (nCrossings, time_over_threshold_voltage_over_threshold)
 
 // Apply a constant fraction discriminator to calculate the threshold crossing for a given peak
-double CalculateTimeCFD(const std::vector<double>& waveform, std::pair<int, double> peak, double constFrac,
-                        int lookBack, double timeStep);
+double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, double constFrac, int lookBack,
+                        double timeStep);
 
 // calculate charge (pC) from voltage (mV)
 inline double VoltagetoCharge(double voltage, double timeStep, double termOhms) {
