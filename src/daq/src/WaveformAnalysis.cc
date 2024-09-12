@@ -94,6 +94,17 @@ void WaveformAnalysis::SetD(std::string param, double value) {
   }
 }
 
+void WaveformAnalysis::ZeroSuppress(DS::EV* ev, DS::DigitPMT* digitpmt, int pmtID) {
+  if (fZeroSuppress) {
+    if (digitpmt->GetNCrossings() <= 0) {
+      size_t nerased = ev->EraseDigitPMT(pmtID);
+      if (nerased != 1)
+        warn << "WaveformAnalysis: Removed " << nerased << " digitPMTs with a single call to EraseDigitPMT. Impossible!"
+             << newline;
+    }
+  }
+}
+
 void WaveformAnalysis::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer* fDigitizer, double timeOffset) {
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
   fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
@@ -446,14 +457,7 @@ Processor::Result WaveformAnalysis::Event(DS::Root* ds, DS::EV* ev) {
     DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(pmt_id);
     double time_offset = fApplyCableOffset ? ch_status.GetCableOffsetByPMTID(pmt_id) : 0.0;
     RunAnalysis(digitpmt, pmt_id, dsdigit, time_offset);
-    if (fZeroSuppress) {
-      if (digitpmt->GetNCrossings() <= 0) {
-        size_t nerased = ev->EraseDigitPMT(pmt_id);
-        if (nerased != 1)
-          warn << "WaveformAnalysis: Removed " << nerased
-               << " digitPMTs with a single call to EraseDigitPMT. Impossible!" << newline;
-      }
-    }
+    ZeroSuppress(ev, digitpmt, pmt_id);
   }
   return Processor::Result::OK;
 }

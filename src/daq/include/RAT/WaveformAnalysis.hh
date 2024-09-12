@@ -38,6 +38,8 @@ class WaveformAnalysis : public Processor {
 
   double RunAnalysisOnTrigger(int pmtID, Digitizer *fDigitizer);
 
+  void ZeroSuppress(DS::EV *ev, DS::DigitPMT *digitpmt, int pmtID);
+
   // Calculate baseline (in mV)
   void CalculatePedestal();
 

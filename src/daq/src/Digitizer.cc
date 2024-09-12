@@ -1,6 +1,5 @@
 #include <CLHEP/Random/RandGauss.h>
 
-#include <RAT/DS/Digit.hh>
 #include <RAT/Digitizer.hh>
 
 namespace RAT {
@@ -12,12 +11,12 @@ void Digitizer::SetDigitizerType(std::string digitName) {
   fLdaq = DB::Get()->GetLink("DIGITIZER", fDigitName);
 
   fSamplingRate = fLdaq->GetD("sampling_rate");  // In GHz
-  fOffset = fLdaq->GetD("offset");               // vertical offset in mV
-  fVhigh = fLdaq->GetD("volt_high");             // in mV
-  fVlow = fLdaq->GetD("volt_low");               // in mV
   fNBits = fLdaq->GetI("nbits");
+  fNSamples = fLdaq->GetI("nsamples");
+  fOffset = fLdaq->GetD("offset");              // vertical offset in mV
+  fVhigh = fLdaq->GetD("volt_high");            // in mV
+  fVlow = fLdaq->GetD("volt_low");              // in mV
   fNoiseAmpl = fLdaq->GetD("noise_amplitude");  // digitizer noise, in mV
-  fNSamples = fLdaq->GetD("nsamples");
   fTerminationOhms = fLdaq->GetD("termination_ohms");
 
   detail << dformat("  Digitizer: Channel Noise: ............ %6.2f adc counts\n", fNoiseAmpl);
@@ -85,4 +84,33 @@ void Digitizer::AddChannel(int ichannel, PMTWaveform pmtwf) {
     currenttime += timeres;
   }
 }
+
+// Set the digitizer parameters
+void Digitizer::SetI(std::string param, int value) {
+  if (param == "nbits")
+    fNBits = value;
+  else if (param == "nsamples")
+    fNSamples = value;
+  else
+    throw Processor::ParamUnknown(param);
+}
+
+// Set the digitizer parameters
+void Digitizer::SetD(std::string param, double value) {
+  if (param == "sampling_rate")
+    fSamplingRate = value;
+  else if (param == "offset")
+    fOffset = value;
+  else if (param == "volt_high")
+    fVhigh = value;
+  else if (param == "volt_low")
+    fVlow = value;
+  else if (param == "noise_amplitude")
+    fNoiseAmpl = value;
+  else if (param == "termination_ohms")
+    fTerminationOhms = value;
+  else
+    throw Processor::ParamUnknown(param);
+}
+
 }  // namespace RAT
