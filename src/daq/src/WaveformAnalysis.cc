@@ -439,6 +439,7 @@ Processor::Result WaveformAnalysis::Event(DS::Root* ds, DS::EV* ev) {
   DS::Run* run = DS::RunStore::GetRun(ds->GetRunID());
   const DS::ChannelStatus& ch_status = run->GetChannelStatus();
   std::vector<int> pmt_ids = dsdigit->GetIDs();
+  double total_charge = 0;
   for (int pmt_id : pmt_ids) {
     // Do not analyze negative pmtid channels, since they do not correspond to real PMTs.
     if (pmt_id < 0) continue;
@@ -446,6 +447,10 @@ Processor::Result WaveformAnalysis::Event(DS::Root* ds, DS::EV* ev) {
     DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(pmt_id);
     double time_offset = fApplyCableOffset ? ch_status.GetCableOffsetByPMTID(pmt_id) : 0.0;
     RunAnalysis(digitpmt, pmt_id, dsdigit, time_offset);
+    if (digitpmt->GetNCrossings() > 0) {
+      total_charge += digitpmt->GetDigitizedCharge();
+    }
+    ev->SetTotalCharge(total_charge);
     if (fZeroSuppress) {
       if (digitpmt->GetNCrossings() <= 0) {
         size_t nerased = ev->EraseDigitPMT(pmt_id);
