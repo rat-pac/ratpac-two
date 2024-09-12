@@ -17,5 +17,7 @@
 /generator/add combo gun:point:poisson
 /generator/vtx/set e- 0.0 0.0 0.0 2.5
 /generator/pos/set 0.0 0.0 0.0
+/generator/rate/set 2.0
+
 
 /run/beamOn 100

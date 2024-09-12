@@ -36,7 +36,9 @@ void Digitizer::DigitizePMT(DS::MCPMT* mcpmt, int pmtID, double triggerTime, DS:
   AddChannel(pmtID, pmtwfm);
 }
 
-void Digitizer::DigitizeSum(DS::EV* ev) {
+void Digitizer::ClearWaveforms() { fDigitWaveForm.clear(); }
+
+void Digitizer::WriteToEvent(DS::EV* ev) {
   DS::Digit digit;
 
   std::map<int, std::vector<UShort_t>> waveforms = fDigitWaveForm;
@@ -52,6 +54,7 @@ void Digitizer::DigitizeSum(DS::EV* ev) {
   digit.SetTerminationOhms(fTerminationOhms);
 
   ev->SetDigitizer(digit);
+  ClearWaveforms();
 }
 
 // Add channel to digitizer and immdediatly digitize analogue waveform

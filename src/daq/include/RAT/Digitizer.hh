@@ -36,7 +36,8 @@ class Digitizer {
 
   virtual void SetDigitizerType(std::string);
   virtual void DigitizePMT(DS::MCPMT *mcpmt, int pmtID, double triggerTime, DS::PMTInfo *pmtinfo);
-  virtual void DigitizeSum(DS::EV *ev);
+  virtual void ClearWaveforms();
+  virtual void WriteToEvent(DS::EV *ev);
   virtual void AddChannel(int ichannel, PMTWaveform pmtwf);
 
   void SetI(std::string param, int value);
