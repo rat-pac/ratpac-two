@@ -16,7 +16,6 @@ class SplitEVDAQProc : public Processor {
   virtual Processor::Result DSEvent(DS::Root *ds);
   void SetD(std::string param, double value);
   void SetI(std::string param, int value);
-  void SetS(std::string param, std::string value);
 
   void BeginOfRun(DS::Run *run);
 

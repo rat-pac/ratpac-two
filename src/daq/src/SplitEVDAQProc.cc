@@ -29,16 +29,8 @@ SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   fTriggerOnNoise = ldaq->GetI("trigger_on_noise");
   fDigitizerType = ldaq->GetS("digitizer_name");
   fDigitize = ldaq->GetZ("digitize");
-  fAnalyze = ldaq->GetZ("analyze");
-  fAnalyzerName = "";
-  try {
-    fAnalyzerName = ldaq->GetS("analyzer_name");
-  } catch (DBNotFoundError &e) {
-    info << "Analyzer not specified, using default";
-  }
 
   fDigitizer = new Digitizer(fDigitizerType);
-  fWaveformAnalysis = new WaveformAnalysis(fAnalyzerName);
 }
 
 void SplitEVDAQProc::BeginOfRun(DS::Run *run) {
@@ -173,13 +165,6 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         totalEVCharge += integratedCharge;
         if (fDigitize) {
           fDigitizer->DigitizePMT(mcpmt, pmtID, tt, pmtinfo);
-          if (fAnalyze) {
-            DS::DigitPMT *digitpmt = ev->GetOrCreateDigitPMT(pmtID);
-            double timing_offset =
-                fDigitizer->fPMTWaveformGenerators[pmtinfo->GetModelNameByID(pmtID)]->fPMTPulseTimeOffset;
-            fWaveformAnalysis->RunAnalysis(digitpmt, pmtID, fDigitizer, timing_offset);
-            fWaveformAnalysis->ZeroSuppress(ev, digitpmt, pmtID);
-          }
         }
       }
     }  // Done looping over PMTs
@@ -218,13 +203,6 @@ void SplitEVDAQProc::SetD(std::string param, double value) {
 void SplitEVDAQProc::SetI(std::string param, int value) {
   if (param == "trigger_on_noise")
     fTriggerOnNoise = value;
-  else
-    throw ParamUnknown(param);
-}
-
-void SplitEVDAQProc::SetS(std::string param, std::string value) {
-  if (param == "analyzer_name")
-    fAnalyzerName = value;
   else
     throw ParamUnknown(param);
 }
