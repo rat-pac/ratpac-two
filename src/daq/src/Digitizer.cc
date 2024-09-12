@@ -39,7 +39,7 @@ void Digitizer::DigitizePMT(DS::MCPMT* mcpmt, int pmtID, double triggerTime, DS:
 
 void Digitizer::ClearWaveforms() { fDigitWaveForm.clear(); }
 
-void Digitizer::DigitizeSum(DS::EV* ev) {
+void Digitizer::WriteToEvent(DS::EV* ev) {
   DS::Digit digit;
 
   std::map<int, std::vector<UShort_t>> waveforms = fDigitWaveForm;

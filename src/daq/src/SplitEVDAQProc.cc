@@ -185,7 +185,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     }  // Done looping over PMTs
 
     if (fDigitize) {
-      fDigitizer->DigitizeSum(ev);
+      fDigitizer->WriteToEvent(ev);
     }
 
     ev->SetTotalCharge(totalEVCharge);
