@@ -61,7 +61,7 @@ Processor::Result SimpleDAQProc::DSEvent(DS::Root *ds) {
       calibQ += charge;
     }
   }
-
+  ev->SetUTC(mc->GetUTC());
   ev->SetTotalCharge(totalQ);
   // ev->SetCalibQ(calibQ);
 

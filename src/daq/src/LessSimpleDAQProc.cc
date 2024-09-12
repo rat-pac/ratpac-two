@@ -202,6 +202,7 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
 
     // regster total charge of one subevent
     ev->SetTotalCharge(totalQ);
+    ev->SetUTC(mc->GetUTC());
   }
 
   return Processor::OK;
