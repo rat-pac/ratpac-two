@@ -7,6 +7,7 @@
 
 #include "RAT/DS/DigitPMT.hh"
 #include "RAT/DS/RunStore.hh"
+#include "RAT/DS/WaveformAnalysisResult.hh"
 
 namespace RAT {
 
@@ -133,19 +134,21 @@ void WaveformAnalysis::DoAnalysis(DS::DigitPMT* digitpmt, double timeOffset) {
   }
 
   digitpmt->SetDigitizedTime(fDigitTime - timeOffset);
-  digitpmt->SetFittedTime(fFittedTime - timeOffset);
   digitpmt->SetTimeOffsetApplied(timeOffset);
-  digitpmt->SetFittedBaseline(fFittedBaseline);
-  digitpmt->SetFittedHeight(fFittedHeight);
   digitpmt->SetDigitizedCharge(fCharge);
   digitpmt->SetDigitizedTotalCharge(fTotalCharge);
-  digitpmt->SetInterpolatedTime(fInterpolatedTime);
   digitpmt->SetSampleTime(fThresholdCrossing);
   digitpmt->SetNCrossings(fNCrossings);
   digitpmt->SetTimeOverThreshold(fTimeOverThreshold);
   digitpmt->SetVoltageOverThreshold(fVoltageOverThreshold);
   digitpmt->SetPedestal(fPedestal);
   digitpmt->SetPeakVoltage(fVoltagePeak);
+  digitpmt->SetInterpolatedTime(fInterpolatedTime);
+  DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("Lognormal");
+  fit_result->AddPE(fFittedTime - timeOffset, fFittedHeight, {{"baseline", fFittedBaseline}});
+  digitpmt->SetFittedBaseline(fFittedBaseline);
+  digitpmt->SetFittedHeight(fFittedHeight);
+  digitpmt->SetFittedTime(fFittedTime - timeOffset);
 }
 
 double WaveformAnalysis::RunAnalysisOnTrigger(int pmtID, Digitizer* fDigitizer) {

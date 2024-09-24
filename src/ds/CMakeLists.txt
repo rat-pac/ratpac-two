@@ -40,6 +40,7 @@ root_generate_dictionary(G__RATDict
         RAT/DS/MCTrack.hh
         RAT/DS/MCTrackStep.hh
         RAT/DS/Calib.hh
+        RAT/DS/WaveformAnalysisResult.hh
         RAT/DSReader.hh
         RAT/DSWriter.hh
         RAT/TrackNav.hh

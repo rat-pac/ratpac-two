@@ -11,6 +11,8 @@
 #include <Rtypes.h>
 #include <TObject.h>
 
+#include <RAT/DS/WaveformAnalysisResult.hh>
+
 namespace RAT {
 namespace DS {
 
@@ -84,7 +86,20 @@ class DigitPMT : public TObject {
   virtual void SetTimeOffsetApplied(Double_t _time_offset) { this->time_offset_applied = _time_offset; }
   virtual Double_t GetTimeOffsetApplied() { return time_offset_applied; }
 
-  ClassDef(DigitPMT, 4);
+  /** Waveform analysis results */
+  virtual WaveformAnalysisResult* const GetOrCreateWaveformAnalysisResult(std::string analyzer_name) {
+    return &fit_results[analyzer_name];
+  }
+
+  virtual std::vector<std::string> const GetFitterNames() {
+    std::vector<std::string> fitter_names;
+    for (auto const& kv : fit_results) {
+      fitter_names.push_back(kv.first);
+    }
+    return fitter_names;
+  }
+
+  ClassDef(DigitPMT, 5);
 
  protected:
   Int_t id = -9999;
@@ -103,6 +118,7 @@ class DigitPMT : public TObject {
   Double_t fBas = -9999;
   Double_t local_trigger_time = -9999;
   Double_t time_offset_applied = 0;
+  std::map<std::string, WaveformAnalysisResult> fit_results;
 };
 
 }  // namespace DS
