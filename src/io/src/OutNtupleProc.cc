@@ -15,6 +15,7 @@
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/DS/RunStore.hh>
+#include <RAT/DS/WaveformAnalysisResult.hh>
 #include <RAT/Log.hh>
 #include <RAT/OutNtupleProc.hh>
 #include <iostream>
@@ -141,12 +142,6 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("digitNCrossings", &digitNCrossings);
     outputTree->Branch("digitPeak", &digitPeak);
     outputTree->Branch("digitLocalTriggerTime", &digitLocalTriggerTime);
-    if (options.digitizerfits) {
-      // From the lognormal fit to the waveforms
-      outputTree->Branch("fitTime", &fitTime);
-      outputTree->Branch("fitBaseline", &fitBaseline);
-      outputTree->Branch("fitPeak", &fitPeak);
-    }
   }
   if (options.mchits) {
     // Save full MC PMT hit information
@@ -445,9 +440,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitLocalTriggerTime.clear();
 
       if (options.digitizerfits) {
+        fitPmtID.clear();
         fitTime.clear();
-        fitBaseline.clear();
-        fitPeak.clear();
+        fitCharge.clear();
       }
 
       for (int pmtc : ev->GetAllDigitPMTIDs()) {
@@ -462,9 +457,24 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         digitPeak.push_back(digitpmt->GetPeakVoltage());
         digitLocalTriggerTime.push_back(digitpmt->GetLocalTriggerTime());
         if (options.digitizerfits) {
-          fitTime.push_back(digitpmt->GetFittedTime());
-          fitBaseline.push_back(digitpmt->GetFittedBaseline());
-          fitPeak.push_back(digitpmt->GetFittedHeight());
+          const std::vector<std::string> fitters = digitpmt->GetFitterNames();
+          for (std::string fitter_name : fitters) {
+            DS::WaveformAnalysisResult *fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("Lognormal");
+            for (int hitidx = 0; hitidx < fit_result->getNhits(); hitidx++) {
+              fitPmtID[fitter_name].push_back(digitpmt->GetID());
+              fitTime[fitter_name].push_back(fit_result->getTime(hitidx));
+              fitCharge[fitter_name].push_back(fit_result->getTime(hitidx));
+              // TODO: figures of merit -- you probably need some nested map
+            }
+          }
+        }
+      }
+      if (options.digitizerfits) {
+        for (const auto &kv : fitPmtID) {
+          std::string fitter_name = kv.first;
+          this->SetBranchValue("fit_pmtid_" + fitter_name, &fitPmtID.at(fitter_name));
+          this->SetBranchValue("fit_time_" + fitter_name, &fitTime.at(fitter_name));
+          this->SetBranchValue("fit_charge_" + fitter_name, &fitCharge.at(fitter_name));
         }
       }
     }
@@ -492,9 +502,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
       if (options.digitizerfits) {
+        fitPmtID.clear();
         fitTime.clear();
-        fitBaseline.clear();
-        fitPeak.clear();
+        fitCharge.clear();
       }
     }
     this->FillNoTriggerEvent(ds);
@@ -551,33 +561,6 @@ OutNtupleProc::~OutNtupleProc() {
     // outputFile->Write(0, TObject::kOverwrite);
     outputFile->Close();
     delete outputFile;
-  }
-}
-
-void OutNtupleProc::SetBranchValue(std::string name, double *value) {
-  if (branchNames.find(name) != branchNames.end()) {
-    outputTree->SetBranchAddress(name.c_str(), value);
-  } else {
-    branchNames.insert(name);
-    outputTree->Branch(name.c_str(), value);
-  }
-}
-
-void OutNtupleProc::SetBranchValue(std::string name, bool *value) {
-  if (branchNames.find(name) != branchNames.end()) {
-    outputTree->SetBranchAddress(name.c_str(), value);
-  } else {
-    branchNames.insert(name);
-    outputTree->Branch(name.c_str(), value);
-  }
-}
-
-void OutNtupleProc::SetBranchValue(std::string name, int *value) {
-  if (branchNames.find(name) != branchNames.end()) {
-    outputTree->SetBranchAddress(name.c_str(), value);
-  } else {
-    branchNames.insert(name);
-    outputTree->Branch(name.c_str(), value);
   }
 }
 

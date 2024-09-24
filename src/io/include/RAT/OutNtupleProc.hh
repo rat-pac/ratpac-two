@@ -1,6 +1,8 @@
 #ifndef __RATOutNtupleProc___
 #define __RATOutNtupleProc___
 
+#include <TTree.h>
+
 #include <RAT/DS/Run.hh>
 #include <RAT/Processor.hh>
 #include <functional>
@@ -140,7 +142,10 @@ class OutNtupleProc : public Processor {
   std::vector<int> digitNCrossings;
   std::vector<int> digitPMTID;
   // Information from fit to the waveforms
-  std::vector<double> fitTime;
+  std::map<std::string, std::vector<int>> fitPmtID;
+  std::map<std::string, std::vector<double>> fitTime;
+  std::map<std::string, std::vector<double>> fitCharge;
+  // std::vector<double> fitTime;
   std::vector<double> fitBaseline;
   std::vector<double> fitPeak;
   // Tracking
@@ -161,9 +166,15 @@ class OutNtupleProc : public Processor {
 
   std::set<std::string> branchNames;
 
-  void SetBranchValue(std::string name, double *value);
-  void SetBranchValue(std::string name, int *value);
-  void SetBranchValue(std::string name, bool *value);
+  template <typename T>
+  void SetBranchValue(std::string name, T *value) {
+    if (branchNames.find(name) != branchNames.end()) {
+      outputTree->SetBranchAddress(name.c_str(), &value);
+    } else {
+      branchNames.insert(name);
+      outputTree->Branch(name.c_str(), value);
+    }
+  }
 };
 
 }  // namespace RAT
