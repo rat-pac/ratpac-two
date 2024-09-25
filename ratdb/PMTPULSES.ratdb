@@ -7,7 +7,7 @@
   //Pulse type to use for generation. Options are analytic or datadriven
   pulse_type: "analytic",
 
-  //Pulse shape to use for analytic type. Current option is only lognormal
+  //Pulse shape to use for analytic type. Options are lognormal or gaussian.
   pulse_shape: "lognormal",
   
   //Universal pulse parameters
@@ -17,9 +17,14 @@
   pulse_time_offset: 60.0,
   termination_ohms: 50.0,
 
-  //Shape parameters (should only be used for analytic type option, if necessary)
+  //Shape parameters for analytic, lognormal shape option
   pulse_width: 0.15,
   pulse_mean: 10.5,
+
+  //Shape parameters for analytic, gaussian shape option
+  //given as 1D PDF of gaussian widths
+  pulse_widths: [1.4, 1.5, 1.6],
+  pulse_widths_prob: [0.0, 1.0, 0.0],
 
   //Explicit pulse shape (should only be used for datadriven type option)
   //This entry is a discretized version of lognormal with the above params
