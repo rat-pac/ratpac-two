@@ -133,8 +133,8 @@ void WaveformAnalysis::DoAnalysis(DS::DigitPMT* digitpmt, double timeOffset) {
     FitWaveform();
   }
 
-  digitpmt->SetDigitizedTime(fDigitTime - timeOffset);
-  digitpmt->SetTimeOffsetApplied(timeOffset);
+  digitpmt->SetTimeOffset(timeOffset);
+  digitpmt->SetDigitizedTime(fDigitTime);
   digitpmt->SetDigitizedCharge(fCharge);
   digitpmt->SetDigitizedTotalCharge(fTotalCharge);
   digitpmt->SetSampleTime(fThresholdCrossing);
@@ -143,9 +143,9 @@ void WaveformAnalysis::DoAnalysis(DS::DigitPMT* digitpmt, double timeOffset) {
   digitpmt->SetVoltageOverThreshold(fVoltageOverThreshold);
   digitpmt->SetPedestal(fPedestal);
   digitpmt->SetPeakVoltage(fVoltagePeak);
-  digitpmt->SetInterpolatedTime(fInterpolatedTime);
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("Lognormal");
-  fit_result->AddPE(fFittedTime - timeOffset, fFittedHeight, {{"baseline", fFittedBaseline}});
+  fit_result->AddPE(fFittedTime - timeOffset, fFittedHeight,
+                    {{"baseline", fFittedBaseline}, {"interpolated_time", fInterpolatedTime}});
   digitpmt->SetFittedBaseline(fFittedBaseline);
   digitpmt->SetFittedHeight(fFittedHeight);
   digitpmt->SetFittedTime(fFittedTime - timeOffset);

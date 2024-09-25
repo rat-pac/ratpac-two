@@ -27,7 +27,7 @@ class DigitPMT : public TObject {
   virtual Int_t GetID() { return id; }
 
   /** Threshold crossing time in ns */
-  virtual void SetDigitizedTime(Double_t _dTime) { this->dTime = _dTime; }
+  virtual void SetDigitizedTime(Double_t _dTime) { this->dTime = _dTime - time_offset; }
   virtual Double_t GetDigitizedTime() { return dTime; }
 
   /** Integrated charge around the peak [pC] */
@@ -38,12 +38,8 @@ class DigitPMT : public TObject {
   virtual void SetDigitizedTotalCharge(Double_t _dTCharge) { this->dTCharge = _dTCharge; }
   virtual Double_t GetDigitizedTotalCharge() { return dTCharge; }
 
-  /** Get the inter-sample timing interpolation */
-  virtual void SetInterpolatedTime(Double_t _iTime) { this->iTime = _iTime; }
-  virtual Double_t GetInterpolatedTime() { return iTime; }
-
   /** Get the sample associated with the crossing time */
-  virtual void SetSampleTime(Int_t _sTime) { this->sTime = _sTime; }
+  virtual void SetSampleTime(Int_t _sTime) { this->sTime = _sTime - time_offset; }
   virtual Int_t GetSampleTime() { return sTime; }
 
   /** Total number of threshold crossings */
@@ -83,8 +79,8 @@ class DigitPMT : public TObject {
   virtual Double_t GetLocalTriggerTime() { return local_trigger_time; }
 
   /** Time offset applied to the waveform */
-  virtual void SetTimeOffsetApplied(Double_t _time_offset) { this->time_offset_applied = _time_offset; }
-  virtual Double_t GetTimeOffsetApplied() { return time_offset_applied; }
+  virtual void SetTimeOffset(Double_t _time_offset) { this->time_offset = _time_offset; }
+  virtual Double_t GetTimeOffset() { return time_offset; }
 
   /** Waveform analysis results */
   virtual WaveformAnalysisResult* const GetOrCreateWaveformAnalysisResult(std::string analyzer_name) {
@@ -106,7 +102,6 @@ class DigitPMT : public TObject {
   Double_t dTime = -9999;
   Double_t dCharge = -9999;
   Double_t dTCharge = -9999;
-  Double_t iTime = -9999;
   Int_t sTime = -9999;
   Int_t nCrossings = -9999;
   Double_t timeOverThresh = -9999;
@@ -117,7 +112,7 @@ class DigitPMT : public TObject {
   Double_t fMag = -9999;
   Double_t fBas = -9999;
   Double_t local_trigger_time = -9999;
-  Double_t time_offset_applied = 0;
+  Double_t time_offset = 0;
   std::map<std::string, WaveformAnalysisResult> fit_results;
 };
 

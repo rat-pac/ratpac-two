@@ -58,6 +58,9 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.untriggered = false;
     options.mchits = true;
   }
+  if (options.digitizerfits) {
+    waveform_fitters = table->GetSArray("waveform_fitters");
+  }
 }
 
 bool OutNtupleProc::OpenFile(std::string filename) {
@@ -443,6 +446,12 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         fitPmtID.clear();
         fitTime.clear();
         fitCharge.clear();
+        for (const std::string &fitter_name : waveform_fitters) {
+          // construct arrays for all fitters
+          fitPmtID[fitter_name];
+          fitTime[fitter_name];
+          fitCharge[fitter_name];
+        }
       }
 
       for (int pmtc : ev->GetAllDigitPMTIDs()) {
@@ -459,7 +468,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         if (options.digitizerfits) {
           const std::vector<std::string> fitters = digitpmt->GetFitterNames();
           for (std::string fitter_name : fitters) {
-            DS::WaveformAnalysisResult *fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("Lognormal");
+            DS::WaveformAnalysisResult *fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(fitter_name);
             for (int hitidx = 0; hitidx < fit_result->getNhits(); hitidx++) {
               fitPmtID[fitter_name].push_back(digitpmt->GetID());
               fitTime[fitter_name].push_back(fit_result->getTime(hitidx));
@@ -470,8 +479,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         }
       }
       if (options.digitizerfits) {
-        for (const auto &kv : fitPmtID) {
-          std::string fitter_name = kv.first;
+        for (const std::string &fitter_name : waveform_fitters) {
           this->SetBranchValue("fit_pmtid_" + fitter_name, &fitPmtID.at(fitter_name));
           this->SetBranchValue("fit_time_" + fitter_name, &fitTime.at(fitter_name));
           this->SetBranchValue("fit_charge_" + fitter_name, &fitCharge.at(fitter_name));

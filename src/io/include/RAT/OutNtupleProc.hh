@@ -58,6 +58,8 @@ class OutNtupleProc : public Processor {
   };
   NtupleOptions options;
 
+  std::vector<std::string> waveform_fitters;
+
  protected:
   std::string defaultFilename;
   TFile *outputFile;

@@ -22,4 +22,5 @@ include_digitizerhits: true,
 include_digitizerfits: true,
 include_untriggered_events: true,
 include_mchits: true,
+waveform_fitters: ["Lognormal"]
 }
