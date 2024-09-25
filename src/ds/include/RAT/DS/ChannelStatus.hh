@@ -43,29 +43,53 @@ class ChannelStatus : public TObject {
 
   virtual void LinkPMT(int pmtid, int lcn) {
     if (lcn_to_index.find(lcn) == lcn_to_index.end()) {
-      warn << "PMT " << pmtid << " (LCN " << lcn << ") not found in channel_status, using defaults" << newline;
-      AddChannel(lcn, true, 0.0);
+      AddChannel(lcn, default_is_online, default_offset);
     }
     pmtid_to_index[pmtid] = lcn_to_index[lcn];
   }
+
   virtual void Load(const PMTInfo* pmtinfo, const std::string index = "") {
-    try {
-      info << "Using channel status table with index: " << index << newline;
-      DBLinkPtr lChStatus = DB::Get()->GetLink("channel_status", index);
-      std::vector<int> lcns = lChStatus->GetIArray("channel_number");
-      std::vector<int> onlines = lChStatus->GetIArray("online");
-      std::vector<double> offsets = lChStatus->GetDArray("offset");
-      for (size_t idx = 0; idx < lcns.size(); idx++) {
-        AddChannel(lcns[idx], onlines[idx], offsets[idx]);
-      }
-    } catch (DBNotFoundError& e) {
-      warn << "Channel Status table Not found!" << newline;
-    }
     for (int pmtid = 0; pmtid < pmtinfo->GetPMTCount(); pmtid++) {
       int lcn = pmtinfo->GetChannelNumber(pmtid);
       LinkPMT(pmtid, lcn);
     }
+    // cable offset
+    try {
+      DBLinkPtr lCableOffset = DB::Get()->GetLink("cable_offset", index);
+      std::vector<int> lcns = lCableOffset->GetIArray("channel_number");
+      std::vector<double> values = lCableOffset->GetDArray("value");
+      insert_values(lcns, values, &cable_offset);
+    } catch (DBNotFoundError& e) {
+      warn << "Cable offset table not found! Looking for table cable_offset[" << index << "]\n";
+    }
+    // cable offset
+    try {
+      DBLinkPtr lCableOffset = DB::Get()->GetLink("channel_online", index);
+      std::vector<int> lcns = lCableOffset->GetIArray("channel_number");
+      std::vector<int> values = lCableOffset->GetIArray("value");
+      insert_values(lcns, values, &online);
+    } catch (DBNotFoundError& e) {
+      warn << "Cable offset table not found! Looking for table cable_offset[" << index << "]\n";
+    }
+    // read channel online
   }
+
+  template <typename T>
+  void insert_values(std::vector<int> lcns, std::vector<T> values, std::vector<T>* target) {
+    Log::Assert(lcns.size() == values.size(), "LCN and value arrays are of different lengths!");
+    for (size_t i = 0; i < lcns.size(); i++) {
+      int current_lcn = lcns.at(i);
+      if (lcn_to_index.find(current_lcn) == lcn_to_index.end()) {
+        LinkPMT(-current_lcn, current_lcn);
+      }
+      double current_value = values.at(i);
+      size_t insertion_index = lcn_to_index.at(current_lcn);
+      target->at(insertion_index) = current_value;
+    }
+  }
+
+  static inline const double default_offset = 0.0;
+  static inline const int default_is_online = 1;
 
   ClassDef(ChannelStatus, 1);
 
