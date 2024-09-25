@@ -17,8 +17,10 @@ class PMTPulse {
   virtual void SetPulseMin(double _fPulseMin) { fPulseMin = _fPulseMin; };
   virtual void SetPulsePolarity(bool _fPulsePolarity) { fPulsePolaritySign = _fPulsePolarity ? -1 : 1; };
 
-  virtual void SetPulseMean(double _fPulseMean) { fPulseMean = _fPulseMean; };
-  virtual void SetPulseWidth(double _fPulseWidth) { fPulseWidth = _fPulseWidth; };
+  virtual void SetLogNPulseMean(double _fLogNPulseMean) { fLogNPulseMean = _fLogNPulseMean; };
+  virtual void SetLogNPulseWidth(double _fLogNPulseWidth) { fLogNPulseWidth = _fLogNPulseWidth; };
+
+  virtual void SetGausPulseWidth(double _fGausPulseWidth) { fGausPulseWidth = _fGausPulseWidth; };
 
   virtual void SetPulseTimes(std::vector<double> _fPulseTimes) { fPulseTimes = _fPulseTimes; };
   virtual void SetPulseValues(std::vector<double> _fPulseValues) { fPulseValues = _fPulseValues; };
@@ -38,8 +40,10 @@ class PMTPulse {
 
   int fPulsePolaritySign;
 
-  double fPulseMean;
-  double fPulseWidth;
+  double fLogNPulseMean;
+  double fLogNPulseWidth;
+
+  double fGausPulseWidth;
 
   std::vector<double> fPulseTimes;
   std::vector<double> fPulseValues;

@@ -17,7 +17,7 @@ class PMTWaveformGenerator {
   virtual PMTWaveform GenerateWaveforms(DS::MCPMT* mcpmt, double triggerTime);
 
   // pick width of waveform from PDF
-  double PickWidth();
+  double PickGaussianWidth();
 
   std::string fModelName;
 
@@ -34,13 +34,13 @@ class PMTWaveformGenerator {
 
   // Shape parameters
   // For lognormal pulse model
-  double fPMTPulseWidth;
-  double fPMTPulseMean;
+  double fLogNPulseWidth;
+  double fLogNPulseMean;
 
   // For gaussian pulse model PDF
-  std::vector<double> fPMTPulseWidths;
-  std::vector<double> fPMTPulseWidthsProb;
-  std::vector<double> fPMTPulseWidthsProbCumu;
+  std::vector<double> fGausPulseWidth;
+  std::vector<double> fGausPulseWidthProb;
+  std::vector<double> fGausPulseWidthProbCumu;
 
   // Explicit shape for data-driven pulses
   std::vector<double> fPMTPulseShapeTimes;
