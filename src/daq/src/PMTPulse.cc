@@ -24,6 +24,8 @@ double PMTPulse::GetPulseHeight(double utime) {
     if (fPulseType == "analytic") {
       if (fPulseShape == "lognormal") {
         val = TMath::LogNormal(delta_t, fPulseWidth, 0., fPulseMean);
+      } else if (fPulseShape == "gaussian") {
+        val = TMath::Gaus(delta_t, 4 * fPulseWidth, fPulseWidth, kTRUE);
       }
     } else if (fPulseType == "datadriven") {
       int i = 0;
