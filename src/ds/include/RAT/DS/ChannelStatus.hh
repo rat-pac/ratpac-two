@@ -56,22 +56,42 @@ class ChannelStatus : public TObject {
     // cable offset
     try {
       DBLinkPtr lCableOffset = DB::Get()->GetLink("cable_offset", index);
-      std::vector<int> lcns = lCableOffset->GetIArray("channel_number");
+      std::vector<int> lcns = get_lcns(lCableOffset);
       std::vector<double> values = lCableOffset->GetDArray("value");
       insert_values(lcns, values, &cable_offset);
     } catch (DBNotFoundError& e) {
       warn << "Cable offset table not found! Looking for table cable_offset[" << index << "]\n";
     }
-    // cable offset
+    // dead channels
     try {
-      DBLinkPtr lCableOffset = DB::Get()->GetLink("channel_online", index);
-      std::vector<int> lcns = lCableOffset->GetIArray("channel_number");
-      std::vector<int> values = lCableOffset->GetIArray("value");
+      DBLinkPtr lChannelOnline = DB::Get()->GetLink("channel_online", index);
+      std::vector<int> lcns = get_lcns(lChannelOnline);
+      std::vector<int> values = lChannelOnline->GetIArray("value");
       insert_values(lcns, values, &online);
     } catch (DBNotFoundError& e) {
-      warn << "Cable offset table not found! Looking for table cable_offset[" << index << "]\n";
+      warn << "Channel online table not found! Looking for table channel_online[" << index << "]\n";
     }
     // read channel online
+  }
+
+  std::vector<int> get_lcns(DBLinkPtr& lTable) {
+    std::vector<int> lcns;
+    // I'm sorry for the nested try catch blocks
+    try {
+      lcns = lTable->GetIArray("channel_number");
+    } catch (DBNotFoundError& e) {
+      try {
+        std::vector<int> lcn_range = lTable->GetIArray("channel_number_range");
+        Log::Assert(lcn_range.size() == 2, "Expect a length-2 array for channel_number_range");
+        Log::Assert(lcn_range.at(0) <= lcn_range.at(1), "begin element must be smaller or equal to end");
+        for (int current_lcn = lcn_range.at(0); current_lcn <= lcn_range.at(1); current_lcn++) {
+          lcns.push_back(current_lcn);
+        }
+      } catch (DBNotFoundError& e) {
+        Log::Die("LCN cannot be specified!");
+      }
+    }
+    return lcns;
   }
 
   template <typename T>
