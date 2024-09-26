@@ -11,6 +11,7 @@ add_library(util OBJECT
         src/SilenceRooFitBanner.cc
         src/SimpsIntegral.cc
         src/StringUtil.cc
+        src/WaveformUtil.cc
         src/quadrature/Evaluateable.cc
         src/quadrature/Quadrature.cc
         src/quadrature/FixedTrapezoidalQuadrature.cc
