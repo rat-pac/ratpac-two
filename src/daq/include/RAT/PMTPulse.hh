@@ -25,6 +25,8 @@ class PMTPulse {
   virtual void SetPulseTimes(std::vector<double> _fPulseTimes) { fPulseTimes = _fPulseTimes; };
   virtual void SetPulseValues(std::vector<double> _fPulseValues) { fPulseValues = _fPulseValues; };
 
+  virtual double GetDataDrivenPulseVal(double time);
+
   virtual double GetPulseHeight(double time);
   virtual double GetPulseStartTime() { return fStartTime; };
 
