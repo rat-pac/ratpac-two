@@ -83,7 +83,7 @@ PMTWaveformGenerator::PMTWaveformGenerator(std::string modelName) {
   }
   if (fPMTPulseType == "datadriven") {
     fPMTPulseShapeTimes = lpulse->GetDArray("pulse_shape_times");
-    fPMTPulseShapeValues = lpulse->GetDArray("pulse_values_times");
+    fPMTPulseShapeValues = lpulse->GetDArray("pulse_shape_values");
   }
 }
 
