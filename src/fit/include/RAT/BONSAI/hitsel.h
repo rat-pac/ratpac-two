@@ -6,12 +6,12 @@
 // does  hit selection, when needed
 // **********************************************
 class hitsel : public hits {
-  short int *selected;
+  int *selected;
   int nsel;
 
-  short int make_causal_table(short int *&related, short int *&relations, float twin, float resolution,
+  int make_causal_table(int *&related, int *&relations, float twin, float resolution,
                               float tcoincidence);
-  short int reduce(int size, short int *source, short int *destination, short int *occurence);
+  int reduce(int size, int *source, int *destination, int *occurence);
   void select(float dlim, float tlim, float twin, float resolution, float tcoincidence);
 
  public:
@@ -24,7 +24,7 @@ class hitsel : public hits {
   inline hitsel(int ns, float *set, pmt_geometry *geom, comtype2 *itevent);
   ~hitsel(void);
   inline int nselected(void);
-  inline short int sel(int i);
+  inline int sel(int i);
   inline float tpeak(void);
   inline int clean(int i, int j, float d2lim, float tlim);
   inline int causal(int i, int j, float twin, float resolution, float tcoincidence);
@@ -32,10 +32,10 @@ class hitsel : public hits {
   inline void eigen(double *ctrd, float *axes);
   void pmtcentroid(int n, float *ctrd, float *axes, float rmax, float zmax);
 
-  short int mrclean(float dlim, float tlim);
-  short int clus_sel(float dlim, float tlim, float twin, float resolution, float tcoincidence);
+  int mrclean(float dlim, float tlim);
+  int clus_sel(float dlim, float tlim, float twin, float resolution, float tcoincidence);
   inline void qsort(void);
-  void printset(int nset, short int *set);
+  void printset(int nset, int *set);
 };
 #include <RAT/BONSAI/hitsel.inline>
 #endif

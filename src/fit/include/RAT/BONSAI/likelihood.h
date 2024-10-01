@@ -14,7 +14,7 @@ class likelihood : public fit_param, public fitquality, public timefit {
   float cang0, plusdang, minusdang, dev;    // direction fit constraint
   float verfit[4], dirfit[5], like, like0;  // vertex, direction, likelihoods
   float dt;                                 // timefit uncertainty
-  short int nlike;                          // number of fit vertices
+  int nlike;                          // number of fit vertices
   dodecahedron dod;                         // defines how surrounding points
   axes orientation;                         // are calculated
 
@@ -34,7 +34,7 @@ class likelihood : public fit_param, public fitquality, public timefit {
   inline void maximize(bonsaifit *fit, searchgrid *grid, bool useAngle = true);
   inline void maximize(bonsaifit *fit, float *point, bool useAngle = true);
   inline float get_zero(void);           // get t0
-  inline float residual(short int hit);  // get time residual
+  inline float residual(int hit);  // get time residual
   inline float get_ll(void);             // get likelihood
   inline float get_ll0(void);            // get likelihood w/o angle constraint
   inline void get_dir(float *dir);       // get direction fit

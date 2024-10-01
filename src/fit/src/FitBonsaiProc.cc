@@ -111,7 +111,6 @@ RAT::Processor::Result FitBonsaiProc::Event(RAT::DS::Root *ds, RAT::DS::EV *ev) 
 
   // Perform the fit
   bs_nhit = ev->GetPMTCount();
-  G4cout << "bs_nhit DEBUG: " << bs_nhit << G4endl;
   for (bs_hit = 0; bs_hit < bs_nhit; bs_hit++) {
     // Analogue option, will need switch for digital output
     bs_cables[bs_hit] = ev->GetOrCreatePMT(bs_hit)->GetID() + 1;

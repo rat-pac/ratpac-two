@@ -30,13 +30,13 @@ inline void axes::set(double theta, double phi, double alpha) {
   vectors[7] = -sth * sal;
   vectors[8] = cth;
 }
-inline void axes::set(short int comp, short int vect, double value) { vectors[vect + 3 * comp] = value; }
-inline void axes::set(short int vect, double val1, double val2, double val3) {
+inline void axes::set(int comp, int vect, double value) { vectors[vect + 3 * comp] = value; }
+inline void axes::set(int vect, double val1, double val2, double val3) {
   vectors[vect] = val1;
   vectors[vect + 3] = val2;
   vectors[vect + 6] = val3;
 }
-inline double axes::get(short int comp, short int vect) { return (vectors[vect + 3 * comp]); }
+inline double axes::get(int comp, int vect) { return (vectors[vect + 3 * comp]); }
 inline void axes::get(double *val) {
   int i;
 
@@ -70,12 +70,12 @@ inline void axes::get(float &theta, float &phi, float &alpha) {
   phi = atan2(vectors[5], vectors[2]);
   alpha = atan2(-vectors[7], -vectors[6]);
 }
-inline void axes::get(double *val, short int comp) {
+inline void axes::get(double *val, int comp) {
   *val = vectors[comp];
   val[1] = vectors[comp + 3];
   val[2] = vectors[comp + 6];
 }
-inline void axes::get(float *val, short int comp) {
+inline void axes::get(float *val, int comp) {
   *val = vectors[comp];
   val[1] = vectors[comp + 3];
   val[2] = vectors[comp + 6];
@@ -87,7 +87,7 @@ inline float axes::gety(float *comp) { return (*comp * vectors[3] + comp[1] * ve
 inline double axes::getz(double *comp) { return (*comp * vectors[6] + comp[1] * vectors[7] + comp[2] * vectors[8]); }
 inline float axes::getz(float *comp) { return (*comp * vectors[6] + comp[1] * vectors[7] + comp[2] * vectors[8]); }
 
-inline void axes::rotate(short int vect, double si, double co) {
+inline void axes::rotate(int vect, double si, double co) {
   double save;
 
   /* correct trafo matrix */
@@ -102,8 +102,8 @@ inline void axes::rotate(short int vect, double si, double co) {
   vectors[vect + 6] = co * vectors[vect + 6] - si * save;
 }
 
-inline short int axes::align(centroid &c, double *vec) {
-  short int maxprod;
+inline int axes::align(centroid &c, double *vec) {
+  int maxprod;
 
   c.centre(vec);
   maxprod = align(vec);
@@ -111,9 +111,9 @@ inline short int axes::align(centroid &c, double *vec) {
   return (maxprod);
 }
 
-inline short int axes::align(centroid &c, float *vec) {
+inline int axes::align(centroid &c, float *vec) {
   double dir[4];
-  short int maxprod;
+  int maxprod;
 
   c.centre(dir);
   maxprod = align(dir);

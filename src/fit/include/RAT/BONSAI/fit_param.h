@@ -10,7 +10,7 @@ class fit_param {
   static float tcoin;
   static float dlim;
   static float tlim;
-  static short int nselall;
+  static int nselall;
   static float gcon0;
   static float dw4hit;
   static float dwfit;
@@ -18,7 +18,7 @@ class fit_param {
   static float clusgthetaplus;
   static float clusgthetaminus;
   static float clusgdirweight;
-  static short int np;
+  static int np;
   static float *cdwall;
   static float *gdiff;
   static float lastdiff;
@@ -69,7 +69,7 @@ class fit_param {
   inline float tcoincidence(void) { return (tcoin); }
   inline float pair_distance_limit_fraction(void) { return (dlim); }
   inline float pair_time_limit_fraction(void) { return (tlim); }
-  inline short int nsel_allcombo(void) { return (nselall); }
+  inline int nsel_allcombo(void) { return (nselall); }
   inline float init_grid_constant(void) { return (gcon0); }
   inline float dwall4hit(void) { return (dw4hit); }
   inline float dwallfit(void) { return (dwfit); }
@@ -81,7 +81,7 @@ class fit_param {
   inline float clusfit_plus_deviation(int i) { return (clusthetaplus[i]); }
   inline float clusfit_minus_deviation(int i) { return (clusthetaminus[i]); }
   inline float clusfit_direction_weight(int i) { return (clusdirweight[i]); }
-  inline short int npass(void) { return (np); }
+  inline int npass(void) { return (np); }
   inline float clus_dwall(int i) { return (cdwall[i]); }
   inline float min_gdn_difference(int i) { return (gdiff[i]); }
   inline float last_min_gdn_difference(void) { return (lastdiff); }

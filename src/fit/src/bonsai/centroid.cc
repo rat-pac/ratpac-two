@@ -4,9 +4,9 @@
 // **********************************************
 // align unitary matrix with a given vector
 // **********************************************
-short int axes::align(double *nor) {
+int axes::align(double *nor) {
   double sprod1, sprod2, sprod3;
-  short int maxprod;
+  int maxprod;
 
   nor[3] = *nor * (*nor) + nor[1] * nor[1] + nor[2] * nor[2];
   if (nor[3] <= 0) return (-1);

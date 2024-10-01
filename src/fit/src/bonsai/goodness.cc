@@ -3,7 +3,7 @@
 // **********************************************
 // quick sort algorithm to sort the hit ttofs
 // **********************************************
-void goodness::qsort(short int *list, short int n) {
+void goodness::qsort(int *list, int n) {
   if (n < 2) return;  // no need to sort for 1 or zero hits
   if (n == 2)         // 2 hits are easy to sort ...
   {
@@ -15,15 +15,15 @@ void goodness::qsort(short int *list, short int n) {
   }
 
   // split list of hits in 2 sublists, sort sublists
-  short int half = n / 2;
-  short int *first = buffer;
+  int half = n / 2;
+  int *first = buffer;
   qsort(list, half);
   qsort(list + half, n - half);
 
   // merge the two sorted sublists
-  short int *second = list + half;
+  int *second = list + half;
   int m = n - half, firstp, secondp, nfirst = 0;
-  short int firstel = *list;
+  int firstel = *list;
 
   // firstp is the index of the current element
   // of the first sublist, secondp of the second
@@ -57,7 +57,7 @@ void goodness::qsort(short int *list, short int n) {
 // * ttofs                                                     *
 // *************************************************************
 void goodness::bubble(void) {
-  short int sweep, loop, swap, begin, end;
+  int sweep, loop, swap, begin, end;
 
   // if sort list is a not initialized, initialize and quick sort it
   if (sort_list[0] == -1) {
@@ -97,7 +97,7 @@ void goodness::bubble(void) {
 // * 1-0.5(tau/twin)^2 for |tau/twin|<rt(2)                    *
 // *************************************************************
 float goodness::quality(float *vertex) {
-  short int start, nwin, beststart, beststop;
+  int start, nwin, beststart, beststop;
   float tau_begin, tau_end, tau_sum, tau2_sum, g, tav, deviation, tau0;
 
   if (nselected() < 2) return (-1);  // can't calculate with less than two hits

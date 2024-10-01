@@ -4,6 +4,10 @@
 /rat/db/set DETECTOR experiment "Validation"
 /rat/db/set DETECTOR geo_file "Validation/Valid.geo"
 
+
+/rat/db/set BONSAI nTmin -3
+/rat/db/set BONSAI nTmax 6
+
 /run/initialize
 
 /rat/proc splitevdaq
@@ -17,7 +21,7 @@
 /rat/proclast outntuple
 
 /generator/add combo gun:point:poisson
-/generator/vtx/set e- 0.0 0.0 0.0 10.0
+/generator/vtx/set e- 0.0 0.0 0.0 2.5
 /generator/pos/set 0.0 0.0 0.0
 
 /run/beamOn 100000000

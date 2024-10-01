@@ -48,7 +48,7 @@ class fitquality {
   // *************************************************************
   // * determine, if pos is inside the fitting volume            *
   // *************************************************************
-  inline short int fit_volume(float *pos) {
+  inline int fit_volume(float *pos) {
     if (pos[2] < -zmax) return (0);
     if (pos[2] > zmax) return (0);
     return (pos[0] * pos[0] + pos[1] * pos[1] <= rmax2);
@@ -57,7 +57,7 @@ class fitquality {
   // * Determine, if pos is in fitting volume; if it isn't find  *
   // * point corrected, that is at the boundary                  *
   // *************************************************************
-  inline short int fit_volume(float *pos, float *corrected, float &rfac) {
+  inline int fit_volume(float *pos, float *corrected, float &rfac) {
     // calculate radius^2
     rfac = pos[0] * pos[0] + pos[1] * pos[1];
     if (rfac > rmax2)  // if >maximum radius^2, determine shrink factor
@@ -97,7 +97,7 @@ class fitquality {
   inline virtual int nresult(void) { return (0); };
   inline virtual void get_result(float *r) { return; };
   inline virtual void set_result(float *r) { return; };
-  inline virtual void set_branch(short int point) { return; };
+  inline virtual void set_branch(int point) { return; };
   inline float worstquality(void) { return (worst); };
   inline float returnrvol(void) { return (rmax + dwall); };
   inline float returnzvol(void) { return (zmax + dwall); };

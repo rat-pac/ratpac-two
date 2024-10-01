@@ -5,7 +5,7 @@
 // *************************************************************
 // * print last possible hit for each hit starting a combin.   *
 // *************************************************************
-inline void fourhitgrid::print_ranges(short int &hit, int &n3comb) {
+inline void fourhitgrid::print_ranges(int &hit, int &n3comb) {
   // print out chosen time window and desired number of combinations
   printf("required time window: %8.2fns, %3d combinations\n", twin, ncombo);
   // loop through each hit that can start a combination
@@ -30,7 +30,7 @@ inline void fourhitgrid::print_ranges(short int &hit, int &n3comb) {
 // * set last allowed hit for each starting hit using half     *
 // * of the largest possible time window                       *
 // *************************************************************
-inline void fourhitgrid::set_half_range(short int &start, short int &stop, int &n3comb) {
+inline void fourhitgrid::set_half_range(int &start, int &stop, int &n3comb) {
   // set time window to 50% of the largest possible time window
   twin = 0.5 * (times[nsel - 1] - times[0]);
   // loop through all hits, summing up the combinations
@@ -63,7 +63,7 @@ inline void fourhitgrid::set_half_range(short int &start, short int &stop, int &
 // *************************************************************
 // * calculate number of combinations if the window has changed*
 // *************************************************************
-inline void fourhitgrid::adjust_range(short int &hit, short int &not_expanded, int &n3comb) {
+inline void fourhitgrid::adjust_range(int &hit, int &not_expanded, int &n3comb) {
   // loop through all starting hits and sum up the number of combinations
   for (ncombo = hit = 0; hit < nsel - 3; hit++) {
     not_expanded = 1;
@@ -95,9 +95,9 @@ inline void fourhitgrid::adjust_range(short int &hit, short int &not_expanded, i
 // *************************************************************
 // * define allowed ranges of hit numbers using absolute timing*
 // *************************************************************
-inline void fourhitgrid::find_ranges(short int nreq) {
+inline void fourhitgrid::find_ranges(int nreq) {
   float tlow, thigh, bestwin;
-  short int start, stop;
+  int start, stop;
   int n3comb, dev, mindev;
 
   // find maximum number of combinations; if less than required,
@@ -187,7 +187,7 @@ inline void fourhitgrid::find_ranges(short int nreq) {
 // *************************************************************
 inline void fourhitgrid::fourcombo(hitsel *hits) {
   int cab[4];
-  short int start, stop, sec, thir, four, nsol;
+  int start, stop, sec, thir, four, nsol;
   double testpoint[8];
 
   // loop over all starting hits;
@@ -217,7 +217,7 @@ inline void fourhitgrid::fourcombo(hitsel *hits) {
 inline void fourhitgrid::fourcombo(hitsel *event_hits, float tsig, float cyl_radius, float cyl_height, float dwallmin,
                                    float &goodn) {
   int cab[4 + event_hits->ntot()];
-  short int start, stop, sec, thir, four, nsol, nstore, h1, h2, h3, h4;
+  int start, stop, sec, thir, four, nsol, nstore, h1, h2, h3, h4;
   int gstart, gend;
   double testpoint[8];
   float tmin, tmax, t, gdn[2], gmax;
@@ -304,49 +304,35 @@ inline void fourhitgrid::fourcombo(hitsel *event_hits, float tsig, float cyl_rad
 // * initialize grid using four-hit combinations               *
 // *************************************************************
 fourhitgrid::fourhitgrid(double r, double z, hitsel *hits) : searchgrid(r, z, dwall4hit()) {
-  short int hit, n3c;
+  int hit, n3c;
   float pos[3], rat;
 
   nsel = hits->nselected();
-  printf("fourhitgrid::fourhitgrid debug: %d\n", nsel);
   if (nsel < 4) {
     nsel = 0;
     return;
   }
   // define arrays for allowed hit combination ranges and
   // copy ordered (absolute) hit times in an array
-  printf("1\n");
-  end = new short int[nsel - 3];
-  printf("2\n");
+  end = new int[nsel - 3];
   times = new float[nsel];
-  printf("3\n");
   for (hit = 0; hit < nsel; hit++) times[hit] = hits->hittime(hits->sel(hit));
   // formula used for desired number of hits, if nsel>nthreshold
-  printf("4\n");
   n3c = nsel_allcombo() * (nsel_allcombo() - 1) * (nsel_allcombo() - 2) / 6;
-  printf("5\n");
   rat = (nsel_allcombo() - 3.) / (nsel - 3.);
-  printf("6\n");
   rat *= rat;
-  printf("7\n");
-  find_ranges((short int)(0.5 + (nsel - 3) * (1 + rat * (0.25 * n3c - 1))));
-  printf("8\n");
+  find_ranges((int)(0.5 + (nsel - 3) * (1 + rat * (0.25 * n3c - 1))));
   // generate space in searchgrid for up to twice the number of
   // combinations; add a testpoint in front of each hit
-  printf("9, %d %d %d\n", ncombo, nsel, 2 * ncombo + nsel);
+  // printf("BONSAI COMBINATION TEST, %d %d %d/32767(MAX SHORT INT)\n", nsel, ncombo, 2 * ncombo + nsel);
   expand_size(2 * ncombo + nsel);
-  printf("10\n");
   for (hit = 0; hit < nsel; hit++) {
     hits->frontof(pos, hits->sel(hit), z);
     add_point(pos[0], pos[1], pos[2]);
   }
-  printf("11\n");
-  close();  // start a new set, so that those testpoints will not average
-  printf("12\n");
+  close();          // start a new set, so that those testpoints will not average
   fourcombo(hits);  // calculate four-hit combinations
-  printf("13\n");
   sparsify(init_grid_constant());
-  printf("14\n");
   if (bongrid() < clusgrid()) {
     sparsify(bongrid());
     sparsify(clusgrid());
@@ -354,13 +340,12 @@ fourhitgrid::fourhitgrid(double r, double z, hitsel *hits) : searchgrid(r, z, dw
     sparsify(clusgrid());
     sparsify(bongrid());
   }
-  printf("15\n");
   return;
 }
 
 fourhitgrid::fourhitgrid(double r, double z, hitsel *hits, float tsig, float dwallmin, float &goodn)
     : searchgrid(r, z, dwall4hit()) {
-  short int hit, n3c;
+  int hit, n3c;
   float pos[3], rat;
 
   nsel = hits->nselected();
@@ -370,14 +355,14 @@ fourhitgrid::fourhitgrid(double r, double z, hitsel *hits, float tsig, float dwa
   }
   // define arrays for allowed hit combination ranges and
   // copy ordered (absolute) hit times in an array
-  end = new short int[nsel - 3];
+  end = new int[nsel - 3];
   times = new float[nsel];
   for (hit = 0; hit < nsel; hit++) times[hit] = hits->hittime(hits->sel(hit));
   // formula used for desired number of hits, if nsel>nthreshold
   n3c = nsel_allcombo() * (nsel_allcombo() - 1) * (nsel_allcombo() - 2) / 6;
   rat = (nsel_allcombo() - 3.) / (nsel - 3.);
   rat *= rat;
-  find_ranges((short int)(0.5 + (nsel - 3) * (1 + rat * (0.25 * n3c - 1))));
+  find_ranges((int)(0.5 + (nsel - 3) * (1 + rat * (0.25 * n3c - 1))));
   // generate space in searchgrid for up to twice the number of
   // combinations; add a testpoint in front of each hit
   expand_size(2 * ncombo + nsel);
@@ -400,7 +385,7 @@ fourhitgrid::fourhitgrid(double r, double z, hitsel *hits, float tsig, float dwa
 }
 
 fourhitgrid::fourhitgrid(void *buffer, double r, double z, hitsel *hits) : searchgrid((float *)buffer) {
-  short int hit, n3c;
+  int hit, n3c;
   float pos[3], rat;
 
   nsel = hits->nselected();
@@ -410,7 +395,7 @@ fourhitgrid::fourhitgrid(void *buffer, double r, double z, hitsel *hits) : searc
   }
   // define arrays for allowed hit combination ranges and
   // copy ordered (absolute) hit times in an array
-  end = new short int[nsel - 3];
+  end = new int[nsel - 3];
   times = new float[nsel];
   for (hit = 0; hit < nsel; hit++) times[hit] = hits->hittime(hits->sel(hit));
   // formula used for desired number of hits, if nsel>nthreshold
@@ -430,7 +415,7 @@ fourhitgrid::fourhitgrid(void *buffer, double r, double z, hitsel *hits) : searc
 
   // unpacking from structure failed:
   // --------------------------------
-  find_ranges((short int)(0.5 + (nsel - 3) * (1 + rat * (0.25 * n3c - 1))));
+  find_ranges((int)(0.5 + (nsel - 3) * (1 + rat * (0.25 * n3c - 1))));
   // generate space in searchgrid for up to twice the number of
   // combinations; add a testpoint in front of each hit
   expand_size(2 * ncombo);

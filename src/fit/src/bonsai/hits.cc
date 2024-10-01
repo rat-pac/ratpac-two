@@ -117,7 +117,7 @@ int hits::inv35(double *mat, int *rowind, int *colind) {
 // **********************************************
 // quick sort algorithm to sort the hit times
 // **********************************************
-void hits::qsort(short int *list, short int n, short int *first) {
+void hits::qsort(int *list, int n, int *first) {
   if (n < 2) return;  // no need to sort for 1 or zero hits
   if (n == 2)         // 2 hits are easy to sort ...
   {
@@ -134,9 +134,9 @@ void hits::qsort(short int *list, short int n, short int *first) {
   qsort(list + half, n - half, first);
 
   // merge the two sorted sublists
-  short int *second = list + half;
+  int *second = list + half;
   int m = n - half, firstp, secondp, nfirst = 0;
-  short int firstel = *list;
+  int firstel = *list;
 
   // firstp is the index of the current element
   // of the first sublist, secondp of the second
@@ -169,7 +169,7 @@ void hits::qsort(short int *list, short int n, short int *first) {
 // * create space for all hits                  *
 // **********************************************
 inline void hits::create_arrays(int n_raw, int n_hit) {
-  places = new short int[n_raw];
+  places = new int[n_raw];
   cables = new int[n_hit];
   times = new float[n_hit];
   charges = new float[n_hit];
