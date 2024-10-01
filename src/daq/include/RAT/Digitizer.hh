@@ -22,9 +22,7 @@
 #include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/PMTWaveformGenerator.hh>
-#include <RAT/Processor.hh>
 #include <map>
-#include <string>
 
 namespace RAT {
 
@@ -39,9 +37,6 @@ class Digitizer {
   virtual void ClearWaveforms();
   virtual void WriteToEvent(DS::EV *ev);
   virtual void AddChannel(int ichannel, PMTWaveform pmtwf);
-
-  void SetI(std::string param, int value);
-  void SetD(std::string param, double value);
 
   void AddWaveformGenerator(std::string modelName);
 
