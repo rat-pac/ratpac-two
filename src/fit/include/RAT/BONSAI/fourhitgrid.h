@@ -9,11 +9,11 @@
 // * four hits which result in one or two vertices             *
 // *************************************************************
 class fourhitgrid : public fit_param, public searchgrid {
-  int nsel;  // number of selected hits
-  float *times;    // ordered absolute times of selected hits
-  int ncombo;      // desired number of combin.
-  float twin;      // chosen (absolute) time window
-  int *end;  // last possible hit for each `starting' hit
+  int nsel;      // number of selected hits
+  float *times;  // ordered absolute times of selected hits
+  int ncombo;    // desired number of combin.
+  float twin;    // chosen (absolute) time window
+  int *end;      // last possible hit for each `starting' hit
 
   // print last possible hit for each hit starting a combin.
   inline void print_ranges(int &hit, int &n3comb);

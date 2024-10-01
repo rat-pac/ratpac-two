@@ -9,8 +9,7 @@ class hitsel : public hits {
   int *selected;
   int nsel;
 
-  int make_causal_table(int *&related, int *&relations, float twin, float resolution,
-                              float tcoincidence);
+  int make_causal_table(int *&related, int *&relations, float twin, float resolution, float tcoincidence);
   int reduce(int size, int *source, int *destination, int *occurence);
   void select(float dlim, float tlim, float twin, float resolution, float tcoincidence);
 

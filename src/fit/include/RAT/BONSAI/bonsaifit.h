@@ -10,13 +10,13 @@
 // * maximize the vertex quality function  provided by qual    *
 // *************************************************************
 class bonsaifit {
-  fitquality *qual;            // quality criterion to be maximized
-  float rmax, rmax2, zmax;     // maximum allowed x^2+y^2, |z|
-  int nbranch, current;  // number of branches and current br.
-  int best, worst;       // best and worst fit branch
-  float *branches;             // positions, radii, qualities,...
-  float rad;                   // active radius
-  float *vertex, *q;           // active search positons, qualities
+  fitquality *qual;         // quality criterion to be maximized
+  float rmax, rmax2, zmax;  // maximum allowed x^2+y^2, |z|
+  int nbranch, current;     // number of branches and current br.
+  int best, worst;          // best and worst fit branch
+  float *branches;          // positions, radii, qualities,...
+  float rad;                // active radius
+  float *vertex, *q;        // active search positons, qualities
 
   // find deviation to fiducial volume edge, adjust search rad
   inline void fiducial_dev(float &inter_x, float &inter_y, float &inter_z, float &dev);
