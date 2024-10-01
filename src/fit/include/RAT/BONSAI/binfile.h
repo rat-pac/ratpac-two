@@ -1,8 +1,8 @@
 #include <stdio.h>
+
 #include <RAT/FitBonsaiProc.hh>
 
-class binfile
-{
+class binfile {
   FILE *fp;
   char offset[14];
   inline void order2(char *point);
@@ -10,9 +10,9 @@ class binfile
   inline void order8(char *point);
 
  public:
-  binfile(char *name,char mode);
+  binfile(char *name, char mode);
   binfile(FILE *f);
   ~binfile(void);
-  int read(int *&sizes,int *&numbers,void **&starts);
-  void write(int *sizes,int *numbers,void **starts);
+  int read(int *&sizes, int *&numbers, void **&starts);
+  void write(int *sizes, int *numbers, void **starts);
 };
