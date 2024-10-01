@@ -12,6 +12,7 @@
 #include <RAT/ClassifyChargeBalance.hh>
 #include <RAT/Config.hh>
 #include <RAT/CountProc.hh>
+#include <RAT/FitBonsaiProc.hh>
 #include <RAT/FitCentroidProc.hh>
 #include <RAT/FitPathProc.hh>
 #include <RAT/FitTensorProc.hh>
@@ -75,6 +76,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<OutNetProc>();
   // Fitters
   AppendProcessor<FitCentroidProc>();
+  AppendProcessor<FitBonsaiProc>();
 #if TENSORFLOW_Enabled
   AppendProcessor<FitTensorProc>();
 #endif
