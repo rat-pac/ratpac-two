@@ -6,10 +6,10 @@
 // * for a vertex fitter                                       *
 // *************************************************************
 class searchgrid {
-  int npoint, mpoint;  // number and maximum number of points
-  int *mult;           // number of points that were averaged
-  int nsparse;         // number average point sets;
-  int *set_starts;     // begin index of a point set
+  int npoint, mpoint;        // number and maximum number of points
+  int *mult;                 // number of points that were averaged
+  int nsparse;               // number average point sets;
+  int *set_starts;           // begin index of a point set
   double *points;            // point array
   double rmax, rmax2, zmax;  // maximum allowed radius radius^2 and |z|
 

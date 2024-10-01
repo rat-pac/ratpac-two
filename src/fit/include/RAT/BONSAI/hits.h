@@ -24,7 +24,7 @@ typedef struct {
 
 class hits {
   int nchargeset, *nhit;               //# of charge sets, # of hits for each set
-  int *places;                   // array position of nth hit
+  int *places;                         // array position of nth hit
   int *cables;                         // cable #'s, times, charges, and
   float *times, *charges, *positions;  // locations for each hit
   float *avcharges;                    // average charge for each charge set

@@ -272,7 +272,7 @@ inline void hits::qsort(int *list, int n) {
 inline void hits::qsort(int *list) {
   int *buffer = new int[nhit[nchargeset - 1]];
   unsigned int set, hit, offs;
-  int *splaces;                     // array position of nth hit
+  int *splaces;                           // array position of nth hit
   int *scables;                           // cable #'s, times, charges, and
   float *stimes, *scharges, *spositions;  // locations for each hit
 
