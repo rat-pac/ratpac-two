@@ -6,10 +6,10 @@
 // * for a vertex fitter                                       *
 // *************************************************************
 class searchgrid {
-  short int npoint, mpoint;  // number and maximum number of points
-  short int *mult;           // number of points that were averaged
-  short int nsparse;         // number average point sets;
-  short int *set_starts;     // begin index of a point set
+  int npoint, mpoint;  // number and maximum number of points
+  int *mult;           // number of points that were averaged
+  int nsparse;         // number average point sets;
+  int *set_starts;     // begin index of a point set
   double *points;            // point array
   double rmax, rmax2, zmax;  // maximum allowed radius radius^2 and |z|
 
@@ -19,7 +19,7 @@ class searchgrid {
   // point p1 is closer than sqrt(d2max)
   inline int close_to(double &dx, double &dy, double &dz, int p1, int p2min, int p2max, double d2max);
   // tests, if a point is inside the allowed fitting volume
-  inline short int fit_volume(double px, double py, double pz);
+  inline int fit_volume(double px, double py, double pz);
 
  protected:
   // create empty grid from packed structure
@@ -27,7 +27,7 @@ class searchgrid {
   // add a point, if inside the allowed fitting volume
   inline void add_point(double px, double py, double pz);
   // add points out of a packed structure
-  short int add_point(void *buffer);
+  int add_point(void *buffer);
   // increase the size of the point array
   inline void expand_size(int addsize);
 
@@ -48,7 +48,7 @@ class searchgrid {
   // offset offx (x-coordinate), offy (y-coordinate) and offz (z-coordinate)
   inline void copy_points(int set, float *p, int dim, int offx, int offy, int offz);
   // pack a set of grid points into a buffer, if there's enough space
-  void packset(void *buffer, short int max_size, short int set);
+  void packset(void *buffer, int max_size, int set);
 };
 
 #include <RAT/BONSAI/searchgrid.inline>

@@ -12,25 +12,25 @@ class axes {
   inline axes(void);
   inline axes(double theta, double phi, double alpha);
   inline void set(double theta, double phi, double alpha);
-  inline void set(short int comp, short int vect, double value);
-  inline void set(short int vect, double val1, double val2, double val3);
-  inline double get(short int comp, short int vect);
+  inline void set(int comp, int vect, double value);
+  inline void set(int vect, double val1, double val2, double val3);
+  inline double get(int comp, int vect);
   inline void get(double *val);
   inline void get(float *val);
   inline void get(double &theta, double &phi, double &alpha);
   inline void get(float &theta, float &phi, float &alpha);
-  inline void get(double *val, short int comp);
-  inline void get(float *val, short int comp);
+  inline void get(double *val, int comp);
+  inline void get(float *val, int comp);
   inline double getx(double *comp);
   inline float getx(float *comp);
   inline double gety(double *comp);
   inline float gety(float *comp);
   inline double getz(double *comp);
   inline float getz(float *comp);
-  inline void rotate(short int vect, double si, double co);
-  short int align(double *nor);
-  inline short int align(centroid &c, double *vec);
-  inline short int align(centroid &c, float *vec);
+  inline void rotate(int vect, double si, double co);
+  int align(double *nor);
+  inline int align(centroid &c, double *vec);
+  inline int align(centroid &c, float *vec);
 };
 
 // **********************************************

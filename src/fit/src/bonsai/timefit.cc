@@ -729,7 +729,7 @@ void timefit::fittime(int ndt, float *dts, float &tpeak, float &dt) {
 // **********************************************
 // fit the vertex time and direction, calculate ellipticity
 // **********************************************
-float timefit::fittime(short int fast, float *vertex, float *direct, float &dt) {
+float timefit::fittime(int fast, float *vertex, float *direct, float &dt) {
   int maxprod;
   axes ax;
   centroid *centr;
@@ -982,7 +982,7 @@ inline float timefit::addloglik(float *vertex, double *direct, double cang, floa
 // **********************************************
 // fit the vertex time and direction
 // **********************************************
-float timefit::fittime_lcor(short int fast, float *vertex, float *direct, float &dt) {
+float timefit::fittime_lcor(int fast, float *vertex, float *direct, float &dt) {
   int maxprod;
   double cen[3], cang;
   float ll0, ll, mucang, cdiff;

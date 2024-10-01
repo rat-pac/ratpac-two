@@ -20,7 +20,7 @@ float fit_param::tres;
 float fit_param::tcoin;
 float fit_param::dlim;
 float fit_param::tlim;
-short int fit_param::nselall = 0;
+int fit_param::nselall = 0;
 float fit_param::gcon0;
 float fit_param::dw4hit;
 float fit_param::dwfit;
@@ -28,7 +28,7 @@ float fit_param::clusgtheta0;
 float fit_param::clusgthetaplus;
 float fit_param::clusgthetaminus;
 float fit_param::clusgdirweight;
-short int fit_param::np;
+int fit_param::np;
 float *fit_param::cdwall;
 float *fit_param::gdiff;
 float fit_param::lastdiff;
@@ -157,7 +157,7 @@ char fit_param::parse(char *line, unsigned char length, char *key1, char *key2, 
           return 1;
         case SHORT_INT_TYPE:
         case ARRAY_SHORT_INT_TYPE:
-          *((short int *)var) = FIT_PARAM_NONE;
+          *((int *)var) = FIT_PARAM_NONE;
           return 1;
       }
     }
@@ -186,7 +186,7 @@ char fit_param::parse(char *line, unsigned char length, char *key1, char *key2, 
       return 1;
     case SHORT_INT_TYPE:
     case ARRAY_SHORT_INT_TYPE:
-      sscanf(line, "%hd", (short int *)var);
+      sscanf(line, "%d", (int *)var);
       return 1;
   }
   return 0;

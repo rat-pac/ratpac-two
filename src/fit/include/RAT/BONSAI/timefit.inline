@@ -53,7 +53,7 @@ inline int timefit::addloglik(int sub, int ndist) {
 // **********************************************
 // fit the vertex time
 // **********************************************
-inline float timefit::fittime(short int fast, float *vertex, float &dt) {
+inline float timefit::fittime(int fast, float *vertex, float &dt) {
   int ind;
 
   maketof(vertex);
@@ -77,7 +77,7 @@ inline float *timefit::chargebins(void) { return (qminmax); }
 // get cable number, time residual, direction and
 // direction fit weight of each hit
 // **********************************************
-inline int timefit::gethits(short int fast, float *vertex, int *cabs, float *tofs, float *dirs, float *weight) {
+inline int timefit::gethits(int fast, float *vertex, int *cabs, float *tofs, float *dirs, float *weight) {
   int set, offs, ind, bin, bin2;
   float time, like, dt;
 

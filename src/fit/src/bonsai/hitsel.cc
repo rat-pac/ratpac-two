@@ -21,18 +21,17 @@ hitsel::~hitsel(void) { delete[] selected; }
 // make table of causally related PMTs
 // -------------------------------------------------------------------
 
-short int hitsel::make_causal_table(short int *&related, short int *&relations, float twin, float resolution,
-                                    float tcoincidence) {
-  short int row, column, pmt, pmt2, n_cl, high, low;
-  short int *nr_rel, curnrel, *new_index, *select;
-  short int *relp, *relp1, *relp2;
-  short int removed_pmt;
+int hitsel::make_causal_table(int *&related, int *&relations, float twin, float resolution, float tcoincidence) {
+  int row, column, pmt, pmt2, n_cl, high, low;
+  int *nr_rel, curnrel, *new_index, *select;
+  int *relp, *relp1, *relp2;
+  int removed_pmt;
 
   /*-------------------------------------------------------------------
     mark all relations as valid
     -------------------------------------------------------------------*/
-  related = new short int[nsel * (nsel - 1) / 2];
-  nr_rel = new short int[nsel];
+  related = new int[nsel * (nsel - 1) / 2];
+  nr_rel = new int[nsel];
   for (row = 0, relp = related; row < nsel; row++) {
     for (column = row + 1; column < nsel; column++) *(relp++) = 0;
     nr_rel[row] = 0;
@@ -76,8 +75,8 @@ short int hitsel::make_causal_table(short int *&related, short int *&relations, 
   /* -------------------------------------------------------------------
      compactify the relation matrix and sort hits by number of relations
      -------------------------------------------------------------------*/
-  select = new short int[nsel];
-  relations = new short int[nsel];
+  select = new int[nsel];
+  relations = new int[nsel];
   for (row = 0, n_cl = 0; row < nsel; row++)
     if ((curnrel = nr_rel[row]) >= MINHIT) {
       pmt = selected[row];
@@ -117,7 +116,7 @@ short int hitsel::make_causal_table(short int *&related, short int *&relations, 
     delete[] related;
     return (-2);  // error: too few clean hits
   }
-  new_index = new short int[nsel];
+  new_index = new int[nsel];
   for (pmt = 0; pmt < nsel; pmt++)
     for (new_index[pmt] = -1, pmt2 = 0; pmt2 < n_cl; pmt2++)
       if (selected[pmt] == select[pmt2]) {
@@ -125,7 +124,7 @@ short int hitsel::make_causal_table(short int *&related, short int *&relations, 
         break;
       }
   delete[] selected;
-  selected = new short int[n_cl];
+  selected = new int[n_cl];
   for (pmt = 0; pmt < n_cl; pmt++) selected[pmt] = select[pmt];
   delete[] select;
   relp1 = related;
@@ -134,8 +133,8 @@ short int hitsel::make_causal_table(short int *&related, short int *&relations, 
   /* -------------------------------------------------------------------
      rebuild relation matrix and create lists of related hits
      -------------------------------------------------------------------*/
-  related = new short int[n_cl * n_cl];
-  relations = new short int[n_cl * (n_cl + 2)];
+  related = new int[n_cl * n_cl];
+  relations = new int[n_cl * (n_cl + 2)];
   relp = related;
   for (row = 0; row < n_cl; row++)
     for (relations[(n_cl + 2) * row] = column = 0; column < n_cl; column++) *(relp++) = 0;
@@ -178,9 +177,9 @@ short int hitsel::make_causal_table(short int *&related, short int *&relations, 
   reduce multiple occurences of numbers from a list and return
   reduced list and number of occurence for each number in the list
   -------------------------------------------------------------------*/
-short int hitsel::reduce(int size, short int *source, short int *destination, short int *occurence) {
+int hitsel::reduce(int size, int *source, int *destination, int *occurence) {
   int nr, i, j;
-  short int copy;
+  int copy;
 
   nr = 0;
   for (i = 0; i < size; i++, source++) {
@@ -201,20 +200,20 @@ short int hitsel::reduce(int size, short int *source, short int *destination, sh
 // **********************************************
 void hitsel::select(float dlim, float tlim, float twin, float resolution, float tcoincidence) {
   int s, i;
-  short int n;
+  int n;
 
   for (s = nset() - 1; (s >= 0) && (sumhits(s) <= MINPRESEL); s--)
     ;
   if (s < 0) s = 0;
   do {
     nsel = sumhits(s);
-    selected = new short int[nsel];
+    selected = new int[nsel];
     for (i = 0; i < nsel; i++) selected[i] = first_hit(s) + i;
     s--;
   } while (((n = clus_sel(dlim, tlim, twin, resolution, tcoincidence)) <= 0) && (s >= 0));
   if (n <= 0) {
     nsel = ntot();
-    selected = new short int[nsel];
+    selected = new int[nsel];
     for (i = 0; i < nsel; i++) selected[i] = i;
     hits::qsort(selected, nsel);
   }
@@ -256,10 +255,10 @@ void hitsel::pmtcentroid(int n, float *ctrd, float *axes, float rmax, float zmax
 // reject temporally and spatially isolated hits
 // -------------------------------------------------------------------
 
-short int hitsel::mrclean(float dislimit, float tlimit) {
+int hitsel::mrclean(float dislimit, float tlimit) {
   float dislimit2 = dislimit * dislimit;
-  short int row, column, pmt, n_cl;
-  short int *is_selected;
+  int row, column, pmt, n_cl;
+  int *is_selected;
 
   if (nsel < MINHIT) {
     delete[] selected;
@@ -269,7 +268,7 @@ short int hitsel::mrclean(float dislimit, float tlimit) {
   /*-------------------------------------------------------------------
     get list of good hits: the Mr. Clean algorithm rejects isolated hits
     -------------------------------------------------------------------*/
-  is_selected = new short int[nsel];
+  is_selected = new int[nsel];
   for (row = 0; row < nsel; row++) is_selected[row] = 0;
   for (row = 0; row < nsel; row++)
     for (column = 0; (column < nsel) && (!is_selected[row]); column++)
@@ -283,7 +282,7 @@ short int hitsel::mrclean(float dislimit, float tlimit) {
   for (n_cl = pmt = 0; pmt < nsel; pmt++)
     if (is_selected[pmt]) is_selected[n_cl++] = selected[pmt];
   delete[] selected;
-  selected = new short int[n_cl];
+  selected = new int[n_cl];
   if (n_cl < MINHIT) {
     delete[] is_selected;
     delete[] selected;
@@ -299,34 +298,34 @@ short int hitsel::mrclean(float dislimit, float tlimit) {
 // find list of PMTs, each pair of them could be hit by
 // direct light from a common vertex
 // -------------------------------------------------------------------
-short int hitsel::clus_sel(float dlim,          // spatial limit of Mr. Clean
-                           float tlim,          // temporal limit of Mr. Clean
-                           float twin,          // maximum possible t difference
-                           float resolution,    // time resol. of PMTs
-                           float tcoincidence)  // maximum time difference
-                                                // of perfect coincidence
-                                                /* -> error status for the selection
-                                                   >0: selection o.k.; # of selected hits
-                                                   -1: too few raw hits
-                                                   -2: too few preselected hits
-                                                   -3: too few selected hits
-                                                   -5: no cluster found
-                                                   -6: time sorting error
-                                                   -7: double hit error
-                                                   -8: cluster storage overflow
-                                                   -9: too many raw hits */
+int hitsel::clus_sel(float dlim,          // spatial limit of Mr. Clean
+                     float tlim,          // temporal limit of Mr. Clean
+                     float twin,          // maximum possible t difference
+                     float resolution,    // time resol. of PMTs
+                     float tcoincidence)  // maximum time difference
+                                          // of perfect coincidence
+                                          /* -> error status for the selection
+                                             >0: selection o.k.; # of selected hits
+                                             -1: too few raw hits
+                                             -2: too few preselected hits
+                                             -3: too few selected hits
+                                             -5: no cluster found
+                                             -6: time sorting error
+                                             -7: double hit error
+                                             -8: cluster storage overflow
+                                             -9: too many raw hits */
 
 /*===================================================================
   function begin:
   -------------------------------------------------------------------*/
 {
-  short int row, column, pmt1, pmt2, pmt1_index, pmt2_index;
+  int row, column, pmt1, pmt2, pmt1_index, pmt2_index;
   int n_gd, ntest, n_bd, n_clus, min_size, max_size, clus_size, size;
   int max_index;
-  short int new_pmt;
-  short int *related, *relations, *cluster, **clusterp, *joined, *occur;
-  short int *max_clus = NULL, *clus, *max_end, *select;
-  short int *relp, *relp1, *relp2;
+  int new_pmt;
+  int *related, *relations, *cluster, **clusterp, *joined, *occur;
+  int *max_clus = NULL, *clus, *max_end, *select;
+  int *relp, *relp1, *relp2;
 
   if (nsel > MAXRAW) {
     delete[] selected;
@@ -344,12 +343,12 @@ short int hitsel::clus_sel(float dlim,          // spatial limit of Mr. Clean
     cluster finding algorithm
     -------------------------------------------------------------------*/
   max_size = n_gd * (n_gd - 1);
-  clusterp = new short int *[max_size];
+  clusterp = new int *[max_size];
   if (n_gd <= 1000)
     max_size = max_size / 2 * n_gd;
   else
     max_size = MAXSTOSIZE;
-  cluster = new short int[max_size];
+  cluster = new int[max_size];
   clus = cluster;
   max_end = cluster + max_size;
   n_clus = 0;
@@ -430,7 +429,7 @@ short int hitsel::clus_sel(float dlim,          // spatial limit of Mr. Clean
         /*-------------------------------------------------------------------
          see, if cluster is large enough to be stored; store if so */
         if (clus_size >= min_size) {
-          /*short int temp[clus_size],i,j;
+          /*int temp[clus_size],i,j;
           for(i=0; i<clus_size; i++)
             temp[i]=selected[clus[i]];
           printf("seed %3d=%5d %3d=%5d: cluster of size %d\n",
@@ -447,7 +446,7 @@ short int hitsel::clus_sel(float dlim,          // spatial limit of Mr. Clean
             max_size = clus_size;
             max_clus = clusterp[n_clus];
             max_index = n_clus;
-            min_size = (short int)ALLOWED_SIZE_FRACTION * max_size;
+            min_size = (int)ALLOWED_SIZE_FRACTION * max_size;
             while (relations[(ntest - 1) * (n_gd + 2)] + 1 < min_size) ntest--;
           }
           clus += clus_size;
@@ -466,8 +465,8 @@ short int hitsel::clus_sel(float dlim,          // spatial limit of Mr. Clean
     return (-5);  // error: no cluster found
   }
   n_bd = clus - max_clus;
-  joined = new short int[n_bd];
-  occur = new short int[n_bd];
+  joined = new int[n_bd];
+  occur = new int[n_bd];
   n_bd = reduce(n_bd, max_clus, joined, occur);
   delete[] cluster;
 
@@ -477,7 +476,7 @@ short int hitsel::clus_sel(float dlim,          // spatial limit of Mr. Clean
     -------------------------------------------------------------------*/
   max_size = 1 + 2 * (n_clus - max_index - 1) / 3;
   // min_size=1+(n_clus-max_index-1)/3;
-  select = new short int[n_gd];
+  select = new int[n_gd];
   for (pmt1 = 0; pmt1 < n_gd; pmt1++) select[pmt1] = 0;
   for (pmt1 = 0; pmt1 < n_bd; pmt1++)
     select[joined[pmt1]] = (occur[pmt1] >= max_size); /* ||
@@ -494,7 +493,7 @@ short int hitsel::clus_sel(float dlim,          // spatial limit of Mr. Clean
       if (select[pmt1]) select[nsel++] = selected[pmt1];
   }
   delete[] selected;
-  selected = new short int[nsel];
+  selected = new int[nsel];
   for (pmt1 = 0; pmt1 < nsel; pmt1++) selected[pmt1] = select[pmt1];
 
   hits::qsort(selected, nsel);
@@ -530,9 +529,9 @@ short int hitsel::clus_sel(float dlim,          // spatial limit of Mr. Clean
   return (nsel); /* selection is o.k. */
 }
 
-void hitsel::printset(int nset, short int *set) {
+void hitsel::printset(int nset, int *set) {
   int m;
-  short int s[nset];
+  int s[nset];
 
   for (m = 0; m < nset; m++) s[m] = set[m];
   hits::qsort(s, nset);

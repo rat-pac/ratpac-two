@@ -15,7 +15,7 @@ inline goodness::goodness(float r, float z, int ns, float *set, float *pmt_loc, 
     ttof = new float[5 * nselected()];
     tau = ttof + nselected();
     hitdir = ttof + 2 * nselected();
-    buffer = new short int[2 * nselected()];
+    buffer = new int[2 * nselected()];
     lists = buffer + nselected();
     nbranch = 1;
     lists[0] = -1;
@@ -39,7 +39,7 @@ inline goodness::goodness(int ns, float *set, pmt_geometry *geom, int n_raw, int
     ttof = new float[5 * nselected()];
     tau = ttof + nselected();
     hitdir = ttof + 2 * nselected();
-    buffer = new short int[2 * nselected()];
+    buffer = new int[2 * nselected()];
     lists = buffer + nselected();
     nbranch = 1;
     lists[0] = -1;
@@ -62,7 +62,7 @@ inline goodness::goodness(int ns, float *set, pmt_geometry *geom, comtype2 *itev
     ttof = new float[5 * nselected()];
     tau = ttof + nselected();
     hitdir = ttof + 2 * nselected();
-    buffer = new short int[2 * nselected()];
+    buffer = new int[2 * nselected()];
     lists = buffer + nselected();
     nbranch = 1;
     lists[0] = -1;
@@ -129,7 +129,7 @@ inline void goodness::interpolate(float *vertex, float radius, float *q, float *
 inline void goodness::create_lists(int n) {
   nbranch = n;
   delete (buffer);
-  buffer = new short int[(nbranch + 1) * nselected()];
+  buffer = new int[(nbranch + 1) * nselected()];
   lists = buffer + nselected();
   for (n = 0; n < nbranch; n++) lists[n * nselected()] = -1;
 }
@@ -138,7 +138,7 @@ inline void goodness::create_lists(int n) {
 // * maximize goodness criterion using bonsaifit object        *
 // *************************************************************
 inline void goodness::maximize(bonsaifit *fit, searchgrid *grid, bool useAngle) {
-  short int n;
+  int n;
 
   if (npass() <= 0) return;
   if (grid->nset() < 1) return;
@@ -248,7 +248,7 @@ inline void goodness::maximize(bonsaifit *fit, searchgrid *grid, bool useAngle) 
 // * BONSAI likelihood                                         *
 // *************************************************************
 inline void goodness::maximize(bonsaifit *cfit, bonsaifit *bfit, likelihood *bslike, searchgrid *grid, bool useAngle) {
-  short int n;
+  int n;
 
   if (npass() <= 0) return;
   if (grid->nset() < 1) return;
@@ -384,7 +384,7 @@ inline float goodness::get_gdn0(void) { return (gdn0); }
 // *************************************************************
 // * get time residual hit assuming latest light emission time *
 // *************************************************************
-inline float goodness::residual(short int hit) { return (ttof[hit] - t0); }
+inline float goodness::residual(int hit) { return (ttof[hit] - t0); }
 
 // *************************************************************
 // * get number of times, goodn was called                     *
@@ -438,7 +438,7 @@ inline float goodness::get_cos_theta(void) { return (cosc); }
 // *************************************************************
 // * set sortlist to desired point                             *
 // *************************************************************
-inline void goodness::set_branch(short int point) {
+inline void goodness::set_branch(int point) {
   sort_list = lists + nselected() * point;
   return;
 }

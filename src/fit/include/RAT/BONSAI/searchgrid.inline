@@ -6,7 +6,7 @@
 // *************************************************************
 // * tests, if a point is inside the allowed fitting volume    *
 // *************************************************************
-inline short int searchgrid::fit_volume(double px, double py, double pz) {
+inline int searchgrid::fit_volume(double px, double py, double pz) {
   if (pz < -zmax) return (0);           // return 0, if z<-zmax
   if (pz > zmax) return (0);            // return 0, if z>+zmax
   return (px * px + py * py <= rmax2);  // return 0, if r^2>rmax^2
@@ -40,18 +40,18 @@ inline void searchgrid::expand_size(int addsize) {
       delete mult;
     }
     mpoint = addsize;  // create new arrays of size addsize
-    mult = new short int[mpoint];
+    mult = new int[mpoint];
     points = new double[3 * mpoint];
     return;  // quit
   }
 
   // copy pointers
-  short int *save_mult = mult, sec;
+  int *save_mult = mult, sec;
   double *save_points = points;
 
   // create larger arrays, copy old arrays, then delete old arrays
   mpoint += addsize;
-  mult = new short int[mpoint];
+  mult = new int[mpoint];
   for (sec = 0; sec < npoint; sec++) mult[sec] = save_mult[sec];
   delete save_mult;
   points = new double[3 * mpoint];
@@ -92,15 +92,15 @@ inline searchgrid::~searchgrid(void) {
 inline void searchgrid::close(void) {
   if (nsparse == 0)  // create a new array for set starting indices
   {
-    set_starts = new short int[1];
+    set_starts = new int[1];
     set_starts[0] = npoint;
     nsparse = 1;
     return;
   } else  // expand an existing array
   {
-    short int *save_starts = set_starts, point;
+    int *save_starts = set_starts, point;
 
-    set_starts = new short int[nsparse + 1];
+    set_starts = new int[nsparse + 1];
     for (point = 0; point < nsparse; point++) set_starts[point] = save_starts[point];
     delete save_starts;
     set_starts[nsparse] = npoint;

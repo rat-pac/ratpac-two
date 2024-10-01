@@ -12,8 +12,8 @@
 class bonsaifit {
   fitquality *qual;            // quality criterion to be maximized
   float rmax, rmax2, zmax;     // maximum allowed x^2+y^2, |z|
-  short int nbranch, current;  // number of branches and current br.
-  short int best, worst;       // best and worst fit branch
+  int nbranch, current;  // number of branches and current br.
+  int best, worst;       // best and worst fit branch
   float *branches;             // positions, radii, qualities,...
   float rad;                   // active radius
   float *vertex, *q;           // active search positons, qualities

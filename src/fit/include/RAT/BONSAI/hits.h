@@ -24,7 +24,7 @@ typedef struct {
 
 class hits {
   int nchargeset, *nhit;               //# of charge sets, # of hits for each set
-  short int *places;                   // array position of nth hit
+  int *places;                   // array position of nth hit
   int *cables;                         // cable #'s, times, charges, and
   float *times, *charges, *positions;  // locations for each hit
   float *avcharges;                    // average charge for each charge set
@@ -33,11 +33,11 @@ class hits {
   inline double findmin(double *mat, int *rowind, int *colind, int pass);
   inline void force_zero(double *mat, int *rowind, int *colind, int pass, int ind);
   int inv35(double *mat, int *rowind, int *colind);
-  void qsort(short int *list, short int n, short int *first);
+  void qsort(int *list, int n, int *first);
   inline void create_arrays(int n_raw, int n_hit);
 
  protected:
-  inline short int position(int i);
+  inline int position(int i);
   inline int hits_in_set(int set, int i);
   inline int invalid_hit(int i);
   inline void swap(int i, int j);
@@ -74,8 +74,8 @@ class hits {
   inline float gaussweight(float t0, float tmi, float tpl, int hit);
   inline void addhitloc(double *loc, int hit, double weight);
   inline void print_cables(int n);
-  inline void qsort(short int *list, short int n);
-  inline void qsort(short int *list);
+  inline void qsort(int *list, int n);
+  inline void qsort(int *list);
   float time_av(float tmin, float tmax);
   int vertex4(int *hits, double *vert);
   int vertex4(int *fourcombo, int *hitlist, int listsize, int &hbegin, int &hend, float tsig, float cyl_radius,

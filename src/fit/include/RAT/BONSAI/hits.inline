@@ -3,7 +3,7 @@
 // **********************************************
 // return the postion of hit i in hit arrays
 // **********************************************
-inline short int hits::position(int i) { return (places[i]); }
+inline int hits::position(int i) { return (places[i]); }
 
 // **********************************************
 // return number of hits in a set
@@ -260,8 +260,8 @@ inline void hits::print_cables(int n) {
 // **********************************************
 // sort hits by time
 // **********************************************
-inline void hits::qsort(short int *list, short int n) {
-  short int *buffer = new short int[n];
+inline void hits::qsort(int *list, int n) {
+  int *buffer = new int[n];
 
   qsort(list, n, buffer);
   delete[] buffer;
@@ -269,10 +269,10 @@ inline void hits::qsort(short int *list, short int n) {
 // **********************************************
 // sort hits by time
 // **********************************************
-inline void hits::qsort(short int *list) {
-  short int *buffer = new short int[nhit[nchargeset - 1]];
-  unsigned short int set, hit, offs;
-  short int *splaces;                     // array position of nth hit
+inline void hits::qsort(int *list) {
+  int *buffer = new int[nhit[nchargeset - 1]];
+  unsigned int set, hit, offs;
+  int *splaces;                     // array position of nth hit
   int *scables;                           // cable #'s, times, charges, and
   float *stimes, *scharges, *spositions;  // locations for each hit
 
@@ -289,7 +289,7 @@ inline void hits::qsort(short int *list) {
   scharges = charges;
   spositions = positions;
   set = nhit[nchargeset - 1];
-  places = new short int[set];
+  places = new int[set];
   cables = new int[set];
   times = new float[set];
   charges = new float[set];

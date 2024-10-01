@@ -42,9 +42,9 @@ inline int searchgrid::close_to(double &dx, double &dy, double &dz, int p1, int 
 // *************************************************************
 // add points out of a packed structure
 // *************************************************************
-short int searchgrid::add_point(void *buffer) {
+int searchgrid::add_point(void *buffer) {
   double rfac, zfac;
-  short int *ibuffer = ((short int *)buffer) + 4, np;
+  int *ibuffer = ((int *)buffer) + 4, np;
 
   np = *ibuffer++;
   if (np < 0) return (0);
@@ -68,7 +68,7 @@ short int searchgrid::add_point(void *buffer) {
 // * than dmin                                                 *
 // *************************************************************
 void searchgrid::sparsify(float dmin) {
-  short int point, start, stop, sec;
+  int point, start, stop, sec;
   double dx, dy, dz, multfac;
 
   // if there are no points, quit
@@ -77,14 +77,14 @@ void searchgrid::sparsify(float dmin) {
   // space for the point array containing the average
   if (nsparse == 0) {
     start = 0;
-    set_starts = new short int[1];
+    set_starts = new int[1];
     stop = set_starts[0] = npoint;
     nsparse = 1;
   } else {  // otherwise, extend existing average point array
-    short int *save_starts = set_starts;
+    int *save_starts = set_starts;
 
     start = set_starts[nsparse - 1];
-    set_starts = new short int[nsparse + 1];
+    set_starts = new int[nsparse + 1];
     for (point = 0; point < nsparse; point++) set_starts[point] = save_starts[point];
     delete save_starts;
     stop = set_starts[nsparse] = npoint;
@@ -123,8 +123,8 @@ void searchgrid::sparsify(float dmin) {
 // * pack a set of grid points into a buffer, if size of buffer*
 // * is large enough                                           *
 // *************************************************************
-void searchgrid::packset(void *buffer, short int max_size, short int set) {
-  short int *ibuffer = (short int *)buffer, np = size(set), start, i;
+void searchgrid::packset(void *buffer, int max_size, int set) {
+  int *ibuffer = (int *)buffer, np = size(set), start, i;
   float *fbuffer = (float *)buffer, val;
 
   if (max_size < 10) return;
@@ -145,19 +145,19 @@ void searchgrid::packset(void *buffer, short int max_size, short int set) {
   for (i = 0; i < np; i++) {
     val = MAXSHORT * points[start + 3 * i] / rmax;
     if (val < 0)
-      *ibuffer++ = -((short int)(0.5 - val));
+      *ibuffer++ = -((int)(0.5 - val));
     else
-      *ibuffer++ = ((short int)(0.5 + val));
+      *ibuffer++ = ((int)(0.5 + val));
     val = MAXSHORT * points[start + 3 * i + 1] / rmax;
     if (val < 0)
-      *ibuffer++ = -((short int)(0.5 - val));
+      *ibuffer++ = -((int)(0.5 - val));
     else
-      *ibuffer++ = ((short int)(0.5 + val));
+      *ibuffer++ = ((int)(0.5 + val));
     val = MAXSHORT * points[start + 3 * i + 2] / zmax;
     if (val < 0)
-      *ibuffer++ = -((short int)(0.5 - val));
+      *ibuffer++ = -((int)(0.5 - val));
     else
-      *ibuffer++ = ((short int)(0.5 + val));
+      *ibuffer++ = ((int)(0.5 + val));
   }
   return;
 }
