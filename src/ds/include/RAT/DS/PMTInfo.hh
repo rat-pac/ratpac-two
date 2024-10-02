@@ -12,6 +12,7 @@
 #include <TVector3.h>
 
 #include <algorithm>
+#include <iostream>
 
 namespace RAT {
 namespace DS {
@@ -87,6 +88,23 @@ class PMTInfo : public TObject {
 
   virtual std::string GetModelNameByID(int id) const { return GetModelName(GetModel(id)); }
 
+  virtual int GetPMTNamesCount() const { return pmt_names.size(); }
+  std::string GetPMTName(int id) const {
+    if (id >= 0 && id < pmt_names.size()) {
+      return pmt_names.at(id);
+    }
+    return "";
+  }
+
+  std::vector<std::string> GetPMTNames() const { return pmt_names; }
+  void SetPMTNames(const std::vector<std::string>& _pmt_names) {
+    pmt_names.insert(pmt_names.end(), _pmt_names.begin(), _pmt_names.end());
+    std::cout << "SetPMTNames called with " << pmt_names.size() << "names" << std::endl;
+    for (size_t i = 0; i < pmt_names.size(); ++i) {
+      std::cout << "PMT Name [" << i << "]: " << pmt_names[i] << std::endl;
+    }
+  }
+
   ClassDef(PMTInfo, 3);
 
  protected:
@@ -99,6 +117,7 @@ class PMTInfo : public TObject {
   std::vector<double> individual_efficiency_corr;
   std::vector<double> individual_noise_rate;
   std::vector<double> individual_afterpulse_fraction;
+  std::vector<std::string> pmt_names;
 };
 
 }  // namespace DS

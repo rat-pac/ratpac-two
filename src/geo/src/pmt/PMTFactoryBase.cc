@@ -31,6 +31,9 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
   std::string mother_name = table->GetS("mother");
   std::string pmt_model = table->GetS("pmt_model");
 
+  std::vector<std::string> pmt_names = table->GetSArray("pmt_names");
+  // info << pmt_names << newline;
+  pmtinfo.SetPMTNames(pmt_names);
   DBLinkPtr lpmt = DB::Get()->GetLink("PMT", pmt_model);
 
   // Find mother volume
@@ -242,6 +245,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
     // This goes into the DS by way of Gsim
     // NOTE: Since the BField stuff isn't used currently, add the efficiency here.
     // If we revive the BField code, this needs to be moved after so that the efficiency is correct
+
     pmtinfo.AddPMT(TVector3(pmtpos.x(), pmtpos.y(), pmtpos.z()), TVector3(pmtdir.x(), pmtdir.y(), pmtdir.z()),
                    pmt_type[i], channel_number[i], pmt_model, pmt_effi_corr[i], individual_noise_rate[i],
                    individual_afterpulse_fraction[i]);

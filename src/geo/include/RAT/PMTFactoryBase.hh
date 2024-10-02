@@ -8,7 +8,17 @@ namespace RAT {
 class PMTFactoryBase : public GeoFactory {
  public:
   PMTFactoryBase(const std::string &name) : GeoFactory(name){};
-  static const DS::PMTInfo &GetPMTInfo() { return pmtinfo; }
+  static const DS::PMTInfo &GetPMTInfo() {
+    std::cout << "Returning PMTInfo with address: " << &pmtinfo << std::endl;
+    std::cout << "PMT names count: " << pmtinfo.GetPMTNamesCount() << std::endl;
+    for (size_t i = 0; i < pmtinfo.GetPMTNamesCount(); ++i) {
+      std::cout << "PMT Name [" << i << "]: " << pmtinfo.GetPMTName(i) << std::endl;
+    }
+
+    return pmtinfo;
+  }
+
+  static DS::PMTInfo pmtinfo;
 
  protected:
   virtual G4VPhysicalVolume *ConstructPMTs(DBLinkPtr table, const std::vector<G4ThreeVector> &pmt_pos,
@@ -18,7 +28,7 @@ class PMTFactoryBase : public GeoFactory {
                                            const std::vector<double> &individual_noise_rate,
                                            const std::vector<double> &individual_afterpulse_fraction);
 
-  static DS::PMTInfo pmtinfo;  /// keeps track of all the PMTs built into the geometry
+  //  static DS::PMTInfo pmtinfo;  /// keeps track of all the PMTs built into the geometry
 };
 }  // namespace RAT
 

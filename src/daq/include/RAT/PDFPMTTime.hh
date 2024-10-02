@@ -23,7 +23,7 @@ namespace RAT {
 
 class PDFPMTTime : public PMTTime {
  public:
-  PDFPMTTime(std::string pmt_model = "");
+  PDFPMTTime(std::string pmt_name = "");
   virtual ~PDFPMTTime();
 
   /** Returns front end time for hit time. */

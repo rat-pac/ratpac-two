@@ -32,23 +32,40 @@ class Run : public TObject {
 
   /** Run start time */
   virtual TTimeStamp GetStartTime() const { return startTime; }
-  virtual void SetStartTime(const TTimeStamp &_startTime) { startTime = _startTime; }
+  virtual void SetStartTime(const TTimeStamp& _startTime) { startTime = _startTime; }
 
   /** PMT information */
-  virtual PMTInfo *GetPMTInfo() {
-    if (pmtinfo.empty()) {
+  virtual PMTInfo*& GetPMTInfo() {
+    /*if (pmtinfo.empty()) {
+      std::cout << "Error: pmtinfo is empty" << std::endl;
       pmtinfo.resize(1);
-    }
-    return &pmtinfo[0];
+      std::cout << "Resized pmtinfo to 1" << std::endl;
+    }*/
+    // std::cout << "Printing the address of pmtinfo " << &pmtinfo << std::endl;
+    return pmtinfo;
   }
-  virtual void SetPMTInfo(const PMTInfo *_pmtinfo) {
-    if (pmtinfo.empty()) {
-      pmtinfo.resize(1);
+  virtual void SetPMTInfo(PMTInfo* _pmtinfo) {
+    std::cout << "Setting PMTInfo " << std::endl;
+
+    if (_pmtinfo == nullptr) {
+      std::cout << "Error: _pmtinfo is a null pointer" << std::endl;
+      return;
     }
-    pmtinfo[0] = *_pmtinfo;
+
+    /*if (pmtinfo.empty()) {
+        pmtinfo.resize(1);
+      }*/
+    std::cout << "Address of _pmtinfo: " << _pmtinfo << std::endl;
+    std::cout << "Address of pmtinfo[0] before assignment: " << &pmtinfo[0] << std::endl;
+    std::cout << " Address of pmtinfo vector: " << &pmtinfo << std::endl;
+    std::cout << _pmtinfo;
+
+    pmtinfo = _pmtinfo;
+    // pmtinfo[0] = _pmtinfo;
+    std::cout << "Assigned  pmtinfo[0] = *_pmtinfo " << std::endl;
   }
-  virtual bool ExistPMTInfo() { return !pmtinfo.empty(); }
-  virtual void PrunePMTInfo() { pmtinfo.resize(0); }
+  virtual bool ExistPMTInfo() { return pmtinfo != nullptr; }  // pmtinfo ? true : false; } //!pmtinfo.empty(); }
+  virtual void PrunePMTInfo() {}                              // pmtinfo.resize(0); }
 
   ClassDef(Run, 2);
 
@@ -56,7 +73,8 @@ class Run : public TObject {
   Int_t id;
   ULong64_t type;
   TTimeStamp startTime;
-  std::vector<PMTInfo> pmtinfo;
+  PMTInfo* pmtinfo;
+  // std::vector<PMTInfo*> pmtinfo;
 };
 
 }  // namespace DS

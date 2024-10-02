@@ -39,6 +39,8 @@ class PMTInfoParser {
   const std::vector<int> &GetTypes() { return fType; }
   const std::vector<int> &GetChannelNumbers() { return fChannelNumber; }
 
+  const std::vector<std::string> &GetPMTNames() const { return fPMTNames; }
+
  protected:
   G4ThreeVector fLocalOffset;
   std::vector<G4ThreeVector> fPos;
@@ -48,6 +50,7 @@ class PMTInfoParser {
   std::vector<double> fEfficiencyCorrection;
   std::vector<double> fNoiseRate;
   std::vector<double> fAfterPulseFraction;
+  std::vector<std::string> fPMTNames;
 };
 }  // namespace RAT
 #endif

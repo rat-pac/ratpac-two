@@ -53,6 +53,7 @@
 #include <RAT/VertexGen_Spectrum.hh>
 #include <Randomize.hh>
 #include <cstdlib>
+#include <iostream>
 #include <vector>
 
 namespace RAT {
@@ -151,14 +152,14 @@ void Gsim::Init() {
   fPMTCharge.resize(0);
 }
 
-Gsim::~Gsim() {
+Gsim::~Gsim() {  // GotHere?
   // GEANT4 will try to delete the G4UserEventAction when we delete
   // the Run Manager, but that object is us!!  Clear event action
   // first to avoid circular delete.  Funny casting because
   // SetUserAction() is overloaded.
   theRunManager->SetUserAction(static_cast<G4UserEventAction *>(NULL));
   theRunManager->SetUserAction(static_cast<G4UserTrackingAction *>(NULL));
-
+  std::cout << "are we here?";
   for (size_t i = 0; i < fPMTTime.size(); i++) {
     delete fPMTTime[i];
     delete fPMTCharge[i];
@@ -172,30 +173,38 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
 
   info << "Gsim: Simulating run " << runID << newline;
   info << "Gsim: Run start at " << utc.AsString() << newline;
-
+  info << "got here 0." << newline;
   if (!DS::RunStore::GetRun(runID)) {
     MakeRun(runID);
   }
-
+  info << "got here 1." << newline;
   run = DS::RunStore::GetRun(runID);
+  info << "got here 2." << newline;
   fPMTInfo = run->GetPMTInfo();
-
+  info << "got here 3." << newline;
   for (size_t i = 0; i < fPMTTime.size(); i++) {
     delete fPMTTime[i];
     delete fPMTCharge[i];
   }
 
+  const size_t numPMTNames = fPMTInfo->GetPMTNamesCount();
+  fPMTTime.resize(numPMTNames);
+
   const size_t numModels = fPMTInfo->GetModelCount();
-  fPMTTime.resize(numModels);
+  // fPMTTime.resize(numModels);
   fPMTCharge.resize(numModels);
-  for (size_t i = 0; i < numModels; i++) {
-    const std::string modelName = fPMTInfo->GetModelName(i);
+  for (size_t i = 0; i < numPMTNames; i++) {
+    const std::string pmtName = fPMTInfo->GetPMTName(i);
     try {
-      fPMTTime[i] = new RAT::PDFPMTTime(modelName);
+      fPMTTime[i] = new RAT::PDFPMTTime(pmtName);
     } catch (DBNotFoundError &e) {
-      // fallback to default table if model is not available
+      // fallback to default table if pmt_name is not available
       fPMTTime[i] = new RAT::PDFPMTTime();
     }
+  }
+
+  for (size_t i = 0; i < numModels; i++) {
+    const std::string modelName = fPMTInfo->GetModelName(i);
     try {
       fPMTCharge[i] = new RAT::PDFPMTCharge(modelName);
     } catch (DBNotFoundError &e) {
@@ -414,13 +423,23 @@ void Gsim::PostUserTrackingAction(const G4Track *aTrack) {
 }
 
 void Gsim::MakeRun(int _runID) {
+  std::cout << "Entering MakeRun with runID " << _runID << std::endl;
   DBLinkPtr lrun = DB::Get()->GetLink("RUN", "", _runID);
+  std::cout << "After GetLInk in MakeRun" << std::endl;
+
   DS::Run *run = new DS::Run();
+  std::cout << "After Run object creation in MakeRun" << std::endl;
 
   run->SetID(_runID);
+  std::cout << "After SetID in MakeRun" << std::endl;
   run->SetType((unsigned)lrun->GetI("runtype"));
+  std::cout << "After SetType in MakeRun" << std::endl;
+
   run->SetStartTime(utc);
+  std::cout << "After SetStartTime in MakeRun" << std::endl;
+
   run->SetPMTInfo(&PMTFactoryBase::GetPMTInfo());
+  std::cout << "After SetPMTInfo in MakeRUn" << std::endl;
 
   DS::RunStore::AddNewRun(run);
 }

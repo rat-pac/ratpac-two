@@ -8,18 +8,18 @@
 
 namespace RAT {
 
-PDFPMTTime::PDFPMTTime(std::string pmt_model) {
-  DBLinkPtr model = DB::Get()->GetLink("PMTTRANSIT", pmt_model);
+PDFPMTTime::PDFPMTTime(std::string pmt_name) {
+  DBLinkPtr name = DB::Get()->GetLink("PMTTRANSIT", pmt_name);
 
-  fTime = model->GetDArray("time");
-  fTimeProb = model->GetDArray("time_prob");
-  fCableDelay = model->GetD("cable_delay");
+  fTime = name->GetDArray("time");
+  fTimeProb = name->GetDArray("time_prob");
+  fCableDelay = name->GetD("cable_delay");
 
   info << "PDFPMTTime: Setting up PDF PMTTime model for ";
-  if (pmt_model == "") {
+  if (pmt_name == "") {
     info << "DEFAULT" << newline;
   } else {
-    info << pmt_model << newline;
+    info << pmt_name << newline;
   }
 
   if (fTime.size() != fTimeProb.size()) Log::Die("PDFPMTTime: time and probability arrays of different length");

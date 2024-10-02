@@ -5,7 +5,7 @@ install_directory := $(PWD)/install
 
 all:
 	ln -sf ../../cformat.sh ./.git/hooks/pre-commit
-	cmake . -B$(build_directory) -DCMAKE_INSTALL_PREFIX=$(install_directory)
+	cmake . -B$(build_directory) -DCMAKE_INSTALL_PREFIX=$(install_directory) -DCMAKE_CXX_FLAGS="-fpermissive"
 	cmake --build $(build_directory) -- $(MAKEFLAGS)
 	cmake --install $(build_directory) &> /dev/null
 
