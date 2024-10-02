@@ -462,10 +462,10 @@ Processor::Result WaveformAnalysis::Event(DS::Root* ds, DS::EV* ev) {
     DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(pmt_id);
     double time_offset = fApplyCableOffset ? ch_status.GetCableOffsetByPMTID(pmt_id) : 0.0;
     RunAnalysis(digitpmt, pmt_id, dsdigit, time_offset);
-    ZeroSuppress(ev, digitpmt, pmt_id);
     if (digitpmt->GetNCrossings() > 0) {
       total_charge += digitpmt->GetDigitizedCharge();
     }
+    ZeroSuppress(ev, digitpmt, pmt_id);
     ev->SetTotalCharge(total_charge);
   }
   return Processor::Result::OK;
