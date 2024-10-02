@@ -5,6 +5,8 @@
 
 [![clang-format Check](https://github.com/rat-pac/ratpac-two/actions/workflows/check-format.yml/badge.svg)](https://github.com/rat-pac/ratpac-two/actions/workflows/check-format.yml)
 
+[![Build Docker Image](https://github.com/rat-pac/ratpac-two/actions/workflows/latest-container.yml/badge.svg?branch=main&event=deployment)](https://github.com/rat-pac/ratpac-two/actions/workflows/latest-container.yml)
+
 [ratpac.readthedocs.io](ratpac.readthedocs.io)
 ## Installation
 Installation requires [ROOT 6.25+](https://root.cern.ch), 
