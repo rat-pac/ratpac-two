@@ -88,7 +88,7 @@ class ChannelStatus : public TObject {
           lcns.push_back(current_lcn);
         }
       } catch (DBNotFoundError& e) {
-        Log::Die("LCN cannot be specified!");
+        throw;  // upstream should hanndle this
       }
     }
     return lcns;
