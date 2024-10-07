@@ -1,5 +1,5 @@
-FROM ratpac/ratpac-two:base
-LABEL maintainer="Morgan Askins <maskins@berkeley.edu>"
+FROM ratpac/ratpac-two:latest-base
+LABEL maintainer="James Shen <jierans@sas.upenn.edu>"
 
 SHELL ["/bin/bash", "-c"]
 
@@ -7,7 +7,7 @@ USER ratuser
 
 WORKDIR /ratpac-setup
 
-RUN ./setup.sh --only ratpac -j6
+RUN ./setup.sh --only ratpac -j$(nproc)
 RUN cd ratpac && cmake --install build && cd ..
 
 RUN sed -i '1s/^/#!\/bin\/bash\n/' /ratpac-setup/env.sh

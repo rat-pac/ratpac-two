@@ -95,6 +95,17 @@ void WaveformAnalysis::SetD(std::string param, double value) {
   }
 }
 
+void WaveformAnalysis::ZeroSuppress(DS::EV* ev, DS::DigitPMT* digitpmt, int pmtID) {
+  if (fZeroSuppress) {
+    if (digitpmt->GetNCrossings() <= 0) {
+      size_t nerased = ev->EraseDigitPMT(pmtID);
+      if (nerased != 1)
+        warn << "WaveformAnalysis: Removed " << nerased << " digitPMTs with a single call to EraseDigitPMT. Impossible!"
+             << newline;
+    }
+  }
+}
+
 void WaveformAnalysis::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer* fDigitizer, double timeOffset) {
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
   fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
@@ -438,6 +449,10 @@ void WaveformAnalysis::FitWaveform() {
 }
 
 Processor::Result WaveformAnalysis::Event(DS::Root* ds, DS::EV* ev) {
+  if (!ev->DigitizerExists()) {
+    warn << "Running waveform analysis, but no digitzer information." << newline;
+    return Processor::Result::OK;
+  }
   DS::Digit* dsdigit = &ev->GetDigitizer();
   DS::Run* run = DS::RunStore::GetRun(ds->GetRunID());
   const DS::ChannelStatus& ch_status = run->GetChannelStatus();
@@ -453,15 +468,8 @@ Processor::Result WaveformAnalysis::Event(DS::Root* ds, DS::EV* ev) {
     if (digitpmt->GetNCrossings() > 0) {
       total_charge += digitpmt->GetDigitizedCharge();
     }
+    ZeroSuppress(ev, digitpmt, pmt_id);
     ev->SetTotalCharge(total_charge);
-    if (fZeroSuppress) {
-      if (digitpmt->GetNCrossings() <= 0) {
-        size_t nerased = ev->EraseDigitPMT(pmt_id);
-        if (nerased != 1)
-          warn << "WaveformAnalysis: Removed " << nerased
-               << " digitPMTs with a single call to EraseDigitPMT. Impossible!" << newline;
-      }
-    }
   }
   return Processor::Result::OK;
 }
