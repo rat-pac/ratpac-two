@@ -28,7 +28,8 @@ class PMTPulse {
   virtual double GetDataDrivenPulseVal(double time);
 
   virtual double GetPulseHeight(double time);
-  virtual double GetPulseStartTime() { return fStartTime; };
+  virtual double GetPulseStartTimeNoOffset() { return fStartTime; };
+  virtual double GetPulseStartTimeWithOffset() { return fStartTime + fPulseTimeOffset; };
 
  private:
   std::string fPulseType;
