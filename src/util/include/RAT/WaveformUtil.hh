@@ -65,11 +65,10 @@ int GetNCrossings(const std::vector<double>& waveform, double voltageThreshold);
 // Find total number of threshold crossings, time over threshold, and voltage over threshold
 std::tuple<int, double, double> GetCrossingsInfo(
     const std::vector<double>& waveform, double voltageThreshold,
-    double timeStep);  // Return tuple (nCrossings, time_over_threshold_voltage_over_threshold)
+    double timeStep);  // Returns tuple (nCrossings, time_over_threshold, voltage_over_threshold)
 
 // Apply a constant fraction discriminator to calculate the threshold crossing for a given peak
-double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, double constFrac, int lookBack,
-                        double timeStep);
+std::pair<double, int> CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, int lookBack, double timeStep, double constFrac = INVALID, double voltageThreshold = INVALID); // Returns pair (time, sample_crossing)
 
 // calculate charge (pC) from voltage (mV)
 inline double VoltagetoCharge(double voltage, double timeStep, double termOhms) {

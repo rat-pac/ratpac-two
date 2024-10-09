@@ -47,13 +47,13 @@ int GetThresholdCrossingBeforePeak(const std::vector<double>& waveform, int peak
   int back_window = (lb > 0) ? lb : 0;
 
   if (back_window >= waveform.size()) {
-    Log::Die("WaveformUtil: Start of lookback window must be before end of waveform.");
+    warn << "WaveformUtil: Start of lookback window not before end of waveform.\n";
   } else if (back_window >= peakSample) {
-    Log::Die("WaveformUtil: Start of lookback window must be before peak.");
+    warn << "WaveformUtil: Start of lookback window not before peak.\n";
   } else if (peakSample >= waveform.size()) {
-    Log::Die("WaveformUtil: Peak must be before end of waveform.");
+    warn << "WaveformUtil: Peak not before end of waveform.\n";
   } else if (waveform.at(peakSample) > voltageThreshold) {
-    Log::Die("WaveformUtil: Peak must be above threshold.");
+    warn << "WaveformUtil: Peak not above threshold.\n";
   }
 
   // Start at the peak and scan backwards
@@ -136,12 +136,18 @@ std::tuple<int, double, double> GetCrossingsInfo(const std::vector<double>& wave
   return std::make_tuple(nCrossings, timeOverThreshold, voltageOverThreshold);
 }
 
-double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, double constFrac, int lookBack,
-                        double timeStep) {
+std::pair<double, int> CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, int lookBack, double timeStep, double constFrac, double voltageThreshold) {
   /*
   Apply constant-fraction discriminator for a given peak
   */
-  double voltageThreshold = constFrac * waveform.at(peakSample);
+  if (voltageThreshold == INVALID) {
+    if (constFrac != INVALID) {
+      double voltageThreshold = constFrac * waveform.at(peakSample);
+    }
+    else {
+      Log::Die("WaveformUtil: Must give either constFrac or voltageThreshold for CalculateTimeCFD.");
+    }
+  }
   int time = GetThresholdCrossingBeforePeak(waveform, peakSample, voltageThreshold, lookBack, timeStep);
   // Linearly interpolate threshold crossing time, if time is not last sample of waveform
   double dt = 0;
@@ -149,7 +155,7 @@ double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, dou
     double deltav = waveform.at(time + 1) - waveform.at(time);
     dt = (voltageThreshold - waveform.at(time)) / deltav;
   }
-  return (time + dt) * timeStep;
+  return std::make_pair((time + dt) * timeStep, time);
 }
 
 double IntegratePeak(const std::vector<double>& waveform, int peakSample, int intWindowLow, int intWindowHigh,
