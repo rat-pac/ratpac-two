@@ -136,15 +136,15 @@ std::tuple<int, double, double> GetCrossingsInfo(const std::vector<double>& wave
   return std::make_tuple(nCrossings, timeOverThreshold, voltageOverThreshold);
 }
 
-std::pair<double, int> CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, int lookBack, double timeStep, double constFrac, double voltageThreshold) {
+std::pair<double, int> CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, int lookBack,
+                                        double timeStep, double constFrac, double voltageThreshold) {
   /*
   Apply constant-fraction discriminator for a given peak
   */
   if (voltageThreshold == INVALID) {
     if (constFrac != INVALID) {
       double voltageThreshold = constFrac * waveform.at(peakSample);
-    }
-    else {
+    } else {
       Log::Die("WaveformUtil: Must give either constFrac or voltageThreshold for CalculateTimeCFD.");
     }
   }
