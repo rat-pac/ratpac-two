@@ -112,6 +112,15 @@ class RunStore {
   inline static Run *GetRun(int runID) { return Get()->InstanceGetRun(runID); }
 
   /**
+   * Get the run object that is associated with the current.
+   *
+   * The current runID whe a new run is added to the RunStore. Hence This
+   * method assumes that the "current run" is the one most recently
+   * instantiated.
+   * */
+  inline static Run *GetCurrentRun() { return Get()->InstanceGetRun(currentRunID); }
+
+  /**
    * Sets the TTree from which Run records can be read.
    *
    *  This tree will not be written to, but will be searched
@@ -161,7 +170,10 @@ class RunStore {
    *  when FlushWriteTree() is called.
    *
    */
-  inline static void AddNewRun(Run *run) { Get()->InstanceAddNewRun(run); }
+  inline static void AddNewRun(Run *run) {
+    currentRunID = run->GetID();
+    Get()->InstanceAddNewRun(run);
+  }
 
   /** Preloads the cache from a run tree.
    *
@@ -179,6 +191,7 @@ class RunStore {
 
  protected:
   static RunStore *fgStore;
+  static int currentRunID;
 
  public:
   /** You probably want the static interface above. */
@@ -193,7 +206,7 @@ class RunStore {
   void InstanceAddNewRun(Run *run);
   void InstancePreloadFromTree(TTree *tree, bool writtenToDisk = false);
 
-  ClassDef(RunStore, 1);
+  ClassDef(RunStore, 2);
 
  protected:
   TTree *fReadTree;
