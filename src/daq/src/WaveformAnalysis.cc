@@ -452,15 +452,15 @@ Processor::Result WaveformAnalysis::Event(DS::Root* ds, DS::EV* ev) {
   }
   DS::Digit* dsdigit = &ev->GetDigitizer();
   DS::Run* run = DS::RunStore::GetRun(ds->GetRunID());
-  const DS::ChannelStatus& ch_status = run->GetChannelStatus();
+  const DS::ChannelStatus* ch_status = run->GetChannelStatus();
   std::vector<int> pmt_ids = dsdigit->GetIDs();
   double total_charge = 0;
   for (int pmt_id : pmt_ids) {
     // Do not analyze negative pmtid channels, since they do not correspond to real PMTs.
     if (pmt_id < 0) continue;
-    if (!ch_status.GetOnlineByPMTID(pmt_id)) continue;
+    if (!ch_status->GetOnlineByPMTID(pmt_id)) continue;
     DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(pmt_id);
-    double time_offset = fApplyCableOffset ? ch_status.GetCableOffsetByPMTID(pmt_id) : 0.0;
+    double time_offset = fApplyCableOffset ? ch_status->GetCableOffsetByPMTID(pmt_id) : 0.0;
     RunAnalysis(digitpmt, pmt_id, dsdigit, time_offset);
     if (digitpmt->GetNCrossings() > 0) {
       total_charge += digitpmt->GetDigitizedCharge();

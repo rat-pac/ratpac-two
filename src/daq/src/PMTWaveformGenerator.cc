@@ -110,7 +110,7 @@ PMTWaveform PMTWaveformGenerator::GenerateWaveforms(DS::MCPMT *mcpmt, double tri
 
   for (int iph = 0; iph < mcpmt->GetMCPhotonCount(); iph++) {
     DS::MCPhoton *mcpe = mcpmt->GetMCPhoton(iph);
-    double time_offset = DS::RunStore::GetCurrentRun()->GetChannelStatus().GetCableOffsetByPMTID(mcpmt->GetID());
+    double time_offset = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetCableOffsetByPMTID(mcpmt->GetID());
 
     pmtwf.fPulse.push_back(PMTPulse(fPMTPulseType, fPMTPulseShape));
     PMTPulse *pmtpulse = &pmtwf.fPulse.back();
