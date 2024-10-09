@@ -81,6 +81,8 @@ include(${ROOT_USE_FILE})
 find_package(Geant4 REQUIRED COMPONENTS qt)
 include(${Geant4_USE_FILE})
 include_directories(${Geant4_INCLUDE_DIRS})
+include_directories(${CLHEP_INCLUDE_DIRS})
+include_directories(${XercesC_INCLUDE_DIRS})
 
 find_package(Threads REQUIRED)
 
