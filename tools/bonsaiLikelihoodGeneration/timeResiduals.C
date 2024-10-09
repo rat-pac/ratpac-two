@@ -25,7 +25,8 @@ void timeResiduals(const char *file) {
     
     Double_t light_vel = 21.8;// [cm/ns] velocity was calulated for gd-water, and 20x20m tank size, might need adjustment 
     //Double_t light_vel = 20.5;//[cm/ns] velocity was calulated for gd-wbls, and 20x20m tank size, might need adjustment 
-    TH1D *timeRes = new TH1D("timeRes","time residuals",370,-140,8); // 0.4 ns bins
+    //TH1D *timeRes = new TH1D("timeRes","time residuals",370,-140,8); // 0.4 ns bins
+    TH1D *timeRes = new TH1D("timeRes","time residuals",740,-280,16); // 0.4 ns bins
     timeRes->SetXTitle("time [ns]");
     
     RAT::DS::Root *rds = new RAT::DS::Root();
@@ -65,19 +66,20 @@ void timeResiduals(const char *file) {
             
             RAT::DS::EV *ev = rds->GetEV(k);
             if(ev->GetPMTCount() < 4) continue;  // suggested by Michael Smy
-
-	    for (int j = 0; j<ev->GetPMTCount();j++) {
-                RAT::DS::PMT *pmt = ev->GetPMT(j);
+            for (int j : ev->GetAllPMTIDs()) {   // New way of doing things
+	        //for (int j = 0; j<ev->GetPMTCount();j++) { // Old way of doing things
+                RAT::DS::PMT *pmt = ev->GetOrCreatePMT(j);
                 t_t = ev->GetCalibratedTriggerTime();
                 
                 p_x = x[pmt->GetID()];
                 p_y = y[pmt->GetID()];
                 p_z = z[pmt->GetID()];
-                
+                //printf("%f %f %f %f \n",t_t, p_x, p_y, p_z); 
                 v_t = sqrt(pow(p_x-v_x,2)+pow(p_y-v_y,2)+pow(p_z-v_z,2)) / (light_vel*10.); // cm -> mm, light velocity might need adjustment for medium diffrent than gd-water, or size different then baseline design (20x20m)
                 p_t = pmt->GetTime() + t_t;
-//                printf("%f %f\n",v_t,p_t);
-                if(typ[pmt->GetID()]==0)  timeRes->Fill(-(p_t-v_t)); // only ID PMTs
+                //printf("%d %f %f %f %f\n",pmt->GetID(),v_t,p_t,pmt->GetTime(),t_t);
+                //if(typ[pmt->GetID()]==0)  
+                timeRes->Fill(-(p_t-v_t)); // only ID PMTs
                 
             }
             

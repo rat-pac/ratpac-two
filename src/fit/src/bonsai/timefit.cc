@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 #include <RAT/FitBonsaiProc.hh>
-
+#include <cmath>
 // **********************************************
 // fits the vertex time, assuming a given vertex
 // calculates the likelihood for the timing dist.
@@ -373,14 +373,23 @@ float timefit::makelike(float t0) {
   float tofmin, tofmax, norm_fact[nlike], time_range[nlike];
   float bg, llmax, time, norm;
   int offs, set, i, j, shift, shift2, nbg;
-
+  // printf("Here 1\n");
   if (tof == NULL) return (-1e10);
   tofminmax(tofmin, tofmax);
+  // printf("Here 2i %f %f %f %f %f\n",t0,tofmin, tofmax);
+
   tofmin -= t0;
   tofmax -= t0;
+  // printf("Here 2f %f %f %f %f %f\n",t0,tofmin, tofmax);
+  if (isnan(t0)) {
+    printf("FitBonsaiProc: Unphysical t0 returned: %f %f\n", t0, tofmin);
+    return (-1e10);
+  }
   sigrange(tofmin, tofmax, norm_fact, time_range);
+  // printf("Here 3\n");
   if (like != NULL) delete (like);
   like = new float[event_hits->ntot()];
+  // printf("Here 4\n");
   llmax = 0;
   for (nbg = set = offs = i = 0; set < (int)nlike; offs = offset[set++]) {
     j = i;

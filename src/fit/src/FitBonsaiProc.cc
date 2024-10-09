@@ -62,6 +62,7 @@ void FitBonsaiProc::BeginOfRun(RAT::DS::Run *run) {
     xyz[3 * bs_hit] = pos[0] * 0.1;
     xyz[3 * bs_hit + 1] = pos[1] * 0.1;
     xyz[3 * bs_hit + 2] = pos[2] * 0.1;
+    // printf("Loading the PMT array: %d %f %f %f \n",bs_hit,pos[0] * 0.1,pos[1] * 0.1,pos[2] * 0.1);
   }
   bsgeom = new pmt_geometry(bs_inpmt, xyz);
   bslike = new likelihood(bsgeom->cylinder_radius(), bsgeom->cylinder_height());
@@ -111,11 +112,16 @@ RAT::Processor::Result FitBonsaiProc::Event(RAT::DS::Root *ds, RAT::DS::EV *ev) 
 
   // Perform the fit
   bs_nhit = ev->GetPMTCount();
-  for (bs_hit = 0; bs_hit < bs_nhit; bs_hit++) {
-    // Analogue option, will need switch for digital output
-    bs_cables[bs_hit] = ev->GetOrCreatePMT(bs_hit)->GetID() + 1;
-    bs_times[bs_hit] = ev->GetOrCreatePMT(bs_hit)->GetTime() + bs_offset;
-    bs_charges[bs_hit] = ev->GetOrCreatePMT(bs_hit)->GetCharge();
+  int bs_hit = 0;
+  for (int bs_hitID : ev->GetAllPMTIDs()) {  // New way of doing things
+    // RAT::DS::PMT *pmt = ev->GetOrCreatePMT(pmtc);
+    // for (bs_hit = 0; bs_hit < bs_nhit; bs_hit++) { // Old way of doing things
+    //  Analogue option, will need switch for digital output
+    bs_cables[bs_hit] = ev->GetOrCreatePMT(bs_hitID)->GetID() + 1;
+    bs_times[bs_hit] = ev->GetOrCreatePMT(bs_hitID)->GetTime() + bs_offset;
+    bs_charges[bs_hit] = ev->GetOrCreatePMT(bs_hitID)->GetCharge();
+    // printf("PMT %d time: %f ns\n",bs_cables[bs_hit],ev->GetOrCreatePMT(bs_hit)->GetTime());
+    bs_hit += 1;
   }
   bsgdn = new goodness(bslike->sets(), bslike->chargebins(), bsgeom, bs_nhit, bs_cables, bs_times, bs_charges);
   bs_nsel = bsgdn->nselected();
@@ -172,7 +178,7 @@ RAT::Processor::Result FitBonsaiProc::Event(RAT::DS::Root *ds, RAT::DS::EV *ev) 
 
     float apmt[3 * nTwin];
     // fill PMT positions into an array
-    for (bs_hit = 0; bs_hit < nTwin; bs_hit++) {
+    for (int bs_hit = 0; bs_hit < nTwin; bs_hit++) {
       TVector3 nTpos = bs_pmtinfo->GetPosition(bs_cables_win[bs_hit] - 1);
       apmt[3 * bs_hit] = nTpos.X() * 0.1;
       apmt[3 * bs_hit + 1] = nTpos.Y() * 0.1;

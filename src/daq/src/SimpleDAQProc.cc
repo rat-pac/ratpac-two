@@ -48,14 +48,18 @@ Processor::Result SimpleDAQProc::DSEvent(DS::Root *ds) {
       double charge = 0;
 
       for (int i = 0; i < mcpmt->GetMCPhotonCount(); i++) {
-        if (time > mcpmt->GetMCPhoton(i)->GetHitTime()) time = mcpmt->GetMCPhoton(i)->GetHitTime();
+        if (time > mcpmt->GetMCPhoton(i)->GetFrontEndTime()) {
+          time = mcpmt->GetMCPhoton(i)->GetFrontEndTime();
+          // printf("Time, frontendtime, hittime:  %f, %f , %f\n", time, mcpmt->GetMCPhoton(i)->GetHitTime(),
+          // mcpmt->GetMCPhoton(i)->GetFrontEndTime());
+        }
         charge += mcpmt->GetMCPhoton(i)->GetCharge();
       }
 
       // pmt->SetCalibratedCharge(charge);
       totalQ += charge;
-
-      // charge *= fSPECharge[pmtID] * 1e12; /* convert to pC */
+      // printf("Time to set pmtID %d time: %f\n",pmtID,time);
+      //  charge *= fSPECharge[pmtID] * 1e12; /* convert to pC */
       pmt->SetTime(time);
       pmt->SetCharge(charge);
       calibQ += charge;
