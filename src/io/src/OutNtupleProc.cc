@@ -534,7 +534,7 @@ OutNtupleProc::~OutNtupleProc() {
     outputFile->cd();
 
     DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
-    const DS::ChannelStatus &ch_status = runBranch->GetChannelStatus();
+    const DS::ChannelStatus *ch_status = runBranch->GetChannelStatus();
     for (int id = 0; id < pmtinfo->GetPMTCount(); id++) {
       int type = pmtinfo->GetType(id);
       int channel = pmtinfo->GetChannelNumber(id);
@@ -543,8 +543,8 @@ OutNtupleProc::~OutNtupleProc() {
       pmtType.push_back(type);
       pmtId.push_back(id);
       pmtChannel.push_back(channel);
-      pmtIsOnline.push_back(ch_status.GetOnlineByPMTID(id));
-      pmtCableOffset.push_back(ch_status.GetCableOffsetByPMTID(id));
+      pmtIsOnline.push_back(ch_status->GetOnlineByPMTID(id));
+      pmtCableOffset.push_back(ch_status->GetCableOffsetByPMTID(id));
       pmtX.push_back(position.X());
       pmtY.push_back(position.Y());
       pmtZ.push_back(position.Z());
