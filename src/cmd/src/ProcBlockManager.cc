@@ -27,6 +27,7 @@
 #include <RAT/SplitEVDAQProc.hh>
 #include <RAT/TrueDAQProc.hh>
 #include <RAT/WaveformAnalysis.hh>
+#include <RAT/WaveformAnalysisCommon.hh>
 
 namespace RAT {
 
@@ -90,6 +91,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<LessSimpleDAQ2Proc>();
   AppendProcessor<TrueDAQProc>();
   AppendProcessor<WaveformAnalysis>();
+  AppendProcessor<WaveformAnalysisCommon>();
   // Misc
   AppendProcessor<CountProc>();
   AppendProcessor<PruneProc>();
