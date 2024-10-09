@@ -3,25 +3,39 @@
 
 /rat/db/set DETECTOR experiment "Validation"
 /rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+/rat/db/set DETECTOR experiment "SuperK"
+/rat/db/set DETECTOR geo_file "SuperK/SuperK.geo"
 
+/rat/db/set BONSAI nTmin -6
+/rat/db/set BONSAI nTmax 12
 
-/rat/db/set BONSAI nTmin -3
-/rat/db/set BONSAI nTmax 6
+#/rat/db/set PMT noise_rate 0.
+
+/rat/db/set NOISEPROC noise_flag 0
+/rat/db/set NOISEPROC default_noise_rate 0.0
+/rat/db/set NOISEPROC noise_lookback 1000.0
+/rat/db/set NOISEPROC noise_lookforward 1000.0
+/rat/db/set NOISEPROC noise_maxtime 10000.0
+/rat/db/set NOISEPROC noise_nearhits 1
 
 /run/initialize
 
-/rat/proc splitevdaq
+/rat/proc noise
+#/rat/proc splitevdaq
+#/rat/proc lesssimpledaq
+/rat/proc simpledaq
+
 /rat/proc bonsai
 /rat/proc count
-/rat/procset update 100
+/rat/procset update 5
 
-/rat/proc classifychargebalance
+#/rat/proc classifychargebalance
 
 /rat/proclast outroot
 /rat/proclast outntuple
 
-/generator/add combo gun:point:poisson
-/generator/vtx/set e- 0.0 0.0 0.0 2.5
+/generator/add combo gun:fill:poisson
+/generator/vtx/set e- 0.0 0.0 0.0 5.0
 /generator/pos/set 0.0 0.0 0.0
 
-/run/beamOn 100000000
+/run/beamOn 250

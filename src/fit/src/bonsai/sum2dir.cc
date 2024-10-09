@@ -92,32 +92,32 @@ void ariadne(float *vertex, int *nrhits, float *positions,       //*
         nrdir += 2;
       }
     }
-  delete[](vector);
+  delete[] (vector);
   active = new char[nrdir];
   clusdir = new float[4 * nrdir];
   find_largest_cluster(active, directions, nrdir, clusdir, limit, max_index, maxmag, nradd, clus_index);
   if (clus_index == 0) {
-    delete[](directions);
-    delete[](active);
-    delete[](clusdir);
+    delete[] (directions);
+    delete[] (active);
+    delete[] (clusdir);
     *quality = 0;
     return;
   }
   limit = maxmag * CUT_FRAC1;
   refine_cluster(active, directions, nrdir, clusdir, limit, max_index, maxmag, nradd, clus_index, cos_scat, nrscat);
   if (max_index == -1) {
-    delete[](directions);
-    delete[](active);
-    delete[](clusdir);
+    delete[] (directions);
+    delete[] (active);
+    delete[] (clusdir);
     *quality = 0;
     return;
   }
   limit = maxmag * CUT_FRAC2;
   final_scan(active, directions, nrdir, clusdir, limit, max_index, maxmag, nradd, clus_index);
   if (max_index == -1) {
-    delete[](directions);
-    delete[](active);
-    delete[](clusdir);
+    delete[] (directions);
+    delete[] (active);
+    delete[] (clusdir);
     *quality = 0;
     return;
   }
@@ -126,7 +126,7 @@ void ariadne(float *vertex, int *nrhits, float *positions,       //*
   *quality = nradd / (*quality);
   if (nradd < 3) return;
   for (i = 0; i < 3; i++) direction[i] = tempdir[i];
-  delete[](directions);
+  delete[] (directions);
 }
 
 void printalldir_(float *directions, int *nrdir) {
