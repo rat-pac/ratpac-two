@@ -7,6 +7,7 @@
 
 #include "RAT/DS/DigitPMT.hh"
 #include "RAT/DS/RunStore.hh"
+#include "RAT/DS/WaveformAnalysisResult.hh"
 
 namespace RAT {
 
@@ -143,20 +144,22 @@ void WaveformAnalysis::DoAnalysis(DS::DigitPMT* digitpmt, double timeOffset) {
     FitWaveform();
   }
 
-  digitpmt->SetDigitizedTime(fDigitTime - timeOffset);
-  digitpmt->SetFittedTime(fFittedTime - timeOffset);
-  digitpmt->SetTimeOffsetApplied(timeOffset);
-  digitpmt->SetFittedBaseline(fFittedBaseline);
-  digitpmt->SetFittedHeight(fFittedHeight);
+  digitpmt->SetTimeOffset(timeOffset);
+  digitpmt->SetDigitizedTime(fDigitTime);
   digitpmt->SetDigitizedCharge(fCharge);
   digitpmt->SetDigitizedTotalCharge(fTotalCharge);
-  digitpmt->SetInterpolatedTime(fInterpolatedTime);
   digitpmt->SetSampleTime(fThresholdCrossing);
   digitpmt->SetNCrossings(fNCrossings);
   digitpmt->SetTimeOverThreshold(fTimeOverThreshold);
   digitpmt->SetVoltageOverThreshold(fVoltageOverThreshold);
   digitpmt->SetPedestal(fPedestal);
   digitpmt->SetPeakVoltage(fVoltagePeak);
+  DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("Lognormal");
+  fit_result->AddPE(fFittedTime - timeOffset, fFittedHeight,
+                    {{"baseline", fFittedBaseline}, {"interpolated_time", fInterpolatedTime}});
+  digitpmt->SetFittedBaseline(fFittedBaseline);
+  digitpmt->SetFittedHeight(fFittedHeight);
+  digitpmt->SetFittedTime(fFittedTime - timeOffset);
 }
 
 double WaveformAnalysis::RunAnalysisOnTrigger(int pmtID, Digitizer* fDigitizer) {
@@ -452,15 +455,15 @@ Processor::Result WaveformAnalysis::Event(DS::Root* ds, DS::EV* ev) {
   }
   DS::Digit* dsdigit = &ev->GetDigitizer();
   DS::Run* run = DS::RunStore::GetRun(ds->GetRunID());
-  const DS::ChannelStatus& ch_status = run->GetChannelStatus();
+  const DS::ChannelStatus* ch_status = run->GetChannelStatus();
   std::vector<int> pmt_ids = dsdigit->GetIDs();
   double total_charge = 0;
   for (int pmt_id : pmt_ids) {
     // Do not analyze negative pmtid channels, since they do not correspond to real PMTs.
     if (pmt_id < 0) continue;
-    if (!ch_status.GetOnlineByPMTID(pmt_id)) continue;
+    if (!ch_status->GetOnlineByPMTID(pmt_id)) continue;
     DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(pmt_id);
-    double time_offset = fApplyCableOffset ? ch_status.GetCableOffsetByPMTID(pmt_id) : 0.0;
+    double time_offset = fApplyCableOffset ? ch_status->GetCableOffsetByPMTID(pmt_id) : 0.0;
     RunAnalysis(digitpmt, pmt_id, dsdigit, time_offset);
     if (digitpmt->GetNCrossings() > 0) {
       total_charge += digitpmt->GetDigitizedCharge();
