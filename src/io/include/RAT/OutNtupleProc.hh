@@ -2,10 +2,13 @@
 #define __RATOutNtupleProc___
 
 #include <TTree.h>
+#include <sys/types.h>
 
 #include <RAT/DS/Run.hh>
 #include <RAT/Processor.hh>
 #include <functional>
+
+#include "Math/Types.h"
 
 class TFile;
 class TTree;
@@ -51,6 +54,7 @@ class OutNtupleProc : public Processor {
     bool tracking;
     bool mcparticles;
     bool pmthits;
+    bool digitizerwaveforms;
     bool digitizerhits;
     bool digitizerfits;
     bool untriggered;
@@ -65,6 +69,7 @@ class OutNtupleProc : public Processor {
   TFile *outputFile;
   TTree *outputTree;
   TTree *metaTree;
+  TTree *waveformTree;
   // Meta Branches
   Int_t runId;
   ULong64_t runType;
@@ -82,6 +87,15 @@ class OutNtupleProc : public Processor {
   std::vector<double> pmtU;
   std::vector<double> pmtV;
   std::vector<double> pmtW;
+  u_int32_t digitizerWindowSize;
+  Double_t digitizerSampleRate;
+  Double_t digitizerDynamicRange;
+  Double_t digitizerVoltageResolution;
+  // Digitizer waveforms
+  int waveform_pmtid;
+  std::vector<Double_t> inWindowPulseTimes;
+  std::vector<Double_t> inWindowPulseCharges;
+  std::vector<UShort_t> waveform;
   // Data Branches
   Int_t mcpdg;
   double mcx, mcy, mcz;
