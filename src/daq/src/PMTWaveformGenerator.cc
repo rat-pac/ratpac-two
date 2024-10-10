@@ -1,3 +1,4 @@
+#include <RAT/DS/RunStore.hh>
 #include <RAT/PMTWaveformGenerator.hh>
 #include <Randomize.hh>
 #include <iostream>
@@ -44,7 +45,6 @@ PMTWaveformGenerator::PMTWaveformGenerator(std::string modelName) {
 
   fPMTPulseOffset = lpulse->GetD("pulse_offset");
   fPMTPulseMin = lpulse->GetD("pulse_min");
-  fPMTPulseTimeOffset = lpulse->GetD("pulse_time_offset");
   fTerminationOhms = lpulse->GetD("termination_ohms");
   fPMTPulsePolarity = lpulse->GetZ("pulse_polarity_negative");
 
@@ -107,15 +107,17 @@ PMTWaveform PMTWaveformGenerator::GenerateWaveforms(DS::MCPMT *mcpmt, double tri
   PMTWaveform pmtwf;
 
   // Loop over PEs and create a pulse for each one
+
   for (int iph = 0; iph < mcpmt->GetMCPhotonCount(); iph++) {
     DS::MCPhoton *mcpe = mcpmt->GetMCPhoton(iph);
+    double time_offset = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetCableOffsetByPMTID(mcpmt->GetID());
 
     pmtwf.fPulse.push_back(PMTPulse(fPMTPulseType, fPMTPulseShape));
     PMTPulse *pmtpulse = &pmtwf.fPulse.back();
     pmtpulse->SetPulseCharge(mcpe->GetCharge() * fTerminationOhms);
     pmtpulse->SetPulseMin(fPMTPulseMin);
     pmtpulse->SetPulseOffset(fPMTPulseOffset);
-    pmtpulse->SetPulseTimeOffset(fPMTPulseTimeOffset);
+    pmtpulse->SetPulseTimeOffset(time_offset);
     pmtpulse->SetPulseStartTime(mcpe->GetFrontEndTime() - triggerTime);
     pmtpulse->SetPulsePolarity(fPMTPulsePolarity);
 
