@@ -28,7 +28,6 @@ class PMTWaveformGenerator {
   // Universal pulse parameters
   double fPMTPulseMin;
   double fPMTPulseOffset;
-  double fPMTPulseTimeOffset;
   double fTerminationOhms;
   bool fPMTPulsePolarity;  // negative is true, positive is false
 

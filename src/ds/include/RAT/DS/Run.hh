@@ -52,7 +52,7 @@ class Run : public TObject {
   virtual void PrunePMTInfo() { pmtinfo.resize(0); }
 
   /** Channel status */
-  virtual ChannelStatus const &GetChannelStatus() const { return ch_status; }
+  virtual ChannelStatus const *GetChannelStatus() const { return &ch_status; }
   virtual void SetChannelStatus(const ChannelStatus &_ch_status) { ch_status = _ch_status; }
 
   ClassDef(Run, 3);

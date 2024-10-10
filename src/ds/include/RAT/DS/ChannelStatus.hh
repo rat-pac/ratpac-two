@@ -42,6 +42,7 @@ class ChannelStatus : public TObject {
   virtual double GetCableOffsetByPMTID(int pmtid) const { return cable_offset.at(pmtid_to_index.at(pmtid)); }
 
   virtual void LinkPMT(int pmtid, int lcn) {
+    // create entry with default values if none are specified
     if (lcn_to_index.find(lcn) == lcn_to_index.end()) {
       AddChannel(lcn, default_is_online, default_offset);
     }
@@ -49,13 +50,16 @@ class ChannelStatus : public TObject {
   }
 
   virtual void Load(const PMTInfo* pmtinfo, const std::string index = "") {
+    DBLinkPtr lCableOffset = DB::Get()->GetLink("cable_offset", index);
+    default_offset = lCableOffset->GetD("default_value");
+    DBLinkPtr lChannelOnline = DB::Get()->GetLink("channel_online", index);
+    default_is_online = lChannelOnline->GetD("default_value");
     for (int pmtid = 0; pmtid < pmtinfo->GetPMTCount(); pmtid++) {
       int lcn = pmtinfo->GetChannelNumber(pmtid);
       LinkPMT(pmtid, lcn);
     }
     // cable offset
     try {
-      DBLinkPtr lCableOffset = DB::Get()->GetLink("cable_offset", index);
       std::vector<int> lcns = get_lcns(lCableOffset);
       std::vector<double> values = lCableOffset->GetDArray("value");
       insert_values(lcns, values, &cable_offset);
@@ -64,7 +68,6 @@ class ChannelStatus : public TObject {
     }
     // dead channels
     try {
-      DBLinkPtr lChannelOnline = DB::Get()->GetLink("channel_online", index);
       std::vector<int> lcns = get_lcns(lChannelOnline);
       std::vector<int> values = lChannelOnline->GetIArray("value");
       insert_values(lcns, values, &online);
@@ -108,10 +111,7 @@ class ChannelStatus : public TObject {
     }
   }
 
-  static inline const double default_offset = 0.0;
-  static inline const int default_is_online = 1;
-
-  ClassDef(ChannelStatus, 1);
+  ClassDef(ChannelStatus, 2);
 
  protected:
   std::map<int, size_t> lcn_to_index;
@@ -119,6 +119,8 @@ class ChannelStatus : public TObject {
   std::vector<int> lcns;
   std::vector<int> online;
   std::vector<double> cable_offset;
+  double default_offset;
+  int default_is_online;
 };
 
 }  // namespace DS
