@@ -50,17 +50,18 @@ class ChannelStatus : public TObject {
   }
 
   virtual void Load(const PMTInfo* pmtinfo, const std::string index = "") {
-    DBLinkPtr lCableOffset = DB::Get()->GetLink("cable_offset", index);
+    DB *db = DB::Get();
+    DBLinkPtr lCableOffset = db->GetLink("cable_offset", index);
     try {
       default_offset = lCableOffset->GetD("default_value");
     } catch (DBNotFoundError& e) {
-      default_offset = 0.0;
+      default_offset = db->GetLink("cable_offset", "", db->GetDefaultRun());
     }
-    DBLinkPtr lChannelOnline = DB::Get()->GetLink("channel_online", index);
+    DBLinkPtr lChannelOnline = db->GetLink("channel_online", index);
     try {
       default_is_online = lChannelOnline->GetD("default_value");
     } catch (DBNotFoundError& e) {
-      default_is_online = 1;
+      default_is_online = db->GetLink("channel_online", "", db->GetDefaultRun());
     }
     for (int pmtid = 0; pmtid < pmtinfo->GetPMTCount(); pmtid++) {
       int lcn = pmtinfo->GetChannelNumber(pmtid);
