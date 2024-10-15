@@ -81,17 +81,15 @@ void WaveformAnalysisLognormal::DoAnalysis(DS::DigitPMT* digitpmt, const std::ve
   }
   // Convert from ADC to mV
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal = pedestal);
-
-  double time_offset = digitpmt->GetTimeOffset();
-  fDigitTime = digitpmt->GetDigitizedTime() + time_offset;
+  fDigitTime = digitpmt->GetDigitizedTimeNoOffset();
   // Fit waveform to lognormal
   FitWaveform(voltWfm);
 
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("Lognormal");
-  fit_result->AddPE(fFittedTime - time_offset, fFittedCharge, {{"baseline", fFittedBaseline}, {"chi2ndf", fChi2NDF}});
+  fit_result->AddPE(fFittedTime, fFittedCharge, {{"baseline", fFittedBaseline}, {"chi2ndf", fChi2NDF}});
 }
 
-double SingleLognormal1(double* x, double* par) {
+static double SingleLognormal1(double* x, double* par) {
   /*
   Lognormal distribution
   */

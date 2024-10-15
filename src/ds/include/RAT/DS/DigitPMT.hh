@@ -12,6 +12,7 @@
 #include <TObject.h>
 
 #include <RAT/DS/WaveformAnalysisResult.hh>
+#include <RAT/Log.hh>
 
 namespace RAT {
 namespace DS {
@@ -29,6 +30,7 @@ class DigitPMT : public TObject {
   /** Threshold crossing time in ns */
   virtual void SetDigitizedTime(Double_t _dTime) { this->dTime = _dTime - time_offset; }
   virtual Double_t GetDigitizedTime() { return dTime; }
+  virtual Double_t GetDigitizedTimeNoOffset() { return dTime + time_offset; }
 
   /** Integrated charge around the peak [pC] */
   virtual void SetDigitizedCharge(Double_t _dCharge) { this->dCharge = _dCharge; }
@@ -80,6 +82,14 @@ class DigitPMT : public TObject {
 
   /** Waveform analysis results */
   virtual WaveformAnalysisResult* const GetOrCreateWaveformAnalysisResult(std::string analyzer_name) {
+    if (!fit_results.count(analyzer_name)) {  // creating new fitresult
+      if (fit_results[analyzer_name].getTimeOffset() != 0) {
+        warn << "WavefornAnalysisResult for " << analyzer_name << " already has non-zero timing offset. "
+             << "This should not happen.. Current value will override old value!" << newline;
+        warn << "old value is " << fit_results[analyzer_name].getTimeOffset() << newline;
+      }
+      fit_results[analyzer_name].setTimeOffset(time_offset);
+    }
     return &fit_results[analyzer_name];
   }
 

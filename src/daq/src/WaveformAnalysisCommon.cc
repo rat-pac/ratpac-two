@@ -8,7 +8,6 @@
 
 #include "RAT/DS/DigitPMT.hh"
 #include "RAT/DS/RunStore.hh"
-#include "RAT/DS/WaveformAnalysisResult.hh"
 
 namespace RAT {
 
@@ -134,7 +133,7 @@ void WaveformAnalysisCommon::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
   double totalCharge = WaveformUtil::IntegrateSliding(voltWfm, fSlidingWindow, fChargeThresh, fTimeStep, fTermOhms);
 
   digitpmt->SetTimeOffset(timeOffset);
-  digitpmt->SetDigitizedTime(digitTime);  // time offset subtracted in DigitPMT
+  digitpmt->SetDigitizedTime(digitTime);
   digitpmt->SetDigitizedCharge(charge);
   digitpmt->SetDigitizedTotalCharge(totalCharge);
   digitpmt->SetNCrossings(nCrossings);

@@ -60,7 +60,8 @@ class WaveformAnalysisLognormal : public Processor {
   double fFitShape;
   double fFitScale;
 
-  // Analysis variables
+  // Coming from WaveformAnalysisCommon
+  // Timing offset is added back for seeding the fit
   double fDigitTime;
 
   // Fitted variables
