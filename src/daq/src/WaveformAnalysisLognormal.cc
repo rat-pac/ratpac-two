@@ -77,7 +77,7 @@ void WaveformAnalysisLognormal::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, D
 void WaveformAnalysisLognormal::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
   double pedestal = digitpmt->GetPedestal();
   if (pedestal == -9999) {
-    RAT::Log::Die("WaveformAnalysisLognormal: Setting pedestal, run WaveformAnalysisCommon first.");
+    RAT::Log::Die("WaveformAnalysisLognormal: Pedestal is invalid! Did you run WaveformPrep first?");
   }
   // Convert from ADC to mV
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal = pedestal);

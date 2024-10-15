@@ -3,7 +3,7 @@
 #include <TMath.h>
 
 #include <RAT/Log.hh>
-#include <RAT/WaveformAnalysisCommon.hh>
+#include <RAT/WaveformPrep.hh>
 #include <RAT/WaveformUtil.hh>
 
 #include "RAT/DS/DigitPMT.hh"
@@ -11,13 +11,11 @@
 
 namespace RAT {
 
-WaveformAnalysisCommon::WaveformAnalysisCommon() : WaveformAnalysisCommon::WaveformAnalysisCommon("") {}
+WaveformPrep::WaveformPrep() : WaveformPrep::WaveformPrep("") {}
 
-WaveformAnalysisCommon::WaveformAnalysisCommon(std::string analyzer_name) : Processor("WaveformAnalysisCommon") {
-  Configure(analyzer_name);
-}
+WaveformPrep::WaveformPrep(std::string analyzer_name) : Processor("WaveformPrep") { Configure(analyzer_name); }
 
-void WaveformAnalysisCommon::Configure(const std::string& analyzer_name) {
+void WaveformPrep::Configure(const std::string& analyzer_name) {
   try {
     fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", analyzer_name);
     fPedWindowLow = fDigit->GetI("pedestal_window_low");
@@ -36,7 +34,7 @@ void WaveformAnalysisCommon::Configure(const std::string& analyzer_name) {
   }
 }
 
-void WaveformAnalysisCommon::SetS(std::string param, std::string value) {
+void WaveformPrep::SetS(std::string param, std::string value) {
   if (param == "analyzer_name") {
     Configure(value);
   } else {
@@ -44,7 +42,7 @@ void WaveformAnalysisCommon::SetS(std::string param, std::string value) {
   }
 }
 
-void WaveformAnalysisCommon::SetI(std::string param, int value) {
+void WaveformPrep::SetI(std::string param, int value) {
   if (param == "pedestal_window_low") {
     fPedWindowLow = value;
   } else if (param == "pedestal_window_high") {
@@ -58,7 +56,7 @@ void WaveformAnalysisCommon::SetI(std::string param, int value) {
   }
 }
 
-void WaveformAnalysisCommon::SetD(std::string param, double value) {
+void WaveformPrep::SetD(std::string param, double value) {
   if (param == "lookback") {
     fLookback = value;
   } else if (param == "integration_window_low") {
@@ -78,18 +76,18 @@ void WaveformAnalysisCommon::SetD(std::string param, double value) {
   }
 }
 
-void WaveformAnalysisCommon::ZeroSuppress(DS::EV* ev, DS::DigitPMT* digitpmt, int pmtID) {
+void WaveformPrep::ZeroSuppress(DS::EV* ev, DS::DigitPMT* digitpmt, int pmtID) {
   if (fZeroSuppress) {
     if (digitpmt->GetNCrossings() <= 0) {
       size_t nerased = ev->EraseDigitPMT(pmtID);
       if (nerased != 1)
-        warn << "WaveformAnalysisCommon: Removed " << nerased
-             << " digitPMTs with a single call to EraseDigitPMT. Impossible!" << newline;
+        warn << "WaveformPrep: Removed " << nerased << " digitPMTs with a single call to EraseDigitPMT. Impossible!"
+             << newline;
     }
   }
 }
 
-void WaveformAnalysisCommon::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer* fDigitizer, double timeOffset) {
+void WaveformPrep::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer* fDigitizer, double timeOffset) {
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
   fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
 
@@ -98,7 +96,7 @@ void WaveformAnalysisCommon::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digi
   DoAnalysis(digitpmt, digitWfm, timeOffset);
 }
 
-void WaveformAnalysisCommon::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Digit* dsdigit, double timeOffset) {
+void WaveformPrep::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Digit* dsdigit, double timeOffset) {
   fVoltageRes = dsdigit->GetVoltageResolution();
   fTimeStep = dsdigit->GetTimeStepNS();
   fTermOhms = dsdigit->GetTerminationOhms();
@@ -106,8 +104,7 @@ void WaveformAnalysisCommon::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::
   DoAnalysis(digitpmt, digitWfm, timeOffset);
 }
 
-void WaveformAnalysisCommon::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm,
-                                        double timeOffset) {
+void WaveformPrep::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm, double timeOffset) {
   // Calculate baseline in ADC units
   double pedestal = WaveformUtil::CalculatePedestalADC(digitWfm, fPedWindowLow, fPedWindowHigh);
 
@@ -143,7 +140,7 @@ void WaveformAnalysisCommon::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
   digitpmt->SetPeakVoltage(voltagePeak);
 }
 
-double WaveformAnalysisCommon::RunAnalysisOnTrigger(int pmtID, Digitizer* fDigitizer) {
+double WaveformPrep::RunAnalysisOnTrigger(int pmtID, Digitizer* fDigitizer) {
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
   fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
 
@@ -161,7 +158,7 @@ double WaveformAnalysisCommon::RunAnalysisOnTrigger(int pmtID, Digitizer* fDigit
     trigger_threshold = fDigit->GetD("trigger_voltage_threshold");
     trigger_lookback = fDigit->GetD("trigger_lookback");
   } catch (DBNotFoundError& e) {
-    warn << "WaveformAnalysisCommon: Trigger threshold and lookback not found in database. "
+    warn << "WaveformPrep: Trigger threshold and lookback not found in database. "
          << "Using the same parameters as PMT Waveforms." << newline;
   }
   fVoltageRes *= -1;  // Invert the voltage since the waveform goes ABOVE threshold when a trigger occurs
@@ -179,7 +176,7 @@ double WaveformAnalysisCommon::RunAnalysisOnTrigger(int pmtID, Digitizer* fDigit
   return trigger_time;
 }
 
-Processor::Result WaveformAnalysisCommon::Event(DS::Root* ds, DS::EV* ev) {
+Processor::Result WaveformPrep::Event(DS::Root* ds, DS::EV* ev) {
   if (!ev->DigitizerExists()) {
     warn << "Running waveform analysis, but no digitzer information." << newline;
     return Processor::Result::OK;

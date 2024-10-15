@@ -1,13 +1,14 @@
 ////////////////////////////////////////////////////////////////////
-/// \class RAT::WaveformAnalysisCommon
+/// \class RAT::WaveformPrep
 ///
 /// \brief Process the digitized waveforms
 ///
 /// \author Tanner Kaptanoglu <tannerbk@berkeley.edu>
+/// \author Ravi Pitelka <rpitelka@sas.upenn.edu>
 ///
 /// REVISION HISTORY:\n
 ///     25 Oct 2022: Initial commit
-///     14 Oct 2024: Refactoring
+///     14 Oct 2024: Refactored from WaveformAnalysis to WaveformPrep
 ///
 /// \details
 /// This class provides full support for analysis of the
@@ -15,8 +16,8 @@
 /// threshold crossing, integrated charge, etc.
 /// Refactored from implementation in WaveformAnalysis.
 ////////////////////////////////////////////////////////////////////
-#ifndef __RAT_WaveformAnalysisCommon__
-#define __RAT_WaveformAnalysisCommon__
+#ifndef __RAT_WaveformPrep__
+#define __RAT_WaveformPrep__
 
 #include <TObject.h>
 
@@ -28,11 +29,11 @@
 
 namespace RAT {
 
-class WaveformAnalysisCommon : public Processor {
+class WaveformPrep : public Processor {
  public:
-  WaveformAnalysisCommon();
-  WaveformAnalysisCommon(std::string analyzer_name);
-  virtual ~WaveformAnalysisCommon(){};
+  WaveformPrep();
+  WaveformPrep(std::string analyzer_name);
+  virtual ~WaveformPrep(){};
 
   void Configure(const std::string &analyzer_name);
   void RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer *fDigitizer, double timeOffset = 0.0);

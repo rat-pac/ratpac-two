@@ -17,7 +17,7 @@ add_library(daq OBJECT
   src/SplitEVDAQProc.cc
   src/TrueDAQProc.cc
   src/WaveformAnalysis.cc
-  src/WaveformAnalysisCommon.cc
+  src/WaveformPrep.cc
   src/WaveformAnalysisLognormal.cc
   )
 
