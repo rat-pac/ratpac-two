@@ -65,7 +65,7 @@ class WaveformAnalysisLognormal : public Processor {
 
   // Fitted variables
   double fFittedTime;
-  double fFittedHeight;
+  double fFittedCharge;
   double fFittedBaseline;
   double fChi2NDF;
 

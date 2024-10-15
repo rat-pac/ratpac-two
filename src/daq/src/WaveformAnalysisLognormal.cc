@@ -88,7 +88,7 @@ void WaveformAnalysisLognormal::DoAnalysis(DS::DigitPMT* digitpmt, const std::ve
   FitWaveform(voltWfm);
 
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("Lognormal");
-  fit_result->AddPE(fFittedTime - time_offset, fFittedHeight, {{"baseline", fFittedBaseline}, {"chi-sq", fChi2NDF}});
+  fit_result->AddPE(fFittedTime - time_offset, fFittedCharge, {{"baseline", fFittedBaseline}, {"chi2ndf", fChi2NDF}});
 }
 
 double SingleLognormal1(double* x, double* par) {
@@ -157,7 +157,7 @@ void WaveformAnalysisLognormal::FitWaveform(const std::vector<double>& voltWfm) 
 
   wfm->Fit("ln_fit", "0QR", "", bf, tf);
 
-  fFittedHeight = ln_fit->GetParameter(0);
+  fFittedCharge = ln_fit->GetParameter(0) / fTermOhms;
   fFittedTime = ln_fit->GetParameter(1) + ln_fit->GetParameter(3);
   fFittedBaseline = ln_fit->GetParameter(2);
   fChi2NDF = ln_fit->GetChisquare() / ln_fit->GetNDF();
