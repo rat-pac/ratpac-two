@@ -18,6 +18,7 @@ add_library(daq OBJECT
   src/TrueDAQProc.cc
   src/WaveformAnalysis.cc
   src/WaveformAnalysisCommon.cc
+  src/WaveformAnalysisLognormal.cc
   )
 
 # Set our include directories

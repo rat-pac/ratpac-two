@@ -28,6 +28,7 @@
 #include <RAT/TrueDAQProc.hh>
 #include <RAT/WaveformAnalysis.hh>
 #include <RAT/WaveformAnalysisCommon.hh>
+#include <RAT/WaveformAnalysisLognormal.hh>
 
 namespace RAT {
 
@@ -92,6 +93,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<TrueDAQProc>();
   AppendProcessor<WaveformAnalysis>();
   AppendProcessor<WaveformAnalysisCommon>();
+  AppendProcessor<WaveformAnalysisLognormal>();
   // Misc
   AppendProcessor<CountProc>();
   AppendProcessor<PruneProc>();
