@@ -47,11 +47,12 @@ int GetThresholdCrossingBeforePeak(const std::vector<double>& waveform, int peak
   int back_window = (lb > 0) ? lb : 0;
 
   if (back_window >= waveform.size()) {
-    warn << "WaveformUtil: Start of lookback window not before end of waveform.\n";
+    warn << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before end of waveform."
+         << newline;
   } else if (back_window >= peakSample) {
-    warn << "WaveformUtil: Start of lookback window not before peak.\n";
+    warn << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before peak." << newline;
   } else if (peakSample >= waveform.size()) {
-    warn << "WaveformUtil: Peak not before end of waveform.\n";
+    warn << "WaveformUtil::GetThresholdCrossingBeforePeak: Peak not before end of waveform." << newline;
   } else if (waveform.at(peakSample) > voltageThreshold) {
     warn << "WaveformUtil: Peak not above threshold.\n";
   }
@@ -145,7 +146,7 @@ double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, int
     if (constFrac != INVALID) {
       voltageThreshold = constFrac * waveform.at(peakSample);
     } else {
-      Log::Die("WaveformUtil: Must give either constFrac or voltageThreshold for CalculateTimeCFD.");
+      Log::Die("WaveformUtil::CalculateTimeCFD: Must give either constFrac or voltageThreshold for CalculateTimeCFD.");
     }
   }
   int time = GetThresholdCrossingBeforePeak(waveform, peakSample, voltageThreshold, lookBack, timeStep);
