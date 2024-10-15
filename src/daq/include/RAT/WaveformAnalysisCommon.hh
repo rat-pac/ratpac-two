@@ -1,17 +1,19 @@
 ////////////////////////////////////////////////////////////////////
 /// \class RAT::WaveformAnalysisCommon
 ///
-/// \brief Processed the digitized waveforms
+/// \brief Process the digitized waveforms
 ///
 /// \author Tanner Kaptanoglu <tannerbk@berkeley.edu>
 ///
 /// REVISION HISTORY:\n
 ///     25 Oct 2022: Initial commit
+///     14 Oct 2024: Refactoring
 ///
 /// \details
 /// This class provides full support for analysis of the
 /// digitized waveform, providing tools to do timing at the
 /// threshold crossing, integrated charge, etc.
+/// Refactored from implementation in WaveformAnalysis.
 ////////////////////////////////////////////////////////////////////
 #ifndef __RAT_WaveformAnalysisCommon__
 #define __RAT_WaveformAnalysisCommon__
@@ -66,7 +68,7 @@ class WaveformAnalysisCommon : public Processor {
   int fSlidingWindow;
   double fChargeThresh;
 
-  // USe Cable offsets specified in channel status?
+  // Use Cable offsets specified in channel status?
   int fApplyCableOffset;
   int fZeroSuppress;
 

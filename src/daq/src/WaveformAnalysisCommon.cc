@@ -109,11 +109,11 @@ void WaveformAnalysisCommon::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::
 
 void WaveformAnalysisCommon::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm,
                                         double timeOffset) {
-  // Convert from ADC to mV
-  std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes);
+  // Calculate baseline in ADC units
+  double pedestal = WaveformUtil::CalculatePedestalADC(digitWfm, fPedWindowLow, fPedWindowHigh);
 
-  // Calculate baseline in mV
-  double pedestal = WaveformUtil::CalculatePedestalmV(voltWfm, fPedWindowLow, fPedWindowHigh);
+  // Convert from ADC to mV
+  std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal = pedestal);
 
   // Calculate highest peak in mV
   std::pair<int, double> peak = WaveformUtil::FindHighestPeak(voltWfm);
@@ -121,10 +121,7 @@ void WaveformAnalysisCommon::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
   double voltagePeak = peak.second;
 
   // Calculate the constant-fraction hit-time
-  std::pair<double, int> timeCFD =
-      WaveformUtil::CalculateTimeCFD(voltWfm, samplePeak, fLookback, fTimeStep, fConstFrac);
-  double digitTime = timeCFD.first;
-  int thresholdCrossing = timeCFD.second;
+  double digitTime = WaveformUtil::CalculateTimeCFD(voltWfm, samplePeak, fLookback, fTimeStep, fConstFrac);
 
   // Get the total number of threshold crossings
   std::tuple<int, double, double> crossingsInfo = WaveformUtil::GetCrossingsInfo(voltWfm, fThreshold, fTimeStep);
@@ -137,10 +134,9 @@ void WaveformAnalysisCommon::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
   double totalCharge = WaveformUtil::IntegrateSliding(voltWfm, fSlidingWindow, fChargeThresh, fTimeStep, fTermOhms);
 
   digitpmt->SetTimeOffset(timeOffset);
-  digitpmt->SetDigitizedTime(digitTime);
+  digitpmt->SetDigitizedTime(digitTime);  // time offset subtracted in DigitPMT
   digitpmt->SetDigitizedCharge(charge);
   digitpmt->SetDigitizedTotalCharge(totalCharge);
-  digitpmt->SetSampleTime(thresholdCrossing);
   digitpmt->SetNCrossings(nCrossings);
   digitpmt->SetTimeOverThreshold(timeOverThreshold);
   digitpmt->SetVoltageOverThreshold(voltageOverThreshold);
@@ -178,9 +174,8 @@ double WaveformAnalysisCommon::RunAnalysisOnTrigger(int pmtID, Digitizer* fDigit
   // HACK: Store the old lookback value, restore after a trigger time analysis is done.
   double old_lookback = fLookback;
   fLookback = trigger_lookback;
-  std::pair<double, int> trigger_cfd = WaveformUtil::CalculateTimeCFD(voltWfm, samplePeak, fLookback, fTimeStep,
-                                                                      WaveformUtil::INVALID, trigger_threshold);
-  double trigger_time = trigger_cfd.first;
+  double trigger_time = WaveformUtil::CalculateTimeCFD(voltWfm, samplePeak, fLookback, fTimeStep, WaveformUtil::INVALID,
+                                                       trigger_threshold);
   fLookback = old_lookback;
   return trigger_time;
 }
@@ -195,12 +190,13 @@ Processor::Result WaveformAnalysisCommon::Event(DS::Root* ds, DS::EV* ev) {
   const DS::ChannelStatus* ch_status = run->GetChannelStatus();
   std::vector<int> pmt_ids = dsdigit->GetIDs();
   double total_charge = 0;
+  double time_offset = 0;
   for (int pmt_id : pmt_ids) {
     // Do not analyze negative pmtid channels, since they do not correspond to real PMTs.
     if (pmt_id < 0) continue;
     if (!ch_status->GetOnlineByPMTID(pmt_id)) continue;
     DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(pmt_id);
-    double time_offset = fApplyCableOffset ? ch_status->GetCableOffsetByPMTID(pmt_id) : 0.0;
+    time_offset = fApplyCableOffset ? ch_status->GetCableOffsetByPMTID(pmt_id) : 0.0;
     RunAnalysis(digitpmt, pmt_id, dsdigit, time_offset);
     if (digitpmt->GetNCrossings() > 0) {
       total_charge += digitpmt->GetDigitizedCharge();

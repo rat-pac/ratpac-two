@@ -136,26 +136,29 @@ std::tuple<int, double, double> GetCrossingsInfo(const std::vector<double>& wave
   return std::make_tuple(nCrossings, timeOverThreshold, voltageOverThreshold);
 }
 
-std::pair<double, int> CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, int lookBack,
-                                        double timeStep, double constFrac, double voltageThreshold) {
+double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, int lookBack, double timeStep,
+                        double constFrac, double voltageThreshold) {
   /*
   Apply constant-fraction discriminator for a given peak
   */
   if (voltageThreshold == INVALID) {
     if (constFrac != INVALID) {
-      double voltageThreshold = constFrac * waveform.at(peakSample);
+      voltageThreshold = constFrac * waveform.at(peakSample);
     } else {
       Log::Die("WaveformUtil: Must give either constFrac or voltageThreshold for CalculateTimeCFD.");
     }
   }
   int time = GetThresholdCrossingBeforePeak(waveform, peakSample, voltageThreshold, lookBack, timeStep);
+  if (time == INVALID) {
+    return INVALID;
+  }
   // Linearly interpolate threshold crossing time, if time is not last sample of waveform
   double dt = 0;
   if (time < waveform.size() - 1) {
     double deltav = waveform.at(time + 1) - waveform.at(time);
     dt = (voltageThreshold - waveform.at(time)) / deltav;
   }
-  return std::make_pair((time + dt) * timeStep, time);
+  return (time + dt) * timeStep;
 }
 
 double IntegratePeak(const std::vector<double>& waveform, int peakSample, int intWindowLow, int intWindowHigh,
