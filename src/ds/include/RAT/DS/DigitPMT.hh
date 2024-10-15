@@ -38,10 +38,6 @@ class DigitPMT : public TObject {
   virtual void SetDigitizedTotalCharge(Double_t _dTCharge) { this->dTCharge = _dTCharge; }
   virtual Double_t GetDigitizedTotalCharge() { return dTCharge; }
 
-  /** Get the sample associated with the crossing time */
-  virtual void SetSampleTime(Int_t _sTime) { this->sTime = _sTime - time_offset; }
-  virtual Int_t GetSampleTime() { return sTime; }
-
   /** Total number of threshold crossings */
   virtual void SetNCrossings(Int_t _nCrossings) { this->nCrossings = _nCrossings; }
   virtual Int_t GetNCrossings() { return nCrossings; }
@@ -102,7 +98,6 @@ class DigitPMT : public TObject {
   Double_t dTime = -9999;
   Double_t dCharge = -9999;
   Double_t dTCharge = -9999;
-  Int_t sTime = -9999;
   Int_t nCrossings = -9999;
   Double_t timeOverThresh = -9999;
   Double_t voltageOverThresh = -9999;

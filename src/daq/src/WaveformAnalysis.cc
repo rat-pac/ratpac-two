@@ -148,7 +148,6 @@ void WaveformAnalysis::DoAnalysis(DS::DigitPMT* digitpmt, double timeOffset) {
   digitpmt->SetDigitizedTime(fDigitTime);
   digitpmt->SetDigitizedCharge(fCharge);
   digitpmt->SetDigitizedTotalCharge(fTotalCharge);
-  digitpmt->SetSampleTime(fThresholdCrossing);
   digitpmt->SetNCrossings(fNCrossings);
   digitpmt->SetTimeOverThreshold(fTimeOverThreshold);
   digitpmt->SetVoltageOverThreshold(fVoltageOverThreshold);
