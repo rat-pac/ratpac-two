@@ -14,6 +14,7 @@ namespace RAT {
 WaveformAnalysis::WaveformAnalysis() : WaveformAnalysis::WaveformAnalysis("") {}
 
 WaveformAnalysis::WaveformAnalysis(std::string analyzer_name) : Processor("WaveformAnalysis") {
+  warn << "This class is deprecated -- please use WaveformPrep and WaveformAnalysisLogNormal" << newline;
   Configure(analyzer_name);
 }
 
