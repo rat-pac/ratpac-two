@@ -19,6 +19,13 @@ namespace DS {
 
 class WaveformAnalysisResult : public TObject {
  public:
+  /* *
+   * Add information about a single reconstructed pulse.
+   * @param time   The time of the pulse. Within the digitization window. No shifting due to cable delay or trigger
+   *               should be applied here.
+   * @param charge charge the correspond to the pulse. Nominally in units of pC.
+   * @param fom    map of all figures of merits. key should be name of the field (e.g. chi2ndf)
+   * */
   virtual size_t AddPE(Double_t time, Double_t charge, std::map<std::string, Double_t> fom = {}) {
     Double_t time_corrected = time - time_offset;
     size_t insertion_index = std::upper_bound(times.begin(), times.end(), time_corrected) - times.begin();
