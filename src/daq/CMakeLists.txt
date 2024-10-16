@@ -18,6 +18,7 @@ add_library(daq OBJECT
   src/TrueDAQProc.cc
   src/WaveformAnalysis.cc
   src/WaveformPrep.cc
+  src/WaveformAnalyzerBase.cc
   src/WaveformAnalysisLognormal.cc
   )
 

@@ -4,6 +4,8 @@
 /// \brief Apply lognormal fit to digitized waveforms
 ///
 /// \author Tanner Kaptanoglu <tannerbk@berkeley.edu>
+/// \author Ravi Pitelka <rpitelka@sas.upenn.edu>
+/// \author James Shen <jierans@sas.upenn.edu>
 ///
 /// REVISION HISTORY:\n
 ///     25 Oct 2022: Initial commit
@@ -23,34 +25,30 @@
 #include <RAT/DS/DigitPMT.hh>
 #include <RAT/Digitizer.hh>
 #include <RAT/Processor.hh>
+#include <RAT/WaveformAnalyzerBase.hh>
 #include <vector>
+
+#include "WaveformAnalyzerBase.hh"
 
 namespace RAT {
 
-class WaveformAnalysisLognormal : public Processor {
+class WaveformAnalysisLognormal : public WaveformAnalyzerBase {
  public:
-  WaveformAnalysisLognormal();
-  WaveformAnalysisLognormal(std::string analyzer_name);
+  WaveformAnalysisLognormal() : WaveformAnalysisLognormal(""){};
+  WaveformAnalysisLognormal(std::string config_name) : WaveformAnalyzerBase("WaveformAnalysisLognormal", config_name) {
+    Configure(config_name);
+  };
   virtual ~WaveformAnalysisLognormal(){};
-
-  void Configure(const std::string &analyzer_name);
-  void RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer *fDigitizer);
-  void RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, DS::Digit *dsdigit);
+  void Configure(const std::string &config_name) override;
+  virtual Processor::Result Event(DS::Root *ds, DS::EV *ev) override;
+  virtual void SetD(std::string param, double value) override;
 
   // Fit the digitized waveform using a lognormal function
   void FitWaveform(const std::vector<double> &voltWfm);
 
-  virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
-  virtual void SetS(std::string param, std::string value);
-  virtual void SetD(std::string param, double value);
-  virtual void SetI(std::string param, int value);
-
  protected:
   // Digitizer settings
   DBLinkPtr fDigit;
-  double fTimeStep;
-  double fVoltageRes;
-  double fTermOhms;
 
   // Analysis constants
   int fPedWindowLow;
@@ -61,8 +59,7 @@ class WaveformAnalysisLognormal : public Processor {
   double fFitScale;
 
   // Coming from WaveformPrep
-  // Timing offset is added back for seeding the fit
-  double fDigitTime;
+  double fDigitTimeInWindow;
 
   // Fitted variables
   double fFittedTime;

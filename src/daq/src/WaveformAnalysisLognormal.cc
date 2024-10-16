@@ -11,17 +11,9 @@
 #include "RAT/WaveformUtil.hh"
 
 namespace RAT {
-
-WaveformAnalysisLognormal::WaveformAnalysisLognormal() : WaveformAnalysisLognormal::WaveformAnalysisLognormal("") {}
-
-WaveformAnalysisLognormal::WaveformAnalysisLognormal(std::string analyzer_name)
-    : Processor("WaveformAnalysisLognormal") {
-  Configure(analyzer_name);
-}
-
-void WaveformAnalysisLognormal::Configure(const std::string& analyzer_name) {
+void WaveformAnalysisLognormal::Configure(const std::string& config_name) {
   try {
-    fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", analyzer_name);
+    fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", config_name);
     fPedWindowLow = fDigit->GetI("pedestal_window_low");
     fPedWindowHigh = fDigit->GetI("pedestal_window_high");
     fFitWindowLow = fDigit->GetD("fit_window_low");
@@ -32,16 +24,6 @@ void WaveformAnalysisLognormal::Configure(const std::string& analyzer_name) {
     RAT::Log::Die("WaveformAnalysisLognormal: Unable to find analysis parameters.");
   }
 }
-
-void WaveformAnalysisLognormal::SetS(std::string param, std::string value) {
-  if (param == "analyzer_name") {
-    Configure(value);
-  } else {
-    throw Processor::ParamUnknown(param);
-  }
-}
-
-void WaveformAnalysisLognormal::SetI(std::string param, int value) { throw Processor::ParamUnknown(param); }
 
 void WaveformAnalysisLognormal::SetD(std::string param, double value) {
   if (param == "fit_window_low") {
@@ -57,23 +39,6 @@ void WaveformAnalysisLognormal::SetD(std::string param, double value) {
   }
 }
 
-void WaveformAnalysisLognormal::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer* fDigitizer) {
-  fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
-  fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns
-
-  std::vector<UShort_t> digitWfm = fDigitizer->fDigitWaveForm[pmtID];
-  fTermOhms = fDigitizer->fTerminationOhms;
-  DoAnalysis(digitpmt, digitWfm);
-}
-
-void WaveformAnalysisLognormal::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Digit* dsdigit) {
-  fVoltageRes = dsdigit->GetVoltageResolution();
-  fTimeStep = dsdigit->GetTimeStepNS();
-  fTermOhms = dsdigit->GetTerminationOhms();
-  std::vector<UShort_t> digitWfm = dsdigit->GetWaveform(pmtID);
-  DoAnalysis(digitpmt, digitWfm);
-}
-
 void WaveformAnalysisLognormal::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
   double pedestal = digitpmt->GetPedestal();
   if (pedestal == -9999) {
@@ -81,7 +46,7 @@ void WaveformAnalysisLognormal::DoAnalysis(DS::DigitPMT* digitpmt, const std::ve
   }
   // Convert from ADC to mV
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal = pedestal);
-  fDigitTime = digitpmt->GetDigitizedTimeNoOffset();
+  fDigitTimeInWindow = digitpmt->GetDigitizedTimeNoOffset();
   // Fit waveform to lognormal
   FitWaveform(voltWfm);
 
@@ -120,21 +85,21 @@ void WaveformAnalysisLognormal::FitWaveform(const std::vector<double>& voltWfm) 
     // Arb. choice, TODO
     wfm->SetBinError(i, fVoltageRes * 2.0);
   }
-  double bf = fDigitTime - fFitWindowLow;
-  double tf = fDigitTime + fFitWindowHigh;
+  double bf = fDigitTimeInWindow - fFitWindowLow;
+  double tf = fDigitTimeInWindow + fFitWindowHigh;
 
   // Check the fit range is within the digitizer window
   bf = (bf > 0) ? bf : 0;
   tf = (tf > voltWfm.size() * fTimeStep) ? voltWfm.size() * fTimeStep : tf;
 
   // Check the timing range is within the digitizer window
-  double thigh = fDigitTime + fFitScale + fFitWindowHigh;
+  double thigh = fDigitTimeInWindow + fFitScale + fFitWindowHigh;
   thigh = (thigh > voltWfm.size() * fTimeStep) ? voltWfm.size() * fTimeStep : thigh;
 
-  double tmed = fDigitTime - fFitScale;
+  double tmed = fDigitTimeInWindow - fFitScale;
   tmed = (tmed > 0) ? tmed : 0;
 
-  double tlow = fDigitTime - fFitScale - fFitWindowLow;
+  double tlow = fDigitTimeInWindow - fFitScale - fFitWindowLow;
   tlow = (tlow > 0) ? tlow : 0;
 
   const int ndf = 5;
