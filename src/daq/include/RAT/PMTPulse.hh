@@ -22,13 +22,14 @@ class PMTPulse {
 
   virtual void SetGausPulseWidth(double _fGausPulseWidth) { fGausPulseWidth = _fGausPulseWidth; };
 
-  virtual void SetPulseTimes(std::vector<double> _fPulseTimes) { fPulseTimes = _fPulseTimes; };
-  virtual void SetPulseValues(std::vector<double> _fPulseValues) { fPulseValues = _fPulseValues; };
+  virtual void SetPulseShapeTimes(std::vector<double> _fPulseTimes) { fPulseTimes = _fPulseTimes; };
+  virtual void SetPulseShapeValues(std::vector<double> _fPulseValues) { fPulseValues = _fPulseValues; };
 
   virtual double GetDataDrivenPulseVal(double time);
 
   virtual double GetPulseHeight(double time);
-  virtual double GetPulseStartTime() { return fStartTime; };
+  virtual double GetPulseStartTimeNoOffset() { return fStartTime; };
+  virtual double GetPulseStartTimeWithOffset() { return fStartTime + fPulseTimeOffset; };
 
  private:
   std::string fPulseType;
