@@ -15,6 +15,7 @@
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/DS/RunStore.hh>
+#include <RAT/DS/WaveformAnalysisResult.hh>
 #include <RAT/Log.hh>
 #include <RAT/OutNtupleProc.hh>
 #include <iostream>
@@ -22,6 +23,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "RAT/DS/ChannelStatus.hh"
 
 namespace RAT {
 
@@ -46,6 +49,7 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.tracking = table->GetZ("include_tracking");
     options.mcparticles = table->GetZ("include_mcparticles");
     options.pmthits = table->GetZ("include_pmthits");
+    options.digitizerwaveforms = table->GetZ("include_digitizerwaveforms");
     options.digitizerhits = table->GetZ("include_digitizerhits");
     options.digitizerfits = table->GetZ("include_digitizerfits");
     options.untriggered = table->GetZ("include_untriggered_events");
@@ -56,6 +60,9 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.pmthits = true;
     options.untriggered = false;
     options.mchits = true;
+  }
+  if (options.digitizerfits) {
+    waveform_fitters = table->GetSArray("waveform_fitters");
   }
 }
 
@@ -80,6 +87,10 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("pmtU", &pmtU);
   metaTree->Branch("pmtV", &pmtV);
   metaTree->Branch("pmtW", &pmtW);
+  metaTree->Branch("digitizerWindowSize", &digitizerWindowSize);
+  metaTree->Branch("digitizerSampleRate_GHz", &digitizerSampleRate);
+  metaTree->Branch("digitizerDynamicRange_mV", &digitizerDynamicRange);
+  metaTree->Branch("digitizerResolution_mVPerADC", &digitizerVoltageResolution);
   this->AssignAdditionalMetaAddresses();
   dsentries = 0;
   // Data Tree
@@ -141,11 +152,12 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("digitNCrossings", &digitNCrossings);
     outputTree->Branch("digitPeak", &digitPeak);
     outputTree->Branch("digitLocalTriggerTime", &digitLocalTriggerTime);
-    if (options.digitizerfits) {
-      // From the lognormal fit to the waveforms
-      outputTree->Branch("fitTime", &fitTime);
-      outputTree->Branch("fitBaseline", &fitBaseline);
-      outputTree->Branch("fitPeak", &fitPeak);
+  }
+  if (options.digitizerfits) {
+    for (const std::string &fitter_name : waveform_fitters) {
+      outputTree->Branch(TString("fit_pmtid_" + fitter_name), &fitPmtID[fitter_name]);
+      outputTree->Branch(TString("fit_time_" + fitter_name), &fitTime[fitter_name]);
+      outputTree->Branch(TString("fit_charge_" + fitter_name), &fitCharge[fitter_name]);
     }
   }
   if (options.mchits) {
@@ -179,6 +191,14 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("trackProcess", &trackProcess);
     metaTree->Branch("processCodeMap", &processCodeMap);
   }
+  if (options.digitizerwaveforms) {
+    waveformTree = new TTree("waveforms", "waveforms");
+    waveformTree->Branch("evid", &evid);
+    waveformTree->Branch("waveform_pmtid", &waveform_pmtid);
+    waveformTree->Branch("inWindowPulseTimes", &inWindowPulseTimes);
+    waveformTree->Branch("inWindowPulseCharges", &inWindowPulseCharges);
+    waveformTree->Branch("waveform", &waveform);
+  }
   this->AssignAdditionalAddresses();
 
   return true;
@@ -192,6 +212,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   }
   runBranch = DS::RunStore::GetRun(ds);
   DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
+  const DS::ChannelStatus *channel_status = runBranch->GetChannelStatus();
   ULong64_t stonano = 1000000000;
   dsentries++;
   // Clear the previous vectors
@@ -435,6 +456,16 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         hitPMTCharge.push_back(pmt->GetCharge());
       }
     }
+    if (ev->DigitizerExists()) {
+      // Writing this information to meta, despite the fact that in principle events could have
+      // varying values for these fields. Writing these values to meta is much more convenient
+      // to use, so I'm going to assume that this doesn't happen;)
+      DS::Digit digitizer = ev->GetDigitizer();
+      digitizerWindowSize = digitizer.GetNSamples();
+      digitizerSampleRate = digitizer.GetSamplingRate();
+      digitizerDynamicRange = digitizer.GetDynamicRange();
+      digitizerVoltageResolution = digitizer.GetVoltageResolution();
+    }
     if (options.digitizerhits) {
       digitNhits = 0;
       digitTime.clear();
@@ -445,9 +476,12 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitLocalTriggerTime.clear();
 
       if (options.digitizerfits) {
-        fitTime.clear();
-        fitBaseline.clear();
-        fitPeak.clear();
+        for (const std::string &fitter_name : waveform_fitters) {
+          // construct arrays for all fitters
+          fitPmtID[fitter_name].clear();
+          fitTime[fitter_name].clear();
+          fitCharge[fitter_name].clear();
+        }
       }
 
       for (int pmtc : ev->GetAllDigitPMTIDs()) {
@@ -462,10 +496,52 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         digitPeak.push_back(digitpmt->GetPeakVoltage());
         digitLocalTriggerTime.push_back(digitpmt->GetLocalTriggerTime());
         if (options.digitizerfits) {
-          fitTime.push_back(digitpmt->GetFittedTime());
-          fitBaseline.push_back(digitpmt->GetFittedBaseline());
-          fitPeak.push_back(digitpmt->GetFittedHeight());
+          const std::vector<std::string> fitters = digitpmt->GetFitterNames();
+          for (std::string fitter_name : fitters) {
+            DS::WaveformAnalysisResult *fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(fitter_name);
+            for (int hitidx = 0; hitidx < fit_result->getNhits(); hitidx++) {
+              fitPmtID[fitter_name].push_back(digitpmt->GetID());
+              fitTime[fitter_name].push_back(fit_result->getTime(hitidx));
+              fitCharge[fitter_name].push_back(fit_result->getCharge(hitidx));
+              // TODO: figures of merit -- you probably need some nested map
+            }
+          }
         }
+      }
+    }
+    if (options.digitizerwaveforms) {
+      DS::Digit digitizer = ev->GetDigitizer();
+      double readout_window_min = 0;
+      double readout_window_max = digitizer.GetNSamples() * digitizer.GetTimeStepNS();
+      for (auto const &pair : digitizer.GetAllWaveforms()) {
+        waveform_pmtid = pair.first;
+        waveform = pair.second;
+        inWindowPulseTimes.clear();
+        inWindowPulseCharges.clear();
+        if (mc->GetMCPMTCount() == 0) {
+        }  // if there's no MC information, skip it
+        else if (waveform_pmtid < 0) {
+        }  // these are nonPMT channels. No MC info
+        else {
+          auto it = std::find(mcpmtid.begin(), mcpmtid.end(), waveform_pmtid);
+          if (it == mcpmtid.end())
+            warn << "No MC information found for PMTID = " << waveform_pmtid
+                 << " but waveform exists for some reason..." << newline;
+          else {
+            double time_offset = channel_status->GetCableOffsetByPMTID(waveform_pmtid);
+            DS::MCPMT *mcpmt = mc->GetMCPMT(it - mcpmtid.begin());
+            for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++) {
+              DS::MCPhoton *mcph = mcpmt->GetMCPhoton(ipe);
+              Double_t time = mcph->GetFrontEndTime() - ev->GetCalibratedTriggerTime() + time_offset;
+              Double_t charge = mcph->GetCharge();
+              if (time > readout_window_min && time < readout_window_max) {
+                inWindowPulseTimes.push_back(time);
+                inWindowPulseCharges.push_back(charge);
+              }
+            }  // END loop over mcphotons
+          }
+        }  // END IF
+        waveformTree->Fill();
       }
     }
     this->FillEvent(ds, ev);
@@ -492,9 +568,12 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
       if (options.digitizerfits) {
-        fitTime.clear();
-        fitBaseline.clear();
-        fitPeak.clear();
+        for (const std::string &fitter_name : waveform_fitters) {
+          // construct arrays for all fitters
+          fitPmtID[fitter_name].clear();
+          fitTime[fitter_name].clear();
+          fitCharge[fitter_name].clear();
+        }
       }
     }
     this->FillNoTriggerEvent(ds);
@@ -544,6 +623,7 @@ OutNtupleProc::~OutNtupleProc() {
     metaTree->Fill();
     metaTree->Write();
     outputTree->Write();
+    if (options.digitizerwaveforms) waveformTree->Write();
     /*
     TMap* dbtrace = Log::GetDBTraceMap();
     dbtrace->Write("db", TObject::kSingleKey);
@@ -551,33 +631,6 @@ OutNtupleProc::~OutNtupleProc() {
     // outputFile->Write(0, TObject::kOverwrite);
     outputFile->Close();
     delete outputFile;
-  }
-}
-
-void OutNtupleProc::SetBranchValue(std::string name, double *value) {
-  if (branchNames.find(name) != branchNames.end()) {
-    outputTree->SetBranchAddress(name.c_str(), value);
-  } else {
-    branchNames.insert(name);
-    outputTree->Branch(name.c_str(), value);
-  }
-}
-
-void OutNtupleProc::SetBranchValue(std::string name, bool *value) {
-  if (branchNames.find(name) != branchNames.end()) {
-    outputTree->SetBranchAddress(name.c_str(), value);
-  } else {
-    branchNames.insert(name);
-    outputTree->Branch(name.c_str(), value);
-  }
-}
-
-void OutNtupleProc::SetBranchValue(std::string name, int *value) {
-  if (branchNames.find(name) != branchNames.end()) {
-    outputTree->SetBranchAddress(name.c_str(), value);
-  } else {
-    branchNames.insert(name);
-    outputTree->Branch(name.c_str(), value);
   }
 }
 
@@ -602,6 +655,15 @@ void OutNtupleProc::SetI(std::string param, int value) {
   }
   if (param == "include_mchits") {
     options.mchits = value ? true : false;
+  }
+  if (param == "include_digitizerwaveforms") {
+    options.digitizerwaveforms = value ? true : false;
+  }
+  if (param == "include_digitizerhits") {
+    options.digitizerhits = value ? true : false;
+  }
+  if (param == "include_digitizerfits") {
+    options.digitizerfits = value ? true : false;
   }
 }
 

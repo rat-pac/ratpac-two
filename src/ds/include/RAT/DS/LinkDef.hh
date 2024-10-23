@@ -18,6 +18,7 @@
 #pragma link C++ class RAT::DS::EV + ;
 #pragma link C++ class RAT::DS::PMT + ;
 #pragma link C++ class RAT::DS::DigitPMT + ;
+#pragma link C++ class RAT::DS::WaveformAnalysisResult + ;
 #pragma link C++ class RAT::DS::LAPPD + ;
 #pragma link C++ class RAT::DS::LAPPDHit + ;
 #pragma link C++ class RAT::DS::Digit + ;
@@ -80,7 +81,11 @@
 #pragma link C++ class vector < RAT::TrackNode *>;
 #pragma link C++ class vector < RAT::DS::EV *>;
 #pragma link C++ class vector < RAT::DS::PMT *>;
+#pragma link C++ class map < Int_t, RAT::DS::PMT>;
 #pragma link C++ class vector < RAT::DS::DigitPMT *>;
+#pragma link C++ class map < Int_t, RAT::DS::DigitPMT>;
+#pragma link C++ class vector < RAT::DS::WaveformAnalysisResult>;
+#pragma link C++ class map < string, RAT::DS::WaveformAnalysisResult> + ;
 #pragma link C++ class vector < RAT::DS::LAPPD *>;
 #pragma link C++ class vector < RAT::DS::LAPPDHit *>;
 #pragma link C++ class vector < RAT::DS::Digit *>;

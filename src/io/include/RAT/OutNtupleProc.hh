@@ -1,9 +1,14 @@
 #ifndef __RATOutNtupleProc___
 #define __RATOutNtupleProc___
 
+#include <TTree.h>
+#include <sys/types.h>
+
 #include <RAT/DS/Run.hh>
 #include <RAT/Processor.hh>
 #include <functional>
+
+#include "Math/Types.h"
 
 class TFile;
 class TTree;
@@ -49,6 +54,7 @@ class OutNtupleProc : public Processor {
     bool tracking;
     bool mcparticles;
     bool pmthits;
+    bool digitizerwaveforms;
     bool digitizerhits;
     bool digitizerfits;
     bool untriggered;
@@ -56,11 +62,14 @@ class OutNtupleProc : public Processor {
   };
   NtupleOptions options;
 
+  std::vector<std::string> waveform_fitters;
+
  protected:
   std::string defaultFilename;
   TFile *outputFile;
   TTree *outputTree;
   TTree *metaTree;
+  TTree *waveformTree;
   // Meta Branches
   Int_t runId;
   ULong64_t runType;
@@ -78,6 +87,15 @@ class OutNtupleProc : public Processor {
   std::vector<double> pmtU;
   std::vector<double> pmtV;
   std::vector<double> pmtW;
+  u_int32_t digitizerWindowSize;
+  Double_t digitizerSampleRate;
+  Double_t digitizerDynamicRange;
+  Double_t digitizerVoltageResolution;
+  // Digitizer waveforms
+  int waveform_pmtid;
+  std::vector<Double_t> inWindowPulseTimes;
+  std::vector<Double_t> inWindowPulseCharges;
+  std::vector<UShort_t> waveform;
   // Data Branches
   Int_t mcpdg;
   double mcx, mcy, mcz;
@@ -140,7 +158,10 @@ class OutNtupleProc : public Processor {
   std::vector<int> digitNCrossings;
   std::vector<int> digitPMTID;
   // Information from fit to the waveforms
-  std::vector<double> fitTime;
+  std::map<std::string, std::vector<int>> fitPmtID;
+  std::map<std::string, std::vector<double>> fitTime;
+  std::map<std::string, std::vector<double>> fitCharge;
+  // std::vector<double> fitTime;
   std::vector<double> fitBaseline;
   std::vector<double> fitPeak;
   // Tracking
@@ -161,9 +182,15 @@ class OutNtupleProc : public Processor {
 
   std::set<std::string> branchNames;
 
-  void SetBranchValue(std::string name, double *value);
-  void SetBranchValue(std::string name, int *value);
-  void SetBranchValue(std::string name, bool *value);
+  template <typename T>
+  void SetBranchValue(std::string name, T *value) {
+    if (branchNames.find(name) != branchNames.end()) {
+      outputTree->SetBranchAddress(name.c_str(), &value);
+    } else {
+      branchNames.insert(name);
+      outputTree->Branch(name.c_str(), value);
+    }
+  }
 };
 
 }  // namespace RAT
