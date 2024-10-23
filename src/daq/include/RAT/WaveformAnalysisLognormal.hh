@@ -28,8 +28,6 @@
 #include <RAT/WaveformAnalyzerBase.hh>
 #include <vector>
 
-#include "WaveformAnalyzerBase.hh"
-
 namespace RAT {
 
 class WaveformAnalysisLognormal : public WaveformAnalyzerBase {
