@@ -50,15 +50,24 @@ class ChannelStatus : public TObject {
   }
 
   virtual void Load(const PMTInfo* pmtinfo, const std::string index = "") {
-    DBLinkPtr lCableOffset = DB::Get()->GetLink("cable_offset", index);
-    default_offset = lCableOffset->GetD("default_value");
-    DBLinkPtr lChannelOnline = DB::Get()->GetLink("channel_online", index);
-    default_is_online = lChannelOnline->GetD("default_value");
+    DB *db = DB::Get();
+    DBLinkPtr lCableOffset = db->GetLink("cable_offset", index);
+    try {
+      default_offset = lCableOffset->GetD("default_value");
+    } catch (DBNotFoundError& e) {
+      default_offset = db->GetLink("cable_offset", "", db->GetDefaultRun());
+    }
+    DBLinkPtr lChannelOnline = db->GetLink("channel_online", index);
+    try {
+      default_is_online = lChannelOnline->GetD("default_value");
+    } catch (DBNotFoundError& e) {
+      default_is_online = db->GetLink("channel_online", "", db->GetDefaultRun());
+    }
     for (int pmtid = 0; pmtid < pmtinfo->GetPMTCount(); pmtid++) {
       int lcn = pmtinfo->GetChannelNumber(pmtid);
       LinkPMT(pmtid, lcn);
     }
-    // cable offset
+    // cable offsets
     try {
       std::vector<int> lcns = get_lcns(lCableOffset);
       std::vector<double> values = lCableOffset->GetDArray("value");
@@ -74,7 +83,6 @@ class ChannelStatus : public TObject {
     } catch (DBNotFoundError& e) {
       warn << "Channel online table not found! Looking for table channel_online[" << index << "]\n";
     }
-    // read channel online
   }
 
   std::vector<int> get_lcns(DBLinkPtr& lTable) {
