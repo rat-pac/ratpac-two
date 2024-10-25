@@ -363,7 +363,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     triggerTime = ev->GetCalibratedTriggerTime();
     timestamp = (ev->GetUTC().GetSec() - runBranch->GetStartTime().GetSec()) * 1e9 +
                 (ev->GetUTC().GetNanoSec() - runBranch->GetStartTime().GetNanoSec()) + triggerTime;
-    timeSinceLastTrigger_us = ev->GetDeltaT();
+    timeSinceLastTrigger_us = ev->GetDeltaT() / 1000.;
     auto fitVector = ev->GetFitResults();
     std::map<std::string, double *> fitvalues;
     std::map<std::string, bool *> fitvalids;
