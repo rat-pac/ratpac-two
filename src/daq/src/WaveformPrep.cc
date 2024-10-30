@@ -116,14 +116,15 @@ void WaveformPrep::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t
   int samplePeak = peak.first;
   double voltagePeak = peak.second;
 
-  // Calculate the constant-fraction hit-time
-  double digitTime = WaveformUtil::CalculateTimeCFD(voltWfm, samplePeak, fLookback, fTimeStep, fConstFrac);
-
   // Get the total number of threshold crossings
   std::tuple<int, double, double> crossingsInfo = WaveformUtil::GetCrossingsInfo(voltWfm, fThreshold, fTimeStep);
   int nCrossings = std::get<0>(crossingsInfo);
   double timeOverThreshold = std::get<1>(crossingsInfo);
   double voltageOverThreshold = std::get<2>(crossingsInfo);
+
+  // Calculate the constant-fraction hit-time
+  double digitTime = WaveformUtil::INVALID;
+  if (nCrossings > 0) digitTime = WaveformUtil::CalculateTimeCFD(voltWfm, samplePeak, fLookback, fTimeStep, fConstFrac);
 
   // Integrate the waveform to calculate the charge
   double charge = WaveformUtil::IntegratePeak(voltWfm, samplePeak, fIntWindowLow, fIntWindowHigh, fTimeStep, fTermOhms);
