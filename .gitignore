@@ -29,6 +29,7 @@ src/core/Config.hh
 .idea/
 .vscode/
 doc/_build/
+doc/doxygen
 .pytest_cache*
 ratpac.*sh
 RatpacConfig.cmake

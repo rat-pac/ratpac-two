@@ -35,6 +35,9 @@ extensions = [
     "sphinx_rtd_theme",
 ]
 
+os.system("doxygen")
+os.system("doxysphinx build . ./_build/html/ ./Doxyfile ")
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
