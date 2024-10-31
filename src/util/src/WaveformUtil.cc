@@ -47,13 +47,14 @@ int GetThresholdCrossingBeforePeak(const std::vector<double>& waveform, int peak
   int back_window = (lb > 0) ? lb : 0;
 
   if (back_window >= waveform.size()) {
-    Log::Die("WaveformUtil: Start of lookback window must be before end of waveform.");
+    warn << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before end of waveform."
+         << newline;
   } else if (back_window >= peakSample) {
-    Log::Die("WaveformUtil: Start of lookback window must be before peak.");
+    warn << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before peak." << newline;
   } else if (peakSample >= waveform.size()) {
-    Log::Die("WaveformUtil: Peak must be before end of waveform.");
+    warn << "WaveformUtil::GetThresholdCrossingBeforePeak: Peak not before end of waveform." << newline;
   } else if (waveform.at(peakSample) > voltageThreshold) {
-    Log::Die("WaveformUtil: Peak must be above threshold.");
+    warn << "WaveformUtil: Peak not above threshold.\n";
   }
 
   // Start at the peak and scan backwards
@@ -136,13 +137,22 @@ std::tuple<int, double, double> GetCrossingsInfo(const std::vector<double>& wave
   return std::make_tuple(nCrossings, timeOverThreshold, voltageOverThreshold);
 }
 
-double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, double constFrac, int lookBack,
-                        double timeStep) {
+double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, int lookBack, double timeStep,
+                        double constFrac, double voltageThreshold) {
   /*
   Apply constant-fraction discriminator for a given peak
   */
-  double voltageThreshold = constFrac * waveform.at(peakSample);
+  if (voltageThreshold == INVALID) {
+    if (constFrac != INVALID) {
+      voltageThreshold = constFrac * waveform.at(peakSample);
+    } else {
+      Log::Die("WaveformUtil::CalculateTimeCFD: Must give either constFrac or voltageThreshold for CalculateTimeCFD.");
+    }
+  }
   int time = GetThresholdCrossingBeforePeak(waveform, peakSample, voltageThreshold, lookBack, timeStep);
+  if (time == INVALID) {
+    return INVALID;
+  }
   // Linearly interpolate threshold crossing time, if time is not last sample of waveform
   double dt = 0;
   if (time < waveform.size() - 1) {
