@@ -62,7 +62,8 @@ Rat::Rat(AnyParse *parser, int argc, char **argv) : parser(parser), argc(argc), 
   // Parser setup and ready to read command line arguments
   this->parser->Parse();
 
-  if (this->parser->GetValue("database", "") != "") RAT::DB::Get()->SetServer(this->parser->GetValue("database", ""));
+  if (this->parser->GetValue<std::string>("database", "") != "")
+    RAT::DB::Get()->SetServer(this->parser->GetValue("database", ""));
   // Database management
   rdb = DB::Get();
   rdb_messenger = new DBMessenger();
@@ -92,7 +93,7 @@ void Rat::Begin() {
   int display_level = Log::INFO - this->parser->GetValue("quiet", false) + this->parser->GetValue("verbose", false);
   int log_level = debug_log || display_level == Log::DEBUG ? Log::DEBUG : Log::DETAIL;
   std::string logfilename = (std::string("rat.") + get_short_hostname() + "." + std::to_string(getpid()) + ".log");
-  logfilename = this->parser->GetValue("log", "") != "" ? this->parser->GetValue("log", "") : logfilename;
+  logfilename = this->parser->GetValue<std::string>("log", "") != "" ? this->parser->GetValue("log", "") : logfilename;
   Log::Init(logfilename, Log::Level(display_level), Log::Level(log_level));
 
   // Start by putting all of the basic rat starting functions here, eventually
@@ -113,8 +114,6 @@ void Rat::Begin() {
   CLHEP::HepRandom::setTheSeed(this->seed);
   // Root ... should not be used
   gRandom->SetSeed(this->seed);
-
-  int dbstatus = rdb->LoadDefaults();
 
   // Run management
   if (this->run > 0) {
@@ -159,7 +158,6 @@ void Rat::Begin() {
       mainBlock->DeferAppend(python);
     }
 
-    bool isInteractive = false;
     G4UIExecutive *theSession = nullptr;
     if (this->vis) theSession = new G4UIExecutive(this->argc, this->argv);
 

@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   }
 
   // Write to stream
-  if (parser->GetValue("output", "") != "") {
+  if (parser->GetValue<std::string>("output", "") != "") {
     std::ofstream outputfile(parser->GetValue("output", ""));
     json::Writer writer(outputfile);
     writer.putValue(jsontable);

@@ -108,7 +108,7 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
   const std::vector<double> &pmtColor = table->GetDArray("pmt_vis_color");
   const double pmtRadius = table->GetD("pmt_radius");
   const double pmtHeight = table->GetD("pmt_height");
-  const int pmtLcn = table->GetI("pmt_lcn");
+  // const int pmtLcn = table->GetI("pmt_lcn");
 
   // Calculate the z location of the start of the neck
   double neckStartZ = sqrt(ballId * ballId / 4.0 - neckId * neckId / 4.0);
@@ -322,7 +322,7 @@ G4VPhysicalVolume *GeoCherenkovSourceFactory::Construct(DBLinkPtr table) {
 
   // Put stuff in the mother volume
   G4VPhysicalVolume *motherPhys = FindPhysMother(table->GetS("mother"));
-  G4LogicalVolume *motherLog = FindMother(table->GetS("mother"));
+  // G4LogicalVolume *motherLog = FindMother(table->GetS("mother"));
   // G4VPhysicalVolume *canPhys = ConstructPhysicalVolume(canLog, motherLog,
   // table);
 

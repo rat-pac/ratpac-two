@@ -544,8 +544,8 @@ void GLG4PosGen_FillCyl::GeneratePosition(G4ThreeVector &argResult) {
     double theVolume = theSolid->GetCubicVolume();  // in cubic meters
     double theMass = theLogVolume->GetMass(false, false);
     double theNelec = theMaterial->GetElectronDensity();
-    // RAT::info << "[GLG4PosGen_FillCyl] Volume " << theVolume << " " << theMass
-    // << newline; RAT::info << "[GLG4PosGen_FillCyl] Nelec " << theNelec << newline;
+    RAT::debug << "[GLG4PosGen_FillCyl] Volume " << theVolume << " " << theMass << newline;
+    RAT::info << "[GLG4PosGen_FillCyl] Nelec " << theNelec << newline;
   }
   return;
 }

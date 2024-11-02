@@ -17,7 +17,7 @@ std::vector<double> ADCtoVoltage(const std::vector<UShort_t>& adcWaveform, doubl
 
 // Calculate baseline
 template <typename T>
-double CalculatePedestal(const std::vector<T>& waveform, int pedWindowLow, int pedWindowHigh) {
+double CalculatePedestal(const std::vector<T>& waveform, size_t pedWindowLow, size_t pedWindowHigh) {
   /*
   Template: Calculate the baseline in the window between low - high samples.
   */
@@ -35,7 +35,7 @@ double CalculatePedestal(const std::vector<T>& waveform, int pedWindowLow, int p
   // Ensure end of pedestal window is less than waveform size
   pedWindowHigh = (pedWindowHigh > waveform.size()) ? waveform.size() : pedWindowHigh;
 
-  for (int i = pedWindowLow; i < pedWindowHigh; i++) {
+  for (size_t i = pedWindowLow; i < pedWindowHigh; i++) {
     pedestal += waveform[i];
   }
   pedestal /= (pedWindowHigh - pedWindowLow);
