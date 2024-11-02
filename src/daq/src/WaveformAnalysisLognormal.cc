@@ -6,7 +6,6 @@
 #include <RAT/WaveformAnalysisLognormal.hh>
 
 #include "RAT/DS/DigitPMT.hh"
-#include "RAT/DS/RunStore.hh"
 #include "RAT/DS/WaveformAnalysisResult.hh"
 #include "RAT/WaveformUtil.hh"
 
@@ -127,21 +126,6 @@ void WaveformAnalysisLognormal::FitWaveform(const std::vector<double>& voltWfm) 
 
   delete wfm;
   delete ln_fit;
-}
-
-Processor::Result WaveformAnalysisLognormal::Event(DS::Root* ds, DS::EV* ev) {
-  if (!ev->DigitizerExists()) {
-    warn << "Running waveform analysis, but no digitzer information." << newline;
-    return Processor::Result::OK;
-  }
-  DS::Digit* dsdigit = &ev->GetDigitizer();
-  DS::Run* run = DS::RunStore::GetRun(ds->GetRunID());
-  std::vector<int> pmt_ids = ev->GetAllDigitPMTIDs();
-  for (int pmt_id : pmt_ids) {
-    DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(pmt_id);
-    RunAnalysis(digitpmt, pmt_id, dsdigit);
-  }
-  return Processor::Result::OK;
 }
 
 }  // namespace RAT
