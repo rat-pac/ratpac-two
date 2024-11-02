@@ -38,7 +38,6 @@ class WaveformAnalysisLognormal : public WaveformAnalyzerBase {
   };
   virtual ~WaveformAnalysisLognormal(){};
   void Configure(const std::string &config_name) override;
-  virtual Processor::Result Event(DS::Root *ds, DS::EV *ev) override;
   virtual void SetD(std::string param, double value) override;
 
   // Fit the digitized waveform using a lognormal function
@@ -65,7 +64,7 @@ class WaveformAnalysisLognormal : public WaveformAnalyzerBase {
   double fFittedBaseline;
   double fChi2NDF;
 
-  void DoAnalysis(DS::DigitPMT *pmt, const std::vector<UShort_t> &digitWfm);
+  void DoAnalysis(DS::DigitPMT *pmt, const std::vector<UShort_t> &digitWfm) override;
 };
 
 }  // namespace RAT

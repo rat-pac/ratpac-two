@@ -1,6 +1,7 @@
 #include "RAT/WaveformAnalyzerBase.hh"
 
 #include "RAT/DS/DigitPMT.hh"
+#include "RAT/DS/RunStore.hh"
 
 namespace RAT {
 
@@ -22,6 +23,21 @@ void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Di
   fTermOhms = dsdigit->GetTerminationOhms();
   std::vector<UShort_t> digitWfm = dsdigit->GetWaveform(pmtID);
   DoAnalysis(digitpmt, digitWfm);
+}
+
+Processor::Result WaveformAnalyzerBase::Event(DS::Root* ds, DS::EV* ev) {
+  if (!ev->DigitizerExists()) {
+    warn << "Running waveform analysis, but no digitzer information." << newline;
+    return Processor::Result::OK;
+  }
+  DS::Digit* dsdigit = &ev->GetDigitizer();
+  DS::Run* run = DS::RunStore::GetRun(ds->GetRunID());
+  std::vector<int> pmt_ids = ev->GetAllDigitPMTIDs();
+  for (int pmt_id : pmt_ids) {
+    DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(pmt_id);
+    RunAnalysis(digitpmt, pmt_id, dsdigit);
+  }
+  return Processor::Result::OK;
 }
 
 void WaveformAnalyzerBase::SetS(std::string param, std::string value) {

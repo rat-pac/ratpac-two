@@ -92,6 +92,11 @@ class WaveformAnalyzerBase : public Processor {
   virtual void RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, DS::Digit *dsdigit);
 
   /**
+   * Main function called for each event.
+   * */
+  Processor::Result Event(DS::Root *ds, DS::EV *ev) override;
+
+  /**
    * Implementation of the waveform analysis.
    * @param digitpmt   Pointer to the digitpmt where analysis results are written to.
    * @param digitwfm   Waveform to analyze, in ADC units.
