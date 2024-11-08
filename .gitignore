@@ -28,6 +28,8 @@ src/core/Config.hh
 
 .idea/
 .vscode/
+.cache/
+compile_commands.json
 doc/_build/
 doc/doxygen
 .pytest_cache*
