@@ -634,10 +634,8 @@ void Materials::LoadOptics() {
     // scattering, which is combined into a single scattering length
     mpt->AddConstProperty("NCOMPONENTS", components.size(), true);
 
-    // const std::vector<G4MaterialPropertyVector *> &materialPropertyVector = mpt->GetProperties();
     const std::vector<G4String> &materialPropertyNames = mpt->GetMaterialPropertyNames();
     const std::vector<G4String> &materialConstPropertyNames = mpt->GetMaterialConstPropertyNames();
-    // const std::vector<std::pair<G4double, G4bool>> &materialConstPropertyVector = mpt->GetConstProperties();
 
     for (size_t i = 0; i < components.size(); i++) {
       std::string compname = components[i];
