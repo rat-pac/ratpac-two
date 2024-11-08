@@ -135,6 +135,7 @@ charge_prob: [0.002291031848236706, 0.002309928362209871, 0.002328980735317256, 
 }
 
 // E.Keener at Penn, updates to charge and probabilities based on darkbox data from Berkeley Jun to Dec 2023: https://nino.lbl.gov/pmts/
+// https://arxiv.org/abs/2311.05080
 {
 name: "PMTCHARGE",
 index: "r11780_hqe_rev",
