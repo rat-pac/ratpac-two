@@ -20,6 +20,7 @@ add_library(daq OBJECT
   src/WaveformPrep.cc
   src/WaveformAnalyzerBase.cc
   src/WaveformAnalysisLognormal.cc
+  src/WaveformAnalysisGaussian.cc
   )
 
 # Set our include directories
