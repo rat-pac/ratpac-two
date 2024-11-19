@@ -41,6 +41,7 @@
 #include <RAT/TrackInfo.hh>
 #include <RAT/Trajectory.hh>
 #include <RAT/VertexFile_Gen.hh>
+#include <RAT/RooTracker_Gen.hh>
 #include <RAT/VertexGen_CC.hh>
 #include <RAT/VertexGen_CRY.hh>
 #include <RAT/VertexGen_Decay0.hh>
@@ -128,6 +129,7 @@ void Gsim::Init() {
   GlobalFactory<GLG4Gen>::Register("led", new Alloc<GLG4Gen, Gen_LED>);
   GlobalFactory<GLG4Gen>::Register("coincidence", new Alloc<GLG4Gen, Coincidence_Gen>);
   GlobalFactory<GLG4Gen>::Register("vertexfile", new Alloc<GLG4Gen, VertexFile_Gen>);
+  GlobalFactory<GLG4Gen>::Register("rootracker", new Alloc<GLG4Gen, RooTracker_Gen>);
 
   // An additional "messenger" class for user diagnostics
   theDebugMessenger = new GLG4DebugMessenger(theDetectorConstruction);
