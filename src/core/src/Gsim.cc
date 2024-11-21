@@ -438,7 +438,6 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   ds->SetRunID(theRunManager->GetCurrentRun()->GetRunID());
   mc->SetID(g4ev->GetEventID());
   mc->SetUTC(exinfo->utc);
-
   // Vertex Info
   for (int ivert = 0; ivert < g4ev->GetNumberOfPrimaryVertex(); ivert++) {
     G4PrimaryVertex *pv = g4ev->GetPrimaryVertex(ivert);
@@ -544,6 +543,7 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   int numPE = 0;
 
   for (int ipmt = 0; ipmt < hitpmts->GetEntries(); ipmt++) {
+    double chargeScale = 1;
     GLG4HitPMT *a_pmt = hitpmts->GetPMT(ipmt);
     a_pmt->SortTimeAscending();
 
@@ -555,23 +555,24 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
     rat_mcpmt->SetType(fPMTInfo->GetType(a_pmt->GetID()));
 
     numPE += a_pmt->GetEntries();
-
+    chargeScale = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByChannel(rat_mcpmt->GetID());
     /** Add "real" hits from actual simulated photons */
     for (int i = 0; i < a_pmt->GetEntries(); i++) {
       // Find the optical process responsible
       auto photon = a_pmt->GetPhoton(i);
       std::string process = photon->GetCreatorProcess();
       if (StoreOpticalTrackID) {
-        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), exinfo, process);
+        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), exinfo, process, chargeScale);
       } else {
-        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), NULL, process);
+        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), NULL, process, chargeScale);
       }
     }
   }
   mc->SetNumPE(numPE);
 }
 
-void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo * /*exinfo*/, std::string process) {
+void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo * /*exinfo*/, std::string process,
+                       double chargeScale) {
   DS::MCPhoton *rat_mcphoton = rat_mcpmt->AddNewMCPhoton();
   // Only real photons are added in Gsim, noise and afterpulsing handled in processors
   rat_mcphoton->SetDarkHit(false);
@@ -592,7 +593,7 @@ void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventI
   rat_mcphoton->SetCreationTime(photon->GetCreationTime());
 
   rat_mcphoton->SetFrontEndTime(fPMTTime[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickTime(photon->GetTime()));
-  rat_mcphoton->SetCharge(fPMTCharge[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickCharge());
+  rat_mcphoton->SetCharge(chargeScale * fPMTCharge[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickCharge());
   rat_mcphoton->SetCreatorProcess(process);
 }
 
