@@ -1,8 +1,8 @@
-#include <TFile.h>
 #include <TROOT.h>
 #include <TTimeStamp.h>
 #include <TTree.h>
 #include <TVector3.h>
+
 #include <G4Event.hh>
 #include <G4ParticleTable.hh>
 #include <G4PrimaryParticle.hh>
@@ -32,21 +32,15 @@ void RooTracker_Gen::GenerateEvent(G4Event* event) {
   G4ThreeVector pos;
   if (fPosGen) {
     fPosGen->GeneratePosition(pos);
-  }
-  else {
-    pos = G4ThreeVector(
-      fRec->EvtVtx[0] * 1000,
-      fRec->EvtVtx[1] * 1000,
-      fRec->EvtVtx[2] * 1000
-    );
+  } else {
+    pos = G4ThreeVector(fRec->EvtVtx[0] * 1000, fRec->EvtVtx[1] * 1000, fRec->EvtVtx[2] * 1000);
   }
 
   // Vertex time
   double time;
   if (fTimeGen) {
     time = NextTime();
-  }
-  else {
+  } else {
     time = fRec->EvtVtx[3] * 1e9;
   }
 
@@ -54,16 +48,12 @@ void RooTracker_Gen::GenerateEvent(G4Event* event) {
   PrimaryVertexInformation* vertinfo = new PrimaryVertexInformation();
 
   // Loop over StdHep particles
-  for (int i=0; i<fRec->StdHepN; i++) {
+  for (int i = 0; i < fRec->StdHepN; i++) {
     int status = fRec->StdHepStatus[i];
 
     if (status == 0 || status == 1) {
-      G4PrimaryParticle* p = new G4PrimaryParticle(
-        fRec->StdHepPdg[i],
-        fRec->StdHepP4[i][0] * 1000,
-        fRec->StdHepP4[i][1] * 1000,
-        fRec->StdHepP4[i][2] * 1000
-      );
+      G4PrimaryParticle* p = new G4PrimaryParticle(fRec->StdHepPdg[i], fRec->StdHepP4[i][0] * 1000,
+                                                   fRec->StdHepP4[i][1] * 1000, fRec->StdHepP4[i][2] * 1000);
 
       status == 0 ? vertinfo->AddNewParentParticle(p) : vertex->SetPrimary(p);
     }
@@ -85,8 +75,7 @@ void RooTracker_Gen::ResetTime(double offset) {
     if (fTimeGen) {
       double eventTime = fTimeGen->GenerateEventTime();
       nextTime = eventTime + offset;
-    }
-    else {
+    } else {
       fTTree->GetEntry(fCurrentEvent);
       double time = fRec->EvtVtx[3] * 1e9;
       nextTime = time - fLastEventTime + offset;
@@ -130,32 +119,27 @@ void RooTracker_Gen::SetState(G4String state) {
   if (nArgs >= 1) {
     filename = parts[0];
   } else {
-    G4Exception(
-      __FILE__, "Invalid Parameter", FatalException,
-      ("rootracker generator syntax error: '" + state + "' does not have a filename").c_str());
+    G4Exception(__FILE__, "Invalid Parameter", FatalException,
+                ("rootracker generator syntax error: '" + state + "' does not have a filename").c_str());
   }
 
   fStateStr = state;
   fFile = TFile::Open(filename.c_str());
   gROOT->cd(0);
-  TTree* t = (TTree*) fFile->Get("gRooTracker");
-  fTTree = (TTree*) t->CloneTree();
+  TTree* t = (TTree*)fFile->Get("gRooTracker");
+  fTTree = (TTree*)t->CloneTree();
   fTTree->SetDirectory(0);
   fFile->Close();
 
   fNumEvents = fTTree->GetEntries();
 
   if (!fNumEvents)
-    G4Exception(
-      __FILE__, "Invalid Parameter", FatalException,
-      ("File '" + filename + "' is empty").c_str());
+    G4Exception(__FILE__, "Invalid Parameter", FatalException, ("File '" + filename + "' is empty").c_str());
 
   fRec = new StdHepRecord(fTTree);
 }
 
-
 G4String RooTracker_Gen::GetState() const { return fStateStr; }
-
 
 void RooTracker_Gen::SetTimeState(G4String state) {
   if (fTimeGen)
@@ -165,14 +149,12 @@ void RooTracker_Gen::SetTimeState(G4String state) {
             "selected\n";
 }
 
-
 G4String RooTracker_Gen::GetTimeState() const {
   if (fTimeGen)
     return fTimeGen->GetState();
   else
     return G4String("RooTracker_Gen error: no time generator selected");
 }
-
 
 void RooTracker_Gen::SetPosState(G4String state) {
   if (fPosGen)
@@ -181,7 +163,6 @@ void RooTracker_Gen::SetPosState(G4String state) {
     warn << "RooTracker_Gen error: Cannot set position state, no position "
             "generator selected\n";
 }
-
 
 G4String RooTracker_Gen::GetPosState() const {
   if (fPosGen)

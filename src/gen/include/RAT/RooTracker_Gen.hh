@@ -26,7 +26,9 @@
 #ifndef __RAT_RooTracker_Gen__
 #define __RAT_RooTracker_Gen__
 
+#include <TFile.h>
 #include <TTimeStamp.h>
+
 #include <RAT/GLG4Gen.hh>
 
 class TTree;
@@ -34,7 +36,7 @@ class TTree;
 namespace RAT {
 
 namespace DS {
-  class Root;
+class Root;
 }
 
 const int kNPmax = 250;  // gNtpConv.cxx
@@ -80,22 +82,18 @@ struct StdHepRecord {
   int StdHepLm[kNPmax];
 };
 
-
 class RooTracker_Gen : public GLG4Gen {
-public:
+ public:
   RooTracker_Gen()
-    : fStateStr(""), fCurrentEvent(0), fNumEvents(0), fMaxEvent(0),
-      fLastEventTime(0), fTimeGen(0), fPosGen(0) {}
+      : fStateStr(""), fCurrentEvent(0), fNumEvents(0), fMaxEvent(0), fLastEventTime(0), fTimeGen(0), fPosGen(0) {}
 
-  virtual ~RooTracker_Gen() {
-    fFile->Close();
-  }
+  virtual ~RooTracker_Gen() { fFile->Close(); }
 
-  void GenerateEvent(G4Event *event);
+  void GenerateEvent(G4Event* event);
   bool IsRepeatable() const { return true; };
 
   /// @param[in] offset Time reset to this value
-  void ResetTime(double offset=0.0);
+  void ResetTime(double offset = 0.0);
 
   /// @param[in] state SetState state
   void SetState(G4String state);
@@ -132,4 +130,3 @@ public:
 }  // namespace RAT
 
 #endif
-

@@ -34,6 +34,7 @@
 #include <RAT/PrimaryVertexInformation.hh>
 #include <RAT/ProcBlock.hh>
 #include <RAT/ReacIBDgen.hh>
+#include <RAT/RooTracker_Gen.hh>
 #include <RAT/SNgen.hh>
 #include <RAT/SignalHandler.hh>
 #include <RAT/StackingAction.hh>
@@ -41,7 +42,6 @@
 #include <RAT/TrackInfo.hh>
 #include <RAT/Trajectory.hh>
 #include <RAT/VertexFile_Gen.hh>
-#include <RAT/RooTracker_Gen.hh>
 #include <RAT/VertexGen_CC.hh>
 #include <RAT/VertexGen_CRY.hh>
 #include <RAT/VertexGen_Decay0.hh>
