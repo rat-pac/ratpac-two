@@ -52,8 +52,7 @@ void VertexFile_Gen::GenerateEvent(G4Event *event) {
                                                         mcp->GetMomentum().Y(), mcp->GetMomentum().Z());
 
     if (!vertexset) {
-      if (!fPosGen)
-        pos = G4ThreeVector(mcp->GetPosition().X(), mcp->GetPosition().Y(), mcp->GetPosition().Z());
+      if (!fPosGen) pos = G4ThreeVector(mcp->GetPosition().X(), mcp->GetPosition().Y(), mcp->GetPosition().Z());
       vertex = new G4PrimaryVertex(pos, NextTime() + mcp->GetTime());
       vertexset = true;
     }
@@ -68,8 +67,7 @@ void VertexFile_Gen::GenerateEvent(G4Event *event) {
                                                         mcp->GetMomentum().Y(), mcp->GetMomentum().Z());
 
     if (!vertexset) {
-      if (!fPosGen)
-        pos = G4ThreeVector(mcp->GetPosition().X(), mcp->GetPosition().Y(), mcp->GetPosition().Z());
+      if (!fPosGen) pos = G4ThreeVector(mcp->GetPosition().X(), mcp->GetPosition().Y(), mcp->GetPosition().Z());
       vertex = new G4PrimaryVertex(pos, NextTime() + mcp->GetTime());
       vertexset = true;
     }
