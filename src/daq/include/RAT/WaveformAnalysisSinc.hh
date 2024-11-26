@@ -10,11 +10,11 @@
 ///
 /// REVISION HISTORY:\n
 ///     25 Nov 2024: Initial commit
-/// 
+///
 /// \details
-/// This class provides full support for interpolating 
+/// This class provides full support for interpolating
 /// the waveforms by convolution using a tapered sinc (tsinc)
-/// kernel. Based on the implementation of the existing 
+/// kernel. Based on the implementation of the existing
 /// WaveformAnalysis class and WaveformAnalysisLognormal class.
 ////////////////////////////////////////////////////////////////////
 #ifndef __RAT_WaveformAnalysisSinc__
@@ -27,8 +27,8 @@
 #include <RAT/Digitizer.hh>
 #include <RAT/Processor.hh>
 #include <RAT/WaveformAnalyzerBase.hh>
-#include <vector>
 #include <cmath>
+#include <vector>
 
 namespace RAT {
 
@@ -43,7 +43,7 @@ class WaveformAnalysisSinc : public WaveformAnalyzerBase {
   virtual void SetD(std::string param, double value) override;
 
   // Interpolate the digitized waveform by convolution using a sinc kernel
-  std::vector<double> convolve_wfm(const std::vector<double>& wfm, const std::vector<double>& kernel);
+  std::vector<double> convolve_wfm(const std::vector<double> &wfm, const std::vector<double> &kernel);
   void InterpolateWaveform(const std::vector<double> &voltWfm);
 
  protected:

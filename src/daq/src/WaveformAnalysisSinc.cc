@@ -41,8 +41,7 @@ void WaveformAnalysisSinc::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal = pedestal);
   fDigitTimeInWindow = digitpmt->GetDigitizedTimeNoOffset();
 
-  if (std::isinf(fDigitTimeInWindow) || fDigitTimeInWindow < 0)
-  {
+  if (std::isinf(fDigitTimeInWindow) || fDigitTimeInWindow < 0) {
     return;
   }
 
@@ -52,10 +51,11 @@ void WaveformAnalysisSinc::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
   fit_result->AddPE(fFitTime, fFitCharge, {{"peak", fFitPeak}});
 }
 
-std::vector<double> WaveformAnalysisSinc::convolve_wfm(const std::vector<double>& wfm, const std::vector<double>& kernel) {
+std::vector<double> WaveformAnalysisSinc::convolve_wfm(const std::vector<double>& wfm,
+                                                       const std::vector<double>& kernel) {
   int n = wfm.size();
   int m = kernel.size();
-  std::vector<double> result(n + m - 1, 0.0); // Size of the output
+  std::vector<double> result(n + m - 1, 0.0);  // Size of the output
   // Perform the convolution
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < m; ++j) {
@@ -66,7 +66,6 @@ std::vector<double> WaveformAnalysisSinc::convolve_wfm(const std::vector<double>
 }
 
 void WaveformAnalysisSinc::InterpolateWaveform(const std::vector<double>& voltWfm) {
-
   // Fit range
   double bf = fDigitTimeInWindow - fFitWindowLow;
   double tf = fDigitTimeInWindow + fFitWindowHigh;
@@ -77,25 +76,25 @@ void WaveformAnalysisSinc::InterpolateWaveform(const std::vector<double>& voltWf
 
   // Get samples values within the fit range
   std::vector<double> fit_wfm;
-  int sample_low = static_cast<int>(floor(bf/fTimeStep));
-  int sample_high = static_cast<int>(floor(tf/fTimeStep));
+  int sample_low = static_cast<int>(floor(bf / fTimeStep));
+  int sample_high = static_cast<int>(floor(tf / fTimeStep));
   sample_high = std::min(static_cast<int>(voltWfm.size()) - 1, sample_high);
-  for (int j=sample_low; j<sample_high+1; j++){
+  for (int j = sample_low; j < sample_high + 1; j++) {
     fit_wfm.push_back(voltWfm[j]);
   }
 
   // Calculating tapered sinc kernel
   std::vector<double> tsinc_kernel;
-  int N = 8; //number of interpolated points per data point
-  double T = 30.0; //tapering constant
-  for (int k=-48; k<49; k++){
-    double val = k*3.1415/(float)N;
+  int N = 8;        // number of interpolated points per data point
+  double T = 30.0;  // tapering constant
+  for (int k = -48; k < 49; k++) {
+    double val = k * 3.1415 / (float)N;
     double sinc = sin(val);
     if (k == 0)
       sinc = 1.0;
     else
       sinc /= val;
-    tsinc_kernel.push_back(sinc*exp(-pow(k/T,2)));
+    tsinc_kernel.push_back(sinc * exp(-pow(k / T, 2)));
   }
 
   // Interpolated waveform
@@ -105,7 +104,7 @@ void WaveformAnalysisSinc::InterpolateWaveform(const std::vector<double>& voltWf
   fFitPeak = peakSampleVolt.second;
   fFitTime = bf + peakSampleVolt.first * fTimeStep / (float)N;
   fFitCharge = 0;
-  for (auto & vlt : interp_wfm) {
+  for (auto& vlt : interp_wfm) {
     fFitCharge += WaveformUtil::VoltagetoCharge(vlt, fTimeStep / (float)N, fTermOhms);  // in pC
   }
 }

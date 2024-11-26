@@ -19,11 +19,11 @@
 #include <RAT/Log.hh>
 #include <RAT/OutNtupleProc.hh>
 #include <iostream>
+#include <memory>
 #include <numeric>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "RAT/DS/ChannelStatus.hh"
 
@@ -161,7 +161,8 @@ bool OutNtupleProc::OpenFile(std::string filename) {
       outputTree->Branch(TString("fit_time_" + fitter_name), &fitTime[fitter_name]);
       outputTree->Branch(TString("fit_charge_" + fitter_name), &fitCharge[fitter_name]);
       for (const std::string &FOM_name : waveform_FOMs) {
-        outputTree->Branch(TString("fit_" + FOM_name + "_" + fitter_name), &figsOfMerit["fit_" + FOM_name + "_" + fitter_name]);
+        outputTree->Branch(TString("fit_" + FOM_name + "_" + fitter_name),
+                           &figsOfMerit["fit_" + FOM_name + "_" + fitter_name]);
       }
     }
   }
