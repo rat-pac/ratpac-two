@@ -23,6 +23,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "RAT/DS/ChannelStatus.hh"
 
@@ -63,6 +64,7 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
   }
   if (options.digitizerfits) {
     waveform_fitters = table->GetSArray("waveform_fitters");
+    waveform_FOMs = table->GetSArray("waveform_FOMs");
   }
 }
 
@@ -158,6 +160,9 @@ bool OutNtupleProc::OpenFile(std::string filename) {
       outputTree->Branch(TString("fit_pmtid_" + fitter_name), &fitPmtID[fitter_name]);
       outputTree->Branch(TString("fit_time_" + fitter_name), &fitTime[fitter_name]);
       outputTree->Branch(TString("fit_charge_" + fitter_name), &fitCharge[fitter_name]);
+      for (const std::string &FOM_name : waveform_FOMs) {
+        outputTree->Branch(TString("fit_" + FOM_name + "_" + fitter_name), &figsOfMerit["fit_" + FOM_name + "_" + fitter_name]);
+      }
     }
   }
   if (options.mchits) {
@@ -481,6 +486,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           fitPmtID[fitter_name].clear();
           fitTime[fitter_name].clear();
           fitCharge[fitter_name].clear();
+          for (const std::string &FOM_name : waveform_FOMs) {
+            figsOfMerit["fit_" + FOM_name + "_" + fitter_name].clear();
+          }
         }
       }
 
@@ -499,11 +507,14 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           const std::vector<std::string> fitters = digitpmt->GetFitterNames();
           for (std::string fitter_name : fitters) {
             DS::WaveformAnalysisResult *fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(fitter_name);
+            std::vector<std::string> FOM_names = fit_result->getFOMNames();
             for (int hitidx = 0; hitidx < fit_result->getNhits(); hitidx++) {
               fitPmtID[fitter_name].push_back(digitpmt->GetID());
               fitTime[fitter_name].push_back(fit_result->getTime(hitidx));
               fitCharge[fitter_name].push_back(fit_result->getCharge(hitidx));
-              // TODO: figures of merit -- you probably need some nested map
+              for (const std::string &FOM_name : FOM_names) {
+                figsOfMerit["fit_" + FOM_name + "_" + fitter_name].push_back(fit_result->getFOMValue(FOM_name, hitidx));
+              }
             }
           }
         }
@@ -573,6 +584,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           fitPmtID[fitter_name].clear();
           fitTime[fitter_name].clear();
           fitCharge[fitter_name].clear();
+          for (const std::string &FOM_name : waveform_FOMs) {
+            figsOfMerit["fit_" + FOM_name + "_" + fitter_name].clear();
+          }
         }
       }
     }

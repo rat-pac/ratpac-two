@@ -23,5 +23,6 @@ include_digitizerfits: true,
 include_digitizerwaveforms: false,
 include_untriggered_events: true,
 include_mchits: true,
-waveform_fitters: ["Lognormal"]
+waveform_fitters: ["Lognormal", "Sinc"]
+waveform_FOMs: ["baseline", "chi2ndf", "peak"]
 }

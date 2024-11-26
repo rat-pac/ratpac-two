@@ -41,7 +41,15 @@ class WaveformAnalysisResult : public TObject {
   virtual Double_t getTimeOffset() { return time_offset; }
   virtual Double_t getTime(size_t idx) { return times.at(idx); }
   virtual Double_t getCharge(size_t idx) { return charges.at(idx); }
-  virtual Double_t getFOM(std::string key, size_t idx) { return figures_of_merit.at(key).at(idx); }
+  virtual std::vector<std::string> getFOMNames() { //Function to retrive the names of figures of merit
+    std::vector<std::string> FOMNames;
+    FOMNames.reserve(figures_of_merit.size());
+    for (const auto& pair : figures_of_merit) {
+      FOMNames.push_back(pair.first); 
+    }
+    return FOMNames;
+  }
+  virtual Double_t getFOMValue(std::string key, size_t idx) { return figures_of_merit.at(key).at(idx); }
   virtual int getNhits() { return times.size(); }
   ClassDef(WaveformAnalysisResult, 1);
 
