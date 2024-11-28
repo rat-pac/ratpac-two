@@ -40,8 +40,6 @@ class WaveformAnalysisGaussian : public WaveformAnalyzerBase {
   DBLinkPtr fDigit;
 
   // Analysis constants
-  int fPedWindowLow;
-  int fPedWindowHigh;
   double fFitWindowLow;
   double fFitWindowHigh;
   double fFitWidth;
