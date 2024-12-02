@@ -543,7 +543,6 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   int numPE = 0;
 
   for (int ipmt = 0; ipmt < hitpmts->GetEntries(); ipmt++) {
-    double chargeScale = 1;
     GLG4HitPMT *a_pmt = hitpmts->GetPMT(ipmt);
     a_pmt->SortTimeAscending();
 
@@ -555,7 +554,7 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
     rat_mcpmt->SetType(fPMTInfo->GetType(a_pmt->GetID()));
 
     numPE += a_pmt->GetEntries();
-    chargeScale = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByChannel(rat_mcpmt->GetID());
+    double chargeScale = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByChannel(rat_mcpmt->GetID());
     /** Add "real" hits from actual simulated photons */
     for (int i = 0; i < a_pmt->GetEntries(); i++) {
       // Find the optical process responsible
