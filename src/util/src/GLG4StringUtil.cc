@@ -41,7 +41,7 @@ int util_from_char[] = {
 
 // signed version of the generic image generation function for all integer types
 template <typename T>
-static std::string util_simage(T i, unsigned radix, radix_display_t display, unsigned width) throw() {
+static std::string util_simage(T i, unsigned radix, radix_display_t display, unsigned width) {
   if (radix < 2 || radix > 36) throw std::invalid_argument("invalid radix value " + util_to_string(radix));
   // untangle all the options
   bool hashed = false;
@@ -184,7 +184,7 @@ static std::string util_simage(T i, unsigned radix, radix_display_t display, uns
 
 // unsigned version
 template <typename T>
-static std::string util_uimage(T i, unsigned radix, radix_display_t display, unsigned width) throw() {
+static std::string util_uimage(T i, unsigned radix, radix_display_t display, unsigned width) {
   if (radix < 2 || radix > 36) throw std::invalid_argument("invalid radix value " + util_to_string(radix));
   // untangle all the options
   bool hashed = false;
@@ -325,38 +325,38 @@ static std::string util_uimage(T i, unsigned radix, radix_display_t display, uns
 
 // Integer types
 
-std::string util_to_string(bool i, unsigned radix, radix_display_t display, unsigned width) throw() {
+std::string util_to_string(bool i, unsigned radix, radix_display_t display, unsigned width) {
   // use the char representation for bool
   return util_uimage<char>(i, radix, display, width);
 }
 
-std::string util_to_string(short i, unsigned radix, radix_display_t display, unsigned width) throw() {
+std::string util_to_string(short i, unsigned radix, radix_display_t display, unsigned width) {
   return util_simage(i, radix, display, width);
 }
 
-std::string util_to_string(unsigned short i, unsigned radix, radix_display_t display, unsigned width) throw() {
+std::string util_to_string(unsigned short i, unsigned radix, radix_display_t display, unsigned width) {
   return util_uimage(i, radix, display, width);
 }
 
-std::string util_to_string(int i, unsigned radix, radix_display_t display, unsigned width) throw() {
+std::string util_to_string(int i, unsigned radix, radix_display_t display, unsigned width) {
   return util_simage(i, radix, display, width);
 }
 
-std::string util_to_string(unsigned i, unsigned radix, radix_display_t display, unsigned width) throw() {
+std::string util_to_string(unsigned i, unsigned radix, radix_display_t display, unsigned width) {
   return util_uimage(i, radix, display, width);
 }
 
-std::string util_to_string(long i, unsigned radix, radix_display_t display, unsigned width) throw() {
+std::string util_to_string(long i, unsigned radix, radix_display_t display, unsigned width) {
   return util_simage(i, radix, display, width);
 }
 
-std::string util_to_string(unsigned long i, unsigned radix, radix_display_t display, unsigned width) throw() {
+std::string util_to_string(unsigned long i, unsigned radix, radix_display_t display, unsigned width) {
   return util_uimage(i, radix, display, width);
 }
 
 // floating-point types
 
-std::string util_to_string(float f, real_display_t display, unsigned width, unsigned precision) throw() {
+std::string util_to_string(float f, real_display_t display, unsigned width, unsigned precision) {
   std::string format;
   switch (display) {
     case display_fixed:
@@ -374,7 +374,7 @@ std::string util_to_string(float f, real_display_t display, unsigned width, unsi
   return util_dformat(format.c_str(), width, precision, f);
 }
 
-std::string util_to_string(double f, real_display_t display, unsigned width, unsigned precision) throw() {
+std::string util_to_string(double f, real_display_t display, unsigned width, unsigned precision) {
   std::string format;
   switch (display) {
     case display_fixed:
@@ -400,7 +400,7 @@ std::string util_to_string(double f, real_display_t display, unsigned width, uns
 
 // signed version
 template <typename T>
-static T svalue(const std::string &str, unsigned radix) throw() {
+static T svalue(const std::string &str, unsigned radix) {
   if (radix != 0 && (radix < 2 || radix > 36))
     throw std::invalid_argument("invalid radix value " + util_to_string(radix));
   std::string::size_type i = 0;
@@ -593,7 +593,7 @@ static T svalue(const std::string &str, unsigned radix) throw() {
 
 // unsigned version
 template <typename T>
-static T uvalue(const std::string &str, unsigned radix) throw() {
+static T uvalue(const std::string &str, unsigned radix) {
   if (radix != 0 && (radix < 2 || radix > 36))
     throw std::invalid_argument("invalid radix value " + util_to_string(radix));
   unsigned i = 0;
@@ -785,29 +785,25 @@ static T uvalue(const std::string &str, unsigned radix) throw() {
 ////////////////////////////////////////////////////////////////////////////////
 // exported functions
 
-bool util_to_bool(const std::string &str, unsigned radix) throw() { return uvalue<unsigned char>(str, radix) != 0; }
+bool util_to_bool(const std::string &str, unsigned radix) { return uvalue<unsigned char>(str, radix) != 0; }
 
-short util_to_short(const std::string &str, unsigned radix) throw() { return svalue<short>(str, radix); }
+short util_to_short(const std::string &str, unsigned radix) { return svalue<short>(str, radix); }
 
-unsigned short util_to_ushort(const std::string &str, unsigned radix) throw() {
-  return uvalue<unsigned short>(str, radix);
-}
+unsigned short util_to_ushort(const std::string &str, unsigned radix) { return uvalue<unsigned short>(str, radix); }
 
-int util_to_int(const std::string &str, unsigned radix) throw() { return svalue<int>(str, radix); }
+int util_to_int(const std::string &str, unsigned radix) { return svalue<int>(str, radix); }
 
-unsigned int util_to_uint(const std::string &str, unsigned radix) throw() { return uvalue<unsigned>(str, radix); }
+unsigned int util_to_uint(const std::string &str, unsigned radix) { return uvalue<unsigned>(str, radix); }
 
-long util_to_long(const std::string &str, unsigned radix) throw() { return svalue<long>(str, radix); }
+long util_to_long(const std::string &str, unsigned radix) { return svalue<long>(str, radix); }
 
-unsigned long util_to_ulong(const std::string &str, unsigned radix) throw() {
-  return uvalue<unsigned long>(str, radix);
-}
+unsigned long util_to_ulong(const std::string &str, unsigned radix) { return uvalue<unsigned long>(str, radix); }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-float util_to_float(const std::string &value) throw() { return (float)util_to_double(value); }
+float util_to_float(const std::string &value) { return (float)util_to_double(value); }
 
-double util_to_double(const std::string &value) throw() {
+double util_to_double(const std::string &value) {
   // TODO - error checking
   return strtod(value.c_str(), 0);
 }

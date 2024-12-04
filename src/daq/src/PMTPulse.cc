@@ -19,7 +19,7 @@ double PMTPulse::GetDataDrivenPulseVal(double time) {
     // pulse not defined for this value
     return 0.;
   }
-  int i = 0;
+  size_t i = 0;
   for (i = 0; i < fPulseTimes.size() - 1; i++) {
     if (time > fPulseTimes[i]) {
       continue;

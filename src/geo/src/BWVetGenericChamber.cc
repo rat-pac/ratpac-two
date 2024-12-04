@@ -190,7 +190,7 @@ G4bool BWVetGenericChamber::ProcessHits(G4Step *aStep, G4TouchableHistory * /*RO
   }
 
   if (_hitsCollection) {
-    for (G4int i = 0; i < _hitsCollection->entries(); i++) {
+    for (size_t i = 0; i < _hitsCollection->entries(); i++) {
       // 	RAT::debug << "  * BWVetGenericChamber::ProcessHits checking hit "
       // 	       << i + 1
       // 	       << " of "

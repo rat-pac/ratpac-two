@@ -92,14 +92,14 @@ class WaveformAnalysis : public Processor {
   double fTermOhms;
 
   // Analysis constants
-  int fPedWindowLow;
-  int fPedWindowHigh;
+  size_t fPedWindowLow;
+  size_t fPedWindowHigh;
   double fLookback;
-  int fIntWindowLow;
-  int fIntWindowHigh;
+  size_t fIntWindowLow;
+  size_t fIntWindowHigh;
   double fConstFrac;
-  int fLowIntWindow;
-  int fHighIntWindow;
+  size_t fLowIntWindow;
+  size_t fHighIntWindow;
   double fVoltageCrossing;
   double fThreshold;
   int fSlidingWindow;
