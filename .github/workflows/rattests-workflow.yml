@@ -1,0 +1,41 @@
+on:
+  workflow_call:
+    inputs:
+      rattest-name:
+        required: true
+        type: string
+
+jobs:
+  rattest:
+    runs-on: ubuntu-latest
+    container: 
+      image: ratpac/ratpac-two:latest-base
+      options: --user root
+    steps:
+    - name: Get build cache
+      id: cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ratpac2
+        key: ${{ github.sha }}-install
+    - name: Run rattest 
+      working-directory: ratpac2
+      shell: bash
+      run: |
+        source /ratpac-setup/env.sh
+        source ../ratpac2/ratpac.sh
+        python3 $RATSHARE/python/rattest.py -t test/full/${{ inputs.rattest-name }}
+      id: test
+      continue-on-error: true
+    - name: upload-result
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.rattest-name }}-result
+        if-no-files-found: error
+        path: |
+          ratpac2/test/full/${{ inputs.rattest-name }}/*.png
+          ratpac2/test/full/${{ inputs.rattest-name }}/*.html
+    - name: check-test-result
+      if: steps.test.outcome != 'success'
+      run: exit 1 
+
