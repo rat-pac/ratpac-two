@@ -332,11 +332,11 @@ void Gsim::PreUserTrackingAction(const G4Track *aTrack) {
       creatorProcessName = trackInfo->GetCreatorProcess();
     }
 
-    if (creatorProcessName == "Scintillation") {
+    if (creatorProcessName.find("Scintillation") != std::string::npos) {
       eventInfo->numScintPhoton++;
-    } else if (creatorProcessName == "Reemission") {
+    } else if (creatorProcessName.find("Reemission") != std::string::npos) {
       eventInfo->numReemitPhoton++;
-    } else if (creatorProcessName == "Cerenkov") {
+    } else if (creatorProcessName.find("Cerenkov") != std::string::npos) {
       eventInfo->numCerenkovPhoton++;
     }
   }
