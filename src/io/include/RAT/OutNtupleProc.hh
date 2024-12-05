@@ -185,7 +185,7 @@ class OutNtupleProc : public Processor {
   template <typename T>
   void SetBranchValue(std::string name, T *value) {
     if (branchNames.find(name) != branchNames.end()) {
-      outputTree->SetBranchAddress(name.c_str(), &value);
+      outputTree->SetBranchAddress(name.c_str(), value);
     } else {
       branchNames.insert(name);
       outputTree->Branch(name.c_str(), value);
