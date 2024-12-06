@@ -16,13 +16,13 @@
 /// the waveforms by convolution using a tapered sinc (tsinc)
 /// kernel. Based on the implementation of the existing
 /// WaveformAnalysis class and WaveformAnalysisLognormal class.
-/// 
-/// Algorithm is from W. K. Warburton and W. Hennig, 
-/// "New Algorithms for Improved Digital Pulse Arrival Timing With 
-/// Sub-GSps ADCs," in IEEE Transactions on Nuclear Science, vol. 64, 
+///
+/// Algorithm is from W. K. Warburton and W. Hennig,
+/// "New Algorithms for Improved Digital Pulse Arrival Timing With
+/// Sub-GSps ADCs," in IEEE Transactions on Nuclear Science, vol. 64,
 /// no. 12, pp. 2938-2950, Dec. 2017, doi: 10.1109/TNS.2017.2766074.
-/// 
-/// 
+///
+///
 ///
 ///
 ///
