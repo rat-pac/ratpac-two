@@ -8,7 +8,7 @@
 
 [![Build Docker Image](https://github.com/rat-pac/ratpac-two/actions/workflows/latest-container.yml/badge.svg?branch=main&event=deployment)](https://github.com/rat-pac/ratpac-two/actions/workflows/latest-container.yml)
 
-[ratpac.readthedocs.io](ratpac.readthedocs.io)
+[ratpac.readthedocs.io](https://ratpac.readthedocs.io)
 
 ## Quick Start with containers
 
