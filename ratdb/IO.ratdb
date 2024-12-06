@@ -23,5 +23,5 @@ include_digitizerfits: true,
 include_digitizerwaveforms: false,
 include_untriggered_events: true,
 include_mchits: true,
-waveform_fitters: ["Lognormal"]
+waveform_fitters: ["Lognormal", "Gaussian"]
 }
