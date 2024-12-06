@@ -1,5 +1,9 @@
-void make_plots(TFile *event_file, TTree *T, TFile *out_file)
+void acrylic_attenuation(std::string event_filename, std::string out_filename)
 {
+  TFile *event_file = new TFile(event_filename.c_str(),"READ");
+  TTree *T = (TTree*)event_file->Get("T");
+  TFile *out_file = new TFile(out_filename.c_str(),"RECREATE");
+
   TH1F *acr_attn_100 = new TH1F("acr_attn_100", "Photon track length (100 nm)", 50, 0, 50);
   acr_attn_100->SetXTitle("Track length (mm)");
   acr_attn_100->SetYTitle("Count");
@@ -40,16 +44,8 @@ void make_plots(TFile *event_file, TTree *T, TFile *out_file)
   acr_attn_500->Draw("goff");
   acr_attn_500->Write();
 
-}
-
-int acrylic_attenuation(std::string event_file, std::string outfile){
-  TFile *infile = new TFile(event_file.c_str(),"READ");
-  TTree *event_ttree = (TTree*)infile->Get("T");
-  TFile *outtfile = new TFile(outfile.c_str(),"RECREATE");
-  make_plots(infile, event_ttree, outtfile);
-  infile->Close();
-  outtfile->Close();
-  delete infile;
-  delete outtfile;
-  return 0;
+  event_file->Close();
+  out_file->Close();
+  delete event_file;
+  delete out_file;
 }
