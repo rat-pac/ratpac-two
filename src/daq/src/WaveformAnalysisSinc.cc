@@ -86,7 +86,7 @@ void WaveformAnalysisSinc::InterpolateWaveform(const std::vector<double>& voltWf
   int N = 8;        // number of interpolated points per data point
   double T = 30.0;  // tapering constant
   for (int k = -48; k < 49; k++) {
-    double val = k * 3.1415 / (float)N;
+    double val = k * 3.1415 / static_cast<float>(N);
     double sinc = sin(val);
     if (k == 0)
       sinc = 1.0;
@@ -100,10 +100,10 @@ void WaveformAnalysisSinc::InterpolateWaveform(const std::vector<double>& voltWf
   std::pair<int, double> peakSampleVolt = WaveformUtil::FindHighestPeak(interp_wfm);
 
   fFitPeak = peakSampleVolt.second;
-  fFitTime = bf + peakSampleVolt.first * fTimeStep / (float)N;
+  fFitTime = bf + peakSampleVolt.first * fTimeStep / static_cast<float>(N);
   fFitCharge = 0;
-  for (auto& vlt : interp_wfm) {
-    fFitCharge += WaveformUtil::VoltagetoCharge(vlt, fTimeStep / (float)N, fTermOhms);  // in pC
+  for (const double& vlt : interp_wfm) {
+    fFitCharge += WaveformUtil::VoltagetoCharge(vlt, fTimeStep / static_cast<float>(N), fTermOhms);  // in pC
   }
 }
 
