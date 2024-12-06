@@ -129,8 +129,8 @@ PMTWaveform PMTWaveformGenerator::GenerateWaveforms(DS::MCPMT *mcpmt, double tri
         pmtpulse->SetGausPulseWidth(PickGaussianWidth());
       }
     } else if (fPMTPulseType == "datadriven") {
-      pmtpulse->SetPulseTimes(fPMTPulseShapeTimes);
-      pmtpulse->SetPulseValues(fPMTPulseShapeValues);
+      pmtpulse->SetPulseShapeTimes(fPMTPulseShapeTimes);
+      pmtpulse->SetPulseShapeValues(fPMTPulseShapeValues);
     }
   }
 
