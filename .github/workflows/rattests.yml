@@ -1,0 +1,36 @@
+name: rattests
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: 
+      image: ratpac/ratpac-two:latest-base
+      options: --user root
+    steps:
+    - name: Checkout Ratpac2
+      uses: actions/checkout@v4
+      with:
+        path: ratpac2
+    - name: Build Ratpac2
+      working-directory: ratpac2
+      shell: bash
+      run: |
+        source /ratpac-setup/env.sh
+        make -j$(nproc)
+    - name: Cache build output
+      id: cache
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ github.sha }}-install
+        path: ratpac2
+  
+  acrylic_attenuation:
+    needs: build
+    uses: ./.github/workflows/rattests-workflow.yml
+    with:
+      rattest-name: acrylic_attenuation
