@@ -139,6 +139,9 @@ install(DIRECTORY models/ DESTINATION ${RATSHARE}/models
 install(DIRECTORY python/ DESTINATION ${RATSHARE}/python
   PATTERN "python/*")
 
+# Install rattest executable
+install(PROGRAMS python/rattest.py DESTINATION bin RENAME rattest)
+
 # Install the macro files
 install(DIRECTORY macros/ DESTINATION ${RATSHARE}/macros
   PATTERN "macros/*")

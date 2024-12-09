@@ -126,7 +126,7 @@ class RatTest:
         Run a full RAT test, including simulation and the ROOT macro.
         Includes writing results to the HTML file, if option is specified.
         '''
-        print('=' * 5 + ' Run Test: {} '.format(self.name) + '=' * 5)
+        print("\033[1;35m" + '=' * 5 + ' Run Test: {} '.format(self.name) + '=' * 5 + "\033[0m")
         self._do_run(regen_mc=regen_mc, regen_plots=regen_plots)
 
         if html:
@@ -248,7 +248,7 @@ class RatTest:
             prob = m_obj.KolmogorovTest(c_obj)
             if m_obj.GetEntries() == 0 and c_obj.GetEntries() == 0:
                 prob = 1
-            print("Comparing {}: {}".format(objname, c_obj.GetTitle()))
+            print("\033[1;34mComparing {}: {}\033[0m".format(objname, c_obj.GetTitle()))
 
             #Require a perfect match if desired, else test against critical_probability
             if self.KS_threshold == 1.0:
@@ -264,7 +264,7 @@ class RatTest:
                     success = False
                     overall_success = False
 
-            success_message = "SUCCESS" if (success and overall_success) else "FAILURE"
+            success_message = "\033[1;32mSUCCESS\033[0m" if (success and overall_success) else "\033[1;31mFAILURE\033[0m"
             print("  {}: KS prob = {}".format(success_message, prob))
 
             plotfile = os.path.join(self.testdir, objname + '.png')

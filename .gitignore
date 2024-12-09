@@ -19,6 +19,7 @@ src/core/Config.hh
 
 *.log
 *.root
+!test/full/*/standard.root
 *.heprep
 .DS_Store
 *.gif
@@ -35,3 +36,7 @@ doc/doxygen
 .pytest_cache*
 ratpac.*sh
 RatpacConfig.cmake
+
+# rattest outputs 
+test/full/*/*.png 
+test/full/*/*.html
