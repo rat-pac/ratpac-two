@@ -34,12 +34,11 @@ void fitcentroid(std::string event_filename, std::string out_filename) {
   TProfile *hReconVsRadius = new TProfile(
       "hReconVsRadius", "20 keVee electrons (error bars are RMS);(Radius/437 mm)**3;Reconstructed X - True X (mm)", 5,
       0, 1, "s");
-  TProfile *hReconVsEnergy = new TProfile(
-      "hReconVsEnergy", "Electrons at center (error bars are RMS);Kinetic energy (MeV);Reconstructed X (mm)", 5, 3,
-      15, "s");
+  TProfile *hReconVsEnergy =
+      new TProfile("hReconVsEnergy",
+                   "Electrons at center (error bars are RMS);Kinetic energy (MeV);Reconstructed X (mm)", 5, 3, 15, "s");
 
-  T->Draw("ds.ev.fitResults.fit_position.fX>>hCenterRes", 
-          "ds.mc.particle.ke < 0.0205 && ds.mc.particle.pos.fX < 0.05",
+  T->Draw("ds.ev.fitResults.fit_position.fX>>hCenterRes", "ds.mc.particle.ke < 0.0205 && ds.mc.particle.pos.fX < 0.05",
           "goff");
   T->Draw("ds.ev.fitResults.fit_position.fX-ds.mc.particle.pos.fX:(ds.mc.particle.pos.Mag()/437)>>hReconVsRadius",
           "ds.mc.particle.ke < 0.0205 && ds.mc.particle.pos.fX > 0.05", "goff prof");
@@ -60,5 +59,4 @@ void fitcentroid(std::string event_filename, std::string out_filename) {
   out_file->Close();
   delete event_file;
   delete out_file;
-
 }
