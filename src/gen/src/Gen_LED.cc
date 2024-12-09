@@ -34,7 +34,7 @@ Gen_LED::~Gen_LED() {
 }
 
 void Gen_LED::GenerateEvent(G4Event *event) {
-  if (selectedLED >= 0 && selectedLED < led_x.size()) {
+  if (selectedLED >= 0 && static_cast<size_t>(selectedLED) < led_x.size()) {
     next_led = selectedLED;
   }
   // Get information on next LED to fire
