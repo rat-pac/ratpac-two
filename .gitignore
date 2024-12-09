@@ -35,3 +35,7 @@ doc/doxygen
 .pytest_cache*
 ratpac.*sh
 RatpacConfig.cmake
+
+# rattest outputs 
+test/full/*/*.png 
+test/full/*/*.html
