@@ -24,7 +24,7 @@ jobs:
       run: |
         source /ratpac-setup/env.sh
         source ../ratpac2/ratpac.sh
-        python3 $RATSHARE/python/rattest.py -t test/full/${{ inputs.rattest-name }}
+        python3 rattest -t test/full/${{ inputs.rattest-name }}
       id: test
       continue-on-error: true
     - name: upload-result
