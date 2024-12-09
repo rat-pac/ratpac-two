@@ -12,6 +12,7 @@
   "run_range": [0, 0],
   "default_value": 1,
 }
+
 {
   "name": "charge_scale",
   "index": "",
