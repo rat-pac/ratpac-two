@@ -28,10 +28,11 @@ class ChannelStatus : public TObject {
   ChannelStatus() : TObject() {}
   virtual ~ChannelStatus() {}
 
-  virtual void AddChannel(int lcn, int is_online, double offset) {
+  virtual void AddChannel(int lcn, int is_online, double offset, double chargescale) {
     lcns.push_back(lcn);
     online.push_back(is_online);
     cable_offset.push_back(offset);
+    charge_scale.push_back(chargescale);
     lcn_to_index[lcn] = lcns.size() - 1;
   }
 
@@ -41,10 +42,13 @@ class ChannelStatus : public TObject {
   virtual double GetCableOffsetByChannel(int lcn) const { return cable_offset.at(lcn_to_index.at(lcn)); }
   virtual double GetCableOffsetByPMTID(int pmtid) const { return cable_offset.at(pmtid_to_index.at(pmtid)); }
 
+  virtual double GetChargeScaleByChannel(int lcn) const { return charge_scale.at(lcn_to_index.at(lcn)); }
+  virtual double GetChargeScaleByPMTID(int pmtid) const { return charge_scale.at(pmtid_to_index.at(pmtid)); }
+
   virtual void LinkPMT(int pmtid, int lcn) {
     // create entry with default values if none are specified
     if (lcn_to_index.find(lcn) == lcn_to_index.end()) {
-      AddChannel(lcn, default_is_online, default_offset);
+      AddChannel(lcn, default_is_online, default_offset, default_charge_scale);
     }
     pmtid_to_index[pmtid] = lcn_to_index[lcn];
   }
@@ -54,6 +58,8 @@ class ChannelStatus : public TObject {
     default_offset = lCableOffset->GetD("default_value");
     DBLinkPtr lChannelOnline = DB::Get()->GetLink("channel_online", index);
     default_is_online = lChannelOnline->GetD("default_value");
+    DBLinkPtr lChargeScale = DB::Get()->GetLink("charge_scale", index);
+    default_charge_scale = lChannelOnline->GetD("default_value");
     for (int pmtid = 0; pmtid < pmtinfo->GetPMTCount(); pmtid++) {
       int lcn = pmtinfo->GetChannelNumber(pmtid);
       LinkPMT(pmtid, lcn);
@@ -65,6 +71,14 @@ class ChannelStatus : public TObject {
       insert_values(lcns, values, &cable_offset);
     } catch (DBNotFoundError& e) {
       warn << "Cable offset table not found! Looking for table cable_offset[" << index << "]\n";
+    }
+    // charge scale
+    try {
+      std::vector<int> lcns = get_lcns(lChargeScale);
+      std::vector<double> values = lChargeScale->GetDArray("value");
+      insert_values(lcns, values, &charge_scale);
+    } catch (DBNotFoundError& e) {
+      warn << "Charge Scale table not found! Looking for table charge_scale[" << index << "]\n";
     }
     // dead channels
     try {
@@ -119,8 +133,10 @@ class ChannelStatus : public TObject {
   std::vector<int> lcns;
   std::vector<int> online;
   std::vector<double> cable_offset;
+  std::vector<double> charge_scale;
   double default_offset;
   int default_is_online;
+  double default_charge_scale;
 };
 
 }  // namespace DS
