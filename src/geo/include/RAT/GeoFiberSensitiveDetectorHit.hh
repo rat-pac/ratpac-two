@@ -29,6 +29,7 @@ class GeoFiberSensitiveDetectorHit : public G4VHit {
   G4int id;
   G4double time;
   G4ThreeVector pos;
+  G4ThreeVector hit_pos;
   G4RotationMatrix rot;
   const G4LogicalVolume *pLogV;
   std::string proc;
@@ -39,6 +40,8 @@ class GeoFiberSensitiveDetectorHit : public G4VHit {
   inline void SetTime(G4double val) { time = val; }
   inline void SetPos(G4ThreeVector xyz) { pos = xyz; }
   inline G4ThreeVector GetPos() const { return pos; }
+  inline void SetHitPos(G4ThreeVector xyz) { hit_pos = xyz; }
+  inline G4ThreeVector GetHitPos() const { return hit_pos; }
   inline void SetRot(G4RotationMatrix rmat) { rot = rmat; }
   inline G4RotationMatrix GetRot() const { return rot; }
   inline void SetLogV(G4LogicalVolume *val) { pLogV = val; }

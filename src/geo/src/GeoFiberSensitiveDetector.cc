@@ -178,7 +178,8 @@ G4bool GeoFiberSensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory 
 
 	  if (_hitsCollection) {
 	    debug << "GeoFiberSensitiveDetector::ProcessHits creating a new hit." << newline;
-	    GeoFiberSensitiveDetectorHit *aHit = new GeoFiberSensitiveDetectorHit(uid, hitTime);
+			G4ThreeVector pos = {worldPos.x(), worldPos.y(), worldPos.z()};
+	    GeoFiberSensitiveDetectorHit *aHit = new GeoFiberSensitiveDetectorHit(uid, hitTime, pos);
 	    G4VPhysicalVolume *thePhysical = theTouchable->GetVolume();
 	    aHit->SetLogV(thePhysical->GetLogicalVolume());
 	    G4AffineTransform aTrans = theTouchable->GetHistory()->GetTopTransform();

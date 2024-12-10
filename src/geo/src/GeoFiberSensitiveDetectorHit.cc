@@ -11,9 +11,10 @@ namespace RAT {
 
 G4Allocator<GeoFiberSensitiveDetectorHit> GeoFiberSensitiveDetectorHitAllocator;
 
-GeoFiberSensitiveDetectorHit::GeoFiberSensitiveDetectorHit(G4int i, G4double t) {
+GeoFiberSensitiveDetectorHit::GeoFiberSensitiveDetectorHit(G4int i, G4double t, G4ThreeVector p) {
   id = i;
   time = t;
+  hit_pos = p;
   pLogV = 0;
 }
 GeoFiberSensitiveDetectorHit::~GeoFiberSensitiveDetectorHit() { ; }
@@ -22,6 +23,7 @@ GeoFiberSensitiveDetectorHit::GeoFiberSensitiveDetectorHit(const GeoFiberSensiti
   id = right.id;
   time = right.time;
   pos = right.pos;
+  hit_pos = right.hit_pos;
   rot = right.rot;
   pLogV = right.pLogV;
 }
@@ -30,6 +32,7 @@ const GeoFiberSensitiveDetectorHit &GeoFiberSensitiveDetectorHit::operator=(cons
   id = right.id;
   time = right.time;
   pos = right.pos;
+  hit_pos = right.hit_pos;
   rot = right.rot;
   pLogV = right.pLogV;
   return *this;

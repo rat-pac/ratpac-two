@@ -620,7 +620,7 @@ void Gsim::AddMCNestedTubeHit(DS::MCNestedTube *rat_mcnt, const GeoFiberSensitiv
   // Only real photons are added in Gsim, noise and afterpulsing handled in processors
 
   double x, y, z;
-  G4ThreeVector pos_vec = hit->GetPos();
+  G4ThreeVector pos_vec = hit->GetHitPos();
   x = pos_vec.x();
   y = pos_vec.y();
   z = pos_vec.z();
