@@ -13,7 +13,7 @@ namespace RAT {
 
 class GeoFiberSensitiveDetectorHit : public G4VHit {
  public:
-  GeoFiberSensitiveDetectorHit(G4int i, G4double t);
+  GeoFiberSensitiveDetectorHit(G4int i, G4double t, G4ThreeVector p);
   virtual ~GeoFiberSensitiveDetectorHit();
   GeoFiberSensitiveDetectorHit(const GeoFiberSensitiveDetectorHit &right);
   const GeoFiberSensitiveDetectorHit &operator=(const GeoFiberSensitiveDetectorHit &right);
