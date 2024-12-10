@@ -10,8 +10,7 @@ class G4TouchableHistory;
 
 namespace RAT {
 
-class GeoFiberSensitiveDetector : public G4VSensitiveDetector
-{
+class GeoFiberSensitiveDetector : public G4VSensitiveDetector {
  public:
   GeoFiberSensitiveDetector(G4String name);
   virtual ~GeoFiberSensitiveDetector();

@@ -21,9 +21,9 @@
 #include <RAT/GLG4VertexGen.hh>
 #include <RAT/GdGen.hh>
 #include <RAT/Gen_LED.hh>
-#include <RAT/GeoNestedSolidArrayFactoryBase.hh>
 #include <RAT/GeoFiberSensitiveDetector.hh>
 #include <RAT/GeoFiberSensitiveDetectorHit.hh>
+#include <RAT/GeoNestedSolidArrayFactoryBase.hh>
 #include <RAT/Gsim.hh>
 #include <RAT/HeGen.hh>
 #include <RAT/LiGen.hh>
@@ -569,13 +569,12 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
     }
   }
   mc->SetNumPE(numPE);
-  
+
   /** hits from fibers */
   G4HCofThisEvent *HC = g4ev->GetHCofThisEvent();
   for (int hc = 0; hc < HC->GetNumberOfCollections(); hc++) {
-    GeoFiberSensitiveDetectorHitsCollection *hit_collection = (GeoFiberSensitiveDetectorHitsCollection*)HC->GetHC(hc);
-    if (hit_collection->GetName() != "FiberSenDet" || hit_collection->GetSize() == 0)
-      continue;
+    GeoFiberSensitiveDetectorHitsCollection *hit_collection = (GeoFiberSensitiveDetectorHitsCollection *)HC->GetHC(hc);
+    if (hit_collection->GetName() != "FiberSenDet" || hit_collection->GetSize() == 0) continue;
     DS::MCNestedTube *rat_mcnt = mc->AddNewMCNestedTube();
     G4String det_name = hit_collection->GetSDname();
     std::string fibre_id_str = det_name.erase(0, 6).data();
@@ -584,7 +583,7 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
     // only process fibers
     // info << hit_collection->GetSDname() << newline;
     for (int hit = 0; hit < hit_collection->GetSize(); hit++) {
-      GeoFiberSensitiveDetectorHit *my_hit = (GeoFiberSensitiveDetectorHit*)hit_collection->GetHit(hit);
+      GeoFiberSensitiveDetectorHit *my_hit = (GeoFiberSensitiveDetectorHit *)hit_collection->GetHit(hit);
       AddMCNestedTubeHit(rat_mcnt, my_hit);
     }
   }
