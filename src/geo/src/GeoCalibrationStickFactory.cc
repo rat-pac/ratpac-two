@@ -40,8 +40,6 @@ G4VPhysicalVolume *GeoCalibrationStickFactory::Construct(DBLinkPtr table) {
 
   G4ThreeVector offset(positionArray[0], positionArray[1], positionArray[2]);
 
-  const double sourceCenter = stickLength / 2.0 - sourceThickness / 2.0;
-
   // Main outer tube
   G4Material *stickMaterial = G4Material::GetMaterial(table->GetS("stick_material"));
   // const std::vector<double> &sourceColor = table->GetDArray("source_vis_color");
@@ -70,23 +68,18 @@ G4VPhysicalVolume *GeoCalibrationStickFactory::Construct(DBLinkPtr table) {
 
   // Put stuff in the mother volume
   G4VPhysicalVolume *motherPhys = FindPhysMother(motherName);
-  G4LogicalVolume *motherLog = FindMother(motherName);
 
   G4RotationMatrix *rotation = motherPhys->GetObjectRotation();
   G4ThreeVector position = motherPhys->GetObjectTranslation();
   // second is rotation, first is position
   position = position + G4ThreeVector(0.0, 0.0, stickLength / 2.0 + bottomThickness) + offset;
 
-  G4VPhysicalVolume *stickPhys =
-      new G4PVPlacement(rotation, position, "CalibrationStick_Stick", stickLog, motherPhys, false, 0);
-  G4VPhysicalVolume *bottomPhys =
-      new G4PVPlacement(rotation, position - G4ThreeVector(0, 0, (stickLength + bottomThickness) / 2.0),
-                        "CalibrationStick_Bottom", bottomLog, motherPhys, false, 0);
-  G4VPhysicalVolume *gasPhys =
-      new G4PVPlacement(rotation, position, "CalibrationStick_Gas", gasLog, motherPhys, false, 0);
-  G4VPhysicalVolume *sourcePhys =
-      new G4PVPlacement(rotation, position - G4ThreeVector(0, 0, (stickLength / 2.0) - sourcePosition),
-                        "CalibrationStick_Source", sourceLog, motherPhys, false, 0);
+  new G4PVPlacement(rotation, position, "CalibrationStick_Stick", stickLog, motherPhys, false, 0);
+  new G4PVPlacement(rotation, position - G4ThreeVector(0, 0, (stickLength + bottomThickness) / 2.0),
+                    "CalibrationStick_Bottom", bottomLog, motherPhys, false, 0);
+  new G4PVPlacement(rotation, position, "CalibrationStick_Gas", gasLog, motherPhys, false, 0);
+  new G4PVPlacement(rotation, position - G4ThreeVector(0, 0, (stickLength / 2.0) - sourcePosition),
+                    "CalibrationStick_Source", sourceLog, motherPhys, false, 0);
 
   // Set visuals
   SetVis(stickLog, table->GetDArray("stick_color"));

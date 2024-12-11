@@ -23,6 +23,7 @@
 #include <RAT/LiGen.hh>
 #include <RAT/Log.hh>
 #include <Randomize.hh>
+#include <cstddef>
 #include <numeric>
 #include <string>
 
@@ -72,7 +73,7 @@ LiGen::LiGen() : stateStr(""), isotope(9), posGen(0) {
   // cdf (cumulativ distribution fnction) for branching ratio
   pdfNow = 0.;
   sumBr = accumulate(std::begin(brArrLi), std::end(brArrLi), 0., std::plus<double>());
-  for (int j = 0; j < sizeof(brArrLi) / sizeof(brArrLi[0]); j++) {
+  for (size_t j = 0; j < sizeof(brArrLi) / sizeof(brArrLi[0]); j++) {
     pdfNow += brArrLi[j] / sumBr;
     cdfLi[j] = pdfNow;
   }
@@ -111,9 +112,9 @@ void LiGen::GenerateEvent(G4Event *event) {
     G4double pz = cost;
 
     // energy
-    int idxNow = 0;
+    size_t idxNow = 0;
     G4double randNow = G4UniformRand();
-    for (int j = 0; j < sizeof(brArrLi) / sizeof(brArrLi[0]); j++) {
+    for (size_t j = 0; j < sizeof(brArrLi) / sizeof(brArrLi[0]); j++) {
       if (randNow < cdfLi[j]) {
         idxNow = j;
         break;

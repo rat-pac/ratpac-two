@@ -1088,7 +1088,7 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, const G4Strin
       }
 
       G4double ampl, decy;
-      for (int j = 0; j < theWaveForm->GetVectorLength(); j++) {
+      for (size_t j = 0; j < theWaveForm->GetVectorLength(); j++) {
         ampl = (*theWaveForm)[j];
         decy = -theWaveForm->Energy(j);
         for (int i = 0; i < nbins; i++) {

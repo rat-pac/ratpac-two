@@ -346,7 +346,7 @@ void WaveformAnalysis::Integrate() {
   // Make sure not to integrate before the waveform starts
   fLowIntWindow = (fLowIntWindow < 0) ? 0 : fLowIntWindow;
 
-  for (int i = fLowIntWindow; i < fHighIntWindow; i++) {
+  for (size_t i = fLowIntWindow; i < fHighIntWindow; i++) {
     double voltage = DigitToVoltage(fDigitWfm[i]);
     fCharge += (-voltage * fTimeStep) / fTermOhms;  // in pC
   }
