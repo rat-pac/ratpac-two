@@ -16,18 +16,6 @@
 /rat/procset file "fitcentroid.root"
 # END EVENT LOOP
 
-# Generate 3 classes of events: 
-#   monoenergetic center
-#   monoenergetic distributed
-#   energy range center
-/generator/add combo gun:point
-/generator/vtx/set e- 0 0 0 10.0
-/generator/pos/set 0 0 0
-
-/generator/add combo gun:fillshell
-/generator/vtx/set e- 0 0 0 0.020
-/generator/pos/set 0 0 0 0 0 0 437.0 10.0
-
 /generator/add combo gun2:point
 /generator/vtx/set e- 0 0 0 0 3.5 15.0
 /generator/pos/set 0 0 0
