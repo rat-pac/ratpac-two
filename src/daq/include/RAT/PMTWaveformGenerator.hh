@@ -14,7 +14,7 @@ class PMTWaveformGenerator {
   PMTWaveformGenerator(std::string modelName);
   virtual ~PMTWaveformGenerator();
 
-  virtual PMTWaveform GenerateWaveforms(DS::MCPMT* mcpmt, double triggerTime);
+  virtual PMTWaveform GenerateWaveforms(DS::MCPMT* mcpmt);
 
   // pick width of waveform from PDF
   double PickGaussianWidth();
