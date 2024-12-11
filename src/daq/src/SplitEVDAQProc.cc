@@ -161,11 +161,11 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         DS::PMT *pmt = ev->GetOrCreatePMT(pmtID);
         double front_end_hit_time = *std::min_element(hitTimes.begin(), hitTimes.end());
         // PMT Hit time relative to the trigger
-        pmt->SetTime(front_end_hit_time - tt);
+        pmt->SetTime(front_end_hit_time);
         pmt->SetCharge(integratedCharge);
         totalEVCharge += integratedCharge;
         if (fDigitize) {
-          fDigitizer->DigitizePMT(mcpmt, pmtID, tt, pmtinfo);
+          fDigitizer->DigitizePMT(mcpmt, pmtID, pmtinfo);
         }
       }
     }  // Done looping over PMTs

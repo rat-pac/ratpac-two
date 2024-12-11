@@ -32,8 +32,8 @@ void Digitizer::AddWaveformGenerator(std::string modelName) {
   fPMTWaveformGenerators[modelName] = new PMTWaveformGenerator(modelName);
 }
 
-void Digitizer::DigitizePMT(DS::MCPMT* mcpmt, int pmtID, double triggerTime, DS::PMTInfo* pmtinfo) {
-  PMTWaveform pmtwfm = fPMTWaveformGenerators[pmtinfo->GetModelNameByID(pmtID)]->GenerateWaveforms(mcpmt, triggerTime);
+void Digitizer::DigitizePMT(DS::MCPMT* mcpmt, int pmtID, DS::PMTInfo* pmtinfo) {
+  PMTWaveform pmtwfm = fPMTWaveformGenerators[pmtinfo->GetModelNameByID(pmtID)]->GenerateWaveforms(mcpmt);
   AddChannel(pmtID, pmtwfm);
 }
 
