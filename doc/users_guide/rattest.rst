@@ -8,7 +8,7 @@ Rattest is a framework for creating unit and functional tests for RAT. These tes
 
 At minimum, a test consists of a RAT macro and a ROOT macro -- the Monte Carlo and the analysis. New (simplified) geometries, modified RATDB databases, etc. can also be included. When run, these tests are compared to a standard via a KS test, and a web page is created with histograms (standard and current) and KS test results. The standard RAT logs and output ROOT file is also available for analysis.
 
-The existing rattests are included with the standard RAT distribution, in `$RATSHARE/test/`, with the functional tests in `$RATSHARE/test/full/<test-name>`. To run a single test, `cd` to the test directory and simply run `python3 $RATSHARE/python/rattest.py <test-name>` where `<test-name>` corresponds to a folder in `$RATSHARE/test/full`. Rattest will iterate through the directory structure to find the test, run the RAT macro, run the ROOT macro on the output, and generate a report page.
+The existing rattests are included with the standard RAT distribution, in `$RATSHARE/test/`, with the functional tests in `$RATSHARE/test/full/<test-name>`. To run a single test, `cd` to the test directory and simply run `rattest <test-name>` where `<test-name>` corresponds to a folder in `$RATSHARE/test/full`. Rattest will iterate through the directory structure to find the test, run the RAT macro, run the ROOT macro on the output, and generate a report page.
 
 The `rattest.py` script takes the following options::
 
@@ -108,6 +108,11 @@ Keep things as simple as possible, and turn off as many options as possible. The
     
     /run/beamOn 500
 
+You can also create a custom rat "experiment" in the test directory. This experiment can include any custom ratdb tables you want. 
+You can tell rat to use this experiment by adding the line::
+
+    /rat/db/set DETECTOR experiment "cylinder"
+
 5. Write a ROOT macro
 
 The ROOT macro should create a histogram that captures the benchmark you are looking for. It should consist of a single `void` function with the same name as the macro ie `acrylic_attentuation(std::string event_file, std::string outfile)`. `rattest` will automatically fill in the function arguments when it calls the root macro.
@@ -142,8 +147,8 @@ The ROOT macro from `acrylic_attenuation`::
 
 7. Create a standard
 
- From the test directory, run `python3 rattest.py -u [your test name]`. This will create the file `standard.root`, which will be the basis for comparison until the next time you run `rattest` with the `-u` option. Take a look at `results.html` to see how things worked out.
+ From the test directory, run `rattest -u [your test name]`. This will create the file `standard.root`, which will be the basis for comparison until the next time you run `rattest` with the `-u` option. Take a look at `results.html` to see how things worked out.
 
-This is pretty much it. If you run `python3 rattest.py [your test name]` again, you should get a results page (which will open in your default browser unless you specified the `-t` option) with very similar results.
+This is pretty much it. If you run `rattest [your test name]` again, you should get a results page (which will open in your default browser unless you specified the `-t` option) with very similar results.
 
 If you think the test is useful to others, commit it to the RAT repository with svn. Be sure to commit only the `rattest.config`, RAT and ROOT macro, any geometry or RATDB files, and `standard.root`.
