@@ -105,7 +105,7 @@ int NoiseProc::GenerateNoiseInWindow(DS::MC *mc, double noiseBegin, double noise
   // the pmts are indistinguishable then we can take a shortcut and generate
   // the total count first and speed things along.
   double noiseWindowWidth = noiseEnd - noiseBegin;
-  size_t pmtCount = pmtinfo->GetPMTCount();
+  int pmtCount = pmtinfo->GetPMTCount();
   int noiseHits = 0;
 
   if (fNoiseFlag == 0) {

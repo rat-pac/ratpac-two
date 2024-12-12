@@ -535,18 +535,18 @@ void GLG4PosGen_FillCyl::GeneratePosition(G4ThreeVector &argResult) {
   double y = r * sin(t);
   argResult = G4ThreeVector(x, y, z);
 
-  if (!_volumeInfoLoaded) {
-    G4Navigator *theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-    G4VPhysicalVolume *thePhyVolume = theNavigator->LocateGlobalPointAndSetup(argResult);
-    G4LogicalVolume *theLogVolume = thePhyVolume->GetLogicalVolume();
-    G4Material *theMaterial = theLogVolume->GetMaterial();
-    G4VSolid *theSolid = theLogVolume->GetSolid();
-    double theVolume = theSolid->GetCubicVolume();  // in cubic meters
-    double theMass = theLogVolume->GetMass(false, false);
-    double theNelec = theMaterial->GetElectronDensity();
-    // RAT::info << "[GLG4PosGen_FillCyl] Volume " << theVolume << " " << theMass
-    // << newline; RAT::info << "[GLG4PosGen_FillCyl] Nelec " << theNelec << newline;
-  }
+  // if (!_volumeInfoLoaded) {
+  //   G4Navigator *theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+  //   G4VPhysicalVolume *thePhyVolume = theNavigator->LocateGlobalPointAndSetup(argResult);
+  //   G4LogicalVolume *theLogVolume = thePhyVolume->GetLogicalVolume();
+  //   G4Material *theMaterial = theLogVolume->GetMaterial();
+  //   G4VSolid *theSolid = theLogVolume->GetSolid();
+  //   double theVolume = theSolid->GetCubicVolume();  // in cubic meters
+  //   double theMass = theLogVolume->GetMass(false, false);
+  //   double theNelec = theMaterial->GetElectronDensity();
+  //   RAT::debug << "[GLG4PosGen_FillCyl] Volume " << theVolume << " " << theMass << newline;
+  //   RAT::debug << "[GLG4PosGen_FillCyl] Nelec " << theNelec << newline;
+  // }
   return;
 }
 

@@ -23,6 +23,7 @@
 class QuenchingCalculator {
  public:
   QuenchingCalculator(BirksLaw model);
+  virtual ~QuenchingCalculator() = default;
   virtual double QuenchedEnergyDeposit(const G4Step& step, const double kB) = 0;
 
  protected:

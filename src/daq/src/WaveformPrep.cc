@@ -150,9 +150,6 @@ double WaveformPrep::RunAnalysisOnTrigger(int pmtID, Digitizer* fDigitizer) {
   // Convert from ADC to mV
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes);
 
-  // Calculate baseline in mV
-  double pedestal = WaveformUtil::CalculatePedestalmV(voltWfm, fPedWindowLow, fPedWindowHigh);
-
   double trigger_threshold = fThreshold;
   double trigger_lookback = fLookback;
   try {
@@ -167,7 +164,6 @@ double WaveformPrep::RunAnalysisOnTrigger(int pmtID, Digitizer* fDigitizer) {
   // Calculate highest peak in mV
   std::pair<int, double> peak = WaveformUtil::FindHighestPeak(voltWfm);
   int samplePeak = peak.first;
-  double voltagePeak = peak.second;
   // HACK: Store the old lookback value, restore after a trigger time analysis is done.
   double old_lookback = fLookback;
   fLookback = trigger_lookback;

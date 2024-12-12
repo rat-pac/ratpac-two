@@ -6,7 +6,7 @@ namespace DS {
 std::string MCPMT::GetCreatorProcess() const {
   std::string process = "";
   double time = 9999.;
-  for (int iph = 0; iph < photon.size(); iph++) {
+  for (size_t iph = 0; iph < photon.size(); iph++) {
     if (photon[iph].GetFrontEndTime() < time) {
       time = photon[iph].GetFrontEndTime();
       process = photon[iph].GetCreatorProcess();
