@@ -31,6 +31,12 @@ jobs:
   
   acrylic_attenuation:
     needs: build
-    uses: ./.github/workflows/rattests-workflow.yml
+    uses: ./.github/workflows/rattests-template.yml
     with:
       rattest-name: acrylic_attenuation
+
+  fitcentroid:
+    needs: build
+    uses: ./.github/workflows/rattests-template.yml
+    with:
+      rattest-name: fitcentroid
