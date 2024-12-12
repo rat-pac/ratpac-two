@@ -6,7 +6,7 @@
   mother: "",
   type: "box",
   size: [20000.0,20000.0,20000.0],
-  material: "mirror",
+  material: "air",
 }
 
 {
@@ -33,7 +33,7 @@
   size: [9.0,9.0,9.0],
   position: [0.0, 0.0, 0.0],
   rotation: [0.0, 0.0, 0.0],
-  material: "mirror",
+  material: "air",
   #color: [0.02,0.2,0.2,0.1],
 }
 
@@ -49,7 +49,7 @@
   size_z: 49.5,
   position: [-5.0, 0.0, -5.0],
   rotation: [-90.0, 0.0, 0.0],
-  material: "aluminum",
+  material: "Fpolyethylene",
   color: [0.0,0.8,0.0,0.01],
 }
 
@@ -64,7 +64,7 @@
   size_z: 49.5,
   position: [0.0, 0.0, 0.0],
   rotation: [0.0, 0.0, 0.0],
-  material: "glass",
+  material: "PMMA",
   color: [0.0,0.8,0.0,0.05],
 }
 
@@ -79,7 +79,7 @@
   size_z: 49.5,
   position: [0.0, 0.0, 0.0],
   rotation: [0.0, 0.0, 0.0],
-  material: "mirror",
+  material: "WLSExample",
   color: [0.0,0.8,0.0,0.1],
 }
 {
@@ -93,7 +93,7 @@
   size_z: 29.5,
   position: [-5.0, 0.0, 5.0],
   rotation: [-90.0, 0.0, 0.0],
-  material: "aluminum",
+  material: "Fpolyethylene",
   color: [0.0,0.8,0.0,0.01],
 }
 
@@ -108,7 +108,7 @@
   size_z: 29.5,
   position: [0.0, 0.0, 0.0],
   rotation: [0.0, 0.0, 0.0],
-  material: "glass",
+  material: "PMMA",
   color: [0.0,0.8,0.0,0.05],
 }
 
@@ -123,7 +123,7 @@
   size_z: 29.5,
   position: [0.0, 0.0, 0.0],
   rotation: [0.0, 0.0, 0.0],
-  material: "mirror",
+  material: "WLSExample",
   color: [0.0,0.8,0.0,0.1],
 }
 // manual nested tubes ends here
@@ -162,9 +162,9 @@ inner_r: 0.485,
 outer_r: 0.5,
 pos_table: "cable_pos",
 orientation: "manual",
-material_outer: "aluminum",
-material_inner: "glass",
-material_core: "mirror",
+outer_material: "Fpolyethylene",
+inner_material: "PMMA",
+core_material: "WLSExample",
 #drawstyle: "solid",
-color: [0.8,0.0,0.0,0.8]
+color: [0.0,0.8,0.0,0.2]
 }

@@ -29,7 +29,9 @@
 /vis/scene/add/hits
 /vis/sceneHandler/attach
 /vis/viewer/set/upVector 0.0 0.0 1.0
-/vis/viewer/set/viewpointThetaPhi -90 135 
+/vis/viewer/set/viewpointThetaPhi -90 135
+/vis/modeling/trajectories/create/drawByCharge
+/vis/modeling/trajectories/drawByCharge-0/setRGBA 0 0.236 0.240 0.002 1
 /vis/viewer/set/style s
 /vis/viewer/flush
 
@@ -39,14 +41,14 @@
 
 #add ntuple tracking
 /rat/proc outntuple
-/rat/procset include_tracking 1
+/rat/procset include_tracking 0
 /rat/procset include_mcparticles 1
 /rat/procset include_pmthits 1
 /rat/procset include_untriggered_events 1
 /rat/physics/setOpWLS g4
 ##### GENERATORS #################
 /generator/add combo pbomb:point:poisson
-/generator/vtx/set 10 430 # 10000 photons, 430nm
+/generator/vtx/set 1000 350 # 1000 photons, 350nm
 /generator/pos/set 0.0 0.0 0.0
 
 ##### RUN ###########
