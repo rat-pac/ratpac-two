@@ -44,7 +44,9 @@
 /rat/procset include_tracking 0
 /rat/procset include_mcparticles 1
 /rat/procset include_pmthits 1
+/rat/procset include_nestedtubehits 1
 /rat/procset include_untriggered_events 1
+#/rat/proc outroot
 /rat/physics/setOpWLS g4
 ##### GENERATORS #################
 /generator/add combo pbomb:point:poisson

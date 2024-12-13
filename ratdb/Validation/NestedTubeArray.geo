@@ -166,5 +166,6 @@ outer_material: "Fpolyethylene",
 inner_material: "PMMA",
 core_material: "WLSExample",
 #drawstyle: "solid",
-color: [0.0,0.8,0.0,0.2]
+color: [0.0,0.8,0.0,0.2],
+sensitive_detector: "/mydet/fibers"
 }

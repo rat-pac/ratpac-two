@@ -51,6 +51,7 @@ class OutNtupleProc : public Processor {
     bool pmthits;
     bool untriggered;
     bool mchits;
+    bool nthits;
   };
   NtupleOptions options;
 
@@ -74,6 +75,13 @@ class OutNtupleProc : public Processor {
   std::vector<double> pmtU;
   std::vector<double> pmtV;
   std::vector<double> pmtW;
+  std::vector<int> ntId;
+  std::vector<double> ntX;
+  std::vector<double> ntY;
+  std::vector<double> ntZ;
+  std::vector<double> ntU;
+  std::vector<double> ntV;
+  std::vector<double> ntW;
   // Data Branches
   Int_t mcpdg;
   double mcx, mcy, mcz;
@@ -95,6 +103,14 @@ class OutNtupleProc : public Processor {
   int mcpecount;
   std::vector<int> mcpmtid;
   std::vector<int> mcpmtnpe;
+  // MCNestedTube
+  int mcnNTs;
+  int mcnNThits;
+  std::vector<int> mcNTid;
+  std::vector<double> mcNThittime;
+  std::vector<double> mcNThitx;
+  std::vector<double> mcNThity;
+  std::vector<double> mcNThitz;
   // MCPE
   std::vector<double> mcpehittime;
   std::vector<double> mcpefrontendtime;
@@ -125,11 +141,11 @@ class OutNtupleProc : public Processor {
   std::vector<double> hitPMTDigitizedTime;
   std::vector<double> hitPMTDigitizedCharge;
   std::vector<int> hitPMTNCrossings;
-  // Tracking
   std::map<std::string, int> processCodeMap;
   std::vector<int> processCodeIndex;
   std::vector<std::string> processName;
 
+  // Tracking
   std::vector<int> trackPDG;
   std::vector<std::vector<double>> trackPosX;
   std::vector<std::vector<double>> trackPosY;
