@@ -171,15 +171,15 @@ double IntegratePeak(const std::vector<double>& waveform, int peakSample, int in
   int windowStart = peakSample - intWindowLow;
   int windowEnd = peakSample + intWindowHigh;
 
-  if (windowStart >= waveform.size()) {
-    charge = INVALID;  // Invalid value for bad waveforms
-    return charge;
-  }
-
   // Make sure not to integrate past the end of the waveform
   windowEnd = (windowEnd > waveform.size()) ? waveform.size() : windowEnd;
   // Make sure not to integrate before the waveform starts
   windowStart = (windowStart < 0) ? 0 : windowStart;
+
+  if (windowStart >= waveform.size()) {
+    charge = INVALID;  // Invalid value for bad waveforms
+    return charge;
+  }
 
   for (int i = windowStart; i < windowEnd; i++) {
     double voltage = waveform[i];
