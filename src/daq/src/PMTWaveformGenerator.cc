@@ -103,7 +103,7 @@ double PMTWaveformGenerator::PickGaussianWidth() {
   return fGausPulseWidth[fGausPulseWidth.size() - 1];
 }
 
-PMTWaveform PMTWaveformGenerator::GenerateWaveforms(DS::MCPMT *mcpmt, double triggerTime) {
+PMTWaveform PMTWaveformGenerator::GenerateWaveforms(DS::MCPMT *mcpmt) {
   PMTWaveform pmtwf;
 
   // Loop over PEs and create a pulse for each one
@@ -118,7 +118,7 @@ PMTWaveform PMTWaveformGenerator::GenerateWaveforms(DS::MCPMT *mcpmt, double tri
     pmtpulse->SetPulseMin(fPMTPulseMin);
     pmtpulse->SetPulseOffset(fPMTPulseOffset);
     pmtpulse->SetPulseTimeOffset(time_offset);
-    pmtpulse->SetPulseStartTime(mcpe->GetFrontEndTime() - triggerTime);
+    pmtpulse->SetPulseStartTime(mcpe->GetFrontEndTime());
     pmtpulse->SetPulsePolarity(fPMTPulsePolarity);
 
     if (fPMTPulseType == "analytic") {
