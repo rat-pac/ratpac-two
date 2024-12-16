@@ -554,25 +554,24 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
     rat_mcpmt->SetType(fPMTInfo->GetType(a_pmt->GetID()));
 
     numPE += a_pmt->GetEntries();
-    double chargeScale = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByChannel(rat_mcpmt->GetID());
     /** Add "real" hits from actual simulated photons */
     for (int i = 0; i < a_pmt->GetEntries(); i++) {
       // Find the optical process responsible
       auto photon = a_pmt->GetPhoton(i);
       std::string process = photon->GetCreatorProcess();
       if (StoreOpticalTrackID) {
-        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), exinfo, process, chargeScale);
+        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), exinfo, process);
       } else {
-        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), NULL, process, chargeScale);
+        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), NULL, process);
       }
     }
   }
   mc->SetNumPE(numPE);
 }
 
-void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo * /*exinfo*/, std::string process,
-                       double chargeScale) {
+void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo * /*exinfo*/, std::string process) {
   DS::MCPhoton *rat_mcphoton = rat_mcpmt->AddNewMCPhoton();
+  double chargeScale = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByChannel(rat_mcpmt->GetID());
   // Only real photons are added in Gsim, noise and afterpulsing handled in processors
   rat_mcphoton->SetDarkHit(false);
   rat_mcphoton->SetAfterPulse(false);
