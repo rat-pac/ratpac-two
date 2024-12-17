@@ -571,11 +571,11 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
 
 void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo * /*exinfo*/, std::string process) {
   DS::MCPhoton *rat_mcphoton = rat_mcpmt->AddNewMCPhoton();
-  double chargeScale = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByChannel(rat_mcpmt->GetID());
+  double chargeScale = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByPMTID(rat_mcpmt->GetID());
   // Only real photons are added in Gsim, noise and afterpulsing handled in processors
   rat_mcphoton->SetDarkHit(false);
   rat_mcphoton->SetAfterPulse(false);
-
+  std::cout << rat_mcpmt->GetID() << " " << chargeScale << std::endl;
   rat_mcphoton->SetLambda(photon->GetWavelength());
 
   double x, y, z;
