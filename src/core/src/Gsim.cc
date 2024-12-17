@@ -575,7 +575,6 @@ void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventI
   // Only real photons are added in Gsim, noise and afterpulsing handled in processors
   rat_mcphoton->SetDarkHit(false);
   rat_mcphoton->SetAfterPulse(false);
-  std::cout << rat_mcpmt->GetID() << " " << chargeScale << std::endl;
   rat_mcphoton->SetLambda(photon->GetWavelength());
 
   double x, y, z;
