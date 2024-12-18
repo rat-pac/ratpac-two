@@ -48,7 +48,7 @@ int GetThresholdCrossingBeforePeak(const std::vector<double>& waveform, int peak
 
   if (back_window >= waveform.size()) {
     debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before end of waveform."
-         << newline;
+          << newline;
   } else if (back_window >= peakSample) {
     debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before peak." << newline;
   } else if (peakSample >= waveform.size()) {
