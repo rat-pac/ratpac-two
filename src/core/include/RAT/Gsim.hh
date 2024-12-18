@@ -74,7 +74,6 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
   void Init();  // the real constructor
   void AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo *exinfo = NULL,
                    std::string process = "unknown");
-
   /* Storing optical creation track ID and step */
   void PhotonRecurse(std::vector<int> &PhotonIDs, int trackID, int &parentID, int &firstCreatedID);
   void SetOpticalPhotonIDs(std::string particle_type, int trackID, int parentID);
@@ -82,7 +81,6 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
 
   G4RunManager *theRunManager;
   GLG4DebugMessenger *theDebugMessenger;
-
   RAT::DS::PMTInfo *fPMTInfo;
   std::vector<RAT::PMTTime *> fPMTTime;      //< PMT transit time/delay calculator (indexed by modeltype)
   std::vector<RAT::PMTCharge *> fPMTCharge;  //< PMT single-pe charge calculator (indexed by modeltype)
