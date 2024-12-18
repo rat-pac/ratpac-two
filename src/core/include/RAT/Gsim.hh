@@ -81,7 +81,6 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
 
   G4RunManager *theRunManager;
   GLG4DebugMessenger *theDebugMessenger;
-  RAT::DS::ChannelStatus ch_status;
   RAT::DS::PMTInfo *fPMTInfo;
   std::vector<RAT::PMTTime *> fPMTTime;      //< PMT transit time/delay calculator (indexed by modeltype)
   std::vector<RAT::PMTCharge *> fPMTCharge;  //< PMT single-pe charge calculator (indexed by modeltype)
