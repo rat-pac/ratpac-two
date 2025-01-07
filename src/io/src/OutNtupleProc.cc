@@ -81,6 +81,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("pmtChannel", &pmtChannel);
   metaTree->Branch("pmtIsOnline", &pmtIsOnline);
   metaTree->Branch("pmtCableOffset", &pmtCableOffset);
+  metaTree->Branch("pmtChargeScale", &pmtChargeScale);
   metaTree->Branch("pmtX", &pmtX);
   metaTree->Branch("pmtY", &pmtY);
   metaTree->Branch("pmtZ", &pmtZ);
@@ -620,6 +621,7 @@ OutNtupleProc::~OutNtupleProc() {
       pmtChannel.push_back(channel);
       pmtIsOnline.push_back(ch_status->GetOnlineByPMTID(id));
       pmtCableOffset.push_back(ch_status->GetCableOffsetByPMTID(id));
+      pmtChargeScale.push_back(ch_status->GetChargeScaleByPMTID(id));
       pmtX.push_back(position.X());
       pmtY.push_back(position.Y());
       pmtZ.push_back(position.Z());
