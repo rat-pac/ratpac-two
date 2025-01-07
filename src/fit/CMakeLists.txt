@@ -6,7 +6,8 @@ add_library(fit OBJECT
   src/FitPathProc.cc
   src/FitCentroidProc.cc
   src/FitTensorProc.cc
-  src/MiniSim.cc)
+  src/MiniSim.cc
+  src/FitQuadProc.cc)
 
 
 # Set our include directories
