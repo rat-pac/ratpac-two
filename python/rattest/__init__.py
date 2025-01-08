@@ -84,7 +84,7 @@ class RatTest:
     Also compares and saves the histograms.
     '''
 
-    def __init__(self, config_file):
+    def __init__(self, config_file, rat_bin=None):
         self.config_file = config_file
         self.testdir = os.path.abspath(os.path.dirname(config_file))
         # Create default name out of bottom level dir name
@@ -106,7 +106,11 @@ class RatTest:
         self.rat_macro = os.path.abspath(os.path.join(self.testdir, self.rat_macro))
         self.root_macro = os.path.abspath(os.path.join(self.testdir, self.root_macro))
         self.rat_script = os.path.abspath(os.path.join(os.environ['RATROOT'], 'bin', 'rat'))
-        self.rat_bin = os.path.abspath(os.path.join(os.environ['RATROOT'], 'bin', 'rat'))
+        # Allow users to specify rat binary so tests can be ran with downstream experiments
+        if rat_bin is None:
+            self.rat_bin = os.path.abspath(os.path.join(os.environ['RATROOT'], 'bin', 'rat'))
+        else:
+            self.rat_bin = rat_bin
 
         # Find name of file holding events from last macro
         mac = self.rat_macro
@@ -163,9 +167,9 @@ class RatTest:
                 suffix = "_" + str(i) + ".mac"
             mac = self.rat_macro.replace(".mac", suffix)
             if self.seed == -1:
-                self.run_cmd_in_testdir('rat ' + os.path.basename(mac))
+                self.run_cmd_in_testdir(self.rat_bin + ' ' + os.path.basename(mac))
             else:
-                self.run_cmd_in_testdir('rat -s ' + str(self.seed) + ' ' + os.path.basename(mac))
+                self.run_cmd_in_testdir(self.rat_bin + ' -s ' + str(self.seed) + ' ' + os.path.basename(mac))
 
     def run_root(self):
         '''
