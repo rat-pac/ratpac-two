@@ -22,8 +22,8 @@ class FitQuadProc : public Processor {
   uint fMaxQuadPoints;
   uint fTableCutOff;
   float fLightSpeed;
-  std::vector<uint> fNumPointsTbl = {0,   0,   0,   0,   1,    5,    15,   35,   70,   126,
-                                     210, 330, 495, 715, 1001, 1365, 1820, 2380, 3060, 3876};
+  std::vector<uint> fNumPointsTbl = {0,   0,   0,    0,    1,    5,    15,   35,   70,   126,  210,  330,
+                                     495, 715, 1001, 1365, 1820, 2380, 3060, 3876, 4845, 5985, 7315, 8855};
 };
 
 }  // namespace RAT
