@@ -23,6 +23,7 @@ void FitQuadProc::BeginOfRun(DS::Run *run) {
     Log::Die("Quad tried to set a table_cut_off larger than the size of fNumPointsTbl.");
   }
   fLightSpeed = quad_db->GetD("light_speed");
+  fMaxRadius = quad_db->GetD("max_radius");
 }
 
 // Create a table of all the ways to pick 4 numbers out of n
