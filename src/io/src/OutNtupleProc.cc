@@ -80,6 +80,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("pmtChannel", &pmtChannel);
   metaTree->Branch("pmtIsOnline", &pmtIsOnline);
   metaTree->Branch("pmtCableOffset", &pmtCableOffset);
+  metaTree->Branch("pmtChargeScale", &pmtChargeScale);
   metaTree->Branch("pmtX", &pmtX);
   metaTree->Branch("pmtY", &pmtY);
   metaTree->Branch("pmtZ", &pmtZ);
@@ -189,6 +190,8 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("trackTime", &trackTime);
     outputTree->Branch("trackProcess", &trackProcess);
     metaTree->Branch("processCodeMap", &processCodeMap);
+    outputTree->Branch("trackVolume", &trackVolume);
+    metaTree->Branch("volumeCodeMap", &volumeCodeMap);
   }
   if (options.digitizerwaveforms) {
     waveformTree = new TTree("waveforms", "waveforms");
@@ -265,11 +268,13 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     trackKE.clear();
     trackTime.clear();
     trackProcess.clear();
+    trackVolume.clear();
 
     std::vector<double> xtrack, ytrack, ztrack;
     std::vector<double> pxtrack, pytrack, pztrack;
     std::vector<double> kinetic, globaltime;
     std::vector<int> processMapID;
+    std::vector<int> volumeMapID;
     for (int trk = 0; trk < nTracks; trk++) {
       DS::MCTrack *track = mc->GetMCTrack(trk);
       trackPDG.push_back(track->GetPDGCode());
@@ -282,6 +287,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       kinetic.clear();
       globaltime.clear();
       processMapID.clear();
+      volumeMapID.clear();
       int nSteps = track->GetMCTrackStepCount();
       for (int stp = 0; stp < nSteps; stp++) {
         DS::MCTrackStep *step = track->GetMCTrackStep(stp);
@@ -292,6 +298,14 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           processCodeIndex.push_back(processCodeMap.size() - 1);
           processName.push_back(proc);
         }
+        // Volume
+        std::string vol = step->GetVolume();
+        if (volumeCodeMap.find(vol) == volumeCodeMap.end()) {
+          volumeCodeMap[vol] = volumeCodeMap.size();
+          volumeCodeIndex.push_back(volumeCodeMap.size() - 1);
+          volumeName.push_back(vol);
+        }
+        volumeMapID.push_back(volumeCodeMap[vol]);
         processMapID.push_back(processCodeMap[proc]);
         TVector3 tv = step->GetEndpoint();
         TVector3 momentum = step->GetMomentum();
@@ -313,6 +327,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       trackMomY.push_back(pytrack);
       trackMomZ.push_back(pztrack);
       trackProcess.push_back(processMapID);
+      trackVolume.push_back(volumeMapID);
     }
   }
 
@@ -604,6 +619,7 @@ OutNtupleProc::~OutNtupleProc() {
       pmtChannel.push_back(channel);
       pmtIsOnline.push_back(ch_status->GetOnlineByPMTID(id));
       pmtCableOffset.push_back(ch_status->GetCableOffsetByPMTID(id));
+      pmtChargeScale.push_back(ch_status->GetChargeScaleByPMTID(id));
       pmtX.push_back(position.X());
       pmtY.push_back(position.Y());
       pmtZ.push_back(position.Z());

@@ -8,18 +8,23 @@ Rattest is a framework for creating unit and functional tests for RAT. These tes
 
 At minimum, a test consists of a RAT macro and a ROOT macro -- the Monte Carlo and the analysis. New (simplified) geometries, modified RATDB databases, etc. can also be included. When run, these tests are compared to a standard via a KS test, and a web page is created with histograms (standard and current) and KS test results. The standard RAT logs and output ROOT file is also available for analysis.
 
-The existing rattests are included with the standard RAT distribution, in `$RATROOT/test/`, with the functional tests in `$RATROOT/test/full/<test-name>`. To run a single test, `cd` to the test directory and simply run `rattest <test-name>` where `<test-name>` corresponds to a folder in `$RATROOT/test/full`. Rattest will iterate through the directory structure to find the test, run the RAT macro, run the ROOT macro on the output, and generate a report page.
+The existing rattests are included with the standard RAT distribution, in `$RATSHARE/test/`, with the functional tests in `$RATSHARE/test/full/<test-name>`. To run a single test, `cd` to the test directory and simply run `rattest <test-name>` where `<test-name>` corresponds to a folder in `$RATSHARE/test/full`. Rattest will iterate through the directory structure to find the test, run the RAT macro, run the ROOT macro on the output, and generate a report page.
 
-The `rattest` utility takes the following options::
+The `rattest.py` script takes the following options::
 
-    Usage: rattest [options]
-    
-    Options:
-      -h, --help         show this help message and exit
-      -u, --update       Update "standard" histogram with current results
-      -m, --regen-mc     Force Monte Carlo to be regenerated
-      -r, --regen-plots  Force histograms to be regenerated
-      -t, --text-only    Do not open web pages with plots
+    usage: rattest.py [-h] [-u] [-m] [-r] [-t] [--make-template TEMPLATE] input [input ...]
+
+    positional arguments:
+      input                 RAT test(s) to run. Must be a directory or directories.
+
+    options:
+      -h, --help            show this help message and exit
+      -u, --update          Update "standard" histogram with current results.
+      -m, --regen-mc        Force Monte Carlo to be regenerated.
+      -r, --regen-plots     Force histograms to be regenerated.
+      -t, --text-only       Do not open web pages with plots.
+      --make-template TEMPLATE
+                            Write a template rattest to current directory for you to edit. Supplied name is used for .mac and .C files.
 
 Existing RAT Tests
 ``````````````````
@@ -29,10 +34,19 @@ Existing RAT Tests
     acrylic_attenuation
      Tests the attenuation length of acrylic by generating photons in an acrylic block and checking track lengths
 
+Automated rattests
+``````````````````
+
+Every time a PR is submitted to ratpac-two, the rattests in $RATROOT/test/full (FIXME currently just acrylic_attentuation) are ran via GitHub actions using a Github hosted runner. PRs that do not pass all of the rattests will not be merged in, unless the reasons for the test failures are intended. If a test begins to fail because of an intended change, the `standard.root` file should be updated.
+
+The workflow file that controls the running of the rattests can be found at $RATSHARE/.github/workflows/rattests.yml. To add a test, one must add another job to the workflow file using the same format used by the other rattests.
+
+Downstream forks and experiment repositories are encouraged to create their own rattests using the same workflow setup and the `rattest.py` script.
+
 Writing a RAT Test
 ``````````````````
 
-1. Create a new folder in `$RATROOT/test/full` with useful but short name for your test
+1. Create a new folder in `$RATSHARE/test/full` with useful but short name for your test
 2. Create a `rattest.config` file, like this::
 
     #!python
@@ -58,7 +72,7 @@ The RAT macro and ROOT macro do not need to have the same name as the test, they
     material: "acrylic_polycast",
     }
 
-RAT will prefer a geometry or database in your test directory, and default to the ones in `$RATROOT/data`.
+RAT will prefer a geometry or database in your test directory, and defaults to the ones in `$RATSHARE/ratdb`.
 
 4. Create your RAT macro.
 
@@ -94,9 +108,14 @@ Keep things as simple as possible, and turn off as many options as possible. The
     
     /run/beamOn 500
 
+You can also create a custom rat "experiment" in the test directory. This experiment can include any custom ratdb tables you want. 
+You can tell rat to use this experiment by adding the line::
+
+    /rat/db/set DETECTOR experiment "cylinder"
+
 5. Write a ROOT macro
 
-The ROOT macro should create a histogram that captures the benchmark you are looking for. It should consist of a single `void` function `make_plots(TFile *event_file, TTree *T, TFile *out_file)`.
+The ROOT macro should create a histogram that captures the benchmark you are looking for. It should consist of a single `void` function with the same name as the macro ie `acrylic_attentuation(std::string event_file, std::string outfile)`. `rattest` will automatically fill in the function arguments when it calls the root macro.
 
 Basically, do your analysis, make a histogram, and output it with `[histogram name]->Write()`. Note that when using `Draw()` to make histograms, you'll probably want the `"goff"` option.
 
@@ -104,20 +123,21 @@ Basically, do your analysis, make a histogram, and output it with `[histogram na
 
 The ROOT macro from `acrylic_attenuation`::
 
-    void make_plots(TFile *event_file, TTree *T, TFile *out_file)
+    void acrylic_attenuation(std::string event_filename, std::string out_filename)
     {
-    
-     ...
-    
-      TH1F *acr_attn_300 = new TH1F("acr_attn_300", "Photon track length (300 nm)", 20, 0, 2500);
-      acr_attn_300->SetXTitle("Track length (mm)");
-      acr_attn_300->SetYTitle("Count");
-      T->Draw("mc.track.GetLastMCTrackStep()->length>>acr_attn_300","TMath::Abs(1.23997279736421566e-03/(mc.track.GetLastMCTrackStep()->ke)-300)<10","goff");
-      acr_attn_300->Fit("expo");
-      acr_attn_300->Draw("goff");
-      acr_attn_300->Write();
-    
-     ...
+      TFile *event_file = new TFile(event_filename.c_str(),"READ");
+      TTree *T = (TTree*)event_file->Get("T");
+      TFile *out_file = new TFile(out_filename.c_str(),"RECREATE");
+
+      TH1F *acr_attn_100 = new TH1F("acr_attn_100", "Photon track length (100 nm)", 50, 0, 50);
+      acr_attn_100->SetXTitle("Track length (mm)");
+      acr_attn_100->SetYTitle("Count");
+      T->Draw("mc.track.GetLastMCTrackStep()->length>>acr_attn_100","TMath::Abs(1.23997279736421566e-03/(mc.track.GetLastMCTrackStep()->ke)-100)<10","goff");
+      //acr_attn_100->Fit("expo");
+      //acr_attn_100->Draw("goff");
+      acr_attn_100->Write();
+
+      ...
     
     }
 
@@ -132,4 +152,3 @@ The ROOT macro from `acrylic_attenuation`::
 This is pretty much it. If you run `rattest [your test name]` again, you should get a results page (which will open in your default browser unless you specified the `-t` option) with very similar results.
 
 If you think the test is useful to others, commit it to the RAT repository with svn. Be sure to commit only the `rattest.config`, RAT and ROOT macro, any geometry or RATDB files, and `standard.root`.
-
