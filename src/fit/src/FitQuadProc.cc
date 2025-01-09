@@ -190,7 +190,7 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
         // Indeed, if we cut this off at the PMT sphere surface,
         // it would introduce a large bias when we took the
         // median later.  So it is a little larger than that.
-        const double rlimit = 9000;
+        const double rlimit = fMaxRadius;
         if (mag2(v) < rlimit * rlimit) {
           quad_xs.push_back(v[0]);
           quad_ys.push_back(v[1]);
