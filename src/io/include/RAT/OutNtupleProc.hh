@@ -1,9 +1,14 @@
 #ifndef __RATOutNtupleProc___
 #define __RATOutNtupleProc___
 
+#include <TTree.h>
+#include <sys/types.h>
+
 #include <RAT/DS/Run.hh>
 #include <RAT/Processor.hh>
 #include <functional>
+
+#include "Math/Types.h"
 
 class TFile;
 class TTree;
@@ -49,17 +54,23 @@ class OutNtupleProc : public Processor {
     bool tracking;
     bool mcparticles;
     bool pmthits;
+    bool digitizerwaveforms;
+    bool digitizerhits;
+    bool digitizerfits;
     bool untriggered;
     bool mchits;
     bool nthits;
   };
   NtupleOptions options;
 
+  std::vector<std::string> waveform_fitters;
+
  protected:
   std::string defaultFilename;
   TFile *outputFile;
   TTree *outputTree;
   TTree *metaTree;
+  TTree *waveformTree;
   // Meta Branches
   Int_t runId;
   ULong64_t runType;
@@ -69,6 +80,9 @@ class OutNtupleProc : public Processor {
   std::vector<int> pmtType;
   std::vector<int> pmtId;
   std::vector<int> pmtChannel;
+  std::vector<bool> pmtIsOnline;
+  std::vector<double> pmtCableOffset;
+  std::vector<double> pmtChargeScale;
   std::vector<double> pmtX;
   std::vector<double> pmtY;
   std::vector<double> pmtZ;
@@ -82,6 +96,15 @@ class OutNtupleProc : public Processor {
   std::vector<double> ntU;
   std::vector<double> ntV;
   std::vector<double> ntW;
+  u_int32_t digitizerWindowSize;
+  Double_t digitizerSampleRate;
+  Double_t digitizerDynamicRange;
+  Double_t digitizerVoltageResolution;
+  // Digitizer waveforms
+  int waveform_pmtid;
+  std::vector<Double_t> inWindowPulseTimes;
+  std::vector<Double_t> inWindowPulseCharges;
+  std::vector<UShort_t> waveform;
   // Data Branches
   Int_t mcpdg;
   double mcx, mcy, mcz;
@@ -92,6 +115,8 @@ class OutNtupleProc : public Processor {
   int subev;
   int nhits;
   double triggerTime;
+  ULong64_t timestamp;
+  double timeSinceLastTrigger_us;
   // MC Summary Information
   double scintEdep;
   double scintEdepQuenched;
@@ -103,6 +128,7 @@ class OutNtupleProc : public Processor {
   int mcpecount;
   std::vector<int> mcpmtid;
   std::vector<int> mcpmtnpe;
+  std::vector<double> mcpmtcharge;
   // MCNestedTube
   int mcnNTs;
   int mcnNThits;
@@ -119,8 +145,10 @@ class OutNtupleProc : public Processor {
   std::vector<double> mcpex;
   std::vector<double> mcpey;
   std::vector<double> mcpez;
+  std::vector<double> mcpecharge;
   // MCParticles
   int mcpcount;
+  int mcid;
   std::vector<Int_t> pdgcodes;
   std::vector<double> mcKEnergies;
   std::vector<double> mcPosx;
@@ -141,9 +169,28 @@ class OutNtupleProc : public Processor {
   std::vector<double> hitPMTDigitizedTime;
   std::vector<double> hitPMTDigitizedCharge;
   std::vector<int> hitPMTNCrossings;
+  // Store PMT information from digitized waveform
+  int digitNhits;
+  std::vector<double> digitPeak;
+  std::vector<double> digitTime;
+  std::vector<double> digitCharge;
+  std::vector<double> digitLocalTriggerTime;
+  std::vector<int> digitNCrossings;
+  std::vector<int> digitPMTID;
+  // Information from fit to the waveforms
+  std::map<std::string, std::vector<int>> fitPmtID;
+  std::map<std::string, std::vector<double>> fitTime;
+  std::map<std::string, std::vector<double>> fitCharge;
+  // std::vector<double> fitTime;
+  std::vector<double> fitBaseline;
+  std::vector<double> fitPeak;
+  // Tracking
   std::map<std::string, int> processCodeMap;
   std::vector<int> processCodeIndex;
   std::vector<std::string> processName;
+  std::map<std::string, int> volumeCodeMap;
+  std::vector<int> volumeCodeIndex;
+  std::vector<std::string> volumeName;
 
   // Tracking
   std::vector<int> trackPDG;
@@ -156,12 +203,19 @@ class OutNtupleProc : public Processor {
   std::vector<std::vector<double>> trackKE;
   std::vector<std::vector<double>> trackTime;
   std::vector<std::vector<int>> trackProcess;
+  std::vector<std::vector<int>> trackVolume;
 
   std::set<std::string> branchNames;
 
-  void SetBranchValue(std::string name, double *value);
-  void SetBranchValue(std::string name, int *value);
-  void SetBranchValue(std::string name, bool *value);
+  template <typename T>
+  void SetBranchValue(std::string name, T *value) {
+    if (branchNames.find(name) != branchNames.end()) {
+      outputTree->SetBranchAddress(name.c_str(), value);
+    } else {
+      branchNames.insert(name);
+      outputTree->Branch(name.c_str(), value);
+    }
+  }
 };
 
 }  // namespace RAT

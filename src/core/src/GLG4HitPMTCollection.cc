@@ -29,7 +29,14 @@ void GLG4HitPMTCollection::Clear() {
 
 /** find or make appropriate HitPMT, and DetectPhoton in that HitPMT */
 void GLG4HitPMTCollection::DetectPhoton(GLG4HitPhoton *new_photon) {
-  GLG4HitPMT *hitpmtptr = GetPMT_ByID(new_photon->GetPMTID());
+  if (fChannelStatus == NULL) {
+    RAT::Log::Die("Found Null channel status!");
+  }
+  int pmtid = new_photon->GetPMTID();
+  if (!fChannelStatus->GetOnlineByPMTID(pmtid)) {
+    return;
+  }
+  GLG4HitPMT *hitpmtptr = GetPMT_ByID(pmtid);
 
   if (hitpmtptr != NULL) {
     // found a HitPMT with this ID

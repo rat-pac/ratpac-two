@@ -4,7 +4,6 @@
 #include <RAT/DB.hh>
 #include <RAT/Digitizer.hh>
 #include <RAT/Processor.hh>
-#include <RAT/WaveformAnalysis.hh>
 #include <string>
 
 namespace RAT {
@@ -31,14 +30,13 @@ class SplitEVDAQProc : public Processor {
   double fMaxHitTime;
   bool fDigitize;
   bool fAnalyze;
+  std::string fAnalyzerName;
 
   int fTriggerOnNoise;
   DBLinkPtr ldaq;
 
   Digitizer *fDigitizer;
   std::string fDigitizerType;
-
-  WaveformAnalysis *fWaveformAnalysis;
 };
 
 }  // namespace RAT

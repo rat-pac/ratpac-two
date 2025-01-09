@@ -29,10 +29,8 @@ SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   fTriggerOnNoise = ldaq->GetI("trigger_on_noise");
   fDigitizerType = ldaq->GetS("digitizer_name");
   fDigitize = ldaq->GetZ("digitize");
-  fAnalyze = ldaq->GetZ("analyze");
 
   fDigitizer = new Digitizer(fDigitizerType);
-  fWaveformAnalysis = new WaveformAnalysis();
 }
 
 void SplitEVDAQProc::BeginOfRun(DS::Run *run) {
@@ -136,6 +134,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     DS::EV *ev = ds->AddNewEV();
     ev->SetID(fEventCounter++);
     ev->SetCalibratedTriggerTime(tt);
+    ev->SetUTC(mc->GetUTC());
     ev->SetDeltaT(tt - lastTrigger);
     lastTrigger = tt;
     double totalEVCharge = 0;  // What does total charge get used for?
@@ -159,8 +158,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
       }
       std::sort(hitTimes.begin(), hitTimes.end());
       if (pmtInEvent) {
-        DS::PMT *pmt = ev->AddNewPMT();
-        pmt->SetID(pmtID);
+        DS::PMT *pmt = ev->GetOrCreatePMT(pmtID);
         double front_end_hit_time = *std::min_element(hitTimes.begin(), hitTimes.end());
         // PMT Hit time relative to the trigger
         pmt->SetTime(front_end_hit_time - tt);
@@ -168,17 +166,12 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         totalEVCharge += integratedCharge;
         if (fDigitize) {
           fDigitizer->DigitizePMT(mcpmt, pmtID, tt, pmtinfo);
-          if (fAnalyze) {
-            DS::DigitPMT *digitpmt = ev->AddNewDigitPMT();
-            digitpmt->SetID(pmtID);
-            fWaveformAnalysis->RunAnalysis(digitpmt, pmtID, fDigitizer);
-          }
         }
       }
     }  // Done looping over PMTs
 
     if (fDigitize) {
-      fDigitizer->DigitizeSum(ev);
+      fDigitizer->WriteToEvent(ev);
     }
 
     ev->SetTotalCharge(totalEVCharge);

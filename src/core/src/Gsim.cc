@@ -183,6 +183,7 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
   run = DS::RunStore::GetRun(runID);
   fPMTInfo = run->GetPMTInfo();
   fNestedTubeInfo = run->GetNestedTubeInfo();
+  GLG4VEventAction::GetTheHitPMTCollection()->SetChannelStatus(run->GetChannelStatus());
 
   for (size_t i = 0; i < fPMTTime.size(); i++) {
     delete fPMTTime[i];
@@ -335,11 +336,11 @@ void Gsim::PreUserTrackingAction(const G4Track *aTrack) {
       creatorProcessName = trackInfo->GetCreatorProcess();
     }
 
-    if (creatorProcessName == "Scintillation") {
+    if (creatorProcessName.find("Scintillation") != std::string::npos) {
       eventInfo->numScintPhoton++;
-    } else if (creatorProcessName == "Reemission") {
+    } else if (creatorProcessName.find("Reemission") != std::string::npos) {
       eventInfo->numReemitPhoton++;
-    } else if (creatorProcessName == "Cerenkov") {
+    } else if (creatorProcessName.find("Cerenkov") != std::string::npos) {
       eventInfo->numCerenkovPhoton++;
     }
   }
@@ -424,8 +425,12 @@ void Gsim::MakeRun(int _runID) {
   run->SetID(_runID);
   run->SetType((unsigned)lrun->GetI("runtype"));
   run->SetStartTime(utc);
-  run->SetPMTInfo(&PMTFactoryBase::GetPMTInfo());
   run->SetNestedTubeInfo(&GeoNestedSolidArrayFactoryBase::GetNestedTubeInfo());
+  const DS::PMTInfo *pmtinfo = &PMTFactoryBase::GetPMTInfo();
+  run->SetPMTInfo(pmtinfo);
+  DS::ChannelStatus ch_status;
+  ch_status.Load(pmtinfo, lrun->GetS("channel_status"));
+  run->SetChannelStatus(ch_status);
 
   DS::RunStore::AddNewRun(run);
 }
@@ -438,7 +443,6 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   ds->SetRunID(theRunManager->GetCurrentRun()->GetRunID());
   mc->SetID(g4ev->GetEventID());
   mc->SetUTC(exinfo->utc);
-
   // Vertex Info
   for (int ivert = 0; ivert < g4ev->GetNumberOfPrimaryVertex(); ivert++) {
     G4PrimaryVertex *pv = g4ev->GetPrimaryVertex(ivert);
@@ -555,7 +559,6 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
     rat_mcpmt->SetType(fPMTInfo->GetType(a_pmt->GetID()));
 
     numPE += a_pmt->GetEntries();
-
     /** Add "real" hits from actual simulated photons */
     for (int i = 0; i < a_pmt->GetEntries(); i++) {
       // Find the optical process responsible
@@ -591,10 +594,10 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
 
 void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo * /*exinfo*/, std::string process) {
   DS::MCPhoton *rat_mcphoton = rat_mcpmt->AddNewMCPhoton();
+  double chargeScale = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByPMTID(rat_mcpmt->GetID());
   // Only real photons are added in Gsim, noise and afterpulsing handled in processors
   rat_mcphoton->SetDarkHit(false);
   rat_mcphoton->SetAfterPulse(false);
-
   rat_mcphoton->SetLambda(photon->GetWavelength());
 
   double x, y, z;
@@ -610,7 +613,9 @@ void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventI
   rat_mcphoton->SetCreationTime(photon->GetCreationTime());
 
   rat_mcphoton->SetFrontEndTime(fPMTTime[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickTime(photon->GetTime()));
-  rat_mcphoton->SetCharge(fPMTCharge[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickCharge());
+  // Set the charge for the photoelectron, scaled by an optional calibration parameter chargeScale with a default value
+  // of one
+  rat_mcphoton->SetCharge(chargeScale * fPMTCharge[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickCharge());
   rat_mcphoton->SetCreatorProcess(process);
 }
 

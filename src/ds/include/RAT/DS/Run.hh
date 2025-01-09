@@ -12,6 +12,7 @@
 #include <TTimeStamp.h>
 
 #include <RAT/DS/NestedTubeInfo.hh>
+#include <RAT/DS/ChannelStatus.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <vector>
 
@@ -69,12 +70,19 @@ class Run : public TObject {
 
   ClassDef(Run, 2);
 
+  /** Channel status */
+  virtual ChannelStatus const *GetChannelStatus() const { return &ch_status; }
+  virtual void SetChannelStatus(const ChannelStatus &_ch_status) { ch_status = _ch_status; }
+
+  ClassDef(Run, 3);
+
  protected:
   Int_t id;
   ULong64_t type;
   TTimeStamp startTime;
-  std::vector<PMTInfo> pmtinfo;
   std::vector<NestedTubeInfo> nestedtubeinfo;
+  std::vector<PMTInfo> pmtinfo;  // ah.. why is this a vector?
+  ChannelStatus ch_status;
 };
 
 }  // namespace DS

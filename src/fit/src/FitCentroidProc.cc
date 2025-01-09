@@ -32,8 +32,8 @@ Processor::Result FitCentroidProc::Event(DS::Root *ds, DS::EV *ev) {
   double totalQ = 0;
   TVector3 centroid(0.0, 0.0, 0.0);
 
-  for (int i = 0; i < ev->GetPMTCount(); i++) {
-    DS::PMT *pmt = ev->GetPMT(i);
+  for (int i : ev->GetAllPMTIDs()) {
+    DS::PMT *pmt = ev->GetOrCreatePMT(i);
 
     double Qpow = 0.0;
     Qpow = pow(pmt->GetCharge(), fPower);
@@ -50,9 +50,14 @@ Processor::Result FitCentroidProc::Event(DS::Root *ds, DS::EV *ev) {
     centroid += Qpow * pmtpos;
   }
 
-  centroid *= 1.0 / totalQ;
   DS::FitResult *fit = new DS::FitResult("FitCentroid");
-  fit->SetPosition(centroid);
+  fit->SetEnablePosition(true);
+  if (totalQ) {
+    centroid *= 1.0 / totalQ;
+    fit->SetPosition(centroid);
+  } else {
+    fit->SetValidPosition(false);
+  }
   ev->AddFitResult(fit);
 
   return Processor::OK;

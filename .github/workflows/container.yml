@@ -1,0 +1,60 @@
+name: Build Docker Image
+
+on:
+  schedule:
+    - cron: '0 4 * * *' # Everyday at 4am UTC
+  push:
+    branches: [ main ]
+    tags: 
+      - "v*.*.*"
+  workflow_dispatch:
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    # Don't let forks build containers
+    if: github.repository == 'rat-pac/ratpac-two'
+    permissions: 
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    steps:
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:    
+          images: |
+            ratpac/ratpac-two
+            ghcr.io/${{ github.repository }}
+          # generate Docker tags based on the following events/attributes
+          # Using default, which should generate tags for branchs and `nightly`
+          # tags: |
+          #   type=schedule
+          #   type=ref,event=branch
+          #   type=ref,event=workflow_dispatch
+          #   type=semver,pattern={{raw}}
+          #   type=sha
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+      - 
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Build and push
+        id: push
+        uses: docker/build-push-action@v5
+        with:
+          file: containers/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

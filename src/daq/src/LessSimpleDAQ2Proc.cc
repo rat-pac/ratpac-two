@@ -120,8 +120,7 @@ Processor::Result LessSimpleDAQ2Proc::DSEvent(DS::Root *ds) {
 
       for (unsigned long bb = startIndex[b]; bb < tArraySort.size(); bb++) {
         if (subIndex[bb] == b) {
-          pmt = ev->AddNewPMT();
-          pmt->SetID(idArraySort[bb]);
+          pmt = ev->GetOrCreatePMT(idArraySort[bb]);
           pmt->SetTime(tArraySort[bb]);
           pmt->SetCharge(qArraySort[bb]);
 

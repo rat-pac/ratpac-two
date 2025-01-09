@@ -70,6 +70,19 @@ elemprop: [1.0],
 
 {
 name: "MATERIAL",
+index: "brass",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 8.73,
+nelements: 2,
+nmaterials: 0,
+elements: ["Copper", "Zinc"],
+elemprop: [0.66, 0.34],
+}
+
+
+{
+name: "MATERIAL",
 index: "steel",
 valid_begin : [0, 0],
 valid_end : [0, 0],
@@ -201,6 +214,18 @@ nelements: 4,
 nmaterials: 0,
 elements: ["Tungsten", "Nickel", "Copper", "Iron"],
 elemprop: [0.90,      0.06,   0.02,    0.02],
+}
+
+{
+name: "MATERIAL",
+index: "tungsten_alloy_EA17",  // Eagle Alloys EA17 tungsten alloy
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 17.15,
+nelements: 3,
+nmaterials: 0,
+elements: ["Tungsten", "Nickel", "Copper"],
+elemprop: [0.90,      0.06,   0.04],
 }
 
 {
@@ -491,6 +516,19 @@ elemprop: [1.0],
 {
 name: "MATERIAL",
 index: "photocathode_R7081HQE",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 5.0,
+nelements: 1,
+nmaterials: 0,
+elements: ["Potassium"],
+elemprop: [1.0],
+}
+
+// E.Keener at Penn, copied from photocathode_R7081HQE
+{
+name: "MATERIAL",
+index: "photocathode_R7081",
 valid_begin : [0, 0],
 valid_end : [0, 0],
 density: 5.0,
@@ -824,6 +862,30 @@ elemprop: [0.0703, 0.558, 0.3717],
 
 {
 name: "MATERIAL",
+index: "acrylic_uva_polycast",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 1.14,
+nelements: 3,
+nmaterials: 0,
+elements: ["Hydrogen", "Carbon", "Oxygen"],
+elemprop: [0.0703, 0.558, 0.3717],
+}
+
+{
+name: "MATERIAL",
+index: "acrylic_uva_reynolds",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 1.14,
+nelements: 3,
+nmaterials: 0,
+elements: ["Hydrogen", "Carbon", "Oxygen"],
+elemprop: [0.0703, 0.558, 0.3717],
+}
+
+{
+name: "MATERIAL",
 index: "nylon",
 valid_begin : [0, 0],
 valid_end : [0, 0],
@@ -885,6 +947,18 @@ elemprop: [0.0774, 0.9226],
 {
 name: "MATERIAL",
 index: "delrin",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 1.425, // from NIST database
+nelements: 3,
+nmaterials: 0,
+elements: ["Hydrogen", "Carbon","Oxygen"],
+elemprop: [0.067135, 0.400017, 0.532848],
+}
+
+{
+name: "MATERIAL",
+index: "delrin_black",
 valid_begin : [0, 0],
 valid_end : [0, 0],
 density: 1.425, // from NIST database

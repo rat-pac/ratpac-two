@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11...3.14)
-project(ratpac VERSION 2.1.3
+project(ratpac VERSION 2.3.0
                 DESCRIPTION "RAT-PAC"
                 LANGUAGES C CXX)
 
@@ -78,9 +78,12 @@ else()
 endif()
 include(${ROOT_USE_FILE})
 
-find_package(Geant4 REQUIRED COMPONENTS qt)
+find_package(Geant4 REQUIRED)
+find_package(Geant4 QUIET OPTIONAL_COMPONENTS qt)
 include(${Geant4_USE_FILE})
 include_directories(${Geant4_INCLUDE_DIRS})
+include_directories(${CLHEP_INCLUDE_DIRS})
+include_directories(${XercesC_INCLUDE_DIRS})
 
 find_package(Threads REQUIRED)
 
@@ -135,6 +138,9 @@ install(DIRECTORY models/ DESTINATION ${RATSHARE}/models
 # Install the python files
 install(DIRECTORY python/ DESTINATION ${RATSHARE}/python
   PATTERN "python/*")
+
+# Install rattest executable
+install(PROGRAMS python/rattest.py DESTINATION bin RENAME rattest)
 
 # Install the macro files
 install(DIRECTORY macros/ DESTINATION ${RATSHARE}/macros

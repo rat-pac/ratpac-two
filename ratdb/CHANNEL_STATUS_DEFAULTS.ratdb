@@ -1,0 +1,21 @@
+// This table includes all default values set for the ChannelStatus class. Custom values should be set per-experiment.
+{
+  "name": "cable_offset",
+  "index": "",
+  "run_range": [0, 0],
+  "default_value": 60.0,
+}
+
+{
+  "name": "channel_online",
+  "index": "",
+  "run_range": [0, 0],
+  "default_value": 1,
+}
+
+{
+  "name": "charge_scale",
+  "index": "",
+  "run_range": [0, 0],
+  "default_value": 1.0,
+}

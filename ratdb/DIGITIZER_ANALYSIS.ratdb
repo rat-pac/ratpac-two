@@ -18,5 +18,32 @@ sliding_window_width: 10,
 sliding_window_thresh: 0.2,
 // Threshold in mV
 voltage_threshold: -2.5,
+
+run_fitting: 0,
+// Fit window, in ns
+fit_window_low: 10.0,
+fit_window_high: 15.0,
+// Fit shape
+lognormal_shape: 0.15,
+lognormal_scale: 10.5,
+
+// Run configuration
+apply_cable_offset: 0,
+zero_suppress: 1  // If true, do not keep digitPMTs if the waveform never passes threshold
 }
 
+{
+name: "DIGITIZER_ANALYSIS",
+index: "GaussianFit"
+valid_begin: [0,0],
+valid_end: [0,0],
+
+// Fit window, in ns
+fit_window_low: 10.0,
+fit_window_high: 15.0,
+
+// Fit shape for gaussian
+gaussian_width: 1.5,
+gaussian_width_low: 0.5, // lower and upper limit for fitted sigma
+gaussian_width_high: 6.0,
+}

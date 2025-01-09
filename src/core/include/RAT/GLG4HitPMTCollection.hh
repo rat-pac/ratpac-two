@@ -13,6 +13,8 @@
 #include <vector>
 
 #include "GLG4HitPMT.hh"
+#include "RAT/DS/ChannelStatus.hh"
+#include "RAT/Log.hh"
 
 /** GLG4HitPMTCollection stores GLG4HitPMT objects.
 
@@ -42,12 +44,14 @@ class GLG4HitPMTCollection {
   int GetEntries() const;
   GLG4HitPMT *GetPMT(int i) const;
   GLG4HitPMT *GetPMT_ByID(int id) const;
+  void SetChannelStatus(const RAT::DS::ChannelStatus *_ch_status) { fChannelStatus = _ch_status; }
 
   void Print(std::ostream &) const;
 
  private:
   std::vector<GLG4HitPMT *> fPMT;
   std::map<int, GLG4HitPMT *> fHitmap;
+  const RAT::DS::ChannelStatus *fChannelStatus;
 };
 
 #endif  // __GLG4HitPMTCollection_hh__

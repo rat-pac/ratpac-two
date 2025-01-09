@@ -10,6 +10,7 @@
 #include <G4UserRunAction.hh>
 #include <G4UserTrackingAction.hh>
 #include <RAT/DS/NestedTubeInfo.hh>
+#include <RAT/DS/ChannelStatus.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/GeoFiberSensitiveDetectorHit.hh>
 #include <RAT/DS/Root.hh>
@@ -84,7 +85,6 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
 
   G4RunManager *theRunManager;
   GLG4DebugMessenger *theDebugMessenger;
-
   RAT::DS::PMTInfo *fPMTInfo;
   std::vector<RAT::PMTTime *> fPMTTime;      //< PMT transit time/delay calculator (indexed by modeltype)
   std::vector<RAT::PMTCharge *> fPMTCharge;  //< PMT single-pe charge calculator (indexed by modeltype)

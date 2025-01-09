@@ -177,18 +177,16 @@ T DBLink::Get(const std::string &fieldname) {
   DBTable *tbl;
   // First try user plane
   tbl = db->GetUserTable(tblname, index);
+  // Then try the run plane
   if (!tbl || tbl->GetFieldType(fieldname) == DBTable::NOTFOUND) {
-    // Then try the run plane
     tbl = db->GetRunTable(tblname, index, currentRun);
-    if (tbl) {
-      if (tbl->GetFieldType(fieldname) == DBTable::NOTFOUND) throw DBNotFoundError(tblname, index, fieldname);
-    } else {
-      // Finally try default plane
-      tbl = db->GetDefaultTable(tblname, index);
-      if (!tbl || tbl->GetFieldType(fieldname) == DBTable::NOTFOUND) {
-        throw DBNotFoundError(tblname, index, fieldname);
-      }
-    }
+  }
+  // Then try the default plane
+  if (!tbl || tbl->GetFieldType(fieldname) == DBTable::NOTFOUND) {
+    tbl = db->GetDefaultTable(tblname, index);
+  }
+  if (!tbl || tbl->GetFieldType(fieldname) == DBTable::NOTFOUND) {
+    throw DBNotFoundError(tblname, index, fieldname);
   }
 
   // Make class explicit to satisfy Sun CC 5.3

@@ -17,6 +17,7 @@ Table of Contents
 
    users_guide/index
    programmers_guide/index
+   Doxygen Code References <doxygen/html/index>
 
 Indices and tables
 ==================

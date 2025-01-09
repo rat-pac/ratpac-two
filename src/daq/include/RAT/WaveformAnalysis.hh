@@ -21,16 +21,24 @@
 #include <RAT/DB.hh>
 #include <RAT/DS/DigitPMT.hh>
 #include <RAT/Digitizer.hh>
+#include <RAT/Processor.hh>
 #include <vector>
 
 namespace RAT {
 
-class WaveformAnalysis {
+class WaveformAnalysis : public Processor {
  public:
   WaveformAnalysis();
+  WaveformAnalysis(std::string analyzer_name);
   virtual ~WaveformAnalysis(){};
 
-  void RunAnalysis(DS::DigitPMT *pmt, int pmtID, Digitizer *fDigitizer);
+  void Configure(const std::string &analyzer_name);
+  void RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, Digitizer *fDigitizer, double timeOffset = 0.0);
+  void RunAnalysis(DS::DigitPMT *digitpmt, int pmtID, DS::Digit *dsdigit, double timeOffset = 0.0);
+
+  double RunAnalysisOnTrigger(int pmtID, Digitizer *fDigitizer);
+
+  void ZeroSuppress(DS::EV *ev, DS::DigitPMT *digitpmt, int pmtID);
 
   // Calculate baseline (in mV)
   void CalculatePedestal();
@@ -40,7 +48,15 @@ class WaveformAnalysis {
 
   // Apply a constant fraction discriminator to
   // calculate the threshold crossing
-  double CalculateTime();
+  void CalculateTimeCFD();
+
+  // Calculate the time a threshold crossing occurs, with a linear interpolation
+  double CalculateThresholdCrossingTime();
+
+  double CalculateThresholdCrossingTime(double voltage_threshold) {
+    fVoltageCrossing = voltage_threshold;
+    return CalculateThresholdCrossingTime();
+  }
 
   // Find the sample where a threshold crossing occurs
   void GetThresholdCrossing();
@@ -56,6 +72,17 @@ class WaveformAnalysis {
 
   // Integrate the digitized waveform to calculate charge
   void SlidingIntegral();
+
+  // ADC counts to voltage (mV)
+  double DigitToVoltage(UShort_t digit) { return (digit - fPedestal) * fVoltageRes; }
+
+  // Fit the digitized waveform using a lognormal function
+  void FitWaveform();
+
+  virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
+  virtual void SetS(std::string param, std::string value);
+  virtual void SetD(std::string param, double value);
+  virtual void SetI(std::string param, int value);
 
  protected:
   // Digitizer settings
@@ -77,6 +104,10 @@ class WaveformAnalysis {
   double fThreshold;
   int fSlidingWindow;
   double fChargeThresh;
+  double fFitWindowLow;
+  double fFitWindowHigh;
+  double fFitShape;
+  double fFitScale;
 
   // Digitized waveform
   std::vector<UShort_t> fDigitWfm;
@@ -92,9 +123,23 @@ class WaveformAnalysis {
   double fCharge;
   double fTotalCharge;
   double fVoltageOverThreshold;
+  double fDigitTime;
+
+  // Fitted variables
+  int fRunFit;
+  double fFittedTime;
+  double fFittedHeight;
+  double fFittedBaseline;
+  double fChi2NDF;
+
+  // USe Cable offsets specified in channel status?
+  int fApplyCableOffset;
+  int fZeroSuppress;
 
   // Invalid value for bad waveforms
   const UShort_t INVALID = 9999;
+
+  void DoAnalysis(DS::DigitPMT *pmt, double timeOffset);
 };
 
 }  // namespace RAT

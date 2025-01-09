@@ -37,21 +37,25 @@ void Digitizer::DigitizePMT(DS::MCPMT* mcpmt, int pmtID, double triggerTime, DS:
   AddChannel(pmtID, pmtwfm);
 }
 
-void Digitizer::DigitizeSum(DS::EV* ev) {
+void Digitizer::ClearWaveforms() { fDigitWaveForm.clear(); }
+
+void Digitizer::WriteToEvent(DS::EV* ev) {
   DS::Digit digit;
 
-  std::map<UShort_t, std::vector<UShort_t>> waveforms = fDigitWaveForm;
-  for (std::map<UShort_t, std::vector<UShort_t>>::const_iterator it = waveforms.begin(); it != waveforms.end(); it++) {
-    digit.SetWaveform(UShort_t(it->first), waveforms[UShort_t(it->first)]);
+  std::map<int, std::vector<UShort_t>> waveforms = fDigitWaveForm;
+  for (std::map<int, std::vector<UShort_t>>::const_iterator it = waveforms.begin(); it != waveforms.end(); it++) {
+    digit.SetWaveform(it->first, waveforms[it->first]);
   }
 
   digit.SetDigitName(fDigitName);
-  digit.SetNSamples(UShort_t(fNSamples));
+  digit.SetNSamples(uint32_t(fNSamples));
   digit.SetNBits(UShort_t(fNBits));
   digit.SetDynamicRange((fVhigh - fVlow));
   digit.SetSamplingRate(fSamplingRate);
+  digit.SetTerminationOhms(fTerminationOhms);
 
   ev->SetDigitizer(digit);
+  ClearWaveforms();
 }
 
 // Add channel to digitizer and immdediatly digitize analogue waveform
@@ -78,7 +82,7 @@ void Digitizer::AddChannel(int ichannel, PMTWaveform pmtwf) {
     }
 
     // Save sample
-    fDigitWaveForm[UShort_t(ichannel)].push_back(UShort_t(adcs));
+    fDigitWaveForm[ichannel].push_back(UShort_t(adcs));
 
     // Step on time
     currenttime += timeres;

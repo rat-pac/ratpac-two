@@ -19,7 +19,6 @@ file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
 
 # hack hack hack hack hack
 include_directories(${RATPAC_INCLUDE_DIR})
-
 root_generate_dictionary(G__RATDict
         RAT/DS/Root.hh
         RAT/DS/Classifier.hh
@@ -40,9 +39,11 @@ root_generate_dictionary(G__RATDict
         RAT/DS/Run.hh
         RAT/DS/PMTInfo.hh
         RAT/DS/NestedTubeInfo.hh
+        RAT/DS/ChannelStatus.hh
         RAT/DS/MCTrack.hh
         RAT/DS/MCTrackStep.hh
         RAT/DS/Calib.hh
+        RAT/DS/WaveformAnalysisResult.hh
         RAT/DSReader.hh
         RAT/DSWriter.hh
         RAT/TrackNav.hh
@@ -57,8 +58,8 @@ root_generate_dictionary(G__RATDict
         RAT/ObjInt.hh
         RAT/ObjDbl.hh
         LINKDEF include/RAT/DS/LinkDef.hh
-        DEPENDENCIES core ds db io)
-
+        DEPENDENCIES core ds db io
+        OPTIONS -Wno-exceptions)
 add_library(RATDict OBJECT G__RATDict.cxx)
 target_include_directories(RATDict SYSTEM PUBLIC 
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)

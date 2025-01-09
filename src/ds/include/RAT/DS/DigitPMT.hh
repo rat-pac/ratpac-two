@@ -11,6 +11,9 @@
 #include <Rtypes.h>
 #include <TObject.h>
 
+#include <RAT/DS/WaveformAnalysisResult.hh>
+#include <RAT/Log.hh>
+
 namespace RAT {
 namespace DS {
 
@@ -25,8 +28,9 @@ class DigitPMT : public TObject {
   virtual Int_t GetID() { return id; }
 
   /** Threshold crossing time in ns */
-  virtual void SetDigitizedTime(Double_t _dTime) { this->dTime = _dTime; }
+  virtual void SetDigitizedTime(Double_t _dTime) { this->dTime = _dTime - time_offset; }
   virtual Double_t GetDigitizedTime() { return dTime; }
+  virtual Double_t GetDigitizedTimeNoOffset() { return dTime + time_offset; }
 
   /** Integrated charge around the peak [pC] */
   virtual void SetDigitizedCharge(Double_t _dCharge) { this->dCharge = _dCharge; }
@@ -35,14 +39,6 @@ class DigitPMT : public TObject {
   /** Integrated total charge [pC] */
   virtual void SetDigitizedTotalCharge(Double_t _dTCharge) { this->dTCharge = _dTCharge; }
   virtual Double_t GetDigitizedTotalCharge() { return dTCharge; }
-
-  /** Get the inter-sample timing interpolation */
-  virtual void SetInterpolatedTime(Double_t _iTime) { this->iTime = _iTime; }
-  virtual Double_t GetInterpolatedTime() { return iTime; }
-
-  /** Get the sample associated with the crossing time */
-  virtual void SetSampleTime(Int_t _sTime) { this->sTime = _sTime; }
-  virtual Int_t GetSampleTime() { return sTime; }
 
   /** Total number of threshold crossings */
   virtual void SetNCrossings(Int_t _nCrossings) { this->nCrossings = _nCrossings; }
@@ -64,20 +60,65 @@ class DigitPMT : public TObject {
   virtual void SetPeakVoltage(Double_t _peak) { this->peak = _peak; }
   virtual Double_t GetPeakVoltage() { return peak; }
 
-  ClassDef(DigitPMT, 1);
+  /** Fitted time in ns */
+  virtual void SetFittedTime(Double_t _fTime) { this->fTime = _fTime; }
+  virtual Double_t GetFittedTime() { return fTime; }
+
+  /** Fitted mag */
+  virtual void SetFittedHeight(Double_t _fMag) { this->fMag = _fMag; }
+  virtual Double_t GetFittedHeight() { return fMag; }
+
+  /** Fitted bas */
+  virtual void SetFittedBaseline(Double_t _fBas) { this->fBas = _fBas; }
+  virtual Double_t GetFittedBaseline() { return fBas; }
+
+  /** Local trigger time at the location of the PMT. Useful for PMT timing corrections */
+  virtual void SetLocalTriggerTime(Double_t _trigger_time) { this->local_trigger_time = _trigger_time; }
+  virtual Double_t GetLocalTriggerTime() { return local_trigger_time; }
+
+  /** Time offset applied to the waveform */
+  virtual void SetTimeOffset(Double_t _time_offset) { this->time_offset = _time_offset; }
+  virtual Double_t GetTimeOffset() { return time_offset; }
+
+  /** Waveform analysis results */
+  virtual WaveformAnalysisResult* const GetOrCreateWaveformAnalysisResult(std::string analyzer_name) {
+    if (!fit_results.count(analyzer_name)) {  // creating new fitresult
+      if (fit_results[analyzer_name].getTimeOffset() != 0) {
+        warn << "WavefornAnalysisResult for " << analyzer_name << " already has non-zero timing offset. "
+             << "This should not happen.. Current value will override old value!" << newline;
+        warn << "old value is " << fit_results[analyzer_name].getTimeOffset() << newline;
+      }
+      fit_results[analyzer_name].setTimeOffset(time_offset);
+    }
+    return &fit_results[analyzer_name];
+  }
+
+  virtual std::vector<std::string> const GetFitterNames() {
+    std::vector<std::string> fitter_names;
+    for (auto const& kv : fit_results) {
+      fitter_names.push_back(kv.first);
+    }
+    return fitter_names;
+  }
+
+  ClassDef(DigitPMT, 5);
 
  protected:
-  Int_t id;
-  Double_t dTime;
-  Double_t dCharge;
-  Double_t dTCharge;
-  Double_t iTime;
-  Int_t sTime;
-  Int_t nCrossings;
-  Double_t timeOverThresh;
-  Double_t voltageOverThresh;
-  Double_t pedestal;
-  Double_t peak;
+  Int_t id = -9999;
+  Double_t dTime = -9999;
+  Double_t dCharge = -9999;
+  Double_t dTCharge = -9999;
+  Int_t nCrossings = -9999;
+  Double_t timeOverThresh = -9999;
+  Double_t voltageOverThresh = -9999;
+  Double_t pedestal = -9999;
+  Double_t peak = -9999;
+  Double_t fTime = -9999;
+  Double_t fMag = -9999;
+  Double_t fBas = -9999;
+  Double_t local_trigger_time = -9999;
+  Double_t time_offset = 0;
+  std::map<std::string, WaveformAnalysisResult> fit_results;
 };
 
 }  // namespace DS
