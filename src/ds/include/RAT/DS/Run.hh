@@ -11,8 +11,8 @@
 #include <TObject.h>
 #include <TTimeStamp.h>
 
-#include <RAT/DS/NestedTubeInfo.hh>
 #include <RAT/DS/ChannelStatus.hh>
+#include <RAT/DS/NestedTubeInfo.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <vector>
 

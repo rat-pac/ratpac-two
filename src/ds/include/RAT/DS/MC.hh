@@ -16,8 +16,8 @@
 #include <TObject.h>
 #include <TTimeStamp.h>
 
-#include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/MCNestedTube.hh>
+#include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/MCParticle.hh>
 #include <RAT/DS/MCSummary.hh>
 #include <RAT/DS/MCTrack.hh>

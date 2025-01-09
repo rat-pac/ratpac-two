@@ -4,7 +4,7 @@
  *
  * @author Wilf Shorrock <w.shorrock@sussex.ac.uk>
  *
- * This class represents a single photon that is captured within the core of a 
+ * This class represents a single photon that is captured within the core of a
  * nested tube object.
  */
 

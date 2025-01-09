@@ -1,13 +1,13 @@
 #include <G4LogicalBorderSurface.hh>
 #include <G4LogicalSkinSurface.hh>
 #include <G4Material.hh>
-#include <G4Tubs.hh>
 #include <G4SDManager.hh>
+#include <G4Tubs.hh>
 #include <G4VisAttributes.hh>
 #include <RAT/DB.hh>
-#include <RAT/GeoNestedTubeConstruction.hh>
-#include <RAT/GeoNestedSolidArrayFactoryBase.hh>
 #include <RAT/GeoFiberSensitiveDetector.hh>
+#include <RAT/GeoNestedSolidArrayFactoryBase.hh>
+#include <RAT/GeoNestedTubeConstruction.hh>
 #include <RAT/Log.hh>
 #include <RAT/Materials.hh>
 #include <algorithm>
@@ -76,12 +76,11 @@ G4LogicalVolume *GeoNestedTubeConstruction::BuildVolume(const std::string &prefi
   // set as sensitive detector if applicable
   try {
     std::string sensitive_detector = table->GetS("sensitive_detector");
-    GeoFiberSensitiveDetector* sensitive = new GeoFiberSensitiveDetector(sensitive_detector+std::to_string(ID));
+    GeoFiberSensitiveDetector *sensitive = new GeoFiberSensitiveDetector(sensitive_detector + std::to_string(ID));
     G4SDManager *sdman = G4SDManager::GetSDMpointer();
     sdman->AddNewDetector(sensitive);
     core_log->SetSensitiveDetector(sensitive);
-  }
-  catch (DBNotFoundError &e) {
+  } catch (DBNotFoundError &e) {
   }
 
   // ------------ Physical Volumes -------------
