@@ -91,11 +91,6 @@ cppflow::tensor FitTensorProc::CreateProjection(DS::EV *ev, DS::PMTInfo *pmtinfo
       flatArray.push_back(std::min(std::max(static_cast<float>(0.0), green_value), static_cast<float>(1.0)));
     }
   }
-  float totalTester = accumulate(flatArray.begin(), flatArray.end(), 0);
-  // info << totalTester << newline;
-  for (auto &a : flatArray) {
-    // info << a << ", ";
-  }
   cppflow::tensor input(flatArray, shape);
   return input;
 }

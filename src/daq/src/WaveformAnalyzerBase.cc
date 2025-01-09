@@ -31,7 +31,6 @@ Processor::Result WaveformAnalyzerBase::Event(DS::Root* ds, DS::EV* ev) {
     return Processor::Result::OK;
   }
   DS::Digit* dsdigit = &ev->GetDigitizer();
-  DS::Run* run = DS::RunStore::GetRun(ds->GetRunID());
   std::vector<int> pmt_ids = ev->GetAllDigitPMTIDs();
   for (int pmt_id : pmt_ids) {
     DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(pmt_id);

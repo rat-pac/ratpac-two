@@ -67,7 +67,6 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
 }
 
 bool OutNtupleProc::OpenFile(std::string filename) {
-  int i = 0;
   outputFile = TFile::Open(filename.c_str(), "RECREATE");
   // Meta Tree
   metaTree = new TTree("meta", "meta");
@@ -216,7 +215,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   runBranch = DS::RunStore::GetRun(ds);
   DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
   const DS::ChannelStatus *channel_status = runBranch->GetChannelStatus();
-  ULong64_t stonano = 1000000000;
   dsentries++;
   // Clear the previous vectors
   pdgcodes.clear();

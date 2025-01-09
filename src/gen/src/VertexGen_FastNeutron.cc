@@ -282,8 +282,6 @@ double VertexGen_FastNeutron::evalIntegral(TF2 *func1, double x, double e_tmp) {
   Double_t logxmin = log10(e_tmp);
   Double_t logxmax = 8.0;
   Double_t binwidth = (logxmax - logxmin) / double(nbins);
-  Double_t xbins[nbins];
-  xbins[0] = e_tmp;
   Double_t norm = log(10) * binwidth;
   Double_t tmp = 0.0, a = 0.0;
   for (int i = 0.0; i < nbins; i++) {
