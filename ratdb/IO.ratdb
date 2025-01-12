@@ -25,7 +25,7 @@ include_untriggered_events: true,
 include_mchits: true,
 include_calib: true,
 
-waveform_fitters: ["Lognormal", "Gaussian", "Sinc"],
+waveform_fitters: ["Lognormal", "Gaussian", "Sinc", "SPEMatchedFilter"],
 
 waveform_fitter_FOM_Lognormal: ["baseline","chi2ndf"],
 waveform_fitter_FOM_Gaussian: ["baseline","width","chi2ndf"],

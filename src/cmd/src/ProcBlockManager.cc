@@ -32,6 +32,7 @@
 #include <RAT/WaveformAnalysisGaussian.hh>
 #include <RAT/WaveformAnalysisLognormal.hh>
 #include <RAT/WaveformAnalysisSinc.hh>
+#include <RAT/WaveformAnalysisSPEMF.hh>
 #include <RAT/WaveformPrep.hh>
 
 namespace RAT {
@@ -102,6 +103,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<WaveformAnalysisGaussian>();
   AppendProcessor<WaveformAnalysisLognormal>();
   AppendProcessor<WaveformAnalysisSinc>();
+  AppendProcessor<WaveformAnalysisSPEMF>();
   // Misc
   AppendProcessor<CountProc>();
   AppendProcessor<PruneProc>();
