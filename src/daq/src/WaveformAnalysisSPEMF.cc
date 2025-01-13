@@ -15,7 +15,7 @@ void WaveformAnalysisSPEMF::Configure(const std::string& config_name) {
     fTemplateDelay = fDigit->GetD("template_delay");
     fPMTPulseShapeTimes = fDigit->GetDArray("template_samples");
     fPMTPulseShapeValues = fDigit->GetDArray("template_values");
-    upsample_factor = fDigit->GetD("upsample_factor");
+    fUpsampleFactor = fDigit->GetD("upsample_factor");
   } catch (DBNotFoundError) {
     RAT::Log::Die("WaveformAnalysisSPEMF: Unable to find analysis parameters.");
   }
@@ -25,7 +25,7 @@ void WaveformAnalysisSPEMF::SetD(std::string param, double value) {
   if (param == "template_delay") {
     fTemplateDelay = value;
   } else if (param == "upsample_factor") {
-    upsample_factor = value;
+    fUpsampleFactor = value;
   } else {
     throw Processor::ParamUnknown(param);
   }
@@ -62,63 +62,49 @@ void WaveformAnalysisSPEMF::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector
   TSpline3* templateSpline =
       new TSpline3("template", fPMTPulseShapeTimes.data(), fPMTPulseShapeValues.data(), fPMTPulseShapeTimes.size());
   // Apply matched filter
-  std::vector<double> corr = MatchedFilter(voltWfm, *templateSpline, upsample_factor = upsample_factor);
+  std::vector<double> corr = MatchedFilter(voltWfm, templateSpline, fTemplateDelay, fUpsampleFactor);
 
   // Find the maximum correlation value
   auto max_it = std::max_element(corr.begin(), corr.end());
   double max_corr = *max_it;
-  size_t max_index = std::distance(corr.begin(), max_it);
+  size_t max_idx = std::distance(corr.begin(), max_it);
 
   // Calculate the time corresponding to the maximum correlation
-  double max_time = max_index / upsample_factor * fTimeStep;
+  double max_time = (static_cast<double>(max_idx) / fUpsampleFactor - fTemplateDelay) * fTimeStep;
 
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("SPEMatchedFilter");
   fit_result->AddPE(max_time, 1, {{"max_correlation", max_corr}});
 }
 
-std::vector<double> WaveformAnalysisSPEMF::MatchedFilter(const std::vector<double>& voltWfm,
-                                                         const TSpline3 templateSpline, const int template_delay,
-                                                         const int upsample_factor) {
-  // Number of samples in the waveform
-  size_t nsamples = voltWfm.size();
-  std::vector<double> samples(nsamples);
-
-  // Fill the sample indices
-  for (size_t i = 0; i < nsamples; ++i) {
-    samples[i] = i;
-  }
-
+std::vector<double> WaveformAnalysisSPEMF::MatchedFilter(const std::vector<double>& voltWfm, TSpline3* templateSpline,
+                                                         const int template_delay, const int upsample_factor) {
+  const size_t nsamples = voltWfm.size();
+  // Prepare output array: one correlation value per upsampled index
   const size_t nupsampled = nsamples * upsample_factor;
-
-  // Generate delay values for interpolation
-  std::vector<double> delays(nupsampled);
-  for (size_t i = 0; i < nupsampled; ++i) {
-    delays[i] = static_cast<double>(i) / upsample_factor;
-  }
-
-  // Adjust for the template delay
-  // Delays will be shifted to align the "zero" point of the template
-  // for (auto& delay : delays) {
-  //    delay -= template_delay;
-  //}
-
-  // Compute the matched filter correlation
   std::vector<double> corr(nupsampled, 0.0);
+
+  // Compute correlation for each upsampled shift
+  // shift = (i / upsample_factor) - template_delay
+  // Evaluate: sum over j of (voltWfm[j] * templateSpline.Eval(j + shift))
   for (size_t i = 0; i < nupsampled; ++i) {
-    std::vector<double> shifted_template(nsamples, 0.0);
+    // Precompute the shift for the spline
+    const double shift = static_cast<double>(i) / upsample_factor - template_delay;
+
+    // Accumulate correlation in a local variable
+    double sumVal = 0.0;
     for (size_t j = 0; j < nsamples; ++j) {
-      double shifted_index = samples[j] + delays[i];
-      if (shifted_index >= samples.front() && shifted_index <= samples.back()) {
-        shifted_template[j] = templateSpline.Eval(shifted_index);
-      } else {
-        shifted_template[j] = 0.0;  // Assign zero if out of range
+      double shifted_index = j - shift;
+      // Only evaluate the spline when shifted_index is in range
+      if (shifted_index >= 0.0 && shifted_index < static_cast<double>(nsamples)) {
+        sumVal += voltWfm[j] * templateSpline->Eval(shifted_index);
       }
     }
-    // Compute dot product between waveform and shifted template
-    corr[i] = std::inner_product(voltWfm.begin(), voltWfm.end(), shifted_template.begin(), 0.0);
+    corr[i] = sumVal;
   }
 
   return corr;
 }
+
+// Function to compute integral of waveform
 
 }  // namespace RAT
