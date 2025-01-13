@@ -39,13 +39,14 @@ class WaveformAnalysisSPEMF : public WaveformAnalyzerBase {
   virtual void SetD(std::string param, double value) override;
 
   void GetTemplatebyModelName(std::string modelName);
-  std::vector<double> MatchedFilter(const std::vector<double> &voltWfm, const TSpline3 templateSpline,
-                                    const int template_delay = 0, const int upsample_factor = 1);
+  std::vector<double> MatchedFilter(const std::vector<double> &voltWfm, TSpline3 *templateSpline,
+                                    const int template_delay, const int upsample_factor);
 
  protected:
   // Settings
   DBLinkPtr fDigit;
   double fTemplateDelay;
+  int fUpsampleFactor;
 
   // Analysis constants
   std::string fModelName;
@@ -55,7 +56,6 @@ class WaveformAnalysisSPEMF : public WaveformAnalyzerBase {
 
   std::vector<double> fPMTPulseShapeTimes;
   std::vector<double> fPMTPulseShapeValues;
-  int upsample_factor = 10;
 
   void DoAnalysis(DS::DigitPMT *pmt, const std::vector<UShort_t> &digitWfm);
 };
