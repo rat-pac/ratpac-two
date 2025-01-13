@@ -70,9 +70,8 @@ index: "SPEMatchedFilter",
 valid_begin: [0,0],
 valid_end: [0,0],
 
+upsample_factor: 1., // factor to upsample waveform by when computing correlation
 template_delay: 0.0, // location of template peak
-template_samples: [],
-
-template_values: [],
-upsample_factor: 1.,
+template_samples: [0.0, 0.5, 1.0],
+template_values: [0.0, 1.0., 0.0],
 }
