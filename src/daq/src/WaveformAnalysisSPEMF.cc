@@ -61,8 +61,25 @@ void WaveformAnalysisSPEMF::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal = pedestal);
   TSpline3* templateSpline =
       new TSpline3("template", fPMTPulseShapeTimes.data(), fPMTPulseShapeValues.data(), fPMTPulseShapeTimes.size());
+
+  // Compute the lookup table if it hasn't been computed yet
+  if (!lookupTableComputed) {
+    const size_t nsamples = voltWfm.size();
+    const size_t nupsampled = nsamples * fUpsampleFactor;
+    spline_values.resize(nsamples, std::vector<double>(nupsampled, 0.0));
+    for (size_t j = 0; j < nsamples; ++j) {
+      for (size_t i = 0; i < nupsampled; ++i) {
+        double shifted_index = j - (static_cast<double>(i) / fUpsampleFactor - fTemplateDelay);
+        if (shifted_index >= 0.0 && shifted_index < static_cast<double>(nsamples)) {
+          spline_values[j][i] = templateSpline->Eval(shifted_index);
+        }
+      }
+    }
+    lookupTableComputed = true;
+  }
+
   // Apply matched filter
-  std::vector<double> corr = MatchedFilter(voltWfm, templateSpline, fTemplateDelay, fUpsampleFactor);
+  std::vector<double> corr = MatchedFilter(voltWfm, spline_values, fTemplateDelay, fUpsampleFactor);
 
   // Find the maximum correlation value
   auto max_it = std::max_element(corr.begin(), corr.end());
@@ -76,28 +93,18 @@ void WaveformAnalysisSPEMF::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector
   fit_result->AddPE(max_time, 1, {{"max_correlation", max_corr}});
 }
 
-std::vector<double> WaveformAnalysisSPEMF::MatchedFilter(const std::vector<double>& voltWfm, TSpline3* templateSpline,
+std::vector<double> WaveformAnalysisSPEMF::MatchedFilter(const std::vector<double>& voltWfm,
+                                                         const std::vector<std::vector<double>>& spline_values,
                                                          const int template_delay, const int upsample_factor) {
   const size_t nsamples = voltWfm.size();
-  // Prepare output array: one correlation value per upsampled index
   const size_t nupsampled = nsamples * upsample_factor;
   std::vector<double> corr(nupsampled, 0.0);
 
-  // Compute correlation for each upsampled shift
-  // shift = (i / upsample_factor) - template_delay
-  // Evaluate: sum over j of (voltWfm[j] * templateSpline.Eval(j + shift))
+  // Compute correlation using the precomputed spline values
   for (size_t i = 0; i < nupsampled; ++i) {
-    // Precompute the shift for the spline
-    const double shift = static_cast<double>(i) / upsample_factor - template_delay;
-
-    // Accumulate correlation in a local variable
     double sumVal = 0.0;
     for (size_t j = 0; j < nsamples; ++j) {
-      double shifted_index = j - shift;
-      // Only evaluate the spline when shifted_index is in range
-      if (shifted_index >= 0.0 && shifted_index < static_cast<double>(nsamples)) {
-        sumVal += voltWfm[j] * templateSpline->Eval(shifted_index);
-      }
+      sumVal += voltWfm[j] * spline_values[j][i];
     }
     corr[i] = sumVal;
   }
