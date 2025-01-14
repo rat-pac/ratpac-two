@@ -99,6 +99,13 @@ static inline void matinvert(double (*const ans)[3], const double (*const m)[3])
 }
 
 Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
+  // FIXME: This should eventually be done automatically
+  // Check if run information needs to be retrieved
+  if (fRun != DS::RunStore::Get()->GetRun(ds)) {
+    fRun = DS::RunStore::Get()->GetRun(ds);
+    BeginOfRun(fRun);
+  }
+
   std::vector<double> pmtx, pmty, pmtz, pmtt;
   for (int i : ev->GetAllDigitPMTIDs()) {
     DS::DigitPMT *pmt = ev->GetOrCreateDigitPMT(i);
@@ -118,6 +125,7 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
   fit->SetTime(0);
 
   if (nhits < 4) {
+    ev->AddFitResult(fit);
     return Processor::Result(FAIL);
   }
 
@@ -204,6 +212,7 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
   size_t quad_pts = quad_xs.size();
   // if (quad_pts < fNumQuadPoints) {
   if (quad_pts < 1) {
+    ev->AddFitResult(fit);
     return Processor::Result(FAIL);
   }
 
