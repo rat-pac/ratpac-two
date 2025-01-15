@@ -24,7 +24,9 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
     "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
-add_compile_options(-Wno-terminate)
+add_compile_options(-Wall)
+# Not turning on errors yet to ease transition
+#add_compile_options(-Werr)
 
 ###########################################################
 # Set CMAKE standards
@@ -138,6 +140,9 @@ install(DIRECTORY models/ DESTINATION ${RATSHARE}/models
 # Install the python files
 install(DIRECTORY python/ DESTINATION ${RATSHARE}/python
   PATTERN "python/*")
+
+# Install rattest executable
+install(PROGRAMS python/rattest.py DESTINATION bin RENAME rattest)
 
 # Install the macro files
 install(DIRECTORY macros/ DESTINATION ${RATSHARE}/macros

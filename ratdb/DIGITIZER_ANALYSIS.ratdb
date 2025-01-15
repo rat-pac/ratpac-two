@@ -34,6 +34,22 @@ zero_suppress: 1  // If true, do not keep digitPMTs if the waveform never passes
 
 {
 name: "DIGITIZER_ANALYSIS",
+index: "GaussianFit"
+valid_begin: [0,0],
+valid_end: [0,0],
+
+// Fit window, in ns
+fit_window_low: 10.0,
+fit_window_high: 15.0,
+
+// Fit shape for gaussian
+gaussian_width: 1.5,
+gaussian_width_low: 0.5, // lower and upper limit for fitted sigma
+gaussian_width_high: 6.0,
+}
+
+{
+name: "DIGITIZER_ANALYSIS",
 index: "TSincInterpolation",
 valid_begin: [0,0],
 valid_end: [0,0],

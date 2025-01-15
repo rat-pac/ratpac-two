@@ -59,10 +59,11 @@ Rat::Rat(AnyParse *parser, int argc, char **argv) : parser(parser), argc(argc), 
   this->parser->AddArgument("vector", "", "x", 1, "Set default vector filename", ParseString);
   this->parser->AddArgument("python", std::vector<std::string>{}, "p", 999, "Set python processors", ParseString);
   this->parser->AddArgument("vis", false, "g", 0, "Load G4UI visualization", ParseInt);
-  // Parser setup and ready to read command line arguments
+  // Parsur setup and ready to read command line arguments
   this->parser->Parse();
 
-  if (this->parser->GetValue("database", "") != "") RAT::DB::Get()->SetServer(this->parser->GetValue("database", ""));
+  if (std::string(this->parser->GetValue("database", "")) != "")
+    RAT::DB::Get()->SetServer(this->parser->GetValue("database", ""));
   // Database management
   rdb = DB::Get();
   rdb_messenger = new DBMessenger();
@@ -92,7 +93,7 @@ void Rat::Begin() {
   int display_level = Log::INFO - this->parser->GetValue("quiet", false) + this->parser->GetValue("verbose", false);
   int log_level = debug_log || display_level == Log::DEBUG ? Log::DEBUG : Log::DETAIL;
   std::string logfilename = (std::string("rat.") + get_short_hostname() + "." + std::to_string(getpid()) + ".log");
-  logfilename = this->parser->GetValue("log", "") != "" ? this->parser->GetValue("log", "") : logfilename;
+  logfilename = std::string(this->parser->GetValue("log", "")) != "" ? this->parser->GetValue("log", "") : logfilename;
   Log::Init(logfilename, Log::Level(display_level), Log::Level(log_level));
 
   // Start by putting all of the basic rat starting functions here, eventually
@@ -114,7 +115,7 @@ void Rat::Begin() {
   // Root ... should not be used
   gRandom->SetSeed(this->seed);
 
-  int dbstatus = rdb->LoadDefaults();
+  rdb->LoadDefaults();
 
   // Run management
   if (this->run > 0) {
@@ -159,7 +160,6 @@ void Rat::Begin() {
       mainBlock->DeferAppend(python);
     }
 
-    bool isInteractive = false;
     G4UIExecutive *theSession = nullptr;
     if (this->vis) theSession = new G4UIExecutive(this->argc, this->argv);
 
