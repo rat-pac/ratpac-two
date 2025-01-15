@@ -15,6 +15,7 @@
 #include <RAT/FitCentroidProc.hh>
 #include <RAT/FitPathProc.hh>
 #include <RAT/FitTensorProc.hh>
+#include <RAT/ForcedTriggerProc.hh>
 #include <RAT/LessSimpleDAQ2Proc.hh>
 #include <RAT/LessSimpleDAQProc.hh>
 #include <RAT/NoiseProc.hh>
@@ -89,6 +90,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<AfterPulseProc>();
   AppendProcessor<SimpleDAQProc>();
   AppendProcessor<SplitEVDAQProc>();
+  AppendProcessor<ForcedTriggerProc>();
   AppendProcessor<LessSimpleDAQProc>();
   AppendProcessor<LessSimpleDAQ2Proc>();
   AppendProcessor<TrueDAQProc>();

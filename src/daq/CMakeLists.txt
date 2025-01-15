@@ -15,6 +15,7 @@ add_library(daq OBJECT
   src/PMTWaveform.cc
   src/SimpleDAQProc.cc
   src/SplitEVDAQProc.cc
+  src/ForcedTriggerProc.cc
   src/TrueDAQProc.cc
   src/WaveformAnalysis.cc
   src/WaveformPrep.cc
