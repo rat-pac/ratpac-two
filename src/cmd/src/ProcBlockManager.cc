@@ -25,6 +25,7 @@
 #include <RAT/PythonProc.hh>
 #include <RAT/SimpleDAQProc.hh>
 #include <RAT/SplitEVDAQProc.hh>
+#include <RAT/ForcedTriggerProc.hh>
 #include <RAT/TrueDAQProc.hh>
 #include <RAT/WaveformAnalysis.hh>
 #include <RAT/WaveformAnalysisGaussian.hh>
@@ -89,6 +90,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<AfterPulseProc>();
   AppendProcessor<SimpleDAQProc>();
   AppendProcessor<SplitEVDAQProc>();
+  AppendProcessor<ForcedTriggerProc>();
   AppendProcessor<LessSimpleDAQProc>();
   AppendProcessor<LessSimpleDAQ2Proc>();
   AppendProcessor<TrueDAQProc>();
