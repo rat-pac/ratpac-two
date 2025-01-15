@@ -59,11 +59,12 @@ void WaveformAnalysisSPEMF::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector
   }
   // Convert from ADC to mV
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal = pedestal);
-  TSpline3* templateSpline =
-      new TSpline3("template", fPMTPulseShapeTimes.data(), fPMTPulseShapeValues.data(), fPMTPulseShapeTimes.size());
 
   // Compute the lookup table if it hasn't been computed yet
   if (!lookupTableComputed) {
+    TSpline3* templateSpline =
+        new TSpline3("template", fPMTPulseShapeTimes.data(), fPMTPulseShapeValues.data(), fPMTPulseShapeTimes.size());
+
     const size_t nsamples = voltWfm.size();
     const size_t nupsampled = nsamples * fUpsampleFactor;
     spline_values.resize(nsamples, std::vector<double>(nupsampled, 0.0));
@@ -76,6 +77,9 @@ void WaveformAnalysisSPEMF::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector
       }
     }
     lookupTableComputed = true;
+
+    // Clean up
+    delete templateSpline;
   }
 
   // Apply matched filter
@@ -111,7 +115,5 @@ std::vector<double> WaveformAnalysisSPEMF::MatchedFilter(const std::vector<doubl
 
   return corr;
 }
-
-// Function to compute integral of waveform
 
 }  // namespace RAT
