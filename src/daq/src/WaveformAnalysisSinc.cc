@@ -10,13 +10,34 @@
 #include "RAT/WaveformUtil.hh"
 
 namespace RAT {
+
+std::vector<double> WaveformAnalysisSinc::tsinc_kernel;
+int WaveformAnalysisSinc::fNumInterpPoints = 0;
+double WaveformAnalysisSinc::fTaperingConst = 0.;
+int WaveformAnalysisSinc::fNumSincLobes = 0;
+
 void WaveformAnalysisSinc::Configure(const std::string& config_name) {
   try {
+    std::cout << "config name: " << config_name << std::endl;
     fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", config_name);
     fFitWindowLow = fDigit->GetD("fit_window_low");
     fFitWindowHigh = fDigit->GetD("fit_window_high");
+    fNumInterpPoints = fDigit->GetI("num_interp_points");
+    fTaperingConst = fDigit->GetD("tapering_constant");
+    fNumSincLobes = fDigit->GetI("num_sinc_lobes");
   } catch (DBNotFoundError) {
     RAT::Log::Die("WaveformAnalysisSinc: Unable to find analysis parameters.");
+  }
+  WaveformAnalysisSinc::calculateTSincKernel();
+}
+
+void WaveformAnalysisSinc::SetI(std::string param, int value) {
+  if (param == "num_interp_points") {
+    fNumInterpPoints = value;
+  } else if (param == "num_sinc_lobes") {
+    fNumSincLobes = value;
+  } else {
+    throw Processor::ParamUnknown(param);
   }
 }
 
@@ -25,6 +46,8 @@ void WaveformAnalysisSinc::SetD(std::string param, double value) {
     fFitWindowLow = value;
   } else if (param == "fit_window_high") {
     fFitWindowHigh = value;
+  } else if (param == "tapering_constant") {
+    fTaperingConst = value;
   } else {
     throw Processor::ParamUnknown(param);
   }
@@ -39,7 +62,8 @@ void WaveformAnalysisSinc::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal = pedestal);
   fDigitTimeInWindow = digitpmt->GetDigitizedTimeNoOffset();
 
-  if (std::isinf(fDigitTimeInWindow) || fDigitTimeInWindow < 0) {
+  // check to see if digitTime is well behaved
+  if (std::isinf(fDigitTimeInWindow) || fDigitTimeInWindow < 0 || fDigitTimeInWindow > voltWfm.size() * fTimeStep) {
     return;
   }
 
@@ -49,61 +73,59 @@ void WaveformAnalysisSinc::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
   fit_result->AddPE(fFitTime, fFitCharge, {{"peak", fFitPeak}});
 }
 
-std::vector<double> WaveformAnalysisSinc::convolve_wfm(const std::vector<double>& wfm,
-                                                       const std::vector<double>& kernel) {
-  int n = wfm.size();
-  int m = kernel.size();
-  std::vector<double> result(n + m - 1, 0.0);  // Size of the output
-  // Perform the convolution
-  for (int i = 0; i < n; ++i) {
-    for (int j = 0; j < m; ++j) {
-      result[i + j] += wfm[i] * kernel[j];
+std::vector<double> WaveformAnalysisSinc::ConvolveWaveform(const std::vector<double>& wfm) {
+  int wl = wfm.size();  // waveform length
+  int numNewPoints = (wl - 1) * fNumInterpPoints + 1;
+
+  std::vector<double> newWfm(numNewPoints, 0.0);  // vector that stored the interpolated waveform
+  for (int j = 0; j < wl - 1; j++) {              // looping over the digitized waveform
+    for (int k = 0; k < fNumInterpPoints; k++)    // looping over the interpolated points
+    {
+      double interpValue = 0.;
+      for (int i = 0; i < fNumSincLobes; i++)  // looping over the tsinc kernel
+      {
+        if (j - i >= 0) {
+          interpValue += wfm[j - i] * tsinc_kernel[i * fNumInterpPoints + k];
+        }
+        if (j + i + 1 < wl) {
+          interpValue += wfm[j + 1 + i] * tsinc_kernel[(i + 1) * fNumInterpPoints - k];
+        }
+      }
+      newWfm[j * fNumInterpPoints + k] = interpValue;
     }
   }
-  return result;
+  newWfm[numNewPoints - 1] =
+      wfm[wl - 1];  // End point of the digitized waveform is the end point of the interpolated waveform
+  return newWfm;
 }
 
 void WaveformAnalysisSinc::InterpolateWaveform(const std::vector<double>& voltWfm) {
-  // Fit range
+  // Interpolation range
   double bf = fDigitTimeInWindow - fFitWindowLow;
   double tf = fDigitTimeInWindow + fFitWindowHigh;
 
-  // Check the fit range is within the digitizer window
+  // Check the interpolation range is within the digitizer window
   bf = (bf > 0) ? bf : 0;
   tf = (tf > voltWfm.size() * fTimeStep) ? voltWfm.size() * fTimeStep : tf;
 
-  // Get samples values within the fit range
-  std::vector<double> fit_wfm;
-  int sample_low = static_cast<int>(floor(bf / fTimeStep));
-  int sample_high = static_cast<int>(floor(tf / fTimeStep));
-  sample_high = std::min(static_cast<int>(voltWfm.size()) - 1, sample_high);
-  for (int j = sample_low; j < sample_high + 1; j++) {
-    fit_wfm.push_back(voltWfm[j]);
-  }
-
-  // Calculating tapered sinc kernel
-  std::vector<double> tsinc_kernel;
-  int N = 8;        // number of interpolated points per data point
-  double T = 30.0;  // tapering constant
-  for (int k = -48; k < 49; k++) {
-    double val = k * 3.1415 / static_cast<float>(N);
-    double sinc = sin(val);
-    if (k == 0)
-      sinc = 1.0;
-    else
-      sinc /= val;
-    tsinc_kernel.push_back(sinc * exp(-pow(k / T, 2)));
+  // Get samples values within the interpolation range
+  std::vector<double> sampleWfm;
+  int sampleLow = static_cast<int>(floor(bf / fTimeStep));
+  int sampleHigh = static_cast<int>(floor(tf / fTimeStep));
+  sampleHigh = std::min(static_cast<int>(voltWfm.size()) - 1, sampleHigh);
+  for (int j = sampleLow; j < sampleHigh + 1; j++) {
+    sampleWfm.push_back(voltWfm[j]);
   }
 
   // Interpolated waveform
-  std::vector<double> interp_wfm = convolve_wfm(fit_wfm, tsinc_kernel);
-  std::pair<int, double> peakSampleVolt = WaveformUtil::FindHighestPeak(interp_wfm);
+  std::vector<double> interpWfm = ConvolveWaveform(sampleWfm);
+  std::pair<int, double> peakSampleVolt = WaveformUtil::FindHighestPeak(interpWfm);
 
   fFitPeak = peakSampleVolt.second;
-  fFitTime = bf + peakSampleVolt.first * fTimeStep / static_cast<float>(N);
+  fFitTime = ((sampleLow + 0.5) * fTimeStep) + peakSampleVolt.first * fTimeStep / fNumInterpPoints;
   fFitCharge = 0;
-  for (const double& vlt : interp_wfm) {
-    fFitCharge += WaveformUtil::VoltagetoCharge(vlt, fTimeStep / static_cast<float>(N), fTermOhms);  // in pC
+  for (const double& vlt : interpWfm) {
+    fFitCharge += WaveformUtil::VoltagetoCharge(vlt, fTimeStep / fNumInterpPoints, fTermOhms);  // in pC
   }
 }
 

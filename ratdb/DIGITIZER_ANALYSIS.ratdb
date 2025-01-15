@@ -31,3 +31,19 @@ lognormal_scale: 10.5,
 apply_cable_offset: 0,
 zero_suppress: 1  // If true, do not keep digitPMTs if the waveform never passes threshold
 }
+
+{
+name: "DIGITIZER_ANALYSIS",
+index: "TSincInterpolation",
+valid_begin: [0,0],
+valid_end: [0,0],
+
+// Fit window, in ns
+fit_window_low: 10.0,
+fit_window_high: 15.0,
+
+// Interpolation variables
+num_interp_points: 8,
+tapering_constant: 30.0,
+num_sinc_lobes: 6
+}
