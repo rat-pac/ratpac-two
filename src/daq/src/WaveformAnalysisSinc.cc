@@ -18,7 +18,6 @@ int WaveformAnalysisSinc::fNumSincLobes = 0;
 
 void WaveformAnalysisSinc::Configure(const std::string& config_name) {
   try {
-    std::cout << "config name: " << config_name << std::endl;
     fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", config_name);
     fFitWindowLow = fDigit->GetD("fit_window_low");
     fFitWindowHigh = fDigit->GetD("fit_window_high");
