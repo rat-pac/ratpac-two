@@ -45,7 +45,7 @@ fit_window_high: 15.0,
 // Fit shape for gaussian
 gaussian_width: 1.5,
 gaussian_width_low: 0.5, // lower and upper limit for fitted sigma
-gaussian_width_high: 6.0,
+gaussian_width_high: 6.0
 }
 
 {
@@ -70,8 +70,22 @@ index: "SPEMatchedFilter",
 valid_begin: [0,0],
 valid_end: [0,0],
 
-upsample_factor: 1., // factor to upsample waveform by when computing correlation
+upsample_factor: 1.0, // factor to upsample waveform by when computing correlation
 template_delay: 0.0, // location of template peak
 template_samples: [0.0, 0.5, 1.0],
-template_values: [0.0, 1.0., 0.0],
+template_values: [0.0, 1.0, 0.0]
+}
+
+{
+name: "DIGITIZER_ANALYSIS",
+index: "L1Deconv",
+valid_begin: [0,0],
+valid_end: [0,0],
+
+upsample_factor: 1.0, // factor to upsample waveform by when computing correlation
+peak_threshold: 0.1, // threshold for peaks in deconvolved waveform
+noise_sigma: 1.0, // value to set lambda
+template_delay: 0.0, // location of template peak
+template_samples: [0.0, 0.5, 1.0],
+template_values: [0.0, 1.0, 0.0]
 }
