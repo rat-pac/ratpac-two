@@ -51,6 +51,7 @@ class WaveformAnalysisL1Deconv : public WaveformAnalyzerBase {
   double fNoiseSigma;
   double fPeakThreshold;      // Absolute threshold for peak detection
   double fRelativeThreshold;  // Relative threshold compared to nearest peaks
+  double fTemplateHeight;     // Maximum height of template
 
   // Peak finding methods
   std::vector<double> FindPeaks(const Eigen::VectorXd& signal, double absThreshold, double relThreshold) const;

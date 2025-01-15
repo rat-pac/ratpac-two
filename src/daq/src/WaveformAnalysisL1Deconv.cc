@@ -16,6 +16,7 @@ namespace RAT {
 
 void WaveformAnalysisL1Deconv::Configure(const std::string& config_name) {
   try {
+    // Get configuration parameters
     fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", config_name);
     fTemplateDelay = fDigit->GetD("template_delay");
     fPMTPulseShapeTimes = fDigit->GetDArray("template_samples");
@@ -23,12 +24,25 @@ void WaveformAnalysisL1Deconv::Configure(const std::string& config_name) {
     fUpsampleFactor = fDigit->GetD("upsample_factor");
     fNoiseSigma = fDigit->GetD("noise_sigma");
     fPeakThreshold = fDigit->GetD("peak_threshold");
+
+    // Create template spline first
+    templateSpline = std::make_unique<TSpline3>("template", fPMTPulseShapeTimes.data(), fPMTPulseShapeValues.data(),
+                                                fPMTPulseShapeTimes.size());
+
+    if (!templateSpline) {
+      RAT::Log::Die("WaveformAnalysisL1Deconv: Failed to create template spline");
+    }
+
+    // Now compute template height using created spline
+    double maxHeight = 0.0;
+    for (double x = 0; x < fPMTPulseShapeTimes.back(); x += 0.1) {
+      maxHeight = std::max(maxHeight, templateSpline->Eval(x));
+    }
+    fTemplateHeight = maxHeight;
+
   } catch (DBNotFoundError&) {
     RAT::Log::Die("WaveformAnalysisL1Deconv: Unable to find analysis parameters.");
   }
-  // Precompute the template spline
-  templateSpline = std::make_unique<TSpline3>("template", fPMTPulseShapeTimes.data(), fPMTPulseShapeValues.data(),
-                                              fPMTPulseShapeTimes.size());
 }
 
 void WaveformAnalysisL1Deconv::SetD(std::string param, double value) {
@@ -90,7 +104,7 @@ void WaveformAnalysisL1Deconv::DoAnalysis(DS::DigitPMT* digitpmt, const std::vec
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("L1Deconv");
   for (const auto& peak : peaks) {
     double peak_time = (static_cast<double>(peak) / fUpsampleFactor - fTemplateDelay) * fTimeStep;
-    fit_result->AddPE(peak_time, 1, {{"peak_value", result[peak]}});
+    fit_result->AddPE(peak_time, result[peak]);
   }
 }
 
