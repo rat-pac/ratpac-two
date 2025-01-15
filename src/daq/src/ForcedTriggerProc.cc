@@ -1,4 +1,4 @@
-/* 
+/*
 Forced trigger causes a trigger regardless of the total number of PMTs hit
  */
 #include <G4ThreeVector.hh>
@@ -12,7 +12,6 @@ namespace RAT {
 
 ForcedTriggerProc::ForcedTriggerProc() : Processor("forcedtrigger") {
   // Trigger Specifications
-
   ldaq = DB::Get()->GetLink("DAQ", "ForcedTrigger");
   fEventCounter = 0;
   fDigitizerType = ldaq->GetS("digitizer_name");
@@ -33,7 +32,6 @@ void ForcedTriggerProc::BeginOfRun(DS::Run *run) {
 }
 
 Processor::Result ForcedTriggerProc::DSEvent(DS::Root *ds) {
-
   DS::MC *mc = ds->GetMC();
   DS::Run *run = DS::RunStore::Get()->GetRun(ds);
   DS::PMTInfo *pmtinfo = run->GetPMTInfo();
