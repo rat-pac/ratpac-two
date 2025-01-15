@@ -121,10 +121,14 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
   size_t nhits = pmtt.size();
 
   DS::FitResult *fit = new DS::FitResult("quadfitter");
+  fit->SetValidEnergy(false);
+  fit->SetValidDirection(false);
   fit->SetPosition(TVector3(0, 0, 0));
   fit->SetTime(0);
 
   if (nhits < 4) {
+    fit->SetValidTime(false);
+    fit->SetValidPosition(false);
     ev->AddFitResult(fit);
     return Processor::Result(FAIL);
   }
@@ -212,6 +216,8 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
   size_t quad_pts = quad_xs.size();
   // if (quad_pts < fNumQuadPoints) {
   if (quad_pts < 1) {
+    fit->SetValidTime(false);
+    fit->SetValidPosition(false);
     ev->AddFitResult(fit);
     return Processor::Result(FAIL);
   }
@@ -223,6 +229,7 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
 
   TVector3 best_fit(quad_xs[quad_pts / 2], quad_ys[quad_pts / 2], quad_zs[quad_pts / 2]);
 
+  // Automatically sets SetValidTime(true);
   fit->SetPosition(best_fit);
   fit->SetTime(quad_ts[quad_pts / 2]);
   ev->AddFitResult(fit);
