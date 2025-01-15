@@ -634,10 +634,8 @@ void Materials::LoadOptics() {
     // scattering, which is combined into a single scattering length
     mpt->AddConstProperty("NCOMPONENTS", components.size(), true);
 
-    const std::vector<G4MaterialPropertyVector *> &materialPropertyVector = mpt->GetProperties();
     const std::vector<G4String> &materialPropertyNames = mpt->GetMaterialPropertyNames();
     const std::vector<G4String> &materialConstPropertyNames = mpt->GetMaterialConstPropertyNames();
-    const std::vector<std::pair<G4double, G4bool>> &materialConstPropertyVector = mpt->GetConstProperties();
 
     for (size_t i = 0; i < components.size(); i++) {
       std::string compname = components[i];
@@ -669,7 +667,7 @@ void Materials::LoadOptics() {
       /// G4MaterialPropertyVector*>::const_iterator it;
       auto cptPropertyNames = cpt->GetMaterialPropertyNames();
       auto cptProperties = cpt->GetProperties();
-      for (int propid = 0; propid < cptPropertyNames.size(); propid++) {
+      for (size_t propid = 0; propid < cptPropertyNames.size(); propid++) {
         //// for (it=cpm->begin(); it!=cpm->end(); it++) {
         //// std::string pname = it->first;
         G4String pname = cptPropertyNames.at(propid);
@@ -747,7 +745,7 @@ void Materials::LoadOptics() {
       //// std::map<G4String,
       ////          G4double>::const_iterator itc;
       //// for (itc=cpmc->begin(); itc!=cpmc->end(); itc++) {
-      for (int propid = 0; propid < cptConstPropertyNames.size(); propid++) {
+      for (size_t propid = 0; propid < cptConstPropertyNames.size(); propid++) {
         G4String cname = cptConstPropertyNames.at(propid);
         //// std::string cname = itc->first;
         if (cname.find("REEMISSION_PROB") != std::string::npos) {

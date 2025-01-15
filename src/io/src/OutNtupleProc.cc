@@ -67,7 +67,6 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
 }
 
 bool OutNtupleProc::OpenFile(std::string filename) {
-  int i = 0;
   outputFile = TFile::Open(filename.c_str(), "RECREATE");
   // Meta Tree
   metaTree = new TTree("meta", "meta");
@@ -81,6 +80,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("pmtChannel", &pmtChannel);
   metaTree->Branch("pmtIsOnline", &pmtIsOnline);
   metaTree->Branch("pmtCableOffset", &pmtCableOffset);
+  metaTree->Branch("pmtChargeScale", &pmtChargeScale);
   metaTree->Branch("pmtX", &pmtX);
   metaTree->Branch("pmtY", &pmtY);
   metaTree->Branch("pmtZ", &pmtZ);
@@ -215,7 +215,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   runBranch = DS::RunStore::GetRun(ds);
   DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
   const DS::ChannelStatus *channel_status = runBranch->GetChannelStatus();
-  ULong64_t stonano = 1000000000;
   dsentries++;
   // Clear the previous vectors
   pdgcodes.clear();
@@ -620,6 +619,7 @@ OutNtupleProc::~OutNtupleProc() {
       pmtChannel.push_back(channel);
       pmtIsOnline.push_back(ch_status->GetOnlineByPMTID(id));
       pmtCableOffset.push_back(ch_status->GetCableOffsetByPMTID(id));
+      pmtChargeScale.push_back(ch_status->GetChargeScaleByPMTID(id));
       pmtX.push_back(position.X());
       pmtY.push_back(position.Y());
       pmtZ.push_back(position.Z());

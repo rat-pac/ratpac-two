@@ -25,7 +25,7 @@ std::pair<int, double> FindHighestPeak(const std::vector<double>& voltageWavefor
   */
   double voltagePeak = INVALID;
   int samplePeak = INVALID;
-  for (int i = 0; i < voltageWaveform.size(); i++) {
+  for (size_t i = 0; i < voltageWaveform.size(); i++) {
     double voltage = voltageWaveform[i];
     // Downward going pulse
     if (voltage < voltagePeak) {
@@ -46,15 +46,15 @@ int GetThresholdCrossingBeforePeak(const std::vector<double>& waveform, int peak
   int lb = peakSample - int(lookBack / timeStep);
   int back_window = (lb > 0) ? lb : 0;
 
-  if (back_window >= waveform.size()) {
-    warn << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before end of waveform."
-         << newline;
+  if (static_cast<size_t>(back_window) >= waveform.size()) {
+    debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before end of waveform."
+          << newline;
   } else if (back_window >= peakSample) {
-    warn << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before peak." << newline;
-  } else if (peakSample >= waveform.size()) {
-    warn << "WaveformUtil::GetThresholdCrossingBeforePeak: Peak not before end of waveform." << newline;
+    debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before peak." << newline;
+  } else if (static_cast<size_t>(peakSample) >= waveform.size()) {
+    debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Peak not before end of waveform." << newline;
   } else if (waveform.at(peakSample) > voltageThreshold) {
-    warn << "WaveformUtil: Peak not above threshold.\n";
+    debug << "WaveformUtil: Peak not above threshold.\n";
   }
 
   // Start at the peak and scan backwards
@@ -84,7 +84,7 @@ int GetNCrossings(const std::vector<double>& waveform, double voltageThreshold) 
 
   bool crossed = false;
   // Scan over the entire waveform
-  for (int i = 0; i < waveform.size(); i++) {
+  for (size_t i = 0; i < waveform.size(); i++) {
     double voltage = waveform[i];
 
     // If we crossed below threshold
@@ -115,7 +115,7 @@ std::tuple<int, double, double> GetCrossingsInfo(const std::vector<double>& wave
 
   bool crossed = false;
   // Scan over the entire waveform
-  for (int i = 0; i < waveform.size(); i++) {
+  for (size_t i = 0; i < waveform.size(); i++) {
     double voltage = waveform[i];
 
     // If we crossed below threshold
@@ -155,7 +155,7 @@ double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, int
   }
   // Linearly interpolate threshold crossing time, if time is not last sample of waveform
   double dt = 0;
-  if (time < waveform.size() - 1) {
+  if (time + 1 < static_cast<int>(waveform.size())) {
     double deltav = waveform.at(time + 1) - waveform.at(time);
     dt = (voltageThreshold - waveform.at(time)) / deltav;
   }
@@ -171,15 +171,15 @@ double IntegratePeak(const std::vector<double>& waveform, int peakSample, int in
   int windowStart = peakSample - intWindowLow;
   int windowEnd = peakSample + intWindowHigh;
 
-  if (windowStart >= waveform.size()) {
+  // Make sure not to integrate past the end of the waveform
+  windowEnd = (static_cast<size_t>(windowEnd) > waveform.size()) ? waveform.size() : windowEnd;
+  // Make sure not to integrate before the waveform starts
+  windowStart = (windowStart < 0) ? 0 : windowStart;
+
+  if (static_cast<size_t>(windowStart) >= waveform.size()) {
     charge = INVALID;  // Invalid value for bad waveforms
     return charge;
   }
-
-  // Make sure not to integrate past the end of the waveform
-  windowEnd = (windowEnd > waveform.size()) ? waveform.size() : windowEnd;
-  // Make sure not to integrate before the waveform starts
-  windowStart = (windowStart < 0) ? 0 : windowStart;
 
   for (int i = windowStart; i < windowEnd; i++) {
     double voltage = waveform[i];

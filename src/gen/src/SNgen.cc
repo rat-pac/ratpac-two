@@ -375,8 +375,7 @@ double SNgen::GetESRandomEnergy(Double_t &dt) {
     ES_e_Flux->Delete();
     ES_e_XS->Delete();
     ES_e_Total->Delete();
-  }
-  if (0.167 < ran_ES && ran_ES <= 0.33) {
+  } else if (ran_ES <= 0.33) {
     Double_t ran_ES_eb = glum_eb->GetRandom();
     dt = ran_ES_eb;
     Double_t meran_ES_eb = gmene_eb->Eval(ran_ES_eb);
@@ -401,8 +400,7 @@ double SNgen::GetESRandomEnergy(Double_t &dt) {
     ES_eb_Flux->Delete();
     ES_eb_XS->Delete();
     ES_eb_Total->Delete();
-  }
-  if (ran_ES > 0.33) {
+  } else {
     Double_t ran_ES_x = glum_x->GetRandom();
     dt = ran_ES_x;
     Double_t meran_ES_x = gmene_x->Eval(ran_ES_x);
