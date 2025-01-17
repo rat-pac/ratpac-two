@@ -67,10 +67,10 @@ class WaveformAnalysisSinc : public WaveformAnalyzerBase {
   // Analysis constants
   double fFitWindowLow;
   double fFitWindowHigh;
-  static int fNumInterpPoints;  // number of interpolated points per data point (or the number of points in each lobe of
-                                // the tsinc kernel)
-  static double fTaperingConst;  // tapering constant (determines how fast the kernel decays)
-  static int fNumSincLobes;  // number of sinc lobes to be included in the kernel (determines the length of the kernel)
+  int fNumInterpPoints;   // number of interpolated points per data point (or the number of points in each lobe of
+                          // the tsinc kernel)
+  double fTaperingConst;  // tapering constant (determines how fast the kernel decays)
+  int fNumSincLobes;      // number of sinc lobes to be included in the kernel (determines the length of the kernel)
 
   // Coming from WaveformPrep
   double fDigitTimeInWindow;
@@ -80,8 +80,8 @@ class WaveformAnalysisSinc : public WaveformAnalyzerBase {
   double fFitCharge;
   double fFitPeak;
 
-  static std::vector<double> tsinc_kernel;  // Stores the tsinc kernel
-  static void calculateTSincKernel() {      // Calculates the tsinc kernel
+  std::vector<double> tsinc_kernel;  // Stores the tsinc kernel
+  void calculateTSincKernel() {      // Calculates the tsinc kernel
     for (int k = 0; k < fNumInterpPoints * fNumSincLobes + 1;
          k++) {  // Storing only the positive k values since sinc is an even function
       double val = k * M_PI / static_cast<float>(fNumInterpPoints);

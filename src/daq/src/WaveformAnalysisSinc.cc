@@ -11,11 +11,6 @@
 
 namespace RAT {
 
-std::vector<double> WaveformAnalysisSinc::tsinc_kernel;
-int WaveformAnalysisSinc::fNumInterpPoints = 0;
-double WaveformAnalysisSinc::fTaperingConst = 0.;
-int WaveformAnalysisSinc::fNumSincLobes = 0;
-
 void WaveformAnalysisSinc::Configure(const std::string& config_name) {
   try {
     fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", config_name);
@@ -27,7 +22,7 @@ void WaveformAnalysisSinc::Configure(const std::string& config_name) {
   } catch (DBNotFoundError) {
     RAT::Log::Die("WaveformAnalysisSinc: Unable to find analysis parameters.");
   }
-  WaveformAnalysisSinc::calculateTSincKernel();
+  calculateTSincKernel();
 }
 
 void WaveformAnalysisSinc::SetI(std::string param, int value) {
@@ -105,13 +100,12 @@ void WaveformAnalysisSinc::InterpolateWaveform(const std::vector<double>& voltWf
 
   // Check the interpolation range is within the digitizer window
   bf = (bf > 0) ? bf : 0;
-  tf = (tf > voltWfm.size() * fTimeStep) ? voltWfm.size() * fTimeStep : tf;
+  tf = (tf >= voltWfm.size() * fTimeStep) ? (voltWfm.size() * fTimeStep) - (fTimeStep / 2.0) : tf;
 
   // Get samples values within the interpolation range
   std::vector<double> sampleWfm;
   int sampleLow = static_cast<int>(floor(bf / fTimeStep));
   int sampleHigh = static_cast<int>(floor(tf / fTimeStep));
-  sampleHigh = std::min(static_cast<int>(voltWfm.size()) - 1, sampleHigh);
   for (int j = sampleLow; j < sampleHigh + 1; j++) {
     sampleWfm.push_back(voltWfm[j]);
   }
