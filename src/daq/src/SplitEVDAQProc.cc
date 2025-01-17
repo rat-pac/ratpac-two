@@ -107,10 +107,12 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   for (int i = 0; i < nbins; i++) {
     double x = triggerTrain[i];
     if (x > 0) {
-      for (int j = i; j < i + int(fPulseWidth / bw); j++) {
+      int j = i;
+      do {
         if (j >= nbins) break;
         triggerHistogram[j] += x;
-      }
+        j++;
+      } while (j < i + int(fPulseWidth / bw));
     }
   }
 
