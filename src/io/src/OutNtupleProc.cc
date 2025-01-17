@@ -166,6 +166,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("mcPMTNPE", &mcpmtnpe);
     outputTree->Branch("mcPMTCharge", &mcpmtcharge);
 
+    outputTree->Branch("mcPEPMTID", &mcpepmtid);
     outputTree->Branch("mcPEHitTime", &mcpehittime);
     outputTree->Branch("mcPEFrontEndTime", &mcpefrontendtime);
     // Production process
@@ -345,6 +346,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcpmtcharge.clear();
 
   // MCPE information
+  mcpepmtid.clear();
   mcpehittime.clear();
   mcpefrontendtime.clear();
   mcpeprocess.clear();
@@ -365,6 +367,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       TVector3 position = pmtinfo->GetPosition(mcpmt->GetID());
       for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++) {
         RAT::DS::MCPhoton *mcph = mcpmt->GetMCPhoton(ipe);
+        mcpepmtid.push_back(mcpmt->GetID());
         mcpehittime.push_back(mcph->GetHitTime());
         mcpefrontendtime.push_back(mcph->GetFrontEndTime());
         mcpewavelength.push_back(mcph->GetLambda());
