@@ -1,4 +1,11 @@
 {
+"name": "FIT_COMMON",
+"index": "",
+"mode": 0, // 0 = use DS::PMT; 1 = use DS::DigitPMT DigitTime/Charge; 2 = use WaveformAnalysisResult
+"waveform_analyzer": "Lognormal", // only required if mode = 2
+}
+
+{
 name: "Fitter",
 index: "FitTensor",
 valid_begin: [0, 0],
