@@ -31,11 +31,14 @@ root_generate_dictionary(G__RATDict
         RAT/DS/MCParticle.hh
         RAT/DS/MCPhoton.hh
         RAT/DS/MCPMT.hh
+        RAT/DS/MCNestedTube.hh
+        RAT/DS/MCNestedTubeHit.hh
         RAT/DS/MCSummary.hh
         RAT/DS/PMT.hh
         RAT/DS/RunStore.hh
         RAT/DS/Run.hh
         RAT/DS/PMTInfo.hh
+        RAT/DS/NestedTubeInfo.hh
         RAT/DS/ChannelStatus.hh
         RAT/DS/MCTrack.hh
         RAT/DS/MCTrackStep.hh
