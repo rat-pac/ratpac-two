@@ -10,7 +10,9 @@ Forced trigger causes a trigger regardless of the total number of PMTs hit
 
 namespace RAT {
 
-ForcedTriggerProc::ForcedTriggerProc() : Processor("forcedtrigger") {
+ForcedTriggerProc::ForcedTriggerProc() : Processor("forcedtrigger") {}
+
+void ForcedTriggerProc::BeginOfRun(DS::Run *run) {
   // Trigger Specifications
   ldaq = DB::Get()->GetLink("DAQ", "ForcedTrigger");
   fEventCounter = 0;
@@ -18,14 +20,12 @@ ForcedTriggerProc::ForcedTriggerProc() : Processor("forcedtrigger") {
   fDigitize = ldaq->GetZ("digitize");
 
   fDigitizer = new Digitizer(fDigitizerType);
-}
 
-void ForcedTriggerProc::BeginOfRun(DS::Run *run) {
   if (fDigitize) {
     DS::PMTInfo *pmtinfo = run->GetPMTInfo();
     const size_t numModels = pmtinfo->GetModelCount();
     for (size_t i = 0; i < numModels; i++) {
-      const std::string modelName = pmtinfo->GetModelName(i);
+      const std::string &modelName = pmtinfo->GetModelName(i);
       fDigitizer->AddWaveformGenerator(modelName);
     }
   }
