@@ -29,8 +29,6 @@ class SplitEVDAQProc : public Processor {
   double fLookback;
   double fMaxHitTime;
   bool fDigitize;
-  bool fAnalyze;
-  std::string fAnalyzerName;
 
   int fTriggerOnNoise;
   DBLinkPtr ldaq;
