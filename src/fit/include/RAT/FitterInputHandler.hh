@@ -74,6 +74,15 @@ class FitterInputHandler {
   }
 
   /**
+   * @brief Get number of hit channels in the event.
+   *
+   */
+  size_t GetNHits() {
+    if (!ev) Log::Die("FitterInputHandler: Trying to acccess event info without registering the event.");
+    return hitPMTChannels.size();
+  }
+
+  /**
    * @brief Get the charge of a pmt.
    * In the case where a waveoform analyzer created multiple hits on the PMT (multi-PE), this method only returns
    * information about this first hit. To get information about all the hits, use getCharges.
@@ -184,7 +193,7 @@ class FitterInputHandler {
    *
    * @param id PMT ID.
    */
-  unsigned int GetNhits(Int_t id) {
+  unsigned int GetNPEs(Int_t id) {
     if (!ev) Log::Die("FitterInputHandler: Trying to acccess event info without registering the event.");
     if (!std::binary_search(hitPMTChannels.begin(), hitPMTChannels.end(), id))
       Log::Die("FitterInputHandler: Trying to access a channel with no hit registered!");
