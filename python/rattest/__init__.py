@@ -95,12 +95,22 @@ class RatTest:
         params = {}
         # Set default of no fixing of random seed
         self.seed = -1
+        # Set default run number of 0, which is the same as no run specification in rat world. 
+        self.runnum = 0
         # Set default of 1% threshold on KS tests
         self.KS_threshold = 0.01
         self.num_macros = 1
+        self.rat_extra_flags = ""
+        self.rat_flags = ""
         exec(compile(open(self.config_file).read(), self.config_file, 'exec'), {}, params)
         for key, val in params.items():
             setattr(self, key, val)
+        if self.rat_flags == "":  # rat flag was not explicitly specified in test config.
+            self.rat_flags = self.rat_extra_flags
+            if self.seed != -1:
+                self.rat_flags += f" -s {self.seed} "
+            if self.runnum != 0:
+                self.rat_flags += f" -r {self.runnum} "
 
         # Expand full paths
         self.rat_macro = os.path.abspath(os.path.join(self.testdir, self.rat_macro))
@@ -166,10 +176,7 @@ class RatTest:
             if i > 0:
                 suffix = "_" + str(i) + ".mac"
             mac = self.rat_macro.replace(".mac", suffix)
-            if self.seed == -1:
-                self.run_cmd_in_testdir(self.rat_bin + ' ' + os.path.basename(mac))
-            else:
-                self.run_cmd_in_testdir(self.rat_bin + ' -s ' + str(self.seed) + ' ' + os.path.basename(mac))
+            self.run_cmd_in_testdir(self.rat_bin + " " + self.rat_flags + " " + os.path.basename(mac))
 
     def run_root(self):
         '''
