@@ -19,17 +19,20 @@ void FitQuadProc::BeginOfRun(DS::Run *run) {
   fNumQuadPoints = quad_db->GetI("num_points");
   fMaxQuadPoints = quad_db->GetI("max_points");
   fTableCutOff = quad_db->GetI("table_cut_off");
+  if (fTableCutOff > fNumPointsTbl.size()) {
+    Log::Die("Quad tried to set a table_cut_off larger than the size of fNumPointsTbl.");
+  }
   fLightSpeed = quad_db->GetD("light_speed");
+  fMaxRadius = quad_db->GetD("max_radius");
 }
 
 // Create a table of all the ways to pick 4 numbers out of n
-std::vector<std::array<uint, 4>> FitQuadProc::BuildTable(const unsigned int n) {
-  std::cout << n << "\n";
+std::vector<std::array<unsigned int, 4>> FitQuadProc::BuildTable(const unsigned int n) {
   if (n > fTableCutOff) Log::Die("Quad: tried to make a table bigger than expected!\n");
 
-  std::vector<std::array<uint, 4>> table;
+  std::vector<std::array<unsigned int, 4>> table;
 
-  std::array<uint, 4> entry;
+  std::array<unsigned int, 4> entry;
   for (entry[0] = 0; entry[0] < n; entry[0]++)
     for (entry[1] = entry[0] + 1; entry[1] < n; entry[1]++)
       for (entry[2] = entry[1] + 1; entry[2] < n; entry[2]++)
@@ -38,8 +41,8 @@ std::vector<std::array<uint, 4>> FitQuadProc::BuildTable(const unsigned int n) {
   return table;
 }
 
-std::array<uint, 4> FitQuadProc::ChoosePMTs(uint nhits) {
-  std::array<uint, 4> pmt_ids;
+std::array<unsigned int, 4> FitQuadProc::ChoosePMTs(unsigned int nhits) {
+  std::array<unsigned int, 4> pmt_ids;
   for (int j = 0; j < 4; j++) {
     while (true) {
       pmt_ids[j] = CLHEP::RandFlat::shootInt(nhits);
@@ -96,6 +99,13 @@ static inline void matinvert(double (*const ans)[3], const double (*const m)[3])
 }
 
 Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
+  // FIXME: This should eventually be done automatically
+  // Check if run information needs to be retrieved
+  if (fRun != DS::RunStore::Get()->GetRun(ds)) {
+    fRun = DS::RunStore::Get()->GetRun(ds);
+    BeginOfRun(fRun);
+  }
+
   std::vector<double> pmtx, pmty, pmtz, pmtt;
   for (int i : ev->GetAllDigitPMTIDs()) {
     DS::DigitPMT *pmt = ev->GetOrCreateDigitPMT(i);
@@ -108,18 +118,23 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
     pmty.push_back(pmtpos.Y());
     pmtz.push_back(pmtpos.Z());
   }
-  uint nhits = pmtt.size();
+  size_t nhits = pmtt.size();
 
   DS::FitResult *fit = new DS::FitResult("quadfitter");
+  fit->SetValidEnergy(false);
+  fit->SetValidDirection(false);
   fit->SetPosition(TVector3(0, 0, 0));
   fit->SetTime(0);
 
   if (nhits < 4) {
+    fit->SetValidTime(false);
+    fit->SetValidPosition(false);
+    ev->AddFitResult(fit);
     return Processor::Result(FAIL);
   }
 
-  uint num_pts = nhits <= fTableCutOff ? fNumPointsTbl[nhits] : fNumQuadPoints;
-  std::vector<std::array<uint, 4>> pmt_table;
+  size_t num_pts = nhits <= fTableCutOff ? fNumPointsTbl[nhits] : fNumQuadPoints;
+  std::vector<std::array<unsigned int, 4>> pmt_table;
   if (nhits <= fTableCutOff) {
     pmt_table = BuildTable(nhits);
   } else {
@@ -129,10 +144,9 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
   }
   // Arrays for quad points
   std::vector<double> quad_xs, quad_ys, quad_zs, quad_ts;
-  for (uint pt_i = 0; pt_i < num_pts; pt_i++) {
-    std::cout << pt_i << "\n";
+  for (size_t pt_i = 0; pt_i < num_pts; pt_i++) {
     double min_time = 1e9;
-    std::array<uint, 4> pmt_ids = pmt_table[pt_i];
+    std::array<unsigned int, 4> pmt_ids = pmt_table[pt_i];
     double pmt_pos[4][3];
 
     std::array<double, 4> t;
@@ -188,7 +202,7 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
         // Indeed, if we cut this off at the PMT sphere surface,
         // it would introduce a large bias when we took the
         // median later.  So it is a little larger than that.
-        const double rlimit = 9000;
+        const double rlimit = fMaxRadius;
         if (mag2(v) < rlimit * rlimit) {
           quad_xs.push_back(v[0]);
           quad_ys.push_back(v[1]);
@@ -199,9 +213,12 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
       }
     }
   }
-  uint quad_pts = quad_xs.size();
+  size_t quad_pts = quad_xs.size();
   // if (quad_pts < fNumQuadPoints) {
   if (quad_pts < 1) {
+    fit->SetValidTime(false);
+    fit->SetValidPosition(false);
+    ev->AddFitResult(fit);
     return Processor::Result(FAIL);
   }
 
@@ -212,6 +229,7 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
 
   TVector3 best_fit(quad_xs[quad_pts / 2], quad_ys[quad_pts / 2], quad_zs[quad_pts / 2]);
 
+  // Automatically sets SetValidTime(true);
   fit->SetPosition(best_fit);
   fit->SetTime(quad_ts[quad_pts / 2]);
   ev->AddFitResult(fit);
