@@ -81,6 +81,7 @@ class OutNtupleProc : public Processor {
   std::vector<int> pmtChannel;
   std::vector<bool> pmtIsOnline;
   std::vector<double> pmtCableOffset;
+  std::vector<double> pmtChargeScale;
   std::vector<double> pmtX;
   std::vector<double> pmtY;
   std::vector<double> pmtZ;
@@ -121,6 +122,7 @@ class OutNtupleProc : public Processor {
   std::vector<int> mcpmtnpe;
   std::vector<double> mcpmtcharge;
   // MCPE
+  std::vector<int> mcpepmtid;
   std::vector<double> mcpehittime;
   std::vector<double> mcpefrontendtime;
   std::vector<int> mcpeprocess;

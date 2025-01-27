@@ -34,6 +34,10 @@ parser.add_argument('-t', '--text-only',
                     action='store_false', dest='web', default=True,
                     help='Do not open web pages with plots.')
 
+parser.add_argument('-e', '--experiment',
+                    type=str, dest='experiment_bin', default=None,
+                    help='Absolute path to experiment binary to run test with. Uses `rat` as default.')
+
 parser.add_argument('--make-template', type=str, dest='template', default=None,
                     help='Write a template rattest to current directory for you to edit. '\
                     'Supplied name is used for .mac and .C files.')
@@ -52,7 +56,7 @@ success = True
 for dirname in args.input:
     for dirpath, _, filenames in os.walk(dirname):
         if configname in filenames:
-            testcase = RatTest(os.path.join(dirpath, configname))
+            testcase = RatTest(os.path.join(dirpath, configname), rat_bin=args.experiment_bin)
             if args.update:
                 testcase.update(regen_mc=args.regen_mc, regen_plots=args.regen_plots)
             else:

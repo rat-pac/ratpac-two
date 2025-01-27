@@ -128,7 +128,7 @@ class Log {
 
   /** Write @p message to @p warn stream and immediately terminate,
       sending @p return_code back to OS. */
-  static void Die(std::string message, int return_code = 1);
+  [[noreturn]] static void Die(std::string message, int return_code = 1);
 
   /** Write @p message to @p warn stream and immediately terminate if @condition
       is not true.  @p return_code is returned to the OS to signal job failure

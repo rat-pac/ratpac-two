@@ -70,7 +70,7 @@ NGen::NGen() : stateStr(""), isotope(17), posGen(0) {
   // cdf (cumulativ distribution fnction) for branching ratio
   pdfNow = 0.;
   sumBr = accumulate(std::begin(brArrN), std::end(brArrN), 0., std::plus<double>());
-  for (int j = 0; j < sizeof(brArrN) / sizeof(brArrN[0]); j++) {
+  for (size_t j = 0; j < sizeof(brArrN) / sizeof(brArrN[0]); j++) {
     pdfNow += brArrN[j] / sumBr;
     cdfN[j] = pdfNow;
   }
@@ -109,9 +109,9 @@ void NGen::GenerateEvent(G4Event *event) {
     G4double pz = cost;
 
     // energy
-    int idxNow = 0;
+    size_t idxNow = 0;
     G4double randNow = G4UniformRand();
-    for (int j = 0; j < sizeof(brArrN) / sizeof(brArrN[0]); j++) {
+    for (size_t j = 0; j < sizeof(brArrN) / sizeof(brArrN[0]); j++) {
       if (randNow < cdfN[j]) {
         idxNow = j;
         break;

@@ -71,7 +71,7 @@ HeGen::HeGen() : stateStr(""), isotope(8), posGen(0) {
   // cdf (cumulativ distribution fnction) for branching ratio
   pdfNow = 0.;
   sumBr = accumulate(std::begin(brArrHe), std::end(brArrHe), 0., std::plus<double>());
-  for (int j = 0; j < sizeof(brArrHe) / sizeof(brArrHe[0]); j++) {
+  for (size_t j = 0; j < sizeof(brArrHe) / sizeof(brArrHe[0]); j++) {
     pdfNow += brArrHe[j] / sumBr;
     cdfHe[j] = pdfNow;
   }
@@ -112,9 +112,9 @@ void HeGen::GenerateEvent(G4Event *event) {
 
     // energy
     // energy
-    int idxNow = 0;
+    size_t idxNow = 0;
     G4double randNow = G4UniformRand();
-    for (int j = 0; j < sizeof(brArrHe) / sizeof(brArrHe[0]); j++) {
+    for (size_t j = 0; j < sizeof(brArrHe) / sizeof(brArrHe[0]); j++) {
       if (randNow < cdfHe[j]) {
         idxNow = j;
         break;
