@@ -1,6 +1,7 @@
 #ifndef __RAT_FitQuadProc__
 #define __RAT_FitQuadProc__
 
+#include <RAT/FitterInputHandler.hh>
 #include <RAT/Processor.hh>
 
 namespace RAT {
@@ -26,6 +27,9 @@ class FitQuadProc : public Processor {
   const std::array<unsigned int, 24> fNumPointsTbl = {0,    0,    0,    0,    1,    5,    15,   35,
                                                       70,   126,  210,  330,  495,  715,  1001, 1365,
                                                       1820, 2380, 3060, 3876, 4845, 5985, 7315, 8855};
+
+ protected:
+  FitterInputHandler inputHandler;
 };
 
 }  // namespace RAT

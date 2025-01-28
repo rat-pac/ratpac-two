@@ -1,12 +1,13 @@
 #include <RAT/DS/FitResult.hh>
 #include <RAT/DS/RunStore.hh>
 #include <RAT/FitQuadProc.hh>
+#include <RAT/FitterInputHandler.hh>
 #include <Randomize.hh>
 #include <array>
 
 namespace RAT {
 
-FitQuadProc::FitQuadProc() : Processor("quadfitter") {}
+FitQuadProc::FitQuadProc() : Processor("quadfitter"), inputHandler() {}
 
 void FitQuadProc::BeginOfRun(DS::Run *run) {
   fRun = run;
@@ -99,21 +100,15 @@ static inline void matinvert(double (*const ans)[3], const double (*const m)[3])
 }
 
 Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
-  // FIXME: This should eventually be done automatically
-  // Check if run information needs to be retrieved
-  if (fRun != DS::RunStore::Get()->GetRun(ds)) {
-    fRun = DS::RunStore::Get()->GetRun(ds);
-    BeginOfRun(fRun);
-  }
-
+  inputHandler.RegisterEvent(ev);
   std::vector<double> pmtx, pmty, pmtz, pmtt;
-  for (int i : ev->GetAllDigitPMTIDs()) {
-    DS::DigitPMT *pmt = ev->GetOrCreateDigitPMT(i);
-    TVector3 pmtpos = fPMTInfo->GetPosition(pmt->GetID());
-    if (pmt->GetDigitizedTime() > 1e6) {
+  for (int pmtid : inputHandler.GetAllHitPMTIDs()) {
+    TVector3 pmtpos = fPMTInfo->GetPosition(pmtid);
+    double time = inputHandler.GetTime(pmtid);
+    if (time > 1e6) {
       continue;
     }
-    pmtt.push_back(pmt->GetDigitizedTime());
+    pmtt.push_back(time);
     pmtx.push_back(pmtpos.X());
     pmty.push_back(pmtpos.Y());
     pmtz.push_back(pmtpos.Z());
@@ -138,7 +133,7 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
   if (nhits <= fTableCutOff) {
     pmt_table = BuildTable(nhits);
   } else {
-    for (int i; i < num_pts; i++) {
+    for (size_t i = 0; i < num_pts; i++) {
       pmt_table.push_back(ChoosePMTs(nhits));
     }
   }
