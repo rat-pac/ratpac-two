@@ -103,7 +103,7 @@ void WaveformAnalysisL1Deconv::DoAnalysis(DS::DigitPMT* digitpmt, const std::vec
   // Store the results
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("L1Deconv");
   for (const auto& peak : peaks) {
-    double peak_time = (static_cast<double>(peak) / fUpsampleFactor - fTemplateDelay) * fTimeStep;
+    double peak_time = (static_cast<double>(peak) / fUpsampleFactor) * fTimeStep;
     fit_result->AddPE(peak_time, result[peak]);
   }
 }
