@@ -32,8 +32,8 @@
 #include <RAT/WaveformAnalysisGaussian.hh>
 #include <RAT/WaveformAnalysisL1Deconv.hh>
 #include <RAT/WaveformAnalysisLognormal.hh>
-#include <RAT/WaveformAnalysisSinc.hh>
 #include <RAT/WaveformAnalysisSPEMF.hh>
+#include <RAT/WaveformAnalysisSinc.hh>
 #include <RAT/WaveformPrep.hh>
 
 namespace RAT {
