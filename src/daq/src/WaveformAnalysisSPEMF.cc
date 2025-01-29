@@ -91,7 +91,7 @@ void WaveformAnalysisSPEMF::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector
   size_t max_idx = std::distance(corr.begin(), max_it);
 
   // Calculate the time corresponding to the maximum correlation
-  double max_time = (static_cast<double>(max_idx) / fUpsampleFactor - fTemplateDelay) * fTimeStep;
+  double max_time = (static_cast<double>(max_idx) / fUpsampleFactor) * fTimeStep;
 
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("SPEMatchedFilter");
   fit_result->AddPE(max_time, 1, {{"max_correlation", max_corr}});
