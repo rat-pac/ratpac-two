@@ -14,6 +14,7 @@
 #include <RAT/CountProc.hh>
 #include <RAT/FitCentroidProc.hh>
 #include <RAT/FitPathProc.hh>
+#include <RAT/FitQuadProc.hh>
 #include <RAT/FitTensorProc.hh>
 #include <RAT/ForcedTriggerProc.hh>
 #include <RAT/LessSimpleDAQ2Proc.hh>
@@ -84,6 +85,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<FitTensorProc>();
 #endif
   AppendProcessor<FitPathProc>();
+  AppendProcessor<FitQuadProc>();
   // Classifiers
   AppendProcessor<ClassifyChargeBalance>();
   // DAQ
