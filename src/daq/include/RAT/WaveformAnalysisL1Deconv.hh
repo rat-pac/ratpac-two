@@ -6,7 +6,7 @@
 /// \author Ravi Pitelka <rpitelka@sas.upenn.edu>
 ///
 /// REVISION HISTORY:\n
-///     22 Oct 2024: Initial commit
+///     XX Jan 2025: Initial commit
 ///
 /// \details
 /// This class provides full support for analysis of the
@@ -52,9 +52,6 @@ class WaveformAnalysisL1Deconv : public WaveformAnalyzerBase {
   double fPeakThreshold;      // Absolute threshold for peak detection
   double fRelativeThreshold;  // Relative threshold compared to nearest peaks
   double fTemplateHeight;     // Maximum height of template
-
-  // Peak finding methods
-  std::vector<double> FindPeaks(const Eigen::VectorXd& signal, double absThreshold, double relThreshold) const;
 
   // Analysis constants
   std::string fModelName;
