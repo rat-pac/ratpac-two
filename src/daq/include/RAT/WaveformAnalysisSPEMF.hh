@@ -35,13 +35,13 @@ class WaveformAnalysisSPEMF : public WaveformAnalyzerBase {
     Configure(config_name);
   };
   virtual ~WaveformAnalysisSPEMF(){};
-  void Configure(const std::string &config_name) override;
+  void Configure(const std::string& config_name) override;
   virtual void SetD(std::string param, double value) override;
 
   void GetTemplatebyModelName(std::string modelName);
-  std::vector<double> MatchedFilter(const std::vector<double> &voltWfm,
-                                    const std::vector<std::vector<double>> &spline_values, const int template_delay,
-                                    const int upsample_factor);
+  double MatchedFilter(const std::vector<double>& voltWfm, const TSpline3* templateWfm, double tau,
+                       const double template_delay);
+  void FitWaveform(const std::vector<double>& voltWfm);
 
  protected:
   // Settings
@@ -58,11 +58,17 @@ class WaveformAnalysisSPEMF : public WaveformAnalyzerBase {
   std::vector<double> fPMTPulseShapeTimes;
   std::vector<double> fPMTPulseShapeValues;
 
-  // Lookup table for precomputed spline values
-  std::vector<std::vector<double>> spline_values;
-  bool lookupTableComputed = false;
+  double fFitWindowLow;
+  double fFitWindowHigh;
 
-  void DoAnalysis(DS::DigitPMT *pmt, const std::vector<UShort_t> &digitWfm);
+  // Coming from WaveformPrep
+  double fDigitTimeInWindow;
+
+  // Fitted variables
+  double fFittedTime;
+  double fMaxCorr;
+
+  void DoAnalysis(DS::DigitPMT* pmt, const std::vector<UShort_t>& digitWfm);
 };
 
 }  // namespace RAT
