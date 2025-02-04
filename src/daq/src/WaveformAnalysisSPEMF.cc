@@ -12,6 +12,8 @@ namespace RAT {
 void WaveformAnalysisSPEMF::Configure(const std::string& config_name) {
   try {
     fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", config_name);
+    fFitWindowLow = fDigit->GetD("fit_window_low");
+    fFitWindowHigh = fDigit->GetD("fit_window_high");
     fTemplateDelay = fDigit->GetD("template_delay");
     fPMTPulseShapeTimes = fDigit->GetDArray("template_samples");
     fPMTPulseShapeValues = fDigit->GetDArray("template_values");
@@ -55,65 +57,58 @@ void WaveformAnalysisSPEMF::GetTemplatebyModelName(std::string modelName) {
 void WaveformAnalysisSPEMF::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
   double pedestal = digitpmt->GetPedestal();
   if (pedestal == -9999) {
-    RAT::Log::Die("WaveformAnalysisSPEMF: Pedestal is invalid! Did you run WaveformPrep first?");
+    RAT::Log::Die("WaveformAnalysisLognormal: Pedestal is invalid! Did you run WaveformPrep first?");
   }
   // Convert from ADC to mV
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal = pedestal);
-
-  // Compute the lookup table if it hasn't been computed yet
-  if (!lookupTableComputed) {
-    TSpline3* templateSpline =
-        new TSpline3("template", fPMTPulseShapeTimes.data(), fPMTPulseShapeValues.data(), fPMTPulseShapeTimes.size());
-
-    const size_t nsamples = voltWfm.size();
-    const size_t nupsampled = nsamples * fUpsampleFactor;
-    spline_values.resize(nsamples, std::vector<double>(nupsampled, 0.0));
-    for (size_t j = 0; j < nsamples; ++j) {
-      for (size_t i = 0; i < nupsampled; ++i) {
-        double shifted_index = j - (static_cast<double>(i) / fUpsampleFactor - fTemplateDelay);
-        if (shifted_index >= 0.0 && shifted_index < static_cast<double>(nsamples)) {
-          spline_values[j][i] = templateSpline->Eval(shifted_index);
-        }
-      }
-    }
-    lookupTableComputed = true;
-
-    // Clean up
-    delete templateSpline;
-  }
-
-  // Apply matched filter
-  std::vector<double> corr = MatchedFilter(voltWfm, spline_values, fTemplateDelay, fUpsampleFactor);
-
-  // Find the maximum correlation value
-  auto max_it = std::max_element(corr.begin(), corr.end());
-  double max_corr = *max_it;
-  size_t max_idx = std::distance(corr.begin(), max_it);
-
-  // Calculate the time corresponding to the maximum correlation
-  double max_time = (static_cast<double>(max_idx) / fUpsampleFactor) * fTimeStep;
+  fDigitTimeInWindow = digitpmt->GetDigitizedTimeNoOffset();
+  // Fit waveform with matched filter
+  FitWaveform(voltWfm);
 
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("SPEMatchedFilter");
-  fit_result->AddPE(max_time, 1, {{"max_correlation", max_corr}});
+  fit_result->AddPE(fFittedTime, 1, {{"max_correlation", fMaxCorr}});
 }
 
-std::vector<double> WaveformAnalysisSPEMF::MatchedFilter(const std::vector<double>& voltWfm,
-                                                         const std::vector<std::vector<double>>& spline_values,
-                                                         const int template_delay, const int upsample_factor) {
+double WaveformAnalysisSPEMF::MatchedFilter(const std::vector<double>& voltWfm, const TSpline3* templateWfm, double tau,
+                                            const double template_delay) {
   const size_t nsamples = voltWfm.size();
-  const size_t nupsampled = nsamples * upsample_factor;
-  std::vector<double> corr(nupsampled, 0.0);
-
-  // Compute correlation using the precomputed spline values
-  for (size_t i = 0; i < nupsampled; ++i) {
-    double sumVal = 0.0;
-    for (size_t j = 0; j < nsamples; ++j) {
-      sumVal += voltWfm[j] * spline_values[j][i];
+  double delay = tau - template_delay;
+  double corr = 0.0;
+  for (size_t i = 0; i < nsamples; i++) {
+    if (i - delay >= 0 && i - delay < nsamples) {
+      corr += voltWfm[i] * templateWfm->Eval(i - delay);
+    } else {
+      corr += 0.0;
     }
-    corr[i] = sumVal;
   }
 
   return corr;
+}
+
+void WaveformAnalysisSPEMF::FitWaveform(const std::vector<double>& voltWfm) {
+  double bf = (fDigitTimeInWindow - fFitWindowLow) / fTimeStep;
+  double tf = (fDigitTimeInWindow + fFitWindowHigh) / fTimeStep;
+
+  // Check the fit range is within the digitizer window
+  bf = (bf > 0) ? bf : 0;
+  tf = (tf > voltWfm.size()) ? voltWfm.size() : tf;
+
+  // Create a spline from the template
+  TSpline3* templateSpline =
+      new TSpline3("template", fPMTPulseShapeTimes.data(), fPMTPulseShapeValues.data(), fPMTPulseShapeTimes.size());
+
+  // Apply matched filter
+  fMaxCorr = 0;
+  for (double i = bf * fUpsampleFactor; i < tf * fUpsampleFactor; i++) {
+    double delay = i / fUpsampleFactor;
+    double corr = MatchedFilter(voltWfm, templateSpline, delay, fTemplateDelay);
+    if (corr > fMaxCorr) {
+      fFittedTime = delay * fTimeStep;
+      fMaxCorr = corr;
+    }
+  }
+
+  delete templateSpline;
 }
 
 }  // namespace RAT
