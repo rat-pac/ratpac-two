@@ -24,14 +24,21 @@ None.
 
 lesssimpledaq
 `````````````
-Here, the timing and charge information of each PMT is estimated the same way as
-simpledaq, but a minimal trigger is also simulated based on a trigger threshold
-and a trigger time window. The trigger threshold is the minimum number of PMTs 
-that recorded signal within the trigger window. A sliding time window is used to identify hits clustered in time.
+Here, the timing and charge information of each PMT is estimated the same way 
+as simpledaq, but a minimal trigger is also simulated based on a trigger 
+threshold and a trigger time window. The trigger threshold is the minimum 
+number of PMTs that recorded signal within the trigger window. A sliding time 
+window is used to identify hits clustered in time.
 
-If the number of hits within a trigger window exceeds the trigger threshold, all hits between the pre- and post-trigger boundaries are recorded in a "subevent". The hit times within a subevent are all relative to the "cluster time", i.e. the time of the hit that tripped the trigger threshold. These relative hit times are also what are used to determine if hits occur between the pre- and post-trigger boundaries.
+If the number of hits within a trigger window exceeds the trigger threshold, 
+all hits between the pre- and post-trigger boundaries are recorded in a 
+"subevent". The hit times within a subevent are all relative to the "cluster 
+time", i.e. the time of the hit that tripped the trigger threshold. These 
+relative hit times are also what are used to determine if hits occur between 
+the pre- and post-trigger boundaries.
 
-The trigger threshold and window are not customisable without altering the source code.
+The trigger threshold and window are not customisable without altering the 
+source code.
 
 | Post Trigger Window: 600 ns
 | Pre Trigger Window: -200 ns
@@ -51,7 +58,9 @@ None.
 
 splitevdaq
 ``````````
-Behaves the same as lesssimpledaq, but has a more configurable trigger. Also, a more realistic output is achieved by splitting hits over multiple trigger windows into whole new events, rather than subevents.
+Behaves the same as lesssimpledaq, but has a more configurable trigger. Also, a 
+more realistic output is achieved by splitting hits over multiple trigger 
+windows into whole new events, rather than subevents.
 
 Command
 '''''''
