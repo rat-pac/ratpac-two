@@ -6,9 +6,11 @@ simpledaq
 `````````
 The SimpleDAQ processor simulates a minimal data acquisition system.  The time
 of each PMT hit is the time of the first photon hit plus the timing
-distribution of the appropriate PMT, and the charge collected at each PMT is
-just the sum of all charge deposited at the anode, regardless of time.  All PMT
-hits are packed into a single event.
+distribution of the appropriate PMT (i.e. the "frontEndTime" of the first 
+photon), and the charge collected at each PMT isjust the sum of all charge 
+deposited at the anode, regardless of time.  All PMT hits are packed into a 
+single event, such that the number of DAQ events will equal the number of MC 
+events.
 
 Command
 '''''''
@@ -22,9 +24,56 @@ None.
 
 lesssimpledaq
 `````````````
+Here, the timing and charge information of each PMT is estimated the same way as
+simpledaq, but a minimal trigger is also simulated based on a trigger threshold
+and a trigger time window. The trigger threshold is the minimum number of PMTs 
+that recorded signal within the trigger window. A sliding time window is used to identify hits clustered in time.
+
+If the number of hits within a trigger window exceeds the trigger threshold, all hits between the pre- and post-trigger boundaries are recorded in a "subevent". The hit times within a subevent are all relative to the "cluster time", i.e. the time of the hit that tripped the trigger threshold. These relative hit times are also what are used to determine if hits occur between the pre- and post-trigger boundaries.
+
+The trigger threshold and window are not customisable without altering the source code.
+
+| Post Trigger Window: 600 ns
+| Pre Trigger Window: -200 ns
+| Trigger Window:     200 ns
+| Trigger Threshold:  6
+
+Command
+'''''''
+::
+    
+        /rat/proc lesssimpledaq
+
+Parameters
+''''''''''
+None.
+
 
 splitevdaq
 ``````````
+Behaves the same as lesssimpledaq, but has a more configurable trigger. Also, a more realistic output is achieved by splitting hits over multiple trigger windows into whole new events, rather than subevents.
+
+Command
+'''''''
+::
+
+    /rat/proc splitevdaq
+
+Parameters
+''''''''''
+::
+
+    /rat/procset pulse_width "value"
+    /rat/procset trigger_window "value"
+    /rat/procset trigger_threshold "value"
+    /rat/procset trigger_lockout "value"
+    /rat/procset trigger_resolution "value"
+    /rat/procset pmt_lockout "value"
+    /rat/procset lookback "value"
+    /rat/procset max_hit_time "value"
+    /rat/procset trigger_on_noise "0"|"1"
+    /rat/procset digitizer_name "digitizer"
+    /rat/procset digitize
 
 count
 `````
