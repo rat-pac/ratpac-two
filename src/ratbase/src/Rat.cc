@@ -41,8 +41,7 @@ std::string get_long_hostname() {
   gethostname(c_hostname, 256);
   return std::string(c_hostname);
 }
-
-Rat::Rat(AnyParse *parser, int argc, char **argv) : parser(parser), argc(argc), argv(argv) {
+void Rat::Configure() {
   // Setup a base set of arguments
   this->parser->SetHelpLine("[options] macro1.mac macro2.mac ...");
   // Form is AddArgument(name, default, shortname, length, help, type)
@@ -74,12 +73,7 @@ Rat::Rat(AnyParse *parser, int argc, char **argv) : parser(parser), argc(argc), 
   }
   // Rat Messenger
   rat_messenger = new RatMessenger();
-}
 
-Rat::~Rat() {}
-
-void Rat::Begin() {
-  this->runTime.Start();
   this->seed = this->parser->GetValue("seed", -1);
   this->input_filename = this->parser->GetValue("input", "");
   this->output_filename = this->parser->GetValue("output", "");
@@ -96,8 +90,6 @@ void Rat::Begin() {
   logfilename = std::string(this->parser->GetValue("log", "")) != "" ? this->parser->GetValue("log", "") : logfilename;
   Log::Init(logfilename, Log::Level(display_level), Log::Level(log_level));
 
-  // Start by putting all of the basic rat starting functions here, eventually
-  // break this apart and fix it up.
   info << "RAT, version " << RATVERSION << newline;
   if (this->parser->GetValue("version", false)) return;
   info << "Status messages enabled: info ";
@@ -112,11 +104,15 @@ void Rat::Begin() {
   if (this->seed == -1) this->seed = start_time ^ (pid << 16);
   detail << "Seeding random number generator: " << this->seed << newline;
   CLHEP::HepRandom::setTheSeed(this->seed);
-  // Root ... should not be used
-  gRandom->SetSeed(this->seed);
-
+  gRandom->SetSeed(this->seed);  // ROOT rng should not be used, but just in case
   rdb->LoadDefaults();
+}
 
+Rat::~Rat() {}
+
+void Rat::Begin() {
+  Configure();
+  this->runTime.Start();
   // Run management
   if (this->run > 0) {
     info << "Setting run number: " << this->run << newline;
