@@ -64,8 +64,6 @@ void ESgen::LoadGenerator() {
   // The original test with IBD data should still work
   DBLinkPtr linkdb;
 
- 
-
   if (fDBName == "SOLAR") {
     // Solar generator
     // The nu type is obtained from the job options (it defaults to pep)
@@ -73,7 +71,7 @@ void ESgen::LoadGenerator() {
     fTotalFlux = linkdb->GetD("flux");
   } else if (fDBName == "STPI") {
     // stopped pion generator
-    // The nu type is the same as the nu flavor 
+    // The nu type is the same as the nu flavor
     linkdb = DB::Get()->GetLink(fDBName, fNuType);
     fTotalFlux = linkdb->GetD("flux");
   } else {
@@ -82,17 +80,16 @@ void ESgen::LoadGenerator() {
     fNuFlavor = "nuebar";
   }
 
-
-  //if (fDBName != "SOLAR") {
-  //  // should be IBD data
-  //  linkdb = DB::Get()->GetLink(fDBName);
-  //  fNuFlavor = "nuebar";
-  //} else {
-  //  // Solar generator
-  //  // The nu type is obtained from the job options (it defaults to pep)
-  //  linkdb = DB::Get()->GetLink(fDBName, fNuType);
-  //  fTotalFlux = linkdb->GetD("flux");
-  //}
+  // if (fDBName != "SOLAR") {
+  //   // should be IBD data
+  //   linkdb = DB::Get()->GetLink(fDBName);
+  //   fNuFlavor = "nuebar";
+  // } else {
+  //   // Solar generator
+  //   // The nu type is obtained from the job options (it defaults to pep)
+  //   linkdb = DB::Get()->GetLink(fDBName, fNuType);
+  //   fTotalFlux = linkdb->GetD("flux");
+  // }
 
   fEnuMin = linkdb->GetD("emin");
   fEnuMax = linkdb->GetD("emax");
