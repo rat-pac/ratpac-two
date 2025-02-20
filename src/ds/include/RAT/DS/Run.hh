@@ -68,8 +68,6 @@ class Run : public TObject {
   virtual bool ExistNestedTubeInfo() { return !nestedtubeinfo.empty(); }
   virtual void PruneNestedTubeInfo() { nestedtubeinfo.resize(0); }
 
-  ClassDef(Run, 2);
-
   /** Channel status */
   virtual ChannelStatus const *GetChannelStatus() const { return &ch_status; }
   virtual void SetChannelStatus(const ChannelStatus &_ch_status) { ch_status = _ch_status; }
