@@ -81,17 +81,6 @@ void CCgen::LoadGenerator() {
     fNuFlavor = "nuebar";
   }
 
-  // if (fDBName != "SOLAR") {
-  //   // should be IBD data
-  //   linkdb = DB::Get()->GetLink(fDBName);
-  //   fNuFlavor = "nuebar";
-  // } else {
-  //   // Solar generator
-  //   // The nu type is obtained from the job options (it defaults to pep)
-  //   linkdb = DB::Get()->GetLink(fDBName, fNuType);
-  //   fTotalFlux = linkdb->GetD("flux");
-  // }
-
   fEnuMin = linkdb->GetD("emin");
   fEnuMax = linkdb->GetD("emax");
   fEnuTbl = linkdb->GetDArray("spec_e");
