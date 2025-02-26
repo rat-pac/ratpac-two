@@ -8,6 +8,7 @@
 #include <RAT/ProducerBlock.hh>
 #include <RAT/RatMessenger.hh>
 #include <set>
+#include <string>
 
 namespace RAT {
 
@@ -33,8 +34,9 @@ class Rat {
   inline static std::set<std::string> ratdb_directories = {};
   inline static std::set<std::string> model_directories = {};
 
-  Rat(AnyParse *, int, char **);
+  Rat(AnyParse *parser, int argc, char **argv) : parser(parser), argc(argc), argv(argv){};
   ~Rat();
+  virtual void Configure();
   void Begin();
   void Report();
 };
