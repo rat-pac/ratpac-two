@@ -95,7 +95,7 @@ RAT source.
 
 fitcentroid
 ```````````
-The !FitCentroid processor reconstructs the position of detector events using
+The ``FitCentroid`` processor reconstructs the position of detector events using
 the charge-weighted sum of the hit PMT position vectors.
 
 Command
@@ -112,6 +112,65 @@ Position fit information in data structure
 ''''''''''''''''''''''''''''''''''''''''''
 * name - "centroid"
 * figures of merit - None
+
+
+fitdirectioncenter
+``````````````````
+The ``fitdirectioncenter`` processor reconstructs the direction of events
+as the average of the vectors from the event position to the hit PMT positions.
+
+Command
+'''''''
+::
+
+    /rat/proc fitdirectioncenter
+
+Parameters
+''''''''''
+No parameters are required though a position reconstruction would need to be run before.
+Several useful parameters can be set in macro, which allows the processor to be run
+multiple times with different settings in a single macro.
+
+Detailed implementations are illustrated in macros/examples/fitdirectioncenter.mac
+In particular, there is an example to correct for the drive effect in reconstructed
+position.  First, a position reconstruction is run, then a direction reconstruction,
+as usual.  However, a second direction reconstruction is run and takes both the
+reconstructed position and direction as input to correct for the drive.  The resulting
+position is then saved in the fitdirectioncenter FitResult.
+
+=========================   ==========================  ===================
+**Field**                   **Type**                    **Description**
+=========================   ==========================  ===================
+``fitter_name``             ``string``                  Defaults to "fitdirectioncenter"
+``position_fitter``         ``string``                  Name of fitter providing position input
+``direction_fitter``        ``string``                  Name of fitter providing direction for drive correction
+
+``pmt_type``                ``int``                     PMT "type" to use.  Multiple types can be used.  Defaults to all types.
+``verbose``                 ``int``                     FOMs saved in FitResult.  1 saves ``num_PMT``.  2 also saves ``time_resid_low`` and ``time_resid_up``
+
+``time_resid_low``          ``double``                  Lower cut on time residuals in ns
+``time_resid_up``           ``double``                  Upper cut on time residuals in ns
+
+``time_resid_frac_low``     ``double``                  Lower cut on time residuals as a fraction in [0.0, 1.0)
+``time_resid_frac_up``      ``double``                  Upper cut on time residuals as a fraction in (0.0, 1.0]
+
+``light_speed``             ``double``                  Speed of light in material in mm/ns.  Defaults to water.
+
+``event_position_x``        ``double``                  Fixed position of event in mm
+``event_position_y``        ``double``                  Fixed position of event in mm
+``event_position_z``        ``double``                  Fixed position of event in mm
+
+``event_time``              ``double``                  Fixed offset of time residuals in ns
+
+``event_drive``             ``double``                  Fixed offset of position input in mm
+=========================   ==========================  ===================
+
+Direction fit information in data structure
+''''''''''''''''''''''''''''''''''''''''''
+* figure of merit - ``num_PMT`` is the number of PMTs used in a reconstruction
+* figure of merit - ``time_resid_low`` is the earliest time residual that passes the lower time residual cut
+* figure of merit - ``time_resid_up`` is the latest time residual that passes the upper time residual cut
+
 
 fitpath
 ```````
