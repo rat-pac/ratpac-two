@@ -7,7 +7,7 @@ simpledaq
 The SimpleDAQ processor simulates a minimal data acquisition system.  The time
 of each PMT hit is the time of the first photon hit plus the timing
 distribution of the appropriate PMT (i.e. the "frontEndTime" of the first 
-photon), and the charge collected at each PMT isjust the sum of all charge 
+photon), and the charge collected at each PMT is just the sum of all charge 
 deposited at the anode, regardless of time.  All PMT hits are packed into a 
 single event, such that the number of DAQ events will equal the number of MC 
 events.
