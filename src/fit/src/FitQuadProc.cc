@@ -118,8 +118,8 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
   DS::FitResult *fit = new DS::FitResult("quadfitter");
   fit->SetValidEnergy(false);
   fit->SetValidDirection(false);
-  fit->SetPosition(TVector3(0, 0, 0));
-  fit->SetTime(0);
+  fit->SetPosition(TVector3(-9999, -9999, -9999));
+  fit->SetTime(-9999);
 
   if (nhits < 4) {
     fit->SetValidTime(false);
