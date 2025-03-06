@@ -47,12 +47,7 @@ add_library(geo OBJECT
         src/WaterBoxConstruction.cc
         src/WLSPFactory.cc
         src/WLSPCoverFactory.cc
-        src/gdml/GDMLMessenger.cc
-        src/gdml/GDMLParser.cc
-        src/gdml/GDMLWriteParamvol.cc
-        src/gdml/GDMLWriteSolids.cc
-        src/gdml/GDMLWriteSetup.cc
-        src/gdml/GDMLWriteStructure.cc
+        src/GDMLWriteStructure.cc
         src/pmt/CubicPMTConstruction.cc
         src/pmt/LAPPDConstruction.cc
         src/pmt/PMTArrayFactory.cc
