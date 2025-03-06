@@ -15,11 +15,14 @@ class VertexGen_PhotonBomb : public GLG4VertexGen {
   /** State format "num_photons wavelength_nm" */
   virtual void SetState(G4String newValues);
   virtual G4String GetState();
+  virtual double pickWavelength(std::vector<double> wavelengths, std::vector<double> probs, double avg);
 
  private:
   G4ParticleDefinition *fOpticalPhoton;
   int fNumPhotons;
   double fEnergy;
+  double fWavelength;
+  bool fDist;
   CLHEP::RandGeneral *fRndmEnergy;
   double fMinEnergy;
   double fMaxEnergy;
