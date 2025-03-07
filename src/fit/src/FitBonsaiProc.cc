@@ -24,12 +24,14 @@
 #include <RAT/BONSAI/pmt_geometry.h>
 #include <RAT/BONSAI/searchgrid.h>
 
+using namespace std;
+
 namespace RAT {
 
-FitBonsaiProc::FitBonsaiProc() : RAT::Processor("bonsai") {
-  RAT::DB *db = RAT::DB::Get();
-  printf("FitBonsaiProc: Initialisation of the BONSAI processor.\n");
-}
+// FitBonsaiProc::FitBonsaiProc() : RAT::Processor("bonsai") {
+//   RAT::DB *db = RAT::DB::Get();
+//   printf("FitBonsaiProc: Initialisation of the BONSAI processor.\n");
+// }
 
 void FitBonsaiProc::BeginOfRun(RAT::DS::Run *run) {
   RAT::DB *db = RAT::DB::Get();
@@ -40,11 +42,10 @@ void FitBonsaiProc::BeginOfRun(RAT::DS::Run *run) {
   bs_useCherenkovAngle = bonsai_ptr->GetI("useCherenkovAngle");
   bs_nTmin = bonsai_ptr->GetD("nTmin");
   bs_nTmax = bonsai_ptr->GetD("nTmax");
+
   hits::NS_TO_CM = bonsai_ptr->GetD("mediaSpeedOfLight");
   hits::CM_TO_NS = (float)(1. / hits::NS_TO_CM);
   hits::CM_TO_NS2 = (float)1. / (hits::NS_TO_CM * hits::NS_TO_CM);
-
-  // NS_TO_CM3 = (float) bonsai_ptr->GetD("mediaSpeedOfLight");
 
   printf("FitBonsaiProc: Loading useCherenkovAngle -> %d\n", bs_useCherenkovAngle);
   printf("FitBonsaiProc: Loading nTmin -> %3.1f\n", bs_nTmin);
@@ -78,6 +79,7 @@ int FitBonsaiProc::nwin(float twin, float *v, int nfit, int *cfit, float *tfit, 
   // calculate t-tof for each hit
   for (hit = 0; hit < nfit; hit++) {
     TVector3 pos = bs_pmtinfo->GetPosition(cfit[hit] - 1);
+    //TVector3 pos = bs_pmtinfo->GetPosition(cfit[hit]);
     dx = pos.X() * 0.1 - v[0];
     dy = pos.Y() * 0.1 - v[1];
     dz = pos.Z() * 0.1 - v[2];
@@ -109,20 +111,17 @@ int FitBonsaiProc::nwin(float twin, float *v, int nfit, int *cfit, float *tfit, 
 
 RAT::Processor::Result FitBonsaiProc::Event(RAT::DS::Root *ds, RAT::DS::EV *ev) {
   RAT::DS::FitResult *fit = new RAT::DS::FitResult("Bonsai");
-
+  inputHandler.RegisterEvent(ev);
   // Perform the fit
-  bs_nhit = ev->GetPMTCount();
+  bs_nhit = inputHandler.GetNHits();
   int bs_hit = 0;
-  for (int bs_hitID : ev->GetAllPMTIDs()) {  // New way of doing things
-    // RAT::DS::PMT *pmt = ev->GetOrCreatePMT(pmtc);
-    // for (bs_hit = 0; bs_hit < bs_nhit; bs_hit++) { // Old way of doing things
-    //  Analogue option, will need switch for digital output
-    bs_cables[bs_hit] = ev->GetOrCreatePMT(bs_hitID)->GetID() + 1;
-    bs_times[bs_hit] = ev->GetOrCreatePMT(bs_hitID)->GetTime() + bs_offset;
-    bs_charges[bs_hit] = ev->GetOrCreatePMT(bs_hitID)->GetCharge();
-    // printf("PMT %d time: %f ns\n",bs_cables[bs_hit],ev->GetOrCreatePMT(bs_hit)->GetTime());
+  for (int pmtid : inputHandler.GetAllHitPMTIDs()) {
+    bs_cables[bs_hit] = pmtid + 1;
+    bs_times[bs_hit] = inputHandler.GetTime(pmtid) + bs_offset;
+    bs_charges[bs_hit] = inputHandler.GetCharge(pmtid);
     bs_hit += 1;
   }
+
   bsgdn = new goodness(bslike->sets(), bslike->chargebins(), bsgeom, bs_nhit, bs_cables, bs_times, bs_charges);
   bs_nsel = bsgdn->nselected();
 
@@ -180,6 +179,7 @@ RAT::Processor::Result FitBonsaiProc::Event(RAT::DS::Root *ds, RAT::DS::EV *ev) 
     // fill PMT positions into an array
     for (int bs_hit = 0; bs_hit < nTwin; bs_hit++) {
       TVector3 nTpos = bs_pmtinfo->GetPosition(bs_cables_win[bs_hit] - 1);
+      // TVector3 nTpos = bs_pmtinfo->GetPosition(bs_cables_win[bs_hit]);
       apmt[3 * bs_hit] = nTpos.X() * 0.1;
       apmt[3 * bs_hit + 1] = nTpos.Y() * 0.1;
       apmt[3 * bs_hit + 2] = nTpos.Z() * 0.1;

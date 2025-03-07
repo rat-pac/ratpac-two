@@ -5,6 +5,7 @@
 
 #include <RAT/DS/EV.hh>
 #include <RAT/DS/Root.hh>
+#include <RAT/FitterInputHandler.hh>
 #include <RAT/Processor.hh>
 #include <string>
 
@@ -21,7 +22,7 @@ namespace RAT {
 
 class FitBonsaiProc : public RAT::Processor {
  public:
-  FitBonsaiProc();
+  FitBonsaiProc() : Processor("bonsai"), inputHandler(){};
   virtual ~FitBonsaiProc() {}
 
   void BeginOfRun(RAT::DS::Run *run);
@@ -60,6 +61,7 @@ class FitBonsaiProc : public RAT::Processor {
   int bs_nsel;
 
  protected:
+  FitterInputHandler inputHandler;
   // cppflow::model *hitmanModel;
 };
 
