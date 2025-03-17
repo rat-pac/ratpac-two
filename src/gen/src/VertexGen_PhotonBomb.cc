@@ -15,7 +15,7 @@
 namespace RAT {
 VertexGen_PhotonBomb::VertexGen_PhotonBomb(const char *arg_dbname) : GLG4VertexGen(arg_dbname) {
   fOpticalPhoton = G4ParticleTable::GetParticleTable()->FindParticle("opticalphoton");
-  SetState("1 400");  // one photon per event, 400 nm, don't use distribution
+  SetState("1 400");  //  one photon per event, 400 nm, don't use distribution
   fRndmEnergy = 0;
   fMinEnergy = 0.0;
   fMaxEnergy = 0.0;
