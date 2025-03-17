@@ -157,7 +157,11 @@ double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, int
   double dt = 0;
   if (time + 1 < static_cast<int>(waveform.size())) {
     double deltav = waveform.at(time + 1) - waveform.at(time);
-    dt = (voltageThreshold - waveform.at(time)) / deltav;
+    if (deltav != 0) {
+      dt = (voltageThreshold - waveform.at(time)) / deltav;
+    } else {
+      dt = 0;
+    }
   }
   return (time + dt) * timeStep;
 }
