@@ -54,12 +54,14 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.digitizerfits = table->GetZ("include_digitizerfits");
     options.untriggered = table->GetZ("include_untriggered_events");
     options.mchits = table->GetZ("include_mchits");
+    options.nthits = table->GetZ("include_nestedtubehits");
   } catch (DBNotFoundError &e) {
     options.tracking = false;
     options.mcparticles = false;
     options.pmthits = true;
     options.untriggered = false;
     options.mchits = true;
+    options.nthits = false;
   }
   if (options.digitizerfits) {
     waveform_fitters = table->GetSArray("waveform_fitters");
@@ -160,6 +162,22 @@ bool OutNtupleProc::OpenFile(std::string filename) {
       outputTree->Branch(TString("fit_charge_" + fitter_name), &fitCharge[fitter_name]);
     }
   }
+  if (options.nthits) {
+    outputTree->Branch("mcnNTs", &mcnNTs);
+    outputTree->Branch("mcnNThits", &mcnNThits);
+    outputTree->Branch("mcNTid", &mcNTid);
+    outputTree->Branch("mcNThittime", &mcNThittime);
+    outputTree->Branch("mcNThitx", &mcNThitx);
+    outputTree->Branch("mcNThity", &mcNThity);
+    outputTree->Branch("mcNThitz", &mcNThitz);
+    metaTree->Branch("ntId", &ntId);
+    metaTree->Branch("ntX", &ntX);
+    metaTree->Branch("ntY", &ntY);
+    metaTree->Branch("ntZ", &ntZ);
+    metaTree->Branch("ntU", &ntU);
+    metaTree->Branch("ntV", &ntV);
+    metaTree->Branch("ntW", &ntW);
+  }
   if (options.mchits) {
     // Save full MC PMT hit information
     outputTree->Branch("mcPMTID", &mcpmtid);
@@ -215,6 +233,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   }
   runBranch = DS::RunStore::GetRun(ds);
   DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
+  DS::NestedTubeInfo *ntinfo = runBranch->GetNestedTubeInfo();
   const DS::ChannelStatus *channel_status = runBranch->GetChannelStatus();
   dsentries++;
   // Clear the previous vectors
@@ -389,6 +408,23 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         } else {
           mcpeprocess.push_back(unknown);
         }
+      }
+    }
+  }
+  if (options.nthits) {
+    mcnNTs = mc->GetMCNestedTubeCount();
+    mcnNThits = 0;
+    for (int iNT = 0; iNT < mc->GetMCNestedTubeCount(); iNT++) {
+      DS::MCNestedTube *mcnt = mc->GetMCNestedTube(iNT);
+      mcnNThits += mcnt->GetMCNestedTubeHitCount();
+      mcNTid.push_back(mcnt->GetID());
+      G4ThreeVector position = ntinfo->GetPosition(mcnt->GetID());
+      for (int ih = 0; ih < mcnt->GetMCNestedTubeHitCount(); ih++) {
+        RAT::DS::MCNestedTubeHit *mcph = mcnt->GetMCNestedTubeHit(ih);
+        mcNThittime.push_back(mcph->GetHitTime());
+        mcNThitx.push_back(position.x());
+        mcNThity.push_back(position.y());
+        mcNThitz.push_back(position.z());
       }
     }
   }
@@ -630,6 +666,20 @@ OutNtupleProc::~OutNtupleProc() {
       pmtV.push_back(direction.Y());
       pmtW.push_back(direction.Z());
     }
+    if (options.nthits) {
+      DS::NestedTubeInfo *ntinfo = runBranch->GetNestedTubeInfo();
+      for (int id = 0; id < ntinfo->GetNestedTubeCount(); id++) {
+        G4ThreeVector position = ntinfo->GetPosition(id);
+        G4ThreeVector direction = ntinfo->GetDirection(id);
+        ntId.push_back(id);
+        ntX.push_back(position.x());
+        ntY.push_back(position.y());
+        ntZ.push_back(position.z());
+        ntU.push_back(direction.x());
+        ntV.push_back(direction.y());
+        ntW.push_back(direction.z());
+      }
+    }
     runId = runBranch->GetID();
     runType = runBranch->GetType();
     // Converting to unix time
@@ -666,6 +716,9 @@ void OutNtupleProc::SetI(std::string param, int value) {
   }
   if (param == "include_pmthits") {
     options.pmthits = value ? true : false;
+  }
+  if (param == "include_nestedtubehits") {
+    options.nthits = value ? true : false;
   }
   if (param == "include_untriggered_events") {
     options.untriggered = value ? true : false;
