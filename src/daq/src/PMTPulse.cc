@@ -49,7 +49,7 @@ double PMTPulse::GetPulseHeight(double utime) {
     }
   } else if (fPulseType == "datadriven") {
     if (delta_t >= fPulseTimes[0]) {
-      GetDataDrivenPulseVal(delta_t);
+      val = GetDataDrivenPulseVal(delta_t);
     }
   }
 
