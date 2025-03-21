@@ -5,6 +5,7 @@
 #include <G4Tubs.hh>
 #include <G4VisAttributes.hh>
 #include <RAT/CubicPMTConstruction.hh>
+#include <RAT/CylindricalPMTConstruction.hh>
 #include <RAT/GLG4PMTOpticalModel.hh>
 #include <RAT/LAPPDConstruction.hh>
 #include <RAT/Log.hh>
@@ -22,6 +23,8 @@ PMTConstruction *PMTConstruction::NewConstruction(DBLinkPtr table, G4LogicalVolu
     return new ToroidalPMTConstruction(table, mother);
   } else if (construction == "revolution") {
     return new RevolutionPMTConstruction(table, mother);
+  } else if (construction == "cylindrical") {
+    return new CylindricalPMTConstruction(table, mother);
   } else if (construction == "cubic") {
     return new CubicPMTConstruction(table, mother);
   } else if (construction == "lappd") {
