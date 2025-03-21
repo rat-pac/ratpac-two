@@ -393,6 +393,48 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 
 {
 name: "OPTICS",
+index: "borosilicate_glass",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+surface: 1,
+finish: "ground",
+model: "glisur",
+type: "dielectric_dielectric",
+polish: 0.9,
+RINDEX_option: "wavelength",
+// Refractive index of Schott BK7 from https://refractiveindex.info/?shelf=popular_glass&book=BK7&page=SCHOTT
+// There is no data below 300 nm, so the Sellmeier formulas extrapolated below using an exponential fit.
+RINDEX_value1: [60.0, 100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, ],
+RINDEX_value2: [1.707, 1.662, 1.589, 1.551, 1.531, 1.521, 1.516, 1.513, 1.512, ],
+ABSLENGTH_option: "wavelength",
+ABSLENGTH_value1: [60.0, 200.0, 300.0, 330.0, 500.0, 600.0, 770.0, 800.0, ],
+ABSLENGTH_value2: [0.1e-3, 0.1e-3, 0.1e-3, 1.0e3, 2.0e3, 1.0e3, 0.5e3, 0.1e-3, ],
+PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
+}
+
+{
+name: "OPTICS",
+index: "hamamatsu_borosilicate_glass",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+surface: 1,
+finish: "ground",
+model: "glisur",
+type: "dielectric_dielectric",
+polish: 0.9,
+// Refractive index of Schott BK7 from https://refractiveindex.info/?shelf=popular_glass&book=BK7&page=SCHOTT
+// There is no data below 300 nm, so the Sellmeier formulas extrapolated below using an exponential fit.
+RINDEX_option: "wavelength",
+RINDEX_value1: [60.0, 100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, ],
+RINDEX_value2: [1.707, 1.662, 1.589, 1.551, 1.531, 1.521, 1.516, 1.513, 1.512, ],
+ABSLENGTH_option: "wavelength",
+ABSLENGTH_value1: [60.0, 200.0, 300.0, 330.0, 500.0, 600.0, 770.0, 800.0, ],
+ABSLENGTH_value2: [0.1e-3, 0.1e-3, 0.1e-3, 1.0e3, 2.0e3, 1.0e3, 0.5e3, 0.1e-3, ],
+PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
+}
+
+{
+name: "OPTICS",
 index: "mirror",
 valid_begin : [0, 0],
 valid_end : [0, 0],
