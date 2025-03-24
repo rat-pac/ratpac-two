@@ -14,6 +14,16 @@
 
 namespace RAT {
 
+void FitDirectionCenter::BeginOfRun(DS::Run *run) {
+  DB *db = DB::Get();
+  DBLinkPtr table = db->GetLink("Fitter", "FitDirectionCenter");
+  fLightSpeed = table->GetD("light_speed");
+  if (fLightSpeed <= 0 || fLightSpeed > 299.792458)
+    throw ParamInvalid("light_speed", "light_speed in Fitter table must be positive and <= 299.792458 mm/ns.");
+
+  fPMTInfo = run->GetPMTInfo();
+}
+
 void FitDirectionCenter::SetS(std::string param, std::string value) {
   if (param == "fitter_name") {
     if (value.empty()) throw ParamInvalid(param, "fitter_name cannot be empty.");
@@ -183,9 +193,6 @@ Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
              "\' is specified.");
   }
 
-  DS::Run *run = DS::RunStore::Get()->GetRun(ds);
-  DS::PMTInfo *pmtInfo = run->GetPMTInfo();
-
   /// If fractional time cuts specified, determine cut times
   double timeResLowFrac = -9999, timeResUpFrac = 9999;
   if (fCutMethod == "fraction") {
@@ -194,7 +201,7 @@ Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
     for (int pmtid : inputHandler.GetAllHitPMTIDs()) {
       // Select PMTs by type
       if (fPMTtype.size() > 0) {
-        int pmtType = pmtInfo->GetType(pmtid);
+        int pmtType = fPMTInfo->GetType(pmtid);
         unsigned int iType = 0;
         for (iType = 0; iType < fPMTtype.size(); iType++) {
           if (fPMTtype[iType] == pmtType) break;
@@ -202,7 +209,7 @@ Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
         if (fPMTtype[iType] != pmtType) continue;
       }
 
-      TVector3 pmtPos = pmtInfo->GetPosition(pmtid);
+      TVector3 pmtPos = fPMTInfo->GetPosition(pmtid);
       TVector3 hitDir = pmtPos - eventPos;
 
       double transitTime = hitDir.Mag() / fLightSpeed;
@@ -224,7 +231,7 @@ Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
   for (int pmtid : inputHandler.GetAllHitPMTIDs()) {
     // Select PMTs by type
     if (fPMTtype.size() > 0) {
-      int pmtType = pmtInfo->GetType(pmtid);
+      int pmtType = fPMTInfo->GetType(pmtid);
       unsigned int iType = 0;
       for (iType = 0; iType < fPMTtype.size(); iType++) {
         if (fPMTtype[iType] == pmtType) break;
@@ -232,7 +239,7 @@ Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
       if (fPMTtype[iType] != pmtType) continue;
     }
 
-    TVector3 pmtPos = pmtInfo->GetPosition(pmtid);
+    TVector3 pmtPos = fPMTInfo->GetPosition(pmtid);
     TVector3 hitDir = pmtPos - eventPos;
 
     // Apply time residual cuts

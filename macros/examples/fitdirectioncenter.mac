@@ -13,39 +13,45 @@
 /rat/proc count
 /rat/procset update 100
 
+
+###### EXAMPLE 1 ######
+
 ### Reconstruct direction at the generator position
 /rat/proc fitdirectioncenter
-/rat/procset fitter_name "fitdirectioncenter_fixed"
-/rat/procset event_position_x 100.0
-/rat/procset event_position_y 100.0
-/rat/procset event_position_z 100.0
-/rat/procset event_time -18.0
-/rat/procset time_resid_frac_up  0.88
-/rat/procset time_resid_frac_low 0.01
-/rat/procset verbose 2
+/rat/procset fitter_name "fitdirectioncenter_fixed"       # unique fitter name
+/rat/procset event_position_x 100.0                       # x event position fixed to that used by generator [mm]
+/rat/procset event_position_y 100.0                       # y event position fixed to that used by generator [mm]
+/rat/procset event_position_z 100.0                       # z event position fixed to that used by generator [mm]
+/rat/procset event_time -18.0                             # offset applied to time residuals [ns]
+/rat/procset time_resid_frac_up  0.88                     # upper cut on time residuals using fraction in (0.0, 1.0]
+/rat/procset time_resid_frac_low 0.01                     # lower cut on time residuals using fraction in [0.0, 1.0)
+/rat/procset verbose 2                                    # save additional parameters in data structure
+
+
+###### EXAMPLE 2 ######
 
 # Reconstruct position
 /rat/proc quadfitter
 
-### Reconstruct direction at a reconstructed position
-### Apply a drive correction
+### Reconstruct direction at a reconstructed position and apply a drive correction
 /rat/proc fitdirectioncenter
-/rat/procset fitter_name "fitdirectioncenter_quad"
-/rat/procset position_fitter "quadfitter"
-/rat/procset time_resid_up  0.7
-/rat/procset time_resid_low 0.06
-/rat/procset verbose 1
-/rat/procset pmt_type 1
-/rat/procset pmt_type 2
+/rat/procset fitter_name "fitdirectioncenter_quad"        # unique fitter name
+/rat/procset position_fitter "quadfitter"                 # event position reconstruction to be used
+/rat/procset time_resid_up  0.7                           # upper cut on time residuals using direct cut [ns]
+/rat/procset time_resid_low 0.06                          # lower cut on time residuals using direct cut [ns]
+/rat/procset verbose 1                                    # save additional parameter in data structure
+/rat/procset pmt_type 1                                   # type of pmt to be used in reconstruction
+/rat/procset pmt_type 2                                   # type of pmt to be used in reconstruction
 
 /rat/proc fitdirectioncenter
-/rat/procset fitter_name "fitdirectioncenter_quad_drive"
-/rat/procset position_fitter "quadfitter"
-/rat/procset direction_fitter "fitdirectioncenter_quad"
-/rat/procset event_drive 26.0
-/rat/procset time_resid_up  0.7
-/rat/procset time_resid_low 0.06
-/rat/procset verbose 2
+/rat/procset fitter_name "fitdirectioncenter_quad_drive"  # unique fitter name
+/rat/procset position_fitter "quadfitter"                 # event position reconstruction to be used
+/rat/procset direction_fitter "fitdirectioncenter_quad"   # event direction reconstruction to be used to correct drive
+/rat/procset event_drive 26.0                             # size of drive effect to correct position [mm]
+/rat/procset time_resid_up  0.7                           # upper cut on time residuals using direct cut [ns]
+/rat/procset time_resid_low 0.06                          # lower cut on time residuals using direct cut [ns]
+/rat/procset verbose 2                                    # save additional parameters in data structure
+
 
 /rat/proclast outntuple
 
