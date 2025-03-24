@@ -28,10 +28,10 @@ class FitDirectionCenter : public Processor {
   virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
 
  protected:
-  std::vector<int> fPMTtype;     // Types of PMT to use in reconstruction.  If empty, uses all PMT types.
+  std::vector<int> fPMTtype;  // Types of PMT to use in reconstruction.  If empty, uses all PMT types.
   int fVerbose = 0;  // Save FOMs in FitResult.  1 saves num_PMT.  2 also saves time_resid_low and time_resid_up.
   std::string fFitterName = "fitdirectioncenter";  // Default fitter name.  User can specify.
-  std::string fPosFitter;        // Position fitter from which to get reconstructed position.
+  std::string fPosFitter;                          // Position fitter from which to get reconstructed position.
   std::string fDirFitter;        // Direction fitter from which to get reconstructed direction for drive.
   std::string fCutMethod;        // "time"     selects time residuals in [fTimeResLow,fTimeResUp] ns.
                                  // "fraction" selects time residuals in [fTimeResFracLow,fTimeResFracUp].
