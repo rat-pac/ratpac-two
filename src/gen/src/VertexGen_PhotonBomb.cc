@@ -48,7 +48,7 @@ void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &
           std::vector<double> wls = spectradb->GetDArray("dist_wl");
           std::vector<double> wl_probs = spectradb->GetDArray("dist_wl_intensity");
           if (wls.size() != wl_probs.size())
-            Log::Die("PDFPMTCharge: charge and probability arrays of different length");
+            Log::Die("Wavelength Selection: wavelength and probability arrays of different length");
           wavelength = pickWavelength(wls, wl_probs, wl_average);
         } catch (DBNotFoundError &e) {
         }
@@ -148,14 +148,14 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
     DBLinkPtr spectraparams = DB::Get()->GetLink("LBSPECTRA", "params");
     dist = spectraparams->GetZ("include_dist");
     if (dist) {
-      info << "LB spectra rat table found, continuing with distribution" << newline;
+      info << "Wavelength spectra rat table found, continuing with distribution" << newline;
     } else {
-      info << "LB spectra rat table found, continuing with nominal wavelength instead of distribution" << newline;
+      info << "Wavelength spectra rat table found, continuing with nominal wavelength instead of distribution" << newline;
       fWavelength = wavelength;
       fEnergy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
     }
   } catch (DBNotFoundError &e) {
-    warn << "LB spectra rat table could not be found, continuing with nominal wavelength" << newline;
+    warn << "Wavelength spectra rat table could not be found, continuing with nominal wavelength" << newline;
     fWavelength = wavelength;
     fEnergy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
   }
@@ -163,7 +163,7 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
   try {
     DBLinkPtr spectradb = DB::Get()->GetLink("LBSPECTRA", std::to_string((int)fWavelength));
     testWavelength = spectradb->GetD("avg_wl");
-    debug << "Successfully found the LB spectrum for " << std::to_string((int)fWavelength) << " nm laser" << newline;
+    debug << "Successfully found the wavelength spectrum for " << std::to_string((int)fWavelength) << " nm photon bomb" << newline;
   } catch (DBNotFoundError &e) {
     debug << "Spectrum for" << std::to_string((int)fWavelength)
           << " not loaded correctly, continuing with nominal wavelength" << newline;
@@ -204,7 +204,7 @@ double VertexGen_PhotonBomb::pickWavelength(std::vector<double> wavelengths, std
              wavelengths[i - 1];  // linear interpolation
     }
   }
-  info << "VertexGen::pickWavelength: impossible condition encountered - returning mean wavelength" << newline;
+  debug << "VertexGen::pickWavelength: impossible condition encountered - returning mean wavelength" << newline;
   return avg;
 }
 
