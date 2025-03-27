@@ -150,7 +150,8 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
     if (dist) {
       info << "Wavelength spectra rat table found, continuing with distribution" << newline;
     } else {
-      info << "Wavelength spectra rat table found, continuing with nominal wavelength instead of distribution" << newline;
+      info << "Wavelength spectra rat table found, continuing with nominal wavelength instead of distribution"
+           << newline;
       fWavelength = wavelength;
       fEnergy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
     }
@@ -163,7 +164,8 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
   try {
     DBLinkPtr spectradb = DB::Get()->GetLink("LBSPECTRA", std::to_string((int)fWavelength));
     testWavelength = spectradb->GetD("avg_wl");
-    debug << "Successfully found the wavelength spectrum for " << std::to_string((int)fWavelength) << " nm photon bomb" << newline;
+    debug << "Successfully found the wavelength spectrum for " << std::to_string((int)fWavelength) << " nm photon bomb"
+          << newline;
   } catch (DBNotFoundError &e) {
     debug << "Spectrum for" << std::to_string((int)fWavelength)
           << " not loaded correctly, continuing with nominal wavelength" << newline;
