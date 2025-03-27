@@ -41,7 +41,7 @@ void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &
       energy = fMinEnergy + (fMaxEnergy - fMinEnergy) * fRndmEnergy->shoot();
     } else if (fDist) {
       try {
-        DBLinkPtr spectradb = DB::Get()->GetLink("LBSPECTRA", std::to_string((int)fWavelength));
+        DBLinkPtr spectradb = DB::Get()->GetLink("WLSPECTRA", std::to_string((int)fWavelength));
         double wl_average = spectradb->GetD("avg_wl");
         wavelength = wl_average;
         try {
@@ -145,7 +145,7 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
   double testWavelength;
 
   try {
-    DBLinkPtr spectraparams = DB::Get()->GetLink("LBSPECTRA", "params");
+    DBLinkPtr spectraparams = DB::Get()->GetLink("WLSPECTRA", "params");
     dist = spectraparams->GetZ("include_dist");
     if (dist) {
       info << "Wavelength spectra rat table found, continuing with distribution" << newline;
@@ -162,7 +162,7 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
   }
 
   try {
-    DBLinkPtr spectradb = DB::Get()->GetLink("LBSPECTRA", std::to_string((int)fWavelength));
+    DBLinkPtr spectradb = DB::Get()->GetLink("WLSPECTRA", std::to_string((int)fWavelength));
     testWavelength = spectradb->GetD("avg_wl");
     debug << "Successfully found the wavelength spectrum for " << std::to_string((int)fWavelength) << " nm photon bomb"
           << newline;
