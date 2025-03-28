@@ -28,11 +28,12 @@ class ChannelStatus : public TObject {
   ChannelStatus() : TObject() {}
   virtual ~ChannelStatus() {}
 
-  virtual void AddChannel(int lcn, int is_online, double offset, double chargescale) {
+  virtual void AddChannel(int lcn, int is_online, double offset, double chargescale, double pulsewidthscale) {
     lcns.push_back(lcn);
     online.push_back(is_online);
     cable_offset.push_back(offset);
     charge_scale.push_back(chargescale);
+    pulse_width_scale.push_back(pulsewidthscale);
     lcn_to_index[lcn] = lcns.size() - 1;
   }
 
@@ -45,10 +46,13 @@ class ChannelStatus : public TObject {
   virtual double GetChargeScaleByChannel(int lcn) const { return charge_scale.at(lcn_to_index.at(lcn)); }
   virtual double GetChargeScaleByPMTID(int pmtid) const { return charge_scale.at(pmtid_to_index.at(pmtid)); }
 
+  virtual double GetPulseWidthScaleByChannel(int lcn) const { return pulse_width_scale.at(lcn_to_index.at(lcn)); }
+  virtual double GetPulseWidthScaleByPMTID(int pmtid) const { return pulse_width_scale.at(pmtid_to_index.at(pmtid)); }
+
   virtual void LinkPMT(int pmtid, int lcn) {
     // create entry with default values if none are specified
     if (lcn_to_index.find(lcn) == lcn_to_index.end()) {
-      AddChannel(lcn, default_is_online, default_offset, default_charge_scale);
+      AddChannel(lcn, default_is_online, default_offset, default_charge_scale, default_pulse_width_scale);
     }
     pmtid_to_index[pmtid] = lcn_to_index[lcn];
   }
@@ -59,7 +63,9 @@ class ChannelStatus : public TObject {
     DBLinkPtr lChannelOnline = DB::Get()->GetLink("channel_online", index);
     default_is_online = lChannelOnline->GetD("default_value");
     DBLinkPtr lChargeScale = DB::Get()->GetLink("charge_scale", index);
-    default_charge_scale = lChannelOnline->GetD("default_value");
+    default_charge_scale = lChargeScale->GetD("default_value");
+    DBLinkPtr lPulseWidthScale = DB::Get()->GetLink("pulse_width_scale", index);
+    default_pulse_width_scale = lPulseWidthScale->GetD("default_value");
     for (int pmtid = 0; pmtid < pmtinfo->GetPMTCount(); pmtid++) {
       int lcn = pmtinfo->GetChannelNumber(pmtid);
       LinkPMT(pmtid, lcn);
@@ -79,6 +85,14 @@ class ChannelStatus : public TObject {
       insert_values(lcns, values, &charge_scale);
     } catch (DBNotFoundError& e) {
       warn << "Charge Scale table not found! Looking for table charge_scale[" << index << "]\n";
+    }
+    // pulse width scale
+    try {
+      std::vector<int> lcns = get_lcns(lPulseWidthScale);
+      std::vector<double> values = lPulseWidthScale->GetDArray("value");
+      insert_values(lcns, values, &pulse_width_scale);
+    } catch (DBNotFoundError& e) {
+      warn << "Pulse Width Scale table not found! Looking for table pulse_width_scale[" << index << "]\n";
     }
     // dead channels
     try {
@@ -105,7 +119,7 @@ class ChannelStatus : public TObject {
           lcns.push_back(current_lcn);
         }
       } catch (DBNotFoundError& e) {
-        throw;  // upstream should hanndle this
+        throw;  // upstream should handle this
       }
     }
     return lcns;
@@ -134,9 +148,11 @@ class ChannelStatus : public TObject {
   std::vector<int> online;
   std::vector<double> cable_offset;
   std::vector<double> charge_scale;
+  std::vector<double> pulse_width_scale;
   double default_offset;
   int default_is_online;
   double default_charge_scale;
+  double default_pulse_width_scale;
 };
 
 }  // namespace DS
