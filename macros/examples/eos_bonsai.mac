@@ -1,0 +1,48 @@
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+# Load the Eos geometry
+/rat/db/set DETECTOR experiment "Eos"
+/rat/db/set DETECTOR geo_file "Eos/Eos.geo"
+
+# Change the material inside Eos to wbls_1pct or water
+/rat/db/set GEO[eos_inner] material "wbls_1pct"
+
+# Set per PMT model noise rates
+/rat/db/set NOISEPROC noise_flag 1
+
+/rat/db/set BONSAI nTmin -6
+/rat/db/set BONSAI nTmax 12
+/rat/db/set BONSAI likelihoodFileName "/models/bonsai/eos_5MeV_-100_16_wbls.bin"
+/rat/db/set BONSAI useCherenkovAngle 0 # 1 for water, 0 for wbls
+/rat/db/set BONSAI mediaSpeedOfLight 20.5 # 21.8 for water, 20.5 for wbls
+
+# Set digitizer window length
+/rat/db/set DIGITIZER[V1730] nsamples 110
+
+/rat/db/set IO[NtupleProc] include_untriggered_events false
+/rat/db/set FIT_COMMON mode 2
+/rat/db/set FIT_COMMON waveform_analyzer "Lognormal"
+/run/initialize
+
+/rat/proc noise
+/rat/proc splitevdaq
+/rat/procset trigger_threshold 4.0
+
+
+# Run the standard Eos WaveformAnalysis chain
+/control/getEnv EOSDATA
+/control/execute {EOSDATA}/macros/snippets/waveformAnalysis.snippet
+
+/rat/proc bonsai
+/rat/proc count
+/rat/procset update 500
+
+/rat/proclast eosntuple
+
+/generator/add combo gun:point:uniform
+# Downward going 2.0 MeV electrons at the center of the detector
+/generator/vtx/set e- 0.0 0.0 -1.0 2.0
+/generator/pos/set 0.0 0.0 0.0
+
+/run/beamOn 10000
