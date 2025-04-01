@@ -386,10 +386,11 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     }
 #endif
     if (A < 0.0 || A > 1.0 || collection_eff < 0.0 || A * collection_eff > 1.0) {
-      A = 1.0;
       collection_eff = _efficiency;
-      if (A < 0.0) {
+      if (A <= 0.0) {
         A = 0.0;
+      } else {
+        A = 1.0;
       }
     }
 
