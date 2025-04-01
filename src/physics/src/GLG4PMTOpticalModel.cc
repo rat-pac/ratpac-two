@@ -378,18 +378,25 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     collection_eff = _efficiency / An;  // net QE = _efficiency for normal inc.
 
 #ifdef G4DEBUG
-    if (A < 0.0 || A > 1.0 || collection_eff < 0.0 || collection_eff > 1.0) {
+    if (A < 0.0 || A > 1.0 || collection_eff < 0.0 || A * collection_eff > 1.0) {
       RAT::debug << "GLG4PMTOpticalModel::DoIt(): Strange coefficients!" << newline;
       RAT::debug << "T, R, A, An, weight: " << T << " " << R << " " << A << " " << An << " " << weight << newline;
       RAT::debug << "collection eff, std QE: " << collection_eff << " " << _efficiency << newline;
       RAT::debug << "=========================================================" << newline;
-      A = collection_eff = 0.5;  // safe values???
     }
 #endif
+    if (A < 0.0 || A > 1.0 || collection_eff < 0.0 || A * collection_eff > 1.0) {
+      A = 1.0;
+      collection_eff = _efficiency;
+      if (A < 0.0) {
+        A = 0.0;
+      }
+    }
 
     collection_eff *= RAT::PhotonThinning::GetFactor();
-    if (collection_eff > 1.0) {
-      RAT::Log::Die(dformat("PMT collection efficiency of %f is >1.0! Is thin_factor too big?", collection_eff));
+    if (A * collection_eff > 1.0) {
+      RAT::Log::Die(dformat("p.e. probability is %f (>1.0)! Is thin_factor (%f) too big?", A * collection_eff,
+                            RAT::PhotonThinning::GetFactor()));
     }
 
     // Now decide how many pe we make.
