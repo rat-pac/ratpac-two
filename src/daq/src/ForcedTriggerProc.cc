@@ -1,8 +1,6 @@
 /*
 Forced trigger causes a trigger regardless of the total number of PMTs hit
  */
-#include <G4ThreeVector.hh>
-#include <RAT/DS/DigitPMT.hh>
 #include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/PMT.hh>
 #include <RAT/DS/RunStore.hh>
