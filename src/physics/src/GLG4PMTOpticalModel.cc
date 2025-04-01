@@ -377,15 +377,13 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     An = 1.0 - (fT_n + fR_n);           // The absorption at normal incidence
     collection_eff = _efficiency / An;  // net QE = _efficiency for normal inc.
 
-#ifdef G4DEBUG
     if (A < 0.0 || A > 1.0 || collection_eff < 0.0 || A * collection_eff > 1.0) {
+#ifdef G4DEBUG
       RAT::debug << "GLG4PMTOpticalModel::DoIt(): Strange coefficients!" << newline;
       RAT::debug << "T, R, A, An, weight: " << T << " " << R << " " << A << " " << An << " " << weight << newline;
       RAT::debug << "collection eff, std QE: " << collection_eff << " " << _efficiency << newline;
       RAT::debug << "=========================================================" << newline;
-    }
 #endif
-    if (A < 0.0 || A > 1.0 || collection_eff < 0.0 || A * collection_eff > 1.0) {
       collection_eff = _efficiency;
       if (A <= 0.0) {
         A = 0.0;
