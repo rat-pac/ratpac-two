@@ -1,0 +1,146 @@
+//------------------------------------------------//
+//Wavelength Shifting (WLS) Material Example
+//------------------------------------------------//
+// From https://en.wikipedia.org/wiki/Polystyrene
+// Composition (C8H8)n
+// From 
+// https://www.kuraray.com/uploads/5a717515df6f5/PR0150_psf01.pdf
+// Density 1.05 g / cm3
+{
+name: "MATERIAL",
+index: "WLSExample",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 1.050,
+nelements: 2,
+nmaterials: 0,
+elements: ["Hydrogen", "Carbon"],
+elemprop: [0.0774, 0.9226],
+index_of_refraction: 1.59
+}
+{
+name: "OPTICS",
+index: "WLSExample",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+surface: 1,
+finish: "polished",
+model: "unified",
+polish: 1.0,
+LIGHT_YIELD: 0.0, // Does not scintillate!
+//------------------------------------------------//
+// Refractive Index
+//------------------------------------------------//
+// From 
+// https://www.kuraray.com/uploads/5a717515df6f5/PR0150_psf01.pdf, page 3
+RINDEX_option: "wavelength",
+RINDEX_value1: [ 250.0, 800.0 ],
+RINDEX_value2: [ 1.590, 1.590 ],
+//------------------------------------------------//
+// Re-emission spectrum
+//------------------------------------------------//
+SCINTILLATION_option: "dy_dwavelength",
+SCINTILLATION_value1: [ 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 800.0 ],
+SCINTILLATION_value2: [ 0.000, 0.000, 0.000, 0.000, 1.000, 1.000, 0.000, 0.000, 0.000 ], 
+SCINTILLATION_WLS_option: "dy_dwavelength",
+SCINTILLATION_WLS_value1: [ 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 800.0 ],
+SCINTILLATION_WLS_value2: [ 0.000, 0.000, 0.000, 0.000, 1.000, 1.000, 0.000, 0.000, 0.000 ], 
+//------------------------------------------------//
+// Quantum efficiency of the WLS dye a function of absorbed wavelength
+//------------------------------------------------//
+REEMISSION_PROB_option: "wavelength",
+REEMISSION_PROB_value1: [ 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 800.0 ],
+REEMISSION_PROB_value2: [ 0.900, 0.900, 0.900, 0.900, 0.900, 0.900, 0.900, 0.900, 0.900 ], 
+//------------------------------------------------//
+// Time constants for WLS re-emission
+//------------------------------------------------//
+// Decay time assumed to be 10.0 ns
+// Rise time is assumed to be 0.1 ns
+REEMITWAVEFORM_value1: [-10.0],
+REEMITWAVEFORM_value2: [1.0],
+SCINTWAVEFORM_value1: [-10.0],
+SCINTWAVEFORM_value2: [1.0],
+SCINT_RISE_TIME: 0.1,
+//------------------------------------------------//
+// ABSORPTION LENGTH
+//------------------------------------------------//
+ABSLENGTH_option: "wavelength",
+ABSLENGTH_value1: [ 250.0, 300.0, 350.0, 400.0, 450.00, 500.00, 550.00, 600.00, 800.00 ],
+ABSLENGTH_value2: [ 0.000, 0.500, 0.500, 0.500, 4000.0, 4000.0, 4000.0, 4000.0, 4000.0 ],
+PROPERTY_LIST: ["LIGHT_YIELD", "RINDEX", "SCINTILLATION", "SCINTILLATION_WLS", "ABSLENGTH", "SCINT_RISE_TIME", "SCINTWAVEFORM", "REEMISSION_PROB", "REEMITWAVEFORM"]
+}
+////////////////////////////////////////////////////
+//------------------------------------------------//
+//Fiber Cladding Materials:
+//------------------------------------------------//
+////////////////////////////////////////////////////
+//------------------------------------------------//
+//Inner cladding of fiber: PMMA
+//------------------------------------------------//
+// From https://en.wikipedia.org/wiki/Poly(methyl_methacrylate)
+// Composition (C5O2H8)n
+// From 
+// https://www.kuraray.com/uploads/5a717515df6f5/PR0150_psf01.pdf, page 3
+// Density 1.19 g / cm3
+{
+name: "MATERIAL",
+index: "PMMA",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 1.19,
+nelements: 3,
+nmaterials: 0,
+elements: ["Hydrogen", "Carbon", "Oxygen"],
+elemprop: [0.080538, 0.599848, 0.319614],
+index_of_refraction: 1.49
+}
+{
+name: "OPTICS",
+index: "PMMA",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+//------------------------------------------------//
+// REFRACTIVE INDEX
+//------------------------------------------------//
+// From 
+// https://www.kuraray.com/uploads/5a717515df6f5/PR0150_psf01.pdf, page 3
+RINDEX_option: "wavelength",
+RINDEX_value1: [250.0, 800.0],
+RINDEX_value2: [1.49, 1.49],
+PROPERTY_LIST: ["RINDEX"],
+}
+//------------------------------------------------//
+//Outer cladding of fiber: Fluorinated polyethylene
+//------------------------------------------------//
+// From 
+// https://www.kuraray.com/uploads/5a717515df6f5/PR0150_psf01.pdf, page 3
+// Density 1.43 g / cm3
+{
+name: "MATERIAL",
+index: "Fpolyethylene",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 1.430,
+nelements: 3,
+nmaterials: 0,
+elements: ["Hydrogen", "Carbon", "Fluorine"],
+// H, C and F atoms.. let's do 8:3:3 (random guess)
+elemprop: [0.08, 0.36, 0.56],
+index_of_refraction: 1.42
+}
+{
+name: "OPTICS",
+index: "Fpolyethylene",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+//------------------------------------------------//
+// REFRACTIVE INDEX
+//------------------------------------------------//
+// From 
+// https://www.kuraray.com/uploads/5a717515df6f5/PR0150_psf01.pdf, page 3
+RINDEX_option: "wavelength",
+RINDEX_value1: [250.0, 800.0],
+RINDEX_value2: [1.42, 1.42],
+PROPERTY_LIST: ["RINDEX"],
+}
+
