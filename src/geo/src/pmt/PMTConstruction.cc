@@ -29,6 +29,8 @@ PMTConstruction *PMTConstruction::NewConstruction(DBLinkPtr table, G4LogicalVolu
     return new CubicPMTConstruction(table, mother);
   } else if (construction == "lappd") {
     return new LAPPDConstruction(table, mother);
+  } else if (construction == "encapsulated") {
+    return new EncapsulatedPMTConstruction(table, mother);
   } else {
     Log::Die("PMT construction \'" + construction + "\' does not exist.");
   }
