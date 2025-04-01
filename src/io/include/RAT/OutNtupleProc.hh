@@ -159,7 +159,7 @@ class OutNtupleProc : public Processor {
   std::vector<double> digitTimeOverThreshold;
   std::vector<double> digitVoltageOverThreshold;
   std::vector<double> digitLocalTriggerTime;
-  std::vector<int> digitPredictedPE;
+  std::vector<int> digitPredictedNPEs;
   std::vector<int> digitNCrossings;
   std::vector<int> digitPMTID;
   // Information from fit to the waveforms

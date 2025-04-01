@@ -154,7 +154,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("digitVoltageOverThreshold", &digitVoltageOverThreshold);
     outputTree->Branch("digitPeak", &digitPeak);
     outputTree->Branch("digitLocalTriggerTime", &digitLocalTriggerTime);
-    outputTree->Branch("digitPredictedPE", &digitPredictedPE);
+    outputTree->Branch("digitPredictedNPEs", &digitPredictedNPEs);
   }
   if (options.digitizerfits) {
     for (const std::string &fitter_name : waveform_fitters) {
@@ -495,7 +495,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitPeak.clear();
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
-      digitPredictedPE.clear();
+      digitPredictedNPEs.clear();
 
       if (options.digitizerfits) {
         for (const std::string &fitter_name : waveform_fitters) {
@@ -513,7 +513,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         digitCharge.push_back(digitpmt->GetDigitizedCharge());
         digitNCrossings.push_back(digitpmt->GetNCrossings());
         digitTimeOverThreshold.push_back(digitpmt->GetTimeOverThreshold());
-        digitPredictedPE.push_back(digitpmt->GetEstimatedPE());
+        digitPredictedNPEs.push_back(digitpmt->GetPredictedNPEs());
         if (digitpmt->GetNCrossings() > 0) {
           digitNhits++;
         }
@@ -594,7 +594,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitPeak.clear();
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
-      digitPredictedPE.clear();
+      digitPredictedNPEs.clear();
       if (options.digitizerfits) {
         for (const std::string &fitter_name : waveform_fitters) {
           // construct arrays for all fitters

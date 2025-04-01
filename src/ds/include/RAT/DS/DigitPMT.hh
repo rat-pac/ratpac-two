@@ -81,8 +81,8 @@ class DigitPMT : public TObject {
   virtual Double_t GetTimeOffset() { return time_offset; }
 
   /** Estimated number of photoelectrons, from likelihood algorithm */
-  virtual void SetEstimatedPE(Int_t _fNPE) { this->fNPE = _fNPE; }
-  virtual Int_t GetEstimatedPE() { return fNPE; }
+  virtual void SetPredictedNPEs(Int_t _fNPE) { this->fNPE = _fNPE; }
+  virtual Int_t GetPredictedNPEs() { return fNPE; }
 
   /** Waveform analysis results */
   virtual WaveformAnalysisResult* const GetOrCreateWaveformAnalysisResult(std::string analyzer_name) {
