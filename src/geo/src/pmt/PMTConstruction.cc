@@ -13,6 +13,7 @@
 #include <RAT/PMTConstruction.hh>
 #include <RAT/RevolutionPMTConstruction.hh>
 #include <RAT/ToroidalPMTConstruction.hh>
+#include <RAT/EncapsulatedPMTConstruction.hh>
 #include <algorithm>
 
 namespace RAT {
