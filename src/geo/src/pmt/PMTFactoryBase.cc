@@ -33,6 +33,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
   std::string pmt_model = table->GetS("pmt_model");
 
   DBLinkPtr lpmt = DB::Get()->GetLink("PMT", pmt_model);
+  std::string construction_type = lpmt->GetS("construction");
 
   // Find mother volume
   G4LogicalVolume *mother = FindMother(mother_name);
@@ -363,8 +364,13 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
   const G4String modname(volume_name + "_optical_model");
   // In case the main pmt volume doesn't correspond to the fastsim region
   G4LogicalVolume *fastsim_log_pmt = log_pmt;
+  G4LogicalVolume *fastsim_log_pmt_dau = 0;
   if (fastsim_log_pmt->GetFastSimulationManager() == NULL) {
-    fastsim_log_pmt = log_pmt->GetDaughter(0)->GetLogicalVolume();  // Get the glass region
+  	if (construction_type == "encapsulated") {
+  		fastsim_log_pmt_dau = log_pmt->GetDaughter(0)->GetLogicalVolume();
+    		fastsim_log_pmt = fastsim_log_pmt_dau->GetDaughter(0)->GetLogicalVolume();  // Get the glass region
+  	}
+  	else fastsim_log_pmt = log_pmt->GetDaughter(0)->GetLogicalVolume();
   }
 
   for (size_t i = 0; i < fastsim_log_pmt->GetFastSimulationManager()->GetFastSimulationModelList().size(); i++) {
