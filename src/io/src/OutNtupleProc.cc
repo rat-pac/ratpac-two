@@ -462,11 +462,11 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       }
       if (fit->GetEnableEnergy()) {
         fitvalues["energy_" + name] = new double(fit->GetEnergy());
-        fitvalids["validenergy" + name] = new bool(fit->GetValidEnergy());
+        fitvalids["validenergy_" + name] = new bool(fit->GetValidEnergy());
       }
       if (fit->GetEnableTime()) {
         fitvalues["time_" + name] = new double(fit->GetTime());
-        fitvalids["validtime" + name] = new bool(fit->GetValidTime());
+        fitvalids["validtime_" + name] = new bool(fit->GetValidTime());
       }
       // Figures of merit > 3 types
       for (auto const &[label, value] : fit->boolFiguresOfMerit) {
