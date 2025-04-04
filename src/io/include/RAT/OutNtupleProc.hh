@@ -63,6 +63,7 @@ class OutNtupleProc : public Processor {
   NtupleOptions options;
 
   std::vector<std::string> waveform_fitters;
+  std::map<std::string, std::vector<std::string>> waveform_fitter_FOMs;
 
  protected:
   std::string defaultFilename;
@@ -163,6 +164,7 @@ class OutNtupleProc : public Processor {
   std::map<std::string, std::vector<int>> fitPmtID;
   std::map<std::string, std::vector<double>> fitTime;
   std::map<std::string, std::vector<double>> fitCharge;
+  std::map<std::string, std::map<std::string, std::vector<double>>> fitFOM;
   // std::vector<double> fitTime;
   std::vector<double> fitBaseline;
   std::vector<double> fitPeak;
