@@ -57,7 +57,7 @@ void WaveformAnalysisSinc::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
   fDigitTimeInWindow = digitpmt->GetDigitizedTimeNoOffset();
 
   // check to see if digitTime is well behaved
-  if (std::isinf(fDigitTimeInWindow) || fDigitTimeInWindow < 0 || fDigitTimeInWindow > voltWfm.size() * fTimeStep) {
+  if (!(fDigitTimeInWindow > 0 && fDigitTimeInWindow < voltWfm.size() * fTimeStep)) {
     return;
   }
 
@@ -71,7 +71,7 @@ std::vector<double> WaveformAnalysisSinc::ConvolveWaveform(const std::vector<dou
   int wl = wfm.size();  // waveform length
   int numNewPoints = (wl - 1) * fNumInterpPoints + 1;
 
-  std::vector<double> newWfm(numNewPoints, 0.0);  // vector that stored the interpolated waveform
+  std::vector<double> newWfm(numNewPoints, 0.0);  // vector to store the interpolated waveform
   for (int j = 0; j < wl - 1; j++) {              // looping over the digitized waveform
     for (int k = 0; k < fNumInterpPoints; k++)    // looping over the interpolated points
     {

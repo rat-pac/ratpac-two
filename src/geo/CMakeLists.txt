@@ -18,6 +18,8 @@ add_library(geo OBJECT
         src/GeoCalibrationStickFactory.cc
         src/GeoCherenkovSourceFactory.cc
         src/GeoConvexLensFactory.cc
+        src/GeoFiberSensitiveDetector.cc
+        src/GeoFiberSensitiveDetectorHit.cc
         src/GeoCutTubeFactory.cc
         src/GeoEosFactory.cc
         src/GeoFactory.cc
@@ -33,6 +35,9 @@ add_library(geo OBJECT
         src/GeoRevolutionChimneyFactory.cc
         src/GeoRevolutionFactory.cc
         src/GeoSolidArrayFactoryBase.cc
+        src/GeoNestedSolidArrayFactoryBase.cc
+        src/GeoNestedTubeArrayFactory.cc
+        src/GeoNestedTubeConstruction.cc
         src/GeoSolidFactory.cc
         src/GeoSphereFactory.cc
         src/GeoSurfaceFactory.cc

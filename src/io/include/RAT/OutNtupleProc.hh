@@ -59,6 +59,7 @@ class OutNtupleProc : public Processor {
     bool digitizerfits;
     bool untriggered;
     bool mchits;
+    bool nthits;
   };
   NtupleOptions options;
 
@@ -88,6 +89,13 @@ class OutNtupleProc : public Processor {
   std::vector<double> pmtU;
   std::vector<double> pmtV;
   std::vector<double> pmtW;
+  std::vector<int> ntId;
+  std::vector<double> ntX;
+  std::vector<double> ntY;
+  std::vector<double> ntZ;
+  std::vector<double> ntU;
+  std::vector<double> ntV;
+  std::vector<double> ntW;
   u_int32_t digitizerWindowSize;
   Double_t digitizerSampleRate;
   Double_t digitizerDynamicRange;
@@ -121,6 +129,14 @@ class OutNtupleProc : public Processor {
   std::vector<int> mcpmtid;
   std::vector<int> mcpmtnpe;
   std::vector<double> mcpmtcharge;
+  // MCNestedTube
+  int mcnNTs;
+  int mcnNThits;
+  std::vector<int> mcNTid;
+  std::vector<double> mcNThittime;
+  std::vector<double> mcNThitx;
+  std::vector<double> mcNThity;
+  std::vector<double> mcNThitz;
   // MCPE
   std::vector<int> mcpepmtid;
   std::vector<double> mcpehittime;
@@ -177,6 +193,7 @@ class OutNtupleProc : public Processor {
   std::vector<int> volumeCodeIndex;
   std::vector<std::string> volumeName;
 
+  // Tracking
   std::vector<int> trackPDG;
   std::vector<std::vector<double>> trackPosX;
   std::vector<std::vector<double>> trackPosY;
