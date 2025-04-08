@@ -1,5 +1,21 @@
-#ifndef __RAT_FitDirectionCenter__
-#define __RAT_FitDirectionCenter__
+////////////////////////////////////////////////////////////////////////
+///
+/// \class   FitDirectionCenterProc
+///
+/// \brief   Fitter processor for reconstructing event direction.
+///
+/// \author  Logan Lebanowski   llebanowski@berkeley.edu
+///
+/// \details Event direction is reconstructed as the average of the
+///          vectors from the event position to the hit PMT positions.
+///
+/// REVISION HISTORY:
+/// 2025/02/27 :  Logan Lebanowski  First version
+///
+////////////////////////////////////////////////////////////////////////
+
+#ifndef __RAT_FitDirectionCenterProc__
+#define __RAT_FitDirectionCenterProc__
 
 #include <RAT/FitterInputHandler.hh>
 #include <RAT/Processor.hh>
@@ -12,10 +28,10 @@ class Root;
 class EV;
 }  // namespace DS
 
-class FitDirectionCenter : public Processor {
+class FitDirectionCenterProc : public Processor {
  public:
-  FitDirectionCenter() : Processor("fitdirectioncenter"), inputHandler(){};
-  virtual ~FitDirectionCenter() {}
+  FitDirectionCenterProc() : Processor("fitdirectioncenter"), inputHandler(){};
+  virtual ~FitDirectionCenterProc() {}
 
   void BeginOfRun(DS::Run *run);
 
@@ -50,4 +66,4 @@ class FitDirectionCenter : public Processor {
 
 }  // namespace RAT
 
-#endif  // __RAT_FitDirectionCenter__
+#endif  // __RAT_FitDirectionCenterProc__

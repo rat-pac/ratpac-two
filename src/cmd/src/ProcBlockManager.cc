@@ -13,7 +13,7 @@
 #include <RAT/Config.hh>
 #include <RAT/CountProc.hh>
 #include <RAT/FitCentroidProc.hh>
-#include <RAT/FitDirectionCenter.hh>
+#include <RAT/FitDirectionCenterProc.hh>
 #include <RAT/FitPathProc.hh>
 #include <RAT/FitQuadProc.hh>
 #include <RAT/FitTensorProc.hh>
@@ -87,7 +87,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
 #endif
   AppendProcessor<FitPathProc>();
   AppendProcessor<FitQuadProc>();
-  AppendProcessor<FitDirectionCenter>();
+  AppendProcessor<FitDirectionCenterProc>();
   // Classifiers
   AppendProcessor<ClassifyChargeBalance>();
   // DAQ

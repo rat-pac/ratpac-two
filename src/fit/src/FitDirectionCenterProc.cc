@@ -6,7 +6,7 @@
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/DS/RunStore.hh>
-#include <RAT/FitDirectionCenter.hh>
+#include <RAT/FitDirectionCenterProc.hh>
 #include <RAT/Processor.hh>
 #include <cmath>
 #include <string>
@@ -14,7 +14,7 @@
 
 namespace RAT {
 
-void FitDirectionCenter::BeginOfRun(DS::Run *run) {
+void FitDirectionCenterProc::BeginOfRun(DS::Run *run) {
   DB *db = DB::Get();
   DBLinkPtr table = db->GetLink("Fitter", "FitDirectionCenter");
   fLightSpeed = table->GetD("light_speed");
@@ -24,7 +24,7 @@ void FitDirectionCenter::BeginOfRun(DS::Run *run) {
   fPMTInfo = run->GetPMTInfo();
 }
 
-void FitDirectionCenter::SetS(std::string param, std::string value) {
+void FitDirectionCenterProc::SetS(std::string param, std::string value) {
   if (param == "fitter_name") {
     if (value.empty()) throw ParamInvalid(param, "fitter_name cannot be empty.");
     fFitterName = value;
@@ -37,7 +37,7 @@ void FitDirectionCenter::SetS(std::string param, std::string value) {
     throw ParamUnknown(param);
 }
 
-void FitDirectionCenter::SetI(std::string param, int value) {
+void FitDirectionCenterProc::SetI(std::string param, int value) {
   if (param == "pmt_type") {
     fPMTtype.push_back(value);
   } else if (param == "verbose") {
@@ -46,7 +46,7 @@ void FitDirectionCenter::SetI(std::string param, int value) {
     throw ParamUnknown(param);
 }
 
-void FitDirectionCenter::SetD(std::string param, double value) {
+void FitDirectionCenterProc::SetD(std::string param, double value) {
   if (param == "time_resid_low") {
     if (!fCutMethod.empty() && fCutMethod != "time")
       throw ParamInvalid(param, "Cannot specify more than one cut method for time residuals.");
@@ -70,7 +70,7 @@ void FitDirectionCenter::SetD(std::string param, double value) {
     if (value <= 0.0 || value > 1.0) throw ParamInvalid(param, "time_resid_frac_up must be (0.0,1.0].");
     fTimeResFracUp = value;
   } else if (param == "light_speed") {
-    if (fLightSpeed <= 0 || fLightSpeed > 299.792458)
+    if (value <= 0 || value > 299.792458)
       throw ParamInvalid(param, "light_speed must be positive and <= 299.792458 mm/ns.");
     fLightSpeed = value;
   } else if (param == "event_position_x") {
@@ -93,7 +93,7 @@ void FitDirectionCenter::SetD(std::string param, double value) {
     throw ParamUnknown(param);
 }
 
-Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
+Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
   inputHandler.RegisterEvent(ev);
 
   DS::FitResult *fitDC = new DS::FitResult(fFitterName);
@@ -118,7 +118,7 @@ Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
   // Get reconstructed position from a fit result
   if (fPosMethod != "fixed") {
     std::vector<RAT::DS::FitResult *> fits = ev->GetFitResults();
-    if (fits.size() == 0) Log::Die("FidDirectionCenter: No position specified (fixed or reconstructed).");
+    if (fits.size() == 0) Log::Die("FitDirectionCenterProc: No position specified (fixed or reconstructed).");
 
     RAT::DS::FitResult *fit;
     if (fPosFitter.empty()) {       // If fitter not specified
@@ -133,7 +133,7 @@ Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
         }
       }
       if (!foundPosFitter)
-        Log::Die("FidDirectionCenter: Position fitter \'" + fPosFitter + "\' not found.  Check name.");
+        Log::Die("FitDirectionCenterProc: Position fitter \'" + fPosFitter + "\' not found.  Check name.");
     }
 
     if (fit->GetEnablePosition()) {
@@ -154,7 +154,8 @@ Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
   bool applyDrive = (!fDirFitter.empty() && fDrive != 0.0);
   if (applyDrive) {
     std::vector<RAT::DS::FitResult *> fits = ev->GetFitResults();
-    if (fits.size() == 0) Log::Die("FidDirectionCenter: No reconstructed direction available for drive correction.");
+    if (fits.size() == 0)
+      Log::Die("FitDirectionCenterProc: No reconstructed direction available for drive correction.");
 
     RAT::DS::FitResult *fit;
     bool foundDirFitter = false;
@@ -166,7 +167,7 @@ Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
       }
     }
     if (!foundDirFitter)
-      Log::Die("FidDirectionCenter: Direction fitter \'" + fDirFitter + "\' not found.  Check that it was run.");
+      Log::Die("FitDirectionCenterProc: Direction fitter \'" + fDirFitter + "\' not found.  Check that it was run.");
 
     TVector3 eventDir;
     bool validDir = true;
@@ -187,9 +188,9 @@ Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
     fitDC->SetPosition(eventPos);
 
   } else if (fDrive != 0.0 && fDirFitter.empty()) {
-    Log::Die("FidDirectionCenter: No direction fitter specified while drive value is specified.");
+    Log::Die("FitDirectionCenterProc: No direction fitter specified while drive value is specified.");
   } else if (fDrive == 0.0 && !fDirFitter.empty()) {
-    Log::Die("FidDirectionCenter: No drive value specified while direction fitter \'" + fPosFitter +
+    Log::Die("FitDirectionCenterProc: No drive value specified while direction fitter \'" + fPosFitter +
              "\' is specified.");
   }
 
@@ -206,7 +207,7 @@ Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
         for (iType = 0; iType < fPMTtype.size(); iType++) {
           if (fPMTtype[iType] == pmtType) break;
         }
-        if (fPMTtype[iType] != pmtType) continue;
+        if (iType == fPMTtype.size()) continue;  // No match found
       }
 
       TVector3 pmtPos = fPMTInfo->GetPosition(pmtid);
@@ -236,7 +237,7 @@ Processor::Result FitDirectionCenter::Event(DS::Root *ds, DS::EV *ev) {
       for (iType = 0; iType < fPMTtype.size(); iType++) {
         if (fPMTtype[iType] == pmtType) break;
       }
-      if (fPMTtype[iType] != pmtType) continue;
+      if (iType == fPMTtype.size()) continue;  // No match found
     }
 
     TVector3 pmtPos = fPMTInfo->GetPosition(pmtid);
