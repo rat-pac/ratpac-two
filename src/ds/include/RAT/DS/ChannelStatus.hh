@@ -45,9 +45,11 @@ class ChannelStatus : public TObject {
 
   virtual double GetChargeScaleByChannel(int lcn) const { return charge_scale.at(lcn_to_index.at(lcn)); }
   virtual double GetChargeScaleByPMTID(int pmtid) const { return charge_scale.at(pmtid_to_index.at(pmtid)); }
-  
+
   virtual double GetFittedChargeScaleByChannel(int lcn) const { return fitted_charge_scale.at(lcn_to_index.at(lcn)); }
-  virtual double GetFittedChargeScaleByPMTID(int pmtid) const { return fitted_charge_scale.at(pmtid_to_index.at(pmtid)); }
+  virtual double GetFittedChargeScaleByPMTID(int pmtid) const {
+    return fitted_charge_scale.at(pmtid_to_index.at(pmtid));
+  }
 
   virtual void LinkPMT(int pmtid, int lcn) {
     // create entry with default values if none are specified
@@ -86,7 +88,7 @@ class ChannelStatus : public TObject {
     } catch (DBNotFoundError& e) {
       warn << "Charge Scale table not found! Looking for table charge_scale[" << index << "]\n";
     }
-    //fitted charge scale
+    // fitted charge scale
     try {
       std::vector<int> lcns = get_lcns(lFittedChargeScale);
       std::vector<double> values = lFittedChargeScale->GetDArray("value");

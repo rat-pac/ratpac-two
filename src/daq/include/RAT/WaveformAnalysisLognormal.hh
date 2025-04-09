@@ -20,8 +20,9 @@
 #define __RAT_WaveformAnalysisLognormal__
 
 #include <TObject.h>
-#include <RAT/DS/ChannelStatus.hh>
+
 #include <RAT/DB.hh>
+#include <RAT/DS/ChannelStatus.hh>
 #include <RAT/DS/DigitPMT.hh>
 #include <RAT/Digitizer.hh>
 #include <RAT/Processor.hh>
