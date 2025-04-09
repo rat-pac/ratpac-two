@@ -517,10 +517,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           for (std::string fitter_name : fitters) {
             DS::WaveformAnalysisResult *fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(fitter_name);
             for (int hitidx = 0; hitidx < fit_result->getNhits(); hitidx++) {
-              double chargeScale = 1;//DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByPMTID(digitpmt->GetID());
-	      fitPmtID[fitter_name].push_back(digitpmt->GetID());
+              fitPmtID[fitter_name].push_back(digitpmt->GetID());
               fitTime[fitter_name].push_back(fit_result->getTime(hitidx));
-              fitCharge[fitter_name].push_back(fit_result->getCharge(hitidx)*chargeScale);
+              fitCharge[fitter_name].push_back(fit_result->getCharge(hitidx));
               // TODO: figures of merit -- you probably need some nested map
             }
           }
