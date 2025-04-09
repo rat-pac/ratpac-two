@@ -81,6 +81,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("pmtIsOnline", &pmtIsOnline);
   metaTree->Branch("pmtCableOffset", &pmtCableOffset);
   metaTree->Branch("pmtChargeScale", &pmtChargeScale);
+  metaTree->Branch("pmtFittedChargeScale", &pmtFittedChargeScale);
   metaTree->Branch("pmtX", &pmtX);
   metaTree->Branch("pmtY", &pmtY);
   metaTree->Branch("pmtZ", &pmtZ);
@@ -516,9 +517,10 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           for (std::string fitter_name : fitters) {
             DS::WaveformAnalysisResult *fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(fitter_name);
             for (int hitidx = 0; hitidx < fit_result->getNhits(); hitidx++) {
-              fitPmtID[fitter_name].push_back(digitpmt->GetID());
+              double chargeScale = 1;//DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByPMTID(digitpmt->GetID());
+	      fitPmtID[fitter_name].push_back(digitpmt->GetID());
               fitTime[fitter_name].push_back(fit_result->getTime(hitidx));
-              fitCharge[fitter_name].push_back(fit_result->getCharge(hitidx));
+              fitCharge[fitter_name].push_back(fit_result->getCharge(hitidx)*chargeScale);
               // TODO: figures of merit -- you probably need some nested map
             }
           }
@@ -623,6 +625,7 @@ OutNtupleProc::~OutNtupleProc() {
       pmtIsOnline.push_back(ch_status->GetOnlineByPMTID(id));
       pmtCableOffset.push_back(ch_status->GetCableOffsetByPMTID(id));
       pmtChargeScale.push_back(ch_status->GetChargeScaleByPMTID(id));
+      pmtFittedChargeScale.push_back(ch_status->GetFittedChargeScaleByPMTID(id));
       pmtX.push_back(position.X());
       pmtY.push_back(position.Y());
       pmtZ.push_back(position.Z());

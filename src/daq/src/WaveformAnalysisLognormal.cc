@@ -4,7 +4,7 @@
 
 #include <RAT/Log.hh>
 #include <RAT/WaveformAnalysisLognormal.hh>
-
+#include <RAT/DS/RunStore.hh>
 #include "RAT/DS/DigitPMT.hh"
 #include "RAT/DS/WaveformAnalysisResult.hh"
 #include "RAT/WaveformUtil.hh"
@@ -48,9 +48,10 @@ void WaveformAnalysisLognormal::DoAnalysis(DS::DigitPMT* digitpmt, const std::ve
   fDigitTimeInWindow = digitpmt->GetDigitizedTimeNoOffset();
   // Fit waveform to lognormal
   FitWaveform(voltWfm);
-
+  //Get fitted charge calibration constants
+  double chargeScale = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetFittedChargeScaleByPMTID(digitpmt->GetID());
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("Lognormal");
-  fit_result->AddPE(fFittedTime, fFittedCharge, {{"baseline", fFittedBaseline}, {"chi2ndf", fChi2NDF}});
+  fit_result->AddPE(fFittedTime, fFittedCharge*chargeScale, {{"baseline", fFittedBaseline}, {"chi2ndf", fChi2NDF}});
 }
 
 static double SingleLognormal1(double* x, double* par) {

@@ -82,6 +82,7 @@ class OutNtupleProc : public Processor {
   std::vector<bool> pmtIsOnline;
   std::vector<double> pmtCableOffset;
   std::vector<double> pmtChargeScale;
+  std::vector<double> pmtFittedChargeScale;
   std::vector<double> pmtX;
   std::vector<double> pmtY;
   std::vector<double> pmtZ;
@@ -185,7 +186,6 @@ class OutNtupleProc : public Processor {
   std::vector<std::vector<double>> trackTime;
   std::vector<std::vector<int>> trackProcess;
   std::vector<std::vector<int>> trackVolume;
-
   std::set<std::string> branchNames;
 
   template <typename T>
