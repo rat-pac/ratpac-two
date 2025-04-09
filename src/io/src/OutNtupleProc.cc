@@ -152,8 +152,11 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("digitTime", &digitTime);
     outputTree->Branch("digitCharge", &digitCharge);
     outputTree->Branch("digitNCrossings", &digitNCrossings);
+    outputTree->Branch("digitTimeOverThreshold", &digitTimeOverThreshold);
+    outputTree->Branch("digitVoltageOverThreshold", &digitVoltageOverThreshold);
     outputTree->Branch("digitPeak", &digitPeak);
     outputTree->Branch("digitLocalTriggerTime", &digitLocalTriggerTime);
+    outputTree->Branch("digitReconNPEs", &digitReconNPEs);
   }
   if (options.digitizerfits) {
     for (const std::string &fitter_name : waveform_fitters) {
@@ -523,9 +526,12 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitTime.clear();
       digitCharge.clear();
       digitNCrossings.clear();
+      digitTimeOverThreshold.clear();
+      digitVoltageOverThreshold.clear();
       digitPeak.clear();
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
+      digitReconNPEs.clear();
 
       if (options.digitizerfits) {
         for (const std::string &fitter_name : waveform_fitters) {
@@ -541,17 +547,20 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         digitPMTID.push_back(digitpmt->GetID());
         digitTime.push_back(digitpmt->GetDigitizedTime());
         digitCharge.push_back(digitpmt->GetDigitizedCharge());
+        digitNCrossings.push_back(digitpmt->GetNCrossings());
+        digitTimeOverThreshold.push_back(digitpmt->GetTimeOverThreshold());
+        digitReconNPEs.push_back(digitpmt->GetReconNPEs());
         if (digitpmt->GetNCrossings() > 0) {
           digitNhits++;
         }
-        digitNCrossings.push_back(digitpmt->GetNCrossings());
+        digitVoltageOverThreshold.push_back(digitpmt->GetVoltageOverThreshold());
         digitPeak.push_back(digitpmt->GetPeakVoltage());
         digitLocalTriggerTime.push_back(digitpmt->GetLocalTriggerTime());
         if (options.digitizerfits) {
           const std::vector<std::string> fitters = digitpmt->GetFitterNames();
           for (std::string fitter_name : fitters) {
             DS::WaveformAnalysisResult *fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(fitter_name);
-            for (int hitidx = 0; hitidx < fit_result->getNhits(); hitidx++) {
+            for (int hitidx = 0; hitidx < fit_result->getNPEs(); hitidx++) {
               fitPmtID[fitter_name].push_back(digitpmt->GetID());
               fitTime[fitter_name].push_back(fit_result->getTime(hitidx));
               fitCharge[fitter_name].push_back(fit_result->getCharge(hitidx));
@@ -616,9 +625,12 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitTime.clear();
       digitCharge.clear();
       digitNCrossings.clear();
+      digitVoltageOverThreshold.clear();
+      digitTimeOverThreshold.clear();
       digitPeak.clear();
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
+      digitReconNPEs.clear();
       if (options.digitizerfits) {
         for (const std::string &fitter_name : waveform_fitters) {
           // construct arrays for all fitters
