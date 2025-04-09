@@ -29,7 +29,9 @@
 #include <RAT/SplitEVDAQProc.hh>
 #include <RAT/TrueDAQProc.hh>
 #include <RAT/WaveformAnalysisGaussian.hh>
+#include <RAT/WaveformAnalysisL1Deconv.hh>
 #include <RAT/WaveformAnalysisLognormal.hh>
+#include <RAT/WaveformAnalysisSPEMF.hh>
 #include <RAT/WaveformAnalysisSinc.hh>
 #include <RAT/WaveformPrep.hh>
 
@@ -100,6 +102,8 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<WaveformAnalysisGaussian>();
   AppendProcessor<WaveformAnalysisLognormal>();
   AppendProcessor<WaveformAnalysisSinc>();
+  AppendProcessor<WaveformAnalysisSPEMF>();
+  AppendProcessor<WaveformAnalysisL1Deconv>();
   // Misc
   AppendProcessor<CountProc>();
   AppendProcessor<PruneProc>();
