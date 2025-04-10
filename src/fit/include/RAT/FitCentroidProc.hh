@@ -14,7 +14,7 @@ class EV;
 
 class FitCentroidProc : public Processor {
  public:
-  FitCentroidProc() : Processor("fitcentroid"), inputHandler(){};
+  FitCentroidProc() : Processor("fitcentroid"), inputHandler() {};
   virtual ~FitCentroidProc() {}
 
   /** param = "power", value = exponent to raise charge to when averaging
@@ -24,9 +24,9 @@ class FitCentroidProc : public Processor {
   virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
 
  protected:
- double fPower = 2.0;
- double fRescale = 1.0;
- FitterInputHandler inputHandler;
+  double fPower = 2.0;
+  double fRescale = 1.0;
+  FitterInputHandler inputHandler;
 };
 
 }  // namespace RAT

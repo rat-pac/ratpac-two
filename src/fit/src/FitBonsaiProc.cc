@@ -79,7 +79,7 @@ int FitBonsaiProc::nwin(float twin, float *v, int nfit, int *cfit, float *tfit, 
   // calculate t-tof for each hit
   for (hit = 0; hit < nfit; hit++) {
     TVector3 pos = bs_pmtinfo->GetPosition(cfit[hit] - 1);
-    //TVector3 pos = bs_pmtinfo->GetPosition(cfit[hit]);
+    // TVector3 pos = bs_pmtinfo->GetPosition(cfit[hit]);
     dx = pos.X() * 0.1 - v[0];
     dy = pos.Y() * 0.1 - v[1];
     dz = pos.Z() * 0.1 - v[2];
