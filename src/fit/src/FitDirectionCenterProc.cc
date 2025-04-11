@@ -217,6 +217,11 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
       double timeResidual = inputHandler.GetTime(pmtid) - transitTime - eventTime;
       pmtTimes.push_back(timeResidual);
     }
+    if (pmtTimes.empty()) {  // No PMTs selected
+      fitDC->SetValidDirection(false);
+      ev->AddFitResult(fitDC);
+      return Processor::FAIL;
+    }
     int up = round(fTimeResFracUp * (pmtTimes.size() - 1));
     std::nth_element(pmtTimes.begin(), pmtTimes.begin() + up, pmtTimes.end());
     timeResUpFrac = pmtTimes.at(up);
