@@ -724,12 +724,10 @@ G4PVPlacement *EncapsulatedPMTConstruction::PlacePMT(
 G4VSolid *
 EncapsulatedPMTConstruction::optical_gel_height_subtraction(const std::string &_name) {
 
-  double enc_radius = 20.0;   // default radius
-  double enc_thickness = 0.8;
   G4Sphere *optical_gel_1 = 
                     new G4Sphere("optical_gel_1_encapsulation_solid",
-                    15*CLHEP::cm,///(enc_radius-enc_thickness)*CLHEP::cm,                   // rmin 20 cm
-                    20.0*CLHEP::cm,// (enc_radius+enc_thickness)+5 * CLHEP::cm, // rmax: 20.8 cm
+                    15*CLHEP::cm,
+                    20.0*CLHEP::cm,
                     0.5 * CLHEP::pi, CLHEP::twopi,            // phi
                     0., 0.5 * CLHEP::pi); 
   G4Tubs *gel_subtract =
