@@ -360,9 +360,11 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
 
   }  // end loop over id
 
-  // finally pass the efficiency table to GLG4PMTOpticalModel
+  // finally pass the efficiency table to GLGS4PMTOpticalModel
   const G4String modname(volume_name + "_optical_model");
   // In case the main pmt volume doesn't correspond to the fastsim region
+  
+  // For the encapsulated version, the pmt_body is the daughter of the first daughter
   G4LogicalVolume *fastsim_log_pmt = log_pmt;
   G4LogicalVolume *fastsim_log_pmt_dau = 0;
   if (fastsim_log_pmt->GetFastSimulationManager() == NULL) {
