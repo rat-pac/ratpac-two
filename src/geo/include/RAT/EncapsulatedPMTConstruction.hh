@@ -4,12 +4,19 @@
 #ifndef __RAT_EncapsulatedPMTConstruction__
 #define __RAT_EncapsulatedPMTConstruction__
 
+#include <G4Box.hh>
+#include <G4GenericPolycone.hh>
 #include <G4LogicalVolume.hh>
 #include <G4Material.hh>
 #include <G4OpticalSurface.hh>
 #include <G4PVPlacement.hh>
+#include <G4Paraboloid.hh>
+#include <G4Sphere.hh>
+#include <G4SubtractionSolid.hh>
+#include <G4UnionSolid.hh>
 #include <G4VSensitiveDetector.hh>
 #include <G4VSolid.hh>
+#include <G4VisAttributes.hh>
 #include <RAT/DB.hh>
 #include <RAT/Factory.hh>
 #include <RAT/GLG4TorusStack.hh>
@@ -17,14 +24,6 @@
 #include <RAT/WaveguideFactory.hh>
 #include <string>
 #include <vector>
-
-#include <G4Box.hh>
-#include <G4GenericPolycone.hh>
-#include <G4Paraboloid.hh>
-#include <G4Sphere.hh>
-#include <G4SubtractionSolid.hh>
-#include <G4UnionSolid.hh>
-#include <G4VisAttributes.hh>
 namespace RAT {
 
 struct EncapsulatedPMTConstructionParams {
@@ -43,15 +42,15 @@ struct EncapsulatedPMTConstructionParams {
   double minEnvelopeRadius;
 
   // Body
-  std::vector<double> zEdge;   // n+1
-  std::vector<double> rhoEdge; // n+1
-  std::vector<double> zOrigin; // n
-  double wallThickness;        // mm
+  std::vector<double> zEdge;    // n+1
+  std::vector<double> rhoEdge;  // n+1
+  std::vector<double> zOrigin;  // n
+  double wallThickness;         // mm
 
-  double dynodeRadius;        // mm
-  double dynodeTop;           // mm
-  double photocathode_MINrho; // mm
-  double photocathode_MAXrho; // mm
+  double dynodeRadius;         // mm
+  double dynodeTop;            // mm
+  double photocathode_MINrho;  // mm
+  double photocathode_MAXrho;  // mm
 
   G4Material *exterior;
   G4Material *glass;
@@ -81,31 +80,28 @@ struct EncapsulatedPMTConstructionParams {
   G4OpticalSurface *silica_bag_surface;
   G4OpticalSurface *optical_gel_surface;
 
-  double efficiencyCorrection; // default to 1.0 for no correction
+  double efficiencyCorrection;  // default to 1.0 for no correction
 };
 
 // Construction for PMTs based on GLG4TorusStack
 class EncapsulatedPMTConstruction : public PMTConstruction {
-public:
+ public:
   EncapsulatedPMTConstruction(DBLinkPtr params, G4LogicalVolume *mother);
   virtual ~EncapsulatedPMTConstruction() {}
 
   virtual G4LogicalVolume *BuildVolume(const std::string &prefix);
   virtual G4VSolid *BuildSolid(const std::string &prefix);
-  virtual G4PVPlacement *PlacePMT(G4RotationMatrix *pmtrot,
-                                  G4ThreeVector pmtpos, const std::string &name,
-                                  G4LogicalVolume *logi_pmt,
-                                  G4VPhysicalVolume *mother_phys,
-                                  bool booleanSolid, int copyNo);
+  virtual G4PVPlacement *PlacePMT(G4RotationMatrix *pmtrot, G4ThreeVector pmtpos, const std::string &name,
+                                  G4LogicalVolume *logi_pmt, G4VPhysicalVolume *mother_phys, bool booleanSolid,
+                                  int copyNo);
 
-protected:
+ protected:
   G4VSolid *NewEnvelopeSolid(const std::string &name);
   G4VSolid *NewEncapsulationSolid(const std::string &name);
-  G4VSolid *optical_gel_height_subtraction(const std::string &_name);  
+  G4VSolid *optical_gel_height_subtraction(const std::string &_name);
   G4VSolid *optical_gel_pmt_subtraction(const std::string &_name, GLG4TorusStack *body);
-  void CalcInnerParams(GLG4TorusStack *body, std::vector<double> &innerZEdge,
-                       std::vector<double> &innerRhoEdge, int &equatorIndex,
-                       double &zLowestDynode);
+  void CalcInnerParams(GLG4TorusStack *body, std::vector<double> &innerZEdge, std::vector<double> &innerRhoEdge,
+                       int &equatorIndex, double &zLowestDynode);
 
   // phyiscal volumes
   G4PVPlacement *envelope_phys;
@@ -135,6 +131,6 @@ protected:
   EncapsulatedPMTConstructionParams fParams;
 };
 
-} // namespace RAT
+}  // namespace RAT
 
 #endif

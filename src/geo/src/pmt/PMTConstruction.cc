@@ -6,6 +6,7 @@
 #include <G4VisAttributes.hh>
 #include <RAT/CubicPMTConstruction.hh>
 #include <RAT/CylindricalPMTConstruction.hh>
+#include <RAT/EncapsulatedPMTConstruction.hh>
 #include <RAT/GLG4PMTOpticalModel.hh>
 #include <RAT/LAPPDConstruction.hh>
 #include <RAT/Log.hh>
@@ -13,7 +14,6 @@
 #include <RAT/PMTConstruction.hh>
 #include <RAT/RevolutionPMTConstruction.hh>
 #include <RAT/ToroidalPMTConstruction.hh>
-#include <RAT/EncapsulatedPMTConstruction.hh>
 #include <algorithm>
 
 namespace RAT {

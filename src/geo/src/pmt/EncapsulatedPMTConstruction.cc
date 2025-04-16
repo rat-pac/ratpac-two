@@ -1,14 +1,19 @@
 // This is a modified version of ToroidalPMTConstruction.cc, which encapsulates a toroidal PMT.
-// It is intended to be used for BUTTON which uses 96 Hamamatsu r7081pe PMTs that are encapsulated by two acryilic domes.
-// Created by Lewis Sexton (Sheffield) and Adam Tarrant (Liverpool)
+// It is intended to be used for BUTTON which uses 96 Hamamatsu r7081pe PMTs that are encapsulated by two acryilic
+// domes. Created by Lewis Sexton (Sheffield) and Adam Tarrant (Liverpool)
 
 #include <CLHEP/Units/PhysicalConstants.h>
 
+#include <G4Box.hh>
+#include <G4GenericPolycone.hh>
 #include <G4LogicalBorderSurface.hh>
 #include <G4LogicalSkinSurface.hh>
+#include <G4Paraboloid.hh>
 #include <G4Region.hh>
+#include <G4Sphere.hh>
 #include <G4SubtractionSolid.hh>
 #include <G4Tubs.hh>
+#include <G4UnionSolid.hh>
 #include <G4VisAttributes.hh>
 #include <RAT/EncapsulatedPMTConstruction.hh>
 #include <RAT/GLG4PMTOpticalModel.hh>
@@ -16,17 +21,9 @@
 #include <RAT/Materials.hh>
 #include <algorithm>
 
-#include <G4Box.hh>
-#include <G4GenericPolycone.hh>
-#include <G4Paraboloid.hh>
-#include <G4Sphere.hh>
-#include <G4SubtractionSolid.hh>
-#include <G4UnionSolid.hh>
-
 namespace RAT {
 
-EncapsulatedPMTConstruction::EncapsulatedPMTConstruction(
-    DBLinkPtr table, G4LogicalVolume *mother)
+EncapsulatedPMTConstruction::EncapsulatedPMTConstruction(DBLinkPtr table, G4LogicalVolume *mother)
     : PMTConstruction("Encapsulated") {
   body_phys = 0;
   inner1_phys = 0;
@@ -75,47 +72,29 @@ EncapsulatedPMTConstruction::EncapsulatedPMTConstruction(
   fParams.photocathode = Materials::optical_surface[pc_surface_name];
   std::string mirror_surface_name = table->GetS("mirror_surface");
   fParams.mirror = Materials::optical_surface[mirror_surface_name];
-  fParams.dynode_surface =
-      Materials::optical_surface[table->GetS("dynode_surface")];
+  fParams.dynode_surface = Materials::optical_surface[table->GetS("dynode_surface")];
 
   // Encapsulation materials
-  fParams.in_encapsulation_material =
-      G4Material::GetMaterial(table->GetS("inside_encapsulation_material"));
-  fParams.front_encapsulation_material =
-      G4Material::GetMaterial(table->GetS("front_encapsulation_material"));
-  fParams.rear_encapsulation_material =
-      G4Material::GetMaterial(table->GetS("rear_encapsulation_material"));
-  fParams.metal_flange_material =
-      G4Material::GetMaterial(table->GetS("metal_flange_material"));
-  fParams.acrylic_flange_material =
-      G4Material::GetMaterial(table->GetS("acrylic_flange_material"));
-  fParams.silica_bag_material =
-      G4Material::GetMaterial(table->GetS("silica_bag_material"));
-  fParams.cable_material =
-      G4Material::GetMaterial(table->GetS("cable_material"));
-  fParams.optical_gel_material =
-      G4Material::GetMaterial(table->GetS("optical_gel_material"));
+  fParams.in_encapsulation_material = G4Material::GetMaterial(table->GetS("inside_encapsulation_material"));
+  fParams.front_encapsulation_material = G4Material::GetMaterial(table->GetS("front_encapsulation_material"));
+  fParams.rear_encapsulation_material = G4Material::GetMaterial(table->GetS("rear_encapsulation_material"));
+  fParams.metal_flange_material = G4Material::GetMaterial(table->GetS("metal_flange_material"));
+  fParams.acrylic_flange_material = G4Material::GetMaterial(table->GetS("acrylic_flange_material"));
+  fParams.silica_bag_material = G4Material::GetMaterial(table->GetS("silica_bag_material"));
+  fParams.cable_material = G4Material::GetMaterial(table->GetS("cable_material"));
+  fParams.optical_gel_material = G4Material::GetMaterial(table->GetS("optical_gel_material"));
 
-  fParams.in_encapsulation_surface =
-      Materials::optical_surface[table->GetS("inside_encapsulation_material")];
-  fParams.front_encapsulation_surface =
-      Materials::optical_surface[table->GetS("front_encapsulation_material")];
-  fParams.rear_encapsulation_surface =
-      Materials::optical_surface[table->GetS("rear_encapsulation_material")];
-  fParams.metal_flange_surface =
-      Materials::optical_surface[table->GetS("metal_flange_material")];
-  fParams.acrylic_flange_surface =
-      Materials::optical_surface[table->GetS("acrylic_flange_material")];
-  fParams.silica_bag_surface =
-      Materials::optical_surface[table->GetS("silica_bag_material")];
-  fParams.cable_surface =
-      Materials::optical_surface[table->GetS("cable_material")];
-  fParams.optical_gel_surface =
-      Materials::optical_surface[table->GetS("optical_gel_material")];
+  fParams.in_encapsulation_surface = Materials::optical_surface[table->GetS("inside_encapsulation_material")];
+  fParams.front_encapsulation_surface = Materials::optical_surface[table->GetS("front_encapsulation_material")];
+  fParams.rear_encapsulation_surface = Materials::optical_surface[table->GetS("rear_encapsulation_material")];
+  fParams.metal_flange_surface = Materials::optical_surface[table->GetS("metal_flange_material")];
+  fParams.acrylic_flange_surface = Materials::optical_surface[table->GetS("acrylic_flange_material")];
+  fParams.silica_bag_surface = Materials::optical_surface[table->GetS("silica_bag_material")];
+  fParams.cable_surface = Materials::optical_surface[table->GetS("cable_material")];
+  fParams.optical_gel_surface = Materials::optical_surface[table->GetS("optical_gel_material")];
 
   if (fParams.photocathode == 0) {
-    Log::Die("EncapsulatedPMTConstruction error: Photocathode surface \"" +
-             pc_surface_name + "\" not found");
+    Log::Die("EncapsulatedPMTConstruction error: Photocathode surface \"" + pc_surface_name + "\" not found");
   }
 
   // Set new overall correction if requested (not included in individual)
@@ -134,9 +113,10 @@ EncapsulatedPMTConstruction::EncapsulatedPMTConstruction(
     std::string waveguide_desc = table->GetS("waveguide_desc");
     std::string waveguide_table, waveguide_index;
     if (!DB::ParseTableName(waveguide_desc, waveguide_table, waveguide_index)) {
-      Log::Die("EncapsulatedPMTConstruction: Waveguide descriptor name is not "
-               "a valid RATDB table: " +
-               waveguide_desc);
+      Log::Die(
+          "EncapsulatedPMTConstruction: Waveguide descriptor name is not "
+          "a valid RATDB table: " +
+          waveguide_desc);
     }
 
     fWaveguideFactory = GlobalFactory<WaveguideFactory>::New(waveguide);
@@ -147,7 +127,7 @@ EncapsulatedPMTConstruction::EncapsulatedPMTConstruction(
   }
 
   // Build PMT
-  fParams.useEnvelope = true; // disable the use of envelope volume for now
+  fParams.useEnvelope = true;  // disable the use of envelope volume for now
 
   assert(fParams.zEdge.size() == fParams.rhoEdge.size());
   assert(fParams.zEdge.size() == fParams.zOrigin.size() + 1);
@@ -159,12 +139,11 @@ EncapsulatedPMTConstruction::EncapsulatedPMTConstruction(
   assert(fParams.mirror);
 }
 
-G4LogicalVolume *
-EncapsulatedPMTConstruction::BuildVolume(const std::string &prefix) {
+G4LogicalVolume *EncapsulatedPMTConstruction::BuildVolume(const std::string &prefix) {
   if (log_pmt) {
     return log_pmt;
   }
-  
+
   // Generate PMT solids
 
   // envelope cylinder
@@ -174,8 +153,7 @@ EncapsulatedPMTConstruction::BuildVolume(const std::string &prefix) {
   }
 
   // glass body
-  GLG4TorusStack *body_solid =
-      (GLG4TorusStack *)BuildSolid(prefix + "_body_solid");
+  GLG4TorusStack *body_solid = (GLG4TorusStack *)BuildSolid(prefix + "_body_solid");
 
   // inner vacuum
   GLG4TorusStack *inner1_solid = new GLG4TorusStack(prefix + "_inner1_solid");
@@ -183,359 +161,321 @@ EncapsulatedPMTConstruction::BuildVolume(const std::string &prefix) {
   std::vector<double> innerZEdge, innerRhoEdge;
   G4double zLowestDynode;
   int equatorIndex;
-  CalcInnerParams(body_solid, innerZEdge, innerRhoEdge, equatorIndex,
-                  zLowestDynode);
-  inner1_solid->SetAllParameters(equatorIndex, &innerZEdge[0], &innerRhoEdge[0],
-                                 &fParams.zOrigin[0]);
-  inner2_solid->SetAllParameters(
-      fParams.zOrigin.size() - equatorIndex, &innerZEdge[equatorIndex],
-      &innerRhoEdge[equatorIndex], &fParams.zOrigin[equatorIndex]);
+  CalcInnerParams(body_solid, innerZEdge, innerRhoEdge, equatorIndex, zLowestDynode);
+  inner1_solid->SetAllParameters(equatorIndex, &innerZEdge[0], &innerRhoEdge[0], &fParams.zOrigin[0]);
+  inner2_solid->SetAllParameters(fParams.zOrigin.size() - equatorIndex, &innerZEdge[equatorIndex],
+                                 &innerRhoEdge[equatorIndex], &fParams.zOrigin[equatorIndex]);
 
   // dynode volume
   G4double hhDynode = (fParams.dynodeTop - zLowestDynode) / 2.0;
-  G4Tubs *dynode_solid =
-      new G4Tubs(prefix + "_dynode_solid", 0.0,
-                 fParams.dynodeRadius, // solid cylinder (FIXME?)
-                 hhDynode,             // half height of cylinder
-                 0., CLHEP::twopi);    // cylinder complete in phi
+  G4Tubs *dynode_solid = new G4Tubs(prefix + "_dynode_solid", 0.0,
+                                    fParams.dynodeRadius,  // solid cylinder (FIXME?)
+                                    hhDynode,              // half height of cylinder
+                                    0., CLHEP::twopi);     // cylinder complete in phi
 
   // tolerance gap between inner1 and inner2, needed to prevent overlap due to
   // floating point roundoff
-  G4double hhgap =
-      0.5e-3; // half the needed gap between the front and back of the PMT
-  G4double toleranceGapRadius =
-      innerRhoEdge[equatorIndex]; // the outer radius of the gap needs to be
+  G4double hhgap = 0.5e-3;  // half the needed gap between the front and back of the PMT
+  G4double toleranceGapRadius = innerRhoEdge[equatorIndex];  // the outer radius of the gap needs to be
   // equal to the inner radius of the PMT where
   // inner1 and inner2 join
 
-  G4Tubs *central_gap_solid =
-      new G4Tubs(prefix + "_central_gap_solid", 0.0,
-                 toleranceGapRadius, // solid cylinder with same radius as PMT
-                 hhgap,              // half height of cylinder
-                 0., CLHEP::twopi);  // cylinder complete in phi
-                 
+  G4Tubs *central_gap_solid = new G4Tubs(prefix + "_central_gap_solid", 0.0,
+                                         toleranceGapRadius,  // solid cylinder with same radius as PMT
+                                         hhgap,               // half height of cylinder
+                                         0., CLHEP::twopi);   // cylinder complete in phi
+
   // Generate Encapsulation solids
-  double enc_radius = 20.0;   // default radius
-  double enc_thickness = 0.8; // 8mm encapsulation thickness
-              
+  double enc_radius = 20.0;    // default radius
+  double enc_thickness = 0.8;  // 8mm encapsulation thickness
+
   G4VSolid *optical_gel_encapsulation_solid = 0;
-  optical_gel_encapsulation_solid = optical_gel_pmt_subtraction(prefix + "_optical_gel_encapsulation_solid", body_solid);     
-  
-  G4Sphere *in_encapsulation_solid =
-       new G4Sphere("in_encapsulation_solid",
-                    (0)*CLHEP::cm,                            // rmin 20 cm
-                    (enc_radius) * CLHEP::cm, 		      // rmax: 20.8 cm
-                    0.0,				      // phi
-                    CLHEP::twopi, 0.0, CLHEP::twopi);         // theta    
-                    
-  G4Sphere *front_encapsulation_solid =
-       new G4Sphere("front_encapsulation_solid",
-                    (enc_radius)*CLHEP::cm,                   // rmin 20 cm
-                    (enc_radius + enc_thickness) * CLHEP::cm, // rmax: 20.8 cm
-                    0.5 * CLHEP::pi, CLHEP::twopi,            // phi
-                    0., 0.5 * CLHEP::pi);                     // theta    
-                    
-  G4Sphere *rear_encapsulation_solid =
-      new G4Sphere("rear_encapsulation_solid",
-                   (enc_radius)*CLHEP::cm,                   // rmin 20 cm
-                   (enc_radius + enc_thickness) * CLHEP::cm, // rmax: 20.8 cm
-                   0.5 * CLHEP::pi, CLHEP::twopi,            // phi
-                   0.5 * CLHEP::pi, 0.5 * CLHEP::pi);        // theta    
+  optical_gel_encapsulation_solid =
+      optical_gel_pmt_subtraction(prefix + "_optical_gel_encapsulation_solid", body_solid);
+
+  G4Sphere *in_encapsulation_solid = new G4Sphere("in_encapsulation_solid",
+                                                  (0) * CLHEP::cm,                   // rmin 20 cm
+                                                  (enc_radius)*CLHEP::cm,            // rmax: 20.8 cm
+                                                  0.0,                               // phi
+                                                  CLHEP::twopi, 0.0, CLHEP::twopi);  // theta
+
+  G4Sphere *front_encapsulation_solid = new G4Sphere("front_encapsulation_solid",
+                                                     (enc_radius)*CLHEP::cm,                    // rmin 20 cm
+                                                     (enc_radius + enc_thickness) * CLHEP::cm,  // rmax: 20.8 cm
+                                                     0.5 * CLHEP::pi, CLHEP::twopi,             // phi
+                                                     0., 0.5 * CLHEP::pi);                      // theta
+
+  G4Sphere *rear_encapsulation_solid = new G4Sphere("rear_encapsulation_solid",
+                                                    (enc_radius)*CLHEP::cm,                    // rmin 20 cm
+                                                    (enc_radius + enc_thickness) * CLHEP::cm,  // rmax: 20.8 cm
+                                                    0.5 * CLHEP::pi, CLHEP::twopi,             // phi
+                                                    0.5 * CLHEP::pi, 0.5 * CLHEP::pi);         // theta
 
   G4Tubs *front_metal_flange_solid = new G4Tubs("front_metal_flange_solid",
-                                                21.0 * CLHEP::cm, // rmin
-                                                25.3 * CLHEP::cm, // rmax
-                                                0.4 * CLHEP::cm,  // size z
-                                                0, CLHEP::twopi); // phi               
-                 
+                                                21.0 * CLHEP::cm,  // rmin
+                                                25.3 * CLHEP::cm,  // rmax
+                                                0.4 * CLHEP::cm,   // size z
+                                                0, CLHEP::twopi);  // phi
+
   G4Tubs *rear_metal_flange_solid = new G4Tubs("rear_metal_flange_solid",
-                                               21.0 * CLHEP::cm, // rmin
-                                               25.3 * CLHEP::cm, // rmax
-                                               0.4 * CLHEP::cm,  // size z
-                                               0, CLHEP::twopi); // phi
-                                               
+                                               21.0 * CLHEP::cm,  // rmin
+                                               25.3 * CLHEP::cm,  // rmax
+                                               0.4 * CLHEP::cm,   // size z
+                                               0, CLHEP::twopi);  // phi
+
   G4Tubs *acrylic_flange_solid = new G4Tubs("acrylic_flange_solid",
-                                            20.8 * CLHEP::cm, // rmin
-                                            25.3 * CLHEP::cm, // rmax
-                                            0.7 * CLHEP::cm,  // size z
-                                            0, CLHEP::twopi); // phi  
-                                            
-  G4Box *silica_bag_solid = new G4Box("silica_bag_solid", 18 * CLHEP::mm, 33 * CLHEP::mm, 3 * CLHEP::mm); // zhalf
-                
+                                            20.8 * CLHEP::cm,  // rmin
+                                            25.3 * CLHEP::cm,  // rmax
+                                            0.7 * CLHEP::cm,   // size z
+                                            0, CLHEP::twopi);  // phi
+
+  G4Box *silica_bag_solid = new G4Box("silica_bag_solid", 18 * CLHEP::mm, 33 * CLHEP::mm, 3 * CLHEP::mm);  // zhalf
+
   G4Tubs *cable_solid = new G4Tubs("cable_solid",
-                                   0 * CLHEP::cm,    // rmin
-                                   6.5 * CLHEP::mm,  // rmax
-                                   4.5 * CLHEP::cm,  // size z
-                                   0, CLHEP::twopi); // phi
-                                                                                                
+                                   0 * CLHEP::cm,     // rmin
+                                   6.5 * CLHEP::mm,   // rmax
+                                   4.5 * CLHEP::cm,   // size z
+                                   0, CLHEP::twopi);  // phi
+
   // ------------ Logical Volumes -------------
-  G4LogicalVolume *envelope_log = 0, *body_log, *inner1_log, *inner2_log,
-                  *dynode_log, *central_gap_log;
+  G4LogicalVolume *envelope_log = 0, *body_log, *inner1_log, *inner2_log, *dynode_log, *central_gap_log;
 
   if (fParams.useEnvelope) {
-    envelope_log = new G4LogicalVolume(envelope_solid, fParams.exterior,
-                                       prefix + "_envelope_log");
+    envelope_log = new G4LogicalVolume(envelope_solid, fParams.exterior, prefix + "_envelope_log");
   }
-  
+
   // PMT logical volumes
-  body_log =
-      new G4LogicalVolume(body_solid, fParams.glass, prefix + "_body_log");
+  body_log = new G4LogicalVolume(body_solid, fParams.glass, prefix + "_body_log");
 
-  inner1_log =
-      new G4LogicalVolume(inner1_solid, fParams.vacuum, prefix + "_inner1_log");
+  inner1_log = new G4LogicalVolume(inner1_solid, fParams.vacuum, prefix + "_inner1_log");
 
-  inner2_log =
-      new G4LogicalVolume(inner2_solid, fParams.vacuum, prefix + "_inner2_log");
+  inner2_log = new G4LogicalVolume(inner2_solid, fParams.vacuum, prefix + "_inner2_log");
 
-  dynode_log =
-      new G4LogicalVolume(dynode_solid, fParams.dynode, prefix + "_dynode_log");
+  dynode_log = new G4LogicalVolume(dynode_solid, fParams.dynode, prefix + "_dynode_log");
 
-  central_gap_log = new G4LogicalVolume(central_gap_solid, fParams.vacuum,
-                                        prefix + "_central_gap_log");
+  central_gap_log = new G4LogicalVolume(central_gap_solid, fParams.vacuum, prefix + "_central_gap_log");
 
   // Encapsulaiton logical volumes
-  G4LogicalVolume *optical_gel_encapsulation_log =
-      new G4LogicalVolume(optical_gel_encapsulation_solid,            // G4VSolid
-                          fParams.optical_gel_material, // 
-                          "optical_gel_encapsulation_log");
+  G4LogicalVolume *optical_gel_encapsulation_log = new G4LogicalVolume(optical_gel_encapsulation_solid,  // G4VSolid
+                                                                       fParams.optical_gel_material,     //
+                                                                       "optical_gel_encapsulation_log");
 
-  G4LogicalVolume *in_encapsulation_log =
-      new G4LogicalVolume(in_encapsulation_solid,            // G4VSolid
-                          fParams.in_encapsulation_material, // G4Material
-                          "in_encapsulation_log");
+  G4LogicalVolume *in_encapsulation_log = new G4LogicalVolume(in_encapsulation_solid,             // G4VSolid
+                                                              fParams.in_encapsulation_material,  // G4Material
+                                                              "in_encapsulation_log");
 
-  G4LogicalVolume *front_encapsulation_log =
-      new G4LogicalVolume(front_encapsulation_solid,            // G4VSolid
-                          fParams.front_encapsulation_material, // G4Material
-                          "front_encapsulation_log");
-                   
-  G4LogicalVolume *rear_encapsulation_log =
-      new G4LogicalVolume(rear_encapsulation_solid,            // G4VSolid
-                          fParams.rear_encapsulation_material, // G4Material
-                          "rear_encapsulation_log");
-                                                
+  G4LogicalVolume *front_encapsulation_log = new G4LogicalVolume(front_encapsulation_solid,             // G4VSolid
+                                                                 fParams.front_encapsulation_material,  // G4Material
+                                                                 "front_encapsulation_log");
+
+  G4LogicalVolume *rear_encapsulation_log = new G4LogicalVolume(rear_encapsulation_solid,             // G4VSolid
+                                                                fParams.rear_encapsulation_material,  // G4Material
+                                                                "rear_encapsulation_log");
+
   G4LogicalVolume *front_metal_flange_encapsulation_log =
-      new G4LogicalVolume(front_metal_flange_solid,      // G4VSolid
-                          fParams.metal_flange_material, // G4Material
+      new G4LogicalVolume(front_metal_flange_solid,       // G4VSolid
+                          fParams.metal_flange_material,  // G4Material
                           "front_metal_flange_encapsulation_log");
 
   G4LogicalVolume *rear_metal_flange_encapsulation_log =
-      new G4LogicalVolume(rear_metal_flange_solid,       // G4VSolid
-                          fParams.metal_flange_material, // G4Material
+      new G4LogicalVolume(rear_metal_flange_solid,        // G4VSolid
+                          fParams.metal_flange_material,  // G4Material
                           "rear_metal_flange_encapsulation_log");
 
   G4LogicalVolume *acrylic_flange_encapsulation_log =
-      new G4LogicalVolume(acrylic_flange_solid,            // G4VSolid
-                          fParams.acrylic_flange_material, // G4Material
+      new G4LogicalVolume(acrylic_flange_solid,             // G4VSolid
+                          fParams.acrylic_flange_material,  // G4Material
                           "acrylic_flange_encapsulation_log");
 
-  G4LogicalVolume *silica_bag_encapsulation_log =
-      new G4LogicalVolume(silica_bag_solid,            // G4VSolid
-                          fParams.silica_bag_material, // G4Materil
-                          "silica_bag_encapsulation_log");
+  G4LogicalVolume *silica_bag_encapsulation_log = new G4LogicalVolume(silica_bag_solid,             // G4VSolid
+                                                                      fParams.silica_bag_material,  // G4Materil
+                                                                      "silica_bag_encapsulation_log");
 
-  G4LogicalVolume *cable_encapsulation_log =
-      new G4LogicalVolume(cable_solid,            // G4VSolid
-                          fParams.cable_material, // G4Material
-                          "cable_encapsulation_log");
+  G4LogicalVolume *cable_encapsulation_log = new G4LogicalVolume(cable_solid,             // G4VSolid
+                                                                 fParams.cable_material,  // G4Material
+                                                                 "cable_encapsulation_log");
 
   // ------------ Physical Volumes -------------
   G4ThreeVector noTranslation(0., 0., 0.);
   body_phys = 0;
 
   // Place inner encapsulation volume within mother, ensure it is first daughter!
-  in_encapsulation_phys = new G4PVPlacement(
-        0, // no rotation
-        G4ThreeVector(0.0, 0. * CLHEP::cm,
-                      0.0 * CLHEP::cm), // Bounding envelope already constructed
-                                         // to put equator at origin
-        in_encapsulation_log,         // the logical volume
-        prefix + "in_encapsulation_phys",  // a name for this physical volume
-        envelope_log,                        // the mother volume
-        false,                           // no boolean ops
-        0);
-        
-  // Place PMT within inner encapsulation volume, ensure it is first daughter of first daughter!    
-  body_phys = new G4PVPlacement( /// This subtracts the pmt from the in encapsulation volume 
-        0,             // no rotation
-        G4ThreeVector(0.0, 0.0,
-                    9.8 * CLHEP::cm), // Bounding envelope already constructed to put equator
-                       // at origin
-        body_log,      // the logical volume
-        prefix + "_body_phys", // a name for this physical volume
-        in_encapsulation_log,          // the mother volume
-        false,                 // no boolean ops
-        0);                    // copy number 
-     
-   // Place rest of the inside components   
-   optical_gel_encapsulation_phys = new G4PVPlacement(
-        0, // no rotation
-        G4ThreeVector(0.0, 0. * CLHEP::cm,
-                      0.0 * CLHEP::cm), // Bounding envelope already constructed
-                                         // to put equator at origin
-        optical_gel_encapsulation_log,         // the logical volume
-        prefix + "in_encapsulation_phys",  // a name for this physical volume
-        in_encapsulation_log,                        // the mother volume
-        false,                           // no boolean ops
-        0);
-  
-  acrylic_flange_encapsulaion_phys = new G4PVPlacement(
-      0, // no rotation
-      G4ThreeVector(1.0, 1.0,
-                    0.8 * CLHEP::cm),   // Bounding envelope already constructed
-                                        // to put equator at origin
-      acrylic_flange_encapsulation_log, // the logical volume
-      prefix + "_encapsulation_phys",   // a name for this physical volume
-      in_encapsulation_log,                         // the mother volume
-      false,                            // no boolean ops
-      0);
-      
-  silica_bag_encapsulation_phys = new G4PVPlacement(
-      0, // no rotation
-      G4ThreeVector(0.0, 13.5 * CLHEP::cm,
-                    -7.4 * CLHEP::cm), // Bounding envelope already constructed
-                                        // to put equator at origin
-      silica_bag_encapsulation_log,     // the logical volume
-      prefix + "_encapsulation_phys",   // a name for this physical volume
-      in_encapsulation_log,                         // the mother volume
-      false,                            // no boolean ops
-      0);
+  in_encapsulation_phys = new G4PVPlacement(0,  // no rotation
+                                            G4ThreeVector(0.0, 0. * CLHEP::cm,
+                                                          0.0 * CLHEP::cm),    // Bounding envelope already constructed
+                                                                               // to put equator at origin
+                                            in_encapsulation_log,              // the logical volume
+                                            prefix + "in_encapsulation_phys",  // a name for this physical volume
+                                            envelope_log,                      // the mother volume
+                                            false,                             // no boolean ops
+                                            0);
 
-  // PLace outer encapsulation components 
-  front_encapsulation_phys = new G4PVPlacement(
-      0, // no rotation
+  // Place PMT within inner encapsulation volume, ensure it is first daughter of first daughter!
+  body_phys = new G4PVPlacement(  /// This subtracts the pmt from the in encapsulation volume
+      0,                          // no rotation
       G4ThreeVector(0.0, 0.0,
-                    0.0 * CLHEP::cm), // Bounding envelope already constructed
-                                       // to put equator at origin
-      front_encapsulation_log,         // the logical volume
-      prefix + "_encapsulation_phys",  // a name for this physical volume
-      envelope_log,                        // the mother volume
+                    9.8 * CLHEP::cm),  // Bounding envelope already constructed to put equator
+                                       // at origin
+      body_log,                        // the logical volume
+      prefix + "_body_phys",           // a name for this physical volume
+      in_encapsulation_log,            // the mother volume
       false,                           // no boolean ops
       0);                              // copy number
-      
-  rear_encapsulation_phys = new G4PVPlacement(
-      0, // no rotation
-      G4ThreeVector(0.0, 0.0,
-                    0.0 * CLHEP::cm), // Bounding envelope already constructed
-                                       // to put equator at origin
-      rear_encapsulation_log,          // the logical volume
-      prefix + "_encapsulation_phys",  // a name for this physical volume
-      envelope_log,                        // the mother volume
-      false,                           // no boolean ops
-      0);                              // copy number
-      
-  front_metal_encapsulaion_flange_phys = new G4PVPlacement(
-      0, // no rotation
-      G4ThreeVector(0.0, 0.0,
-                    2. * CLHEP::cm), // Bounding envelope already constructed
-                                       // to put equator at origin
-      front_metal_flange_encapsulation_log, // the logical volume
-      prefix + "_encapsulation_phys",       // a name for this physical volume
-      envelope_log,                             // the mother volume
-      false,                                // no boolean ops
-      0);                                   // copy number
-      
-  rear_metal_encapsulation_flange_phys = new G4PVPlacement(
-      0, // no rotation
-      G4ThreeVector(0.0, 0.0,
-                    -0.2 * CLHEP::cm), // Bounding envelope already constructed
-                                        // to put equator at origin
-      rear_metal_flange_encapsulation_log, // the logical volume
-      prefix + "_encapsulation_phys",      // a name for this physical volume
-      envelope_log,                            // the mother volume
-      false,                               // no boolean ops
-      0);                                  // copy number
-      
 
-  cable_encapsulation_phys = new G4PVPlacement(
-      0, // no rotation
-      G4ThreeVector(0.0, 0.0,
-                    -15.2 * CLHEP::cm), // Bounding envelope already constructed
-                                      // to put equator at origin
-      cable_encapsulation_log,        // the logical volume
-      prefix + "_encapsulation_phys", // a name for this physical volume
-      envelope_log,                       // the mother volume
-      false,                          // no boolean ops
-      0);
+  // Place rest of the inside components
+  optical_gel_encapsulation_phys =
+      new G4PVPlacement(0,  // no rotation
+                        G4ThreeVector(0.0, 0. * CLHEP::cm,
+                                      0.0 * CLHEP::cm),    // Bounding envelope already constructed
+                                                           // to put equator at origin
+                        optical_gel_encapsulation_log,     // the logical volume
+                        prefix + "in_encapsulation_phys",  // a name for this physical volume
+                        in_encapsulation_log,              // the mother volume
+                        false,                             // no boolean ops
+                        0);
+
+  acrylic_flange_encapsulaion_phys =
+      new G4PVPlacement(0,  // no rotation
+                        G4ThreeVector(1.0, 1.0,
+                                      0.8 * CLHEP::cm),    // Bounding envelope already constructed
+                                                           // to put equator at origin
+                        acrylic_flange_encapsulation_log,  // the logical volume
+                        prefix + "_encapsulation_phys",    // a name for this physical volume
+                        in_encapsulation_log,              // the mother volume
+                        false,                             // no boolean ops
+                        0);
+
+  silica_bag_encapsulation_phys =
+      new G4PVPlacement(0,  // no rotation
+                        G4ThreeVector(0.0, 13.5 * CLHEP::cm,
+                                      -7.4 * CLHEP::cm),  // Bounding envelope already constructed
+                                                          // to put equator at origin
+                        silica_bag_encapsulation_log,     // the logical volume
+                        prefix + "_encapsulation_phys",   // a name for this physical volume
+                        in_encapsulation_log,             // the mother volume
+                        false,                            // no boolean ops
+                        0);
+
+  // PLace outer encapsulation components
+  front_encapsulation_phys = new G4PVPlacement(0,  // no rotation
+                                               G4ThreeVector(0.0, 0.0,
+                                                             0.0 * CLHEP::cm),  // Bounding envelope already constructed
+                                                                                // to put equator at origin
+                                               front_encapsulation_log,         // the logical volume
+                                               prefix + "_encapsulation_phys",  // a name for this physical volume
+                                               envelope_log,                    // the mother volume
+                                               false,                           // no boolean ops
+                                               0);                              // copy number
+
+  rear_encapsulation_phys = new G4PVPlacement(0,  // no rotation
+                                              G4ThreeVector(0.0, 0.0,
+                                                            0.0 * CLHEP::cm),  // Bounding envelope already constructed
+                                                                               // to put equator at origin
+                                              rear_encapsulation_log,          // the logical volume
+                                              prefix + "_encapsulation_phys",  // a name for this physical volume
+                                              envelope_log,                    // the mother volume
+                                              false,                           // no boolean ops
+                                              0);                              // copy number
+
+  front_metal_encapsulaion_flange_phys =
+      new G4PVPlacement(0,  // no rotation
+                        G4ThreeVector(0.0, 0.0,
+                                      2. * CLHEP::cm),         // Bounding envelope already constructed
+                                                               // to put equator at origin
+                        front_metal_flange_encapsulation_log,  // the logical volume
+                        prefix + "_encapsulation_phys",        // a name for this physical volume
+                        envelope_log,                          // the mother volume
+                        false,                                 // no boolean ops
+                        0);                                    // copy number
+
+  rear_metal_encapsulation_flange_phys =
+      new G4PVPlacement(0,  // no rotation
+                        G4ThreeVector(0.0, 0.0,
+                                      -0.2 * CLHEP::cm),      // Bounding envelope already constructed
+                                                              // to put equator at origin
+                        rear_metal_flange_encapsulation_log,  // the logical volume
+                        prefix + "_encapsulation_phys",       // a name for this physical volume
+                        envelope_log,                         // the mother volume
+                        false,                                // no boolean ops
+                        0);                                   // copy number
+
+  cable_encapsulation_phys =
+      new G4PVPlacement(0,  // no rotation
+                        G4ThreeVector(0.0, 0.0,
+                                      -15.2 * CLHEP::cm),  // Bounding envelope already constructed
+                                                           // to put equator at origin
+                        cable_encapsulation_log,           // the logical volume
+                        prefix + "_encapsulation_phys",    // a name for this physical volume
+                        envelope_log,                      // the mother volume
+                        false,                             // no boolean ops
+                        0);
 
   // place inner solids in outer solid (vacuum)
-  inner1_phys = new G4PVPlacement(
-      0,                                   // no rotation
-      G4ThreeVector(0.0, 0.0, 2. * hhgap), // puts face equator in right place,
-                                           // in front of tolerance gap
-      inner1_log,                          // the logical volume
-      prefix + "_inner1_phys",             // a name for this physical volume
-      body_log,                            // the mother volume
-      false,                               // no boolean ops
-      0);                                  // copy number
+  inner1_phys = new G4PVPlacement(0,                                    // no rotation
+                                  G4ThreeVector(0.0, 0.0, 2. * hhgap),  // puts face equator in right place,
+                                                                        // in front of tolerance gap
+                                  inner1_log,                           // the logical volume
+                                  prefix + "_inner1_phys",              // a name for this physical volume
+                                  body_log,                             // the mother volume
+                                  false,                                // no boolean ops
+                                  0);                                   // copy number
 
-  inner2_phys = new G4PVPlacement(
-      0,             // no rotation
-      noTranslation, // puts face equator in right place, behind the tolerance
-                     // gap
-      inner2_log,    // the logical volume
-      prefix + "_inner2_phys", // a name for this physical volume
-      body_log,                // the mother volume
-      false,                   // no boolean ops
-      0);                      // copy number
+  inner2_phys = new G4PVPlacement(0,                        // no rotation
+                                  noTranslation,            // puts face equator in right place, behind the tolerance
+                                                            // gap
+                                  inner2_log,               // the logical volume
+                                  prefix + "_inner2_phys",  // a name for this physical volume
+                                  body_log,                 // the mother volume
+                                  false,                    // no boolean ops
+                                  0);                       // copy number
 
   // place gap between inner1 and inner2
-  central_gap_phys = new G4PVPlacement(
-      0, // no rotation
-      G4ThreeVector(
-          0.0, 0.0,
-          hhgap), // puts face equator in right place, between inner1 and inner2
-      central_gap_log,              // the logical volume
-      prefix + "_central_gap_phys", // a name for this physical volume
-      body_log,                     // the mother volume
-      false,                        // no boolean ops
-      0);                           // copy number
+  central_gap_phys =
+      new G4PVPlacement(0,  // no rotation
+                        G4ThreeVector(0.0, 0.0,
+                                      hhgap),          // puts face equator in right place, between inner1 and inner2
+                        central_gap_log,               // the logical volume
+                        prefix + "_central_gap_phys",  // a name for this physical volume
+                        body_log,                      // the mother volume
+                        false,                         // no boolean ops
+                        0);                            // copy number
 
   // place dynode in stem/back
-  dynode_phys = new G4PVPlacement(
-      0, G4ThreeVector(0.0, 0.0, fParams.dynodeTop - hhDynode),
-      prefix + "_dynode_phys", dynode_log, inner2_phys, false, 0);
-
+  dynode_phys = new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, fParams.dynodeTop - hhDynode), prefix + "_dynode_phys",
+                                  dynode_log, inner2_phys, false, 0);
 
   // build the optical surface for the dynode straight away since we already
   // have the logical volume
-  new G4LogicalSkinSurface(prefix + "_dynode_logsurf", dynode_log,
-                           fParams.dynode_surface);
+  new G4LogicalSkinSurface(prefix + "_dynode_logsurf", dynode_log, fParams.dynode_surface);
 
   // Add the encapsulation surfaces
-  new G4LogicalSkinSurface(
-      "in_encapsulation_skin",
-      in_encapsulation_log,              // Logical Volume
-      fParams.in_encapsulation_surface); // Surface Property
-  new G4LogicalSkinSurface(
-      "optical_gel_encapsulation_skin",
-      optical_gel_encapsulation_log,              // Logical Volume
-      fParams.optical_gel_surface); // Surface Property
-  new G4LogicalSkinSurface(
-      "front_encapsulation_skin",
-      front_encapsulation_log,              // Logical Volume
-      fParams.front_encapsulation_surface); // Surface Property
-  new G4LogicalSkinSurface(
-      "rear_encapsulation_skin",
-      rear_encapsulation_log,              // Logical Volume
-      fParams.rear_encapsulation_surface); // Surface Property
-  new G4LogicalSkinSurface(
-      "front_metal_flange_encapsulation_skin",
-      front_metal_flange_encapsulation_log, /// Logical Volume
-      fParams.metal_flange_surface);        // Surface Property
-  new G4LogicalSkinSurface(
-      "rear_metal_flange_encapsulation_skin",
-      rear_metal_flange_encapsulation_log, /// Logical Volume
-      fParams.metal_flange_surface);       // Surface Property
+  new G4LogicalSkinSurface("in_encapsulation_skin",
+                           in_encapsulation_log,               // Logical Volume
+                           fParams.in_encapsulation_surface);  // Surface Property
+  new G4LogicalSkinSurface("optical_gel_encapsulation_skin",
+                           optical_gel_encapsulation_log,  // Logical Volume
+                           fParams.optical_gel_surface);   // Surface Property
+  new G4LogicalSkinSurface("front_encapsulation_skin",
+                           front_encapsulation_log,               // Logical Volume
+                           fParams.front_encapsulation_surface);  // Surface Property
+  new G4LogicalSkinSurface("rear_encapsulation_skin",
+                           rear_encapsulation_log,               // Logical Volume
+                           fParams.rear_encapsulation_surface);  // Surface Property
+  new G4LogicalSkinSurface("front_metal_flange_encapsulation_skin",
+                           front_metal_flange_encapsulation_log,  /// Logical Volume
+                           fParams.metal_flange_surface);         // Surface Property
+  new G4LogicalSkinSurface("rear_metal_flange_encapsulation_skin",
+                           rear_metal_flange_encapsulation_log,  /// Logical Volume
+                           fParams.metal_flange_surface);        // Surface Property
   new G4LogicalSkinSurface("acrylic_flange_encapsulation_skin",
-                           acrylic_flange_encapsulation_log, /// Logical Volume
-                           fParams.acrylic_flange_surface);  // Surface Property
+                           acrylic_flange_encapsulation_log,  /// Logical Volume
+                           fParams.acrylic_flange_surface);   // Surface Property
   new G4LogicalSkinSurface("cable_encapsulation_skin",
-                           cable_encapsulation_log, /// Logical Volume
-                           fParams.cable_surface);  // Surface Property
+                           cable_encapsulation_log,  /// Logical Volume
+                           fParams.cable_surface);   // Surface Property
   new G4LogicalSkinSurface("silica_bag_encapsulation_skin",
-                           silica_bag_encapsulation_log, /// Logical Volume
-                           fParams.silica_bag_surface);  // Surface Property
+                           silica_bag_encapsulation_log,  /// Logical Volume
+                           fParams.silica_bag_surface);   // Surface Property
 
   //--------------Exterior Optical Surface-----------------
   // If we're using an envelope, body_phys has been created and we can therefore
@@ -543,24 +483,19 @@ EncapsulatedPMTConstruction::BuildVolume(const std::string &prefix) {
   // physical volume has been placed
   if (fParams.useEnvelope) {
     // build the mirrored surface
-    new G4LogicalBorderSurface(prefix + "_mirror_logsurf1", inner2_phys,
-                               body_phys, fParams.mirror);
-    new G4LogicalBorderSurface(prefix + "_mirror_logsurf2", body_phys,
-                               inner2_phys, fParams.mirror);
+    new G4LogicalBorderSurface(prefix + "_mirror_logsurf1", inner2_phys, body_phys, fParams.mirror);
+    new G4LogicalBorderSurface(prefix + "_mirror_logsurf2", body_phys, inner2_phys, fParams.mirror);
 
     // also include the tolerance gap
-    new G4LogicalBorderSurface(prefix + "_central_gap_logsurf1",
-                               central_gap_phys, body_phys, fParams.mirror);
-    new G4LogicalBorderSurface(prefix + "_central_gap_logsurf2", body_phys,
-                               central_gap_phys, fParams.mirror);
+    new G4LogicalBorderSurface(prefix + "_central_gap_logsurf1", central_gap_phys, body_phys, fParams.mirror);
+    new G4LogicalBorderSurface(prefix + "_central_gap_logsurf2", body_phys, central_gap_phys, fParams.mirror);
 
     // photocathode surface
-    new G4LogicalBorderSurface(prefix + "_photocathode_logsurf1", inner1_phys,
-                               body_phys, fParams.photocathode);
+    new G4LogicalBorderSurface(prefix + "_photocathode_logsurf1", inner1_phys, body_phys, fParams.photocathode);
 
-    //encapsulation surface 
-    new G4LogicalBorderSurface(prefix + "_backencap_logsurf1", rear_encapsulation_phys,
-                               envelope_phys, fParams.rear_encapsulation_surface);
+    // encapsulation surface
+    new G4LogicalBorderSurface(prefix + "_backencap_logsurf1", rear_encapsulation_phys, envelope_phys,
+                               fParams.rear_encapsulation_surface);
   }
 
   // FIXME if fParams.seEnvelope == false this can't be done yet...
@@ -572,18 +507,17 @@ EncapsulatedPMTConstruction::BuildVolume(const std::string &prefix) {
   G4Region *body_region = new G4Region(prefix + "_GLG4_PMTOpticalRegion");
   body_region->AddRootLogicalVolume(body_log);
   /*GLG4PMTOpticalModel * pmtOpticalModel =*/
-  new GLG4PMTOpticalModel(
-      prefix + "_optical_model", body_region, body_log, fParams.photocathode,
-      fParams.efficiencyCorrection, fParams.dynodeTop, fParams.dynodeRadius,
-      0.0, /*prepusling handled after absorption*/
-      fParams.photocathode_MINrho, fParams.photocathode_MAXrho);
+  new GLG4PMTOpticalModel(prefix + "_optical_model", body_region, body_log, fParams.photocathode,
+                          fParams.efficiencyCorrection, fParams.dynodeTop, fParams.dynodeRadius,
+                          0.0, /*prepusling handled after absorption*/
+                          fParams.photocathode_MINrho, fParams.photocathode_MAXrho);
 
   // ------------ Vis Attributes -------------
   G4VisAttributes *visAtt;
   if (fParams.simpleVis) {
     visAtt = new G4VisAttributes(G4Color(0.0, 1.0, 1.0, 0.05));
     if (fParams.useEnvelope) {
-     // envelope_log->SetVisAttributes(visAtt);
+      // envelope_log->SetVisAttributes(visAtt);
     }
     body_log->SetVisAttributes(G4VisAttributes::GetInvisible());
     dynode_log->SetVisAttributes(G4VisAttributes::GetInvisible());
@@ -594,21 +528,17 @@ EncapsulatedPMTConstruction::BuildVolume(const std::string &prefix) {
     optical_gel_encapsulation_log->SetVisAttributes(G4VisAttributes::GetInvisible());
     front_encapsulation_log->SetVisAttributes(G4VisAttributes::GetInvisible());
     rear_encapsulation_log->SetVisAttributes(G4VisAttributes::GetInvisible());
-    front_metal_flange_encapsulation_log->SetVisAttributes(
-        G4VisAttributes::GetInvisible());
-    rear_metal_flange_encapsulation_log->SetVisAttributes(
-        G4VisAttributes::GetInvisible());
-    acrylic_flange_encapsulation_log->SetVisAttributes(
-        G4VisAttributes::GetInvisible());
+    front_metal_flange_encapsulation_log->SetVisAttributes(G4VisAttributes::GetInvisible());
+    rear_metal_flange_encapsulation_log->SetVisAttributes(G4VisAttributes::GetInvisible());
+    acrylic_flange_encapsulation_log->SetVisAttributes(G4VisAttributes::GetInvisible());
     cable_encapsulation_log->SetVisAttributes(G4VisAttributes::GetInvisible());
-    silica_bag_encapsulation_log->SetVisAttributes(
-        G4VisAttributes::GetInvisible());
+    silica_bag_encapsulation_log->SetVisAttributes(G4VisAttributes::GetInvisible());
 
   } else {
     if (fParams.useEnvelope) {
       envelope_log->SetVisAttributes(G4VisAttributes::GetInvisible());
-      //visAtt = new G4VisAttributes(G4Color(0.0, 1.0, 0.0, 1.0));
-      //envelope_log->SetVisAttributes(visAtt);
+      // visAtt = new G4VisAttributes(G4Color(0.0, 1.0, 0.0, 1.0));
+      // envelope_log->SetVisAttributes(visAtt);
     }
     // PMT glass
     visAtt = new G4VisAttributes(G4Color(0.0, 1.0, 1.0, 0.05));
@@ -643,22 +573,20 @@ EncapsulatedPMTConstruction::BuildVolume(const std::string &prefix) {
     cable_encapsulation_log->SetVisAttributes(visAtt);
   }
 
-  log_pmt = envelope_log;//body_log;
+  log_pmt = envelope_log;  // body_log;
 
   // if using envelope place waveguide now
   if (fParams.useEnvelope && fWaveguideFactory) {
     fWaveguideFactory->SetPMTBodySolid(body_solid);
-    G4LogicalVolume *log_wg = fWaveguideFactory->Construct(
-        prefix + "_waveguide_log", log_pmt, fParams.simpleVis);
+    G4LogicalVolume *log_wg = fWaveguideFactory->Construct(prefix + "_waveguide_log", log_pmt, fParams.simpleVis);
     G4ThreeVector offsetWg = fWaveguideFactory->GetPlacementOffset();
-    new G4PVPlacement(0, // no rotation
+    new G4PVPlacement(0,  // no rotation
                       offsetWg,
-                      log_wg, // the logical volume
-                      prefix +
-                          "_waveguide_phys", // a name for this physical volume
-                      envelope_log,          // the mother volume
-                      false,                 // no boolean ops
-                      0);                    // copy number
+                      log_wg,                      // the logical volume
+                      prefix + "_waveguide_phys",  // a name for this physical volume
+                      envelope_log,                // the mother volume
+                      false,                       // no boolean ops
+                      0);                          // copy number
   }
 
   return log_pmt;
@@ -666,103 +594,80 @@ EncapsulatedPMTConstruction::BuildVolume(const std::string &prefix) {
 
 G4VSolid *EncapsulatedPMTConstruction::BuildSolid(const std::string &_name) {
   GLG4TorusStack *body = new GLG4TorusStack(_name);
-  body->SetAllParameters(fParams.zOrigin.size(), &fParams.zEdge[0],
-                         &fParams.rhoEdge[0], &fParams.zOrigin[0]);
+  body->SetAllParameters(fParams.zOrigin.size(), &fParams.zEdge[0], &fParams.rhoEdge[0], &fParams.zOrigin[0]);
   return body;
 }
 
-G4PVPlacement *EncapsulatedPMTConstruction::PlacePMT(
-    G4RotationMatrix *pmtrot, G4ThreeVector pmtpos, const std::string &_name,
-    G4LogicalVolume *logi_pmt, G4VPhysicalVolume *mother_phys,
-    bool booleanSolid, int copyNo) {
+G4PVPlacement *EncapsulatedPMTConstruction::PlacePMT(G4RotationMatrix *pmtrot, G4ThreeVector pmtpos,
+                                                     const std::string &_name, G4LogicalVolume *logi_pmt,
+                                                     G4VPhysicalVolume *mother_phys, bool booleanSolid, int copyNo) {
   if (fParams.useEnvelope) {
-    return new G4PVPlacement(pmtrot, pmtpos, _name, logi_pmt, mother_phys,
-                             booleanSolid, copyNo);
+    return new G4PVPlacement(pmtrot, pmtpos, _name, logi_pmt, mother_phys, booleanSolid, copyNo);
   } else {
-    encapsulation_phys = new G4PVPlacement(pmtrot, pmtpos, _name, logi_pmt,
-                                           mother_phys, booleanSolid, copyNo);
+    encapsulation_phys = new G4PVPlacement(pmtrot, pmtpos, _name, logi_pmt, mother_phys, booleanSolid, copyNo);
 
-    body_phys = new G4PVPlacement(pmtrot, pmtpos, _name, logi_pmt, mother_phys,
-                                  booleanSolid, copyNo);
+    body_phys = new G4PVPlacement(pmtrot, pmtpos, _name, logi_pmt, mother_phys, booleanSolid, copyNo);
 
     // build the mirrored surface
-    new G4LogicalBorderSurface(_name + "_mirror_logsurf1", inner2_phys,
-                               body_phys, fParams.mirror);
-    new G4LogicalBorderSurface(_name + "_mirror_logsurf2", body_phys,
-                               inner2_phys, fParams.mirror);
+    new G4LogicalBorderSurface(_name + "_mirror_logsurf1", inner2_phys, body_phys, fParams.mirror);
+    new G4LogicalBorderSurface(_name + "_mirror_logsurf2", body_phys, inner2_phys, fParams.mirror);
 
     // also include the tolerance gap
-    new G4LogicalBorderSurface(_name + "_central_gap_logsurf1",
-                               central_gap_phys, body_phys, fParams.mirror);
-    new G4LogicalBorderSurface(_name + "_central_gap_logsurf2", body_phys,
-                               central_gap_phys, fParams.mirror);
+    new G4LogicalBorderSurface(_name + "_central_gap_logsurf1", central_gap_phys, body_phys, fParams.mirror);
+    new G4LogicalBorderSurface(_name + "_central_gap_logsurf2", body_phys, central_gap_phys, fParams.mirror);
 
     // photocathode surface
-    new G4LogicalBorderSurface(_name + "_photocathode_logsurf1", inner1_phys,
-                               body_phys, fParams.photocathode);
+    new G4LogicalBorderSurface(_name + "_photocathode_logsurf1", inner1_phys, body_phys, fParams.photocathode);
 
     // if not using envelope place waveguide now
     if (fWaveguideFactory) {
-      G4LogicalVolume *log_wg = fWaveguideFactory->Construct(
-          _name + "_waveguide_log", logi_pmt, fParams.simpleVis);
+      G4LogicalVolume *log_wg = fWaveguideFactory->Construct(_name + "_waveguide_log", logi_pmt, fParams.simpleVis);
       // pmtrot is a passive rotation, but we need an active one to put offsetWg
       // into coordinates of mother
       G4ThreeVector offsetWg = fWaveguideFactory->GetPlacementOffset();
       G4ThreeVector offsetWg_rot = pmtrot->inverse()(offsetWg);
       G4ThreeVector waveguidepos = pmtpos + offsetWg_rot;
       new G4PVPlacement(pmtrot, waveguidepos,
-                        _name + "_waveguide", // a name for this physical volume
-                        log_wg,               // the logical volume
-                        mother_phys,          // the mother volume
-                        false,                // no boolean ops
-                        0);                   // copy number
+                        _name + "_waveguide",  // a name for this physical volume
+                        log_wg,                // the logical volume
+                        mother_phys,           // the mother volume
+                        false,                 // no boolean ops
+                        0);                    // copy number
     }
     return body_phys;
   }
 }
 
-G4VSolid *
-EncapsulatedPMTConstruction::optical_gel_height_subtraction(const std::string &_name) {
+G4VSolid *EncapsulatedPMTConstruction::optical_gel_height_subtraction(const std::string &_name) {
+  G4Sphere *optical_gel_1 = new G4Sphere("optical_gel_1_encapsulation_solid", 15 * CLHEP::cm, 20.0 * CLHEP::cm,
+                                         0.5 * CLHEP::pi, CLHEP::twopi,  // phi
+                                         0., 0.5 * CLHEP::pi);
+  G4Tubs *gel_subtract = new G4Tubs("gel_sub__solid", 0.0,
+                                    25 * CLHEP::cm,     // solid cylinder (FIXME?)
+                                    15 * CLHEP::cm,     // half height of cylinder
+                                    0., CLHEP::twopi);  // cylinder complete in phi
 
-  G4Sphere *optical_gel_1 = 
-                    new G4Sphere("optical_gel_1_encapsulation_solid",
-                    15*CLHEP::cm,
-                    20.0*CLHEP::cm,
-                    0.5 * CLHEP::pi, CLHEP::twopi,            // phi
-                    0., 0.5 * CLHEP::pi); 
-  G4Tubs *gel_subtract =
-      new G4Tubs("gel_sub__solid", 0.0,
-                  25*CLHEP::cm, // solid cylinder (FIXME?)
-                  15*CLHEP::cm,             // half height of cylinder
-                 0., CLHEP::twopi);    // cylinder complete in phi
-  
-  return new G4SubtractionSolid(_name, optical_gel_1, gel_subtract, 0, G4ThreeVector(0.0, 0.0, 0.0*CLHEP::cm)); //8.5
+  return new G4SubtractionSolid(_name, optical_gel_1, gel_subtract, 0,
+                                G4ThreeVector(0.0, 0.0, 0.0 * CLHEP::cm));  // 8.5
 }
 
+G4VSolid *EncapsulatedPMTConstruction::optical_gel_pmt_subtraction(const std::string &_name, GLG4TorusStack *body) {
+  G4VSolid *optical_gel_2 = 0;
+  optical_gel_2 = optical_gel_height_subtraction("temp_gel" + _name);
 
-G4VSolid *
-EncapsulatedPMTConstruction::optical_gel_pmt_subtraction(const std::string &_name, GLG4TorusStack *body){
-
-   G4VSolid *optical_gel_2 = 0; 
-   optical_gel_2 = optical_gel_height_subtraction("temp_gel"+ _name); 
-
-
-  return new G4SubtractionSolid(_name, optical_gel_2, body, 0, G4ThreeVector(0.0, 0.0, 9.8*CLHEP::cm)); //8.5
+  return new G4SubtractionSolid(_name, optical_gel_2, body, 0, G4ThreeVector(0.0, 0.0, 9.8 * CLHEP::cm));  // 8.5
 }
 
-G4VSolid *
-EncapsulatedPMTConstruction::NewEnvelopeSolid(const std::string &_name) {
-
-  G4Sphere *outer_s = new G4Sphere(_name+ "_main", 0. * CLHEP::mm, 25.4*CLHEP::cm, 0.0, CLHEP::twopi, 0.0, CLHEP::twopi);
+G4VSolid *EncapsulatedPMTConstruction::NewEnvelopeSolid(const std::string &_name) {
+  G4Sphere *outer_s =
+      new G4Sphere(_name + "_main", 0. * CLHEP::mm, 25.4 * CLHEP::cm, 0.0, CLHEP::twopi, 0.0, CLHEP::twopi);
 
   return outer_s;
 }
 
-void EncapsulatedPMTConstruction::CalcInnerParams(
-    GLG4TorusStack *body, std::vector<double> &innerZEdge,
-    std::vector<double> &innerRhoEdge, int &equatorIndex,
-    double &zLowestDynode) {
-
+void EncapsulatedPMTConstruction::CalcInnerParams(GLG4TorusStack *body, std::vector<double> &innerZEdge,
+                                                  std::vector<double> &innerRhoEdge, int &equatorIndex,
+                                                  double &zLowestDynode) {
   ////// The encapsulation size is hard coded in to insure the correct size for
   /// BUTTON encapsulation but it could be added here if different pmt sizes
   /// were wanted!
@@ -787,8 +692,7 @@ void EncapsulatedPMTConstruction::CalcInnerParams(
   innerZEdge[0] = outerZEdge[0] - wall;
   innerRhoEdge[0] = 0.0;
   for (int i = 1; i < nEdge; i++) {
-    norm =
-        body->SurfaceNormal(G4ThreeVector(0.0, outerRhoEdge[i], outerZEdge[i]));
+    norm = body->SurfaceNormal(G4ThreeVector(0.0, outerRhoEdge[i], outerZEdge[i]));
     innerZEdge[i] = outerZEdge[i] - wall * norm.z();
     innerRhoEdge[i] = outerRhoEdge[i] - wall * norm.y();
     if (innerRhoEdge[i] > dynodeRadius && innerZEdge[i] < zLowestDynode) {
@@ -809,14 +713,16 @@ void EncapsulatedPMTConstruction::CalcInnerParams(
 
   // sanity check equator index
   if (equatorIndex < 0) {
-    Log::Die("EncapsulatedPMTConstruction::CalcInnerParams: Pathological PMT "
-             "shape with no equator edge");
+    Log::Die(
+        "EncapsulatedPMTConstruction::CalcInnerParams: Pathological PMT "
+        "shape with no equator edge");
   }
   // sanity check on dynode height
   if (fParams.dynodeTop > innerZEdge[equatorIndex]) {
-    Log::Die("EncapsulatedPMTConstruction::CalcInnerParams: Top of PMT dynode "
-             "cannot be higher than equator.");
+    Log::Die(
+        "EncapsulatedPMTConstruction::CalcInnerParams: Top of PMT dynode "
+        "cannot be higher than equator.");
   }
 }
 
-} // namespace RAT
+}  // namespace RAT
