@@ -60,9 +60,7 @@ std::string version();
 
 namespace cppflow {
 
-inline std::string version() {
-  return "TensorFlow: " + std::string(TF_Version()) + " CppFlow: 2.0.0";
-}
+inline std::string version() { return "TensorFlow: " + std::string(TF_Version()) + " CppFlow: 2.0.0"; }
 
 }  // namespace cppflow
 

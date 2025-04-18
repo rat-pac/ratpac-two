@@ -75,28 +75,25 @@ class context {
 // TFE_ContextOptions* tfe_opts = ...
 // cppflow::get_global_context() = cppflow::context(tfe_opts);
 inline context& get_global_context() {
-    static context global_context;
-    return global_context;
+  static context global_context;
+  return global_context;
 }
 }  // namespace cppflow
 
 namespace cppflow {
 
-inline TFE_Context* context::get_context() {
-  return get_global_context().tfe_context;
-}
+inline TFE_Context* context::get_context() { return get_global_context().tfe_context; }
 
 inline TF_Status* context::get_status() {
-  thread_local std::unique_ptr<TF_Status, decltype(&TF_DeleteStatus)>
-      local_tf_status(TF_NewStatus(), &TF_DeleteStatus);
+  thread_local std::unique_ptr<TF_Status, decltype(&TF_DeleteStatus)> local_tf_status(TF_NewStatus(), &TF_DeleteStatus);
   return local_tf_status.get();
 }
 
 inline context::context(TFE_ContextOptions* opts) {
   auto tf_status = context::get_status();
   if (opts == nullptr) {
-    std::unique_ptr<TFE_ContextOptions, decltype(&TFE_DeleteContextOptions)>
-        new_opts(TFE_NewContextOptions(), &TFE_DeleteContextOptions);
+    std::unique_ptr<TFE_ContextOptions, decltype(&TFE_DeleteContextOptions)> new_opts(TFE_NewContextOptions(),
+                                                                                      &TFE_DeleteContextOptions);
     this->tfe_context = TFE_NewContext(new_opts.get(), tf_status);
   } else {
     this->tfe_context = TFE_NewContext(opts, tf_status);
@@ -104,17 +101,14 @@ inline context::context(TFE_ContextOptions* opts) {
   status_check(tf_status);
 }
 
-inline context::context(context&& ctx) noexcept
-    : tfe_context(std::exchange(ctx.tfe_context, nullptr)) {}
+inline context::context(context&& ctx) noexcept : tfe_context(std::exchange(ctx.tfe_context, nullptr)) {}
 
 inline context& context::operator=(context&& ctx) noexcept {
   tfe_context = std::exchange(ctx.tfe_context, tfe_context);
   return *this;
 }
 
-inline context::~context() {
-  TFE_DeleteContext(this->tfe_context);
-}
+inline context::~context() { TFE_DeleteContext(this->tfe_context); }
 
 }  // namespace cppflow
 
