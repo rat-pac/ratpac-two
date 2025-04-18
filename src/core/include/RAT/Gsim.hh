@@ -9,6 +9,7 @@
 #include <G4UserEventAction.hh>
 #include <G4UserRunAction.hh>
 #include <G4UserTrackingAction.hh>
+#include <RAT/Chroma.hh>
 #include <RAT/DS/ChannelStatus.hh>
 #include <RAT/DS/NestedTubeInfo.hh>
 #include <RAT/DS/PMTInfo.hh>
@@ -96,6 +97,8 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
   TTimeStamp utc;
   int maxpe;
   int nabort;
+  bool use_chroma;
+  Chroma *chroma;
 
   /** PMT and noise simulation */
   int npmts;

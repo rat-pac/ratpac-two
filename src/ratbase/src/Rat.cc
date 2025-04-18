@@ -54,6 +54,7 @@ void Rat::Configure() {
   this->parser->AddArgument("log", "", "l", 1, "Set log filename", ParseString);
   this->parser->AddArgument("seed", -1, "s", 1, "Set random number seed", ParseInt);
   this->parser->AddArgument("input", "", "i", 1, "Set default input filename", ParseString);
+  this->parser->AddArgument("chroma", "", "c", 1, "Set default chroma filename", ParseString);
   this->parser->AddArgument("output", "", "o", 1, "Set default output filename", ParseString);
   this->parser->AddArgument("vector", "", "x", 1, "Set default vector filename", ParseString);
   this->parser->AddArgument("python", std::vector<std::string>{}, "p", 999, "Set python processors", ParseString);
@@ -78,6 +79,7 @@ void Rat::Configure() {
   this->input_filename = this->parser->GetValue("input", "");
   this->output_filename = this->parser->GetValue("output", "");
   this->vector_filename = this->parser->GetValue("output", "");
+  this->chroma_filename = this->parser->GetValue("chroma", "");
   this->run = this->parser->GetValue("run", 0);
   this->vis = this->parser->GetValue("vis", false);
   this->python_processors = this->parser->GetValue("python", std::vector<std::string>());
@@ -123,7 +125,7 @@ void Rat::Begin() {
   // ... I'm so so sorry
   try {
     if (this->input_filename != "") {
-      rdb->Set("IO", "", "default_input_filename", this->input_filename);
+      rdb->Set("IO", "ROOTProc", "default_input_filename", this->input_filename);
       info << "Setting default input file to " << this->input_filename << newline;
     }
     if (this->output_filename != "") {
@@ -134,6 +136,10 @@ void Rat::Begin() {
     if (this->vector_filename != "") {
       rdb->Set("IO", "", "default_vector_filename", this->vector_filename);
       info << "Setting default vector file to " << this->vector_filename << newline;
+    }
+    if (this->chroma_filename != "") {
+      rdb->Set("CHROMA", "", "root_file", this->chroma_filename);
+      info << "Setting default chroma file to " << this->chroma_filename << newline;
     }
 
     // Main analysis block
