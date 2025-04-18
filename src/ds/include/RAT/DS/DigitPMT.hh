@@ -80,6 +80,10 @@ class DigitPMT : public TObject {
   virtual void SetTimeOffset(Double_t _time_offset) { this->time_offset = _time_offset; }
   virtual Double_t GetTimeOffset() { return time_offset; }
 
+  /** Estimated number of photoelectrons, from likelihood algorithm */
+  virtual void SetReconNPEs(Int_t _fNPE) { this->fNPE = _fNPE; }
+  virtual Int_t GetReconNPEs() { return fNPE; }
+
   /** Waveform analysis results */
   virtual WaveformAnalysisResult* const GetOrCreateWaveformAnalysisResult(std::string analyzer_name) {
     if (!fit_results.count(analyzer_name)) {  // creating new fitresult
@@ -101,7 +105,7 @@ class DigitPMT : public TObject {
     return fitter_names;
   }
 
-  ClassDef(DigitPMT, 5);
+  ClassDef(DigitPMT, 6);
 
  protected:
   Int_t id = -9999;
@@ -116,6 +120,7 @@ class DigitPMT : public TObject {
   Double_t fTime = -9999;
   Double_t fMag = -9999;
   Double_t fBas = -9999;
+  Int_t fNPE = 0;
   Double_t local_trigger_time = -9999;
   Double_t time_offset = 0;
   std::map<std::string, WaveformAnalysisResult> fit_results;
