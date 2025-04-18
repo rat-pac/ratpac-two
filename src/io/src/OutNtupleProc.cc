@@ -65,6 +65,13 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
   }
   if (options.digitizerfits) {
     waveform_fitters = table->GetSArray("waveform_fitters");
+    for (const std::string &fitter_name : waveform_fitters) {
+      try {
+        waveform_fitter_FOMs[fitter_name] = table->GetSArray("waveform_fitter_FOM_" + fitter_name);
+      } catch (DBNotFoundError &e) {
+        waveform_fitter_FOMs[fitter_name].clear();
+      }
+    }
   }
 }
 
@@ -160,6 +167,9 @@ bool OutNtupleProc::OpenFile(std::string filename) {
       outputTree->Branch(TString("fit_pmtid_" + fitter_name), &fitPmtID[fitter_name]);
       outputTree->Branch(TString("fit_time_" + fitter_name), &fitTime[fitter_name]);
       outputTree->Branch(TString("fit_charge_" + fitter_name), &fitCharge[fitter_name]);
+      for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
+        outputTree->Branch(TString("fit_FOM_" + fitter_name + "_" + fom_name), &fitFOM[fitter_name][fom_name]);
+      }
     }
   }
   if (options.nthits) {
@@ -533,6 +543,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           fitPmtID[fitter_name].clear();
           fitTime[fitter_name].clear();
           fitCharge[fitter_name].clear();
+          for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
+            fitFOM[fitter_name][fom_name].clear();
+          }
         }
       }
 
@@ -555,7 +568,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
               fitPmtID[fitter_name].push_back(digitpmt->GetID());
               fitTime[fitter_name].push_back(fit_result->getTime(hitidx));
               fitCharge[fitter_name].push_back(fit_result->getCharge(hitidx));
-              // TODO: figures of merit -- you probably need some nested map
+              for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
+                fitFOM[fitter_name][fom_name].push_back(fit_result->getFOM(fom_name, hitidx));
+              }
             }
           }
         }
@@ -625,6 +640,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           fitPmtID[fitter_name].clear();
           fitTime[fitter_name].clear();
           fitCharge[fitter_name].clear();
+          for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
+            fitFOM[fitter_name][fom_name].clear();
+          }
         }
       }
     }
