@@ -12,7 +12,11 @@ G4VPhysicalVolume *GeoNestedTubeArrayFactory::Construct(DBLinkPtr table) {
 
   info << "GeoNestedTubeArrayFactory: Constructing volume " + volume_name << newline;
 
+  // TODO: all the parameters below are ignored and only the table parameters are used. For wider usability the above
+  // parameters should be included in the array construction
+
   // Optional parameters
+  /*
   G4double r_min = 0.0;
   try {
     r_min = table->GetD("r_min") * CLHEP::mm;
@@ -51,9 +55,11 @@ G4VPhysicalVolume *GeoNestedTubeArrayFactory::Construct(DBLinkPtr table) {
     preflip = table->GetI("preflip");
   } catch (DBNotFoundError &e) {
   };
+  */
 
   // End optional parameters
 
+  /*
   if ((s_cut_r > 0) && (rescale_r > 0)) {
     G4VSolid *sphere_cutter = new G4Orb("temp_sphere", s_cut_r);  // This is the cut out piece
 
@@ -65,9 +71,8 @@ G4VPhysicalVolume *GeoNestedTubeArrayFactory::Construct(DBLinkPtr table) {
   if (preflip) {
     G4RotationMatrix *fliprot = new G4RotationMatrix(G4ThreeVector(1, 0, 0), CLHEP::pi);
   }
+  */
 
-  // TODO: all the above parameters are ignored and only the table parameters are used. For wider usability the above
-  // parameters should be included in the array construction
   return GeoNestedSolidArrayFactoryBase::Construct(table);
 }
 

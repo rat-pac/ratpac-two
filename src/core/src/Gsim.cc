@@ -585,7 +585,7 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
     rat_mcnt->SetID(fibre_id);
     // only process fibers
     // info << hit_collection->GetSDname() << newline;
-    for (int hit = 0; hit < hit_collection->GetSize(); hit++) {
+    for (size_t hit = 0; hit < hit_collection->GetSize(); hit++) {
       GeoFiberSensitiveDetectorHit *my_hit = (GeoFiberSensitiveDetectorHit *)hit_collection->GetHit(hit);
       AddMCNestedTubeHit(rat_mcnt, my_hit);
     }
