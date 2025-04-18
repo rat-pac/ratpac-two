@@ -3,6 +3,8 @@
 #include <RAT/DS/EV.hh>
 #include <RAT/DS/FitResult.hh>
 #include <RAT/DS/MC.hh>
+#include <RAT/DS/MCNestedTube.hh>
+#include <RAT/DS/MCNestedTubeHit.hh>
 #include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/MCParticle.hh>
 #include <RAT/DS/MCPhoton.hh>
@@ -15,6 +17,7 @@ ClassImp(RAT::DS::Root);
 ClassImp(RAT::DS::MC);
 ClassImp(RAT::DS::MCParticle);
 ClassImp(RAT::DS::MCPMT);
+ClassImp(RAT::DS::MCNestedTube);
 ClassImp(RAT::DS::Calib);
 ClassImp(RAT::DS::EV);
 ClassImp(RAT::DS::PMT);

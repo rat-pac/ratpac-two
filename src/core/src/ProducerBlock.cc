@@ -15,6 +15,9 @@ ProducerBlock::~ProducerBlock() { Clear(); }
 
 void ProducerBlock::Init(ProcBlock *theMainBlock) {
   mainBlock = theMainBlock;
+  for (Producer *p : fProducerList) {
+    p->SetMainBlock(mainBlock);
+  }
   AppendProducer<RunManager>();
   AppendProducer<InROOTProducer>();
   AppendProducer<InNetProducer>();

@@ -1,6 +1,7 @@
 #ifndef __RAT_FitCentroidProc__
 #define __RAT_FitCentroidProc__
 
+#include <RAT/FitterInputHandler.hh>
 #include <RAT/Processor.hh>
 #include <string>
 
@@ -13,7 +14,7 @@ class EV;
 
 class FitCentroidProc : public Processor {
  public:
-  FitCentroidProc();
+  FitCentroidProc() : Processor("fitcentroid"), inputHandler(){};
   virtual ~FitCentroidProc() {}
 
   /** param = "power", value = exponent to raise charge to when averaging
@@ -23,8 +24,9 @@ class FitCentroidProc : public Processor {
   virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
 
  protected:
-  double fPower;
-  double fRescale;
+  double fPower = 2.0;
+  double fRescale = 1.0;
+  FitterInputHandler inputHandler;
 };
 
 }  // namespace RAT

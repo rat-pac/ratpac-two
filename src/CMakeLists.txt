@@ -27,6 +27,8 @@ add_library(RATPAC SHARED)
 target_link_libraries(RATPAC PUBLIC 
   ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} ${CRY_LIBRARIES} ${TENSORFLOW_LIBRARIES} ${ZeroMQ_LIBRARY}
   cmd core daq db ds fit gen geo io physics ratbase stlplus util RATDict)
+target_include_directories(RATPAC PUBLIC ${CLHEP_INCLUDE_DIRS})
+message("Including ${CLHEP_INCLUDE_DIRS}")
 
 
 ### Target: library for ROOT
@@ -60,18 +62,12 @@ target_include_directories(RATEvent SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS}/stlplus)
 target_include_directories(RATEvent PUBLIC ${RATPAC_INCLUDE_DIR})
 target_link_libraries(RATEvent PUBLIC 
        ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RATDict)
+
+file(GLOB stlplus_src "stlplus/src/*.cc" "stlplus/include/stlplus/*")
 set_source_files_properties(
-       stlplus/src/debug.cc
-       stlplus/src/dprintf.cc
-       stlplus/src/exceptions.cc
-       stlplus/src/file_system.cc
-       stlplus/src/fileio.cc
-       stlplus/src/multiio.cc
-       stlplus/src/string_utilities.cc
-       stlplus/src/stringio.cc
-       stlplus/src/textio.cc
-       PROPERTIES COMPILE_FLAGS -w
-)
+        ${stlplus_src}
+        TARGET_DIRECTORY cmd core daq db ds fit gen geo io physics ratbase stlplus util RATDict RATEvent
+        PROPERTIES COMPILE_FLAGS -w)
 
 # This copies the root dict files to <build>/lib
 add_custom_command(TARGET RATEvent POST_BUILD

@@ -32,6 +32,7 @@ trigger_on_noise: 1,
 digitizer_name: "V1730",
 digitize: true, // Run digitization of PMT waveforms
 analyze: true, // Run analysis of digitized waveforms
+analyzer_name: "", // default analysis
 }
 
 {
@@ -43,4 +44,15 @@ valid_end: [0, 0],
 trigger_window: 600.0,
 trigger_lockout: 0.0,
 max_hit_time: 1000000.0,
+}
+
+
+{
+name: "DAQ",
+index: "ForcedTrigger",
+valid_begin: [0, 0],
+valid_end: [0, 0],
+
+digitizer_name: "V1730",
+digitize: true, // Run digitization of PMT waveforms
 }

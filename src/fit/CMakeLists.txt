@@ -6,6 +6,8 @@ add_library(fit OBJECT
   src/FitPathProc.cc
   src/FitCentroidProc.cc
   src/FitTensorProc.cc
+  src/FitQuadProc.cc
+  src/FitDirectionCenterProc.cc
   src/MiniSim.cc)
 
 

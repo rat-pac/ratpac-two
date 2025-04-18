@@ -68,8 +68,8 @@ cppflow::tensor FitTensorProc::CreateProjection(DS::EV *ev, DS::PMTInfo *pmtinfo
   float red[xdim][ydim];
   float green[xdim][ydim];
 
-  for (int pmtid = 0; pmtid < ev->GetPMTCount(); pmtid++) {
-    DS::PMT *pmt = ev->GetPMT(pmtid);
+  for (int pmtid : ev->GetAllPMTIDs()) {
+    DS::PMT *pmt = ev->GetOrCreatePMT(pmtid);
     TVector3 pmtpos = pmtinfo->GetPosition(pmt->GetID());
     TVector3 pos = pmtpos - coordinates;
     double hittime = pmt->GetTime();
@@ -83,18 +83,13 @@ cppflow::tensor FitTensorProc::CreateProjection(DS::EV *ev, DS::PMTInfo *pmtinfo
   for (int i = 0; i < xdim; i++) {
     for (int j = 0; j < ydim; j++) {
       float red_value = red[i][j];
-      red_value = isnan(red_value) ? 0 : red_value;
+      red_value = std::isnan(red_value) ? 0 : red_value;
       // info << red_value << newline;
       flatArray.push_back(std::min(std::max(static_cast<float>(0.0), red_value), static_cast<float>(1.0)));
       float green_value = green[i][j];
-      green_value = isnan(green_value) ? 0 : green_value;
+      green_value = std::isnan(green_value) ? 0 : green_value;
       flatArray.push_back(std::min(std::max(static_cast<float>(0.0), green_value), static_cast<float>(1.0)));
     }
-  }
-  float totalTester = accumulate(flatArray.begin(), flatArray.end(), 0);
-  // info << totalTester << newline;
-  for (auto &a : flatArray) {
-    // info << a << ", ";
   }
   cppflow::tensor input(flatArray, shape);
   return input;

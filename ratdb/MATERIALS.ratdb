@@ -70,6 +70,19 @@ elemprop: [1.0],
 
 {
 name: "MATERIAL",
+index: "brass",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 8.73,
+nelements: 2,
+nmaterials: 0,
+elements: ["Copper", "Zinc"],
+elemprop: [0.66, 0.34],
+}
+
+
+{
+name: "MATERIAL",
 index: "steel",
 valid_begin : [0, 0],
 valid_end : [0, 0],
@@ -94,12 +107,32 @@ elemprop: [0.71, 0.19, 0.1],
 
 {
 name: "MATERIAL",
+index: "stainless_steel_304H",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+// Taken from https://www.sandmeyersteel.com/304H.html
+// Taking median amount of some elements. Iron makes up the remainder.
+density: 7.90,
+nelements: 9,
+nmaterials: 0,
+elements: [
+  "Carbon",     "Manganese", "Silicon",  "Chromium", "Nickel",
+  "Phosphorus", "Sulphur",   "Nitrogen", "Iron"
+],
+elemprop:[
+  0.0008, 0.0200,  0.0075,  0.1900, 0.0925,
+  0.00045, 0.00030, 0.0010, 0.68745
+],
+}
+
+{
+name: "MATERIAL",
 index: "stainless_steel_316L",
 valid_begin : [0, 0],
 valid_end : [0, 0],
-// taken from http://www.sandmeyersteel.com/316-316L.html
-// and assuming the MAXIMUM permitted amounts of each element by the code. Iron makes up the remainder
-density: 8.027,
+// Taken from http://www.sandmeyersteel.com/316-316L.html
+// Taking median amount of some elements. Iron makes up the remainder.
+density: 7.90,
 nelements: 10,
 nmaterials: 0,
 elements: [
@@ -107,8 +140,8 @@ elements: [
   "Molybdenum", "Phosphorus", "Sulphur", "Nitrogen", "Iron"
 ],
 elemprop:[
-  0.00030, 0.0200,  0.0075,  0.1800, 0.1400,
-  0.0300,  0.00045, 0.00030, 0.0010, 0.62045
+  0.00030, 0.0200,  0.0075, 0.1700, 0.1200,
+  0.0250,  0.00045, 0.0003, 0.001,  0.65545
 ],
 }
 
@@ -181,6 +214,18 @@ nelements: 4,
 nmaterials: 0,
 elements: ["Tungsten", "Nickel", "Copper", "Iron"],
 elemprop: [0.90,      0.06,   0.02,    0.02],
+}
+
+{
+name: "MATERIAL",
+index: "tungsten_alloy_EA17",  // Eagle Alloys EA17 tungsten alloy
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 17.15,
+nelements: 3,
+nmaterials: 0,
+elements: ["Tungsten", "Nickel", "Copper"],
+elemprop: [0.90,      0.06,   0.04],
 }
 
 {
@@ -471,6 +516,19 @@ elemprop: [1.0],
 {
 name: "MATERIAL",
 index: "photocathode_R7081HQE",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 5.0,
+nelements: 1,
+nmaterials: 0,
+elements: ["Potassium"],
+elemprop: [1.0],
+}
+
+// E.Keener at Penn, copied from photocathode_R7081HQE
+{
+name: "MATERIAL",
+index: "photocathode_R7081",
 valid_begin : [0, 0],
 valid_end : [0, 0],
 density: 5.0,
@@ -804,6 +862,30 @@ elemprop: [0.0703, 0.558, 0.3717],
 
 {
 name: "MATERIAL",
+index: "acrylic_uva_polycast",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 1.14,
+nelements: 3,
+nmaterials: 0,
+elements: ["Hydrogen", "Carbon", "Oxygen"],
+elemprop: [0.0703, 0.558, 0.3717],
+}
+
+{
+name: "MATERIAL",
+index: "acrylic_uva_reynolds",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 1.14,
+nelements: 3,
+nmaterials: 0,
+elements: ["Hydrogen", "Carbon", "Oxygen"],
+elemprop: [0.0703, 0.558, 0.3717],
+}
+
+{
+name: "MATERIAL",
 index: "nylon",
 valid_begin : [0, 0],
 valid_end : [0, 0],
@@ -819,7 +901,7 @@ name: "MATERIAL",
 index: "tyvek",
 valid_begin : [0, 0],
 valid_end : [0, 0],
-density: 96.0,
+density: 0.96,
 nelements: 2,
 nmaterials: 0,
 elements: ["Carbon","Hydrogen",],
@@ -865,6 +947,18 @@ elemprop: [0.0774, 0.9226],
 {
 name: "MATERIAL",
 index: "delrin",
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 1.425, // from NIST database
+nelements: 3,
+nmaterials: 0,
+elements: ["Hydrogen", "Carbon","Oxygen"],
+elemprop: [0.067135, 0.400017, 0.532848],
+}
+
+{
+name: "MATERIAL",
+index: "delrin_black",
 valid_begin : [0, 0],
 valid_end : [0, 0],
 density: 1.425, // from NIST database

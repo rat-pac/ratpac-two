@@ -1,5 +1,7 @@
 #include <TVector3.h>
 
+#include <G4GDMLParser.hh>
+#include <G4GDMLReadStructure.hh>
 #include <G4GeometryManager.hh>
 #include <G4LogicalVolumeStore.hh>
 #include <G4PhysicalVolumeStore.hh>
@@ -10,13 +12,14 @@
 #include <RAT/DB.hh>
 #include <RAT/DetectorConstruction.hh>
 #include <RAT/DetectorFactory.hh>
-#include <RAT/GDMLParser.hh>
+#include <RAT/GDMLWriteStructure.hh>
 #include <RAT/GeoBuilder.hh>
 #include <RAT/Log.hh>
 #include <RAT/Materials.hh>
 #include <RAT/PhotonThinning.hh>
 #include <RAT/Rat.hh>
 #include <RAT/json.hh>
+#include <memory>
 #include <string>
 
 namespace RAT {
@@ -34,7 +37,15 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
   // Load experiment RATDB files before doing anything else
   try {
     experiment = ldetector->GetS("experiment");
-    info << "Loading experiment-specific RATDB files for: " << experiment << newline;
+  } catch (DBNotFoundError &e) {
+    info << "No experiment-specific tables loaded." << newline;
+  }
+  info << "Loading experiment-specific RATDB files for: " << experiment << newline;
+  // Attempt to load literal experiments (absolute paths and/or experiments defined in local directory).
+  int result = db->LoadAll(experiment);
+  if (result == 2) {
+    info << "Found experiment files in " << experiment << newline;
+  } else {
     for (auto dir : Rat::ratdb_directories) {
       std::string experimentDirectoryString = dir + "/" + experiment;
       int result = db->LoadAll(experimentDirectoryString);
@@ -43,8 +54,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
         break;
       }
     }
-  } catch (DBNotFoundError &e) {
-    info << "No experiment-specific tables loaded." << newline;
   }
 
   try {
@@ -92,7 +101,9 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
       try {
         std::string gdml_dump_file_name = ldetector->GetS("gdml_dump");
         info << "Writing gdml geometry file to " << gdml_dump_file_name << newline;
-        GDMLParser parser;
+        std::unique_ptr<G4GDMLReadStructure> reader = std::make_unique<G4GDMLReadStructure>();
+        std::unique_ptr<GDMLWriteStructure> writer = std::make_unique<GDMLWriteStructure>();
+        G4GDMLParser parser(reader.get(), writer.get());
         parser.SetOutputFileOverwrite(true);
         parser.Write(gdml_dump_file_name, fWorldPhys);
 

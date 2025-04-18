@@ -43,22 +43,38 @@ class EV : public TObject {
   virtual void SetUTC(const TTimeStamp &_utc) { utc = _utc; }
 
   /** List of pmts with at least one charge sample in this event. */
-  virtual PMT *GetPMT(Int_t i) { return &pmt[i]; }
-  virtual Int_t GetPMTCount() const { return pmt.size(); }
-  virtual PMT *AddNewPMT() {
-    pmt.resize(pmt.size() + 1);
-    return &pmt.back();
+  virtual PMT *GetOrCreatePMT(Int_t id) {
+    pmt[id].SetID(id);
+    return &pmt[id];
   }
-  virtual void PrunePMT() { pmt.resize(0); }
+  const std::vector<Int_t> GetAllPMTIDs() {
+    std::vector<Int_t> result;
+    for (auto const &kv : pmt) {
+      result.push_back(kv.first);
+    }
+    return result;
+  }
+  virtual Int_t GetPMTCount() const { return pmt.size(); }
+  virtual void PrunePMT() { pmt.clear(); }
 
   /** List of pmts with at least one charge sample in this event. */
-  virtual DigitPMT *GetDigitPMT(Int_t i) { return &digitpmt[i]; }
-  virtual Int_t GetDigitPMTCount() const { return digitpmt.size(); }
-  virtual DigitPMT *AddNewDigitPMT() {
-    digitpmt.resize(digitpmt.size() + 1);
-    return &digitpmt.back();
+  virtual DigitPMT *GetOrCreateDigitPMT(Int_t id) {
+    digitpmt[id].SetID(id);
+    return &digitpmt[id];
   }
-  virtual void PruneDigitPMT() { digitpmt.resize(0); }
+  const std::vector<Int_t> GetAllDigitPMTIDs() {
+    std::vector<Int_t> result;
+    for (auto const &kv : digitpmt) {
+      result.push_back(kv.first);
+    }
+    return result;
+  }
+  virtual size_t EraseDigitPMT(Int_t id) {
+    size_t n_erased = digitpmt.erase(id);
+    return n_erased;
+  }
+  virtual Int_t GetDigitPMTCount() const { return digitpmt.size(); }
+  virtual void PruneDigitPMT() { digitpmt.clear(); }
 
   /** Number of PMTs which were hit at least once. (Convenience method) */
   virtual Int_t Nhits() const { return GetPMTCount(); }
@@ -105,7 +121,7 @@ class EV : public TObject {
   // Prune digitizer information
   virtual void PruneDigitizer() { digitizer.resize(0); }
 
-  ClassDef(EV, 2);
+  ClassDef(EV, 3);
 
  protected:
   Int_t id;
@@ -113,8 +129,8 @@ class EV : public TObject {
   Double_t calibratedTriggerTime;
   Double_t deltat;
   TTimeStamp utc;
-  std::vector<PMT> pmt;
-  std::vector<DigitPMT> digitpmt;
+  std::map<Int_t, PMT> pmt;
+  std::map<Int_t, DigitPMT> digitpmt;
   std::vector<LAPPD> lappd;
   std::vector<FitResult *> fitResults;
   std::vector<Classifier *> classifierResults;

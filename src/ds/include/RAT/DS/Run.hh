@@ -11,6 +11,8 @@
 #include <TObject.h>
 #include <TTimeStamp.h>
 
+#include <RAT/DS/ChannelStatus.hh>
+#include <RAT/DS/NestedTubeInfo.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <vector>
 
@@ -50,13 +52,35 @@ class Run : public TObject {
   virtual bool ExistPMTInfo() { return !pmtinfo.empty(); }
   virtual void PrunePMTInfo() { pmtinfo.resize(0); }
 
-  ClassDef(Run, 2);
+  /** Nested tube information */
+  virtual NestedTubeInfo *GetNestedTubeInfo() {
+    if (nestedtubeinfo.empty()) {
+      nestedtubeinfo.resize(1);
+    }
+    return &nestedtubeinfo[0];
+  }
+  virtual void SetNestedTubeInfo(const NestedTubeInfo *_nestedtubeinfo) {
+    if (nestedtubeinfo.empty()) {
+      nestedtubeinfo.resize(1);
+    }
+    nestedtubeinfo[0] = *_nestedtubeinfo;
+  }
+  virtual bool ExistNestedTubeInfo() { return !nestedtubeinfo.empty(); }
+  virtual void PruneNestedTubeInfo() { nestedtubeinfo.resize(0); }
+
+  /** Channel status */
+  virtual ChannelStatus const *GetChannelStatus() const { return &ch_status; }
+  virtual void SetChannelStatus(const ChannelStatus &_ch_status) { ch_status = _ch_status; }
+
+  ClassDef(Run, 3);
 
  protected:
   Int_t id;
   ULong64_t type;
   TTimeStamp startTime;
-  std::vector<PMTInfo> pmtinfo;
+  std::vector<NestedTubeInfo> nestedtubeinfo;
+  std::vector<PMTInfo> pmtinfo;  // ah.. why is this a vector?
+  ChannelStatus ch_status;
 };
 
 }  // namespace DS

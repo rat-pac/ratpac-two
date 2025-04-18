@@ -17,7 +17,7 @@ class PMTWaveform {
   virtual ~PMTWaveform();
   virtual double GetHeight(double time);
 
-  std::vector<PMTPulse *> fPulse;
+  std::vector<PMTPulse> fPulse;
 };
 
 }  // namespace RAT

@@ -15,6 +15,7 @@
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/DS/RunStore.hh>
+#include <RAT/DS/WaveformAnalysisResult.hh>
 #include <RAT/Log.hh>
 #include <RAT/OutNtupleProc.hh>
 #include <iostream>
@@ -22,6 +23,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "RAT/DS/ChannelStatus.hh"
 
 namespace RAT {
 
@@ -46,19 +49,33 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.tracking = table->GetZ("include_tracking");
     options.mcparticles = table->GetZ("include_mcparticles");
     options.pmthits = table->GetZ("include_pmthits");
+    options.digitizerwaveforms = table->GetZ("include_digitizerwaveforms");
+    options.digitizerhits = table->GetZ("include_digitizerhits");
+    options.digitizerfits = table->GetZ("include_digitizerfits");
     options.untriggered = table->GetZ("include_untriggered_events");
     options.mchits = table->GetZ("include_mchits");
+    options.nthits = table->GetZ("include_nestedtubehits");
   } catch (DBNotFoundError &e) {
     options.tracking = false;
     options.mcparticles = false;
     options.pmthits = true;
     options.untriggered = false;
     options.mchits = true;
+    options.nthits = false;
+  }
+  if (options.digitizerfits) {
+    waveform_fitters = table->GetSArray("waveform_fitters");
+    for (const std::string &fitter_name : waveform_fitters) {
+      try {
+        waveform_fitter_FOMs[fitter_name] = table->GetSArray("waveform_fitter_FOM_" + fitter_name);
+      } catch (DBNotFoundError &e) {
+        waveform_fitter_FOMs[fitter_name].clear();
+      }
+    }
   }
 }
 
 bool OutNtupleProc::OpenFile(std::string filename) {
-  int i = 0;
   outputFile = TFile::Open(filename.c_str(), "RECREATE");
   // Meta Tree
   metaTree = new TTree("meta", "meta");
@@ -69,12 +86,20 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("macro", &macro);
   metaTree->Branch("pmtType", &pmtType);
   metaTree->Branch("pmtId", &pmtId);
+  metaTree->Branch("pmtChannel", &pmtChannel);
+  metaTree->Branch("pmtIsOnline", &pmtIsOnline);
+  metaTree->Branch("pmtCableOffset", &pmtCableOffset);
+  metaTree->Branch("pmtChargeScale", &pmtChargeScale);
   metaTree->Branch("pmtX", &pmtX);
   metaTree->Branch("pmtY", &pmtY);
   metaTree->Branch("pmtZ", &pmtZ);
   metaTree->Branch("pmtU", &pmtU);
   metaTree->Branch("pmtV", &pmtV);
   metaTree->Branch("pmtW", &pmtW);
+  metaTree->Branch("digitizerWindowSize", &digitizerWindowSize);
+  metaTree->Branch("digitizerSampleRate_GHz", &digitizerSampleRate);
+  metaTree->Branch("digitizerDynamicRange_mV", &digitizerDynamicRange);
+  metaTree->Branch("digitizerResolution_mVPerADC", &digitizerVoltageResolution);
   this->AssignAdditionalMetaAddresses();
   dsentries = 0;
   // Data Tree
@@ -93,8 +118,11 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("evid", &evid);
   outputTree->Branch("subev", &subev);
   outputTree->Branch("nhits", &nhits);
-  outputTree->Branch("triggerTime", &triggerTime);
+  outputTree->Branch("triggerTime", &triggerTime);  // Local trigger time
+  outputTree->Branch("timestamp", &timestamp);      // Global trigger time
+  outputTree->Branch("timeSinceLastTrigger_us", &timeSinceLastTrigger_us);
   // MC Information
+  outputTree->Branch("mcid", &mcid);
   outputTree->Branch("mcparticlecount", &mcpcount);
   outputTree->Branch("mcpecount", &mcpecount);
   outputTree->Branch("mcnhits", &mcnhits);
@@ -123,17 +151,52 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     // Information about *first* detected PE
     outputTree->Branch("hitPMTTime", &hitPMTTime);
     outputTree->Branch("hitPMTCharge", &hitPMTCharge);
+  }
+  if (options.digitizerhits) {
     // Output of the waveform analysis
-    outputTree->Branch("hitPMTDigitizedTime", &hitPMTDigitizedTime);
-    outputTree->Branch("hitPMTDigitizedCharge", &hitPMTDigitizedCharge);
-    outputTree->Branch("hitPMTNCrossings", &hitPMTNCrossings);
+    outputTree->Branch("digitNhits", &digitNhits);
+    outputTree->Branch("digitPMTID", &digitPMTID);
+    outputTree->Branch("digitTime", &digitTime);
+    outputTree->Branch("digitCharge", &digitCharge);
+    outputTree->Branch("digitNCrossings", &digitNCrossings);
+    outputTree->Branch("digitPeak", &digitPeak);
+    outputTree->Branch("digitLocalTriggerTime", &digitLocalTriggerTime);
+  }
+  if (options.digitizerfits) {
+    for (const std::string &fitter_name : waveform_fitters) {
+      outputTree->Branch(TString("fit_pmtid_" + fitter_name), &fitPmtID[fitter_name]);
+      outputTree->Branch(TString("fit_time_" + fitter_name), &fitTime[fitter_name]);
+      outputTree->Branch(TString("fit_charge_" + fitter_name), &fitCharge[fitter_name]);
+      for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
+        outputTree->Branch(TString("fit_FOM_" + fitter_name + "_" + fom_name), &fitFOM[fitter_name][fom_name]);
+      }
+    }
+  }
+  if (options.nthits) {
+    outputTree->Branch("mcnNTs", &mcnNTs);
+    outputTree->Branch("mcnNThits", &mcnNThits);
+    outputTree->Branch("mcNTid", &mcNTid);
+    outputTree->Branch("mcNThittime", &mcNThittime);
+    outputTree->Branch("mcNThitx", &mcNThitx);
+    outputTree->Branch("mcNThity", &mcNThity);
+    outputTree->Branch("mcNThitz", &mcNThitz);
+    metaTree->Branch("ntId", &ntId);
+    metaTree->Branch("ntX", &ntX);
+    metaTree->Branch("ntY", &ntY);
+    metaTree->Branch("ntZ", &ntZ);
+    metaTree->Branch("ntU", &ntU);
+    metaTree->Branch("ntV", &ntV);
+    metaTree->Branch("ntW", &ntW);
   }
   if (options.mchits) {
     // Save full MC PMT hit information
     outputTree->Branch("mcPMTID", &mcpmtid);
     outputTree->Branch("mcPMTNPE", &mcpmtnpe);
+    outputTree->Branch("mcPMTCharge", &mcpmtcharge);
 
-    outputTree->Branch("mcPETime", &mcpetime);
+    outputTree->Branch("mcPEPMTID", &mcpepmtid);
+    outputTree->Branch("mcPEHitTime", &mcpehittime);
+    outputTree->Branch("mcPEFrontEndTime", &mcpefrontendtime);
     // Production process
     // 1=Cherenkov, 0=Dark noise, 2=Scint., 3=Reem., 4=Unknown
     outputTree->Branch("mcPEProcess", &mcpeprocess);
@@ -141,6 +204,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("mcPEx", &mcpex);
     outputTree->Branch("mcPEy", &mcpey);
     outputTree->Branch("mcPEz", &mcpez);
+    outputTree->Branch("mcPECharge", &mcpecharge);
   }
   if (options.tracking) {
     // Save particle tracking information
@@ -155,6 +219,16 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("trackTime", &trackTime);
     outputTree->Branch("trackProcess", &trackProcess);
     metaTree->Branch("processCodeMap", &processCodeMap);
+    outputTree->Branch("trackVolume", &trackVolume);
+    metaTree->Branch("volumeCodeMap", &volumeCodeMap);
+  }
+  if (options.digitizerwaveforms) {
+    waveformTree = new TTree("waveforms", "waveforms");
+    waveformTree->Branch("evid", &evid);
+    waveformTree->Branch("waveform_pmtid", &waveform_pmtid);
+    waveformTree->Branch("inWindowPulseTimes", &inWindowPulseTimes);
+    waveformTree->Branch("inWindowPulseCharges", &inWindowPulseCharges);
+    waveformTree->Branch("waveform", &waveform);
   }
   this->AssignAdditionalAddresses();
 
@@ -169,7 +243,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   }
   runBranch = DS::RunStore::GetRun(ds);
   DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
-  ULong64_t stonano = 1000000000;
+  DS::NestedTubeInfo *ntinfo = runBranch->GetNestedTubeInfo();
+  const DS::ChannelStatus *channel_status = runBranch->GetChannelStatus();
   dsentries++;
   // Clear the previous vectors
   pdgcodes.clear();
@@ -183,6 +258,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcTime.clear();
 
   DS::MC *mc = ds->GetMC();
+  mcid = mc->GetID();
   mcpcount = mc->GetMCParticleCount();
   for (int pid = 0; pid < mcpcount; pid++) {
     DS::MCParticle *particle = mc->GetMCParticle(pid);
@@ -199,14 +275,14 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     mcTime.push_back(particle->GetTime());
   }
   // First particle's position, direction, and time
-  mcpdg = pdgcodes[0];
-  mcx = mcPosx[0];
-  mcy = mcPosy[0];
-  mcz = mcPosz[0];
-  mcu = mcDirx[0];
-  mcv = mcDiry[0];
-  mcw = mcDirz[0];
-  mct = mcTime[0];
+  mcpdg = mcpcount ? pdgcodes[0] : -9999;
+  mcx = mcpcount ? mcPosx[0] : -9999;
+  mcy = mcpcount ? mcPosy[0] : -9999;
+  mcz = mcpcount ? mcPosz[0] : -9999;
+  mcu = mcpcount ? mcDirx[0] : -9999;
+  mcv = mcpcount ? mcDiry[0] : -9999;
+  mcw = mcpcount ? mcDirz[0] : -9999;
+  mct = mcpcount ? mcTime[0] : -9999;
   mcke = accumulate(mcKEnergies.begin(), mcKEnergies.end(), 0.0);
   // Tracking
   if (options.tracking) {
@@ -222,11 +298,13 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     trackKE.clear();
     trackTime.clear();
     trackProcess.clear();
+    trackVolume.clear();
 
     std::vector<double> xtrack, ytrack, ztrack;
     std::vector<double> pxtrack, pytrack, pztrack;
     std::vector<double> kinetic, globaltime;
     std::vector<int> processMapID;
+    std::vector<int> volumeMapID;
     for (int trk = 0; trk < nTracks; trk++) {
       DS::MCTrack *track = mc->GetMCTrack(trk);
       trackPDG.push_back(track->GetPDGCode());
@@ -239,6 +317,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       kinetic.clear();
       globaltime.clear();
       processMapID.clear();
+      volumeMapID.clear();
       int nSteps = track->GetMCTrackStepCount();
       for (int stp = 0; stp < nSteps; stp++) {
         DS::MCTrackStep *step = track->GetMCTrackStep(stp);
@@ -249,6 +328,14 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           processCodeIndex.push_back(processCodeMap.size() - 1);
           processName.push_back(proc);
         }
+        // Volume
+        std::string vol = step->GetVolume();
+        if (volumeCodeMap.find(vol) == volumeCodeMap.end()) {
+          volumeCodeMap[vol] = volumeCodeMap.size();
+          volumeCodeIndex.push_back(volumeCodeMap.size() - 1);
+          volumeName.push_back(vol);
+        }
+        volumeMapID.push_back(volumeCodeMap[vol]);
         processMapID.push_back(processCodeMap[proc]);
         TVector3 tv = step->GetEndpoint();
         TVector3 momentum = step->GetMomentum();
@@ -270,6 +357,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       trackMomY.push_back(pytrack);
       trackMomZ.push_back(pztrack);
       trackProcess.push_back(processMapID);
+      trackVolume.push_back(volumeMapID);
     }
   }
 
@@ -284,14 +372,18 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   // MCPMT information
   mcpmtid.clear();
   mcpmtnpe.clear();
+  mcpmtcharge.clear();
 
   // MCPE information
-  mcpetime.clear();
+  mcpepmtid.clear();
+  mcpehittime.clear();
+  mcpefrontendtime.clear();
   mcpeprocess.clear();
   mcpewavelength.clear();
   mcpex.clear();
   mcpey.clear();
   mcpez.clear();
+  mcpecharge.clear();
 
   mcnhits = mc->GetMCPMTCount();
   mcpecount = mc->GetNumPE();
@@ -300,14 +392,18 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       DS::MCPMT *mcpmt = mc->GetMCPMT(ipmt);
       mcpmtid.push_back(mcpmt->GetID());
       mcpmtnpe.push_back(mcpmt->GetMCPhotonCount());
+      mcpmtcharge.push_back(mcpmt->GetCharge());
       TVector3 position = pmtinfo->GetPosition(mcpmt->GetID());
       for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++) {
         RAT::DS::MCPhoton *mcph = mcpmt->GetMCPhoton(ipe);
-        mcpetime.push_back(mcph->GetFrontEndTime());
+        mcpepmtid.push_back(mcpmt->GetID());
+        mcpehittime.push_back(mcph->GetHitTime());
+        mcpefrontendtime.push_back(mcph->GetFrontEndTime());
         mcpewavelength.push_back(mcph->GetLambda());
         mcpex.push_back(position.X());
         mcpey.push_back(position.Y());
         mcpez.push_back(position.Z());
+        mcpecharge.push_back(mcph->GetCharge());
         if (mcph->IsDarkHit()) {
           mcpeprocess.push_back(noise);
           continue;
@@ -325,12 +421,32 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       }
     }
   }
+  if (options.nthits) {
+    mcnNTs = mc->GetMCNestedTubeCount();
+    mcnNThits = 0;
+    for (int iNT = 0; iNT < mc->GetMCNestedTubeCount(); iNT++) {
+      DS::MCNestedTube *mcnt = mc->GetMCNestedTube(iNT);
+      mcnNThits += mcnt->GetMCNestedTubeHitCount();
+      mcNTid.push_back(mcnt->GetID());
+      G4ThreeVector position = ntinfo->GetPosition(mcnt->GetID());
+      for (int ih = 0; ih < mcnt->GetMCNestedTubeHitCount(); ih++) {
+        RAT::DS::MCNestedTubeHit *mcph = mcnt->GetMCNestedTubeHit(ih);
+        mcNThittime.push_back(mcph->GetHitTime());
+        mcNThitx.push_back(position.x());
+        mcNThity.push_back(position.y());
+        mcNThitz.push_back(position.z());
+      }
+    }
+  }
 
   // EV Branches
   for (subev = 0; subev < ds->GetEVCount(); subev++) {
     DS::EV *ev = ds->GetEV(subev);
     evid = ev->GetID();
     triggerTime = ev->GetCalibratedTriggerTime();
+    timestamp = (ev->GetUTC().GetSec() - runBranch->GetStartTime().GetSec()) * 1e9 +
+                (ev->GetUTC().GetNanoSec() - runBranch->GetStartTime().GetNanoSec()) + triggerTime;
+    timeSinceLastTrigger_us = ev->GetDeltaT() / 1000.;
     auto fitVector = ev->GetFitResults();
     std::map<std::string, double *> fitvalues;
     std::map<std::string, bool *> fitvalids;
@@ -356,11 +472,11 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       }
       if (fit->GetEnableEnergy()) {
         fitvalues["energy_" + name] = new double(fit->GetEnergy());
-        fitvalids["validenergy" + name] = new bool(fit->GetValidEnergy());
+        fitvalids["validenergy_" + name] = new bool(fit->GetValidEnergy());
       }
       if (fit->GetEnableTime()) {
         fitvalues["time_" + name] = new double(fit->GetTime());
-        fitvalids["validtime" + name] = new bool(fit->GetValidTime());
+        fitvalids["validtime_" + name] = new bool(fit->GetValidTime());
       }
       // Figures of merit > 3 types
       for (auto const &[label, value] : fit->boolFiguresOfMerit) {
@@ -394,36 +510,141 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       hitPMTID.clear();
       hitPMTTime.clear();
       hitPMTCharge.clear();
-      hitPMTDigitizedTime.clear();
-      hitPMTDigitizedCharge.clear();
-      hitPMTNCrossings.clear();
 
-      for (int pmtc = 0; pmtc < ev->GetPMTCount(); pmtc++) {
-        RAT::DS::PMT *pmt = ev->GetPMT(pmtc);
+      for (int pmtc : ev->GetAllPMTIDs()) {
+        RAT::DS::PMT *pmt = ev->GetOrCreatePMT(pmtc);
         hitPMTID.push_back(pmt->GetID());
         hitPMTTime.push_back(pmt->GetTime());
         hitPMTCharge.push_back(pmt->GetCharge());
       }
-      for (int pmtc = 0; pmtc < ev->GetDigitPMTCount(); pmtc++) {
-        RAT::DS::DigitPMT *digitpmt = ev->GetDigitPMT(pmtc);
-        hitPMTDigitizedTime.push_back(digitpmt->GetDigitizedTime());
-        hitPMTDigitizedCharge.push_back(digitpmt->GetDigitizedCharge());
-        hitPMTNCrossings.push_back(digitpmt->GetNCrossings());
+    }
+    if (ev->DigitizerExists()) {
+      // Writing this information to meta, despite the fact that in principle events could have
+      // varying values for these fields. Writing these values to meta is much more convenient
+      // to use, so I'm going to assume that this doesn't happen;)
+      DS::Digit digitizer = ev->GetDigitizer();
+      digitizerWindowSize = digitizer.GetNSamples();
+      digitizerSampleRate = digitizer.GetSamplingRate();
+      digitizerDynamicRange = digitizer.GetDynamicRange();
+      digitizerVoltageResolution = digitizer.GetVoltageResolution();
+    }
+    if (options.digitizerhits) {
+      digitNhits = 0;
+      digitTime.clear();
+      digitCharge.clear();
+      digitNCrossings.clear();
+      digitPeak.clear();
+      digitPMTID.clear();
+      digitLocalTriggerTime.clear();
+
+      if (options.digitizerfits) {
+        for (const std::string &fitter_name : waveform_fitters) {
+          // construct arrays for all fitters
+          fitPmtID[fitter_name].clear();
+          fitTime[fitter_name].clear();
+          fitCharge[fitter_name].clear();
+          for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
+            fitFOM[fitter_name][fom_name].clear();
+          }
+        }
+      }
+
+      for (int pmtc : ev->GetAllDigitPMTIDs()) {
+        RAT::DS::DigitPMT *digitpmt = ev->GetOrCreateDigitPMT(pmtc);
+        digitPMTID.push_back(digitpmt->GetID());
+        digitTime.push_back(digitpmt->GetDigitizedTime());
+        digitCharge.push_back(digitpmt->GetDigitizedCharge());
+        if (digitpmt->GetNCrossings() > 0) {
+          digitNhits++;
+        }
+        digitNCrossings.push_back(digitpmt->GetNCrossings());
+        digitPeak.push_back(digitpmt->GetPeakVoltage());
+        digitLocalTriggerTime.push_back(digitpmt->GetLocalTriggerTime());
+        if (options.digitizerfits) {
+          const std::vector<std::string> fitters = digitpmt->GetFitterNames();
+          for (std::string fitter_name : fitters) {
+            DS::WaveformAnalysisResult *fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(fitter_name);
+            for (int hitidx = 0; hitidx < fit_result->getNhits(); hitidx++) {
+              fitPmtID[fitter_name].push_back(digitpmt->GetID());
+              fitTime[fitter_name].push_back(fit_result->getTime(hitidx));
+              fitCharge[fitter_name].push_back(fit_result->getCharge(hitidx));
+              for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
+                fitFOM[fitter_name][fom_name].push_back(fit_result->getFOM(fom_name, hitidx));
+              }
+            }
+          }
+        }
+      }
+    }
+    if (options.digitizerwaveforms) {
+      DS::Digit digitizer = ev->GetDigitizer();
+      double readout_window_min = 0;
+      double readout_window_max = digitizer.GetNSamples() * digitizer.GetTimeStepNS();
+      for (auto const &pair : digitizer.GetAllWaveforms()) {
+        waveform_pmtid = pair.first;
+        waveform = pair.second;
+        inWindowPulseTimes.clear();
+        inWindowPulseCharges.clear();
+        if (mc->GetMCPMTCount() == 0) {
+        }  // if there's no MC information, skip it
+        else if (waveform_pmtid < 0) {
+        }  // these are nonPMT channels. No MC info
+        else {
+          auto it = std::find(mcpmtid.begin(), mcpmtid.end(), waveform_pmtid);
+          if (it == mcpmtid.end())
+            warn << "No MC information found for PMTID = " << waveform_pmtid
+                 << " but waveform exists for some reason..." << newline;
+          else {
+            double time_offset = channel_status->GetCableOffsetByPMTID(waveform_pmtid);
+            DS::MCPMT *mcpmt = mc->GetMCPMT(it - mcpmtid.begin());
+            for (int ipe = 0; ipe < mcpmt->GetMCPhotonCount(); ipe++) {
+              DS::MCPhoton *mcph = mcpmt->GetMCPhoton(ipe);
+              Double_t time = mcph->GetFrontEndTime() - ev->GetCalibratedTriggerTime() + time_offset;
+              Double_t charge = mcph->GetCharge();
+              if (time > readout_window_min && time < readout_window_max) {
+                inWindowPulseTimes.push_back(time);
+                inWindowPulseCharges.push_back(charge);
+              }
+            }  // END loop over mcphotons
+          }
+        }  // END IF
+        waveformTree->Fill();
       }
     }
     this->FillEvent(ds, ev);
     outputTree->Fill();
   }
   if (options.untriggered && ds->GetEVCount() == 0) {
+    // EV information
     evid = -1;
+    subev = -1;
+    nhits = -1;
     triggerTime = 0;
+    timeSinceLastTrigger_us = 0;
     if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
       hitPMTCharge.clear();
-      hitPMTDigitizedTime.clear();
-      hitPMTDigitizedCharge.clear();
-      hitPMTNCrossings.clear();
+    }
+    if (options.digitizerhits) {
+      digitNhits = 0;
+      digitTime.clear();
+      digitCharge.clear();
+      digitNCrossings.clear();
+      digitPeak.clear();
+      digitPMTID.clear();
+      digitLocalTriggerTime.clear();
+      if (options.digitizerfits) {
+        for (const std::string &fitter_name : waveform_fitters) {
+          // construct arrays for all fitters
+          fitPmtID[fitter_name].clear();
+          fitTime[fitter_name].clear();
+          fitCharge[fitter_name].clear();
+          for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
+            fitFOM[fitter_name][fom_name].clear();
+          }
+        }
+      }
     }
     this->FillNoTriggerEvent(ds);
     outputTree->Fill();
@@ -444,18 +665,38 @@ OutNtupleProc::~OutNtupleProc() {
     outputFile->cd();
 
     DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
+    const DS::ChannelStatus *ch_status = runBranch->GetChannelStatus();
     for (int id = 0; id < pmtinfo->GetPMTCount(); id++) {
       int type = pmtinfo->GetType(id);
+      int channel = pmtinfo->GetChannelNumber(id);
       TVector3 position = pmtinfo->GetPosition(id);
       TVector3 direction = pmtinfo->GetDirection(id);
       pmtType.push_back(type);
       pmtId.push_back(id);
+      pmtChannel.push_back(channel);
+      pmtIsOnline.push_back(ch_status->GetOnlineByPMTID(id));
+      pmtCableOffset.push_back(ch_status->GetCableOffsetByPMTID(id));
+      pmtChargeScale.push_back(ch_status->GetChargeScaleByPMTID(id));
       pmtX.push_back(position.X());
       pmtY.push_back(position.Y());
       pmtZ.push_back(position.Z());
       pmtU.push_back(direction.X());
       pmtV.push_back(direction.Y());
       pmtW.push_back(direction.Z());
+    }
+    if (options.nthits) {
+      DS::NestedTubeInfo *ntinfo = runBranch->GetNestedTubeInfo();
+      for (int id = 0; id < ntinfo->GetNestedTubeCount(); id++) {
+        G4ThreeVector position = ntinfo->GetPosition(id);
+        G4ThreeVector direction = ntinfo->GetDirection(id);
+        ntId.push_back(id);
+        ntX.push_back(position.x());
+        ntY.push_back(position.y());
+        ntZ.push_back(position.z());
+        ntU.push_back(direction.x());
+        ntV.push_back(direction.y());
+        ntW.push_back(direction.z());
+      }
     }
     runId = runBranch->GetID();
     runType = runBranch->GetType();
@@ -467,6 +708,7 @@ OutNtupleProc::~OutNtupleProc() {
     metaTree->Fill();
     metaTree->Write();
     outputTree->Write();
+    if (options.digitizerwaveforms) waveformTree->Write();
     /*
     TMap* dbtrace = Log::GetDBTraceMap();
     dbtrace->Write("db", TObject::kSingleKey);
@@ -474,33 +716,6 @@ OutNtupleProc::~OutNtupleProc() {
     // outputFile->Write(0, TObject::kOverwrite);
     outputFile->Close();
     delete outputFile;
-  }
-}
-
-void OutNtupleProc::SetBranchValue(std::string name, double *value) {
-  if (branchNames.find(name) != branchNames.end()) {
-    outputTree->SetBranchAddress(name.c_str(), value);
-  } else {
-    branchNames.insert(name);
-    outputTree->Branch(name.c_str(), value);
-  }
-}
-
-void OutNtupleProc::SetBranchValue(std::string name, bool *value) {
-  if (branchNames.find(name) != branchNames.end()) {
-    outputTree->SetBranchAddress(name.c_str(), value);
-  } else {
-    branchNames.insert(name);
-    outputTree->Branch(name.c_str(), value);
-  }
-}
-
-void OutNtupleProc::SetBranchValue(std::string name, int *value) {
-  if (branchNames.find(name) != branchNames.end()) {
-    outputTree->SetBranchAddress(name.c_str(), value);
-  } else {
-    branchNames.insert(name);
-    outputTree->Branch(name.c_str(), value);
   }
 }
 
@@ -520,11 +735,23 @@ void OutNtupleProc::SetI(std::string param, int value) {
   if (param == "include_pmthits") {
     options.pmthits = value ? true : false;
   }
+  if (param == "include_nestedtubehits") {
+    options.nthits = value ? true : false;
+  }
   if (param == "include_untriggered_events") {
     options.untriggered = value ? true : false;
   }
   if (param == "include_mchits") {
     options.mchits = value ? true : false;
+  }
+  if (param == "include_digitizerwaveforms") {
+    options.digitizerwaveforms = value ? true : false;
+  }
+  if (param == "include_digitizerhits") {
+    options.digitizerhits = value ? true : false;
+  }
+  if (param == "include_digitizerfits") {
+    options.digitizerfits = value ? true : false;
   }
 }
 

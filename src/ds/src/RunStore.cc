@@ -6,6 +6,7 @@ namespace RAT {
 namespace DS {
 
 RunStore *RunStore::fgStore = 0;
+int RunStore::currentRunID = -9999;
 
 RunStore::RunStore() : fReadTree(0), fWriteTree(0) {
   fReadRun = new Run();

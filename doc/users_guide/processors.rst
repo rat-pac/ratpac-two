@@ -6,9 +6,11 @@ simpledaq
 `````````
 The SimpleDAQ processor simulates a minimal data acquisition system.  The time
 of each PMT hit is the time of the first photon hit plus the timing
-distribution of the appropriate PMT, and the charge collected at each PMT is
-just the sum of all charge deposited at the anode, regardless of time.  All PMT
-hits are packed into a single event.
+distribution of the appropriate PMT (i.e. the "frontEndTime" of the first 
+photon), and the charge collected at each PMT is just the sum of all charge 
+deposited at the anode, regardless of time.  All PMT hits are packed into a 
+single event, such that the number of DAQ events will equal the number of MC 
+events.
 
 Command
 '''''''
@@ -22,9 +24,65 @@ None.
 
 lesssimpledaq
 `````````````
+Here, the timing and charge information of each PMT is estimated the same way 
+as simpledaq, but a minimal trigger is also simulated based on a trigger 
+threshold and a trigger time window. The trigger threshold is the minimum 
+number of PMTs that recorded signal within the trigger window. A sliding time 
+window is used to identify hits clustered in time.
+
+If the number of hits within a trigger window exceeds the trigger threshold, 
+all hits between the pre- and post-trigger boundaries are recorded in a 
+"subevent". The hit times within a subevent are all relative to the "cluster 
+time", i.e. the time of the hit that tripped the trigger threshold. These 
+relative hit times are also what are used to determine if hits occur between 
+the pre- and post-trigger boundaries.
+
+The trigger threshold and window are not customisable without altering the 
+source code.
+
+| Post Trigger Window: 600 ns
+| Pre Trigger Window: -200 ns
+| Trigger Window:     200 ns
+| Trigger Threshold:  6
+
+Command
+'''''''
+::
+    
+        /rat/proc lesssimpledaq
+
+Parameters
+''''''''''
+None.
+
 
 splitevdaq
 ``````````
+Behaves the same as lesssimpledaq, but has a more configurable trigger. Also, a 
+more realistic output is achieved by splitting hits over multiple trigger 
+windows into whole new events, rather than subevents.
+
+Command
+'''''''
+::
+
+    /rat/proc splitevdaq
+
+Parameters
+''''''''''
+::
+
+    /rat/procset pulse_width "value"
+    /rat/procset trigger_window "value"
+    /rat/procset trigger_threshold "value"
+    /rat/procset trigger_lockout "value"
+    /rat/procset trigger_resolution "value"
+    /rat/procset pmt_lockout "value"
+    /rat/procset lookback "value"
+    /rat/procset max_hit_time "value"
+    /rat/procset trigger_on_noise "0"|"1"
+    /rat/procset digitizer_name "digitizer"
+    /rat/procset digitize
 
 count
 `````
@@ -95,7 +153,7 @@ RAT source.
 
 fitcentroid
 ```````````
-The !FitCentroid processor reconstructs the position of detector events using
+The ``FitCentroid`` processor reconstructs the position of detector events using
 the charge-weighted sum of the hit PMT position vectors.
 
 Command
@@ -112,6 +170,65 @@ Position fit information in data structure
 ''''''''''''''''''''''''''''''''''''''''''
 * name - "centroid"
 * figures of merit - None
+
+
+fitdirectioncenter
+``````````````````
+The ``fitdirectioncenter`` processor reconstructs the direction of events
+as the average of the vectors from the event position to the hit PMT positions.
+
+Command
+'''''''
+::
+
+    /rat/proc fitdirectioncenter
+
+Parameters
+''''''''''
+No parameters are required though a position reconstruction would need to be run before.
+Several useful parameters can be set in macro, which allows the processor to be run
+multiple times with different settings in a single macro.
+
+Detailed implementations are illustrated in macros/examples/fitdirectioncenter.mac
+In particular, there is an example to correct for the drive effect in reconstructed
+position.  First, a position reconstruction is run, then a direction reconstruction,
+as usual.  However, a second direction reconstruction is run and takes both the
+reconstructed position and direction as input to correct for the drive.  The resulting
+position is then saved in the fitdirectioncenter FitResult.
+
+=========================   ==========================  ===================
+**Field**                   **Type**                    **Description**
+=========================   ==========================  ===================
+``fitter_name``             ``string``                  Defaults to "fitdirectioncenter"
+``position_fitter``         ``string``                  Name of fitter providing position input
+``direction_fitter``        ``string``                  Name of fitter providing direction for drive correction
+
+``pmt_type``                ``int``                     PMT "type" to use.  Multiple types can be used.  Defaults to all types.
+``verbose``                 ``int``                     FOMs saved in FitResult.  1 saves ``num_PMT``.  2 also saves ``time_resid_low`` and ``time_resid_up``
+
+``time_resid_low``          ``double``                  Lower cut on time residuals in ns
+``time_resid_up``           ``double``                  Upper cut on time residuals in ns
+
+``time_resid_frac_low``     ``double``                  Lower cut on time residuals as a fraction in [0.0, 1.0)
+``time_resid_frac_up``      ``double``                  Upper cut on time residuals as a fraction in (0.0, 1.0]
+
+``light_speed``             ``double``                  Speed of light in material in mm/ns.  Defaults to water.
+
+``event_position_x``        ``double``                  Fixed position of event in mm
+``event_position_y``        ``double``                  Fixed position of event in mm
+``event_position_z``        ``double``                  Fixed position of event in mm
+
+``event_time``              ``double``                  Fixed offset of time residuals in ns
+
+``event_drive``             ``double``                  Fixed offset of position input in mm
+=========================   ==========================  ===================
+
+Direction fit information in data structure
+''''''''''''''''''''''''''''''''''''''''''
+* figure of merit - ``num_PMT`` is the number of PMTs used in a reconstruction
+* figure of merit - ``time_resid_low`` is the earliest time residual that passes the lower time residual cut
+* figure of merit - ``time_resid_up`` is the latest time residual that passes the upper time residual cut
+
 
 fitpath
 ```````

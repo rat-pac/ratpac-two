@@ -154,7 +154,7 @@ double AfterPulseProc::CalculateAfterPulseTime(double apFraction, std::vector<do
                                                std::vector<double> apProb) {
   const double randtime = G4UniformRand();
   size_t up = 1;
-  for (int i = 1; i < apTime.size(); i++) {
+  for (size_t i = 1; i < apTime.size(); i++) {
     if (randtime < apProb[i]) {
       up = i;
       i = apTime.size();

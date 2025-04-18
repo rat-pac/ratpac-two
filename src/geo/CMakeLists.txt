@@ -18,6 +18,8 @@ add_library(geo OBJECT
         src/GeoCalibrationStickFactory.cc
         src/GeoCherenkovSourceFactory.cc
         src/GeoConvexLensFactory.cc
+        src/GeoFiberSensitiveDetector.cc
+        src/GeoFiberSensitiveDetectorHit.cc
         src/GeoCutTubeFactory.cc
         src/GeoEosFactory.cc
         src/GeoFactory.cc
@@ -33,6 +35,9 @@ add_library(geo OBJECT
         src/GeoRevolutionChimneyFactory.cc
         src/GeoRevolutionFactory.cc
         src/GeoSolidArrayFactoryBase.cc
+        src/GeoNestedSolidArrayFactoryBase.cc
+        src/GeoNestedTubeArrayFactory.cc
+        src/GeoNestedTubeConstruction.cc
         src/GeoSolidFactory.cc
         src/GeoSphereFactory.cc
         src/GeoSurfaceFactory.cc
@@ -47,12 +52,7 @@ add_library(geo OBJECT
         src/WaterBoxConstruction.cc
         src/WLSPFactory.cc
         src/WLSPCoverFactory.cc
-        src/gdml/GDMLMessenger.cc
-        src/gdml/GDMLParser.cc
-        src/gdml/GDMLWriteParamvol.cc
-        src/gdml/GDMLWriteSolids.cc
-        src/gdml/GDMLWriteSetup.cc
-        src/gdml/GDMLWriteStructure.cc
+        src/GDMLWriteStructure.cc
         src/pmt/CubicPMTConstruction.cc
         src/pmt/LAPPDConstruction.cc
         src/pmt/PMTArrayFactory.cc
@@ -63,6 +63,7 @@ add_library(geo OBJECT
         src/pmt/PMTInfoParser.cc
         src/pmt/RevolutionPMTConstruction.cc
         src/pmt/ToroidalPMTConstruction.cc
+        src/pmt/CylindricalPMTConstruction.cc
         )
 
 # Set our include directories

@@ -190,8 +190,7 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
 
     // we can then set these events on the PMT for one subevent
     for (unsigned long dd = 0; dd < idGroup.size(); dd++) {
-      pmt = ev->AddNewPMT();
-      pmt->SetID(idGroup[dd]);
+      pmt = ev->GetOrCreatePMT(idGroup[dd]);
       pmt->SetTime(tGroup[dd]);
       pmt->SetCharge(qGroup[dd]);
     }
@@ -203,6 +202,7 @@ Processor::Result LessSimpleDAQProc::DSEvent(DS::Root *ds) {
 
     // regster total charge of one subevent
     ev->SetTotalCharge(totalQ);
+    ev->SetUTC(mc->GetUTC());
   }
 
   return Processor::OK;

@@ -68,7 +68,6 @@ VertexGen_CRY::VertexGen_CRY(const char *arg_dbname) : GLG4VertexGen(arg_dbname)
   startTime.Set(year, month, day, 0, 0, 0, 0, 1, 0);
 }
 void VertexGen_CRY::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, G4double dt) {
-  int nParticles = 0;
   std::vector<CRYParticle *> *cryvector = new std::vector<CRYParticle *>;
   // Now the interesting bit
   generator->genEvent(cryvector);

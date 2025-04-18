@@ -15,7 +15,6 @@
 #include <RAT/OutROOTProc.hh>
 #include <RAT/ProcBlock.hh>
 #include <RAT/ProcBlockManager.hh>
-#include <RAT/ProducerBlock.hh>
 #include <RAT/PythonProc.hh>
 #include <RAT/Rat.hh>
 #include <RAT/SignalHandler.hh>
@@ -42,8 +41,7 @@ std::string get_long_hostname() {
   gethostname(c_hostname, 256);
   return std::string(c_hostname);
 }
-
-Rat::Rat(AnyParse *parser, int argc, char **argv) : parser(parser), argc(argc), argv(argv) {
+void Rat::Configure() {
   // Setup a base set of arguments
   this->parser->SetHelpLine("[options] macro1.mac macro2.mac ...");
   // Form is AddArgument(name, default, shortname, length, help, type)
@@ -61,10 +59,11 @@ Rat::Rat(AnyParse *parser, int argc, char **argv) : parser(parser), argc(argc), 
   this->parser->AddArgument("vector", "", "x", 1, "Set default vector filename", ParseString);
   this->parser->AddArgument("python", std::vector<std::string>{}, "p", 999, "Set python processors", ParseString);
   this->parser->AddArgument("vis", false, "g", 0, "Load G4UI visualization", ParseInt);
-  // Parser setup and ready to read command line arguments
+  // Parsur setup and ready to read command line arguments
   this->parser->Parse();
 
-  if (this->parser->GetValue("database", "") != "") RAT::DB::Get()->SetServer(this->parser->GetValue("database", ""));
+  if (std::string(this->parser->GetValue("database", "")) != "")
+    RAT::DB::Get()->SetServer(this->parser->GetValue("database", ""));
   // Database management
   rdb = DB::Get();
   rdb_messenger = new DBMessenger();
@@ -75,12 +74,7 @@ Rat::Rat(AnyParse *parser, int argc, char **argv) : parser(parser), argc(argc), 
   }
   // Rat Messenger
   rat_messenger = new RatMessenger();
-}
 
-Rat::~Rat() {}
-
-void Rat::Begin() {
-  this->runTime.Start();
   this->seed = this->parser->GetValue("seed", -1);
   this->input_filename = this->parser->GetValue("input", "");
   this->output_filename = this->parser->GetValue("output", "");
@@ -95,11 +89,9 @@ void Rat::Begin() {
   int display_level = Log::INFO - this->parser->GetValue("quiet", false) + this->parser->GetValue("verbose", false);
   int log_level = debug_log || display_level == Log::DEBUG ? Log::DEBUG : Log::DETAIL;
   std::string logfilename = (std::string("rat.") + get_short_hostname() + "." + std::to_string(getpid()) + ".log");
-  logfilename = this->parser->GetValue("log", "") != "" ? this->parser->GetValue("log", "") : logfilename;
+  logfilename = std::string(this->parser->GetValue("log", "")) != "" ? this->parser->GetValue("log", "") : logfilename;
   Log::Init(logfilename, Log::Level(display_level), Log::Level(log_level));
 
-  // Start by putting all of the basic rat starting functions here, eventually
-  // break this apart and fix it up.
   info << "RAT, version " << RATVERSION << newline;
   if (this->parser->GetValue("version", false)) return;
   info << "Status messages enabled: info ";
@@ -114,11 +106,15 @@ void Rat::Begin() {
   if (this->seed == -1) this->seed = start_time ^ (pid << 16);
   detail << "Seeding random number generator: " << this->seed << newline;
   CLHEP::HepRandom::setTheSeed(this->seed);
-  // Root ... should not be used
-  gRandom->SetSeed(this->seed);
+  gRandom->SetSeed(this->seed);  // ROOT rng should not be used, but just in case
+  rdb->LoadDefaults();
+}
 
-  int dbstatus = rdb->LoadDefaults();
+Rat::~Rat() {}
 
+void Rat::Begin() {
+  Configure();
+  this->runTime.Start();
   // Run management
   if (this->run > 0) {
     info << "Setting run number: " << this->run << newline;
@@ -146,10 +142,8 @@ void Rat::Begin() {
       info << "Setting default chroma file to " << this->chroma_filename << newline;
     }
 
-    // Build event producers
-    ProducerBlock *prodBlock = new ProducerBlock();
     // Main analysis block
-    ProcBlock *mainBlock = new ProcBlock(prodBlock);
+    ProcBlock *mainBlock = new ProcBlock(&prodBlock);
     // Process block manager -- supplies user commands to construct analyis
     // sequence and does the processor creation
     ProcBlockManager *blockManager = new ProcBlockManager(mainBlock);
@@ -168,7 +162,6 @@ void Rat::Begin() {
       mainBlock->DeferAppend(python);
     }
 
-    bool isInteractive = false;
     G4UIExecutive *theSession = nullptr;
     if (this->vis) theSession = new G4UIExecutive(this->argc, this->argv);
 
@@ -190,7 +183,6 @@ void Rat::Begin() {
 
     delete blockManager;
     delete mainBlock;
-    delete prodBlock;
     delete rdb_messenger;
     delete trackingMessenger;
   } catch (DBNotFoundError &e) {

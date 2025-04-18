@@ -13,7 +13,9 @@
 
 namespace RAT {
 
-SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
+SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {}
+
+void SplitEVDAQProc::BeginOfRun(DS::Run *run) {
   // Trigger Specifications
 
   ldaq = DB::Get()->GetLink("DAQ", "SplitEVDAQ");
@@ -29,18 +31,13 @@ SplitEVDAQProc::SplitEVDAQProc() : Processor("splitevdaq") {
   fTriggerOnNoise = ldaq->GetI("trigger_on_noise");
   fDigitizerType = ldaq->GetS("digitizer_name");
   fDigitize = ldaq->GetZ("digitize");
-  fAnalyze = ldaq->GetZ("analyze");
 
   fDigitizer = new Digitizer(fDigitizerType);
-  fWaveformAnalysis = new WaveformAnalysis();
-}
-
-void SplitEVDAQProc::BeginOfRun(DS::Run *run) {
   if (fDigitize) {
     DS::PMTInfo *pmtinfo = run->GetPMTInfo();
     const size_t numModels = pmtinfo->GetModelCount();
     for (size_t i = 0; i < numModels; i++) {
-      const std::string modelName = pmtinfo->GetModelName(i);
+      const std::string &modelName = pmtinfo->GetModelName(i);
       fDigitizer->AddWaveformGenerator(modelName);
     }
   }
@@ -109,10 +106,12 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   for (int i = 0; i < nbins; i++) {
     double x = triggerTrain[i];
     if (x > 0) {
-      for (int j = i; j < i + int(fPulseWidth / bw); j++) {
+      int j = i;
+      do {
         if (j >= nbins) break;
         triggerHistogram[j] += x;
-      }
+        j++;
+      } while (j < i + int(fPulseWidth / bw));
     }
   }
 
@@ -136,6 +135,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     DS::EV *ev = ds->AddNewEV();
     ev->SetID(fEventCounter++);
     ev->SetCalibratedTriggerTime(tt);
+    ev->SetUTC(mc->GetUTC());
     ev->SetDeltaT(tt - lastTrigger);
     lastTrigger = tt;
     double totalEVCharge = 0;  // What does total charge get used for?
@@ -159,8 +159,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
       }
       std::sort(hitTimes.begin(), hitTimes.end());
       if (pmtInEvent) {
-        DS::PMT *pmt = ev->AddNewPMT();
-        pmt->SetID(pmtID);
+        DS::PMT *pmt = ev->GetOrCreatePMT(pmtID);
         double front_end_hit_time = *std::min_element(hitTimes.begin(), hitTimes.end());
         // PMT Hit time relative to the trigger
         pmt->SetTime(front_end_hit_time - tt);
@@ -168,17 +167,12 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         totalEVCharge += integratedCharge;
         if (fDigitize) {
           fDigitizer->DigitizePMT(mcpmt, pmtID, tt, pmtinfo);
-          if (fAnalyze) {
-            DS::DigitPMT *digitpmt = ev->AddNewDigitPMT();
-            digitpmt->SetID(pmtID);
-            fWaveformAnalysis->RunAnalysis(digitpmt, pmtID, fDigitizer);
-          }
         }
       }
     }  // Done looping over PMTs
 
     if (fDigitize) {
-      fDigitizer->DigitizeSum(ev);
+      fDigitizer->WriteToEvent(ev);
     }
 
     ev->SetTotalCharge(totalEVCharge);

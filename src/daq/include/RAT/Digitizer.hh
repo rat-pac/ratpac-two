@@ -34,7 +34,8 @@ class Digitizer {
 
   virtual void SetDigitizerType(std::string);
   virtual void DigitizePMT(DS::MCPMT *mcpmt, int pmtID, double triggerTime, DS::PMTInfo *pmtinfo);
-  virtual void DigitizeSum(DS::EV *ev);
+  virtual void ClearWaveforms();
+  virtual void WriteToEvent(DS::EV *ev);
   virtual void AddChannel(int ichannel, PMTWaveform pmtwf);
 
   void AddWaveformGenerator(std::string modelName);
@@ -47,7 +48,7 @@ class Digitizer {
   int fNSamples;            // Total number of samples per digitized trace
   double fTerminationOhms;  // Input impedence of digitizer
   // Channel:Digitized waveform for each channel
-  std::map<UShort_t, std::vector<UShort_t>> fDigitWaveForm;
+  std::map<int, std::vector<UShort_t>> fDigitWaveForm;
 
   std::map<std::string, PMTWaveformGenerator *> fPMTWaveformGenerators;
 

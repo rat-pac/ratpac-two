@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11...3.14)
-project(ratpac VERSION 2.1.3
+project(ratpac VERSION 2.3.0
                 DESCRIPTION "RAT-PAC"
                 LANGUAGES C CXX)
 
@@ -10,7 +10,12 @@ if(EXISTS "${LOC_PATH}")
     message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
 endif()
 
-
+# Use RPATH for install
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+ 
+# add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 ###########################################################
 # Set default build type
 set(default_build_type "Release")
@@ -24,7 +29,9 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
     "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
-add_compile_options(-Wno-terminate)
+add_compile_options(-Wall)
+# Not turning on errors yet to ease transition
+#add_compile_options(-Werr)
 
 ###########################################################
 # Set CMAKE standards
@@ -89,9 +96,12 @@ else()
 endif()
 include(${ROOT_USE_FILE})
 
-find_package(Geant4 REQUIRED COMPONENTS qt)
+find_package(Geant4 REQUIRED)
+find_package(Geant4 QUIET OPTIONAL_COMPONENTS qt)
 include(${Geant4_USE_FILE})
 include_directories(${Geant4_INCLUDE_DIRS})
+include_directories(${CLHEP_INCLUDE_DIRS})
+include_directories(${XercesC_INCLUDE_DIRS})
 
 find_package(Threads REQUIRED)
 
@@ -146,6 +156,9 @@ install(DIRECTORY models/ DESTINATION ${RATSHARE}/models
 # Install the python files
 install(DIRECTORY python/ DESTINATION ${RATSHARE}/python
   PATTERN "python/*")
+
+# Install rattest executable
+install(PROGRAMS python/rattest.py DESTINATION bin RENAME rattest)
 
 # Install the macro files
 install(DIRECTORY macros/ DESTINATION ${RATSHARE}/macros
