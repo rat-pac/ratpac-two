@@ -20,6 +20,7 @@ target_include_directories(stlplus SYSTEM PUBLIC
 target_include_directories(stlplus PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>)
+target_compile_options(stlplus PRIVATE -w)
 
 # Copy our headers when installing
 file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})

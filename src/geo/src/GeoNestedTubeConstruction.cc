@@ -32,7 +32,6 @@ GeoNestedTubeConstruction::GeoNestedTubeConstruction(DBLinkPtr table, DBLinkPtr 
   fParams.outer = G4Material::GetMaterial(table->GetS("outer_material"));
   fParams.inner = G4Material::GetMaterial(table->GetS("inner_material"));
   fParams.core = G4Material::GetMaterial(table->GetS("core_material"));
-  DB *db = DB::Get();
   std::string core_surface_name = table->GetS("core_material");
   if (Materials::optical_surface.count(core_surface_name) == 0)
     Log::Die("GeoSolidFactory: Surface " + core_surface_name + " does not exist");

@@ -157,7 +157,8 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
 
     double rsq[4];
     double N[3], K[3], g[3], h[3], bv[3];
-    double M[3][3], iM[3][3];
+    double M[3][3];
+    double iM[3][3] = {};
 
     // Now do the calculation
     for (int j = 0; j < 4; j++) rsq[j] = mag2(pmt_pos[j]) - t[j] * t[j];
