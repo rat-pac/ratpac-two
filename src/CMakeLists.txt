@@ -13,7 +13,7 @@ add_subdirectory(gen)
 add_subdirectory(geo)
 add_subdirectory(io)
 add_subdirectory(physics)
-add_subdirectory(stlplus)
+add_subdirectory(external)
 add_subdirectory(util)
 # ds has to come last to avoid race condition with ratdict 
 add_subdirectory(ds)
@@ -28,7 +28,7 @@ add_subdirectory(ratbase)
 add_library(RATPAC SHARED)
 target_link_libraries(RATPAC PUBLIC
   ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} ${CRY_LIBRARIES} ${TENSORFLOW_LIBRARIES}
-  cmd core daq db ds fit gen geo io physics ratbase stlplus util RATDict)
+  cmd core daq db ds fit gen geo io physics ratbase stlplus cppflow util RATDict)
 target_include_directories(RATPAC PUBLIC ${CLHEP_INCLUDE_DIRS})
 message("Including ${CLHEP_INCLUDE_DIRS}")
 
