@@ -173,7 +173,10 @@ class OutNtupleProc : public Processor {
   std::vector<double> digitPeak;
   std::vector<double> digitTime;
   std::vector<double> digitCharge;
+  std::vector<double> digitTimeOverThreshold;
+  std::vector<double> digitVoltageOverThreshold;
   std::vector<double> digitLocalTriggerTime;
+  std::vector<int> digitReconNPEs;
   std::vector<int> digitNCrossings;
   std::vector<int> digitPMTID;
   // Information from fit to the waveforms
