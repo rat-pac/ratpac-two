@@ -25,12 +25,3 @@ include_untriggered_events: true,
 include_mchits: true,
 waveform_fitters: ["Lognormal", "Gaussian", "Sinc"]
 }
-
-{
- name: "IO",
-  index: "ChargeCali",
-  valid_begin: [0, 0],
-  valid_end: [0, 0],
-  default_index: "fitted"//options of "fitted" or "integrated"
-
-}

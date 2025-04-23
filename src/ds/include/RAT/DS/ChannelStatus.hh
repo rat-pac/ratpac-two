@@ -58,8 +58,8 @@ class ChannelStatus : public TObject {
     default_offset = lCableOffset->GetD("default_value");
     DBLinkPtr lChannelOnline = DB::Get()->GetLink("channel_online", index);
     default_is_online = lChannelOnline->GetD("default_value");
-    DBLinkPtr lChargeScaleIndex = DB::Get()->GetLink("IO", "ChargeCali");
-    ChargeScaleIndex = lChargeScaleIndex->GetS("default_index");
+    DBLinkPtr lChargeScaleIndex = DB::Get()->GetLink("charge_scale", "selected_charge_scale");
+    ChargeScaleIndex = lChargeScaleIndex->GetS("selection");
     DBLinkPtr lChargeScale = DB::Get()->GetLink("charge_scale", ChargeScaleIndex);
     default_charge_scale = lChargeScale->GetD("default_value");
     for (int pmtid = 0; pmtid < pmtinfo->GetPMTCount(); pmtid++) {
