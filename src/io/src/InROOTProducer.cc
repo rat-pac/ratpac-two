@@ -96,19 +96,34 @@ bool InROOTProducer::ReadEvents(G4String filename) {
 
     // delete ftemp;
   }
-
   DS::Root *branchDS = new DS::Root();
+  DS::Run *run;
   tree.SetBranchAddress("ds", &branchDS);
+  use_chroma = DB::Get()->GetLink("MC")->GetZ("use_chroma");
 
   // Read
   Int_t num_events = tree.GetEntries();
   for (Int_t i = 0; i < num_events && !SignalHandler::IsTermRequested(); i++) {
     tree.GetEntry(i);
+    if (i == 0) {
+      run = DS::RunStore::GetRun(branchDS);
+      SetupRun(run);
+
+    } else if (branchDS->GetRunID() != run->GetID()) {
+      // setup for a new run
+      FinishRun(run);
+      delete chroma;
+      run = DS::RunStore::GetRun(branchDS);
+      SetupRun(run);
+    }
+
     // force the run entry to be loaded into memory so that it
     // can be written later.
     // If no runTree to read from, this will return 0, but we don't care.
     DS::RunStore::GetRun(branchDS);
-
+    if (use_chroma) {
+      chroma->eventAction(branchDS);
+    }
     mainBlock->DSEvent(branchDS);
   }
 
@@ -116,6 +131,39 @@ bool InROOTProducer::ReadEvents(G4String filename) {
   delete branchDS;
 
   return true;
+}
+
+void InROOTProducer::SetupRun(DS::Run *run) {
+  if (use_chroma) {
+    DBLinkPtr lchroma = DB::Get()->GetLink("CHROMA");
+    DS::PMTInfo *pmtinfo = run->GetPMTInfo();
+    size_t numModels = pmtinfo->GetModelCount();
+    std::vector<RAT::PMTTime *> pmttime(numModels);
+    std::vector<RAT::PMTCharge *> pmtcharge(numModels);
+    for (size_t i = 0; i < numModels; i++) {
+      const std::string modelName = pmtinfo->GetModelName(i);
+      try {
+        pmttime[i] = new PDFPMTTime(modelName);
+      } catch (DBNotFoundError &e) {
+        pmttime[i] = new PDFPMTTime();
+      }
+      try {
+        pmtcharge[i] = new PDFPMTCharge(modelName);
+      } catch (DBNotFoundError &e) {
+        pmtcharge[i] = new PDFPMTCharge();
+      }
+    }
+    chroma = new Chroma(ChromaRunMode::ROOTFILE, lchroma, pmtinfo, pmttime, pmtcharge);
+  }
+  mainBlock->BeginOfRun(run);
+}
+
+void InROOTProducer::FinishRun(DS::Run *run) {
+  if (use_chroma) {
+    chroma->endOfRun();
+    delete chroma;
+  }
+  mainBlock->EndOfRun(run);
 }
 
 }  // namespace RAT

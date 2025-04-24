@@ -172,6 +172,7 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
   DBLinkPtr lmc = DB::Get()->GetLink("MC");
   runID = DB::Get()->GetDefaultRun();
   utc = TTimeStamp();  // default to now
+  use_chroma = lmc->GetZ("use_chroma");
 
   info << "Gsim: Simulating run " << runID << newline;
   info << "Gsim: Run start at " << utc.AsString() << newline;
@@ -208,6 +209,10 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
       fPMTCharge[i] = new RAT::PDFPMTCharge();
     }
   }
+  if (use_chroma) {
+    DBLinkPtr lchroma = DB::Get()->GetLink("CHROMA");
+    chroma = new Chroma(ChromaRunMode::ZMQ, lchroma, fPMTInfo, fPMTTime, fPMTCharge);
+  }
 
   // Tell the generator when the run starts
   GLG4PrimaryGeneratorAction *theGLG4PGA = GLG4PrimaryGeneratorAction::GetTheGLG4PrimaryGeneratorAction();
@@ -237,6 +242,10 @@ void Gsim::EndOfRunAction(const G4Run * /*arun*/) {
     info << "Gsim: Tracking aborted for " << nabort << " events exceeding " << maxpe << " photoelectrons" << newline;
   }
   mainBlock->EndOfRun(run);
+  if (use_chroma) {
+    chroma->endOfRun();
+    delete chroma;
+  }
 }
 
 void Gsim::BeginOfEventAction(const G4Event *anEvent) {
@@ -254,6 +263,9 @@ void Gsim::BeginOfEventAction(const G4Event *anEvent) {
   if (StoreOpticalTrackID) {
     OpticalPhotonIDs.resize(10000);
   }
+  if (use_chroma) {
+    chroma->setEventID(anEvent->GetEventID());
+  }
 }
 
 void Gsim::EndOfEventAction(const G4Event *anEvent) {
@@ -263,6 +275,9 @@ void Gsim::EndOfEventAction(const G4Event *anEvent) {
   ds->SetRunID(runID);
   ds->AppendProcResult("gsim", Processor::OK);
   ds->SetRatVersion(RATVERSION);
+  if (use_chroma) {
+    chroma->eventAction(ds);
+  }
 
   // Let main processor block process the event
   mainBlock->DSEvent(ds);
@@ -343,6 +358,16 @@ void Gsim::PreUserTrackingAction(const G4Track *aTrack) {
     } else if (creatorProcessName.find("Cerenkov") != std::string::npos) {
       eventInfo->numCerenkovPhoton++;
     }
+
+    if (use_chroma) {
+      const G4ThreeVector pos = aTrack->GetPosition();
+      const G4ThreeVector dir = aTrack->GetMomentumDirection();
+      const G4ThreeVector pol = aTrack->GetPolarization();
+      const float energy = aTrack->GetKineticEnergy();
+      const float t = aTrack->GetGlobalTime();
+      chroma->addPhoton(pos, dir, pol, energy, t, creatorProcessName);
+      const_cast<G4Track *>(aTrack)->SetTrackStatus(fStopAndKill);
+    }
   }
 }
 
@@ -405,10 +430,12 @@ void Gsim::PostUserTrackingAction(const G4Track *aTrack) {
     // With bulk TPB model:    Not made by OpWLS, but killed by OpWLS
     if ((aTrack->GetDefinition()->GetParticleName() == "opticalphoton") && (creatorProcessName != "Reemission") &&
         (creatorProcessName != "OpWLS")) {
-      destroyerProcessName = aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
-      if ((destroyerProcessName == "SurfaceAbsorption") || (destroyerProcessName == "OpWLS")) {
-        G4ThreeVector startPosition = aTrack->GetVertexPosition();
-        eventInfo->opticalCentroid.Fill(TVector3(startPosition.x(), startPosition.y(), startPosition.z()));
+      if (aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()) {
+        destroyerProcessName = aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
+        if ((destroyerProcessName == "SurfaceAbsorption") || (destroyerProcessName == "OpWLS")) {
+          G4ThreeVector startPosition = aTrack->GetVertexPosition();
+          eventInfo->opticalCentroid.Fill(TVector3(startPosition.x(), startPosition.y(), startPosition.z()));
+        }
       }
     }
     if (StoreOpticalTrackID) {
@@ -544,50 +571,55 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   // GLG4PMTOpticalModel::pmtHitVector.resize(0);
 
   /** PMT and noise simulation */
-  GLG4HitPMTCollection *hitpmts = GLG4VEventAction::GetTheHitPMTCollection();
-  int numPE = 0;
+  // only do this is chroma is not used, since Chroma writes the PMT hits by itself
+  if (!use_chroma) {
+    GLG4HitPMTCollection *hitpmts = GLG4VEventAction::GetTheHitPMTCollection();
+    int numPE = 0;
 
-  for (int ipmt = 0; ipmt < hitpmts->GetEntries(); ipmt++) {
-    GLG4HitPMT *a_pmt = hitpmts->GetPMT(ipmt);
-    a_pmt->SortTimeAscending();
+    for (int ipmt = 0; ipmt < hitpmts->GetEntries(); ipmt++) {
+      GLG4HitPMT *a_pmt = hitpmts->GetPMT(ipmt);
+      a_pmt->SortTimeAscending();
 
-    // Create and initialize a RAT DS::MCPMT
-    // note that GLG4HitPMTs are given IDs which are their index
-    DS::MCPMT *rat_mcpmt = mc->AddNewMCPMT();
-    // the index of the PMT we just added
-    rat_mcpmt->SetID(a_pmt->GetID());
-    rat_mcpmt->SetType(fPMTInfo->GetType(a_pmt->GetID()));
+      // Create and initialize a RAT DS::MCPMT
+      // note that GLG4HitPMTs are given IDs which are their index
+      DS::MCPMT *rat_mcpmt = mc->AddNewMCPMT();
+      // the index of the PMT we just added
+      rat_mcpmt->SetID(a_pmt->GetID());
+      rat_mcpmt->SetType(fPMTInfo->GetType(a_pmt->GetID()));
 
-    numPE += a_pmt->GetEntries();
-    /** Add "real" hits from actual simulated photons */
-    for (int i = 0; i < a_pmt->GetEntries(); i++) {
-      // Find the optical process responsible
-      auto photon = a_pmt->GetPhoton(i);
-      std::string process = photon->GetCreatorProcess();
-      if (StoreOpticalTrackID) {
-        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), exinfo, process);
-      } else {
-        AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), NULL, process);
+      numPE += a_pmt->GetEntries();
+      /** Add "real" hits from actual simulated photons */
+      for (int i = 0; i < a_pmt->GetEntries(); i++) {
+        // Find the optical process responsible
+        auto photon = a_pmt->GetPhoton(i);
+        std::string process = photon->GetCreatorProcess();
+        if (StoreOpticalTrackID) {
+          AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), exinfo, process);
+        } else {
+          AddMCPhoton(rat_mcpmt, a_pmt->GetPhoton(i), NULL, process);
+        }
       }
+      mc->SetNumPE(numPE);
     }
-  }
-  mc->SetNumPE(numPE);
+    mc->SetNumPE(numPE);
 
-  /** hits from fibers */
-  G4HCofThisEvent *HC = g4ev->GetHCofThisEvent();
-  for (int hc = 0; hc < HC->GetNumberOfCollections(); hc++) {
-    GeoFiberSensitiveDetectorHitsCollection *hit_collection = (GeoFiberSensitiveDetectorHitsCollection *)HC->GetHC(hc);
-    if (hit_collection->GetName() != "FiberSenDet" || hit_collection->GetSize() == 0) continue;
-    DS::MCNestedTube *rat_mcnt = mc->AddNewMCNestedTube();
-    G4String det_name = hit_collection->GetSDname();
-    std::string fibre_id_str = det_name.erase(0, 6).data();
-    int fibre_id = std::stoi(fibre_id_str);
-    rat_mcnt->SetID(fibre_id);
-    // only process fibers
-    // info << hit_collection->GetSDname() << newline;
-    for (int hit = 0; hit < hit_collection->GetSize(); hit++) {
-      GeoFiberSensitiveDetectorHit *my_hit = (GeoFiberSensitiveDetectorHit *)hit_collection->GetHit(hit);
-      AddMCNestedTubeHit(rat_mcnt, my_hit);
+    /** hits from fibers */
+    G4HCofThisEvent *HC = g4ev->GetHCofThisEvent();
+    for (int hc = 0; hc < HC->GetNumberOfCollections(); hc++) {
+      GeoFiberSensitiveDetectorHitsCollection *hit_collection =
+          (GeoFiberSensitiveDetectorHitsCollection *)HC->GetHC(hc);
+      if (hit_collection->GetName() != "FiberSenDet" || hit_collection->GetSize() == 0) continue;
+      DS::MCNestedTube *rat_mcnt = mc->AddNewMCNestedTube();
+      G4String det_name = hit_collection->GetSDname();
+      std::string fibre_id_str = det_name.erase(0, 6).data();
+      int fibre_id = std::stoi(fibre_id_str);
+      rat_mcnt->SetID(fibre_id);
+      // only process fibers
+      // info << hit_collection->GetSDname() << newline;
+      for (size_t hit = 0; hit < hit_collection->GetSize(); hit++) {
+        GeoFiberSensitiveDetectorHit *my_hit = (GeoFiberSensitiveDetectorHit *)hit_collection->GetHit(hit);
+        AddMCNestedTubeHit(rat_mcnt, my_hit);
+      }
     }
   }
 }
@@ -613,8 +645,8 @@ void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventI
   rat_mcphoton->SetCreationTime(photon->GetCreationTime());
 
   rat_mcphoton->SetFrontEndTime(fPMTTime[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickTime(photon->GetTime()));
-  // Set the charge for the photoelectron, scaled by an optional calibration parameter chargeScale with a default value
-  // of one
+  // Set the charge for the photoelectron, scaled by an optional calibration parameter chargeScale with a default
+  // value of one
   rat_mcphoton->SetCharge(chargeScale * fPMTCharge[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickCharge());
   rat_mcphoton->SetCreatorProcess(process);
 }

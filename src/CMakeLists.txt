@@ -19,15 +19,13 @@ add_subdirectory(util)
 add_subdirectory(ds)
 add_subdirectory(ratbase)
 
-
-
 ###########################################################
 # Create our libraries and executables
 
 # RAT shared library
 add_library(RATPAC SHARED)
-target_link_libraries(RATPAC PUBLIC
-  ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} ${CRY_LIBRARIES} ${TENSORFLOW_LIBRARIES}
+target_link_libraries(RATPAC PUBLIC 
+  ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} ${CRY_LIBRARIES} ${TENSORFLOW_LIBRARIES} ${ZeroMQ_LIBRARY}
   cmd core daq db ds fit gen geo io physics ratbase stlplus util RATDict)
 target_include_directories(RATPAC PUBLIC ${CLHEP_INCLUDE_DIRS})
 message("Including ${CLHEP_INCLUDE_DIRS}")
