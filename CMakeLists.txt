@@ -1,7 +1,23 @@
 cmake_minimum_required(VERSION 3.11...3.14)
-project(ratpac VERSION 2.3.0
-                DESCRIPTION "RAT-PAC"
-                LANGUAGES C CXX)
+# Automatically get version of git tags.
+execute_process(
+    COMMAND git --git-dir=${CMAKE_SOURCE_DIR}/.git describe --tags --always
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE RATVERSION
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+# Fallback version:
+if(NOT RATVERSION)
+  set(RATVERSION "2.3.0")
+endif()
+
+project(ratpac
+  DESCRIPTION "RAT, Plus Additional Code, Version 2"
+  HOMEPAGE_URL "https://ratpac.readthedocs.io/en/latest/"
+  LANGUAGES C CXX
+)
+set(PROJECT_VERSION ${RATVERSION})
 
 ###########################################################
 # Require out-of-source builds
@@ -31,7 +47,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 add_compile_options(-Wall)
 # Not turning on errors yet to ease transition
-#add_compile_options(-Werr)
+# add_compile_options(-Werror)
 
 ###########################################################
 # Set CMAKE standards

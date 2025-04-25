@@ -130,7 +130,6 @@ G4bool GeoFiberSensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory 
              "in this element."
           << newline;
     // check if this finger already has a hit
-    G4int ix = -1;
 
     debug << "GeoFiberSensitiveDetector::ProcessHits hit collection address is " << _hitsCollection << newline;
     // G4cerr << "GeoFiberSensitiveDetector: Hit ID = " << uid << " and position: " << worldPos << newline;
