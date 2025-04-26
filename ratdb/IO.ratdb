@@ -23,6 +23,7 @@ include_digitizerfits: true,
 include_digitizerwaveforms: false,
 include_untriggered_events: true,
 include_mchits: true,
+include_calib: true,
 
 waveform_fitters: ["Lognormal", "Gaussian", "Sinc"],
 

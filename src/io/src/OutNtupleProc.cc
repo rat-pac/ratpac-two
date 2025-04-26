@@ -55,12 +55,14 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.untriggered = table->GetZ("include_untriggered_events");
     options.mchits = table->GetZ("include_mchits");
     options.nthits = table->GetZ("include_nestedtubehits");
+    options.calib = table->GetZ("include_calib");
   } catch (DBNotFoundError &e) {
     options.tracking = false;
     options.mcparticles = false;
     options.pmthits = true;
     options.untriggered = false;
     options.mchits = true;
+    options.calib = true;
     options.nthits = false;
   }
   if (options.digitizerfits) {
@@ -121,6 +123,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("nhits", &nhits);
   outputTree->Branch("triggerTime", &triggerTime);  // Local trigger time
   outputTree->Branch("timestamp", &timestamp);      // Global trigger time
+  outputTree->Branch("trigger_word", &trigger_word);
   outputTree->Branch("timeSinceLastTrigger_us", &timeSinceLastTrigger_us);
   // MC Information
   outputTree->Branch("mcid", &mcid);
@@ -225,6 +228,20 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     metaTree->Branch("processCodeMap", &processCodeMap);
     outputTree->Branch("trackVolume", &trackVolume);
     metaTree->Branch("volumeCodeMap", &volumeCodeMap);
+  }
+  if (options.calib) {
+    outputTree->Branch("calibId", &calibId);
+    outputTree->Branch("calibMode", &calibMode);
+    outputTree->Branch("calibIntensity", &calibIntensity);
+    outputTree->Branch("calibWavelength", &calibWavelength);
+    outputTree->Branch("calibName", &calibName);
+    outputTree->Branch("calibTime", &calibTime);
+    outputTree->Branch("calibX", &calibX);
+    outputTree->Branch("calibY", &calibY);
+    outputTree->Branch("calibZ", &calibZ);
+    outputTree->Branch("calibU", &calibU);
+    outputTree->Branch("calibV", &calibV);
+    outputTree->Branch("calibW", &calibW);
   }
   if (options.digitizerwaveforms) {
     waveformTree = new TTree("waveforms", "waveforms");
@@ -442,14 +459,32 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       }
     }
   }
+  // CALIB Branches
+  if (options.calib) {
+    DS::Calib *calib = ds->GetCalib();
+    calibId = calib->GetID();
+    calibMode = calib->GetMode();
+    calibIntensity = calib->GetIntensity();
+    calibWavelength = calib->GetWavelength();
+    calibName = calib->GetSourceName();
+    calibTime = TTimeStamp_to_UnixTime(calib->GetUTC());
+    TVector3 calib_pos = calib->GetPosition();
+    calibX = calib_pos.X();
+    calibY = calib_pos.Y();
+    calibZ = calib_pos.Z();
+    TVector3 calib_dir = calib->GetDirection();
+    calibU = calib_dir.X();
+    calibV = calib_dir.Y();
+    calibW = calib_dir.Z();
+  }
 
   // EV Branches
   for (subev = 0; subev < ds->GetEVCount(); subev++) {
     DS::EV *ev = ds->GetEV(subev);
     evid = ev->GetID();
     triggerTime = ev->GetCalibratedTriggerTime();
-    timestamp = (ev->GetUTC().GetSec() - runBranch->GetStartTime().GetSec()) * 1e9 +
-                (ev->GetUTC().GetNanoSec() - runBranch->GetStartTime().GetNanoSec()) + triggerTime;
+    timestamp = TTimeStamp_to_UnixTime(ev->GetUTC()) - TTimeStamp_to_UnixTime(runBranch->GetStartTime()) + triggerTime;
+    trigger_word = ev->GetTriggerWord();
     timeSinceLastTrigger_us = ev->GetDeltaT() / 1000.;
     auto fitVector = ev->GetFitResults();
     std::map<std::string, double *> fitvalues;
@@ -715,9 +750,8 @@ OutNtupleProc::~OutNtupleProc() {
     runId = runBranch->GetID();
     runType = runBranch->GetType();
     // Converting to unix time
-    ULong64_t stonano = 1000000000;
     TTimeStamp rootTime = runBranch->GetStartTime();
-    runTime = static_cast<ULong64_t>(rootTime.GetSec()) * stonano + static_cast<ULong64_t>(rootTime.GetNanoSec());
+    runTime = TTimeStamp_to_UnixTime(rootTime.GetSec());
     macro = Log::GetMacro();
     metaTree->Fill();
     metaTree->Write();
