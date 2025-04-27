@@ -153,12 +153,9 @@ class ChannelStatus : public TObject {
   std::vector<double> pulse_width_scale;
   double default_offset;
   int default_is_online;
-  double default_charge_scale;
-<<<<<<< HEAD
-  double default_pulse_width_scale;
-=======
   std::string ChargeScaleIndex;
->>>>>>> 3d096d769dd67d8f2393d058530ed52dd17eff38
+  double default_charge_scale;
+  double default_pulse_width_scale;
 };
 
 }  // namespace DS
