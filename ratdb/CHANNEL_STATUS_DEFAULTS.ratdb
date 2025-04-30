@@ -24,7 +24,7 @@
   "name": "charge_scale",
   "index": "selected_charge_scale",
   "run_range": [0, 0],
-  "selection": "fitted", 
+  "selection": "", 
 }
 
 {
