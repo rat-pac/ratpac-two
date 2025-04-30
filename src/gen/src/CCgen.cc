@@ -65,6 +65,12 @@ void CCgen::LoadGenerator() {
   // The original test with IBD data should still work
   DBLinkPtr linkdb;
 
+  // Set default key names
+  std::string enuMinKey = "emin";
+  std::string enuMaxKey = "emax";
+  std::string specEKey = "spec_e";
+  std::string specFluxKey = "spec_flux";
+
   if (fDBName == "SOLAR") {
     // Solar generator
     // The nu type is obtained from the job options (it defaults to pep)
@@ -72,19 +78,30 @@ void CCgen::LoadGenerator() {
     fTotalFlux = linkdb->GetD("flux");
   } else if (fDBName == "STPI") {
     // stopped pion generator
-    // The nu type is the same as the nu flavor
+    // The nu type is the timing profile of the beam
     linkdb = DB::Get()->GetLink(fDBName, fNuType);
     fTotalFlux = linkdb->GetD("flux");
+    if (fNuFlavor == "nue") {
+      specFluxKey = "spec_flux_nue";
+    } else if (fNuFlavor == "numu") {
+      // Special monoenergetic case
+      enuMinKey = "emin_numu";
+      enuMaxKey = "emax_numu";
+      specEKey = "spec_e_numu";
+      specFluxKey = "spec_flux_numu";
+    } else if (fNuFlavor == "numubar") {
+      specFluxKey = "spec_flux_numubar";
+    }
   } else {
     // should be IBD data
     linkdb = DB::Get()->GetLink(fDBName);
     fNuFlavor = "nuebar";
   }
 
-  fEnuMin = linkdb->GetD("emin");
-  fEnuMax = linkdb->GetD("emax");
-  fEnuTbl = linkdb->GetDArray("spec_e");
-  fFluxTbl = linkdb->GetDArray("spec_flux");
+  fEnuMin = linkdb->GetD(enuMinKey);
+  fEnuMax = linkdb->GetD(enuMaxKey);
+  fEnuTbl = linkdb->GetDArray(specEKey);
+  fFluxTbl = linkdb->GetDArray(specFluxKey);
 
   // Check what type of CC generator we are dealing with
   // Depending on type the parameters and cross section pointers
