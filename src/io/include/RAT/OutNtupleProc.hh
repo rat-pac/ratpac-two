@@ -110,6 +110,8 @@ class OutNtupleProc : public Processor {
   Double_t digitizerDynamicRange;
   Double_t digitizerVoltageResolution;
   // Calibration source information
+  // get from 1st event, and then mark done.
+  bool done_writing_calib;
   Int_t calibId;
   Int_t calibMode;
   Double_t calibIntensity;

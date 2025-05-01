@@ -33,6 +33,7 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
   outputTree = nullptr;
   metaTree = nullptr;
   runBranch = new DS::Run();
+  done_writing_calib = false;
 
   // Load options from the database
   DB *db = DB::Get();
@@ -103,6 +104,20 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("digitizerSampleRate_GHz", &digitizerSampleRate);
   metaTree->Branch("digitizerDynamicRange_mV", &digitizerDynamicRange);
   metaTree->Branch("digitizerResolution_mVPerADC", &digitizerVoltageResolution);
+  if (options.calib) {
+    metaTree->Branch("calibId", &calibId);
+    metaTree->Branch("calibMode", &calibMode);
+    metaTree->Branch("calibIntensity", &calibIntensity);
+    metaTree->Branch("calibWavelength", &calibWavelength);
+    metaTree->Branch("calibName", &calibName);
+    metaTree->Branch("calibTime", &calibTime);
+    metaTree->Branch("calibX", &calibX);
+    metaTree->Branch("calibY", &calibY);
+    metaTree->Branch("calibZ", &calibZ);
+    metaTree->Branch("calibU", &calibU);
+    metaTree->Branch("calibV", &calibV);
+    metaTree->Branch("calibW", &calibW);
+  }
   this->AssignAdditionalMetaAddresses();
   dsentries = 0;
   // Data Tree
@@ -229,20 +244,6 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("trackVolume", &trackVolume);
     metaTree->Branch("volumeCodeMap", &volumeCodeMap);
   }
-  if (options.calib) {
-    outputTree->Branch("calibId", &calibId);
-    outputTree->Branch("calibMode", &calibMode);
-    outputTree->Branch("calibIntensity", &calibIntensity);
-    outputTree->Branch("calibWavelength", &calibWavelength);
-    outputTree->Branch("calibName", &calibName);
-    outputTree->Branch("calibTime", &calibTime);
-    outputTree->Branch("calibX", &calibX);
-    outputTree->Branch("calibY", &calibY);
-    outputTree->Branch("calibZ", &calibZ);
-    outputTree->Branch("calibU", &calibU);
-    outputTree->Branch("calibV", &calibV);
-    outputTree->Branch("calibW", &calibW);
-  }
   if (options.digitizerwaveforms) {
     waveformTree = new TTree("waveforms", "waveforms");
     waveformTree->Branch("evid", &evid);
@@ -261,6 +262,25 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     if (!OpenFile(this->defaultFilename.c_str())) {
       Log::Die("No output file specified");
     }
+  }
+  // CALIB Branches
+  if (options.calib && (!done_writing_calib)) {
+    DS::Calib *calib = ds->GetCalib();
+    calibId = calib->GetID();
+    calibMode = calib->GetMode();
+    calibIntensity = calib->GetIntensity();
+    calibWavelength = calib->GetWavelength();
+    calibName = calib->GetSourceName();
+    calibTime = TTimeStamp_to_UnixTime(calib->GetUTC());
+    TVector3 calib_pos = calib->GetPosition();
+    calibX = calib_pos.X();
+    calibY = calib_pos.Y();
+    calibZ = calib_pos.Z();
+    TVector3 calib_dir = calib->GetDirection();
+    calibU = calib_dir.X();
+    calibV = calib_dir.Y();
+    calibW = calib_dir.Z();
+    done_writing_calib = true;
   }
   runBranch = DS::RunStore::GetRun(ds);
   DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
@@ -458,24 +478,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         mcNThitz.push_back(position.z());
       }
     }
-  }
-  // CALIB Branches
-  if (options.calib) {
-    DS::Calib *calib = ds->GetCalib();
-    calibId = calib->GetID();
-    calibMode = calib->GetMode();
-    calibIntensity = calib->GetIntensity();
-    calibWavelength = calib->GetWavelength();
-    calibName = calib->GetSourceName();
-    calibTime = TTimeStamp_to_UnixTime(calib->GetUTC());
-    TVector3 calib_pos = calib->GetPosition();
-    calibX = calib_pos.X();
-    calibY = calib_pos.Y();
-    calibZ = calib_pos.Z();
-    TVector3 calib_dir = calib->GetDirection();
-    calibU = calib_dir.X();
-    calibV = calib_dir.Y();
-    calibW = calib_dir.Z();
   }
 
   // EV Branches
