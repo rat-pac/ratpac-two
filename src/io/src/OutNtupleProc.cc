@@ -33,6 +33,7 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
   outputTree = nullptr;
   metaTree = nullptr;
   runBranch = new DS::Run();
+  done_writing_calib = false;
 
   // Load options from the database
   DB *db = DB::Get();
@@ -55,12 +56,14 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.untriggered = table->GetZ("include_untriggered_events");
     options.mchits = table->GetZ("include_mchits");
     options.nthits = table->GetZ("include_nestedtubehits");
+    options.calib = table->GetZ("include_calib");
   } catch (DBNotFoundError &e) {
     options.tracking = false;
     options.mcparticles = false;
     options.pmthits = true;
     options.untriggered = false;
     options.mchits = true;
+    options.calib = true;
     options.nthits = false;
   }
   if (options.digitizerfits) {
@@ -101,6 +104,20 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("digitizerSampleRate_GHz", &digitizerSampleRate);
   metaTree->Branch("digitizerDynamicRange_mV", &digitizerDynamicRange);
   metaTree->Branch("digitizerResolution_mVPerADC", &digitizerVoltageResolution);
+  if (options.calib) {
+    metaTree->Branch("calibId", &calibId);
+    metaTree->Branch("calibMode", &calibMode);
+    metaTree->Branch("calibIntensity", &calibIntensity);
+    metaTree->Branch("calibWavelength", &calibWavelength);
+    metaTree->Branch("calibName", &calibName);
+    metaTree->Branch("calibTime", &calibTime);
+    metaTree->Branch("calibX", &calibX);
+    metaTree->Branch("calibY", &calibY);
+    metaTree->Branch("calibZ", &calibZ);
+    metaTree->Branch("calibU", &calibU);
+    metaTree->Branch("calibV", &calibV);
+    metaTree->Branch("calibW", &calibW);
+  }
   this->AssignAdditionalMetaAddresses();
   dsentries = 0;
   // Data Tree
@@ -121,6 +138,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("nhits", &nhits);
   outputTree->Branch("triggerTime", &triggerTime);  // Local trigger time
   outputTree->Branch("timestamp", &timestamp);      // Global trigger time
+  outputTree->Branch("trigger_word", &trigger_word);
   outputTree->Branch("timeSinceLastTrigger_us", &timeSinceLastTrigger_us);
   // MC Information
   outputTree->Branch("mcid", &mcid);
@@ -244,6 +262,25 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     if (!OpenFile(this->defaultFilename.c_str())) {
       Log::Die("No output file specified");
     }
+  }
+  // CALIB Branches
+  if (options.calib && (!done_writing_calib)) {
+    DS::Calib *calib = ds->GetCalib();
+    calibId = calib->GetID();
+    calibMode = calib->GetMode();
+    calibIntensity = calib->GetIntensity();
+    calibWavelength = calib->GetWavelength();
+    calibName = calib->GetSourceName();
+    calibTime = TTimeStamp_to_UnixTime(calib->GetUTC());
+    TVector3 calib_pos = calib->GetPosition();
+    calibX = calib_pos.X();
+    calibY = calib_pos.Y();
+    calibZ = calib_pos.Z();
+    TVector3 calib_dir = calib->GetDirection();
+    calibU = calib_dir.X();
+    calibV = calib_dir.Y();
+    calibW = calib_dir.Z();
+    done_writing_calib = true;
   }
   runBranch = DS::RunStore::GetRun(ds);
   DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
@@ -448,8 +485,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     DS::EV *ev = ds->GetEV(subev);
     evid = ev->GetID();
     triggerTime = ev->GetCalibratedTriggerTime();
-    timestamp = (ev->GetUTC().GetSec() - runBranch->GetStartTime().GetSec()) * 1e9 +
-                (ev->GetUTC().GetNanoSec() - runBranch->GetStartTime().GetNanoSec()) + triggerTime;
+    timestamp = TTimeStamp_to_UnixTime(ev->GetUTC()) - TTimeStamp_to_UnixTime(runBranch->GetStartTime()) + triggerTime;
+    trigger_word = ev->GetTriggerWord();
     timeSinceLastTrigger_us = ev->GetDeltaT() / 1000.;
     auto fitVector = ev->GetFitResults();
     std::map<std::string, double *> fitvalues;
@@ -715,9 +752,8 @@ OutNtupleProc::~OutNtupleProc() {
     runId = runBranch->GetID();
     runType = runBranch->GetType();
     // Converting to unix time
-    ULong64_t stonano = 1000000000;
     TTimeStamp rootTime = runBranch->GetStartTime();
-    runTime = static_cast<ULong64_t>(rootTime.GetSec()) * stonano + static_cast<ULong64_t>(rootTime.GetNanoSec());
+    runTime = TTimeStamp_to_UnixTime(rootTime.GetSec());
     macro = Log::GetMacro();
     metaTree->Fill();
     metaTree->Write();

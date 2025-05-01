@@ -1,6 +1,7 @@
 #ifndef __RATOutNtupleProc___
 #define __RATOutNtupleProc___
 
+#include <TTimeStamp.h>
 #include <TTree.h>
 #include <sys/types.h>
 
@@ -39,6 +40,11 @@ class OutNtupleProc : public Processor {
 
   virtual void SetI(std::string param, int value);
   virtual void SetS(std::string param, std::string value);
+  // Utility function
+  static ULong64_t TTimeStamp_to_UnixTime(TTimeStamp ts) {
+    const ULong64_t stonano = 1000000000;
+    return static_cast<ULong64_t>(ts.GetSec()) * stonano + static_cast<ULong64_t>(ts.GetNanoSec());
+  }
 
   // Extensible functions
   virtual void AssignAdditionalAddresses(){};
@@ -60,6 +66,7 @@ class OutNtupleProc : public Processor {
     bool untriggered;
     bool mchits;
     bool nthits;
+    bool calib;
   };
   NtupleOptions options;
 
@@ -102,6 +109,16 @@ class OutNtupleProc : public Processor {
   Double_t digitizerSampleRate;
   Double_t digitizerDynamicRange;
   Double_t digitizerVoltageResolution;
+  // Calibration source information
+  // get from 1st event, and then mark done.
+  bool done_writing_calib;
+  Int_t calibId;
+  Int_t calibMode;
+  Double_t calibIntensity;
+  Double_t calibWavelength;
+  std::string calibName;
+  ULong64_t calibTime;
+  Double_t calibX, calibY, calibZ, calibU, calibV, calibW;
   // Digitizer waveforms
   int waveform_pmtid;
   std::vector<Double_t> inWindowPulseTimes;
@@ -118,6 +135,7 @@ class OutNtupleProc : public Processor {
   int nhits;
   double triggerTime;
   ULong64_t timestamp;
+  ULong64_t trigger_word;
   double timeSinceLastTrigger_us;
   // MC Summary Information
   double scintEdep;
