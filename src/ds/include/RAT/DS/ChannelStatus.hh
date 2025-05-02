@@ -58,53 +58,27 @@ class ChannelStatus : public TObject {
   }
 
   virtual void Load(const PMTInfo* pmtinfo, const std::string index = "") {
-    DBLinkPtr lCableOffset = DB::Get()->GetLink("cable_offset", index);
+    DBLinkPtr lChannelStatusSelection = DB::Get()->GetLink("channel_status_selection", index);
+    DBLinkPtr lCableOffset = get_dblink_for_status("cable_offset", lChannelStatusSelection);
     default_offset = lCableOffset->GetD("default_value");
-    DBLinkPtr lChannelOnline = DB::Get()->GetLink("channel_online", index);
-    default_is_online = lChannelOnline->GetD("default_value");
-    DBLinkPtr lChargeScaleIndex = DB::Get()->GetLink("charge_scale", "selected_charge_scale");
-    ChargeScaleIndex = lChargeScaleIndex->GetS("selection");
-    DBLinkPtr lChargeScale = DB::Get()->GetLink("charge_scale", ChargeScaleIndex);
+    DBLinkPtr lChannelOnline = get_dblink_for_status("channel_online", lChannelStatusSelection);
+    default_is_online = lChannelOnline->GetI("default_value");
+    DBLinkPtr lChargeScale = get_dblink_for_status("charge_scale", lChannelStatusSelection);
     default_charge_scale = lChargeScale->GetD("default_value");
-    DBLinkPtr lPulseWidthScale = DB::Get()->GetLink("pulse_width_scale", index);
+    DBLinkPtr lPulseWidthScale = get_dblink_for_status("pulse_width_scale", lChannelStatusSelection);
     default_pulse_width_scale = lPulseWidthScale->GetD("default_value");
+
+    // Set all channel status entries with default values first.
     for (int pmtid = 0; pmtid < pmtinfo->GetPMTCount(); pmtid++) {
       int lcn = pmtinfo->GetChannelNumber(pmtid);
       LinkPMT(pmtid, lcn);
     }
-    // cable offset
-    try {
-      std::vector<int> lcns = get_lcns(lCableOffset);
-      std::vector<double> values = lCableOffset->GetDArray("value");
-      insert_values(lcns, values, &cable_offset);
-    } catch (DBNotFoundError& e) {
-      warn << "Cable offset table not found! Looking for table cable_offset[" << index << "]\n";
-    }
-    // charge scale
-    try {
-      std::vector<int> lcns = get_lcns(lChargeScale);
-      std::vector<double> values = lChargeScale->GetDArray("value");
-      insert_values(lcns, values, &charge_scale);
-    } catch (DBNotFoundError& e) {
-      warn << "Charge Scale table not found! Looking for table charge_scale[" << index << "]\n";
-    }
-    // pulse width scale
-    try {
-      std::vector<int> lcns = get_lcns(lPulseWidthScale);
-      std::vector<double> values = lPulseWidthScale->GetDArray("value");
-      insert_values(lcns, values, &pulse_width_scale);
-    } catch (DBNotFoundError& e) {
-      warn << "Pulse Width Scale table not found! Looking for table pulse_width_scale[" << index << "]\n";
-    }
-    // dead channels
-    try {
-      std::vector<int> lcns = get_lcns(lChannelOnline);
-      std::vector<int> values = lChannelOnline->GetIArray("value");
-      insert_values(lcns, values, &online);
-    } catch (DBNotFoundError& e) {
-      warn << "Channel online table not found! Looking for table channel_online[" << index << "]\n";
-    }
-    // read channel online
+
+    // override with per-channel values specified in tables.
+    populate_status<double>(lCableOffset, &cable_offset);
+    populate_status<double>(lChargeScale, &charge_scale);
+    populate_status<double>(lPulseWidthScale, &pulse_width_scale);
+    populate_status<int>(lChannelOnline, &online);
   }
 
   std::vector<int> get_lcns(DBLinkPtr& lTable) {
@@ -141,7 +115,29 @@ class ChannelStatus : public TObject {
     }
   }
 
-  ClassDef(ChannelStatus, 2);
+  DBLinkPtr get_dblink_for_status(const std::string& status_name, DBLinkPtr channel_status_select) {
+    std::string index;
+    try {
+      index = channel_status_select->GetS(status_name);
+    } catch (DBNotFoundError) {
+      index = channel_status_select->GetS("default");
+    }
+    info << "Using " << status_name << "[" << index << "] for channel status" << newline;
+    return DB::Get()->GetLink(status_name, index);
+  }
+
+  template <typename T>
+  void populate_status(DBLinkPtr lStatus, std::vector<T>* target) {
+    try {
+      std::vector<int> lcns = get_lcns(lStatus);
+      std::vector<T> values = lStatus->Get<std::vector<T>>("value");
+      insert_values(lcns, values, target);
+    } catch (DBNotFoundError& e) {
+      warn << lStatus->GetName() << "[" << lStatus->GetIndex() << "]"
+           << " has no per-channel table. Using the default value. \n";
+    }
+  }
+  ClassDef(ChannelStatus, 3);
 
  protected:
   std::map<int, size_t> lcn_to_index;

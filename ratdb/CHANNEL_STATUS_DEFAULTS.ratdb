@@ -1,4 +1,15 @@
-// This table includes all default values set for the ChannelStatus class. Custom values should be set per-experiment.
+// Default channel_status selection table. This table controls which channel_selection
+{
+  "name": "channel_status_selection",
+  "index": "",
+  "run_range": [0, 0],
+  // index of each channel_status table to use. If not specified, fall back to the "default" value.
+  // for example, to use channel_online[example] rather than channel_online[], uncomment the line below.
+  // channel_online: "example"
+  "default": "",
+}
+
+// Below includes all default values set for the ChannelStatus class. Custom values should be set per-experiment.
 {
   "name": "cable_offset",
   "index": "",
@@ -18,13 +29,6 @@
   "index": "",
   "run_range": [0, 0],
   "default_value": 1.0,
-}
-
-{
-  "name": "charge_scale",
-  "index": "selected_charge_scale",
-  "run_range": [0, 0],
-  "selection": "", 
 }
 
 {
