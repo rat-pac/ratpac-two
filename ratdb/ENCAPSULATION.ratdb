@@ -1,0 +1,36 @@
+{
+name:
+  "ENCAPSULATION", index : "BUTTON",
+                           valid_begin : [ 0, 0 ],
+                                         valid_end : [ 0, 0 ],
+
+                                                     construction
+      : "hemisphere",
+
+        envelope_radius : 24.4,  // should be large enough to fit all objects (>flange_rmax)
+        front_encapsulation_material : "nakano_acrylic",
+                                       rear_encapsulation_material
+      : "acrylic_black",
+        flange_rmax : 24.3,  // applies to acrylic and metal flange
+        encap_radius : 20.0,
+        encap_thickness : 0.8,
+        use_metal_flange : 1,
+        metal_flange_material : "stainless_steel",
+                                metal_flange_dimensions : [ 21.0, 24.3, 0.4 ],  // G4Tubs dimensions rmin, rmax, z
+                                                          inside_encapsulation_material : "air",
+                                                                                          use_optical_gel : 1,
+                                                                                          optical_gel_material
+      : "optical_grease",
+        optical_gel_sub_height : 15.0,  // start from a dome full of gel of size encap_radius, e.g. height of gel dome
+                                        // left is (encap_radius - optical_gel_sub_height)
+        pmtposoffset : [ 0.0, 0.0, 9.8 ],
+                       use_silica_bag : 1,
+                       silica_bag_material : "acrylic_white",
+                                             silica_bag_dimensions : [ 1.8, 3.3, 0.3 ],  // G4Box dimensions x, y, z
+                                                                     silica_bag_position
+      : [ 0.0, 13.5, -7.4 ],  // x, y, z
+        use_cable : 1,
+        cable_material : "acrylic_black",
+                         cable_dimensions : [ 0.0, 0.65, 4.5 ],                    // G4Tubs dimensions rmin, rmax, z
+                                            cable_position : [ 0.0, 0.0, -15.2 ],  // x, y, z
+}

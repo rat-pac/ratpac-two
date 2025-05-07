@@ -8,6 +8,7 @@
 #include <RAT/Log.hh>
 #include <RAT/Materials.hh>
 #include <RAT/PMTConstruction.hh>
+#include <RAT/PMTEncapsulationConstruction.hh>
 #include <RAT/PMTFactoryBase.hh>
 #include <RAT/PMTInfoParser.hh>
 #include <algorithm>
@@ -33,7 +34,6 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
   std::string pmt_model = table->GetS("pmt_model");
 
   DBLinkPtr lpmt = DB::Get()->GetLink("PMT", pmt_model);
-  std::string construction_type = lpmt->GetS("construction");
 
   // Find mother volume
   G4LogicalVolume *mother = FindMother(mother_name);
@@ -46,8 +46,56 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
   }
   G4ThreeVector local_offset = PMTInfoParser::ComputeLocalOffset(mother_name);
 
-  PMTConstruction *construction = PMTConstruction::NewConstruction(lpmt, mother);
-  G4LogicalVolume *log_pmt = construction->BuildVolume(volume_name);
+  PMTEncapsulationConstruction *encap_construction = 0;
+  G4LogicalVolume *log_encapenv = 0;
+  PMTConstruction *construction = 0;
+  G4LogicalVolume *log_pmt = 0;
+  G4VPhysicalVolume *phys_mother_encap = 0;
+  G4PVPlacement *envelope_phys = 0;
+  G4ThreeVector pmtposition(0.0, 0.0, 0.0);
+
+  int encapsulation = 0;  // default to no encapsulation
+  try {
+    encapsulation = table->GetI("encapsulation");
+  } catch (DBNotFoundError &e) {
+  };
+  if (encapsulation == 1) {
+    std::string encapsulation_model = table->GetS("encapsulation_model");  // get encapsulation model e.g. BUTTON
+    DBLinkPtr lencapsulation = DB::Get()->GetLink(
+        "ENCAPSULATION", encapsulation_model);  // find model in ENCAPSULATION.RATDB, need to make this file
+
+    info << "Encapsulation is turned on, using model: " << encapsulation_model << newline;
+
+    encap_construction = PMTEncapsulationConstruction::NewConstruction(
+        lencapsulation, lpmt, mother);  // make encapsulation, need to make/modify file
+    log_encapenv = encap_construction->BuildVolume(volume_name);
+
+    try {
+      std::vector<double> posvector = lencapsulation->GetDArray("pmtposoffset");
+      pmtposition.setX(posvector[0] * CLHEP::cm);
+      pmtposition.setY(posvector[1] * CLHEP::cm);
+      pmtposition.setZ(posvector[2] * CLHEP::cm);
+    } catch (DBNotFoundError &e) {
+    };
+
+    mother =
+        FindMother("inner_encapsulation_log");  // change mother so that pmt is placed inside encapsulation volume now
+    if (mother == 0) {
+      Log::Die("PMTParser: Unable to find mother volume " + mother_name + " for " + volume_name);
+    }
+    phys_mother_encap = FindPhysMother("inner_pmts_inner_volume_encapsulation_phys");
+    if (phys_mother == 0) {
+      Log::Die("PMTParser: PMT mother physical volume " + mother_name + " not found");
+    }
+  }
+
+  info << "Creating PMT model" << newline;
+  construction = PMTConstruction::NewConstruction(lpmt, mother);
+  log_pmt = construction->BuildVolume(volume_name);
+
+  if (encapsulation == 1) {
+    envelope_phys = new G4PVPlacement(0, pmtposition, volume_name + "_body_phys", log_pmt, phys_mother_encap, false, 0);
+  }
 
   /* BFields not in the database anywhere and should be looked at */
   // FIXME take a look at what's going on with the Bfield stuff - no docs on
@@ -356,23 +404,20 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
     pmtrot->rotateY(angle_y);
     pmtrot->rotateX(angle_x);
 
-    construction->PlacePMT(pmtrot, pmtpos, pmtname, log_pmt, phys_mother, false, id);
-
+    if (encapsulation == 1) {
+      encap_construction->PlaceEncap(pmtrot, pmtpos, pmtname, log_encapenv, phys_mother, false, id);
+    } else {
+      construction->PlacePMT(pmtrot, pmtpos, pmtname, log_pmt, phys_mother, false, id);
+    }
   }  // end loop over id
 
   // finally pass the efficiency table to GLG4PMTOpticalModel
   const G4String modname(volume_name + "_optical_model");
   // In case the main pmt volume doesn't correspond to the fastsim region
 
-  // For the encapsulated version, the pmt_body is the daughter of the first daughter
   G4LogicalVolume *fastsim_log_pmt = log_pmt;
-  G4LogicalVolume *fastsim_log_pmt_dau = 0;
   if (fastsim_log_pmt->GetFastSimulationManager() == NULL) {
-    if (construction_type == "encapsulated") {
-      fastsim_log_pmt_dau = log_pmt->GetDaughter(0)->GetLogicalVolume();
-      fastsim_log_pmt = fastsim_log_pmt_dau->GetDaughter(0)->GetLogicalVolume();  // Get the glass region
-    } else
-      fastsim_log_pmt = log_pmt->GetDaughter(0)->GetLogicalVolume();
+    fastsim_log_pmt = log_pmt->GetDaughter(0)->GetLogicalVolume();
   }
 
   for (size_t i = 0; i < fastsim_log_pmt->GetFastSimulationManager()->GetFastSimulationModelList().size(); i++) {
