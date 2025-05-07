@@ -12,8 +12,8 @@ namespace RAT {
 
 class PMTEncapsulationConstruction {
  public:
-
-  static PMTEncapsulationConstruction *NewConstruction(DBLinkPtr encaptable, DBLinkPtr pmttable, G4LogicalVolume *mother);
+  static PMTEncapsulationConstruction *NewConstruction(DBLinkPtr encaptable, DBLinkPtr pmttable,
+                                                       G4LogicalVolume *mother);
 
   PMTEncapsulationConstruction(std::string _name) : name(_name) {}
 
@@ -23,7 +23,9 @@ class PMTEncapsulationConstruction {
 
   virtual G4LogicalVolume *BuildVolume(const std::string &prefix) = 0;
 
-  virtual G4PVPlacement *PlaceEncap(G4RotationMatrix *pmtrot, G4ThreeVector pmtpos, const std::string &name, G4LogicalVolume *logi_pmt, G4VPhysicalVolume *mother_phys, bool booleanSolid, int copyNo) = 0;
+  virtual G4PVPlacement *PlaceEncap(G4RotationMatrix *pmtrot, G4ThreeVector pmtpos, const std::string &name,
+                                    G4LogicalVolume *logi_pmt, G4VPhysicalVolume *mother_phys, bool booleanSolid,
+                                    int copyNo) = 0;
 
  protected:
   std::string name;
