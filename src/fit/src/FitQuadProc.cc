@@ -77,14 +77,14 @@ static inline double vecdot(const double *const a, const double *const b) {
 // attempts to be highly optimized, minimizing the total number of
 // operations by using the explicit solution and avoiding expensive
 // divisions as much as possible.
-static inline void matinvert(double (*const ans)[3], const double (*const m)[3]) {
+static inline int matinvert(double (*const ans)[3], const double (*const m)[3]) {
   double denominator =
       (m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]) + m[0][1] * (m[1][2] * m[2][0] - m[1][0] * m[2][2]) +
        m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]));
 
   if (denominator == 0) {
     debug << "Quad.cc::vecdot() Matrix cannot be inverted. Check PMTs selected. Need fixing.\n";
-    return;
+    return -1;
   }
   const double idet = 1. / denominator;
 
@@ -97,6 +97,7 @@ static inline void matinvert(double (*const ans)[3], const double (*const m)[3])
   ans[2][0] = (-m[1][1] * m[2][0] + m[1][0] * m[2][1]) * idet;
   ans[2][1] = (m[0][1] * m[2][0] - m[0][0] * m[2][1]) * idet;
   ans[2][2] = (-m[0][1] * m[1][0] + m[0][0] * m[1][1]) * idet;
+  return 0;
 }
 
 Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
@@ -171,7 +172,11 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
       K[k] = (rsq[k + 1] - rsq[0]) / 2;
     }
 
-    matinvert(iM, M);
+    // Check if matrix is invertible, if not continue to next point
+    if (matinvert(iM, M) != 0) {
+      continue;
+    }
+
     for (int w = 0; w < 3; w++) {
       g[w] = iM[w][0] * K[0] + iM[w][1] * K[1] + iM[w][2] * K[2];
       h[w] = iM[w][0] * N[0] + iM[w][1] * N[1] + iM[w][2] * N[2];
