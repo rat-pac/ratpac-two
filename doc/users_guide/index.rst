@@ -18,6 +18,11 @@ Table of Contents
    processors
    producers
    pmt
+   daq
+   digitization
+   waveform_analysis
+   reconstruction
+   outputs
    root_analysis
    tracks
    rattest
