@@ -240,8 +240,9 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
 
   // ---------- Logical volumes ----------
 
-  G4LogicalVolume *envelope_log = 0, *front_encapsulation_log = 0, *rear_encapsulation_log = 0, *metal_flange_encapsulation_log = 0;
-  G4LogicalVolume *inner_encapsulation_log = 0, *optical_gel_encapsulation_log = 0, *silica_bag_encapsulation_log = 0,
+  G4LogicalVolume *envelope_log, *front_encapsulation_log, *rear_encapsulation_log,
+                  *metal_flange_encapsulation_log = 0;
+  G4LogicalVolume *inner_encapsulation_log, *optical_gel_encapsulation_log = 0, *silica_bag_encapsulation_log = 0,
                   *cable_encapsulation_log = 0;
 
   envelope_log = new G4LogicalVolume(envelope_solid, fParams.exterior_material, "envelope_log");
