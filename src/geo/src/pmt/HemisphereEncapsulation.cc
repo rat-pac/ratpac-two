@@ -114,9 +114,9 @@ HemisphereEncapsulation::HemisphereEncapsulation(DBLinkPtr encaptable, DBLinkPtr
     fParams.pmtposvec.setZ(0.0);
     try {
       fParams.posvec = encaptable->GetDArray("pmtposoffset");
-      fParams.pmtposvec.setX(fParams.posvec[0] * CLHEP::cm);
-      fParams.pmtposvec.setY(fParams.posvec[1] * CLHEP::cm);
-      fParams.pmtposvec.setZ(fParams.posvec[2] * CLHEP::cm);
+      fParams.pmtposvec.setX(fParams.posvec[0] * CLHEP::mm);
+      fParams.pmtposvec.setY(fParams.posvec[1] * CLHEP::mm);
+      fParams.pmtposvec.setZ(fParams.posvec[2] * CLHEP::mm);
     } catch (DBNotFoundError &e) {
     };
   }
@@ -167,44 +167,44 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
 
   G4VSolid *front_encapsulation_solid =
       new G4Sphere("front_encapsulation_solid",
-                   (fParams.encap_radius) * CLHEP::cm,                            // rmin
-                   (fParams.encap_radius + fParams.encap_thickness) * CLHEP::cm,  // rmax
+                   (fParams.encap_radius) * CLHEP::mm,                            // rmin
+                   (fParams.encap_radius + fParams.encap_thickness) * CLHEP::mm,  // rmax
                    0.5 * CLHEP::pi, CLHEP::twopi,                                 // phi
                    0.0, 0.5 * CLHEP::pi);                                         // theta
 
   G4VSolid *rear_encapsulation_solid =
       new G4Sphere("rear_encapsulation_solid",
-                   (fParams.encap_radius) * CLHEP::cm,                            // rmin
-                   (fParams.encap_radius + fParams.encap_thickness) * CLHEP::cm,  // rmax
+                   (fParams.encap_radius) * CLHEP::mm,                            // rmin
+                   (fParams.encap_radius + fParams.encap_thickness) * CLHEP::mm,  // rmax
                    0.5 * CLHEP::pi, CLHEP::twopi,                                 // phi
                    0.5 * CLHEP::pi, 0.5 * CLHEP::pi);                             // theta
 
   G4VSolid *dome_flange_solid =
       new G4Tubs("dome_flange_solid",
-                 (fParams.encap_radius) * CLHEP::cm,           // rmin
-                 (fParams.flange_rmax) * CLHEP::cm,            // rmax
-                 (0.5 * fParams.encap_thickness) * CLHEP::cm,  // zhalf, thickness is same as dome thickness so 0.8/2.0
+                 (fParams.encap_radius) * CLHEP::mm,           // rmin
+                 (fParams.flange_rmax) * CLHEP::mm,            // rmax
+                 (0.5 * fParams.encap_thickness) * CLHEP::mm,  // zhalf, thickness is same as dome thickness so 0.8/2.0
                  0.0, CLHEP::twopi);                           // phi
 
   front_encapsulation_solid =
       new G4UnionSolid("front_encapsulation_solid", front_encapsulation_solid, dome_flange_solid, 0,
-                       G4ThreeVector(0.0, 0.0, (0.5 * fParams.encap_thickness) * CLHEP::cm));
+                       G4ThreeVector(0.0, 0.0, (0.5 * fParams.encap_thickness) * CLHEP::mm));
 
   rear_encapsulation_solid = new G4UnionSolid("rear_encapsulation_solid", rear_encapsulation_solid, dome_flange_solid,
-                                              0, G4ThreeVector(0.0, 0.0, -(0.5 * fParams.encap_thickness) * CLHEP::cm));
+                                              0, G4ThreeVector(0.0, 0.0, -(0.5 * fParams.encap_thickness) * CLHEP::mm));
 
   G4Tubs *metal_flange_solid = 0;
   if (fParams.useMetalFlange == 1) {
     metal_flange_solid = new G4Tubs("front_metal_flange_solid",
-                                    (fParams.metal_flange_dimensions[0]) * CLHEP::cm,  // rmin
-                                    (fParams.metal_flange_dimensions[1]) * CLHEP::cm,  // rmax
-                                    (fParams.metal_flange_dimensions[2]) * CLHEP::cm,  // size z half
+                                    (fParams.metal_flange_dimensions[0]) * CLHEP::mm,  // rmin
+                                    (fParams.metal_flange_dimensions[1]) * CLHEP::mm,  // rmax
+                                    (fParams.metal_flange_dimensions[2]) * CLHEP::mm,  // size z half
                                     0.0, CLHEP::twopi);                                // phi
   }
 
   G4Sphere *inner_encapsulation_solid = new G4Sphere("inner_encapsulation_solid",
-                                                     0.0 * CLHEP::cm,                     // rmin
-                                                     (fParams.encap_radius) * CLHEP::cm,  // rmax
+                                                     0.0 * CLHEP::mm,                     // rmin
+                                                     (fParams.encap_radius) * CLHEP::mm,  // rmax
                                                      0.0, CLHEP::twopi,                   // phi
                                                      0.0, CLHEP::twopi);                  // theta
 
@@ -225,16 +225,16 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
   G4Box *silica_bag_solid = 0;
   if (fParams.useSilicaBag == 1) {
     silica_bag_solid =
-        new G4Box("silica_bag_solid", (fParams.silica_bag_dimensions[0]) * CLHEP::cm,
-                  (fParams.silica_bag_dimensions[1]) * CLHEP::cm, (fParams.silica_bag_dimensions[2]) * CLHEP::cm);
+        new G4Box("silica_bag_solid", (fParams.silica_bag_dimensions[0]) * CLHEP::mm,
+                  (fParams.silica_bag_dimensions[1]) * CLHEP::mm, (fParams.silica_bag_dimensions[2]) * CLHEP::mm);
   }
 
   G4Tubs *cable_solid = 0;
   if (fParams.useCable == 1) {
     cable_solid = new G4Tubs("cable_solid",
-                             (fParams.cable_dimensions[0]) * CLHEP::cm,  // rmin
-                             (fParams.cable_dimensions[1]) * CLHEP::cm,  // rmax
-                             (fParams.cable_dimensions[2]) * CLHEP::cm,  // size z
+                             (fParams.cable_dimensions[0]) * CLHEP::mm,  // rmin
+                             (fParams.cable_dimensions[1]) * CLHEP::mm,  // rmax
+                             (fParams.cable_dimensions[2]) * CLHEP::mm,  // size z
                              0.0, CLHEP::twopi);                         // phi
   }
 
@@ -278,7 +278,7 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
 
   front_encapsulation_phys =
       new G4PVPlacement(0,                                          // rotation
-                        G4ThreeVector(0.0, 0.0, 0.0 * CLHEP::cm),   // position
+                        G4ThreeVector(0.0, 0.0, 0.0),   // position
                         front_encapsulation_log,                    // the logical volume
                         prefix + "_front_dome_encapsulation_phys",  // a name for this physical volume
                         envelope_log,                               // the mother volume
@@ -287,7 +287,7 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
 
   rear_encapsulation_phys =
       new G4PVPlacement(0,                                         // rotation
-                        G4ThreeVector(0.0, 0.0, 0.0 * CLHEP::cm),  // position
+                        G4ThreeVector(0.0, 0.0, 0.0),  // position
                         rear_encapsulation_log,                    // the logical volume
                         prefix + "_rear_dome_encapsulation_phys",  // a name for this physical volume
                         envelope_log,                              // the mother volume
@@ -295,7 +295,7 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
                         0);                                        // copy number
 
   if (fParams.useMetalFlange == 1) {
-    double metal_flange_zpos = (fParams.encap_thickness + fParams.metal_flange_dimensions[2]) * CLHEP::cm;
+    double metal_flange_zpos = (fParams.encap_thickness + fParams.metal_flange_dimensions[2]) * CLHEP::mm;
     front_metal_encapsulaion_flange_phys =
         new G4PVPlacement(0,                                                  // rotation
                           G4ThreeVector(0.0, 0.0, metal_flange_zpos),         // position
@@ -317,7 +317,7 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
 
   inner_encapsulation_phys =
       new G4PVPlacement(0,                                            // rotation
-                        G4ThreeVector(0.0, 0.0, 0.0 * CLHEP::cm),     // position
+                        G4ThreeVector(0.0, 0.0, 0.0),     // position
                         inner_encapsulation_log,                      // the logical volume
                         prefix + "_inner_volume_encapsulation_phys",  // a name for this physical volume
                         envelope_log,                                 // the mother volume
@@ -327,7 +327,7 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
   if (fParams.useGel == 1) {
     optical_gel_encapsulation_phys =
         new G4PVPlacement(0,                                         // rotation
-                          G4ThreeVector(0.0, 0.0, 0.0 * CLHEP::cm),  // position
+                          G4ThreeVector(0.0, 0.0, 0.0),  // position
                           optical_gel_encapsulation_log,             // the logical volume
                           prefix + "_gel_encapsulation_phys",        // a name for this physical volume
                           inner_encapsulation_log,                   // the mother volume
@@ -336,8 +336,8 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
   }
 
   if (fParams.useSilicaBag == 1) {
-    G4ThreeVector silicaposition(fParams.silica_bag_position[0] * CLHEP::cm, fParams.silica_bag_position[1] * CLHEP::cm,
-                                 fParams.silica_bag_position[2] * CLHEP::cm);
+    G4ThreeVector silicaposition(fParams.silica_bag_position[0] * CLHEP::mm, fParams.silica_bag_position[1] * CLHEP::mm,
+                                 fParams.silica_bag_position[2] * CLHEP::mm);
 
     silica_bag_encapsulation_phys =
         new G4PVPlacement(0,                                      // rotation
@@ -350,8 +350,8 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
   }
 
   if (fParams.useCable == 1) {
-    G4ThreeVector cableposition(fParams.cable_position[0] * CLHEP::cm, fParams.cable_position[1] * CLHEP::cm,
-                                fParams.cable_position[2] * CLHEP::cm);
+    G4ThreeVector cableposition(fParams.cable_position[0] * CLHEP::mm, fParams.cable_position[1] * CLHEP::mm,
+                                fParams.cable_position[2] * CLHEP::mm);
 
     cable_encapsulation_phys =
         new G4PVPlacement(0,                                     // rotation
@@ -451,15 +451,15 @@ G4VSolid *HemisphereEncapsulation::BuildSolid(const std::string &_name) {
 
 G4VSolid *HemisphereEncapsulation::optical_gel_height_subtraction(const std::string &_name) {
   G4Sphere *optical_gel_1 =
-      new G4Sphere("optical_gel_1_encapsulation_solid", 0.0 * CLHEP::cm, (fParams.encap_radius) * CLHEP::cm,
+      new G4Sphere("optical_gel_1_encapsulation_solid", 0.0 * CLHEP::mm, (fParams.encap_radius) * CLHEP::mm,
                    0.5 * CLHEP::pi, CLHEP::twopi, 0.0, 0.5 * CLHEP::pi);
 
   G4Tubs *gel_subtract = new G4Tubs("gel_sub_solid", 0.0,
-                                    (fParams.encap_radius) * CLHEP::cm,            // solid cylinder
-                                    (fParams.optical_gel_sub_height) * CLHEP::cm,  // half height of cylinder
+                                    (fParams.encap_radius) * CLHEP::mm,            // solid cylinder
+                                    (fParams.optical_gel_sub_height) * CLHEP::mm,  // half height of cylinder
                                     0.0, CLHEP::twopi);                            // cylinder complete in phi
 
-  return new G4SubtractionSolid(_name, optical_gel_1, gel_subtract, 0, G4ThreeVector(0.0, 0.0, 0.0 * CLHEP::cm));
+  return new G4SubtractionSolid(_name, optical_gel_1, gel_subtract, 0, G4ThreeVector(0.0, 0.0, 0.0));
 }
 
 G4VSolid *HemisphereEncapsulation::optical_gel_pmt_subtraction(const std::string &_name, GLG4TorusStack *body) {
@@ -475,7 +475,7 @@ G4PVPlacement *HemisphereEncapsulation::PlaceEncap(G4RotationMatrix *pmtrot, G4T
 }
 
 G4VSolid *HemisphereEncapsulation::NewEnvelopeSolid(const std::string &_name) {
-  G4Sphere *outer_s = new G4Sphere(_name + "_main", 0. * CLHEP::mm, fParams.envelope_radius * CLHEP::cm, 0.0,
+  G4Sphere *outer_s = new G4Sphere(_name + "_main", 0. * CLHEP::mm, fParams.envelope_radius * CLHEP::mm, 0.0,
                                    CLHEP::twopi, 0.0, CLHEP::twopi);
   return outer_s;
 }

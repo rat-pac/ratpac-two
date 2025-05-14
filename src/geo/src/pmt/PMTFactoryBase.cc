@@ -71,9 +71,9 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
 
     try {
       std::vector<double> posvector = lencapsulation->GetDArray("pmtposoffset");
-      pmtoffsetposition.setX(posvector[0] * CLHEP::cm);
-      pmtoffsetposition.setY(posvector[1] * CLHEP::cm);
-      pmtoffsetposition.setZ(posvector[2] * CLHEP::cm);
+      pmtoffsetposition.setX(posvector[0] * CLHEP::mm);
+      pmtoffsetposition.setY(posvector[1] * CLHEP::mm);
+      pmtoffsetposition.setZ(posvector[2] * CLHEP::mm);
     } catch (DBNotFoundError &e) {
     };
 
