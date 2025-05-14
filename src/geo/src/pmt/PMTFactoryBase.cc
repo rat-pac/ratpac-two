@@ -51,8 +51,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
   PMTConstruction *construction = 0;
   G4LogicalVolume *log_pmt = 0;
   G4VPhysicalVolume *phys_mother_encap = 0;
-  G4PVPlacement *envelope_phys = 0;
-  G4ThreeVector pmtposition(0.0, 0.0, 0.0);
+  G4ThreeVector pmtoffsetposition(0.0, 0.0, 0.0);
 
   int encapsulation = 0;  // default to no encapsulation
   try {
@@ -72,9 +71,9 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
 
     try {
       std::vector<double> posvector = lencapsulation->GetDArray("pmtposoffset");
-      pmtposition.setX(posvector[0] * CLHEP::cm);
-      pmtposition.setY(posvector[1] * CLHEP::cm);
-      pmtposition.setZ(posvector[2] * CLHEP::cm);
+      pmtoffsetposition.setX(posvector[0] * CLHEP::cm);
+      pmtoffsetposition.setY(posvector[1] * CLHEP::cm);
+      pmtoffsetposition.setZ(posvector[2] * CLHEP::cm);
     } catch (DBNotFoundError &e) {
     };
 
@@ -94,7 +93,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
   log_pmt = construction->BuildVolume(volume_name);
 
   if (encapsulation == 1) {
-    envelope_phys = new G4PVPlacement(0, pmtposition, volume_name + "_body_phys", log_pmt, phys_mother_encap, false, 0);
+    construction->PlacePMT(0, pmtoffsetposition, volume_name + "_body_phys", log_pmt, phys_mother_encap, false, 0);
   }
 
   /* BFields not in the database anywhere and should be looked at */
@@ -288,6 +287,20 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
     // Compute PMT position in global coordinate system
     // TODO: We should also account for a rotation of the mother volume at some point
     G4ThreeVector pmtpos_global = pmtpos + local_offset;
+
+    // PMT may have been placed offset from encapsulation origin
+    if (encapsulation == 1) {
+      G4ThreeVector extra_offset;
+      info << i << " " << pmtpos_global.x() << " " << pmtpos_global.y() << " " << pmtpos_global.z() << newline;
+      info << i << " " << pmtdir.x() << " " << pmtdir.y() << " " << pmtdir.z() << newline;
+      extra_offset.setX(pmtdir.x() * pmtoffsetposition.z());
+      extra_offset.setY(pmtdir.y() * pmtoffsetposition.z());
+      extra_offset.setZ(pmtdir.z() * pmtoffsetposition.z());
+      info << i << " " << extra_offset.x() << " " << extra_offset.y() << " " << extra_offset.z() << newline;
+      pmtpos_global += extra_offset;
+      info << i << " " << pmtpos_global.x() << " " << pmtpos_global.y() << " " << pmtpos_global.z() << newline
+           << newline;
+    }
 
     // Store individual efficiency
     EfficiencyCorrection[id] = pmt_effi_corr[i];
