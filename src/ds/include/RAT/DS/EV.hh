@@ -125,7 +125,11 @@ class EV : public TObject {
   // Prune digitizer information
   virtual void PruneDigitizer() { digitizer.resize(0); }
 
-  ClassDef(EV, 3);
+  /** Event Cleaning **/
+  uint64_t GetEventCleaningWord() const { return eventCleaningWord; }
+  void SetEventCleaningWord(uint64_t _eventCleaningWord) { eventCleaningWord = _eventCleaningWord; }
+
+  ClassDef(EV, 4);
 
  protected:
   Int_t id;
@@ -140,6 +144,7 @@ class EV : public TObject {
   std::vector<FitResult *> fitResults;
   std::vector<Classifier *> classifierResults;
   std::vector<Digit> digitizer;  ///< The digitizer information
+  uint64_t eventCleaningWord = 0;
 };
 
 }  // namespace DS
