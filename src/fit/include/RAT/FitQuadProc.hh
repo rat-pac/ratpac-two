@@ -11,6 +11,8 @@ class FitQuadProc : public Processor {
   FitQuadProc();
   virtual ~FitQuadProc() {}
   void BeginOfRun(DS::Run *run);
+  virtual void SetI(std::string param, int value);
+  virtual void SetD(std::string param, double value);
   Processor::Result Event(DS::Root *ds, DS::EV *ev);
 
  private:

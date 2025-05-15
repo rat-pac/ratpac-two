@@ -24,7 +24,33 @@ void FitQuadProc::BeginOfRun(DS::Run *run) {
     Log::Die("Quad tried to set a table_cut_off larger than the size of fNumPointsTbl.");
   }
   fLightSpeed = quad_db->GetD("light_speed");
+  if (fLightSpeed <= 0.0 || fLightSpeed > 299.792458)
+    Log::Die("Quad tried to set a light_speed <= 0 or > 299.792458 mm/ns.");
   fMaxRadius = quad_db->GetD("max_radius");
+}
+
+void FitQuadProc::SetI(std::string param, int value) {
+  if (param == "num_points") {
+    fNumQuadPoints = value;
+  } else if (param == "max_points") {
+    fMaxQuadPoints = value;
+  } else if (param == "table_cut_off") {
+    fTableCutOff = value;
+    if (fTableCutOff > fNumPointsTbl.size())
+      throw ParamInvalid(param, "table_cut_off cannot be larger than the size of fNumPointsTbl.");
+  } else
+    throw ParamUnknown(param);
+}
+
+void FitQuadProc::SetD(std::string param, double value) {
+  if (param == "light_speed") {
+    if (value <= 0.0 || value > 299.792458)
+      throw ParamInvalid(param, "light_speed must be positive and <= 299.792458 mm/ns.");
+    fLightSpeed = value;
+  } else if (param == "max_radius") {
+    fMaxRadius = value;
+  } else
+    throw ParamUnknown(param);
 }
 
 // Create a table of all the ways to pick 4 numbers out of n
