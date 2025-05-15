@@ -7,6 +7,15 @@ Here we describe the reconstruction processors.
 
 ----------------------
 
+.. _fitter_handler:
+
+Fitter Input Handler
+====================
+
+Document the fitter handler.
+
+----------------------
+
 .. _centroid:
 
 Centroid Fitter
