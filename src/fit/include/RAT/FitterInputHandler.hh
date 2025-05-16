@@ -18,6 +18,7 @@
 #include <string>
 
 #include "RAT/DS/DigitPMT.hh"
+#include "RAT/DS/FitResult.hh"
 #include "RAT/DS/PMT.hh"
 
 namespace RAT {
@@ -32,6 +33,7 @@ class FitterInputHandler {
 
   Mode mode;
   std::string wfm_ana_name;
+  std::string vertex_seed, direction_seed, energy_seed;
 
   /**
    * Default constructor. Configures the input based on the FIT_COMMON entry.
@@ -47,6 +49,143 @@ class FitterInputHandler {
     DBLinkPtr tbl = DB::Get()->GetLink("FIT_COMMON", index);
     mode = static_cast<Mode>(tbl->GetI("mode"));
     if (mode == Mode::kWaveformAnalysis) wfm_ana_name = tbl->GetS("waveform_analyzer");
+    vertex_seed = tbl->GetS("vertex_seed");
+    direction_seed = tbl->GetS("direction_seed");
+    energy_seed = tbl->GetS("energy_seed");
+  }
+
+  /**
+   * Find the fit result in the current event. Dies if the specified fitter does not exist.
+   * @param fitter_name  name of the fitter to find.
+   * @return pointer to the found fit result.
+   * */
+  DS::FitResult* FindFitResult(const std::string& fitter_name) {
+    if (!ev) Log::Die("FitterInputHandler: Trying to acccess event info without registering the event.");
+    std::vector<DS::FitResult*> fit_results = ev->GetFitResults();
+    for (auto& fit_result : fit_results) {
+      if (fit_result->GetFitterName() == fitter_name) return fit_result;
+    }
+    Log::Die("FitterInputHandler: Fitter " + fitter_name + " not found in the event.");
+  }
+
+  /**
+   * Get the seed position from the specified fitter. If no valid fitter is found, issue a warning and return a default
+   * value.
+   * @param _fitter_name  name of the fitter to get the seed position from. If empty, use the default vertex_seed.
+   * @return  fitter position.
+   * */
+  TVector3 GetSeedPosition(const std::string& _fitter_name = "") {
+    std::string fitter_name = _fitter_name;
+    if (_fitter_name.empty()) {
+      fitter_name = vertex_seed;
+    }
+    DS::FitResult* fit_result = FindFitResult(fitter_name);
+    if (!ValidSeedPosition(fitter_name)) {
+      warn << "The Requested Seed Position (from " << fitter_name << ") is not valid." << newline;
+      return TVector3(0, 0, 0);
+    }
+    return fit_result->GetPosition();
+  }
+
+  /**
+   * Determine if the seed position is valid.
+   * @param _fitter_name  name of the fitter to check. If empty, use the default vertex_seed.
+   * @return  true if the seed position is valid, false otherwise.
+   * */
+  bool ValidSeedPosition(const std::string& _fitter_name = "") {
+    std::string fitter_name = _fitter_name;
+    if (_fitter_name.empty()) {
+      fitter_name = vertex_seed;
+    }
+    DS::FitResult* fit_result = FindFitResult(fitter_name);
+    return (fit_result->GetEnablePosition() && fit_result->GetValidPosition());
+  }
+
+  /**
+   * Get the seed time from the specified fitter. If no valid fitter is found, issue a warning and return a default
+   * value.
+   * @param _fitter_name  name of the fitter to get the seed time from. If empty, use the default vertex_seed.
+   * @return  fitter time.
+   * */
+  double GetSeedTime(const std::string& _fitter_name = "") {
+    std::string fitter_name = _fitter_name;
+    if (_fitter_name.empty()) {
+      fitter_name = vertex_seed;
+    }
+    DS::FitResult* fit_result = FindFitResult(fitter_name);
+    if (!ValidSeedTime(fitter_name)) {
+      warn << "The Requested Seed Time (from " << fitter_name << ") is not valid." << newline;
+      return 0;
+    }
+    return fit_result->GetTime();
+  }
+
+  /**
+   * Determine if the seed time is valid.
+   * @param _fitter_name  name of the fitter to check. If empty, use the default vertex_seed.
+   * @return  true if the seed time is valid, false otherwise.
+   * */
+  bool ValidSeedTime(const std::string& _fitter_name = "") {
+    std::string fitter_name = _fitter_name;
+    if (_fitter_name.empty()) {
+      fitter_name = vertex_seed;
+    }
+    DS::FitResult* fit_result = FindFitResult(fitter_name);
+    return (fit_result->GetEnableTime() && fit_result->GetValidTime());
+  }
+
+  /**
+   * Get the seed direction from the specified fitter. If no valid fitter is found, issue a warning and return a default
+   * @param _fitter_name  name of the fitter to get the seed direction from. If empty, use the default direction_seed.
+   * @return  fitter direction.
+   * */
+  TVector3 GetSeedDirection(const std::string& _fitter_name = "") {
+    std::string fitter_name = _fitter_name;
+    if (_fitter_name.empty()) {
+      fitter_name = direction_seed;
+    }
+    DS::FitResult* fit_result = FindFitResult(fitter_name);
+    if (!ValidSeedDirection(fitter_name)) {
+      warn << "The Requested Seed Direction (from " << fitter_name << ") is not valid." << newline;
+      return TVector3(0, 0, 0);
+    }
+    return fit_result->GetDirection();
+  }
+
+  /**
+   * Determine if the seed direction is valid.
+   * @param _fitter_name  name of the fitter to check. If empty, use the default direction_seed.
+   * @return  true if the seed direction is valid, false otherwise.
+   * */
+  bool ValidSeedDirection(const std::string& _fitter_name = "") {
+    std::string fitter_name = _fitter_name;
+    if (_fitter_name.empty()) {
+      fitter_name = direction_seed;
+    }
+    DS::FitResult* fit_result = FindFitResult(fitter_name);
+    return (fit_result->GetEnableDirection() && fit_result->GetValidDirection());
+  }
+
+  double GetSeedEnergy(const std::string& _fitter_name = "") {
+    std::string fitter_name = _fitter_name;
+    if (_fitter_name.empty()) {
+      fitter_name = energy_seed;
+    }
+    DS::FitResult* fit_result = FindFitResult(fitter_name);
+    if (!ValidSeedTime(fitter_name)) {
+      warn << "The Requested Seed Energy (from " << fitter_name << ") is not valid." << newline;
+      return 0;
+    }
+    return fit_result->GetEnergy();
+  }
+
+  bool ValidSeedEnergy(const std::string& _fitter_name = "") {
+    std::string fitter_name = _fitter_name;
+    if (_fitter_name.empty()) {
+      fitter_name = energy_seed;
+    }
+    DS::FitResult* fit_result = FindFitResult(fitter_name);
+    return (fit_result->GetEnableEnergy() && fit_result->GetValidEnergy());
   }
 
   /**
