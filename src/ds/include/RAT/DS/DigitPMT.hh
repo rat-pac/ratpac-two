@@ -110,7 +110,7 @@ class DigitPMT : public TObject {
    * @param bit the literal bit position
    * @param val the value to write.
    */
-  virtual void SetHitCleaningBit(int bit, bool val = true) {
+  virtual void SetHitCleaningBit(uint bit, bool val = true) {
     if (bit > (sizeof(hit_cleaning_mask) * 8) - 1) {  // Bits to bytes, then 0-indexing
       warn << "Tried to set bit out of hit cleaning bitmask range, ignoring." << newline;
       return;
@@ -124,7 +124,7 @@ class DigitPMT : public TObject {
   }
 
   /** Check a bit of the hit cleaning mask */
-  virtual bool CheckHitCleaningBit(int bit) {
+  virtual bool CheckHitCleaningBit(uint bit) {
     if (bit > (sizeof(hit_cleaning_mask) * 8) - 1) {  // Bits to bytes, then 0-indexing
       warn << "Tried to read bit out of hit cleaning bitmask range, ignoring." << newline;
       return false;
