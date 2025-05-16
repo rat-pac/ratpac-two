@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.11...3.14)
+include(CMakePackageConfigHelpers)
 # Automatically get version of git tags.
 execute_process(
     COMMAND git --git-dir=${CMAKE_SOURCE_DIR}/.git describe --tags --always
@@ -7,17 +8,29 @@ execute_process(
     ERROR_QUIET
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-# Fallback version:
-if(NOT RATVERSION)
-  set(RATVERSION "3.0.0")
+
+execute_process(
+    COMMAND git --git-dir=${CMAKE_SOURCE_DIR}/.git describe --tags --abbrev=0
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE RATVERSION_SEMVERS
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if(NOT RATVERSION_SEMVERS)
+  set(RATVERSION_SEMVERS 3.0.0)
 endif()
 
 project(ratpac
   DESCRIPTION "RAT, Plus Additional Code, Version 2"
   HOMEPAGE_URL "https://ratpac.readthedocs.io/en/latest/"
+  VERSION ${RATVERSION_SEMVERS}
   LANGUAGES C CXX
 )
-set(PROJECT_VERSION ${RATVERSION})
+
+# Fallback version:
+if(NOT RATVERSION)
+  set(RATVERSION ${PROJECT_VERSION})
+endif()
 
 ###########################################################
 # Require out-of-source builds
@@ -150,6 +163,11 @@ configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.csh.in
 configure_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
   ${RATPAC_CMAKE_DIR}/RatpacConfig.cmake 
   @ONLY NEWLINE_STYLE UNIX)
+write_basic_package_version_file(
+  "${RATPAC_CMAKE_DIR}/RatpacConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMinorVersion
+)
 
 # Install the data files
 install(DIRECTORY ratdb/ DESTINATION ${RATSHARE}/ratdb
@@ -179,4 +197,7 @@ install(FILES ${RATPAC_BINARY_DIR}/ratpac.sh
   DESTINATION bin)
 
 install(FILES ${RATPAC_CMAKE_DIR}/RatpacConfig.cmake
+  DESTINATION cmake)
+
+install(FILES ${RATPAC_CMAKE_DIR}/RatpacConfigVersion.cmake
   DESTINATION cmake)
