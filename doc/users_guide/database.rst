@@ -1,3 +1,5 @@
+.. _ratdb:
+
 The RAT Database (RATDB)
 ------------------------
 

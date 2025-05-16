@@ -4,6 +4,8 @@ PMT Simulation
 
 RAT uses a custom PMT simulation extracted from GLG4Sim.
 
+----------------
+
 Q/T Response
 ````````````
 Gsim checks the database for single photoelectron charge and transit time PDFs
@@ -25,6 +27,8 @@ phenomenological model used by MiniCLEAN.
  * ``cable_delay`` - constant offset applied to all PMTs of this model (nanoseconds)
  * ``time`` - "x" values of the time PDF (nanoseconds)
  * ``time_prob`` - "y" values of the time PDF (will be normalized)
+
+----------------
 
 Dark Current
 ````````````
@@ -112,3 +116,20 @@ All are stored in DAQ.ratdb
 noise_rate: 500.0d, // The mean noise rate across all PMTs, in Hz
 PMTnoise: [], // an array with 92 entries: individual noise rates per PMT, in Hz
 noise_flag: 0, // the flag to determine which noise model you use (default is to turn noise off completely)
+
+----------------
+
+PMT Afterpulsing
+`````````````````
+
+Details of PMT afterpulsing
+
+----------------
+
+PMT Pulse Generation
+````````````````````
+
+Details of the PMT pulse generation here.
+
+----------------
+

@@ -1,7 +1,7 @@
 Command Interface and Macro Files
 ---------------------------------
 Issuing Commands to Ratpac
-```````````````````````
+``````````````````````````
 Interactive
 '''''''''''
 Ratpac is controlled through a text-command interface. If Ratpac is executed without

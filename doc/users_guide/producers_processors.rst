@@ -1,3 +1,4 @@
+.. _producers_processors:
 Event Producers vs. Event Processors
 ------------------------------------
 
