@@ -124,7 +124,11 @@ class DigitPMT : public TObject {
   }
 
   /** Check a bit of the hit cleaning mask */
-  virtual bool CheckHitCleaningBit(uint8_t bit) {
+  virtual bool CheckHitCleaningBit(int bit) {
+    if (bit > (sizeof(hit_cleaning_mask) * 8) - 1) {  // Bits to bytes, then 0-indexing
+      warn << "Tried to read bit out of hit cleaning bitmask range, ignoring." << newline;
+      return false;
+    }
     uint64_t mask = 1 << bit;
     return (hit_cleaning_mask & mask);
   }
