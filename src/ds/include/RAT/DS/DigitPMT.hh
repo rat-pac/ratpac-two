@@ -110,13 +110,27 @@ class DigitPMT : public TObject {
    * @param bit the literal bit position
    * @param val the value to write.
    */
-  virtual void SetHitCleaningMask(uint8_t bit, bool val) {
-    u_int32_t mask = val << bit;
-    hit_cleaning_mask = hit_cleaning_mask | mask;
+  virtual void SetHitCleaningBit(int bit, bool val = true) {
+    if (bit > (sizeof(hit_cleaning_mask) * 8) - 1) {  // Bits to bytes, then 0-indexing
+      warn << "Tried to set bit out of hit cleaning bitmask range, ignoring." << newline;
+      return;
+    }
+    uint32_t mask = (1 << bit);
+    if (val) {
+      hit_cleaning_mask = hit_cleaning_mask | mask;
+    } else {
+      hit_cleaning_mask = hit_cleaning_mask & (~mask);
+    }
   }
 
   /** Retrieve hit cleaning mask */
-  virtual uint32_t GetHitCleaningMask() { return hit_cleaning_mask; }
+  virtual bool CheckHitCleaningBit(uint8_t bit) {
+    uint64_t mask = 1 << bit;
+    return (hit_cleaning_mask & mask);
+  }
+
+  /** Retrieve hit cleaning mask */
+  virtual uint64_t GetHitCleaningMask() { return hit_cleaning_mask; }
 
   ClassDef(DigitPMT, 6);
 
@@ -137,7 +151,7 @@ class DigitPMT : public TObject {
   Double_t local_trigger_time = -9999;
   Double_t time_offset = 0;
   std::map<std::string, WaveformAnalysisResult> fit_results;
-  uint32_t hit_cleaning_mask = 0x0;
+  uint64_t hit_cleaning_mask = 0x0;
 };
 
 }  // namespace DS
