@@ -9,7 +9,7 @@ execute_process(
 )
 # Fallback version:
 if(NOT RATVERSION)
-  set(RATVERSION "2.3.0")
+  set(RATVERSION "3.0.0")
 endif()
 
 project(ratpac
