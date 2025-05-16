@@ -4,7 +4,6 @@
 add_library(util OBJECT
         src/GLG4StringUtil.cc
         src/GaussianRatioPDF.cc
-        src/MultiChargeDist.cc
         src/PolygonOrientation.cc
         src/ReadFile.cc
         src/Sampling.cc
