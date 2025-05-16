@@ -123,7 +123,7 @@ class DigitPMT : public TObject {
     }
   }
 
-  /** Retrieve hit cleaning mask */
+  /** Check a bit of the hit cleaning mask */
   virtual bool CheckHitCleaningBit(uint8_t bit) {
     uint64_t mask = 1 << bit;
     return (hit_cleaning_mask & mask);
