@@ -136,7 +136,7 @@ class DigitPMT : public TObject {
   /** Retrieve hit cleaning mask */
   virtual uint64_t GetHitCleaningMask() { return hit_cleaning_mask; }
 
-  ClassDef(DigitPMT, 6);
+  ClassDef(DigitPMT, 7);
 
  protected:
   Int_t id = -9999;
