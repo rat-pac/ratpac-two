@@ -10,11 +10,13 @@
 #include <G4UserRunAction.hh>
 #include <G4UserTrackingAction.hh>
 #include <RAT/DS/ChannelStatus.hh>
+#include <RAT/DS/NestedTubeInfo.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/EventInfo.hh>
 #include <RAT/GLG4VEventAction.hh>
+#include <RAT/GeoFiberSensitiveDetectorHit.hh>
 #include <RAT/Producer.hh>
 #include <set>
 
@@ -74,6 +76,8 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
   void Init();  // the real constructor
   void AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo *exinfo = NULL,
                    std::string process = "unknown");
+  void AddMCNestedTubeHit(DS::MCNestedTube *rat_mcnt, const GeoFiberSensitiveDetectorHit *hit);
+
   /* Storing optical creation track ID and step */
   void PhotonRecurse(std::vector<int> &PhotonIDs, int trackID, int &parentID, int &firstCreatedID);
   void SetOpticalPhotonIDs(std::string particle_type, int trackID, int parentID);
@@ -84,6 +88,8 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
   RAT::DS::PMTInfo *fPMTInfo;
   std::vector<RAT::PMTTime *> fPMTTime;      //< PMT transit time/delay calculator (indexed by modeltype)
   std::vector<RAT::PMTCharge *> fPMTCharge;  //< PMT single-pe charge calculator (indexed by modeltype)
+
+  RAT::DS::NestedTubeInfo *fNestedTubeInfo;
 
   RAT::DS::Run *run;
   int runID;

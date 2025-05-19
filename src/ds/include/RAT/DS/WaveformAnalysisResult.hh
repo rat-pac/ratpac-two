@@ -42,10 +42,12 @@ class WaveformAnalysisResult : public TObject {
   virtual Double_t getTime(size_t idx) { return times.at(idx); }
   virtual Double_t getCharge(size_t idx) { return charges.at(idx); }
   virtual Double_t getFOM(std::string key, size_t idx) { return figures_of_merit.at(key).at(idx); }
-  virtual int getNhits() { return times.size(); }
+
+  virtual int getNPEs() { return times.size(); }
+
   virtual const std::vector<Double_t>& getTimes() { return times; }
   virtual const std::vector<Double_t>& getCharges() { return charges; }
-  ClassDef(WaveformAnalysisResult, 1);
+  ClassDef(WaveformAnalysisResult, 2);
 
  protected:
   // All arrays are parallel arrays. It is assumed that they are sorted in time

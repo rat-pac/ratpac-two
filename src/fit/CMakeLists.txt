@@ -7,6 +7,7 @@ add_library(fit OBJECT
   src/FitCentroidProc.cc
   src/FitTensorProc.cc
   src/FitQuadProc.cc
+  src/FitDirectionCenterProc.cc
   src/MiniSim.cc
   src/bonsai/ariadne.cc 
   src/bonsai/azimuth_ks.cc 
@@ -26,6 +27,7 @@ add_library(fit OBJECT
   src/bonsai/searchgrid.cc
   src/FitBonsaiProc.cc 
 )
+
 
 
 # Set our include directories

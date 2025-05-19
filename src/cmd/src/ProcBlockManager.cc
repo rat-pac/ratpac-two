@@ -14,6 +14,7 @@
 #include <RAT/CountProc.hh>
 #include <RAT/FitBonsaiProc.hh>
 #include <RAT/FitCentroidProc.hh>
+#include <RAT/FitDirectionCenterProc.hh>
 #include <RAT/FitPathProc.hh>
 #include <RAT/FitQuadProc.hh>
 #include <RAT/FitTensorProc.hh>
@@ -29,7 +30,6 @@
 #include <RAT/SimpleDAQProc.hh>
 #include <RAT/SplitEVDAQProc.hh>
 #include <RAT/TrueDAQProc.hh>
-#include <RAT/WaveformAnalysis.hh>
 #include <RAT/WaveformAnalysisGaussian.hh>
 #include <RAT/WaveformAnalysisLognormal.hh>
 #include <RAT/WaveformAnalysisSinc.hh>
@@ -88,6 +88,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
 #endif
   AppendProcessor<FitPathProc>();
   AppendProcessor<FitQuadProc>();
+  AppendProcessor<FitDirectionCenterProc>();
   // Classifiers
   AppendProcessor<ClassifyChargeBalance>();
   // DAQ
@@ -99,7 +100,6 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<LessSimpleDAQProc>();
   AppendProcessor<LessSimpleDAQ2Proc>();
   AppendProcessor<TrueDAQProc>();
-  AppendProcessor<WaveformAnalysis>();
   AppendProcessor<WaveformPrep>();
   AppendProcessor<WaveformAnalysisGaussian>();
   AppendProcessor<WaveformAnalysisLognormal>();

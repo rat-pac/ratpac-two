@@ -90,7 +90,7 @@ void Rat::Configure() {
   logfilename = std::string(this->parser->GetValue("log", "")) != "" ? this->parser->GetValue("log", "") : logfilename;
   Log::Init(logfilename, Log::Level(display_level), Log::Level(log_level));
 
-  info << "RAT, version " << RATVERSION << newline;
+  info << "RATPAC-2, version " << RATVERSION << newline;
   if (this->parser->GetValue("version", false)) return;
   info << "Status messages enabled: info ";
   detail << "detail ";

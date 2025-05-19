@@ -48,6 +48,10 @@ class Calib : public TObject {
   virtual Double_t GetIntensity() const { return intensity; }
   virtual void SetIntensity(Double_t _intensity) { intensity = _intensity; }
 
+  /** Source wavelength (meaning depends on type of source) */
+  virtual Double_t GetWavelength() const { return wavelength; }
+  virtual void SetWavelength(Double_t _wavelength) { wavelength = _wavelength; }
+
   /** Absolute time of source activation */
   virtual TTimeStamp GetUTC() const { return utc; }
   virtual void SetUTC(const TTimeStamp &_utc) { utc = _utc; }
@@ -56,15 +60,21 @@ class Calib : public TObject {
   virtual const TVector3 &GetPosition() const { return pos; }
   virtual void SetPosition(const TVector3 &_pos) { pos = _pos; }
 
-  ClassDef(Calib, 2);
+  /** Direction of source. */
+  virtual const TVector3 &GetDirection() const { return dir; }
+  virtual void SetDirection(const TVector3 &_dir) { dir = _dir; }
+
+  ClassDef(Calib, 3);
 
  protected:
   Int_t id;
   Int_t mode;
   Double_t intensity;
+  Double_t wavelength;
   std::string name;
   TTimeStamp utc;
   TVector3 pos;
+  TVector3 dir;
 };
 
 }  // namespace DS

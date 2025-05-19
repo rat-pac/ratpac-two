@@ -209,7 +209,7 @@ class FitterInputHandler {
         if (std::find(fitterNames.begin(), fitterNames.end(), wfm_ana_name) == fitterNames.end()) {
           info << "FitResult not found for pmt id " << id << " " << wfm_ana_name << newline;
         }
-        return digitpmt->GetOrCreateWaveformAnalysisResult(wfm_ana_name)->getNhits();
+        return digitpmt->GetOrCreateWaveformAnalysisResult(wfm_ana_name)->getNPEs();
     }
   }
 

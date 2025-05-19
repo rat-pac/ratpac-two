@@ -21,6 +21,9 @@
 #include <RAT/GLG4VertexGen.hh>
 #include <RAT/GdGen.hh>
 #include <RAT/Gen_LED.hh>
+#include <RAT/GeoFiberSensitiveDetector.hh>
+#include <RAT/GeoFiberSensitiveDetectorHit.hh>
+#include <RAT/GeoNestedSolidArrayFactoryBase.hh>
 #include <RAT/Gsim.hh>
 #include <RAT/HeGen.hh>
 #include <RAT/LiGen.hh>
@@ -179,6 +182,7 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
 
   run = DS::RunStore::GetRun(runID);
   fPMTInfo = run->GetPMTInfo();
+  fNestedTubeInfo = run->GetNestedTubeInfo();
   GLG4VEventAction::GetTheHitPMTCollection()->SetChannelStatus(run->GetChannelStatus());
 
   for (size_t i = 0; i < fPMTTime.size(); i++) {
@@ -421,6 +425,7 @@ void Gsim::MakeRun(int _runID) {
   run->SetID(_runID);
   run->SetType((unsigned)lrun->GetI("runtype"));
   run->SetStartTime(utc);
+  run->SetNestedTubeInfo(&GeoNestedSolidArrayFactoryBase::GetNestedTubeInfo());
   const DS::PMTInfo *pmtinfo = &PMTFactoryBase::GetPMTInfo();
   run->SetPMTInfo(pmtinfo);
   DS::ChannelStatus ch_status;
@@ -567,6 +572,24 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
     }
   }
   mc->SetNumPE(numPE);
+
+  /** hits from fibers */
+  G4HCofThisEvent *HC = g4ev->GetHCofThisEvent();
+  for (int hc = 0; hc < HC->GetNumberOfCollections(); hc++) {
+    GeoFiberSensitiveDetectorHitsCollection *hit_collection = (GeoFiberSensitiveDetectorHitsCollection *)HC->GetHC(hc);
+    if (hit_collection->GetName() != "FiberSenDet" || hit_collection->GetSize() == 0) continue;
+    DS::MCNestedTube *rat_mcnt = mc->AddNewMCNestedTube();
+    G4String det_name = hit_collection->GetSDname();
+    std::string fibre_id_str = det_name.erase(0, 6).data();
+    int fibre_id = std::stoi(fibre_id_str);
+    rat_mcnt->SetID(fibre_id);
+    // only process fibers
+    // info << hit_collection->GetSDname() << newline;
+    for (size_t hit = 0; hit < hit_collection->GetSize(); hit++) {
+      GeoFiberSensitiveDetectorHit *my_hit = (GeoFiberSensitiveDetectorHit *)hit_collection->GetHit(hit);
+      AddMCNestedTubeHit(rat_mcnt, my_hit);
+    }
+  }
 }
 
 void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo * /*exinfo*/, std::string process) {
@@ -594,6 +617,21 @@ void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventI
   // of one
   rat_mcphoton->SetCharge(chargeScale * fPMTCharge[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickCharge());
   rat_mcphoton->SetCreatorProcess(process);
+}
+
+void Gsim::AddMCNestedTubeHit(DS::MCNestedTube *rat_mcnt, const GeoFiberSensitiveDetectorHit *hit) {
+  DS::MCNestedTubeHit *rat_mchit = rat_mcnt->AddNewMCNestedTubeHit();
+  // Only real photons are added in Gsim, noise and afterpulsing handled in processors
+
+  double x, y, z;
+  G4ThreeVector pos_vec = hit->GetHitPos();
+  x = pos_vec.x();
+  y = pos_vec.y();
+  z = pos_vec.z();
+  rat_mchit->SetPosition(TVector3(x, y, z));
+
+  rat_mchit->SetHitID(hit->GetID());
+  rat_mchit->SetHitTime(hit->GetTime());
 }
 
 void Gsim::SetStoreParticleTraj(const G4String &particleName, const bool &gDoStore) {

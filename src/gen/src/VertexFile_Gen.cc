@@ -40,6 +40,11 @@ void VertexFile_Gen::GenerateEvent(G4Event *event) {
 
   bool vertexset = false;
 
+  G4ThreeVector pos;
+  if (fPosGen) {
+    fPosGen->GeneratePosition(pos);
+  }
+
   // add any parents
   for (int i = 0; i < mc->GetMCParentCount(); i++) {
     const DS::MCParticle *mcp = mc->GetMCParent(i);
@@ -47,7 +52,7 @@ void VertexFile_Gen::GenerateEvent(G4Event *event) {
                                                         mcp->GetMomentum().Y(), mcp->GetMomentum().Z());
 
     if (!vertexset) {
-      G4ThreeVector pos(mcp->GetPosition().X(), mcp->GetPosition().Y(), mcp->GetPosition().Z());
+      if (!fPosGen) pos = G4ThreeVector(mcp->GetPosition().X(), mcp->GetPosition().Y(), mcp->GetPosition().Z());
       vertex = new G4PrimaryVertex(pos, NextTime() + mcp->GetTime());
       vertexset = true;
     }
@@ -62,7 +67,7 @@ void VertexFile_Gen::GenerateEvent(G4Event *event) {
                                                         mcp->GetMomentum().Y(), mcp->GetMomentum().Z());
 
     if (!vertexset) {
-      G4ThreeVector pos(mcp->GetPosition().X(), mcp->GetPosition().Y(), mcp->GetPosition().Z());
+      if (!fPosGen) pos = G4ThreeVector(mcp->GetPosition().X(), mcp->GetPosition().Y(), mcp->GetPosition().Z());
       vertex = new G4PrimaryVertex(pos, NextTime() + mcp->GetTime());
       vertexset = true;
     }
