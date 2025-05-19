@@ -3,7 +3,7 @@
 Event Processors
 ----------------
 
-Event processors, described in :ref:`producers_processors`, are part of the event loop. They do not create new events, but instead receives events one-by-one and may either change the event by adding to or altering its contents. As an example, the data aquisition (DAQ) processors will receive an event and then, based on information such as the number of PMTs that detected light, decide whether the event caused the detector to trigger. All ratpac-two processors inherit the methods from the processor class, which provides the structure for how all processors run. For more details about these methods, how to use them, and how to write new processors, find details in the Programmer's guide: :ref:`programming_a_processor`. Below we describe the existing processors in ratpac-two.
+Event processors, described in :ref:`producers_processors`, are part of the event loop. They do not create new events, but instead receive events one-by-one and may either change the event by adding to or altering its contents. As an example, the data acquisition (DAQ) processors will receive an event and then, based on information such as the number of PMTs that detected light, decide whether the event caused the detector to trigger. All ratpac-two processors inherit the methods from the processor class, which provides the structure for how all processors run. For more details about these methods, how to use them, and how to write new processors, find details in the Programmer's guide: :ref:`programming_a_processor`. Below we describe the existing processors in ratpac-two.
 
 ----------------------
 
@@ -12,27 +12,31 @@ Event processors, described in :ref:`producers_processors`, are part of the even
 Using a Processor From the Macro
 ````````````````````````````````
 
-The ratpac-two processors run as a block in the macro, instantiated after the '/run/initialize' line and prior to the generators. Below is an example of where several processors are run in a macro. Here we specify the last processor in the chain using the ``proclast`` syntax.
+The ratpac-two processors run as a block in the macro, instantiated after the ``/run/initialize`` line and prior to the generators. Below is an example of where several processors are run in a macro. Here we specify the last processor in the chain using the ``proclast`` syntax.
 
 ::
 
-        ... set database params up here
+        # Setup database parameters
 
         /run/initialize
 
+        # DAQ processor
         /rat/proc splitevdaq
 
+        # Count processor
         /rat/proc count
         /rat/procset update 100
 
-        /rat/proc classifychargebalance
-
+        # Quad fitter reconstruction
         /rat/proc quadfitter
 
+        # Choose output file type
         /rat/proclast outntuple
 
         /generator/add combo gun:point:poisson
-        ... add more generator info down here
+
+        # ... 
+        # Generator continued
 
 
 The parameters for a processor are often highly configurable. This can be achieved by loading these parameters from the database, ratdb, described more in :ref:`ratdb`. In general, if the processors parameter is loaded from ratdb, we can change it from the macro using (using the PMT noise processor as an example): 
@@ -134,3 +138,15 @@ Output Processors
 `````````````````
 
 The output processors are described in :ref:`output_processors`.
+
+----------------------
+
+.. _python:
+
+Python Processor
+````````````````
+
+Document the python processor.
+
+----------------------
+

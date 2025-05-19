@@ -1,4 +1,4 @@
-To setup the documentation locally, we first install the requirement:
+To setup the documentation locally, we first install the requirements:
 ```
 pip install -r requirements.txt
 ```

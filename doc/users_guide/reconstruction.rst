@@ -122,7 +122,7 @@ Minimization is done in three stages:
 from a static seed. 
 2. PathFitter likelihood is minimized with `simulated-annealing` from
 stage 1's result.
-2) PathFitter likelihood is minimized with Minuit2 from stage 1's result.
+3. PathFitter likelihood is minimized with Minuit2 from stage 1's result.
 
 Command
 '''''''
