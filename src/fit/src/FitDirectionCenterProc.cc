@@ -101,7 +101,7 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
   fitDC->SetValidDirection(true);
   fitDC->SetDirection(TVector3(0, 0, 0));
 
-  int numPMTs = ev->GetPMTCount();
+  int numPMTs = inputHandler.GetNHits();
   if (numPMTs <= 0) {
     fitDC->SetValidDirection(false);
     ev->AddFitResult(fitDC);
