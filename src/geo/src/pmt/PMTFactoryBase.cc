@@ -288,7 +288,8 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
     // TODO: We should also account for a rotation of the mother volume at some point
     G4ThreeVector pmtpos_global = pmtpos + local_offset;
 
-    // PMT may have been placed offset from encapsulation origin, assume pmt only moved forward/backwards (z position change)
+    // PMT may have been placed offset from encapsulation origin, assume pmt only moved forward/backwards (z position
+    // change)
     if (encapsulation == 1) {
       G4ThreeVector extra_offset;
       extra_offset.setX(pmtdir.x() * pmtoffsetposition.z());
