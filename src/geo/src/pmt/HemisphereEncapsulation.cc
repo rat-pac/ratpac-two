@@ -278,7 +278,7 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
 
   front_encapsulation_phys =
       new G4PVPlacement(0,                                          // rotation
-                        G4ThreeVector(0.0, 0.0, 0.0),   // position
+                        G4ThreeVector(0.0, 0.0, 0.0),               // position
                         front_encapsulation_log,                    // the logical volume
                         prefix + "_front_dome_encapsulation_phys",  // a name for this physical volume
                         envelope_log,                               // the mother volume
@@ -287,7 +287,7 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
 
   rear_encapsulation_phys =
       new G4PVPlacement(0,                                         // rotation
-                        G4ThreeVector(0.0, 0.0, 0.0),  // position
+                        G4ThreeVector(0.0, 0.0, 0.0),              // position
                         rear_encapsulation_log,                    // the logical volume
                         prefix + "_rear_dome_encapsulation_phys",  // a name for this physical volume
                         envelope_log,                              // the mother volume
@@ -317,7 +317,7 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
 
   inner_encapsulation_phys =
       new G4PVPlacement(0,                                            // rotation
-                        G4ThreeVector(0.0, 0.0, 0.0),     // position
+                        G4ThreeVector(0.0, 0.0, 0.0),                 // position
                         inner_encapsulation_log,                      // the logical volume
                         prefix + "_inner_volume_encapsulation_phys",  // a name for this physical volume
                         envelope_log,                                 // the mother volume
@@ -326,12 +326,12 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
 
   if (fParams.useGel == 1) {
     optical_gel_encapsulation_phys =
-        new G4PVPlacement(0,                                         // rotation
-                          G4ThreeVector(0.0, 0.0, 0.0),  // position
-                          optical_gel_encapsulation_log,             // the logical volume
-                          prefix + "_gel_encapsulation_phys",        // a name for this physical volume
-                          inner_encapsulation_log,                   // the mother volume
-                          false,                                     // no boolean ops
+        new G4PVPlacement(0,                                   // rotation
+                          G4ThreeVector(0.0, 0.0, 0.0),        // position
+                          optical_gel_encapsulation_log,       // the logical volume
+                          prefix + "_gel_encapsulation_phys",  // a name for this physical volume
+                          inner_encapsulation_log,             // the mother volume
+                          false,                               // no boolean ops
                           0);
   }
 
