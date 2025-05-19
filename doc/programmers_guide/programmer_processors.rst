@@ -1,3 +1,4 @@
+.. _programming_a_processor:
 Creating a Processor
 --------------------
 Creating a new processor and adding it to RAT requires only a few steps.
