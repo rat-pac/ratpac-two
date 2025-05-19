@@ -136,6 +136,7 @@ class OutNtupleProc : public Processor {
   double triggerTime;
   ULong64_t timestamp;
   ULong64_t trigger_word;
+  ULong64_t event_cleaning_word;
   double timeSinceLastTrigger_us;
   // MC Summary Information
   double scintEdep;

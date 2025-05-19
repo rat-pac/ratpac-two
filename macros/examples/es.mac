@@ -1,5 +1,3 @@
-# Example macro showing how to use quadfitte
-
 /glg4debug/glg4param omit_muon_processes 1.0
 /glg4debug/glg4param omit_hadronic_processes 1.0
 
@@ -14,13 +12,11 @@
 
 /rat/proc classifychargebalance
 
-/rat/proc quadfitter
-/rat/procset max_radius 4250.0  # Set max_radius > r_max of Valid.geo to account for resolution
+/rat/proclast outroot
 
-/rat/proclast outntuple
-
-/generator/add combo gun:point:poisson
-/generator/vtx/set e- 0.0 0.0 0.0 2.5
+/generator/add combo es:fill:poisson 
+#/generator/vtx/set 1.0 0.0 0.0 STPI:full:nue 
+/generator/vtx/set 0.0 0.0 -1.0 SOLAR:hep:nue 
 /generator/pos/set 0.0 0.0 0.0
 /generator/rate/set 2.0
 
