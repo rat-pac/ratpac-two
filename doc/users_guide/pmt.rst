@@ -139,8 +139,10 @@ PMT Encapsulation
 PMT encapsulation is used for several reasons, such as to ensure compatability with multiple detection media (e.g. air, water, doped water).
 
 The encapsulation code was originally created for the BUTTON experiment, in which each of the 96 PMTs used are enclosed by two hemisphere domes that are sealed together by metal flanges and bolts.
-    The encapsulation code structure is based off the PMT construction structure, in which a instance is initialised depending on the construction type given.
-    When enabled, the encapsulation object is created first, followed the pmt object. The PMT is then placed inside the encapsulation before itself is placed in the mother volume given.
+
+The encapsulation code structure is based off the PMT construction structure, in which a instance is initialised depending on the construction type given.
+
+When enabled, the encapsulation object is created first, followed the pmt object. The PMT is then placed inside the encapsulation before itself is placed in the mother volume given.
 
 Enabling Encapsulation
 ''''''''''
@@ -156,9 +158,9 @@ It can also be added in a macro with: ::
 
 The other line that must be included inside the ``inner_pmts`` index entry is the model type: ::
 
-    encapsulation_model: "model",
+    encapsulation_model: "modelname",
 
-Where "model" must match an index entry name in ``ENCAPSULATION.ratdb``.
+Where "modelname" must match an index entry name in ``ENCAPSULATION.ratdb``.
 
 Encapsulation model information
 ''''''''''
