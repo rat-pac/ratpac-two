@@ -139,20 +139,25 @@ PMT Encapsulation
 PMT encapsulation is used for several reasons, such as to ensure compatability with multiple detection media (e.g. air, water, doped water).
 
 The encapsulation code was originally created for the BUTTON experiment, in which each of the 96 PMTs used are enclosed by two hemisphere domes that are sealed together by metal flanges and bolts.
-The encapsulation code structure is based off the PMT construction structure, in which a instance is initialised depending on the construction type given.
-When enabled, the encapsulation object is created first, followed the pmt object. The PMT is then placed inside the encapsulation before itself is placed in the mother volume given.
+    The encapsulation code structure is based off the PMT construction structure, in which a instance is initialised depending on the construction type given.
+    When enabled, the encapsulation object is created first, followed the pmt object. The PMT is then placed inside the encapsulation before itself is placed in the mother volume given.
 
 Enabling Encapsulation
 ''''''''''
 Encapsulation by default is turned off. 
-In a .geo file, it can be enabled by adding the following line inside the ``inner_pmts`` index entry:
-:: encapsulation: 1,
-With 0 being off.
-It can also be added in a macro with:
-:: /rat/db/set GEO[inner_pmts] encapsulation 1
+In a .geo file, it can be enabled by adding the following line inside the ``inner_pmts`` index entry: ::
 
-The other line that must be included inside the ``inner_pmts`` index entry is the model type:
-:: encapsulation_model: "model",
+    encapsulation: 1,
+
+With 0 being off.
+It can also be added in a macro with: ::
+
+    /rat/db/set GEO[inner_pmts] encapsulation 1
+
+The other line that must be included inside the ``inner_pmts`` index entry is the model type: ::
+
+    encapsulation_model: "model",
+
 Where "model" must match an index entry name in ``ENCAPSULATION.ratdb``.
 
 Encapsulation model information
@@ -161,10 +166,10 @@ Encapsulation models need to be added to ``ENCAPSULATION.ratdb``, which is loact
 A entry can be called by using the ``encapsulation_model:`` command as mentioned above.
 Each entry provides all the important information that is needed to create the encapsulation objects:
 
-Construction type
-Enable and disable additional objects
-Object dimensions and materials
-Off-centre object placements
+* Construction type
+* Enable and disable additional objects
+* Object dimensions and materials
+* Off-centre object placements
 
 The construction type is needed to ensure the correct encapsulation construction class is loaded. This represents the general shape of the encapsulation used.
 Multiple entries can use the same construction type, which can vary on the objects and object properties used.
