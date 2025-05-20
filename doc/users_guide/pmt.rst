@@ -204,7 +204,7 @@ This can be change in ``PMTFactoryBase.cc`` to ensure that the correct mother vo
 
 PMT Offset
 ''''''''''
-The encapsulation is placed using the PMT position(s) and direction(s) given, this means that the PMT is initially placed in the centre of the encapsulation. 
-An offset can be given in the ``ENCAPSULATION.ratdb`` entry so that the PMT is placed off-centre inside the encapsulation. This currently works for z-axis offsets (i.e move the PMT closer forwards/backwards). 
+The encapsulation is placed using the PMT position(s) and direction(s) given, this means that by default the PMT is placed in the centre of the encapsulation. 
+An offset can be given in the ``ENCAPSULATION.ratdb`` entry so that the PMT is placed off-centre inside the encapsulation. This currently works for z-axis offsets (i.e move the PMT forwards/backwards). 
 
 ----------------
