@@ -1,7 +1,14 @@
-Physics Processes
------------------
-The standard RAT simulation includes many standard GEANT4 physics processes, as
-well as some custom processes:
+.. _photon_processes:
+
+Optical Photon Processes
+------------------------
+
+Cherenkov
+`````````
+
+To generate Cherenkov light, ratpac-two uses the ``Geant4`` G4Cerenkov class, with some small changes. The class in ratpac-two is called ``ThinnableG4Cerenkov`` as it primarily add the ability to 'thin' the number of photons that get propagated in ratpac-two. This option is provided in order to increase the speed of the simulation, and is discussed in more detail in :ref:`photon_thinning`. 
+
+------------------------
 
 Scintillation 
 `````````````
@@ -190,3 +197,17 @@ intensity) for WLS materials.
 This WLS model has been validated by Chao Zhang of BNL. See these slides for
 details:
 :download:`bnl_wls_validation.pdf <bnl_wls_validation.pdf>`.
+
+------------------------
+
+.. _photon_thinning:
+
+Photon Thinning
+```````````````
+
+Photon thinning is a method for reducing the number of photons that ratpac-two propagates in the simulation, in order to speed up the simulation. Prior the the thinning, the total number of Cherenkov and scintillation photons, N, is calculated. A thinning factor, specified in ``PHOTON_THINNING.ratdb`` and which defaults to 1.0 and ranges from 0.0 to 1.0, can be set to reduce the value of N. If the thinning factor is set to 0.5, half of the optical photons are removed from the simulation directly after their creation. To account for this, the efficiency of the photodetectors is increased by a factor equal to the reciprocal of the thinning factor.
+
+In addition to the thinning factor, one can independently set upper and lower wavelength bounds for the Cherenkov and scintillator light. Photons with wavelengths above and below these bounds will be removed. This feature can be useful to study photons in specific wavelength regimes. By default the values of the bounds are 0 and 10000000000000000000.0, so as to have no effect.
+
+Disclaimer: The photon thinning should be used very carefully! It can easily cause the photodetector efficiency to increase above 100% and cause other unintended consequences.
+
