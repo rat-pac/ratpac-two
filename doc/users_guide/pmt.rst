@@ -173,20 +173,28 @@ Each entry provides all the important information that is needed to create the e
 * Object dimensions and materials
 * Off-centre object placements
 
-The construction type is needed to ensure the correct encapsulation construction class is loaded. This represents the general shape of the encapsulation used.
-Multiple entries can use the same construction type, which can vary on the objects and object properties used.
+The construction type is needed to ensure the correct encapsulation construction is loaded. This represents the general shape of the encapsulation used.
+For any materials used, their properties should be defined in ``MATERIALS.ratdb`` and ``OPTICS.ratdb``.
+Any values given such as dimensions and positions should be given in mm.
+Multiple entries can use the same construction type, but can vary on the objects and object properties used.
 
 Adding a new Encapsulation construction
 ''''''''''
 Initially, the only encapsulation construction is the "hemisphere" type, which encapsulates the PMT inside two hemispheres.
 An inner volume is then created in which the PMT can be placed.
 
-To create a different encapsulation construction (e.g. a box), the option must be added to ``PMTEncapsulationConstruction.cc``.
+When creating a new construction model (e.g. a box), the .cc file should contain three main functions:
+
+* An initial function that is called to create an instance with the information from the given ``ENCAPSULATION.ratdb`` entry.
+* A build function that creates and returns the encapsulation.
+* A placement function.
+
+A new encapsulation construction should make the build as customisable as possible.
+The important object information such as those stated above should be called from an ``ENCAPSULATION.ratdb`` entry.
+
+To use a new construction type, the option must be added to ``PMTEncapsulationConstruction.cc``.
 This file uses the construction type that is given in the called ``ENCAPSULATION.ratdb`` entry to initiate the associated encapsulation construction.
 For a working example please see ``HemisphereEncapsulation.cc/hh`` which uses the "hemisphere" construction type.
-
-A new encapsulation construction should make the encapsulation creation as customisable as possible.
-The important object imformation such as those stated above should be called from an ``ENCAPSULATION.ratdb`` entry.
 
 Placing PMT
 ''''''''''
