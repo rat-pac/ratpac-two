@@ -4,6 +4,8 @@ PMT Simulation
 
 RAT uses a custom PMT simulation extracted from GLG4Sim.
 
+----------------
+
 Q/T Response
 ````````````
 Gsim checks the database for single photoelectron charge and transit time PDFs
@@ -25,6 +27,8 @@ phenomenological model used by MiniCLEAN.
  * ``cable_delay`` - constant offset applied to all PMTs of this model (nanoseconds)
  * ``time`` - "x" values of the time PDF (nanoseconds)
  * ``time_prob`` - "y" values of the time PDF (will be normalized)
+
+----------------
 
 Dark Current
 ````````````
@@ -112,3 +116,80 @@ All are stored in DAQ.ratdb
 noise_rate: 500.0d, // The mean noise rate across all PMTs, in Hz
 PMTnoise: [], // an array with 92 entries: individual noise rates per PMT, in Hz
 noise_flag: 0, // the flag to determine which noise model you use (default is to turn noise off completely)
+
+----------------
+
+PMT Afterpulsing
+`````````````````
+
+Details of PMT afterpulsing
+
+----------------
+
+PMT Pulse Generation
+````````````````````
+
+Details of the PMT pulse generation here.
+
+----------------
+
+PMT Encapsulation
+`````````````````
+
+PMT encapsulation is used for several reasons, such as to ensure compatability with multiple detection media (e.g. air, water, doped water).
+
+The encapsulation code was originally created for the BUTTON experiment, in which each of the 96 PMTs used are enclosed by two hemisphere domes that are sealed together by metal flanges and bolts.
+The encapsulation code structure is based off the PMT construction structure, in which a instance is initialised depending on the construction type given.
+When enabled, the encapsulation object is created first, followed the pmt object. The PMT is then placed inside the encapsulation before itself is placed in the mother volume given.
+
+Enabling Encapsulation
+''''''''''
+Encapsulation by default is turned off. 
+In a .geo file, it can be enabled by adding the following line inside the ``inner_pmts`` index entry:
+:: encapsulation: 1,
+With 0 being off.
+It can also be added in a macro with:
+:: /rat/db/set GEO[inner_pmts] encapsulation 1
+
+The other line that must be included inside the ``inner_pmts`` index entry is the model type:
+:: encapsulation_model: "model",
+Where "model" must match an index entry name in ``ENCAPSULATION.ratdb``.
+
+Encapsulation model information
+''''''''''
+Encapsulation models need to be added to ``ENCAPSULATION.ratdb``, which is loacted in ``ratpac/ratdb``. 
+A entry can be called by using the ``encapsulation_model:`` command as mentioned above.
+Each entry provides all the important information that is needed to create the encapsulation objects:
+
+Construction type
+Enable and disable additional objects
+Object dimensions and materials
+Off-centre object placements
+
+The construction type is needed to ensure the correct encapsulation construction class is loaded. This represents the general shape of the encapsulation used.
+Multiple entries can use the same construction type, which can vary on the objects and object properties used.
+
+Adding a new Encapsulation construction
+''''''''''
+Initially, the only encapsulation construction is the "hemisphere" type, which encapsulates the PMT inside two hemispheres.
+An inner volume is then created in which the PMT can be placed.
+
+To create a different encapsulation construction (e.g. a box), the option must be added to ``PMTEncapsulationConstruction.cc``.
+This file uses the construction type that is given in the called ``ENCAPSULATION.ratdb`` entry to initiate the associated encapsulation construction.
+For a working example please see ``HemisphereEncapsulation.cc/hh`` which uses the "hemisphere" construction type.
+
+A new encapsulation construction should make the encapsulation creation as customisable as possible.
+The important object imformation such as those stated above should be called from an ``ENCAPSULATION.ratdb`` entry.
+
+Placing PMT
+''''''''''
+If encapsulation is used, then is possible that the medium inside the encapsuation is different to the mother volume medium it would be placed in without encapsulation on.
+This can be change in ``PMTFactoryBase.cc`` to ensure that the correct mother volume is used for the placement. If using the visualiser, the scene tree is useful to see if the PMT has been placed inside the correct volume.
+
+
+PMT Offset
+''''''''''
+The encapsulation is placed using the PMT position(s) and direction(s) given, this means that the PMT is initially placed in the centre of the encapsulation. 
+An offset can be given in the ``ENCAPSULATION.ratdb`` entry so that the PMT is placed off-centre inside the encapsulation. This currently works for z-axis offsets (i.e move the PMT closer forwards/backwards). 
+
+----------------
