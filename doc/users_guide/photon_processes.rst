@@ -205,7 +205,7 @@ details:
 Photon Thinning
 ```````````````
 
-Photon thinning is a method for reducing the number of photons that ratpac-two propagates in the simulation, in order to speed up the simulation. Prior the the thinning, the total number of Cherenkov and scintillation photons, N, is calculated. A thinning factor, specified in ``PHOTON_THINNING.ratdb`` and which defaults to 1.0 and ranges from 0.0 to 1.0, can be set to reduce the value of N. If the thinning factor is set to 0.5, half of the optical photons are removed from the simulation directly after their creation. To account for this, the efficiency of the photodetectors is increased by a factor equal to the reciprocal of the thinning factor.
+Photon thinning is a method for reducing the number of photons that ratpac-two propagates in the simulation, in order to speed up the simulation. Prior the the thinning, the total number of Cherenkov and scintillation photons, N, is calculated. A thinning factor, specified in ``PHOTON_THINNING.ratdb`` and which defaults to 1.0 and must be greater than or equal to one, can be set to reduce the value of N. If the thinning factor is set to 2.0, half of the optical photons are removed from the simulation directly after their creation. To account for this, the efficiency of the photodetectors is increased by the thinning factor.
 
 In addition to the thinning factor, one can independently set upper and lower wavelength bounds for the Cherenkov and scintillator light. Photons with wavelengths above and below these bounds will be removed. This feature can be useful to study photons in specific wavelength regimes. By default the values of the bounds are 0 and 10000000000000000000.0, so as to have no effect.
 

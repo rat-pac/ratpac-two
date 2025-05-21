@@ -48,16 +48,16 @@ Control
 '''''''
 The ``noise_flag`` in the ``NoiseProc.ratdb`` table sets the way in which the dark noise is simulated.
 
-0: Global rate -- all PMTs in the detector have the same dark-rate. The value of the global rate is set by the ``default_noise_rate`` parameter. The default behavior of the noise processor is to use this globla setting with a default rate of 1 kHz.
+0: Global rate -- all PMTs in the detector have the same dark-rate. The value of the global rate is set by the ``default_noise_rate`` parameter. The default behavior of the noise processor is to use this global setting with a default rate of 1 kHz.
 
 1: Per PMT model rate -- all PMTs of the same type have the same rate. This may be useful if the detector has different types of PMTs. In this case the noise rate is read from the ``PMT.ratdb`` table for the appropriate model.
 
 2: Per PMT rate -- every PMT in the detector have a different noise rate. This may be useful if the noise rates have been measured for every PMT and one wants to simulate these specific per-PMT rates. In this case the noise rates are read from the relevant ``PMTINFO.ratdb`` file, where an array called ``noise_rate`` can be defined. As an example, from the macro we can change the noise simulation to per PMT-model rates and change the rate for a specified model::
 
         /rat/db/set NOISEPROC noise_flag 1
-        /rat/db/set PMT r14688[noise_rate] 5000.0
+        /rat/db/set PMT[r14688] noise_rate 5000.0
 
-These parameters can also be set using ``procset``. For example, to set the ``default_rate`` we would do::
+These parameters can also be set using ``procset``. For example, to set the ``default_noise_rate`` we would do::
 
 /rat/proc noise
 /rat/procset rate 5000.0
@@ -126,7 +126,7 @@ Details of the channel status here.
 PMT Encapsulation
 `````````````````
 
-PMT encapsulation is used for several reasons, such as to ensure compatability with multiple detection media (e.g. air, water, doped water).
+PMT encapsulation is used for several reasons, such as to ensure compatibility with multiple detection media (e.g. air, water, doped water).
 
 The encapsulation code was originally created for the BUTTON experiment, in which each of the 96 PMTs used are enclosed by two hemisphere domes that are sealed together by metal flanges and bolts.
 

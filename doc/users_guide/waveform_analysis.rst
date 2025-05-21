@@ -3,13 +3,13 @@
 Waveform analysis
 -----------------
 
-It is typical for modern detectors to digitize PMT pulses on waveform digitizers and readout entire waveforms for each PMT channel. These waveforms are then often processed offline to produce PMT hit-times and integrated charges, among other variables. ``ratpac-two`` both provides realistic simulation of the waveform digitizers, discussed in :ref:`digitization`, but also a full chain of waveform analysis that can be used to extract information about the PMT pulses. As with other features, this existing waveform analysis code can easily be extended for an experiment's particular use-cases, and the provided waveform proccesors should be treated as helpful examples rather than finished products.
+It is typical for modern detectors to digitize PMT pulses on waveform digitizers and readout entire waveforms for each PMT channel. These waveforms are then often processed offline to produce PMT hit-times and integrated charges, among other variables. ``ratpac-two`` both provides realistic simulation of the waveform digitizers, discussed in :ref:`digitization`, but also a full chain of waveform analysis that can be used to extract information about the PMT pulses. As with other features, this existing waveform analysis code can easily be extended for an experiment's particular use-cases, and the provided waveform processors should be treated as helpful examples rather than finished products.
 
 The waveform analysis processors are run over the digitized waveforms (the ``DS::Digit`` objects). These processors are only run if (a) a DAQ processor is run (b) digitization of the PMT waveforms is enabled (c) the waveform processing is enabled and (d) the waveform processor is run from the macro.
 
 In order to enable the digitization of waveforms, discussed in :ref:`digitization`, we adjust the ``DAQ.ratdb`` table and set ``digitize: True`` for the appropriate DAQ. As with all ratdb parameters, this can be achieved from the macro. This will cause waveforms for each ``MCPMT`` to be created, which can be further processed using the waveform analysis tools.
 
-The waveform analysis is enabled from the ``DAQ.ratdb`` table for the DAQ that is being used (e.g., ``SplitEVDAQ``) by setting ``analyze: true``. This variable is set to true by default for ``ForcedTrigger`` and ``SplitEVDAQ``. The selection for the type of waveform analysis is also determined by this table by setting the value of ``analyzer_name``. If this variable is set the table ``DIGITZER_ANALYSIS`` with index equal to ``analyzer_name`` will be loaded. The provided ``DIGITIZER_ANALYSIS`` contain settings for various different waveform analysis processors.
+The waveform analysis is enabled by running the waveform analysis processor (e.g., ``/rat/proc WaveformPrep``). The analysis processors reads from a ratdb table called ``DIGITIZER_ANALYSIS``. In order to change the index of the table that is loaded, the user can select a new index using ``/rat/procset index_name``. More details are provided below. 
 
 Base analysis
 `````````````
@@ -40,7 +40,7 @@ Parameters in ratdb for ``Waveform Prep`` are defined below. These parameters ca
     constant_fraction
     lookback
 
-* parameters to calculate the timing using a constant fraction discrimator.
+* parameters to calculate the timing using a constant fraction discriminator.
 
 ::
 
@@ -60,7 +60,7 @@ Parameters in ratdb for ``Waveform Prep`` are defined below. These parameters ca
 
     apply_cable_offset
 
-* apply the cable offset from the PMT channel status. More details in...
+* apply the cable offset from the PMT channel status. More details are provided in :ref:`channel_status`.
 
 For waveforms that cross the specified threshold, a new ``DS`` object called the ``DigitPMT`` is created. These objects represent the PMT properties as measured by the waveform analysis tools. For example, the ``GetDigitizedTime`` method returns the digitized time as measured by ``WaveformPrep``, which applies a constant-fraction-discriminator to extract a single hit-time for each waveform. Because there are several different analysis methods that might calculate a PMT hit-time, the results are separated using the ``WaveformAnalysisResult`` tool that is further described below.
 
@@ -89,7 +89,12 @@ There are several additional waveform analysis proccesors described below, each 
     # Then run the other waveform analysis
     # processors
     /rat/proc WaveformAnalysisLognormal
-    
+    # This automatically loads the 
+    # DIGITIZER_ANALYSIS table with an
+    # index of 'LognormalFit' unless we
+    # select something else using
+    # /rat/procset analyzer_name "custom_settings"
+
     /rat/proc WaveformAnalysisGaussian
     
     /rat/proc WaveformAnalysisSinc
