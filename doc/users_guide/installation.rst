@@ -20,19 +20,26 @@ and will install a local version of ROOT and Geant4.
 
 Containers
 ``````````
-Ratpac can be built in a container using the provided Dockerfile. The container
-is based on the `Ubuntu 20.04 image <https://hub.docker.com/_/ubuntu>`_ and
-includes all of the dependencies required to build Ratpac. The container can be
-built using the following command:
+Building Containers
+'''''''''''''''''''
+ratpac can be built in a container using the provided dockerfiles found in both
+ratpac-two itself and ratpac-setup. The Dockerfile provided by ratpac-setup
+creates a container with a all of ratpac-two's dependencies installed, while the
+Dockerfile in ratpac-two creates a container with ratpac-two itself installed.
+The container is based on the `ubuntu 22.04 image
+<https://hub.docker.com/_/ubuntu>`_ and includes all of the dependencies
+required to build ratpac. the container can be built using the following
+command:
 
 .. code-block:: bash
-
-    docker build -f Dockerfile.base -t ratpac/ratpac-two:base .
-    docker build -f Dockerfile -t ratpac/ratpac-two:latest .
+    cd ratpac-setup
+    docker build -f Dockerfile -t ratpac/ratpac-two:latest-base .
+    cd ../ratpac-two
+    docker build -f containers/Dockerfile -t ratpac/ratpac-two:latest .
 
 The first command will build the base image which only includes the dependencies
 but not the Ratpac source code. The second command will build the Ratpac image
-which includes the Ratpac source code and uses ratpac/ratpac-two:base.
+which includes the Ratpac source code and uses ratpac/ratpac-two:latest-base.
 
 A Singularity (Apptainer) image can be built from the Docker image using the
 following command:
@@ -46,4 +53,17 @@ base docker image and then compile Ratpac inside the container.
 
 .. code-block:: bash
 
-    singularity build ratpac-two.sif docker-daemon://ratpac/ratpac-two:base
+    singularity build ratpac-two.sif docker-daemon://ratpac/ratpac-two:latest-base
+
+Pulling containers from Github CI
+'''''''''''''''''''''''''''''''''
+The ratpac-two repository also creates nightly builds of the latest commit to the
+repository. 
+
+.. code-block:: bash
+    
+    # Base container: 
+    apptainer build ratpac-two-base.sif docker://ratpac/ratpac-two:latest-base
+    # Full container:
+    apptainer build ratpac-two.sif docker://ratpac/ratpac-two:main
+
