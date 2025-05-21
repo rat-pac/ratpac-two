@@ -13,7 +13,7 @@ add_subdirectory(gen)
 add_subdirectory(geo)
 add_subdirectory(io)
 add_subdirectory(physics)
-add_subdirectory(external)
+add_subdirectory(contrib)
 add_subdirectory(util)
 # ds has to come last to avoid race condition with ratdict 
 add_subdirectory(ds)
