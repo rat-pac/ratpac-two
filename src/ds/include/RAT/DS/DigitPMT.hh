@@ -60,18 +60,6 @@ class DigitPMT : public TObject {
   virtual void SetPeakVoltage(Double_t _peak) { this->peak = _peak; }
   virtual Double_t GetPeakVoltage() { return peak; }
 
-  /** Fitted time in ns */
-  virtual void SetFittedTime(Double_t _fTime) { this->fTime = _fTime; }
-  virtual Double_t GetFittedTime() { return fTime; }
-
-  /** Fitted mag */
-  virtual void SetFittedHeight(Double_t _fMag) { this->fMag = _fMag; }
-  virtual Double_t GetFittedHeight() { return fMag; }
-
-  /** Fitted bas */
-  virtual void SetFittedBaseline(Double_t _fBas) { this->fBas = _fBas; }
-  virtual Double_t GetFittedBaseline() { return fBas; }
-
   /** Local trigger time at the location of the PMT. Useful for PMT timing corrections */
   virtual void SetLocalTriggerTime(Double_t _trigger_time) { this->local_trigger_time = _trigger_time; }
   virtual Double_t GetLocalTriggerTime() { return local_trigger_time; }
