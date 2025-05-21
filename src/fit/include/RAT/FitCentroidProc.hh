@@ -14,7 +14,7 @@ class EV;
 
 class FitCentroidProc : public Processor {
  public:
-  FitCentroidProc() : Processor("fitcentroid"), inputHandler() {};
+  FitCentroidProc() : Processor("fitcentroid"), inputHandler(){};
   virtual ~FitCentroidProc() {}
 
   /** param = "power", value = exponent to raise charge to when averaging
