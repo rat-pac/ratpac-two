@@ -8,6 +8,17 @@ Macro files are plain text files containing a sequence of commands that control 
 * Primary particle sources (event generators).
 * Run-specific parameters like the number of events and random number seeds.
 
+At a high level the simulation is a **pipeline** connecting an event
+**producer** to a sequence of **processors**. Producers create or load events
+and then hand each event to the processors one-by-one. Each processor can modify
+the event, record information, or simply observe it. The order of processors you
+declare therefore determines how every event will be handled. See
+:ref:`producers_processors` for further details.
+
+```text
+Producer -> Processor 1 -> Processor 2 -> ... -> Processor N
+```
+
 `rat` can execute a sequence of macro files if multiple are provided on the command line:
 ```bash
 rat example_1.mac example_2.mac
