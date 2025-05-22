@@ -3,10 +3,8 @@
 #include <RAT/DetectorConstruction.hh>
 #include <RAT/Factory.hh>
 #include <RAT/GeoBoxFactory.hh>
-#include <RAT/GeoBubbleFactory.hh>
 #include <RAT/GeoBuilder.hh>
 #include <RAT/GeoCalibrationStickFactory.hh>
-#include <RAT/GeoCherenkovSourceFactory.hh>
 #include <RAT/GeoConvexLensFactory.hh>
 #include <RAT/GeoCutTubeFactory.hh>
 #include <RAT/GeoLensFactory.hh>
@@ -27,7 +25,6 @@
 #include <RAT/GeoTubeArrayFactory.hh>
 #include <RAT/GeoTubeFactory.hh>
 #include <RAT/GeoTubeIntersectionFactory.hh>
-#include <RAT/GeoWaterBoxArrayFactory.hh>
 #include <RAT/Log.hh>
 #include <RAT/PMTArrayFactory.hh>
 #include <RAT/PMTCoverageFactory.hh>
@@ -47,8 +44,6 @@ GeoBuilder::GeoBuilder() {
   new PMTArrayFactory();
   new GeoNestedTubeArrayFactory();
   new PMTCoverageFactory();
-  new GeoWaterBoxArrayFactory();
-  new GeoBubbleFactory();
   new GeoPerfTubeFactory();
   new GeoPerfSphereFactory();
   new GeoRevArrayFactory();
@@ -67,7 +62,6 @@ GeoBuilder::GeoBuilder() {
   new WLSPCoverFactory();
 
   // Extra components
-  new GeoCherenkovSourceFactory();
   new GeoCalibrationStickFactory();
 
   // Register standard waveguides

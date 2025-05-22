@@ -8,7 +8,6 @@
 #include <G4SDManager.hh>
 #include <G4SolidStore.hh>
 #include <G4VPhysicalVolume.hh>
-#include <RAT/BWVetGenericChamber.hh>
 #include <RAT/DB.hh>
 #include <RAT/DetectorConstruction.hh>
 #include <RAT/DetectorFactory.hh>
@@ -85,8 +84,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
 
   // Add sensitive volumes here (only veto for now)
   G4SDManager *sdman = G4SDManager::GetSDMpointer();
-  G4VSensitiveDetector *veto = new BWVetGenericChamber("/mydet/veto/genericchamber");
-  sdman->AddNewDetector(veto);
 
   // Setup photon thinning parameters
   PhotonThinning::Init();
