@@ -41,6 +41,7 @@
 /rat/procset time_resid_up  0.7                           # upper cut on time residuals using direct cut [ns]
 /rat/procset time_resid_low 0.06                          # lower cut on time residuals using direct cut [ns]
 /rat/procset verbose 1                                    # save additional parameter in data structure
+# Illustration of how to select multiple pmt types - Valid.geo has only the default pmt_type==0
 /rat/procset pmt_type 0                                   # type of pmt to be used in reconstruction
 /rat/procset pmt_type 1                                   # type of pmt to be used in reconstruction
 /rat/procset pmt_type 2                                   # type of pmt to be used in reconstruction
