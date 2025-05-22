@@ -7,7 +7,7 @@ Creating a new processor and adding it to RAT requires only a few steps.
 
 Historically processors are named "RAT::XXXXProc" where XXXX is some short descriptive name for what your processor does.  If the processor is a fitter, it should be named "RAT::FitXXXXProc". Currently, not all processors follow this naming scheme. All processors are subclasses of the RAT::Processor class, which defines the common interface for processors. The easiest way to create a processor class which follows this interface is to copy the CountProc files in ``src/core`` and edit them. Processors live in several of the ratpac-two subdirectories and are primarily organized by topic. For example, the reconstruction processors all live in ``src/fit``. 
 
-In the header file, you find the new processor class (in this example, we call it ``NewProc``) intialized as part of the `RAT` namespace as follows::
+In the header file, you find the new processor class (in this example, we call it ``NewProc``) initialized as part of the `RAT` namespace as follows::
 
   // Header guards 
   #ifndef __RAT_NewProc__

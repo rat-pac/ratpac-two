@@ -84,7 +84,7 @@ Parameters::
 /rat/procset lookforward [value]
 /rat/procset maxtime [value]
 
-* [values] doubles - sets the relevant paramaters for the noise window, described further below. 
+* [values] doubles - sets the relevant parameters for the noise window, described further below. 
 
 .. _pmt_timing_and_charge:
 
@@ -130,7 +130,7 @@ PMT encapsulation is used for several reasons, such as to ensure compatibility w
 
 The encapsulation code was originally created for the BUTTON experiment, in which each of the 96 PMTs used are enclosed by two hemisphere domes that are sealed together by metal flanges and bolts.
 
-The encapsulation code structure is based off the PMT construction structure, in which a instance is initialised depending on the construction type given.
+The encapsulation code structure is based off the PMT construction structure, in which a instance is initialized depending on the construction type given.
 
 When enabled, the encapsulation object is created first, followed the pmt object. The PMT is then placed inside the encapsulation before itself is placed in the mother volume given.
 
@@ -188,13 +188,13 @@ For a working example please see ``HemisphereEncapsulation.cc/hh`` which uses th
 
 Placing PMT
 '''''''''''
-If encapsulation is used, then is possible that the medium inside the encapsuation is different to the mother volume medium it would be placed in without encapsulation on.
-This can be change in ``PMTFactoryBase.cc`` to ensure that the correct mother volume is used for the placement. If using the visualiser, the scene tree is useful to see if the PMT has been placed inside the correct volume.
+If encapsulation is used, then is possible that the medium inside the encapsulation is different to the mother volume medium it would be placed in without encapsulation on.
+This can be change in ``PMTFactoryBase.cc`` to ensure that the correct mother volume is used for the placement. If using the visualizer, the scene tree is useful to see if the PMT has been placed inside the correct volume.
 
 
 PMT Offset
 ''''''''''
-The encapsulation is placed using the PMT position(s) and direction(s) given, this means that by default the PMT is placed in the centre of the encapsulation.
+The encapsulation is placed using the PMT position(s) and direction(s) given, this means that by default the PMT is placed in the center of the encapsulation.
 An offset can be given in the ``ENCAPSULATION.ratdb`` entry so that the PMT is placed off-centre inside the encapsulation. This currently works for z-axis offsets (i.e move the PMT forwards/backwards).
 
 ----------------
