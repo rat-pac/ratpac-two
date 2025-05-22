@@ -32,7 +32,7 @@ namespace RAT {
 
 class WaveformAnalysisLognormal : public WaveformAnalyzerBase {
  public:
-  WaveformAnalysisLognormal() : WaveformAnalysisLognormal(""){};
+  WaveformAnalysisLognormal() : WaveformAnalysisLognormal("LognormalFit"){};
   WaveformAnalysisLognormal(std::string config_name) : WaveformAnalyzerBase("WaveformAnalysisLognormal", config_name) {
     Configure(config_name);
   };
@@ -48,8 +48,6 @@ class WaveformAnalysisLognormal : public WaveformAnalyzerBase {
   DBLinkPtr fDigit;
 
   // Analysis constants
-  int fPedWindowLow;
-  int fPedWindowHigh;
   double fFitWindowLow;
   double fFitWindowHigh;
   double fFitShape;

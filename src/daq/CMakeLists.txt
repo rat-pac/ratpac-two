@@ -3,9 +3,6 @@
 
 add_library(daq OBJECT
   src/Digitizer.cc
-  src/LessSimpleDAQ2Proc.cc
-  src/LessSimpleDAQProc.cc
-  src/MiniCleanPMTCharge.cc
   src/NoiseProc.cc
   src/AfterPulseProc.cc
   src/PDFPMTCharge.cc
@@ -16,7 +13,6 @@ add_library(daq OBJECT
   src/SimpleDAQProc.cc
   src/SplitEVDAQProc.cc
   src/ForcedTriggerProc.cc
-  src/TrueDAQProc.cc
   src/WaveformPrep.cc
   src/WaveformAnalyzerBase.cc
   src/WaveformAnalysisLognormal.cc

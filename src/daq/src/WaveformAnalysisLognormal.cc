@@ -13,8 +13,6 @@ namespace RAT {
 void WaveformAnalysisLognormal::Configure(const std::string& config_name) {
   try {
     fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", config_name);
-    fPedWindowLow = fDigit->GetI("pedestal_window_low");
-    fPedWindowHigh = fDigit->GetI("pedestal_window_high");
     fFitWindowLow = fDigit->GetD("fit_window_low");
     fFitWindowHigh = fDigit->GetD("fit_window_high");
     fFitShape = fDigit->GetD("lognormal_shape");
