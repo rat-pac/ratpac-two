@@ -16,11 +16,4 @@ Dicebox
 
 Add documentation for dicebox.
 
--------------------
-
-Quenching 
-`````````
-
-Add documentation for quenching.
-
 

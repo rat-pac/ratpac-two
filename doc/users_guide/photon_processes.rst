@@ -198,6 +198,9 @@ This WLS model has been validated by Chao Zhang of BNL. See these slides for
 details:
 :download:`bnl_wls_validation.pdf <bnl_wls_validation.pdf>`.
 
+Quenching Models
+''''''''''''''''
+
 ------------------------
 
 .. _photon_thinning:
