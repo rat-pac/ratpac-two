@@ -42,6 +42,10 @@ class EV : public TObject {
   virtual TTimeStamp GetUTC() const { return utc; }
   virtual void SetUTC(const TTimeStamp &_utc) { utc = _utc; }
 
+  /** Trigger Word. Meaning depends on DAQ implementation */
+  virtual uint64_t GetTriggerWord() const { return trigger_word; }
+  virtual void SetTriggerWord(const uint64_t &_trigger_word) { trigger_word = _trigger_word; }
+
   /** List of pmts with at least one charge sample in this event. */
   virtual PMT *GetOrCreatePMT(Int_t id) {
     pmt[id].SetID(id);
@@ -121,7 +125,11 @@ class EV : public TObject {
   // Prune digitizer information
   virtual void PruneDigitizer() { digitizer.resize(0); }
 
-  ClassDef(EV, 3);
+  /** Event Cleaning **/
+  uint64_t GetEventCleaningWord() const { return eventCleaningWord; }
+  void SetEventCleaningWord(uint64_t _eventCleaningWord) { eventCleaningWord = _eventCleaningWord; }
+
+  ClassDef(EV, 4);
 
  protected:
   Int_t id;
@@ -129,12 +137,14 @@ class EV : public TObject {
   Double_t calibratedTriggerTime;
   Double_t deltat;
   TTimeStamp utc;
+  uint64_t trigger_word;
   std::map<Int_t, PMT> pmt;
   std::map<Int_t, DigitPMT> digitpmt;
   std::vector<LAPPD> lappd;
   std::vector<FitResult *> fitResults;
   std::vector<Classifier *> classifierResults;
   std::vector<Digit> digitizer;  ///< The digitizer information
+  uint64_t eventCleaningWord = 0;
 };
 
 }  // namespace DS

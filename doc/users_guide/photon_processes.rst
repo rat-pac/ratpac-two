@@ -1,7 +1,14 @@
-Physics Processes
------------------
-The standard RAT simulation includes many standard GEANT4 physics processes, as
-well as some custom processes:
+.. _photon_processes:
+
+Optical Photon Processes
+------------------------
+
+Cherenkov
+`````````
+
+To generate Cherenkov light, ratpac-two uses the ``Geant4`` G4Cerenkov class, with some small changes. The class in ratpac-two is called ``ThinnableG4Cerenkov`` as it primarily add the ability to 'thin' the number of photons that get propagated in ratpac-two. This option is provided in order to increase the speed of the simulation, and is discussed in more detail in :ref:`photon_thinning`. 
+
+------------------------
 
 Scintillation 
 `````````````
@@ -190,3 +197,16 @@ intensity) for WLS materials.
 This WLS model has been validated by Chao Zhang of BNL. See these slides for
 details:
 :download:`bnl_wls_validation.pdf <bnl_wls_validation.pdf>`.
+
+Quenching Models
+''''''''''''''''
+
+------------------------
+
+.. _photon_thinning:
+
+Photon Thinning
+```````````````
+
+Describe photon thinning here.
+

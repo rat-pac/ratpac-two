@@ -37,6 +37,7 @@ set(gen_sources
     src/ReacIBDgen.cc
     src/SNgen.cc
     src/VertexFile_Gen.cc
+    src/RooTracker_Gen.cc
     src/VertexGen_CC.cc
     src/VertexGen_Decay0.cc
     src/VertexGen_ES.cc

@@ -362,7 +362,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     CalculateCoefficients();
 
     // Calculate Transmission, Reflection, and Absorption coefficients
-    G4double T, R, A, An, collection_eff;
+    G4double T, R, A, An, P_pe;
     G4double E_s2;
     if (_sin_theta1 > 0.0) {
       E_s2 = (pol * dir.cross(norm)) / _sin_theta1;
@@ -374,30 +374,54 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     T = fT_s * E_s2 + fT_p * (1.0 - E_s2);
     R = fR_s * E_s2 + fR_p * (1.0 - E_s2);
     A = 1.0 - (T + R);
-    An = 1.0 - (fT_n + fR_n);           // The absorption at normal incidence
-    collection_eff = _efficiency / An;  // net QE = _efficiency for normal inc.
+    An = 1.0 - (fT_n + fR_n);  // Absorption at normal incidence
 
+    if (A < 0.0 || A > 1.0 || An < 0.0 || An > 1.0) {
 #ifdef G4DEBUG
-    if (A < 0.0 || A > 1.0 || collection_eff < 0.0 || collection_eff > 1.0) {
       RAT::debug << "GLG4PMTOpticalModel::DoIt(): Strange coefficients!" << newline;
       RAT::debug << "T, R, A, An, weight: " << T << " " << R << " " << A << " " << An << " " << weight << newline;
-      RAT::debug << "collection eff, std QE: " << collection_eff << " " << _efficiency << newline;
       RAT::debug << "=========================================================" << newline;
-      A = collection_eff = 0.5;  // safe values???
-    }
 #endif
+      if (A < 0.0) {
+        A = 0.0;
+      } else if (A > 1) {
+        A = 1.0;
+      }
+      if (An < 0.0) {
+        An = 0.0;
+      } else if (An > 1.0) {
+        An = 1.0;
+      }
+    }
 
-    collection_eff *= RAT::PhotonThinning::GetFactor();
-    if (collection_eff > 1.0) {
-      RAT::Log::Die(dformat("PMT collection efficiency of %f is >1.0! Is thin_factor too big?", collection_eff));
+    if (An == 0) {
+      P_pe = _efficiency;
+    } else {
+      P_pe = A / An * _efficiency;  // Nominal probability of a p.e.
+    }
+
+    if (P_pe > 1.0) {
+#ifdef G4DEBUG
+      RAT::debug << "GLG4PMTOpticalModel::DoIt(): P_pe > 1.0!  Setting equal to 1.0." << newline;
+      RAT::debug << "T, R, A, An, weight: " << T << " " << R << " " << A << " " << An << " " << weight << newline;
+      RAT::debug << "P_pe, std QE: " << P_pe << " " << _efficiency << newline;
+      RAT::debug << "=========================================================" << newline;
+#endif
+      P_pe = 1.0;
+    }
+
+    P_pe *= RAT::PhotonThinning::GetFactor();
+    if (P_pe > 1.0) {
+      RAT::Log::Die(dformat("p.e. probability is %f (>1.0)! Is thin_factor (%f) too big?", P_pe,
+                            RAT::PhotonThinning::GetFactor()));
     }
 
     // Now decide how many pe we make.
-    // When weight == 1, probability of a pe is A*collection_eff.
+    // When weight == 1, probability of a pe is P_pe.
     // There is a certain correlation between "a pe is made" and
     // "the track is absorbed", which is implemented correctly below for
     // the weight == 1 case, and as good as can be done for weight>1 case.
-    G4double mean_N_pe = weight * A * collection_eff;
+    G4double mean_N_pe = weight * P_pe;
     if (EfficiencyCorrection.count(ipmt)) {
       if (EfficiencyCorrection[ipmt] >= 0) {
         mean_N_pe *= EfficiencyCorrection[ipmt];
