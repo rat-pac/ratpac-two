@@ -14,7 +14,8 @@ Table of Contents
    database
    generators
    geometry
-   processes
+   physics_processes
+   photon_processes
    processors
    producers
    pmt

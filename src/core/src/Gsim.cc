@@ -545,7 +545,7 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   exinfo->timePhotonMatrix.resize(0);
   // GLG4PMTOpticalModel::pmtHitVector.resize(0);
 
-  /** PMT and noise simulation */
+  /** PMT simulation */
   GLG4HitPMTCollection *hitpmts = GLG4VEventAction::GetTheHitPMTCollection();
   int numPE = 0;
 
