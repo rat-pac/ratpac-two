@@ -3,8 +3,6 @@
 #include <sys/resource.h>
 
 #include <RAT/AmBeGen.hh>
-#include <RAT/BWVetGenericChamber.hh>
-#include <RAT/BWVetGenericChamberHit.hh>
 #include <RAT/CfGen.hh>
 #include <RAT/Coincidence_Gen.hh>
 #include <RAT/Config.hh>
