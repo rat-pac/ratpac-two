@@ -18,7 +18,7 @@ class Processor(object):
         for every trigger, but not both.'''
         overall_result = self.OK
 
-        for i in xrange(ds.GetEVCount()):
+        for i in range(ds.GetEVCount()):
             result = self.event(ds, ds.GetEV(i))
             if result == Processor.ABORT:
                 return Processor.ABORT
