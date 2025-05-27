@@ -80,8 +80,27 @@ class EV : public TObject {
   virtual Int_t GetDigitPMTCount() const { return digitpmt.size(); }
   virtual void PruneDigitPMT() { digitpmt.clear(); }
 
+  const std::vector<Int_t> GetAllCleanedDigitPMTIDs() const {
+    std::vector<Int_t> result;
+    for (auto const &kv : digitpmt) {
+      auto hit_cleaning_mask = kv.second.GetHitCleaningMask();
+      if (hit_cleaning_mask == 0) {
+        result.push_back(kv.first);
+      }
+    }
+    return result;
+  }
+
+  // TODO: Implemetation for PMT class
+  const std::vector<Int_t> GetAllCleanedPMTIDs() const {
+    std::vector<Int_t> result;
+    return result;
+  }
+
   /** Number of PMTs which were hit at least once. (Convenience method) */
   virtual Int_t Nhits() const { return GetPMTCount(); }
+  virtual Int_t cleanedNhits() const { return GetAllCleanedPMTIDs().size(); }
+  virtual Int_t cleanedDigitNhits() const { return GetAllCleanedDigitPMTIDs().size(); }
 
   /** List of LAPPDs with at least one charge sample in this event. */
   virtual LAPPD *GetLAPPD(Int_t i) { return &lappd[i]; }

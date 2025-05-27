@@ -107,34 +107,33 @@ class DigitPMT : public TObject {
 
   /**
    * Set a bit in the hit cleaning mask.
-   * @param bit the literal bit position
+   * @param bit_positon the literal bit position
    * @param val the value to write.
    */
-  virtual void SetHitCleaningBit(uint bit, bool val = true) {
-    if (bit > (sizeof(hit_cleaning_mask) * 8) - 1) {  // Bits to bytes, then 0-indexing
+  virtual void SetHitCleaningBit(uint bit_position, bool val = true) {
+    if (bit_position > (sizeof(hit_cleaning_mask) * 8) - 1) {  // Bits to bytes, then 0-indexing
       warn << "Tried to set bit out of hit cleaning bitmask range, ignoring." << newline;
       return;
     }
-    uint32_t mask = (1 << bit);
-    if (val) {
-      hit_cleaning_mask = hit_cleaning_mask | mask;
-    } else {
-      hit_cleaning_mask = hit_cleaning_mask & (~mask);
-    }
+    hit_cleaning_mask = (hit_cleaning_mask & ~(1 << bit_position)) | (val << bit_position);
   }
 
-  /** Check a bit of the hit cleaning mask */
-  virtual bool CheckHitCleaningBit(uint bit) {
-    if (bit > (sizeof(hit_cleaning_mask) * 8) - 1) {  // Bits to bytes, then 0-indexing
+  /**
+   * Check a bit of the hit cleaning mask
+   * @param bit_positon the literal bit position
+   */
+  virtual bool GetHitCleaningBit(uint bit_position) const {
+    if (bit_position > (sizeof(hit_cleaning_mask) * 8) - 1) {  // Bits to bytes, then 0-indexing
       warn << "Tried to read bit out of hit cleaning bitmask range, ignoring." << newline;
       return false;
     }
-    uint64_t mask = 1 << bit;
+    uint64_t mask = 1 << bit_position;
     return (hit_cleaning_mask & mask);
   }
 
   /** Retrieve hit cleaning mask */
-  virtual uint64_t GetHitCleaningMask() { return hit_cleaning_mask; }
+  virtual uint64_t GetHitCleaningMask() const { return hit_cleaning_mask; }
+  virtual void SetHitCleaningMask(uint64_t _hit_cleaning_mask) { hit_cleaning_mask = _hit_cleaning_mask; }
 
   ClassDef(DigitPMT, 7);
 
