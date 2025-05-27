@@ -74,8 +74,8 @@ Note that this ``cable_delay`` is applied to every single PE and can be used to 
 
 .. _dark_noise:
 
-Dark Noise
-''''''''''
+Dark Noise Processor
+''''''''''''''''''''
 
 PMTs have an intrinsic noise rate, or "dark current", which results from thermal excitation at the single electron level.  These thermal electrons can exactly mimic a photoelectron from the PMT's photocathode and, thus, noise hits cannot be distinguished from 'true' hits caused by incident photons. The dark-noise simulation is performed by the ``NoiseProc`` processor, with controllable parameters set in the ``NoiseProc.ratdb`` table.
 
@@ -138,8 +138,8 @@ The PMT charge distribution is sampled assuming the normal SPE charge distributi
 
 .. _pmt_afterpulsing:
 
-PMT Afterpulsing
-''''''''''''''''
+PMT Afterpulsing Processor
+''''''''''''''''''''''''''
 
 Details of PMT afterpulsing
 
