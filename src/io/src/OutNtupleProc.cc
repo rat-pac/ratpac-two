@@ -712,7 +712,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   return Processor::OK;
 }
 
-OutNtupleProc::~OutNtupleProc() {
+void OutNtupleProc::EndOfRun(DS::Run *run) {
   if (outputFile) {
     outputFile->cd();
 
@@ -757,6 +757,7 @@ OutNtupleProc::~OutNtupleProc() {
     TTimeStamp rootTime = runBranch->GetStartTime();
     runTime = TTimeStamp_to_UnixTime(rootTime.GetSec());
     macro = Log::GetMacro();
+    FillMeta();
     metaTree->Fill();
     metaTree->Write();
     outputTree->Write();

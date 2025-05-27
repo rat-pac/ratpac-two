@@ -129,6 +129,7 @@ Parameters::
 
 Timing and charge distributions
 ###############################
+
 Noise hits are generated uniformly in time, throughout a window defined by the ``noise_lookback`` and ``noise_lookforward`` parameters in the ``NoiseProc.ratdb`` table. The parameters are set by default to 1000 ns each, and are typically centered around the first true PMT hit-time in the event (in the case that there are no hits, the window is centered around zero). The value of ``noise_maxtime`` sets the timing cut-off for generating noise-hits in the case of long-lived particles in the MC.
 
 The PMT charge distribution is sampled assuming the normal SPE charge distribution, as described in :ref:`pmt_response`.
@@ -261,5 +262,4 @@ Channel Status
 ==============
 
 Details of the channel status here.
-
 
