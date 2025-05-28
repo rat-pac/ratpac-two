@@ -83,6 +83,19 @@ elemprop: [0.66, 0.34],
 
 {
 name: "MATERIAL",
+index: "brass_360", // C36000 "Free Machining" Brass
+valid_begin : [0, 0],
+valid_end : [0, 0],
+density: 8.50,
+nelements: 4,
+nmaterials: 0,
+elements: ["Copper", "Zinc", "Lead", "Iron"],
+elemprop: [0.615, 0.355, 0.0265, 0.0035],
+}
+
+
+{
+name: "MATERIAL",
 index: "steel",
 valid_begin : [0, 0],
 valid_end : [0, 0],
