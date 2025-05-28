@@ -124,13 +124,7 @@ AmBeSource::AmBeSource() {
     Tneutron.push_back(0.);
   }
 
-  // pick a gamma multiplicity
-  // According to "Progress in Nuclear Science and Technology  - Volume 4 (2014)
-  // pp. 345-348 (http://www.aesj.or.jp/publication/pnst004/data/345_348.pdf)
-  // about 25% of Am-Be reactions do not emit a 4.43 MeV gamma (depends on the
-  // energy level the carbon atom is excited to after the (alpha,n) reaction)
-  // This probability can be changed here is you desire
-  DBLinkPtr neutrondb = DB::Get()->GetLink("AMBE_NSPECTRUM", "ambe_n");
+  DBLinkPtr neutrondb = DB::Get()->GetLink("AMBE_NSPECTRUM", "");
   double prob_gamma_emission = neutrondb->GetD("prob_gamma_emission");
   // double prob_gamma_emission = 0.75;  // probability of emitted a gamma along with a neutron
   double prob_gamma = CLHEP::RandFlat::shoot(0., 1.);
