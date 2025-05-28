@@ -12,8 +12,6 @@
 /rat/proc count
 /rat/procset update 100
 
-/rat/proc classifychargebalance
-
 /rat/proc quadfitter
 /rat/procset max_radius 4250.0  # Set max_radius > r_max of Valid.geo to account for resolution
 

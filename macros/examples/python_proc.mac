@@ -4,25 +4,22 @@
 /rat/db/set DETECTOR experiment "Validation"
 /rat/db/set DETECTOR geo_file "Validation/Valid.geo"
 
-# Change database setting for PMT noise processor
-/rat/db/set NOISEPROC noise_flag 1
-
 # Begin event processor loop
 /run/initialize
 
-/rat/proc noise
-
 /rat/proc forcedtrigger
 
-/rat/proc count
-/rat/procset update 100
+# An example for using the python processor
+/rat/proc python
+/rat/procset class "ratproc.Count(interval=10)"
 
 /rat/proclast outntuple
 # End processor loop
 
 ##### GENERATORS #################
-/generator/add combo pbomb:point:poisson
-/generator/vtx/set 100 408 # 100 photons, 408nm
+# Uniformly fill the central volume with photon bombs
+/generator/add combo pbomb:fill:poisson
+/generator/vtx/set 100 500 # 100 photons, 500 nm
 /generator/pos/set 0.0 0.0 0.0
 
 /run/beamOn 100

@@ -12,8 +12,6 @@
 /rat/proc count
 /rat/procset update 100
 
-/rat/proc classifychargebalance
-
 /rat/proclast outroot
 
 # Central 2.5 MeV electrons
