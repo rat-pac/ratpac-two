@@ -8,7 +8,26 @@ add_library(fit OBJECT
   src/FitTensorProc.cc
   src/FitQuadProc.cc
   src/FitDirectionCenterProc.cc
-  src/MiniSim.cc)
+  src/MiniSim.cc
+  src/bonsai/ariadne.cc 
+  src/bonsai/azimuth_ks.cc 
+  src/bonsai/timefit.cc 
+  src/bonsai/distpmt.cc 
+  src/bonsai/likelihood.cc 
+  src/bonsai/goodness.cc 
+  src/bonsai/fit_param.cc 
+  src/bonsai/fourhitgrid.cc 
+  src/bonsai/pmt_geometry.cc 
+  src/bonsai/hitsel.cc 
+  src/bonsai/hits.cc 
+  src/bonsai/bonsaifit.cc 
+  src/bonsai/plato.cc 
+  src/bonsai/binfile.cc 
+  src/bonsai/centroid.cc
+  src/bonsai/searchgrid.cc
+  src/FitBonsaiProc.cc 
+)
+
 
 
 # Set our include directories
