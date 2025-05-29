@@ -37,6 +37,7 @@
 #include <RAT/PrimaryVertexInformation.hh>
 #include <RAT/ProcBlock.hh>
 #include <RAT/ReacIBDgen.hh>
+#include <RAT/RooTracker_Gen.hh>
 #include <RAT/SNgen.hh>
 #include <RAT/SignalHandler.hh>
 #include <RAT/StackingAction.hh>
@@ -131,6 +132,7 @@ void Gsim::Init() {
   GlobalFactory<GLG4Gen>::Register("led", new Alloc<GLG4Gen, Gen_LED>);
   GlobalFactory<GLG4Gen>::Register("coincidence", new Alloc<GLG4Gen, Coincidence_Gen>);
   GlobalFactory<GLG4Gen>::Register("vertexfile", new Alloc<GLG4Gen, VertexFile_Gen>);
+  GlobalFactory<GLG4Gen>::Register("rootracker", new Alloc<GLG4Gen, RooTracker_Gen>);
 
   // An additional "messenger" class for user diagnostics
   theDebugMessenger = new GLG4DebugMessenger(theDetectorConstruction);
@@ -543,7 +545,7 @@ void Gsim::MakeEvent(const G4Event *g4ev, DS::Root *ds) {
   exinfo->timePhotonMatrix.resize(0);
   // GLG4PMTOpticalModel::pmtHitVector.resize(0);
 
-  /** PMT and noise simulation */
+  /** PMT simulation */
   GLG4HitPMTCollection *hitpmts = GLG4VEventAction::GetTheHitPMTCollection();
   int numPE = 0;
 
