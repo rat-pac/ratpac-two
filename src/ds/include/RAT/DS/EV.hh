@@ -82,8 +82,8 @@ class EV : public TObject {
 
   const std::vector<Int_t> GetAllCleanedDigitPMTIDs() const {
     std::vector<Int_t> result;
-    for (auto const &kv : digitpmt) {
-      auto hit_cleaning_mask = kv.second.GetHitCleaningMask();
+    for (std::pair<Int_t, DigitPMT> kv : digitpmt) {
+      DigitPMT::HCMask hit_cleaning_mask = kv.second.GetHitCleaningMask();
       if (hit_cleaning_mask == 0) {
         result.push_back(kv.first);
       }
