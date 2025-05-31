@@ -771,9 +771,7 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
     }
     if (polx != 0.0 || poly != 0.0 || polz != 0.0) particle->SetPolarization(polx, poly, polz);
 
-    // I will just set the mass here (F. Sutanto, Apr 2020)
-    G4ParticleDefinition *myPar = G4ParticleTable::GetParticleTable()->FindParticle(IDHEP);
-    particle->SetMass(myPar->GetPDGMass());
+    particle->SetMass(PHEP5 * energy_unit);
 
     // create G4HEPEvtParticle object
     G4HEPEvtParticle *hepParticle = new G4HEPEvtParticle(particle, ISTHEP, JDAHEP1, JDAHEP2);
@@ -789,7 +787,7 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
       if (req_vertexX != req_novalue) vertexX = req_vertexX * position_unit;
       if (req_vertexY != req_novalue) vertexY = req_vertexY * position_unit;
       if (req_vertexZ != req_novalue) vertexZ = req_vertexZ * position_unit;
-      if (req_vertexT != req_novalue) vertexT = vertexT * time_unit;
+      if (req_vertexT != req_novalue) vertexT = req_vertexT * time_unit;
       G4ThreeVector position(vertexX, vertexY, vertexZ);
       int iv;
       for (iv = vertexSet.size() - 1; iv >= 0; iv--) {
