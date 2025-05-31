@@ -14,6 +14,7 @@
 #include <sstream>
 #include <string>
 
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "G4Event.hh"
 #include "G4HEPEvtParticle.hh"
 #include "G4IonTable.hh"
@@ -628,49 +629,28 @@ void GLG4VertexGen_HEPEvt::GetDataLine(char *buffer, size_t size) {
     optional time offset, spatial offset, and polarization,
     based on lines read from file via SetState().
 
-    The file has the format
+    The file has the standard HEPEVT foramt. Below is the documentation for this format,
+    described in the [MARLEY documentation](https://www.marleygen.org/interpret_output.html#hepevt):
+    ```
+    NEVHEP NHEP
+    ```
+    where NEVHEP is the event number and NHEP is the number of particles in the event.
+    The header is followed by NHEP lines, each representing a single particle. These have the
+    format:
 
-<PRE>
- NHEP
-  ISTHEP IDHEP JDAHEP1 JDAHEP2 PHEP1 PHEP2 PHEP3 PHEP5 DT X Y Z PLX PLY PLZ
-  ISTHEP IDHEP JDAHEP1 JDAHEP2 PHEP1 PHEP2 PHEP3 PHEP5 DT X Y Z PLX PLY PLZ
-  ISTHEP IDHEP JDAHEP1 JDAHEP2 PHEP1 PHEP2 PHEP3 PHEP5 DT X Y Z PLX PLY PLZ
-  ... [NHEP times]
- NHEP
-  ISTHEP IDHEP JDAHEP1 JDAHEP2 PHEP1 PHEP2 PHEP3 PHEP5 DT X Y Z PLX PLY PLZ
-  ISTHEP IDHEP JDAHEP1 JDAHEP2 PHEP1 PHEP2 PHEP3 PHEP5 DT X Y Z PLX PLY PLZ
-  ISTHEP IDHEP JDAHEP1 JDAHEP2 PHEP1 PHEP2 PHEP3 PHEP5 DT X Y Z PLX PLY PLZ
-  ... [NHEP times]
-</PRE>
-where
-<PRE>
-    ISTHEP   == status code
-    IDHEP    == HEP PDG code
-    JDAHEP   == first daughter
-    JDAHEP   == last daughter
-    PHEP1    == px in GeV
-    PHEP2    == py in GeV
-    PHEP3    == pz in GeV
-    PHEP5    == mass in GeV
-    DT       == vertex _delta_ time, in ns (*)
-    X        == x vertex in mm
-    Y        == y vertex in mm
-    Z        == z vertex in mm
-    PLX      == x polarization
-    PLY      == y polarization
-    PLZ      == z polarization
-</PRE>
+    ```
+    ISTHEP IDHEP JMOHEP1 JMOHEP2 JDAHEP1 JDAHEP2 PHEP1 PHEP2 PHEP3 PHEP4 PHEP5 VHEP1 VHEP2 VHEP3 VHEP4
+    ```
 
-   PHEP5, DT, X, Y, Z, PLX, PLY, and PLZ are all optional.
-   If omitted, the respective quantity is left unchanged.
-   If DT is specified, the time offset of this and subsequent vertices
-   is increased by DT: (*) note DT is a relative shift from the previous line!
-   (This is because there is often a very large dynamic range of time offsets
-   in certain types of events, e.g., in radioactive decay chains, and this
-   convention allows such events to be represented using a reasonable number
-   of significant digits.)
-   If X, Y, Z, PLX, PLY, and/or PLZ is specified, then the values replace
-   any previously specified.
+    where ISTHEP is an integer code identifying the particle status and IDHEP is the particle’s PDG code. In agreement
+    with the HEPEVT standard, MARLEY uses status code 1 for the final-state particles and 3 for the initial-state
+    particles. The JMOHEP1, JMOHEP2, JDAHEP1, and JDAHEP2 entries record the indices (between 1 and NHEP, inclusive) of
+    particles in the event record that correspond to the first mother, second mother, first daughter, and last daughter
+    of the current particle, respectively. These indices are set to zero in cases where they do not apply (e.g., a
+    particle with no daughters will have JDAHEP1 = JDAHEP2 = 0). Entries PHEP1 through PHEP3 record the x-, y-, and
+    z-components of the particle 3-momentum, while PHEP4 gives the total energy and PHEP5 gives the particle mass (all
+   in GeV). Entries VHEP1 through VHEP3 store the x, y, and z positions of the particle production vertex (mm), and
+   VHEP4 gives the production time (mm/c). Additional References: https://doi.org/10.5170/CERN-1989-008-V-3
 */
 void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G4double dt) {
   // this is a modified and adapted version of G4HEPEvt
@@ -685,15 +665,16 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
 
   char buffer[400];
   int istat;
-  int NHEP;  // number of entries
+  int NEVHEP;  // event number, not used.
+  int NHEP;    // number of entries
   GetDataLine(buffer, sizeof(buffer));
   if (_file == 0) {
     RAT::warn << "Unexpected end of file in " << _filename << ", expecting NHEP." << newline;
     Close();
     return;
   }
-  istat = sscanf(buffer, "%d", &NHEP);
-  if (istat != 1) {
+  istat = sscanf(buffer, "%d %d", &NEVHEP, &NHEP);
+  if (istat != 2) {
     // this should never happen: GetDataLine() should make sure integer is ok
     // -- but the test above is cheap and a good cross-check, so leave it.
     RAT::warn << "Bad data in " << _filename << ", expecting NHEP but got:" << newline << buffer << " --> closing file."
@@ -710,25 +691,28 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
   G4double vertexX = 0.0, vertexY = 0.0, vertexZ = 0.0, vertexT = 0.0;
 
   for (int IHEP = 0; IHEP < NHEP; IHEP++) {
-    G4int ISTHEP = 0;                      // status code
-    G4int IDHEP = 0;                       // HEP PDG code
-    G4int JDAHEP1 = 0;                     // first daughter
-    G4int JDAHEP2 = 0;                     // last daughter
-    G4double PHEP1 = 0.0;                  // px in GeV
-    G4double PHEP2 = 0.0;                  // py in GeV
-    G4double PHEP3 = 0.0;                  // pz in GeV
-    G4double req_novalue = 1e30;           // larger than the diameter of univers in mm
-    G4double PHEP5 = req_novalue;          // mass in GeV
-    G4double req_vertexX = req_novalue;    // x vertex in mm requested on this line
-    G4double req_vertexY = req_novalue;    // y vertex in mm "
-    G4double req_vertexZ = req_novalue;    // z vertex in mm "
-    G4double req_vertex_dT = req_novalue;  // vertex _delta_ time (in ns, a GLG4HEPEvt convention)
-    G4double polx = 0.0;                   // x polarization
-    G4double poly = 0.0;                   // y polarization
-    G4double polz = 0.0;                   // z polarization
+    G4int ISTHEP = 0;                    // status code
+    G4int IDHEP = 0;                     // HEP PDG code
+    G4int JMOHEP1 = 0;                   // first mother
+    G4int JMOHEP2 = 0;                   // last mother
+    G4int JDAHEP1 = 0;                   // first daughter
+    G4int JDAHEP2 = 0;                   // last daughter
+    G4double PHEP1 = 0.0;                // px in GeV
+    G4double PHEP2 = 0.0;                // py in GeV
+    G4double PHEP3 = 0.0;                // pz in GeV
+    G4double PHEP4 = 0.0;                // total energy in GeV
+    G4double req_novalue = 1e30;         // larger than the diameter of univers in mm
+    G4double PHEP5 = req_novalue;        // mass in GeV
+    G4double req_vertexX = req_novalue;  // x vertex in mm requested on this line
+    G4double req_vertexY = req_novalue;  // y vertex in mm "
+    G4double req_vertexZ = req_novalue;  // z vertex in mm "
+    G4double req_vertexT = req_novalue;  // vertex time (in ns, a GLG4HEPEvt convention)
+    G4double polx = 0.0;                 // x polarization
+    G4double poly = 0.0;                 // y polarization
+    G4double polz = 0.0;                 // z polarization
     G4double energy_unit = CLHEP::GeV;
     G4double position_unit = CLHEP::mm;
-    G4double time_unit = CLHEP::ns; /* used to be mm/c_light */
+    G4double time_unit = CLHEP::mm / CLHEP::c_light;
 
     GetDataLine(buffer, sizeof(buffer));
     if (_file == 0) {
@@ -741,9 +725,8 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
     // if request was made to use positions listed in ascii input,
     // read them into req_vertexX, Y, and Z
     if (_useExternalPos) {
-      is >> ISTHEP >> IDHEP >> JDAHEP1 >> JDAHEP2 >> PHEP1 >> PHEP2 >> PHEP3 >> PHEP5 >> req_vertex_dT >> req_vertexX >>
-          req_vertexY >> req_vertexZ  // note order!
-          >> polx >> poly >> polz;
+      is >> ISTHEP >> IDHEP >> JMOHEP1 >> JMOHEP2 >> JDAHEP1 >> JDAHEP2 >> PHEP1 >> PHEP2 >> PHEP3 >> PHEP4 >> PHEP5 >>
+          req_vertexX >> req_vertexY >> req_vertexZ >> req_vertexT;
       // print an error and Close() if request was made to use external
       // positions, but they are not present in ascii input
       if (req_vertexX == req_novalue && req_vertexY == req_novalue && req_vertexZ == req_novalue) {
@@ -755,24 +738,15 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
       }
     } else {  // use positions from a different position generator,
               // not the content of the ascii input
-      is >> ISTHEP >> IDHEP >> JDAHEP1 >> JDAHEP2 >> PHEP1 >> PHEP2 >> PHEP3 >> PHEP5 >> req_vertex_dT;
+      is >> ISTHEP >> IDHEP >> JMOHEP1 >> JMOHEP2 >> JDAHEP1 >> JDAHEP2 >> PHEP1 >> PHEP2 >> PHEP3 >> PHEP4 >> PHEP5;
     }
 
     // reset units if "dimensionless" pseudo-particle information
     if (ISTHEP >= kISTHEP_InformatonMin) energy_unit = position_unit = time_unit = 1.0;
 
-    // frobnicate IDHEP if ISTHEP != 1
+    // NOTE: previously doing some crazy stuff, frobnicating IDHEP if ISTHEP != 1
     if (ISTHEP != kISTHEP_ParticleForTracking) {
-      if (ISTHEP <= 0 || ISTHEP > kISTHEP_Max) {
-        RAT::warn << "Error in GLG4VertexGen_HEPEvt[" << _filename << "]: ISTHEP=" << ISTHEP
-                  << " not allowed: valid range is 1 to 213"
-                  << " --> set to 213" << newline;
-        ISTHEP = kISTHEP_Max;
-      }
-      if (IDHEP < 0)
-        IDHEP -= kPDGcodeModulus * ISTHEP;
-      else
-        IDHEP += kPDGcodeModulus * ISTHEP;
+      continue;
     }
 
     // create G4PrimaryParticle object
@@ -795,9 +769,6 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
     } else {
       particle = new G4PrimaryParticle(IDHEP, PHEP1 * energy_unit, PHEP2 * energy_unit, PHEP3 * energy_unit);
     }
-    if (PHEP5 != req_novalue)
-      particle->SetMass(PHEP5 * energy_unit);  // this is not working and I don't
-                                               // know why (F.Sutanto, Apr 2020)
     if (polx != 0.0 || poly != 0.0 || polz != 0.0) particle->SetPolarization(polx, poly, polz);
 
     // I will just set the mass here (F. Sutanto, Apr 2020)
@@ -813,16 +784,12 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
     // find or make the right vertex for this time and position
     // as a special case, if a line doesn't have a value for position or time,
     // then use the position and time previously set
-    if (req_vertexX == req_novalue && req_vertexY == req_novalue && req_vertexZ == req_novalue &&
-        req_vertex_dT == req_novalue) {
-      // no change, use current vertex
-      vertexList.push_back(vertexSet[vertexSet.size() - 1]);
-    } else {
+    if (_useExternalPos) {
       // update vertex positions, and see if we can reuse an existing vertex
       if (req_vertexX != req_novalue) vertexX = req_vertexX * position_unit;
       if (req_vertexY != req_novalue) vertexY = req_vertexY * position_unit;
       if (req_vertexZ != req_novalue) vertexZ = req_vertexZ * position_unit;
-      if (req_vertex_dT != req_novalue) vertexT = vertexT + req_vertex_dT * time_unit;  // relative to prev line!
+      if (req_vertexT != req_novalue) vertexT = vertexT * time_unit;
       G4ThreeVector position(vertexX, vertexY, vertexZ);
       int iv;
       for (iv = vertexSet.size() - 1; iv >= 0; iv--) {
@@ -835,6 +802,9 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
         vertexSet.push_back(nv);
         vertexList.push_back(nv);
       }
+    } else {
+      // no change, use current vertex
+      vertexList.push_back(vertexSet[vertexSet.size() - 1]);
     }
   }
 
@@ -866,6 +836,7 @@ void GLG4VertexGen_HEPEvt::GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVecto
   }
 
   // put initial particles to the vertex (or vertices)
+  // NOTE: Is this actually true? Don't we want to track the daughters?
   for (size_t ii = 0; ii < HPlist.size(); ii++) {
     if (HPlist[ii]->GetISTHEP() > 0)  // ISTHEP of daughters had been
                                       // set to negative
