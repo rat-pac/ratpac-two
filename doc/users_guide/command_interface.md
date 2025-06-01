@@ -5,7 +5,7 @@ We shall briefly describe command syntax and how to synthesize multiple commands
 A comprehensive review requires extensive knowledge of the software.
 Revisiting this section is recommended as you read through the rest of the documentation.
 
-ratpac-two is typically controlled through the use of macro files, which are plain text files containing a sequence of commands that control ratpac-two.  
+ratpac-two is typically controlled through the use of macro files, which are plain text files containing a sequence of commands that control ratpac-two.
 Using macros, you can configure various aspects of a ratpac experiment, such as:
 
 * The physics processes to be simulated and reporting of particle track information.
