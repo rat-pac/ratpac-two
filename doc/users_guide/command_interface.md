@@ -1,6 +1,6 @@
 # Controlling ratpac-two 
 
-This section of the guide will provide a high level overview on controlling and using ratpac by briefly describing command syntax and how to synthesize multiple commands into a macro file to control the operation of the software. 
+This section of the guide will provide a high level overview on controlling ratpac by briefly describing command syntax and how to synthesize multiple commands into a macro file to control the operation of the software. 
 A comprehensive review requires extensive knowledge of the software, so we aim to provide just enough detail to provide context for the following chapters in the user guide.
 Revisiting this section is recommended as you read through the rest of the documentation.
 
@@ -427,6 +427,7 @@ Given the identified gap in existing documentation for generator commands, the f
 | Volumetric Isotope Decay | `/generator/add isotope <isotope_name>:<volume_name>` | `/generator/rate <R> <unit>` | `/generator/add isotope Bi214:ScintillatorVolume` <br> `/generator/rate 10 Bq` | Simulates Bi214 decays uniformly within 'ScintillatorVolume' at a rate of 10 Bq. |
 | Combo Generator (Point Source) | `/generator/add combo gun:point:poisson` | `/generator/vtx/set <particle> <E> <unit>` <br> `/generator/pos/set <x> <y> <z> <unit>` <br> `/generator/rate <R> <unit>` | `/generator/add combo gun:point:poisson` <br> `/generator/vtx/set gamma 2.614 MeV` <br> `/generator/pos/set 0 0 500 mm` <br> `/generator/rate 1 Hz` | Generates 2.614 MeV gammas from a point source at (0,0,500)mm with Poisson time distribution at 1 Hz. |
 | Read from HEPEVT file | `/generator/add hepevt <filename.hepevt>` | `/generator/rate <R> <unit>` (if applicable, or 1 event per file entry) | `/generator/add hepevt myevents.dat` | Reads particle events sequentially from myevents.dat. Rate might be tied to file entries or set. |
+
 These examples illustrate the intended flexibility. Users should consult any example macros provided with ratpac-two or the RatpacExperiment template for validated syntax.
 
 
