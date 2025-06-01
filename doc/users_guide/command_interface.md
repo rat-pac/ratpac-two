@@ -25,7 +25,7 @@ Each processor can modify the event, record information, or simply observe it, s
 
 
 
-## 1. Command and Macro Basics 
+## 1. Running ratpac-two
 
 After successfully installing ratpac-two and loading the associated environment, ratpac-two is accessed via a command line interface by running the `rat` command.
 `rat` can execute a sequence of macro files if multiple are provided on the command line:
@@ -38,7 +38,7 @@ This will execute `example_1.mac` followed by `example_2.mac`.
 
 In addition to macro files, ratpac can be configured with various flags which can be accessed by running `rat` with the `--help` flag
 
-```bash
+```
 rat --help
 
 options:
@@ -57,7 +57,7 @@ options:
  -g, --vis               Load G4UI visualization
 ```
 
-Lets start our discussion of macro files by first inspecting the structure of a single command.
+We will start our discussion of controlling ratpac by inspecting the structure of a single command.
 
 
 ### 1.1 Command Syntax
@@ -114,11 +114,12 @@ Users can create libraries of common settings, such as standard detector geometr
 Specific simulation scenarios can then be composed by including these base macros and then overriding or adding specific parameters as needed.
 This approach promotes reusability, consistency across different studies, and better organization of complex simulation setups, mirroring how functions or modules are used in programming to avoid code duplication and improve maintainability.
 
-A minimal macro may contain just a couple of commands:
+A minimal macro may contain just a couple of commands that are unable to run without other commands:
+
 ```
 # mini.mac
-/run/initialize
-/run/beamOn 1
+/rat/proc noise
+/rat/proc splitevdaq
 ```
 
 ### 1.4 Example Macro
