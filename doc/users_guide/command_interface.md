@@ -12,7 +12,7 @@ ratpac-two is typically controlled through the use of macro files, which are pla
 * Primary particle sources (event generators).
 * Run-specific parameters like the number of events and random number seeds.
 
-At a high level the simulation itself a **pipeline** connecting an event **producers** to a sequence of **processors**. 
+At a high level the simulation itself a **pipeline** connecting event **producers** to a sequence of **processors**. 
 Producers create or load events and then hand each event to the processors one-by-one. 
 Each processor can modify the event, record information, or simply observe it. 
 The order of processors you declare therefore determines how every event will be handled. 
