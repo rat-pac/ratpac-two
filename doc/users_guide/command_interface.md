@@ -1,6 +1,6 @@
 # Controlling ratpac-two 
 
-This section of the guide will provide a high level overview on how to control and use ratpac by briefly describing basic command structure, its syntax and how to synthesize commands into a macro file to control the operation of the software. 
+This section of the guide will provide a high level overview on controlling and using ratpac by briefly describing basic command structure, its syntax and how to synthesize commands into a macro file to control the operation of the software. 
 A comprehensive review requires extensive knowledge of the software, so we aim to provide just enough detail to provide context for the following chapters in the user guide.
 Revisiting this section is recommended as you read through the documentation.
 
