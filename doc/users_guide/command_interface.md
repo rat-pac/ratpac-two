@@ -59,7 +59,8 @@ Lets start our discussion of macro files by first inspecting the structure of a 
 
 
 ### 1.1 Command Syntax
-ratpac-two inherits its command interface from Geant4‘s G4RunManager. [G4 command reference](https://github.com/natl/language-geant4-macro/blob/master/G4command.txt) 
+ratpac-two inherits its command interface from Geant4‘s G4RunManager.
+[G4 command reference](https://github.com/natl/language-geant4-macro/blob/master/G4command.txt) 
 
 The syntax rules are straightforward:
  * **Commands:** A command consists of a command name followed by zero or more parameters, separated by spaces. For example:
@@ -68,9 +69,13 @@ The syntax rules are straightforward:
    
 	  Here, `/rat/procset` is the command, and `update` and `5` are parameters.
 
- * **Comments:** Lines beginning with a hash symbol `#` are treated as comments and are ignored by the interpreter. They are essential for documenting macros.  Comments can also be used inline with commands. 
+ * **Comments:** Lines beginning with a hash symbol `#` are treated as comments and are ignored by the interpreter. 
+      They are essential for documenting macros.  
+      Comments can also be used inline with commands. 
  * **Blank Lines:** Blank lines are also ignored and can be used to improve macro readability.
- * **No Leading Whitespace:** Commands must start at column 1. Any spaces or tabs before the command cause an "unknown command" error.
+ * **No Leading Whitespace:** Commands must start at column 1. 
+       Any spaces or tabs before the command cause an "unknown command" error.
+
 ```
     /run/beamOn 1
 ```
@@ -213,7 +218,10 @@ This section focuses on the most commonly used Geant4 commands relevant in the c
 
 These commands manage the initialization and execution of simulation runs and dictate the order of commands passed to ratpac in a macro.
 
-* `/run/initialize`: This is one of the most critical commands in any Geant4-based simulation. It must be issued before the first run can start. This command triggers the construction of the detector geometry, calculation of physics tables, and preparation of user actions. In ratpac-two, it ensures that all detector parameters from RATDB are processed and the simulation world is built.
+* `/run/initialize`: This is one of the most critical commands in any Geant4-based simulation. 
+      It must be issued before the first run can start. 
+      This command triggers the construction of the detector geometry, calculation of physics tables, and preparation of user actions. 
+      In ratpac-two, it ensures that all detector parameters from RATDB are processed and the simulation world is built.
 
    The typical placement of this command is after setting up detector parameters (e.g., via `/rat/db/` commands) but before defining event processors or starting the event loop.
 
@@ -234,7 +242,7 @@ Verbosity is typically controlled by an integer level, where 0 means minimal out
  * `/run/verbose <level>`: Controls the verbosity of the run manager (e.g., messages about run initialization and termination).
  * `/event/verbose <level>`: Controls verbosity related to event processing (e.g., information at the beginning and end of each event).
  * `/tracking/verbose <level>`: Provides detailed information about particle tracking, including step-by-step details of particle interactions and movement through the geometry.
-    This is particularly useful for debugging physics processes or identifying issues with the detector geometry.
+      This is particularly useful for debugging physics processes or identifying issues with the detector geometry.
   
 By strategically increasing verbosity for specific components like tracking or particular physics processes, new users can gain a much clearer picture of what Geant4 (and by extension ratpac-two) is doing "under the hood" for each event. 
 Observing this textual output can be more illuminating for learning than just examining final results or visualizations, as it connects abstract concepts of particle interactions and geometry definitions to concrete simulation steps.
@@ -254,11 +262,17 @@ geometry.  Useful commands include:
 
 ### 2.4. Other Useful UI Commands
 
- * `/control/execute <macroFile>`: As mentioned in Section 1.3, this command executes another macro file. It is a standard Geant4 command.
- * `/control/loop <macroFile> <counterName> <initialValue> <finalValue> <stepSize>`: This command allows for looping. The specified <macroFile> is executed multiple times. In each iteration, the Geant4 UI variable <counterName> is set to values from <initialValue> to <finalValue> with an increment of <stepSize>. The <counterName> can then be used within <macroFile> (e.g., `{counterName}`).
- * `/control/foreach <macroFile> <variableName> <valueList>`: Similar to `/control/loop`, but iterates over a discrete list of values provided in <valueList> (space-separated). The <variableName> is set to each value in the list for each execution of <macroFile>.
-The availability of Geant4's looping commands (`/control/loop`, `/control/foreach`) directly within the macro system allows users to perform simple parameter scans (e.g., varying particle energy, source position, or even a RATDB parameter if set within the looped macro) without resorting to external scripting. This is a powerful built-in feature for conducting systematic studies efficiently.
+ * `/control/execute <macroFile>`: As mentioned in Section 1.3, this command executes another macro file. 
+      It is a standard Geant4 command.
+ * `/control/loop <macroFile> <counterName> <initialValue> <finalValue> <stepSize>`: This command allows for looping.
+      The specified <macroFile> is executed multiple times. In each iteration, the Geant4 UI variable <counterName> is set to values from <initialValue> to <finalValue> with an increment of <stepSize>.
+      The <counterName> can then be used within <macroFile> (e.g., `{counterName}`).
+ * `/control/foreach <macroFile> <variableName> <valueList>`: Similar to `/control/loop`, but iterates over a discrete list of values provided in <valueList> (space-separated). 
+      The <variableName> is set to each value in the list for each execution of <macroFile>.
+      The availability of Geant4's looping commands (`/control/loop`, `/control/foreach`) directly within the macro system allows users to perform simple parameter scans (e.g., varying particle energy, source position, or even a RATDB parameter if set within the looped macro) without resorting to external scripting.
+      This is a powerful built-in feature for conducting systematic studies efficiently.
  * `exit`: Terminates an interactive ratpac-two session.
+
 The following table summarizes some of the most common Geant4 UI commands useful for ratpac-two users.
 
 **Table 2.1:** Common Geant4 UI Commands for ratpac-two
@@ -279,21 +293,21 @@ This set of commands provides a foundational toolkit for basic simulation contro
 
 ### 3. Navigating ratpac-two Specific Commands: The /rat/ Directory
 
-While ratpac-two leverages the standard Geant4 command interface, it also introduces a suite of custom commands to manage its unique features and functionalities. 
-These ratpac-two-specific commands are neatly organized under the `/rat/` command directory. 
-This clear separation into the `/rat/` namespace is a deliberate design choice that prevents potential conflicts with standard Geant4 commands or commands from other Geant4-based applications. 
+While ratpac-two leverages the standard Geant4 command interface, it also introduces a suite of custom commands to manage its unique features and functionalities.
+These ratpac-two-specific commands are neatly organized under the `/rat/` command directory.
+This clear separation into the `/rat/` namespace is a deliberate design choice that prevents potential conflicts with standard Geant4 commands or commands from other Geant4-based applications.
 Such organization makes the command space more predictable and manageable for users and developers alike.
 
 Commands within the `/rat/` directory provide fine-grained control over various components of the ratpac-two framework, including its parameter database (RATDB), the sequence of data processing modules (processors), specialized event generators, custom physics configurations, and I/O settings.
-The internal structure of subdirectories within `/rat/` (e.g., db, proc) often mirrors the modular C++ class structure within the ratpac-two source code. 
-For example, commands found in `/rat/db/` are typically implemented by messenger classes associated with RAT::DB or similar database management classes in the C++ backend. 
+The internal structure of subdirectories within `/rat/` (e.g., db, proc) often mirrors the modular C++ class structure within the ratpac-two source code.
+For example, commands found in `/rat/db/` are typically implemented by messenger classes associated with RAT::DB or similar database management classes in the C++ backend.
 An awareness of this correlation can be beneficial for advanced users or those delving into the source code to understand command implementations.
-Developers extending the command interface typically create a messenger class whose name mirrors the subdirectory. 
+Developers extending the command interface typically create a messenger class whose name mirrors the subdirectory.
 
 Most messengers live in `src/cmd/src` with headers in `src/cmd/include`. For example the `/rat/db/` directory is implemented by `DBMessenger` in `src/cmd/src/DBMessenger.cc`.
 Following this pattern, a new `/rat/foo/` directory would pair with `FooMessenger` in `src/cmd/src/FooMessenger.cc`, keeping the command layout synchronized with the source treeree.
-The following table gives a high-level overview of the common subdirectories expected within `/rat/` and their primary functions. 
-The exact commands and their detailed functionalities are determined by analyzing the ratpac-two source code. 
+The following table gives a high-level overview of the common subdirectories expected within `/rat/` and their primary functions.
+The exact commands and their detailed functionalities are determined by analyzing the ratpac-two source code.
 Subsequent sections of this guide will elaborate on commands within these key areas.
 
 **Table 3.1:** Overview of Key /rat/ Command Subdirectories
@@ -308,43 +322,45 @@ Subsequent sections of this guide will elaborate on commands within these key ar
 
 The `/rat/db/load` command is implemented by `DBMessenger` in `src/cmd/src/DBMessenger.cc`.
 
-Understanding this top-level structure helps users navigate to the relevant command set for the aspect of the simulation they wish to control. 
+Understanding this top-level structure helps users navigate to the relevant command set for the aspect of the simulation they wish to control.
 
-For instance, to modify a material property, one would look for commands under `/rat/db/`. 
+For instance, to modify a material property, one would look for commands under `/rat/db/`.
 To add a new analysis step to the event processing, commands under `/rat/proc/` would be relevant.
 
 
 
 ## 4. Configuring the ratpac-two Environment with RATDB via Macros
 
-The RAT Database (RATDB) is a cornerstone of ratpac-two's flexibility, serving as a centralized repository for all parameters that define the simulated experiment using JSON like structure. 
-This includes detailed descriptions of detector geometry, material properties, optical parameters (like refractive indices, absorption lengths, Rayleigh scattering lengths), PMT characteristics (quantum efficiency, transit time spread), electronics and DAQ settings, and even fundamental physics constants. 
-The ability for analysis code to trivially access the same detector geometry and physics parameters used in the detailed simulation is a key design feature facilitated by RATDB. 
+The RAT Database (RATDB) is a cornerstone of ratpac-two's flexibility, serving as a centralized repository for all parameters that define the simulated experiment using JSON like structure.
+This includes detailed descriptions of detector geometry, material properties, optical parameters (like refractive indices, absorption lengths, Rayleigh scattering lengths), PMT characteristics (quantum efficiency, transit time spread), electronics and DAQ settings, and even fundamental physics constants.
+The ability for analysis code to trivially access the same detector geometry and physics parameters used in the detailed simulation is a key design feature facilitated by RATDB.
 This comprehensive parameterization is crucial for achieving "As Microphysical as Reasonably Achievable" (AMARA) simulations.
 
-RATDB parameters are typically stored in external files, often using a like JSON format, which is both human-readable and easily parsable.  
-The choice of JSON for RATDB files offers significant advantages: users can inspect or manually tweak parameters using standard text editors, and the structured nature of JSON (key-value pairs, arrays, nested objects) is well-suited for representing complex detector configurations. 
+RATDB parameters are typically stored in external files, often using a like JSON format, which is both human-readable and easily parsable.
+The choice of JSON for RATDB files offers significant advantages: users can inspect or manually tweak parameters using standard text editors, and the structured nature of JSON (key-value pairs, arrays, nested objects) is well-suited for representing complex detector configurations.
 Furthermore, many programming languages have built-in JSON parsers, making it easier to integrate ratpac-two configurations with external scripts or analysis tools if necessary.
 Macros provide the interface to load these database files and, importantly, to modify specific parameters at runtime before the simulation initializes.
 
 
 ### 4.1. Key RATDB Macro Commands
 
-The following commands, primarily under the `/rat/db/` path, are used to interact with RATDB. 
+The following commands, primarily under the `/rat/db/` path, are used to interact with RATDB.
 The exact syntax and full range of commands can be found by inspecting the RAT::DB related messenger classes in the ratpac-two source code (e.g., in ratpac-two/src/db/).
 
  * `/rat/db/load <filename>` :
-   This command loads data from the specified file into RATDB. 
-   Load material optical properties e.g. `/rat/db/load OPTICS.ratdb`
+     This command loads data from the specified file into RATDB. 
+     Load material optical properties e.g. `/rat/db/load OPTICS.ratdb`
  * `/rat/db/set <TABLE_NAME> <value_or_values>`:
-   This command allows modification of specific database entries at runtime. The <TABLE_NAME> specifies the database table (e.g., MATERIALS, GEO, OPTICS). The optional index fields identify the specific entry within the table (e.g., name:AV for an entry named "AV" in a geometry table). <parameter_name> is the field to change, and <value> is the new value. The <value_type> might be required to specify if the value is a float, int, string, bool, or an array_float, array_int, etc.
-   Change the light yield of the scintillator material
-   Assuming a table 'MATERIALS', indexed by 'name', parameter 'LIGHT_YIELD', value is float
-   /rat/db/set MATERIALS name:LS LIGHT_YIELD float 10000.0
-   Modify a PMT parameter, e.g., quantum efficiency for a specific PMT model
-   Assuming table 'PMTPROPS', index 'pmt_model', parameter 'QE', value is array of floats
-   /rat/db/set PMTPROPS pmt_model:R12345 QE array_float [0.20,0.22,0.25,0.22,0.20]
-   The ability to modify RATDB parameters at runtime via `/rat/db/set` is extremely powerful for systematic studies. Users can employ macro control flow (like `/control/loop`) to iterate over different material properties, PMT efficiencies, or minor geometry variations without needing to create and manage numerous distinct RATDB files. This greatly streamlines the process of studying the impact of detector parameter uncertainties.
+     This command allows modification of specific database entries at runtime. The <TABLE_NAME> specifies the database table (e.g., MATERIALS, GEO, OPTICS). The optional index fields identify the specific entry within the table (e.g., name:AV for an entry named "AV" in a geometry table). <parameter_name> is the field to change, and <value> is the new value. The <value_type> might be required to specify if the value is a float, int, string, bool, or an array_float, array_int, etc.
+     Change the light yield of the scintillator material
+     Assuming a table 'MATERIALS', indexed by 'name', parameter 'LIGHT_YIELD', value is float
+     `/rat/db/set MATERIALS name:LS LIGHT_YIELD float 10000.0`
+     Modify a PMT parameter, e.g., quantum efficiency for a specific PMT model
+     Assuming table 'PMTPROPS', index 'pmt_model', parameter 'QE', value is array of floats
+     `/rat/db/set PMTPROPS pmt_model:R12345 QE array_float [0.20,0.22,0.25,0.22,0.20]`
+     The ability to modify RATDB parameters at runtime via `/rat/db/set` is extremely powerful for systematic studies.
+     Users can employ macro control flow (like `/control/loop`) to iterate over different material properties, PMT efficiencies, or minor geometry variations without needing to create and manage numerous distinct RATDB files.
+     This greatly streamlines the process of studying the impact of detector parameter uncertainties.
 * `/rat/db/server <url>`:
   Connects to a remote CouchDB instance holding RATDB tables.
 * `/rat/db/run <run_number>`:
