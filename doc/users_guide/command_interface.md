@@ -90,22 +90,23 @@ Commands in ratpac-two (and Geant4) are organized into a hierarchical structure,
 
 ### 1.3. Command Execution Order
 
-ratpac-two will execute the commands in a macro file sequentially from top to bottom.  
-The exact ordering of commands will depend on the specific task to be accomplished by rat.  
+ratpac-two will execute the commands in a macro file sequentially from top to bottom.
+The exact ordering of commands will depend on the specific task to be accomplished by rat.
 In the next section we will provide an example macro outlining a workflow suitable for detector simulations to illustrate usage.
 
 Macro files can include other macro files using the `/control/execute` command. For example in your macro file you can add:
 ```
 /control/execute common_detector_setup.mac
 ```
-When this command is encountered, the specified macro file (common_detector_setup.mac in this case) is immediately read and its commands are executed in place before continuing with the original macro. 
-This feature is extremely useful for modularizing simulation configurations. 
-Nested macros are allowed. A file invoked with `/control/execute` can itself contain additional `/control/execute` commands, and each included file is processed immediately when encountered. 
+When this command is encountered, the specified macro file (common_detector_setup.mac in this case) is immediately read and its commands are executed in place before continuing with the original macro.
+This feature is extremely useful for modularizing simulation configurations.
+Nested macros are allowed. A file invoked with `/control/execute` can itself contain additional `/control/execute` commands, and each included file is processed immediately when encountered.
 If the file cannot be found, Geant4 prints an error and stops executing the current macro.
 
-Users can create libraries of common settings, such as standard detector geometry definitions, physics lists, or output format configurations. 
-Specific simulation scenarios can then be composed by including these base macros and then overriding or adding specific parameters as needed. 
+Users can create libraries of common settings, such as standard detector geometry definitions, physics lists, or output format configurations.
+Specific simulation scenarios can then be composed by including these base macros and then overriding or adding specific parameters as needed.
 This approach promotes reusability, consistency across different studies, and better organization of complex simulation setups, mirroring how functions or modules are used in programming to avoid code duplication and improve maintainability.
+
 A minimal macro may contain just a couple of commands:
 ```
 # mini.mac
@@ -116,11 +117,11 @@ A minimal macro may contain just a couple of commands:
 ### 1.4 Example Macro
 
 
-Now let's take a look at an example macro file.  
+Now let's take a look at an example macro file.
 This macro uses the internal simulation tools in ratpac to produce 2 MeV electron interactions in the example geometry and a series of processors that add poisson dark noise to photosensors, simulates readout electronics and saves the processed output in the outntuple format.
 This example serves as a template for how one might structure a simulation macro:
 
-The macro is broken down into
+The macro is broken down into:
 
  1. Physics configurations & RATDB definitions
  2. `/run/initialize`
@@ -203,8 +204,8 @@ Let's discuss the format and styling of this macro by providing additional detai
 
 ## 2. Essential Geant4 Commands for ratpac-two Simulation
 
-Since ratpac-two is built upon the Geant4 toolkit, a wide array of standard Geant4 User Interface (UI) commands are available and often essential for controlling simulations. 
-For users new to Geant4, understanding these core commands is a prerequisite for effectively using ratpac-two. 
+Since ratpac-two is built upon the Geant4 toolkit, a wide array of standard Geant4 User Interface (UI) commands are available and often essential for controlling simulations.
+For users new to Geant4, understanding these core commands is a prerequisite for effectively using ratpac-two.
 This section focuses on the most commonly used Geant4 commands relevant in the context of a ratpac-two simulation.
 
 
@@ -216,7 +217,7 @@ These commands manage the initialization and execution of simulation runs and di
 
    The typical placement of this command is after setting up detector parameters (e.g., via `/rat/db/` commands) but before defining event processors or starting the event loop.
 
-   **Note:** The run manager must be initialized *after* the geometry has been fully configured and *before* issuing any `/run/beamOn` command. 
+   **Note:** The run manager must be initialized *after* the geometry has been fully configured and *before* issuing any `/run/beamOn` command.
    Calling `/run/beamOn` prior to `/run/initialize` will cause Geant4 to halt with an error similar to ``G4RunManager::BeamOn() called before initialization``.
 
  * `/run/beamOn <numberOfEvents>`: This command starts a simulation run, processing the specified number of events.
@@ -226,13 +227,14 @@ These commands manage the initialization and execution of simulation runs and di
 
 ### 2.2. Verbosity Control
 
-Geant4 provides extensive control over the amount of information printed during a simulation. 
-These commands are invaluable for debugging and understanding the simulation process. 
+Geant4 provides extensive control over the amount of information printed during a simulation.
+These commands are invaluable for debugging and understanding the simulation process.
 Verbosity is typically controlled by an integer level, where 0 means minimal output and higher values provide more detail.
 
  * `/run/verbose <level>`: Controls the verbosity of the run manager (e.g., messages about run initialization and termination).
  * `/event/verbose <level>`: Controls verbosity related to event processing (e.g., information at the beginning and end of each event).
- * `/tracking/verbose <level>`: Provides detailed information about particle tracking, including step-by-step details of particle interactions and movement through the geometry. This is particularly useful for debugging physics processes or identifying issues with the detector geometry.
+ * `/tracking/verbose <level>`: Provides detailed information about particle tracking, including step-by-step details of particle interactions and movement through the geometry.
+    This is particularly useful for debugging physics processes or identifying issues with the detector geometry.
   
 By strategically increasing verbosity for specific components like tracking or particular physics processes, new users can gain a much clearer picture of what Geant4 (and by extension ratpac-two) is doing "under the hood" for each event. 
 Observing this textual output can be more illuminating for learning than just examining final results or visualizations, as it connects abstract concepts of particle interactions and geometry definitions to concrete simulation steps.
