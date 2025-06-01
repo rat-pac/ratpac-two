@@ -253,13 +253,13 @@ The exact commands and their detailed functionalities are determined by analyzin
 Subsequent sections of this guide will elaborate on commands within these key areas.
 
 **Table 3.1:** Overview of Key /rat/ Command Subdirectories
-| Subdirectory    | Primary Function                                                                                        | Examples of Key Commands (Conceptual) |
-| :-------------- | :------------------------------------------------------------------------------------------------------ | :-------------------------------------------------------- |
-| `/rat/db/`      | Manages interaction with the RAT Database (RATDB), including loading and modifying detector parameters. | `/rat/db/load`, `/rat/db/set` |
-| `/rat/proc/`    | Controls the chain of ratpac-two processors (data processing modules) and their configurations.         | `/rat/proc`, `/rat/procset` |
-| `/rat/physics`   | Configures ratpac-two specific physics options, custom physics lists, or specialized physics processes.     | `/rat/physics/add`, `/rat/physics/select` |
-| `/rat/io/`       | Manages ratpac-two specific input/output settings, such as output file names, formats, and content control. | `/rat/io/outputfile`, `/rat/io/format` |
-| (others)         | Other specialized control directories as defined within the ratpac-two framework for specific components.   | (dependent on ratpac-two features) |
+| Subdirectory    | Primary Function                                                                                            | Examples of Key Commands (Conceptual) |
+| :-------------- | :---------------------------------------------------------------------------------------------------------| :-------------------------------------------------------- |
+| `/rat/db/`      | Manages interaction with the RAT Database (RATDB), including loading and modifying detector parameters.     | `/rat/db/load`, `/rat/db/set`, `/rat/db/server`, `/rat/db/run` |
+| `/rat/proc/`    | Controls the chain of ratpac-two processors (data processing modules) and their configurations.             | `/rat/proc`, `/rat/procset` |
+| `/rat/physics`  | Configures ratpac-two specific physics options, custom physics lists, or specialized physics processes.     | `/rat/physics/add`, `/rat/physics/select` |
+| `/rat/io/`      | Manages ratpac-two specific input/output settings, such as output file names, formats, and content control. | `/rat/io/outputfile`, `/rat/io/format` |
+| (others)        | Other specialized control directories as defined within the ratpac-two framework for specific components.   | (dependent on ratpac-two features) |
 
 Understanding this top-level structure helps users navigate to the relevant command set for the aspect of the simulation they wish to control. 
 
