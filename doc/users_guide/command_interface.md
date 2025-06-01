@@ -330,9 +330,8 @@ For instance, PMT digitization must occur after optical photons have been tracke
 
 ### 5.1. Key Processor Macro Commands
 Processors are controlled with a small set of macro commands:
-* `/rat/proc <ProcessorName>` (or the synonymous `/rat/proc/add <ProcessorName>`) adds the named processor to the processing chain. The order of these commands determines the execution order. Use `/rat/proclast <ProcessorName>` to place a processor after any that were specified on the command line.
+* `/rat/proc <ProcessorName>` adds the named processor to the processing chain. The order of these commands determines the execution order. Use `/rat/proclast <ProcessorName>` to place a processor after any that were specified on the command line.
 * `/rat/procset <parameter> <value>` sets a parameter on the most recently added processor. `ProcBlockManager` only allows `procset` after a successful `proc` command.
-* `/rat/proc/list` lists the configured processors in their execution order.
 
 It is important to note that ratpac-two is designed to be extensible, allowing users and collaborations to develop their own custom processors in C++ to address unique experimental requirements or implement new analysis algorithms.
 While the development of such custom processors is beyond the scope of the user guide, the macro commands for adding and configuring processors are designed to work uniformly with both standard and custom-developed modules. 
@@ -347,24 +346,22 @@ A conceptual processor chain for a typical simulation might look like this:
  * reconstructor_bonsai: Performs event reconstruction using an algorithm like BONSAI.
  * output_ntuple: Writes selected event information (raw data, reconstructed quantities) to an output file.
 
-A macro would typically contain a series of `/rat/proc` (or `/rat/proc/add`) and `/rat/procset` commands to build this chain.
-
+A macro would typically contain a series of `/rat/proc` and `/rat/procset` commands to build this chain.
 
 ### 5.3. Table of Processor Control Commands and Common Processors
 The following table outlines the essential commands for processor control and lists some common types of processors one might expect in ratpac-two. The actual names and parameters of processors must be derived from the ratpac-two distribution.
 
 **NOTE THIS NEEDS CHECKED IT IS LIKELY WRONG PLEASE SEARCH FOR THE CORRECT RAT PROC COMMANDS IN SOURCE**
 
-**Table 5.1:** Essential Processor Control Commands and Common Processors (Conceptual)
+**Table 5.1:** Essential Processor Control Commands**
+␊
+| Command / Item   | Purpose / Description                                    | Example |
+|:-----------------|:---------------------------------------------------------|:--------|
+| `/rat/proc`      | Adds a processor to the event processing chain.          | `/rat/proc noise` |
+| `/rat/proclast`  | Adds a processor after those specified on the command line. | `/rat/proclast outroot` |
+| `/rat/procset`   | Sets a parameter for the most recently added processor.   | `/rat/procset update 5` |
 
-| Command / Item                                    | Purpose / Description                                                      | Example (Conceptual)                                                                                         |
-|:--------------------------------------------------|:---------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------|
-| **Processor Control Commands**                    |                                                                            |                                                                                                               |
-| `/rat/proc/add`                                   | Adds a processor to the event processing chain.                            | `/rat/proc/add daqproc`                                                                                       |
-| `/rat/procset`                                    | Sets a parameter for a previously added processor.                         | `/rat/procset daqproc daq_threshold 0.5`                                                                      |
-| `/rat/proc/list`                                  | Lists the current sequence of processors.                                  | `/rat/proc/list`                                                                                              |
-
-This structure allows users to build highly customized simulation and analysis workflows tailored to their specific physics goals by selecting and configuring the appropriate sequence of processors.
+This structure allows users to build customized simulation and analysis workflows by selecting and configuring the appropriate sequence of processors.
 
 ## 6. Defining Event Sources: The Generator Commands
 Event generators in ratpac-two are responsible for defining the initial state of particles that the simulation will track. 
