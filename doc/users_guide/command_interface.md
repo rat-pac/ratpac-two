@@ -1,8 +1,8 @@
 # Controlling ratpac-two 
 
-This section of the guide will provide a high level overview on controlling and using ratpac by briefly describing basic command structure, its syntax and how to synthesize commands into a macro file to control the operation of the software. 
+This section of the guide will provide a high level overview on controlling and using ratpac by briefly describing command syntax and how to synthesize multiple commands into a macro file to control the operation of the software. 
 A comprehensive review requires extensive knowledge of the software, so we aim to provide just enough detail to provide context for the following chapters in the user guide.
-Revisiting this section is recommended as you read through the documentation.
+Revisiting this section is recommended as you read through the rest of the documentation.
 
 ratpac-two is typically controlled through the use of macro files, which are plain text files containing a sequence of commands that control ratpac-two.  Using macros, you can configure various aspects of a ratpac experiment, such as:
 
