@@ -1,10 +1,12 @@
 # Controlling ratpac-two 
 
-This section of the guide will provide a high level overview on controlling ratpac by briefly describing command syntax and how to synthesize multiple commands into a macro file to control the operation of the software. 
-A comprehensive review requires extensive knowledge of the software, so we aim to provide just enough detail to provide context for the following chapters in the user guide.
+This section of the guide will provide a high level overview on controlling ratpac.
+We shall briefly describe command syntax and how to synthesize multiple commands into a macro file to control the operation of the software. 
+A comprehensive review requires extensive knowledge of the software.
 Revisiting this section is recommended as you read through the rest of the documentation.
 
-ratpac-two is typically controlled through the use of macro files, which are plain text files containing a sequence of commands that control ratpac-two.  Using macros, you can configure various aspects of a ratpac experiment, such as:
+ratpac-two is typically controlled through the use of macro files, which are plain text files containing a sequence of commands that control ratpac-two.  
+Using macros, you can configure various aspects of a ratpac experiment, such as:
 
 * The physics processes to be simulated and reporting of particle track information.
 * Detector geometry, materials, and calibration constants (via RATDB).
@@ -16,6 +18,8 @@ At a high level the simulation itself a **pipeline** connecting event **producer
 Producers create or load events and then hand each event to the processors one-by-one. 
 Each processor can modify the event, record information, or simply observe it. 
 The order of processors you declare therefore determines how every event will be handled. 
+
+## 1. Command and Macro Basics 
 
 After successfully installing ratpac-two and loading the associated environment, ratpac-two is accessed via a command line interface by running the `rat` command.
 `rat` can execute a sequence of macro files if multiple are provided on the command line:
@@ -280,7 +284,7 @@ The following commands, primarily under the `/rat/db/` path, are used to interac
  * `/rat/db/load <filename>` :
    This command loads data from the specified file into RATDB. 
    Load material optical properties e.g. `/rat/db/load OPTICS.ratdb`
- * `/rat/db/set <TABLE_NAME> [<index_field_name>:<index_field_value>...] <parameter_name> <value_type> <value_or_values>`:
+ * `/rat/db/set <TABLE_NAME> <value_or_values>`:
    This command allows modification of specific database entries at runtime. The <TABLE_NAME> specifies the database table (e.g., MATERIALS, GEO, OPTICS). The optional index fields identify the specific entry within the table (e.g., name:AV for an entry named "AV" in a geometry table). <parameter_name> is the field to change, and <value> is the new value. The <value_type> might be required to specify if the value is a float, int, string, bool, or an array_float, array_int, etc.
    Change the light yield of the scintillator material
    Assuming a table 'MATERIALS', indexed by 'name', parameter 'LIGHT_YIELD', value is float
