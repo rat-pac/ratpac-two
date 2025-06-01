@@ -74,7 +74,8 @@ The syntax rules are straightforward:
 ```
     /run/beamOn 1
 ```
-    Such indented lines will not run.
+
+Such indented lines will not run.
 
 
 ### 1.2. Command Hierarchy
