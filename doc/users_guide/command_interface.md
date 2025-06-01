@@ -21,6 +21,8 @@ Producer -> Processor 1 -> Processor 2 -> ... -> Processor N
 ```
 Each processor can modify the event, record information, or simply observe it, so the order you declare them determines how every event will be handled.
 
+
+
 ## 1. Command and Macro Basics 
 
 After successfully installing ratpac-two and loading the associated environment, ratpac-two is accessed via a command line interface by running the `rat` command.
@@ -55,6 +57,7 @@ options:
 
 Lets start our discussion of macro files by first inspecting the structure of a single command.
 
+
 ### 1.1 Command Syntax
 ratpac-two inherits its command interface from Geant4‘s G4RunManager. [G4 command reference](https://github.com/natl/language-geant4-macro/blob/master/G4command.txt) 
 
@@ -67,16 +70,21 @@ The syntax rules are straightforward:
 
  * **Comments:** Lines beginning with a hash symbol `#` are treated as comments and are ignored by the interpreter. They are essential for documenting macros.  Comments can also be used inline with commands. 
  * **Blank Lines:** Blank lines are also ignored and can be used to improve macro readability.
- * **No Leading Whitespace:** A critical rule is that commands must not have any leading whitespace (spaces or tabs) before the command name. Indentation will cause the command to be unrecognized. 
+ * **No Leading Whitespace:** Commands must start at column 1. Any spaces or tabs before the command cause an "unknown command" error.
+```
+    /run/beamOn 1
+```
+    Such indented lines will not run.
+
 
 ### 1.2. Command Hierarchy
+
 Commands in ratpac-two (and Geant4) are organized into a hierarchical structure, much like a filesystem. This structure helps in organizing commands logically by function. For example:
  * `/run/` commands control aspects of Geant4 simulation runs (e.g., `/run/initialize`, `/run/beamOn`).
  * `/generator/` commands control generation of particle sources and their properties (e.g., `/generator/add`, `/generator/vtx/set`).
  * `/rat/` is the base directory for all commands specific to ratpac-two functionalities. Within `/rat/`, further subdirectories exist, such as:
    * `/rat/db/` for RAT Database interactions.
    * `/rat/proc/` (or `/rat/procset/`) for managing data processing modules (processors).
-
 
 
 ### 1.3. Command Execution Order
@@ -91,14 +99,21 @@ Macro files can include other macro files using the `/control/execute` command. 
 ```
 When this command is encountered, the specified macro file (common_detector_setup.mac in this case) is immediately read and its commands are executed in place before continuing with the original macro. 
 This feature is extremely useful for modularizing simulation configurations. 
+Nested macros are allowed. A file invoked with `/control/execute` can itself contain additional `/control/execute` commands, and each included file is processed immediately when encountered. 
+If the file cannot be found, Geant4 prints an error and stops executing the current macro.
 
 Users can create libraries of common settings, such as standard detector geometry definitions, physics lists, or output format configurations. 
 Specific simulation scenarios can then be composed by including these base macros and then overriding or adding specific parameters as needed. 
 This approach promotes reusability, consistency across different studies, and better organization of complex simulation setups, mirroring how functions or modules are used in programming to avoid code duplication and improve maintainability.
-
-
+A minimal macro may contain just a couple of commands:
+```
+# mini.mac
+/run/initialize
+/run/beamOn 1
+```
 
 ### 1.4 Example Macro
+
 
 Now let's take a look at an example macro file.  
 This macro uses the internal simulation tools in ratpac to produce 2 MeV electron interactions in the example geometry and a series of processors that add poisson dark noise to photosensors, simulates readout electronics and saves the processed output in the outntuple format.
@@ -181,25 +196,35 @@ The macro is broken down into
 # End of macro
 ```
 
-Lets discuss the format and styling of this macro by providing additional detail into some of the most important commands above
+Let's discuss the format and styling of this macro by providing additional detail into some of the most important commands above
+
+
 
 ## 2. Essential Geant4 Commands for ratpac-two Simulation
+
 Since ratpac-two is built upon the Geant4 toolkit, a wide array of standard Geant4 User Interface (UI) commands are available and often essential for controlling simulations. 
 For users new to Geant4, understanding these core commands is a prerequisite for effectively using ratpac-two. 
 This section focuses on the most commonly used Geant4 commands relevant in the context of a ratpac-two simulation.
 
+
 ### 2.1. Run Control
+
 These commands manage the initialization and execution of simulation runs and dictate the order of commands passed to ratpac in a macro.
 
- * `/run/initialize`: This is one of the most critical commands in any Geant4-based simulation. It must be issued before the first run can start. This command triggers the construction of the detector geometry, calculation of physics tables, and preparation of user actions. In ratpac-two, it ensures that all detector parameters from RATDB are processed and the simulation world is built.
+* `/run/initialize`: This is one of the most critical commands in any Geant4-based simulation. It must be issued before the first run can start. This command triggers the construction of the detector geometry, calculation of physics tables, and preparation of user actions. In ratpac-two, it ensures that all detector parameters from RATDB are processed and the simulation world is built.
 
    The typical placement of this command is after setting up detector parameters (e.g., via `/rat/db/` commands) but before defining event processors or starting the event loop.
+
+   **Note:** The run manager must be initialized *after* the geometry has been fully configured and *before* issuing any `/run/beamOn` command. 
+   Calling `/run/beamOn` prior to `/run/initialize` will cause Geant4 to halt with an error similar to ``G4RunManager::BeamOn() called before initialization``.
 
  * `/run/beamOn <numberOfEvents>`: This command starts a simulation run, processing the specified number of events.
 
    Multiple `/run/beamOn`commands can appear in a single macro, for instance, to simulate different particle types or energies sequentially after reconfiguring the event generator.
-   
+
+
 ### 2.2. Verbosity Control
+
 Geant4 provides extensive control over the amount of information printed during a simulation. 
 These commands are invaluable for debugging and understanding the simulation process. 
 Verbosity is typically controlled by an integer level, where 0 means minimal output and higher values provide more detail.
@@ -210,6 +235,7 @@ Verbosity is typically controlled by an integer level, where 0 means minimal out
   
 By strategically increasing verbosity for specific components like tracking or particular physics processes, new users can gain a much clearer picture of what Geant4 (and by extension ratpac-two) is doing "under the hood" for each event. 
 Observing this textual output can be more illuminating for learning than just examining final results or visualizations, as it connects abstract concepts of particle interactions and geometry definitions to concrete simulation steps.
+
 
 ### 2.3. Detector visualization
 
@@ -222,7 +248,9 @@ geometry.  Useful commands include:
 * `/glg4vis/reset` - reset the viewpoint to default settings.
 * `/glg4vis/upvector x y z` - choose the "up" direction for the viewer.
 
+
 ### 2.4. Other Useful UI Commands
+
  * `/control/execute <macroFile>`: As mentioned in Section 1.3, this command executes another macro file. It is a standard Geant4 command.
  * `/control/loop <macroFile> <counterName> <initialValue> <finalValue> <stepSize>`: This command allows for looping. The specified <macroFile> is executed multiple times. In each iteration, the Geant4 UI variable <counterName> is set to values from <initialValue> to <finalValue> with an increment of <stepSize>. The <counterName> can then be used within <macroFile> (e.g., `{counterName}`).
  * `/control/foreach <macroFile> <variableName> <valueList>`: Similar to `/control/loop`, but iterates over a discrete list of values provided in <valueList> (space-separated). The <variableName> is set to each value in the list for each execution of <macroFile>.
@@ -244,7 +272,10 @@ The following table summarizes some of the most common Geant4 UI commands useful
 
 This set of commands provides a foundational toolkit for basic simulation control within ratpac-two.
 
+
+
 ### 3. Navigating ratpac-two Specific Commands: The /rat/ Directory
+
 While ratpac-two leverages the standard Geant4 command interface, it also introduces a suite of custom commands to manage its unique features and functionalities. 
 These ratpac-two-specific commands are neatly organized under the `/rat/` command directory. 
 This clear separation into the `/rat/` namespace is a deliberate design choice that prevents potential conflicts with standard Geant4 commands or commands from other Geant4-based applications. 
@@ -254,35 +285,51 @@ Commands within the `/rat/` directory provide fine-grained control over various 
 The internal structure of subdirectories within `/rat/` (e.g., db, proc) often mirrors the modular C++ class structure within the ratpac-two source code. 
 For example, commands found in `/rat/db/` are typically implemented by messenger classes associated with RAT::DB or similar database management classes in the C++ backend. 
 An awareness of this correlation can be beneficial for advanced users or those delving into the source code to understand command implementations.
+Developers extending the command interface typically create a messenger class whose name mirrors the subdirectory. 
+
+Most messengers live in `src/cmd/src` with headers in `src/cmd/include`. For example the `/rat/db/` directory is implemented by `DBMessenger` in `src/cmd/src/DBMessenger.cc`.
+Following this pattern, a new `/rat/foo/` directory would pair with `FooMessenger` in `src/cmd/src/FooMessenger.cc`, keeping the command layout synchronized with the source treeree.
 The following table gives a high-level overview of the common subdirectories expected within `/rat/` and their primary functions. 
 The exact commands and their detailed functionalities are determined by analyzing the ratpac-two source code. 
 Subsequent sections of this guide will elaborate on commands within these key areas.
 
 **Table 3.1:** Overview of Key /rat/ Command Subdirectories
-| Subdirectory    | Primary Function                                                                                            | Examples of Key Commands (Conceptual) |
-| :-------------- | :---------------------------------------------------------------------------------------------------------| :-------------------------------------------------------- |
-| `/rat/db/`      | Manages interaction with the RAT Database (RATDB), including loading and modifying detector parameters.     | `/rat/db/load`, `/rat/db/set`, `/rat/db/server`, `/rat/db/run` |
-| `/rat/proc/`    | Controls the chain of ratpac-two processors (data processing modules) and their configurations.             | `/rat/proc`, `/rat/procset` |
-| `/rat/physics`  | Configures ratpac-two specific physics options, custom physics lists, or specialized physics processes.     | `/rat/physics/add`, `/rat/physics/select` |
-| `/rat/io/`      | Manages ratpac-two specific input/output settings, such as output file names, formats, and content control. | `/rat/io/outputfile`, `/rat/io/format` |
-| (others)        | Other specialized control directories as defined within the ratpac-two framework for specific components.   | (dependent on ratpac-two features) |
+
+| Subdirectory | Primary Function | Key Commands | Example Usage |
+| :-------------- | :---------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------- | :----------------------------------------- |
+| `/rat/db/`      | Manages interaction with the RAT Database (RATDB), including loading and modifying detector parameters.     | `/rat/db/load`, `/rat/db/set`, `/rat/db/server`, `/rat/db/run` | `/rat/db/load myfile.ratdb` |
+| `/rat/proc/`    | Controls the chain of ratpac-two processors (data processing modules) and their configurations.             | `/rat/proc`, `/rat/procset`                                    | `/rat/proc MyProcessor`          |
+| `/rat/physics`  | Configures ratpac-two specific physics options, custom physics lists, or specialized physics processes.     | `/rat/physics/add`, `/rat/physics/select`                      | `/rat/physics/enableCerenkov true` |
+| `/rat/io/`      | Manages ratpac-two specific input/output settings, such as output file names, formats, and content control. | `/rat/io/outputfile`, `/rat/io/format`                         | `/rat/io/outputfile results.root` |
+| (others)        | Other specialized control directories as defined within the ratpac-two framework for specific components.   | (dependent on ratpac-two features)                             | (varies) |
+
+The `/rat/db/load` command is implemented by `DBMessenger` in `src/cmd/src/DBMessenger.cc`.
 
 Understanding this top-level structure helps users navigate to the relevant command set for the aspect of the simulation they wish to control. 
 
-For instance, to modify a material property, one would look for commands under `/rat/db/`. To add a new analysis step to the event processing, commands under `/rat/proc/` would be relevant.
+For instance, to modify a material property, one would look for commands under `/rat/db/`. 
+To add a new analysis step to the event processing, commands under `/rat/proc/` would be relevant.
+
+
 
 ## 4. Configuring the ratpac-two Environment with RATDB via Macros
+
 The RAT Database (RATDB) is a cornerstone of ratpac-two's flexibility, serving as a centralized repository for all parameters that define the simulated experiment using JSON like structure. 
 This includes detailed descriptions of detector geometry, material properties, optical parameters (like refractive indices, absorption lengths, Rayleigh scattering lengths), PMT characteristics (quantum efficiency, transit time spread), electronics and DAQ settings, and even fundamental physics constants. 
 The ability for analysis code to trivially access the same detector geometry and physics parameters used in the detailed simulation is a key design feature facilitated by RATDB. 
 This comprehensive parameterization is crucial for achieving "As Microphysical as Reasonably Achievable" (AMARA) simulations.
+
 RATDB parameters are typically stored in external files, often using a like JSON format, which is both human-readable and easily parsable.  
 The choice of JSON for RATDB files offers significant advantages: users can inspect or manually tweak parameters using standard text editors, and the structured nature of JSON (key-value pairs, arrays, nested objects) is well-suited for representing complex detector configurations. 
 Furthermore, many programming languages have built-in JSON parsers, making it easier to integrate ratpac-two configurations with external scripts or analysis tools if necessary.
 Macros provide the interface to load these database files and, importantly, to modify specific parameters at runtime before the simulation initializes.
 
+
 ### 4.1. Key RATDB Macro Commands
-The following commands, primarily under the `/rat/db/` path, are used to interact with RATDB. The exact syntax and full range of commands should be confirmed by inspecting the RAT::DB related messenger classes in the ratpac-two source code (e.g., in ratpac-two/src/db/).
+
+The following commands, primarily under the `/rat/db/` path, are used to interact with RATDB. 
+The exact syntax and full range of commands can be found by inspecting the RAT::DB related messenger classes in the ratpac-two source code (e.g., in ratpac-two/src/db/).
+
  * `/rat/db/load <filename>` :
    This command loads data from the specified file into RATDB. 
    Load material optical properties e.g. `/rat/db/load OPTICS.ratdb`
@@ -299,13 +346,17 @@ The following commands, primarily under the `/rat/db/` path, are used to interac
   Connects to a remote CouchDB instance holding RATDB tables.
 * `/rat/db/run <run_number>`:
   Sets the default run number for database lookups.
+
+
 ### 4.2. Timing of RATDB Commands
+
 It is crucial to understand that RATDB parameters defining the detector geometry, fundamental material properties, or physics constants generally need to be set before the `/run/initialize` command is issued. 
 The `/run/initialize` step uses the information in RATDB to construct the simulation world. 
 Changes made to these fundamental parameters after initialization may not take effect or could lead to inconsistent states.
 The interaction between macros and RATDB highlights ratpac-two's flexibility. 
 While default or baseline parameters are loaded from files (which might be shared and version-controlled within a collaboration), macros provide a dynamic overlay. 
 This allows users to make temporary changes or specific adjustments for a given simulation run without altering the underlying database files, which is particularly beneficial in collaborative environments.
+
 **Table 4.1:** Essential RATDB Macro Commands
 
 | Task                                     | Command Syntax (Conceptual)                                                              | Example                                                    |
@@ -318,7 +369,10 @@ This allows users to make temporary changes or specific adjustments for a given 
 
 Note: The exact syntax for `<value_type>` and array specification in `/rat/db/set` needs to be confirmed from ratpac-two's specific implementation.
 
+
+
 ## 5. Orchestrating the Workflow: Processor Commands
+
 In ratpac-two, the concept of "processors" is central to defining the simulation and analysis workflow for each event. 
 Processors are modular units of C++ code, each designed to perform a specific task. 
 The sequence of these processors, assembled by the user in a macro file, dictates the entire chain of operations applied to every event generated. 
@@ -334,7 +388,9 @@ Examples of tasks handled by processors include:
 The order in which processors are added to the chain is critical, as they typically operate on the output of preceding processors. 
 For instance, PMT digitization must occur after optical photons have been tracked to the PMTs, and event reconstruction generally requires digitized data.
 
+
 ### 5.1. Key Processor Macro Commands
+
 Processors are controlled with a small set of macro commands:
 * `/rat/proc <ProcessorName>` adds the named processor to the processing chain. The order of these commands determines the execution order. Use `/rat/proclast <ProcessorName>` to place a processor after any that were specified on the command line.
 * `/rat/procset <parameter> <value>` sets a parameter on the most recently added processor. `ProcBlockManager` only allows `procset` after a successful `proc` command.
@@ -343,7 +399,9 @@ It is important to note that ratpac-two is designed to be extensible, allowing u
 While the development of such custom processors is beyond the scope of the user guide, the macro commands for adding and configuring processors are designed to work uniformly with both standard and custom-developed modules. 
 This extensibility means the list of available processors can grow beyond the set shipped with the core ratpac-two distribution.
 
+
 ### 5.2. Typical Processor Chain Example
+
 A conceptual processor chain for a typical simulation might look like this:
  * mc_particle_tracking: (Assumed processor for Geant4 tracking of primary and secondary particles).
  * pmt_response: Simulates PMT hit generation from optical photons.
@@ -354,13 +412,15 @@ A conceptual processor chain for a typical simulation might look like this:
 
 A macro would typically contain a series of `/rat/proc` and `/rat/procset` commands to build this chain.
 
+
 ### 5.3. Table of Processor Control Commands and Common Processors
+
 The following table outlines the essential commands for processor control and lists some common types of processors one might expect in ratpac-two. The actual names and parameters of processors must be derived from the ratpac-two distribution.
 
 **NOTE THIS NEEDS CHECKED IT IS LIKELY WRONG PLEASE SEARCH FOR THE CORRECT RAT PROC COMMANDS IN SOURCE**
 
 **Table 5.1:** Essential Processor Control Commands**
-␊
+
 | Command / Item   | Purpose / Description                                    | Example |
 |:-----------------|:---------------------------------------------------------|:--------|
 | `/rat/proc`      | Adds a processor to the event processing chain.          | `/rat/proc noise` |
@@ -369,14 +429,19 @@ The following table outlines the essential commands for processor control and li
 
 This structure allows users to build customized simulation and analysis workflows by selecting and configuring the appropriate sequence of processors.
 
+
+
 ## 6. Defining Event Sources: The Generator Commands
+
 Event generators in ratpac-two are responsible for defining the initial state of particles that the simulation will track. 
-This includes their type, energy, momentum, starting position, and time of creation. ratpac-two provides a flexible system for event generation, controlled by commands primarily under the `/generator/` path. 
-This system appears to be an evolution or adaptation of the "Gsim Generators" concept.
+This includes their type, energy, momentum, starting position, and time of creation. 
+ratpac-two provides a flexible system for event generation, controlled by commands primarily under the `/generator/` path. 
 The documentation for these generator commands in the ratpac-two repository itself (specifically in doc/users_guide/generators.rst) is noted to be incomplete. 
-Therefore, the descriptions here are based on the available snippets and inferences from common patterns in such simulation frameworks, which would ultimately be verified by source code inspection.
+Therefore, the descriptions here are based on the available snippets and inferences from common patterns in such simulation frameworks, which would ultimately be verified by source code inspection of a particular generator.
+
 
 ### 6.1. Key Generator Macro Commands
+
  * `/generator/add <generator_type> [options_string]`:
    This is the primary command for activating a new event generator instance.
    * <generator_type>: A string identifying the kind of generator to add. Examples might include:
@@ -416,10 +481,21 @@ Configure the position: center of the detector (0,0,0)
 /generator/pos/set 0 0 0 mm # Assuming mm as default unit
 Configure the rate: 1 event per second
 /generator/rate/set 1.0 Hz
-Commands like `/generator/vtx/set`, `/generator/pos/set`, and `/generator/rate/set` likely apply to the most recently added generator instance. If multiple generators are added, there must be a clear rule or an explicit command to select which generator subsequent set commands apply to. This contextual application is a common pattern in such command interfaces.
+Commands like `/generator/vtx/set`, `/generator/pos/set`, and `/generator/rate/set` likely apply to the most recently added generator instance. 
+If multiple generators are added, there must be a clear rule or an explicit command to select which generator subsequent set commands apply to. 
+This contextual application is a common pattern in such command interfaces.
+
+
 ### 6.2. Multiple Generators
-ratpac-two supports the use of multiple generators simultaneously. Events from different active generators will be interleaved according to their specified rates, and can even pile up if they occur in coincidence (i.e., within the same event window). This capability is essential for simulating realistic experimental conditions where multiple physics processes or background sources contribute to the collected data. It allows for comprehensive studies of signal-to-background ratios, pile-up effects, and coincidence detection schemes.
+
+ratpac-two supports the use of multiple generators simultaneously. 
+Events from different active generators will be interleaved according to their specified rates, and can even pile up if they occur in coincidence (i.e., within the same event window). 
+This capability is essential for simulating realistic experimental conditions where multiple physics processes or background sources contribute to the collected data. 
+It allows for comprehensive studies of signal-to-background ratios, pile-up effects, and coincidence detection schemes.
+
+
 ### 6.3. Table of Common Generator Configurations
+
 Given the identified gap in existing documentation for generator commands, the following table provides conceptual examples of how common event sources might be configured. The precise command names and parameters must be validated against the ratpac-two source code.
 
 **Table 6.2:** Common Event Generator Configurations via Macros (Conceptual)
@@ -434,7 +510,9 @@ Given the identified gap in existing documentation for generator commands, the f
 These examples illustrate the intended flexibility. Users should consult any example macros provided with ratpac-two or the RatpacExperiment template for validated syntax.
 
 
-## 8. Conclusion and Further Learning
+
+## 7. Conclusion and Further Learning
+
 Macro files are the cornerstone of user interaction with ratpac-two, offering a powerful and flexible plain-text interface to control nearly every aspect of the simulation environment. From defining the fundamental detector parameters via RATDB interactions to specifying the types of physics events to generate and orchestrating the complex chain of data processing steps, macros empower users to tailor ratpac-two to their specific research needs.
 This guide has endeavored to demystify the ratpac-two macro system, starting from the basic syntax inherited from Geant4, through essential Geant4 commands, and into the realm of ratpac-two-specific controls under the `/rat/` directory. Key concepts such as the RAT Database (`/rat/db/`), event generators (`/generator/`), and processors (`/rat/proc/`) have been introduced with their corresponding macro commands. Through example walkthroughs and troubleshooting tips, the aim has been to provide a solid foundation for both new and intermediate users.
 The ultimate goal is to enable users to move beyond executing pre-existing macros to confidently designing and implementing their own simulation scenarios. By mastering macro control, researchers can fully exploit ratpac-two's capabilities for detector design, physics analysis, and systematic studies.
