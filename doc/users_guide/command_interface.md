@@ -50,14 +50,14 @@ options:
 Lets start our discussion of macro files by first inspecting the structure of a single command.
 
 ### 1.1 Command Syntax
-ratpac-two inherits its command interface from Geant4‘s G4RunManager. https://github.com/natl/language-geant4-macro/blob/master/G4command.txt. 
+ratpac-two inherits its command interface from Geant4‘s G4RunManager. [G4 command reference](https://github.com/natl/language-geant4-macro/blob/master/G4command.txt) 
 
 The syntax rules are straightforward:
  * **Commands:** A command consists of a command name followed by zero or more parameters, separated by spaces. For example:
  
    `/rat/procset update 5`
    
-	  Here, `/rat/procset` is the command, and `update` and `5`are parameters.
+	  Here, `/rat/procset` is the command, and `update` and `5` are parameters.
 
  * **Comments:** Lines beginning with a hash symbol `#` are treated as comments and are ignored by the interpreter. They are essential for documenting macros.  Comments can also be used inline with commands. 
  * **Blank Lines:** Blank lines are also ignored and can be used to improve macro readability.
@@ -94,9 +94,9 @@ This approach promotes reusability, consistency across different studies, and be
 
 ### 1.4 Example Macro
 
-Now lets take a look at an example macro file.  
+Now let's take a look at an example macro file.  
 This macro uses the internal simulation tools in ratpac to produce 2 MeV electron interactions in the example geometry and a series of processors that add poisson dark noise to photosensors, simulates readout electronics and saves the processed output in the outntuple format.
-This example serves as a template for for how one might structure a simulation macro:
+This example serves as a template for how one might structure a simulation macro:
 
 The macro is broken down into
 
@@ -164,7 +164,7 @@ The macro is broken down into
 #-------------------------------------------------------------------------------
 
 #Generators are specified after processors, here we use a basic particle gun
-/generator/add combo gun:point:point
+/generator/add combo gun:point:poisson
 # Downward going 2.0 MeV electrons at the center of the detector
 /generator/vtx/set e- 0.0 0.0 -1.0 2.0
 /generator/pos/set 0.0 0.0 0.0
@@ -207,7 +207,14 @@ Observing this textual output can be more illuminating for learning than just ex
 
 ### 2.3. Detector visualization
 
-Add basic command reference **TODO**
+Basic visualization commands let you quickly open a viewer and inspect the
+geometry.  Useful commands include:
+
+* `/vis/open OGL` - open an OpenGL viewer.
+* `/vis/drawVolume` - draw the full detector geometry.
+* `/vis/viewer/update` - refresh the current viewer after changes.
+* `/glg4vis/reset` - reset the viewpoint to default settings.
+* `/glg4vis/upvector x y z` - choose the "up" direction for the viewer.
 
 ### 2.4. Other Useful UI Commands
  * `/control/execute <macroFile>`: As mentioned in Section 1.3, this command executes another macro file. It is a standard Geant4 command.
@@ -218,15 +225,16 @@ The availability of Geant4's looping commands (`/control/loop`, `/control/foreac
 The following table summarizes some of the most common Geant4 UI commands useful for ratpac-two users.
 
 **Table 2.1:** Common Geant4 UI Commands for ratpac-two
-| Command               | Typical Parameters              | Description                                                                                       | Example Usage in ratpac-two Context          |
-|:----------------------|:--------------------------------|:--------------------------------------------------------------------------------------------------|:---------------------------------------------|
-| `/run/initialize`     | (none)                          | Initializes detector geometry, physics lists, and run conditions. Essential before the first run. | `/run/initialize`                            |
-| `/run/beamOn`         | `<numberOfEvents>`              | Starts a simulation run for the specified number of events.                                       | `/run/beamOn 1000`                           |
-| `/run/verbose`        | `<level>`                       | Sets the verbosity level for run-related messages (0 = quiet).                                    | `/run/verbose 1`                             |
-| `/event/verbose`      | `<level>`                       | Sets the verbosity level for event-related messages.                                              | `/event/verbose 1`                           |
-| `/tracking/verbose`   | `<level>`                       | Sets the verbosity level for particle-tracking messages (uses more RAM).                          | `/tracking/verbose 1`                        |
-| `/control/execute`    | `<filename>`.                   | Executes commands from the specified macro file.                                                  | `/control/execute detector_setup.mac`        |
-| `exit`                | (none)                          | Exits an interactive ratpac-two session.                                                          | `exit`                                       |
+
+| Command             | Typical Parameters | Description                                                            | Example Usage in ratpac-two Context |
+|---------------------|--------------------|------------------------------------------------------------------------|------------------------------------|
+| `/run/initialize`   | (none)             | Initializes detector geometry, physics lists, and run conditions.      | `/run/initialize`                   |
+| `/run/beamOn`       | `<numberOfEvents>` | Starts a simulation run for the specified number of events.            | `/run/beamOn 1000`                  |
+| `/run/verbose`      | `<level>`          | Sets the verbosity level for run-related messages (0 = quiet).         | `/run/verbose 1`                    |
+| `/event/verbose`    | `<level>`          | Sets the verbosity level for event-related messages.                   | `/event/verbose 1`                  |
+| `/tracking/verbose` | `<level>`          | Sets the verbosity level for particle-tracking messages.               | `/tracking/verbose 1`               |
+| `/control/execute`  | `<filename>`       | Executes commands from the specified macro file.                       | `/control/execute detector_setup.mac` |
+| `exit`              | (none)             | Exits an interactive ratpac-two session.                               | `exit`                              |
 
 This set of commands provides a foundational toolkit for basic simulation control within ratpac-two.
 
@@ -247,8 +255,8 @@ Subsequent sections of this guide will elaborate on commands within these key ar
 **Table 3.1:** Overview of Key /rat/ Command Subdirectories
 | Subdirectory    | Primary Function                                                                                        | Examples of Key Commands (Conceptual) |
 | :-------------- | :------------------------------------------------------------------------------------------------------ | :-------------------------------------------------------- |
-| `/rat/db/`      | Manages interaction with the RAT Database (RATDB), including loading and modifying detector parameters. | `/rat/db/load`, `/rat/db/set`, `/rat/db/print` |
-| `/rat/proc/`    | Controls the chain of ratpac-two processors (data processing modules) and their configurations.         | `/rat/proc/add`, `/rat/procset` (or similar) |
+| `/rat/db/`      | Manages interaction with the RAT Database (RATDB), including loading and modifying detector parameters. | `/rat/db/load`, `/rat/db/set` |
+| `/rat/proc/`    | Controls the chain of ratpac-two processors (data processing modules) and their configurations.         | `/rat/proc`, `/rat/procset` |
 | `/rat/physics`   | Configures ratpac-two specific physics options, custom physics lists, or specialized physics processes.     | `/rat/physics/add`, `/rat/physics/select` |
 | `/rat/io/`       | Manages ratpac-two specific input/output settings, such as output file names, formats, and content control. | `/rat/io/outputfile`, `/rat/io/format` |
 | (others)         | Other specialized control directories as defined within the ratpac-two framework for specific components.   | (dependent on ratpac-two features) |
@@ -281,20 +289,10 @@ The following commands, primarily under the `/rat/db/` path, are used to interac
    Assuming table 'PMTPROPS', index 'pmt_model', parameter 'QE', value is array of floats
    /rat/db/set PMTPROPS pmt_model:R12345 QE array_float [0.20,0.22,0.25,0.22,0.20]
    The ability to modify RATDB parameters at runtime via `/rat/db/set` is extremely powerful for systematic studies. Users can employ macro control flow (like `/control/loop`) to iterate over different material properties, PMT efficiencies, or minor geometry variations without needing to create and manage numerous distinct RATDB files. This greatly streamlines the process of studying the impact of detector parameter uncertainties.
- * `/rat/db/get <TABLE_NAME> [<index_field_name>:<index_field_value>...] <parameter_name>`:
-   Retrieves and prints the current value of a specified database parameter. This is useful for verifying settings or for debugging purposes.
-   Get and print the current light yield of the scintillator
-   /rat/db/get MATERIALS name:LS LIGHT_YIELD
- * `/rat/db/list <TABLE_NAME>` or `/rat/db/listall`:
-   Lists the names of loaded tables or, for a specific table, lists its entries or indices.
-   List all loaded RATDB tables
-   /rat/db/listall
-   List indices or a summary of the MATERIALS table
-   /rat/db/list MATERIALS
- * `/rat/db/print <TABLE_NAME> [index]`:
-   Prints the contents of a specified RATDB table or a specific entry within that table.
-   Print the entire OPTICS table for "scintillator"
-   /rat/db/print OPTICS scintillator
+* `/rat/db/server <url>`:
+  Connects to a remote CouchDB instance holding RATDB tables.
+* `/rat/db/run <run_number>`:
+  Sets the default run number for database lookups.
 ### 4.2. Timing of RATDB Commands
 It is crucial to understand that RATDB parameters defining the detector geometry, fundamental material properties, or physics constants generally need to be set before the `/run/initialize` command is issued. 
 The `/run/initialize` step uses the information in RATDB to construct the simulation world. 
@@ -302,17 +300,15 @@ Changes made to these fundamental parameters after initialization may not take e
 The interaction between macros and RATDB highlights ratpac-two's flexibility. 
 While default or baseline parameters are loaded from files (which might be shared and version-controlled within a collaboration), macros provide a dynamic overlay. 
 This allows users to make temporary changes or specific adjustments for a given simulation run without altering the underlying database files, which is particularly beneficial in collaborative environments.
-**Table 6.1:** Essential RATDB Macro Commands
+**Table 4.1:** Essential RATDB Macro Commands
 
 | Task                                     | Command Syntax (Conceptual)                                                              | Example                                                    |
 |:-----------------------------------------|:-----------------------------------------------------------------------------------------|:-----------------------------------------------------------|
 | Load a RATDB file                        | `/rat/db/load <filename.ratdb>`                                                          | `/rat/db/load special_definitions.ratdb`                         |
 | Set a scalar parameter in a table        | `/rat/db/set <TABLE> <idx_field>:<idx_val> <param> <type> <value>`                       | `/rat/db/set MATERIALS name:Acrylic DENSITY float 1.19`    |
 | Set an array parameter in a table        | `/rat/db/set <TABLE> <idx_field>:<idx_val> <param> <type> [<v1>,<v2>,...]`               | `/rat/db/set OPTICS name:Water RAYLEIGH_LENGTH array_float [30000.,35000.,40000.]` |
-| Get (and print) a parameter's value      | `/rat/db/get <TABLE> <idx_field>:<idx_val> <param>`                                      | `/rat/db/get MATERIALS name:Acrylic DENSITY`               |
-| List all loaded RATDB tables             | `/rat/db/listall`                                                                        | `/rat/db/listall`                                          |
-| List entries/indices of a specific table | `/rat/db/list <TABLE>`                                                                   | `/rat/db/list GEO`                                         |
-| Print contents of a table/entry          | `/rat/db/print <TABLE> [index]`                                                          | `/rat/db/print PMTPROPS R5912HQE`                          |
+| Connect to CouchDB server                | `/rat/db/server <url>`                                                  | `/rat/db/server http://localhost:5984`                     |
+| Set default run number                   | `/rat/db/run <run_number>`                                              | `/rat/db/run 42`                                           |
 
 Note: The exact syntax for `<value_type>` and array specification in `/rat/db/set` needs to be confirmed from ratpac-two's specific implementation.
 
@@ -333,22 +329,10 @@ The order in which processors are added to the chain is critical, as they typica
 For instance, PMT digitization must occur after optical photons have been tracked to the PMTs, and event reconstruction generally requires digitized data.
 
 ### 5.1. Key Processor Macro Commands
-Commands for managing processors are expected under the `/rat/proc/` or `/rat/procset/` path. The exact naming convention (`/rat/proc/add` versus `/rat/procset` for adding or configuring) needs to be confirmed from the source code, as older RAT documentation uses `/rat/procset update 5`, which could imply update is a processor name and 5 is a parameter, or it could be a different style of command. A common pattern in such systems is:
- * `/rat/proc/add <ProcessorName> [processor_specific_options_string]`:
-   Adds an instance of the specified <ProcessorName> to the end of the current processing chain. Some processors might take an initial configuration string.
-   Add an output processor
-   /rat/proc/add ntuplewriter
-   Add a reconstruction processor
-   /rat/proc/add bonsaifit
- * `/rat/procset <ProcessorName> <parameter_name> <value>`:
-   Configures a specific parameter for a named processor that has already been added to the chain. <ProcessorName> would be the instance name (if multiple of the same type can be added and named) or the class name.
-   Configure the output filename for the ntuplewriter processor
-   /rat/procset ntuplewriter filename my_simulation_output.root
-   Set a parameter for the bonsaifit processor
-   /rat/procset bonsaifit search_radius 1500.0
-   The parameters configurable via `/rat/procset` are specific to each processor type. Discovering these available processors and their respective parameters typically involves examining the C++ source code of individual processor classes and their associated G4UImessenger classes, or referring to specific documentation for each processor if available.
- * `/rat/proc/list`:
-   Lists the currently configured processors in their order of execution. This is useful for verifying the processing chain.
+Processors are controlled with a small set of macro commands:
+* `/rat/proc <ProcessorName>` (or the synonymous `/rat/proc/add <ProcessorName>`) adds the named processor to the processing chain. The order of these commands determines the execution order. Use `/rat/proclast <ProcessorName>` to place a processor after any that were specified on the command line.
+* `/rat/procset <parameter> <value>` sets a parameter on the most recently added processor. `ProcBlockManager` only allows `procset` after a successful `proc` command.
+* `/rat/proc/list` lists the configured processors in their execution order.
 
 It is important to note that ratpac-two is designed to be extensible, allowing users and collaborations to develop their own custom processors in C++ to address unique experimental requirements or implement new analysis algorithms.
 While the development of such custom processors is beyond the scope of the user guide, the macro commands for adding and configuring processors are designed to work uniformly with both standard and custom-developed modules. 
@@ -362,10 +346,15 @@ A conceptual processor chain for a typical simulation might look like this:
  * trigger: Applies a trigger logic to the digitized data.
  * reconstructor_bonsai: Performs event reconstruction using an algorithm like BONSAI.
  * output_ntuple: Writes selected event information (raw data, reconstructed quantities) to an output file.
-This would be set up in a macro with a series of `/rat/proc/add` and `/rat/procset` commands.
+
+A macro would typically contain a series of `/rat/proc` (or `/rat/proc/add`) and `/rat/procset` commands to build this chain.
+
 
 ### 5.3. Table of Processor Control Commands and Common Processors
 The following table outlines the essential commands for processor control and lists some common types of processors one might expect in ratpac-two. The actual names and parameters of processors must be derived from the ratpac-two distribution.
+
+**NOTE THIS NEEDS CHECKED IT IS LIKELY WRONG PLEASE SEARCH FOR THE CORRECT RAT PROC COMMANDS IN SOURCE**
+
 **Table 5.1:** Essential Processor Control Commands and Common Processors (Conceptual)
 
 | Command / Item                                    | Purpose / Description                                                      | Example (Conceptual)                                                                                         |
@@ -425,11 +414,13 @@ Configure the position: center of the detector (0,0,0)
 Configure the rate: 1 event per second
 /generator/rate/set 1.0 Hz
 Commands like `/generator/vtx/set`, `/generator/pos/set`, and `/generator/rate/set` likely apply to the most recently added generator instance. If multiple generators are added, there must be a clear rule or an explicit command to select which generator subsequent set commands apply to. This contextual application is a common pattern in such command interfaces.
-### 7.2. Multiple Generators
+### 6.2. Multiple Generators
 ratpac-two supports the use of multiple generators simultaneously. Events from different active generators will be interleaved according to their specified rates, and can even pile up if they occur in coincidence (i.e., within the same event window). This capability is essential for simulating realistic experimental conditions where multiple physics processes or background sources contribute to the collected data. It allows for comprehensive studies of signal-to-background ratios, pile-up effects, and coincidence detection schemes.
-### 7.3. Table of Common Generator Configurations
+### 6.3. Table of Common Generator Configurations
 Given the identified gap in existing documentation for generator commands, the following table provides conceptual examples of how common event sources might be configured. The precise command names and parameters must be validated against the ratpac-two source code.
-**Table 7.1:** Common Event Generator Configurations via Macros (Conceptual)
+
+**Table 6.2:** Common Event Generator Configurations via Macros (Conceptual)
+
 | Task/Generator Type | Key `/generator/add` Command (Conceptual) | Subsequent Configuration Commands (Conceptual) | Example Macro Snippet (Conceptual) | Brief Explanation |
 | :------------------------- | :------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Single Particle Gun (Fixed)| `/generator/add gun` | `/generator/particle <name>` <br> `/generator/energy <E> <unit>` <br> `/generator/position <x> <y> <z> <unit>` <br> `/generator/direction <dx> <dy> <dz>` <br> `/generator/time <t> <unit>` | `/generator/add gun` <br> `/generator/particle e-` <br> `/generator/energy 5.0 MeV` <br> `/generator/position 0 0 0 mm` <br> `/generator/direction 0 0 1` <br> `/generator/time 0 ns` | Generates a single electron of 5 MeV at (0,0,0) moving along +z at t=0. Rate is usually implicitly one per `/run/beamOn` event unless specified. |
