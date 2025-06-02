@@ -120,7 +120,7 @@ This feature is extremely useful for modularizing simulation configurations.
 Nested macros are allowed. A file invoked with `/control/execute` can itself contain additional `/control/execute` commands, and each included file is processed immediately when encountered.
 If the file cannot be found, Geant4 prints an error and stops executing the current macro.
 
-Users can create libraries of common settings, such as standard detector geometry definitions, physics lists, or output format configurations.
+Users can create libraries of common settings, such as standard detector geometry definitions or output format configurations.
 Specific simulation scenarios can then be composed by including these base macros and then overriding or adding specific parameters as needed.
 This approach promotes reusability, consistency across different studies, and better organization of complex simulation setups, mirroring how functions or modules are used in programming to avoid code duplication and improve maintainability.
 
@@ -132,8 +132,8 @@ A minimal macro may contain just a couple of commands that are unable to run wit
 /rat/proc splitevdaq
 ```
 
-### 1.4 Example Macro
 
+### 1.4 Example Macro
 
 Now let's take a look at an example macro file.
 This macro uses the internal simulation tools in ratpac to produce 2 MeV electron interactions in the example geometry and a series of processors that add poisson dark noise to photosensors, simulates readout electronics and saves the processed output in the outntuple format.
@@ -141,7 +141,7 @@ This example serves as a template for how one might structure a simulation macro
 
 The macro is broken down into:
 
- 1. Physics configurations & RATDB definitions
+ 1. ratpac configuration (Physics configurations & RATDB definitions)
  2. `/run/initialize`
  3. Logical ordering of processors 
  4. Generator definitions
@@ -292,15 +292,15 @@ The following table summarizes some of the most common Geant4 UI commands useful
 
 **Table 2.1:** Common Geant4 UI Commands for ratpac-two
 
-| Command             | Typical Parameters | Description                                                            | Example Usage in ratpac-two Context |
-|---------------------|--------------------|------------------------------------------------------------------------|------------------------------------|
-| `/run/initialize`   | (none)             | Initializes detector geometry, physics lists, and run conditions.      | `/run/initialize`                   |
-| `/run/beamOn`       | `<numberOfEvents>` | Starts a simulation run for the specified number of events.            | `/run/beamOn 1000`                  |
-| `/run/verbose`      | `<level>`          | Sets the verbosity level for run-related messages (0 = quiet).         | `/run/verbose 1`                    |
-| `/event/verbose`    | `<level>`          | Sets the verbosity level for event-related messages.                   | `/event/verbose 1`                  |
-| `/tracking/verbose` | `<level>`          | Sets the verbosity level for particle-tracking messages.               | `/tracking/verbose 1`               |
-| `/control/execute`  | `<filename>`       | Executes commands from the specified macro file.                       | `/control/execute detector_setup.mac` |
-| `exit`              | (none)             | Exits an interactive ratpac-two session.                               | `exit`                              |
+| Command             | Typical Parameters | Description                                                            | Example Usage in ratpac-two Context  |
+|---------------------|--------------------|------------------------------------------------------------------------|--------------------------------------|
+| `/run/initialize`   | (none)             | Initializes detector geometry, physics lists, and run conditions.      | `/run/initialize`                    |
+| `/run/beamOn`       | `<numberOfEvents>` | Starts a simulation run for the specified number of events.            | `/run/beamOn 1000`                   |
+| `/run/verbose`      | `<level>`          | Sets the verbosity level for run-related messages (0 = quiet).         | `/run/verbose 1`                     |
+| `/event/verbose`    | `<level>`          | Sets the verbosity level for event-related messages.                   | `/event/verbose 1`                   |
+| `/tracking/verbose` | `<level>`          | Sets the verbosity level for particle-tracking messages.               | `/tracking/verbose 1`                |
+| `/control/execute`  | `<filename>`       | Executes commands from the specified macro file.                       | `/control/execute detector_setup.mac`|
+| `exit`              | (none)             | Exits an interactive ratpac-two session.                               | `exit`                               |
 
 This set of commands provides a foundational toolkit for basic simulation control within ratpac-two.
 
@@ -548,14 +548,9 @@ These examples illustrate the intended flexibility. Users should consult any exa
 ## 7. Conclusion and Further Learning
 
 Macro files are the cornerstone of user interaction with ratpac-two, offering a powerful and flexible plain-text interface to control nearly every aspect of the simulation environment. From defining the fundamental detector parameters via RATDB interactions to specifying the types of physics events to generate and orchestrating the complex chain of data processing steps, macros empower users to tailor ratpac-two to their specific research needs.
-This guide has endeavored to demystify the ratpac-two macro system, starting from the basic syntax inherited from Geant4, through essential Geant4 commands, and into the realm of ratpac-two-specific controls under the `/rat/` directory. Key concepts such as the RAT Database (`/rat/db/`), event generators (`/generator/`), and processors (`/rat/proc/`) have been introduced with their corresponding macro commands. Through example walkthroughs and troubleshooting tips, the aim has been to provide a solid foundation for both new and intermediate users.
-The ultimate goal is to enable users to move beyond executing pre-existing macros to confidently designing and implementing their own simulation scenarios. By mastering macro control, researchers can fully exploit ratpac-two's capabilities for detector design, physics analysis, and systematic studies.
-Further Learning and Resources:
+
 Given that ratpac-two documentation is an evolving landscape, users are encouraged to explore the following resources:
  * This Guide: Keep this document as a reference for macro commands and concepts.
  * ratpac-two GitHub Repository: The primary source for the code, and potentially updated documentation or examples within its /doc directory or elsewhere. The source code itself, particularly the Messenger classes, is the definitive reference for command definitions.
- * RatpacExperiment GitHub Repository: This template project is an invaluable resource for practical, working examples of ratpac-two usage, including more complex macro files often found in its macros directory.
- * Official ratpac-two Tutorial Website: This guide is intended to be part of this website. Look for other tutorials and documentation that may become available there.
- * Geant4 Documentation: For a deeper understanding of the underlying Geant4 UI commands, physics lists, and general simulation principles, the official Geant4 User's Guides (especially the "Application Developer's Guide" and "Toolkit Developer's Guide" for UI command details) are indispensable.
- * Community Channels: If ratpac-two has a user forum, mailing list, or other community support channels, these can be excellent places to ask questions and learn from other users.
+
 Experimentation is key. Start with simple macros, make incremental changes, and use verbosity commands extensively to observe the effects of your commands. As familiarity grows, so will the ability to harness the full potential of ratpac-two for advanced particle physics simulations.
