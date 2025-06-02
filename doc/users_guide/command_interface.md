@@ -17,8 +17,13 @@ Using macros, you can configure various aspects of a ratpac experiment, such as:
 At a high level the simulation itself is a **pipeline** connecting event **producers** to a sequence of **processors**.
 Each producer creates or loads an event and then passes it through the processors sequentially.
 ```
-Producer 1 -> Processor 1 -> Processor 2 -> ... -> Processor N
-Producer 2 -> Processor 1 -> Processor 2 -> ... -> Processor N
+Producer 1:
+Event 1 -> Processor 1 -> Processor 2 -> ... -> Processor N
+Event 2 -> Processor 1 -> Processor 2 -> ... -> Processor N
+...
+Event M ->  Processor 1 -> Processor 2 -> ... -> Processor N
+Producer 2:
+Event 1 -> Processor 1 -> Processor 2 -> ... -> Processor N
 ...
 ```
 Each processor can modify the event, record information, or simply observe it, so the order you declare them determines how every event will be handled.
