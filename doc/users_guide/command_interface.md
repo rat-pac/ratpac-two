@@ -1,12 +1,7 @@
 # Controlling ratpac-two 
 
-This section of the guide will provide a high level overview on controlling ratpac.
-First, we will briefly review ratpac commands and their syntax.
-Then we will work through an example synthesizing multiple commands into a macro files which are text files ratpac accepts as input for control. 
-A comprehensive review requires extensive knowledge of the software.
-Revisiting this section is recommended as you read through the rest of the documentation.
-
-ratpac-two is typically controlled through the use of macro files, which are plain text files containing a sequence of commands that control ratpac-two.
+This section of the guide will provide a high level overview on controlling ratpac which is accomplished through the use of macro files.
+Macro files are plain text files containing a sequence of commands that control ratpac-two.
 Using macros, you can configure various aspects of a ratpac experiment, such as:
 
 * The physics processes to be simulated and reporting of particle track information.
@@ -15,10 +10,14 @@ Using macros, you can configure various aspects of a ratpac experiment, such as:
 * Primary particle sources (event generators).
 * Run-specific parameters like the number of events and random number seeds.
 
-After the simulation parameters are defined, the workflow ratpac follows is a **pipeline** connecting event **producers** to a sequence of **processors**.
-Each producer creates or loads an event and then passes it through the processors sequentially.  The operation of ratpac looks a bit like this:
+Macro files are structured to follow your ratpac workflow.
+This is typically a **pipeline** connecting event **producers** to a sequence of **processors**.
+Each producer creates or loads an event and then passes it through the processors.
+Each processor can modify the event, record information, or simply observe it, and the order you declare them determines how every event will be handled.
+The operation of ratpac looks a bit like this:
+
 ```
-Configure ratpac
+Configuration of ratpac parameters (RATDB, etc.)
 
 Producer 1:
 Event 1 -> Processor 1 -> Processor 2 -> ... -> Processor N
@@ -30,9 +29,13 @@ Producer 2:
 Event 1 -> Processor 1 -> Processor 2 -> ... -> Processor N
 ...
 ```
-Each processor can modify the event, record information, or simply observe it, so the order you declare them determines how every event will be handled.
 
-## 1. Running ratpac-two
+First, we will briefly review ratpac commands and their syntax.
+Then we will work through an example synthesizing multiple commands into a macro file. 
+A comprehensive review requires extensive knowledge of the software.
+Revisiting this guide is recommended as you read through the rest of the documentation.
+
+## 1. ratpac-two Commands and Workflow
 
 After successfully installing ratpac-two and loading the associated environment, ratpac-two is accessed via a command line interface by running the `rat` command.
 `rat` can execute a sequence of macro files if multiple are provided on the command line:
