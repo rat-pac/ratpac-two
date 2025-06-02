@@ -14,7 +14,7 @@ Using macros, you can configure various aspects of a ratpac experiment, such as:
 * Primary particle sources (event generators).
 * Run-specific parameters like the number of events and random number seeds.
 
-At a high level the simulation itself is a **pipeline** connecting event **producers** to a sequence of **processors**.
+After the simulation parameters are defined, the workflow ratpac follows is a **pipeline** connecting event **producers** to a sequence of **processors**.
 Each producer creates or loads an event and then passes it through the processors sequentially.
 ```
 Producer 1:
