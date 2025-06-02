@@ -1,7 +1,8 @@
 # Controlling ratpac-two 
 
 This section of the guide will provide a high level overview on controlling ratpac.
-We shall briefly describe command syntax and how to synthesize multiple commands into a macro file to control the operation of the software. 
+First, we will briefly review ratpac commands and their syntax.
+Then we will work through an example synthesizing multiple commands into a macro files which are text files ratpac accepts as input for control. 
 A comprehensive review requires extensive knowledge of the software.
 Revisiting this section is recommended as you read through the rest of the documentation.
 
