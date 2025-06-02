@@ -15,8 +15,10 @@ Using macros, you can configure various aspects of a ratpac experiment, such as:
 * Run-specific parameters like the number of events and random number seeds.
 
 After the simulation parameters are defined, the workflow ratpac follows is a **pipeline** connecting event **producers** to a sequence of **processors**.
-Each producer creates or loads an event and then passes it through the processors sequentially.
+Each producer creates or loads an event and then passes it through the processors sequentially.  The operation of ratpac looks a bit like this:
 ```
+Configure ratpac
+
 Producer 1:
 Event 1 -> Processor 1 -> Processor 2 -> ... -> Processor N
 Event 2 -> Processor 1 -> Processor 2 -> ... -> Processor N
