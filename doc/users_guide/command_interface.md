@@ -14,7 +14,7 @@ Macro files are structured to follow your ratpac workflow.
 This is typically a **pipeline** connecting event **producers** to a sequence of **processors**.
 Each producer creates or loads an event and then passes it through the processors.
 Each processor can modify the event, record information, or simply observe it, and the order you declare them determines how every event will be handled.
-The operation of ratpac looks a bit like this:
+Ignoring the finer details of event pileup scenarios, operation of ratpac looks a bit like this:
 
 ```
 Configuration of ratpac parameters (RATDB, etc.)
