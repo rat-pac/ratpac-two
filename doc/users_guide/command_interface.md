@@ -28,8 +28,6 @@ Event 1 -> Processor 1 -> Processor 2 -> ... -> Processor N
 ```
 Each processor can modify the event, record information, or simply observe it, so the order you declare them determines how every event will be handled.
 
-
-
 ## 1. Running ratpac-two
 
 After successfully installing ratpac-two and loading the associated environment, ratpac-two is accessed via a command line interface by running the `rat` command.
@@ -140,6 +138,8 @@ The macro is broken down into:
  2. `/run/initialize`
  3. Logical ordering of processors 
  4. Generator definitions
+
+**NOTE** Processors are specified **before** generators.
 
 **Example macro:**
 ```
