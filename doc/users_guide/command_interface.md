@@ -395,10 +395,10 @@ This allows users to make temporary changes or specific adjustments for a given 
 
 **Table 4.1:** Essential RATDB Macro Commands
 
-| Task                                     | Command Syntax (Conceptual)                                                              | Example                                                    |
-|:-----------------------------------------|:-----------------------------------------------------------------------------------------|:-----------------------------------------------------------|
-| Load a RATDB file                        | `/rat/db/load <filename.ratdb>`                                                          | `/rat/db/load special_definitions.ratdb`                         |
-| Set a scalar parameter in a table        | `/rat/db/set <TABLE>[<idx>] <param> <json_value>`                       | `/rat/db/set MATERIALS name:Acrylic DENSITY 1.19`    |
+| Task                                     | Command Syntax (Conceptual)                                             | Example                                                    |
+|:-----------------------------------------|:------------------------------------------------------------------------|:-----------------------------------------------------------|
+| Load a RATDB file                        | `/rat/db/load <filename.ratdb>`                                         | `/rat/db/load special_definitions.ratdb`                   |
+| Set a scalar parameter in a table        | `/rat/db/set <TABLE>[<idx>] <param> <json_value>`                       | `/rat/db/set MATERIALS name:Acrylic DENSITY 1.19`          |
 | Set an array parameter in a table        | `/rat/db/set <TABLE>[<idx>] <param> <json_array>`                       | `/rat/db/set OPTICS name:Water RAYLEIGH_LENGTH [30000.,35000.,40000.]` |
 | Connect to CouchDB server                | `/rat/db/server <url>`                                                  | `/rat/db/server http://localhost:5984`                     |
 | Set default run number                   | `/rat/db/run <run_number>`                                              | `/rat/db/run 42`                                           |
@@ -469,9 +469,9 @@ This structure allows users to build customized simulation and analysis workflow
 
 Event generators in ratpac-two are responsible for defining the initial state of particles that the simulation will track. 
 This includes their type, energy, momentum, starting position, and time of creation. 
-ratpac-two provides a flexible system for event generation, controlled by commands primarily under the `/generator/` path. 
-The documentation for these generator commands in the ratpac-two repository itself (specifically in doc/users_guide/generators.rst) is noted to be incomplete. 
-Therefore, the descriptions here are based on the available snippets and inferences from common patterns in such simulation frameworks, which would ultimately be verified by source code inspection of a particular generator.
+ratpac-two provides a flexible system for event generation, controlled by commands primarily under the `/generator/` path.
+The available commands are defined in the source tree (e.g. `GLG4PrimaryGeneratorMessenger` and the various generator classes).
+The examples below are verified directly against those implementations.
 
 
 ### 6.1. Key Generator Macro Commands
@@ -497,17 +497,18 @@ Therefore, the descriptions here are based on the available snippets and inferen
   the format is
   `/generator/vtx/set pname momx_MeV momy_MeV momz_MeV KE_MeV [polx poly polz mult]`.
   An isotropic 2 MeV electron can be produced with `/generator/vtx/set e- 0 0 0 2.0`.
- * `/generator/pos/set <x_val> <x_unit> <y_val> <y_unit> <z_val> <z_unit>` or `/generator/pos/set <position_generator_name>`:
-   Sets the position for event generation. This could be fixed coordinates or could refer to a named position generator (e.g., to fill a volume uniformly, or sample from a surface).
-   The example `/generator/pos/set 0 0 0` sets a point source at the origin (unit in mm).
- * `/generator/rate/set <rate_value> <rate_unit>`:
-   Sets the event rate for the current generator (e.g., 1.0 Hz, 0.5 Bq).
+* `/generator/pos/set <x> <y> <z>` or `/generator/pos/set <position_generator_name>`:
+  Sets the position for event generation. For the built-in `point` position generator the
+  arguments are three numbers interpreted in millimetres.
+* `/generator/rate/set <rate>`:
+  Sets the event rate for the current generator in events per second.  This string is passed
+  directly to the time generator (e.g. `GLG4TimeGen_Uniform::SetState`).
 
 Example sequence for generating isotropic 2 MeV positrons at the detector center, note that setting a generator to 0 0 0 defaults to isotropic emission:
 `/generator/add combo gun:point:poisson`
 `/generator/vtx/set e+ 0 0 0 2.0`
-`/generator/pos/set 0 0 0 mm`
-`/generator/rate/set 1.0 Hz`
+`/generator/pos/set 0 0 0`
+`/generator/rate/set 1.0`
 Commands like `/generator/vtx/set`, `/generator/pos/set`, and `/generator/rate/set` apply to the generator most recently added with `/generator/add`.
 This contextual application is a common pattern in such command interfaces.
 
@@ -526,14 +527,14 @@ Given the identified gap in existing documentation for generator commands, the f
 
 **Table 6.2:** Common Event Generator Configurations via Macros (Conceptual)
 
-| Task/Generator Type | Key `/generator/add` Command | Subsequent Configuration Commands | Example Macro Snippet | Brief Explanation |
-| :------------------ | :--------------------------- | :-------------------------------- | :------------------- | :--------------- |
-| Single Particle Gun | `/generator/add gun` | `/generator/vtx/set <pname> px_MeV py_MeV pz_MeV KE_MeV` <br> `/generator/pos/set <x> <y> <z> <unit>` <br> `/generator/rate/set <R> <unit>` | `/generator/add gun` <br> `/generator/vtx/set e- 0 0 1 5.0` <br> `/generator/pos/set 0 0 0 mm` | Fires a 5 MeV electron from the origin along +z. |
-| Volumetric Isotope Decay | `/generator/add isotope <isotope_name>:<volume_name>` | `/generator/rate/set <R> <unit>` | `/generator/add isotope Bi214:ScintillatorVolume` <br> `/generator/rate/set 10 Bq` | Simulates Bi214 decays uniformly within the volume. |
-| Combo Generator (Point Source) | `/generator/add combo gun:point:poisson` | `/generator/vtx/set <pname> px_MeV py_MeV pz_MeV KE_MeV` <br> `/generator/pos/set <x> <y> <z> <unit>` <br> `/generator/rate/set <R> <unit>` | `/generator/add combo gun:point:poisson` <br> `/generator/vtx/set e- 0 0 0 2.0` <br> `/generator/pos/set 0 0 500 mm` <br> `/generator/rate/set 1 Hz` | Generates isotropic 2 MeV electrons at z=500 mm with Poisson timing. |
-| Read from HEPEVT file | `/generator/add hepevt <file.hepevt>` | `/generator/rate/set <R> <unit>` (optional) | `/generator/add hepevt myevents.dat` | Reads particle events sequentially from the file. |
+| Task/Generator Type | Key `/generator/add` Command | Subsequent Configuration Commands | Example Macro Snippet | Brief Explanation |␊
+| :------------------ | :--------------------------- | :-------------------------------- | :------------------- | :--------------- |␊
+| Single Particle Gun | `/generator/add gun` | `/generator/vtx/set <pname> px_MeV py_MeV pz_MeV KE_MeV` <br> `/generator/pos/set <x> <y> <z>` <br> `/generator/rate/set <R>` | `/generator/add gun` <br> `/generator/vtx/set e- 0 0 1 5.0` <br> `/generator/pos/set 0 0 0` | Fires a 5 MeV electron from the origin along +z. |
+| Volumetric Isotope Decay | `/generator/add isotope <isotope_name>:<volume_name>` | `/generator/rate/set <R>` | `/generator/add isotope Bi214:ScintillatorVolume` <br> `/generator/rate/set 10` | Simulates Bi214 decays uniformly within the volume. |
+| Combo Generator (Point Source) | `/generator/add combo gun:point:poisson` | `/generator/vtx/set <pname> px_MeV py_MeV pz_MeV KE_MeV` <br> `/generator/pos/set <x> <y> <z>` <br> `/generator/rate/set <R>` | `/generator/add combo gun:point:poisson` <br> `/generator/vtx/set e- 0 0 0 2.0` <br> `/generator/pos/set 0 0 500` <br> `/generator/rate/set 1` | Generates isotropic 2 MeV electrons at z=500 mm with Poisson timing. |
+| Read from HEPEVT file | `/generator/add hepevt <file.hepevt>` | `/generator/rate/set <R>` (optional) | `/generator/add hepevt myevents.dat` | Reads particle events sequentially from the file. |
 
-These examples illustrate the intended flexibility. Users should consult any example macros provided with ratpac-two or the RatpacExperiment template for validated syntax.
+These examples illustrate the intended flexibility. Users should consult any example macros provided with a specific generator for validated syntax.
 
 
 
