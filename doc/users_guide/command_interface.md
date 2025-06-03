@@ -269,8 +269,10 @@ Observing this textual output can be more illuminating for learning than just ex
 
 ### 2.3. Detector Visualization
 
-Basic visualization commands let you quickly open a viewer and inspect the
-geometry.  Useful commands include:
+Basic visualization commands let you quickly open a viewer and inspect the geometry.
+Note to successfully run the visualizer you must run rat with the appropriate flag
+'rat visualization.mac --vis'
+Useful commands include:
 
 * `/vis/open OGL` - open an OpenGL viewer.
 * `/vis/drawVolume` - draw the full detector geometry.
@@ -394,13 +396,13 @@ This allows users to make temporary changes or specific adjustments for a given 
 
 **Table 4.1:** Essential RATDB Macro Commands
 
-| Task                                     | Command Syntax (Conceptual)                                             | Example                                                    |
-|:-----------------------------------------|:------------------------------------------------------------------------|:-----------------------------------------------------------|
-| Load a RATDB file                        | `/rat/db/load <filename.ratdb>`                                         | `/rat/db/load special_definitions.ratdb`                   |
-| Set a scalar parameter in a table        | `/rat/db/set <TABLE>[<idx>] <param> <json_value>`                       | `/rat/db/set MATERIALS name:Acrylic DENSITY 1.19`          |
+| Task                                     | Command Syntax (Conceptual)                                             | Example                                                                |
+|:-----------------------------------------|:------------------------------------------------------------------------|:-----------------------------------------------------------------------|
+| Load a RATDB file                        | `/rat/db/load <filename.ratdb>`                                         | `/rat/db/load special_definitions.ratdb`                               |
+| Set a scalar parameter in a table        | `/rat/db/set <TABLE>[<idx>] <param> <json_value>`                       | `/rat/db/set MATERIALS name:Acrylic DENSITY 1.19`                      |
 | Set an array parameter in a table        | `/rat/db/set <TABLE>[<idx>] <param> <json_array>`                       | `/rat/db/set OPTICS name:Water RAYLEIGH_LENGTH [30000.,35000.,40000.]` |
-| Connect to CouchDB server                | `/rat/db/server <url>`                                                  | `/rat/db/server http://localhost:5984`                     |
-| Set default run number                   | `/rat/db/run <run_number>`                                              | `/rat/db/run 42`                                           |
+| Connect to CouchDB server                | `/rat/db/server <url>`                                                  | `/rat/db/server http://localhost:5984`                                 |
+| Set default run number                   | `/rat/db/run <run_number>`                                              | `/rat/db/run 42`                                                       |
 
 
 
@@ -454,11 +456,11 @@ These commands are implemented by `ProcBlockManager` in the source tree.
 
 **Table 5.1:** Essential Processor Control Commands
 
-| Command / Item   | Purpose / Description                                    | Example |
-|:-----------------|:---------------------------------------------------------|:--------|
-| `/rat/proc`      | Adds a processor to the event processing chain.          | `/rat/proc noise` |
+| Command / Item   | Purpose / Description                                       | Example                 |
+|:-----------------|:------------------------------------------------------------|:------------------------|
+| `/rat/proc`      | Adds a processor to the event processing chain.             | `/rat/proc noise`       |
 | `/rat/proclast`  | Adds a processor after those specified on the command line. | `/rat/proclast outroot` |
-| `/rat/procset`   | Sets a parameter for the most recently added processor.   | `/rat/procset update 5` |
+| `/rat/procset`   | Sets a parameter for the most recently added processor.     | `/rat/procset update 5` |
 
 This structure allows users to build customized simulation and analysis workflows by selecting and configuring the appropriate sequence of processors.
 
@@ -526,8 +528,8 @@ Given the identified gap in existing documentation for generator commands, the f
 
 **Table 6.2:** Common Event Generator Configurations via Macros (Conceptual)
 
-| Task/Generator Type | Key `/generator/add` Command | Subsequent Configuration Commands | Example Macro Snippet | Brief Explanation |␊
-| :------------------ | :--------------------------- | :-------------------------------- | :------------------- | :--------------- |␊
+| Task/Generator Type | Key `/generator/add` Command | Subsequent Configuration Commands | Example Macro Snippet | Brief Explanation |
+| :------------------ | :--------------------------- | :-------------------------------- | :-------------------- | :---------------- |
 | Single Particle Gun | `/generator/add gun` | `/generator/vtx/set <pname> px_MeV py_MeV pz_MeV KE_MeV` <br> `/generator/pos/set <x> <y> <z>` <br> `/generator/rate/set <R>` | `/generator/add gun` <br> `/generator/vtx/set e- 0 0 1 5.0` <br> `/generator/pos/set 0 0 0` | Fires a 5 MeV electron from the origin along +z. |
 | Volumetric Isotope Decay | `/generator/add isotope <isotope_name>:<volume_name>` | `/generator/rate/set <R>` | `/generator/add isotope Bi214:ScintillatorVolume` <br> `/generator/rate/set 10` | Simulates Bi214 decays uniformly within the volume. |
 | Combo Generator (Point Source) | `/generator/add combo gun:point:poisson` | `/generator/vtx/set <pname> px_MeV py_MeV pz_MeV KE_MeV` <br> `/generator/pos/set <x> <y> <z>` <br> `/generator/rate/set <R>` | `/generator/add combo gun:point:poisson` <br> `/generator/vtx/set e- 0 0 0 2.0` <br> `/generator/pos/set 0 0 500` <br> `/generator/rate/set 1` | Generates isotropic 2 MeV electrons at z=500 mm with Poisson timing. |
