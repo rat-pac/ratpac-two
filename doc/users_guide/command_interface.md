@@ -479,7 +479,7 @@ These commands are implemented by `ProcBlockManager` in the source tree.
 | Command / Item   | Purpose / Description                                       | Example                 |
 |:-----------------|:------------------------------------------------------------|:------------------------|
 | `/rat/proc`      | Adds a processor to the event processing chain.             | `/rat/proc noise`       |
-| `/rat/proclast`  | Adds a processor after those specified on the command line. | `/rat/proclast outroot` |
+| `/rat/proclast`  | Adds a processor after all other processors specified.      | `/rat/proclast outroot` |
 | `/rat/procset`   | Sets a parameter for the most recently added processor.     | `/rat/procset update 5` |
 
 This structure allows users to build customized simulation and analysis workflows by selecting and configuring the appropriate sequence of processors.
@@ -510,7 +510,7 @@ The examples below are verified directly against those implementations.
    Example:
    Add a combo generator using a particle gun, point source, and Poisson time distribution
    /generator/add combo gun:point:poisson
-   The combo generator, as suggested by the example, indicates a modular and highly flexible approach to defining event characteristics. Users can effectively mix and match different components (e.g., particle type/energy from a "gun" model, position from a "point" or "volume" model, time distribution from a "poisson" or "fixed_interval" model) to construct complex event profiles simply by changing parts of the options_string or subsequent configuration commands.
+   The combo generator, as suggested by the example, indicates a modular and highly flexible approach to defining event characteristics. Users can effectively mix and match different components (e.g., particle type/energy from a "gun2" model, position from a "point" or "volume" model, time distribution from a "poisson" or "fixed_interval" model) to construct complex event profiles simply by changing parts of the options_string or subsequent configuration commands.
  * `/generator/vtx/set <particle_name_or_PDGcode> [energy_value][dx][dy][dz]`:
 * `/generator/vtx/set <args>`:
   Set the vertex generator state for the most recently added generator.  Argument
@@ -546,7 +546,7 @@ It allows for comprehensive studies of signal-to-background ratios, pile-up effe
 
 Given the identified gap in existing documentation for generator commands, the following table provides conceptual examples of how common event sources might be configured. The precise command names and parameters must be validated against the ratpac-two source code.
 
-**Table 6.2:** Common Event Generator Configurations via Macros (Conceptual)
+**Table 6.1:** Common Event Generator Configurations via Macros (Conceptual)
 
 | Task/Generator Type | Key `/generator/add` Command | Subsequent Configuration Commands | Example Macro Snippet | Brief Explanation |
 | :------------------ | :--------------------------- | :-------------------------------- | :-------------------- | :---------------- |
