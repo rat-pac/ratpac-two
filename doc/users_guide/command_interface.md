@@ -336,7 +336,6 @@ Subsequent sections of this guide will elaborate on commands within these key ar
 | `/rat/db/`      | Manages interaction with the RAT Database (RATDB), including loading and modifying detector parameters.     | `/rat/db/load`, `/rat/db/set`, `/rat/db/server`, `/rat/db/run` | `/rat/db/load myfile.ratdb` |
 | `/rat/proc/`    | Controls the chain of ratpac-two processors (data processing modules) and their configurations.             | `/rat/proc`, `/rat/procset`                                    | `/rat/proc MyProcessor`          |
 | `/rat/physics`  | Configures ratpac-two specific physics options, custom physics lists, or specialized physics processes.     | `/rat/physics/add`, `/rat/physics/select`                      | `/rat/physics/enableCerenkov true` |
-| `/rat/io/`      | Manages ratpac-two specific input/output settings, such as output file names, formats, and content control. | `/rat/io/outputfile`, `/rat/io/format`                         | `/rat/io/outputfile results.root` |
 | (others)        | Other specialized control directories as defined within the ratpac-two framework for specific components.   | (dependent on ratpac-two features)                             | (varies) |
 
 The `/rat/db/load` command is implemented by `DBMessenger` in `src/cmd/src/DBMessenger.cc`.
