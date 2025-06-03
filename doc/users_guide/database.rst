@@ -19,6 +19,18 @@ or Oracle.  Rather it is just a simple set of C++ classes used to read
 parameters from various sources (more on that later) and make the data easily
 available to other parts of the RAT application.
 
+Syntax
+``````
+The RATDB syntax is effectively JSON with comments (JSONC). Each RATDB file is
+the simple concatenation of a series of JSON key-value pairs. C-style comment
+strings (ones that start with ``//`` or are surrounded by ``/*`` and ``*/``) are
+also accepted.
+
+However, it is worthy of note that the parser used in RAT accepts looser syntax
+than standard JSON. Most notably, it allows the keys of JSON key/value pairs to 
+be unquoted, and it allows for trailing commas before the closing brace of an object.
+
+
 How is the data organized?
 ``````````````````````````
 Data in RATDB is organized in a two-level space.  At the top level are
@@ -70,15 +82,24 @@ everything.
 
 RATDB handles this by internally grouping tables into three ''planes''.  The
 name is intended to suggest a stack of layers where you start at the top, and
-keep going down until you find your answer.  The RATDB planes are (from highest
+keep going down until you find your answer. The RATDB planes are (from highest
 to lowest priority):
 
  * the user plane
- * the time plane
+ * the run plane
  * the default plane
 
+ The plane in which a RATDB entry is valid is determined by the ``run_range``
+ specified. ``run_range`` takes in a vector of length 2, which specifies the
+ beginning and end of the run range. **The user plane is denoted with run
+ number -1, and the default plane is denoted with run number 0.** There are also
+ tables that utilizes a deprecated syntax with `valid_begin` and `valid_end`.
+ This is a deprecated syntax. They can only be used with the argument ``[0, 0]``,
+ and it indicates that this entry belongs to the default plane. Its use in new 
+ tables is strongly discouraged.
+
 When an item is requested, RATDB will attempt to locate it in the user plane
-first, then the time plane, and finally the default plane.  Note that this is
+first, then the run plane, and finally the default plane.  Note that this is
 all handled in the background.  You simply request the index_of_refraction
 field in the MEDIA[acrylic] table, and RATDB figures out the appropriate plane
 from which to retrieve the data.
@@ -114,14 +135,22 @@ permanently change the value of a field, you need to edit the relevant .ratdb
 file in the data/ directory.  Also note that /rat/db/set will create new tables
 in memory if they do not already exist.
 
-Limitations
-```````````
-RATDB is not finished by any means, but is complete enough to address immediate
-needs.  Current limitations include:
+Loading experiment-specific RATDB tables
+````````````````````````````````````````
+RATDB also has the ability to load experiment-specific tables. These tables
+need to be placed under ``$RATSHARE/ratdb/experiment_name/`` (``$RATSHARE``
+is typically the RAT root/installation directory). To load these tables,
+one needs to set the field ``DETECTOR.experiment`` to the name of the directory.
+Typically, this can be done via the macro like::
 
-* Tables cannot be added to the time plane.  Properly implementing the time
-  plane will be non-trivial and require implementing caching and load-on-demand
-  semantics for tables.  At the moment, only the user and default planes exist,
-  but adding the time plane will not require any changes to user code or
-  macros.  We don't need it now, so there is no sense in investing the time to
-  implement it yet.
+  /rat/db/set DETECTOR experiment "SNO"
+
+Note that these experiment-specific tables are always loaded last, meaning that
+these tables will override any other tables with the same name. This can be very useful
+when an experiment wants to override the default values in certain tables, without
+worrying about telling a processor how to read a table with a non-default index.
+
+However, other than this particular override behavior, any other collision in table name
+and index will currently result in completely undefined behavior. This is true between
+tables placed in RATPAC-two and a private experiment. **If an override is required,
+always place the overriding table in the experiment-specific directory.**

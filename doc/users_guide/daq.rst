@@ -1,7 +1,7 @@
 .. _daq_processors:
 
-DAQ Processors
-``````````````
+DAQ Models
+``````````
 
 The DAQ processors are located in ratpac-two in the ``src/daq/`` directory. These processors are provided primarily as simple examples and helpful tools for producing triggered events, but will not accurately represent a realistic trigger system for a detector. In general, the DAQ processors can provide the below listed functionality (although the simple versions skip several of these steps):
 
@@ -12,7 +12,7 @@ The DAQ processors are located in ratpac-two in the ``src/daq/`` directory. Thes
 #. Build up information about the event, such as the event count, the trigger time, etc. We also create new PMT objects (``DS::PMT``) that represent PMT hits within the triggered event. Several of the DAQ processors will loop through these PMTs to create information such as the total integrated charge for the event.
 #. Based on whether it's enabled, we run the waveform digitization for the triggered event. 
 
-In principle, the DAQ code provided in ratpac-two is primarily for testing purposes and any experiment using ratpac-two would write their own custom DAQ code that could build from what is provided.
+In principle, the DAQ code provided in ratpac-two is primarily for testing purposes and any experiment using ratpac-two would write their own custom DAQ code that could build from what is provided. If no DAQ is specified there will be no triggered events, and only the ``DS::MC`` related branches will be filled. In other words, all of the detector-related aspects of the data-structure (``DS::EV``, ``DS::PMT``, etc.) are only filled if one of the DAQ processors is run. 
 
 ----------------------
 

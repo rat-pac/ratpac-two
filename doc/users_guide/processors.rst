@@ -56,24 +56,17 @@ Cases where a parameter is tunable using ``procset`` are documented specifically
 
 ----------------------
 
-.. _daq:
-
-DAQ Processors
-``````````````
-
-The DAQ processors run the data aquisition model and are described in :ref:`daq_processors`.
-
-----------------------
-
 .. _count_processor:
 
 Count Processor
 ```````````````
-The count processor exists mostly as a simple demonstration processor.  It also
-displays messages periodically showing both how many physics events and
-detector events have been processed. The message looks something like::
+The count processor (located in ``src/core``) exists mostly as a simple demonstration processor.  It also displays messages periodically showing both how many physics events and detector events have been processed. The message looks something like::
 
-    CountProc: Event 5 (8 triggered events)
+    CountProc: Event 5 (3 triggered events)
+
+This can be useful for quickly and roughly understanding what fraction of total simulated events (5) are causing detector triggers (3). In certain cases where the simulated events can create multiple triggered events, we may observe that in the count processor::
+
+    CountProc: Event 5 (10 triggered events)
 
 Command:
 ::
@@ -110,8 +103,9 @@ Parameters:
     /rat/procset prune "cutlist"
 
 * cutlist - (required) a comma separated (no spaces) list of parts of the data
-  structure to remove. [[BR]]The currently allowed entries are:
+  structure to remove. The currently allowed entries are:
 
+  * mc
   * mc.particle
   * mc.pmt
   * mc.pmt.photon
@@ -120,6 +114,24 @@ Parameters:
   * ev.pmt
 
 If /tracking/storeTrajectory is turned on, mc.track:particle is used, where particle is the name of the particle track you want to prune (mc.track:opticalphoton will prune optical photon tracks).
+
+----------------------
+
+.. _pmt:
+
+PMT Processors
+``````````````
+
+The PMT processors are described in :ref:`pmt_simulation`.
+
+----------------------
+
+.. _daq:
+
+DAQ Processors
+``````````````
+
+The DAQ processors run the data aquisition model and are described in :ref:`daq_processors`.
 
 ----------------------
 
@@ -147,6 +159,4 @@ Python Processor
 ````````````````
 
 Document the python processor.
-
-----------------------
 
