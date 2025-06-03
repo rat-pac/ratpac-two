@@ -1,6 +1,6 @@
 # Controlling ratpac-two 
 
-This section of the guide will provide a high-level overview of controlling ratpac-two which is accomplished through the use of macro files.
+This section of the guide will provide a high-level overview of controlling ratpac-two, which is accomplished through the use of macro files.
 Macro files are plain text files containing a sequence of commands that control ratpac-two.
 Using macros, you can configure various aspects of a ratpac experiment, such as:
 
@@ -34,6 +34,26 @@ First, we will briefly review ratpac-two commands and their syntax.
 Then we will work through an example synthesizing multiple commands into a macro file. 
 A comprehensive understanding requires extensive knowledge of the software.
 Revisiting this guide is recommended as you read through the rest of the documentation.
+
+# Table of Contents
+
+1. [Controlling ratpac-two](#controlling-ratpac-two)
+2. [ratpac-two Commands and Workflow](#1-ratpac-two-commands-and-workflow)
+   1. [Command Syntax](#11-command-syntax)
+   2. [Command Hierarchy](#12-command-hierarchy)
+   3. [Command Execution Order](#13-command-execution-order)
+   4. [Example Macro](#14-example-macro)
+3. [Essential Geant4 Commands for ratpac-two Simulation](#2-essential-geant4-commands-for-ratpac-two-simulation)
+   1. [Run Control](#21-run-control)
+   2. [Verbosity Control](#22-verbosity-control)
+   3. [Detector Visualization](#23-detector-visualization)
+   4. [Other Useful UI Commands](#24-other-useful-ui-commands)
+4. [Navigating ratpac-two Specific Commands: The /rat/ Directory](#3-navigating-ratpac-two-specific-commands-the-rat-directory)
+5. [Configuring the ratpac-two Environment with RATDB via Macros](#4-configuring-the-ratpac-two-environment-with-ratdb-via-macros)
+6. [Orchestrating the Workflow: Processor Commands](#5-orchestrating-the-workflow-processor-commands)
+7. [Defining Event Sources: The Generator Commands](#6-defining-event-sources-the-generator-commands)
+8. [Conclusion and Further Learning](#7-conclusion-and-further-learning)
+
 
 ## 1. ratpac-two Commands and Workflow
 
@@ -112,7 +132,7 @@ Commands in ratpac-two (and Geant4) are organized into a hierarchical structure,
 
 ratpac-two will execute the commands in a macro file sequentially from top to bottom.
 The exact ordering of commands will depend on the specific task to be accomplished by ratpac-two.
-In the next section we will provide an example macro outlining a workflow suitable for detector simulations to illustrate usage.
+In the next section, we will provide an example macro outlining a workflow suitable for detector simulations to illustrate usage.
 
 Macro files can include other macro files using the `/control/execute` command. For example, in your macro file you can add:
 ```
@@ -166,13 +186,13 @@ The macro is broken down into:
 #-------------------------------------------------------------------------------
 
 # Example commands that allow us to select what physics processes we would like
-# to simulate.  For example, 2MeV electrons do not require muon and hadronic 
+# to simulate.  For example, 2 MeV electrons do not require muon and hadronic 
 # physics processes
 
 /glg4debug/glg4param omit_muon_processes  1.0
 /glg4debug/glg4param omit_hadronic_processes  1.0
 
-# We disable particle tracking in this example to save on RAM during runtime
+# We disable particle tracking in this example to save on RAM during runtime.
 /tracking/verbose 0 
 
 #-------------------------------------------------------------------------------
@@ -210,7 +230,7 @@ The macro is broken down into:
 # Add Event Generators
 #-------------------------------------------------------------------------------
 
-#Generators are specified after processors, here we use a basic particle gun
+#Generators are specified after processors; here we use a basic particle gun
 /generator/add combo gun:point:Poisson
 # 2.0 MeV electrons at the center of the detector along the negative z axis
 /generator/vtx/set e- 0.0 0.0 -1.0 2.0
