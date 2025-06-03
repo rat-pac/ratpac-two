@@ -60,18 +60,6 @@ class DigitPMT : public TObject {
   virtual void SetPeakVoltage(Double_t _peak) { this->peak = _peak; }
   virtual Double_t GetPeakVoltage() { return peak; }
 
-  /** Fitted time in ns */
-  virtual void SetFittedTime(Double_t _fTime) { this->fTime = _fTime; }
-  virtual Double_t GetFittedTime() { return fTime; }
-
-  /** Fitted mag */
-  virtual void SetFittedHeight(Double_t _fMag) { this->fMag = _fMag; }
-  virtual Double_t GetFittedHeight() { return fMag; }
-
-  /** Fitted bas */
-  virtual void SetFittedBaseline(Double_t _fBas) { this->fBas = _fBas; }
-  virtual Double_t GetFittedBaseline() { return fBas; }
-
   /** Local trigger time at the location of the PMT. Useful for PMT timing corrections */
   virtual void SetLocalTriggerTime(Double_t _trigger_time) { this->local_trigger_time = _trigger_time; }
   virtual Double_t GetLocalTriggerTime() { return local_trigger_time; }
@@ -79,6 +67,10 @@ class DigitPMT : public TObject {
   /** Time offset applied to the waveform */
   virtual void SetTimeOffset(Double_t _time_offset) { this->time_offset = _time_offset; }
   virtual Double_t GetTimeOffset() { return time_offset; }
+
+  /** Estimated number of photoelectrons, from likelihood algorithm */
+  virtual void SetReconNPEs(Int_t _fNPE) { this->fNPE = _fNPE; }
+  virtual Int_t GetReconNPEs() { return fNPE; }
 
   /** Waveform analysis results */
   virtual WaveformAnalysisResult* const GetOrCreateWaveformAnalysisResult(std::string analyzer_name) {
@@ -101,7 +93,7 @@ class DigitPMT : public TObject {
     return fitter_names;
   }
 
-  ClassDef(DigitPMT, 5);
+  ClassDef(DigitPMT, 6);
 
  protected:
   Int_t id = -9999;
@@ -116,6 +108,7 @@ class DigitPMT : public TObject {
   Double_t fTime = -9999;
   Double_t fMag = -9999;
   Double_t fBas = -9999;
+  Int_t fNPE = 0;
   Double_t local_trigger_time = -9999;
   Double_t time_offset = 0;
   std::map<std::string, WaveformAnalysisResult> fit_results;

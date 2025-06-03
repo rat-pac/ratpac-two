@@ -9,6 +9,6 @@
 
 namespace RAT {
 
-static const std::string RATVERSION = "@PROJECT_VERSION@";
+static const std::string RATVERSION = "@RATVERSION@";
 
 }  // namespace RAT

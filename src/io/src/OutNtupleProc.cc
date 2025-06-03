@@ -33,6 +33,7 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
   outputTree = nullptr;
   metaTree = nullptr;
   runBranch = new DS::Run();
+  done_writing_calib = false;
 
   // Load options from the database
   DB *db = DB::Get();
@@ -55,16 +56,25 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.untriggered = table->GetZ("include_untriggered_events");
     options.mchits = table->GetZ("include_mchits");
     options.nthits = table->GetZ("include_nestedtubehits");
+    options.calib = table->GetZ("include_calib");
   } catch (DBNotFoundError &e) {
     options.tracking = false;
     options.mcparticles = false;
     options.pmthits = true;
     options.untriggered = false;
     options.mchits = true;
+    options.calib = true;
     options.nthits = false;
   }
   if (options.digitizerfits) {
     waveform_fitters = table->GetSArray("waveform_fitters");
+    for (const std::string &fitter_name : waveform_fitters) {
+      try {
+        waveform_fitter_FOMs[fitter_name] = table->GetSArray("waveform_fitter_FOM_" + fitter_name);
+      } catch (DBNotFoundError &e) {
+        waveform_fitter_FOMs[fitter_name].clear();
+      }
+    }
   }
 }
 
@@ -83,6 +93,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("pmtIsOnline", &pmtIsOnline);
   metaTree->Branch("pmtCableOffset", &pmtCableOffset);
   metaTree->Branch("pmtChargeScale", &pmtChargeScale);
+  metaTree->Branch("pmtPulseWidthScale", &pmtPulseWidthScale);
   metaTree->Branch("pmtX", &pmtX);
   metaTree->Branch("pmtY", &pmtY);
   metaTree->Branch("pmtZ", &pmtZ);
@@ -93,6 +104,20 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   metaTree->Branch("digitizerSampleRate_GHz", &digitizerSampleRate);
   metaTree->Branch("digitizerDynamicRange_mV", &digitizerDynamicRange);
   metaTree->Branch("digitizerResolution_mVPerADC", &digitizerVoltageResolution);
+  if (options.calib) {
+    metaTree->Branch("calibId", &calibId);
+    metaTree->Branch("calibMode", &calibMode);
+    metaTree->Branch("calibIntensity", &calibIntensity);
+    metaTree->Branch("calibWavelength", &calibWavelength);
+    metaTree->Branch("calibName", &calibName);
+    metaTree->Branch("calibTime", &calibTime);
+    metaTree->Branch("calibX", &calibX);
+    metaTree->Branch("calibY", &calibY);
+    metaTree->Branch("calibZ", &calibZ);
+    metaTree->Branch("calibU", &calibU);
+    metaTree->Branch("calibV", &calibV);
+    metaTree->Branch("calibW", &calibW);
+  }
   this->AssignAdditionalMetaAddresses();
   dsentries = 0;
   // Data Tree
@@ -113,6 +138,8 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("nhits", &nhits);
   outputTree->Branch("triggerTime", &triggerTime);  // Local trigger time
   outputTree->Branch("timestamp", &timestamp);      // Global trigger time
+  outputTree->Branch("trigger_word", &trigger_word);
+  outputTree->Branch("event_cleaning_word", &event_cleaning_word);
   outputTree->Branch("timeSinceLastTrigger_us", &timeSinceLastTrigger_us);
   // MC Information
   outputTree->Branch("mcid", &mcid);
@@ -152,14 +179,20 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("digitTime", &digitTime);
     outputTree->Branch("digitCharge", &digitCharge);
     outputTree->Branch("digitNCrossings", &digitNCrossings);
+    outputTree->Branch("digitTimeOverThreshold", &digitTimeOverThreshold);
+    outputTree->Branch("digitVoltageOverThreshold", &digitVoltageOverThreshold);
     outputTree->Branch("digitPeak", &digitPeak);
     outputTree->Branch("digitLocalTriggerTime", &digitLocalTriggerTime);
+    outputTree->Branch("digitReconNPEs", &digitReconNPEs);
   }
   if (options.digitizerfits) {
     for (const std::string &fitter_name : waveform_fitters) {
       outputTree->Branch(TString("fit_pmtid_" + fitter_name), &fitPmtID[fitter_name]);
       outputTree->Branch(TString("fit_time_" + fitter_name), &fitTime[fitter_name]);
       outputTree->Branch(TString("fit_charge_" + fitter_name), &fitCharge[fitter_name]);
+      for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
+        outputTree->Branch(TString("fit_FOM_" + fitter_name + "_" + fom_name), &fitFOM[fitter_name][fom_name]);
+      }
     }
   }
   if (options.nthits) {
@@ -230,6 +263,25 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     if (!OpenFile(this->defaultFilename.c_str())) {
       Log::Die("No output file specified");
     }
+  }
+  // CALIB Branches
+  if (options.calib && (!done_writing_calib)) {
+    DS::Calib *calib = ds->GetCalib();
+    calibId = calib->GetID();
+    calibMode = calib->GetMode();
+    calibIntensity = calib->GetIntensity();
+    calibWavelength = calib->GetWavelength();
+    calibName = calib->GetSourceName();
+    calibTime = TTimeStamp_to_UnixTime(calib->GetUTC());
+    TVector3 calib_pos = calib->GetPosition();
+    calibX = calib_pos.X();
+    calibY = calib_pos.Y();
+    calibZ = calib_pos.Z();
+    TVector3 calib_dir = calib->GetDirection();
+    calibU = calib_dir.X();
+    calibV = calib_dir.Y();
+    calibW = calib_dir.Z();
+    done_writing_calib = true;
   }
   runBranch = DS::RunStore::GetRun(ds);
   DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
@@ -434,8 +486,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     DS::EV *ev = ds->GetEV(subev);
     evid = ev->GetID();
     triggerTime = ev->GetCalibratedTriggerTime();
-    timestamp = (ev->GetUTC().GetSec() - runBranch->GetStartTime().GetSec()) * 1e9 +
-                (ev->GetUTC().GetNanoSec() - runBranch->GetStartTime().GetNanoSec()) + triggerTime;
+    timestamp = TTimeStamp_to_UnixTime(ev->GetUTC()) - TTimeStamp_to_UnixTime(runBranch->GetStartTime()) + triggerTime;
+    trigger_word = ev->GetTriggerWord();
+    event_cleaning_word = ev->GetEventCleaningWord();
     timeSinceLastTrigger_us = ev->GetDeltaT() / 1000.;
     auto fitVector = ev->GetFitResults();
     std::map<std::string, double *> fitvalues;
@@ -462,11 +515,11 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       }
       if (fit->GetEnableEnergy()) {
         fitvalues["energy_" + name] = new double(fit->GetEnergy());
-        fitvalids["validenergy" + name] = new bool(fit->GetValidEnergy());
+        fitvalids["validenergy_" + name] = new bool(fit->GetValidEnergy());
       }
       if (fit->GetEnableTime()) {
         fitvalues["time_" + name] = new double(fit->GetTime());
-        fitvalids["validtime" + name] = new bool(fit->GetValidTime());
+        fitvalids["validtime_" + name] = new bool(fit->GetValidTime());
       }
       // Figures of merit > 3 types
       for (auto const &[label, value] : fit->boolFiguresOfMerit) {
@@ -523,9 +576,12 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitTime.clear();
       digitCharge.clear();
       digitNCrossings.clear();
+      digitTimeOverThreshold.clear();
+      digitVoltageOverThreshold.clear();
       digitPeak.clear();
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
+      digitReconNPEs.clear();
 
       if (options.digitizerfits) {
         for (const std::string &fitter_name : waveform_fitters) {
@@ -533,6 +589,9 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           fitPmtID[fitter_name].clear();
           fitTime[fitter_name].clear();
           fitCharge[fitter_name].clear();
+          for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
+            fitFOM[fitter_name][fom_name].clear();
+          }
         }
       }
 
@@ -541,21 +600,26 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         digitPMTID.push_back(digitpmt->GetID());
         digitTime.push_back(digitpmt->GetDigitizedTime());
         digitCharge.push_back(digitpmt->GetDigitizedCharge());
+        digitNCrossings.push_back(digitpmt->GetNCrossings());
+        digitTimeOverThreshold.push_back(digitpmt->GetTimeOverThreshold());
+        digitReconNPEs.push_back(digitpmt->GetReconNPEs());
         if (digitpmt->GetNCrossings() > 0) {
           digitNhits++;
         }
-        digitNCrossings.push_back(digitpmt->GetNCrossings());
+        digitVoltageOverThreshold.push_back(digitpmt->GetVoltageOverThreshold());
         digitPeak.push_back(digitpmt->GetPeakVoltage());
         digitLocalTriggerTime.push_back(digitpmt->GetLocalTriggerTime());
         if (options.digitizerfits) {
           const std::vector<std::string> fitters = digitpmt->GetFitterNames();
           for (std::string fitter_name : fitters) {
             DS::WaveformAnalysisResult *fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(fitter_name);
-            for (int hitidx = 0; hitidx < fit_result->getNhits(); hitidx++) {
+            for (int hitidx = 0; hitidx < fit_result->getNPEs(); hitidx++) {
               fitPmtID[fitter_name].push_back(digitpmt->GetID());
               fitTime[fitter_name].push_back(fit_result->getTime(hitidx));
               fitCharge[fitter_name].push_back(fit_result->getCharge(hitidx));
-              // TODO: figures of merit -- you probably need some nested map
+              for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
+                fitFOM[fitter_name][fom_name].push_back(fit_result->getFOM(fom_name, hitidx));
+              }
             }
           }
         }
@@ -616,15 +680,21 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitTime.clear();
       digitCharge.clear();
       digitNCrossings.clear();
+      digitVoltageOverThreshold.clear();
+      digitTimeOverThreshold.clear();
       digitPeak.clear();
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
+      digitReconNPEs.clear();
       if (options.digitizerfits) {
         for (const std::string &fitter_name : waveform_fitters) {
           // construct arrays for all fitters
           fitPmtID[fitter_name].clear();
           fitTime[fitter_name].clear();
           fitCharge[fitter_name].clear();
+          for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
+            fitFOM[fitter_name][fom_name].clear();
+          }
         }
       }
     }
@@ -659,6 +729,7 @@ OutNtupleProc::~OutNtupleProc() {
       pmtIsOnline.push_back(ch_status->GetOnlineByPMTID(id));
       pmtCableOffset.push_back(ch_status->GetCableOffsetByPMTID(id));
       pmtChargeScale.push_back(ch_status->GetChargeScaleByPMTID(id));
+      pmtPulseWidthScale.push_back(ch_status->GetPulseWidthScaleByPMTID(id));
       pmtX.push_back(position.X());
       pmtY.push_back(position.Y());
       pmtZ.push_back(position.Z());
@@ -683,9 +754,8 @@ OutNtupleProc::~OutNtupleProc() {
     runId = runBranch->GetID();
     runType = runBranch->GetType();
     // Converting to unix time
-    ULong64_t stonano = 1000000000;
     TTimeStamp rootTime = runBranch->GetStartTime();
-    runTime = static_cast<ULong64_t>(rootTime.GetSec()) * stonano + static_cast<ULong64_t>(rootTime.GetNanoSec());
+    runTime = TTimeStamp_to_UnixTime(rootTime.GetSec());
     macro = Log::GetMacro();
     metaTree->Fill();
     metaTree->Write();

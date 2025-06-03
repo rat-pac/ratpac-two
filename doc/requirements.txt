@@ -2,3 +2,4 @@ sphinx
 sphinx-bootstrap-theme
 sphinx_rtd_theme
 doxysphinx
+myst_parser

@@ -2,8 +2,6 @@
  * triggers, and places those in new events (not subevents) to better simulate
  * data and produce combined datasets.
  */
-#include <G4ThreeVector.hh>
-#include <RAT/DS/DigitPMT.hh>
 #include <RAT/DS/MCPMT.hh>
 #include <RAT/DS/PMT.hh>
 #include <RAT/DS/RunStore.hh>

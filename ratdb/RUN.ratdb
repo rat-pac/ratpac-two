@@ -2,7 +2,8 @@
 {
 name: "RUN",
 run_range: [0, 0],
-// index into channel_status table to use
+// index used to index table with name "channel_status_selection", which
+// provides indexes for every channel_status table to lookup.
 channel_status: "",
 
 runtype: 0,

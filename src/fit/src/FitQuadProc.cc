@@ -24,7 +24,33 @@ void FitQuadProc::BeginOfRun(DS::Run *run) {
     Log::Die("Quad tried to set a table_cut_off larger than the size of fNumPointsTbl.");
   }
   fLightSpeed = quad_db->GetD("light_speed");
+  if (fLightSpeed <= 0.0 || fLightSpeed > 299.792458)
+    Log::Die("Quad tried to set a light_speed <= 0 or > 299.792458 mm/ns.");
   fMaxRadius = quad_db->GetD("max_radius");
+}
+
+void FitQuadProc::SetI(std::string param, int value) {
+  if (param == "num_points") {
+    fNumQuadPoints = value;
+  } else if (param == "max_points") {
+    fMaxQuadPoints = value;
+  } else if (param == "table_cut_off") {
+    fTableCutOff = value;
+    if (fTableCutOff > fNumPointsTbl.size())
+      throw ParamInvalid(param, "table_cut_off cannot be larger than the size of fNumPointsTbl.");
+  } else
+    throw ParamUnknown(param);
+}
+
+void FitQuadProc::SetD(std::string param, double value) {
+  if (param == "light_speed") {
+    if (value <= 0.0 || value > 299.792458)
+      throw ParamInvalid(param, "light_speed must be positive and <= 299.792458 mm/ns.");
+    fLightSpeed = value;
+  } else if (param == "max_radius") {
+    fMaxRadius = value;
+  } else
+    throw ParamUnknown(param);
 }
 
 // Create a table of all the ways to pick 4 numbers out of n
@@ -77,14 +103,14 @@ static inline double vecdot(const double *const a, const double *const b) {
 // attempts to be highly optimized, minimizing the total number of
 // operations by using the explicit solution and avoiding expensive
 // divisions as much as possible.
-static inline void matinvert(double (*const ans)[3], const double (*const m)[3]) {
+static inline int matinvert(double (*const ans)[3], const double (*const m)[3]) {
   double denominator =
       (m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]) + m[0][1] * (m[1][2] * m[2][0] - m[1][0] * m[2][2]) +
        m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]));
 
   if (denominator == 0) {
     debug << "Quad.cc::vecdot() Matrix cannot be inverted. Check PMTs selected. Need fixing.\n";
-    return;
+    return -1;
   }
   const double idet = 1. / denominator;
 
@@ -97,6 +123,7 @@ static inline void matinvert(double (*const ans)[3], const double (*const m)[3])
   ans[2][0] = (-m[1][1] * m[2][0] + m[1][0] * m[2][1]) * idet;
   ans[2][1] = (m[0][1] * m[2][0] - m[0][0] * m[2][1]) * idet;
   ans[2][2] = (-m[0][1] * m[1][0] + m[0][0] * m[1][1]) * idet;
+  return 0;
 }
 
 Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
@@ -157,7 +184,8 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
 
     double rsq[4];
     double N[3], K[3], g[3], h[3], bv[3];
-    double M[3][3], iM[3][3];
+    double M[3][3];
+    double iM[3][3] = {};
 
     // Now do the calculation
     for (int j = 0; j < 4; j++) rsq[j] = mag2(pmt_pos[j]) - t[j] * t[j];
@@ -170,7 +198,11 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
       K[k] = (rsq[k + 1] - rsq[0]) / 2;
     }
 
-    matinvert(iM, M);
+    // Check if matrix is invertible, if not continue to next point
+    if (matinvert(iM, M) != 0) {
+      continue;
+    }
+
     for (int w = 0; w < 3; w++) {
       g[w] = iM[w][0] * K[0] + iM[w][1] * K[1] + iM[w][2] * K[2];
       h[w] = iM[w][0] * N[0] + iM[w][1] * N[1] + iM[w][2] * N[2];

@@ -1,6 +1,7 @@
 #ifndef __RATOutNtupleProc___
 #define __RATOutNtupleProc___
 
+#include <TTimeStamp.h>
 #include <TTree.h>
 #include <sys/types.h>
 
@@ -39,6 +40,11 @@ class OutNtupleProc : public Processor {
 
   virtual void SetI(std::string param, int value);
   virtual void SetS(std::string param, std::string value);
+  // Utility function
+  static ULong64_t TTimeStamp_to_UnixTime(TTimeStamp ts) {
+    const ULong64_t stonano = 1000000000;
+    return static_cast<ULong64_t>(ts.GetSec()) * stonano + static_cast<ULong64_t>(ts.GetNanoSec());
+  }
 
   // Extensible functions
   virtual void AssignAdditionalAddresses(){};
@@ -60,10 +66,12 @@ class OutNtupleProc : public Processor {
     bool untriggered;
     bool mchits;
     bool nthits;
+    bool calib;
   };
   NtupleOptions options;
 
   std::vector<std::string> waveform_fitters;
+  std::map<std::string, std::vector<std::string>> waveform_fitter_FOMs;
 
  protected:
   std::string defaultFilename;
@@ -83,6 +91,7 @@ class OutNtupleProc : public Processor {
   std::vector<bool> pmtIsOnline;
   std::vector<double> pmtCableOffset;
   std::vector<double> pmtChargeScale;
+  std::vector<double> pmtPulseWidthScale;
   std::vector<double> pmtX;
   std::vector<double> pmtY;
   std::vector<double> pmtZ;
@@ -100,6 +109,16 @@ class OutNtupleProc : public Processor {
   Double_t digitizerSampleRate;
   Double_t digitizerDynamicRange;
   Double_t digitizerVoltageResolution;
+  // Calibration source information
+  // get from 1st event, and then mark done.
+  bool done_writing_calib;
+  Int_t calibId;
+  Int_t calibMode;
+  Double_t calibIntensity;
+  Double_t calibWavelength;
+  std::string calibName;
+  ULong64_t calibTime;
+  Double_t calibX, calibY, calibZ, calibU, calibV, calibW;
   // Digitizer waveforms
   int waveform_pmtid;
   std::vector<Double_t> inWindowPulseTimes;
@@ -116,6 +135,8 @@ class OutNtupleProc : public Processor {
   int nhits;
   double triggerTime;
   ULong64_t timestamp;
+  ULong64_t trigger_word;
+  ULong64_t event_cleaning_word;
   double timeSinceLastTrigger_us;
   // MC Summary Information
   double scintEdep;
@@ -172,13 +193,17 @@ class OutNtupleProc : public Processor {
   std::vector<double> digitPeak;
   std::vector<double> digitTime;
   std::vector<double> digitCharge;
+  std::vector<double> digitTimeOverThreshold;
+  std::vector<double> digitVoltageOverThreshold;
   std::vector<double> digitLocalTriggerTime;
+  std::vector<int> digitReconNPEs;
   std::vector<int> digitNCrossings;
   std::vector<int> digitPMTID;
   // Information from fit to the waveforms
   std::map<std::string, std::vector<int>> fitPmtID;
   std::map<std::string, std::vector<double>> fitTime;
   std::map<std::string, std::vector<double>> fitCharge;
+  std::map<std::string, std::map<std::string, std::vector<double>>> fitFOM;
   // std::vector<double> fitTime;
   std::vector<double> fitBaseline;
   std::vector<double> fitPeak;
