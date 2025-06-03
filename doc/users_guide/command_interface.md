@@ -37,22 +37,22 @@ Revisiting this guide is recommended as you read through the rest of the documen
 
 # Table of Contents
 
-1. [Controlling ratpac-two](#controlling-ratpac-two)
-2. [ratpac-two Commands and Workflow](#1-ratpac-two-commands-and-workflow)
+   [Controlling ratpac-two](#controlling-ratpac-two)
+1. [ratpac-two Commands and Workflow](#1-ratpac-two-commands-and-workflow)
    1. [Command Syntax](#11-command-syntax)
    2. [Command Hierarchy](#12-command-hierarchy)
    3. [Command Execution Order](#13-command-execution-order)
    4. [Example Macro](#14-example-macro)
-3. [Essential Geant4 Commands for ratpac-two Simulation](#2-essential-geant4-commands-for-ratpac-two-simulation)
+2. [Essential Geant4 Commands for ratpac-two Simulation](#2-essential-geant4-commands-for-ratpac-two-simulation)
    1. [Run Control](#21-run-control)
    2. [Verbosity Control](#22-verbosity-control)
    3. [Detector Visualization](#23-detector-visualization)
    4. [Other Useful UI Commands](#24-other-useful-ui-commands)
-4. [Navigating ratpac-two Specific Commands: The /rat/ Directory](#3-navigating-ratpac-two-specific-commands-the-rat-directory)
-5. [Configuring the ratpac-two Environment with RATDB via Macros](#4-configuring-the-ratpac-two-environment-with-ratdb-via-macros)
-6. [Orchestrating the Workflow: Processor Commands](#5-orchestrating-the-workflow-processor-commands)
-7. [Defining Event Sources: The Generator Commands](#6-defining-event-sources-the-generator-commands)
-8. [Conclusion and Further Learning](#7-conclusion-and-further-learning)
+3. [Navigating ratpac-two Specific Commands: The /rat/ Directory](#3-navigating-ratpac-two-specific-commands-the-rat-directory)
+4. [Configuring the ratpac-two Environment with RATDB via Macros](#4-configuring-the-ratpac-two-environment-with-ratdb-via-macros)
+5. [Orchestrating the Workflow: Processor Commands](#5-orchestrating-the-workflow-processor-commands)
+6. [Defining Event Sources: The Generator Commands](#6-defining-event-sources-the-generator-commands)
+7. [Conclusion and Further Learning](#7-conclusion-and-further-learning)
 
 
 ## 1. ratpac-two Commands and Workflow
