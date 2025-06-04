@@ -126,7 +126,6 @@ AmBeSource::AmBeSource() {
 
   DBLinkPtr neutrondb = DB::Get()->GetLink("AMBE_NSPECTRUM", "");
   double prob_gamma_emission = neutrondb->GetD("prob_gamma_emission");
-  // double prob_gamma_emission = 0.75;  // probability of emitted a gamma along with a neutron
   double prob_gamma = CLHEP::RandFlat::shoot(0., 1.);
   if (prob_gamma < prob_gamma_emission) {
     Ngamma = 1;  // only 1 gamma generated
@@ -191,7 +190,7 @@ double AmBeSource::AmBeNeutronSpectrum(const double &x) {
   // return the neutron spectrum N(x)
   double N = 0.;
 
-  DBLinkPtr neutrondb = DB::Get()->GetLink("AMBE_NSPECTRUM", "ambe_n");
+  DBLinkPtr neutrondb = DB::Get()->GetLink("AMBE_NSPECTRUM", "");
   std::vector<double> neutron_Espectrum_e = neutrondb->GetDArray("energy_spectrum");
   std::vector<double> neutron_Espectrum_p = neutrondb->GetDArray("energy_prob");
   const size_t size_arrays = neutron_Espectrum_e.size();
