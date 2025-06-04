@@ -2,6 +2,8 @@
 /rat/db/set DETECTOR geo_file "Validation/WaterWorld.geo"
 
 /rat/db/set GEO[world] r_max 1000.0
+##Option to change the world's material
+#/rat/db/set GEO[world] material "air"
 /rat/db/set GEO[world] invisible 1
 
 ## Define A set of PMTs using PMTINFO_valid_custom as identifier
@@ -16,6 +18,7 @@
 /rat/db/set PMTINFO_valid_custom efficiency_corr [0.5,0.5]
 /rat/db/set PMTINFO_valid_custom afterpulse_fraction [0.0,0.0]
 
+# Load that PMT table into a inner_pmts object
 /rat/db/set GEO[inner_pmts] index "inner_pmts"
 /rat/db/set GEO[inner_pmts] mother "world"
 /rat/db/set GEO[inner_pmts] type "pmtarray"
@@ -25,11 +28,10 @@
 /rat/db/set GEO[inner_pmts] pos_table "PMTINFO_valid_custom"
 /rat/db/set GEO[inner_pmts] orientation "manual"
 
-
+## Add ecapsulation to these PMTs
+/rat/db/set GEO[inner_pmts] encapsulation 1
 /rat/db/set GEO[inner_pmts] encapsulation_model "BUTTON_r7081pe"
 /rat/db/set ENCAPSULATION[BUTTON_r7081pe] use_optical_gel 1
-
-
 
 /run/initialize
 
