@@ -1,0 +1,46 @@
+/rat/db/set DETECTOR experiment "Validation"
+/rat/db/set DETECTOR geo_file "Validation/WaterWorld.geo"
+
+/rat/db/set GEO[world] r_max 1000.0
+/rat/db/set GEO[world] invisible 1
+
+## Define A set of PMTs using PMTINFO_valid_custom as identifier
+/rat/db/set PMTINFO_valid_custom x [-300.0,300.0]
+/rat/db/set PMTINFO_valid_custom y [-300.0,-300.0]
+/rat/db/set PMTINFO_valid_custom z [0.0,0.0]
+/rat/db/set PMTINFO_valid_custom dir_x [-1.0,1.0]
+/rat/db/set PMTINFO_valid_custom dir_y [0.0,0.0]
+/rat/db/set PMTINFO_valid_custom dir_z [0.0,0.0]
+/rat/db/set PMTINFO_valid_custom type  [0,0]
+/rat/db/set PMTINFO_valid_custom noise_rate [100.0,100.]
+/rat/db/set PMTINFO_valid_custom efficiency_corr [0.5,0.5]
+/rat/db/set PMTINFO_valid_custom afterpulse_fraction [0.0,0.0]
+
+/rat/db/set GEO[inner_pmts] index "inner_pmts"
+/rat/db/set GEO[inner_pmts] mother "world"
+/rat/db/set GEO[inner_pmts] type "pmtarray"
+/rat/db/set GEO[inner_pmts] pmt_model "r7081pe"
+/rat/db/set GEO[inner_pmts] pmt_detector_type "idpmt"
+/rat/db/set GEO[inner_pmts] sensitive_detector "/mydet/pmt/inner"
+/rat/db/set GEO[inner_pmts] pos_table "PMTINFO_valid_custom"
+/rat/db/set GEO[inner_pmts] orientation "manual"
+
+
+/rat/db/set GEO[inner_pmts] encapsulation_model "BUTTON_r7081pe"
+/rat/db/set ENCAPSULATION[BUTTON_r7081pe] use_optical_gel 1
+
+
+
+/run/initialize
+
+/vis/open OGLSQt
+/vis/scene/create
+/vis/scene/add/volume
+/vis/sceneHandler/attach
+/vis/viewer/set/upVector 0.0 0.0 1.0
+/vis/viewer/set/viewpointThetaPhi -90 135
+/vis/viewer/set/style s
+/vis/viewer/flush
+
+## Cut a plane through the detector
+
