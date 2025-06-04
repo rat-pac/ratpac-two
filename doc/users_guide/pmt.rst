@@ -14,11 +14,11 @@ PMTs
 
 `ratpac-two` uses a custom PMT simulation.
 
-For each photon that enters a PMT volume, there is a probability of creating a photoelectron (PE), which is equal to the product of the quantum efficiency, an efficiency correction factor, and an optical correction factor that accounts for the polarization and incidence angle of photon (relative to the photocathode). The bulk of the code that calculates the optical correction factor and applies the overall efficiency can be found in ``src/physics/src/GLG4PMTOpticalModel.cc``.
+For each photon that enters a PMT volume, there is a probability of creating a photoelectron (PE), which is equal to the product of the quantum efficiency, an efficiency correction factor, and an optical correction factor that accounts for the polarization and incidence angle of the photon (relative to the photocathode). The bulk of the code that calculates the optical correction factor and applies the overall efficiency can be found in ``src/physics/src/GLG4PMTOpticalModel.cc``.
 
 The quantum efficiency for each PMT is defined in ``OPTICS_Photocathode.ratdb`` and is specified for each PMT in ``PMT.ratdb`` using the index ``photocathode_surface``. The efficiency correction factor can be specified in two different ways. First, a field in ``PMT.ratdb`` called ``efficiency_correction`` can be set to scale the efficiency of all PMTs of the specified type. The value of this scaling defaults to one. Second, an array of correction factors, called ``efficiency_corr``, can be set in the ``PMTINFO.ratdb`` file for every individual PMT. This will scale the efficiency for each PMT separately.
 
-Once it has been determined that a photoelectron should be created for a PMT, it is added to the ``HitPMTCollection``. For each hit PMT, a ``DS::MCPMT`` object is created. The PMT may have detected more than one PE, in which and the ``DS::MCPhoton`` class (which can be accessed by the ``GetMCPhoton()`` method in the ``MCPMT`` class) keeps track of information for each ``MCPE``.
+Once it has been determined that a photoelectron should be created for a PMT, it is added to the ``HitPMTCollection``. For each hit PMT, a ``DS::MCPMT`` object is created. The PMT may have detected more than one PE, in which case the ``DS::MCPhoton`` class (which can be accessed by the ``GetMCPhoton()`` method in the ``MCPMT`` class) keeps track of information for each ``MCPE``.
 
 The ``DS::PMT`` objects are created only after a trigger event has been issued (see DAQ documentation :ref:`daq_processors`) and can include effects from the ``DAQ`` and ``trigger``. Similarly, the ``DS::DigitPMT`` objects are created by the waveform analysis processors, which run over digitized waveforms, as described in :ref:`waveform_analysis`.
 
@@ -185,8 +185,8 @@ Where "modelname" must match an index entry name in ``ENCAPSULATION.ratdb``.
 
 Encapsulation model information
 ###############################
-Encapsulation models need to be added to ``ENCAPSULATION.ratdb``, which is loacted in ``ratpac/ratdb``.
-A entry can be called by using the ``encapsulation_model:`` command as mentioned above.
+Encapsulation models need to be added to ``ENCAPSULATION.ratdb``, which is located in ``ratpac/ratdb``.
+An entry can be called by using the ``encapsulation_model:`` command as mentioned above.
 Each entry provides all the important information that is needed to create the encapsulation objects:
 
 * Construction type
@@ -220,7 +220,7 @@ For a working example please see ``HemisphereEncapsulation.cc/hh`` which uses th
 Placing PMT
 ###########
 If encapsulation is used, then is possible that the medium inside the encapsulation is different to the mother volume medium it would be placed in without encapsulation on.
-This can be change in ``PMTFactoryBase.cc`` to ensure that the correct mother volume is used for the placement. If using the visualizer, the scene tree is useful to see if the PMT has been placed inside the correct volume.
+This can be changed in ``PMTFactoryBase.cc`` to ensure that the correct mother volume is used for the placement. If using the visualizer, the scene tree is useful to see if the PMT has been placed inside the correct volume.
 
 
 PMT Offset
@@ -252,7 +252,7 @@ Describe LAPPDs here.
 Optical Fibers
 ==============
 
-Descibe Liquid-O style fiber simulations here.
+Describe Liquid-O style fiber simulations here.
 
 ----------------
 
