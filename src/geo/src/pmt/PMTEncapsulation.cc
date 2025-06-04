@@ -12,8 +12,7 @@
 
 namespace RAT {
 
-PMTEncapsulation *PMTEncapsulation::NewConstruction(DBLinkPtr encaptable, DBLinkPtr pmttable,
-                                                                            G4LogicalVolume *mother) {
+PMTEncapsulation *PMTEncapsulation::NewConstruction(DBLinkPtr encaptable, DBLinkPtr pmttable, G4LogicalVolume *mother) {
   std::string construction = encaptable->Get<std::string>("construction");
   if (construction == "hemisphere") {
     return new HemisphereEncapsulation(encaptable, pmttable, mother);

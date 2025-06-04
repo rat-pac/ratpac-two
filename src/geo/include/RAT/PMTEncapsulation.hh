@@ -12,8 +12,7 @@ namespace RAT {
 
 class PMTEncapsulation {
  public:
-  static PMTEncapsulation *NewConstruction(DBLinkPtr encaptable, DBLinkPtr pmttable,
-                                                       G4LogicalVolume *mother);
+  static PMTEncapsulation *NewConstruction(DBLinkPtr encaptable, DBLinkPtr pmttable, G4LogicalVolume *mother);
 
   PMTEncapsulation(std::string _name) : name(_name) {}
 

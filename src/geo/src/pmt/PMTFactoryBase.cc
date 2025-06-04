@@ -65,8 +65,8 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
 
     info << "Encapsulation is turned on, using model: " << encapsulation_model << newline;
 
-    encap_construction = PMTEncapsulation::NewConstruction(
-        lencapsulation, lpmt, mother);  // make encapsulation, need to make/modify file
+    encap_construction = PMTEncapsulation::NewConstruction(lencapsulation, lpmt,
+                                                           mother);  // make encapsulation, need to make/modify file
     log_encapenv = encap_construction->BuildVolume(volume_name);
 
     try {
