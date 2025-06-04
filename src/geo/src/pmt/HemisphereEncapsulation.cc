@@ -78,20 +78,19 @@ HemisphereEncapsulation::HemisphereEncapsulation(DBLinkPtr encaptable, DBLinkPtr
   // PMT is only needed if optical gel is used
   fParams.useGel = 0;  // default to no gel
   std::string pmttype = pmttable->GetS("construction");
-  
-  // Check if optical gel can be used, needs toroidal 
-  if (pmttype == "toroidal"){
+
+  // Check if optical gel can be used, needs toroidal
+  if (pmttype == "toroidal") {
     info << "Optical gel can be used since PMT construction is toroidal" << newline;
     try {
       fParams.useGel = encaptable->GetI("use_optical_gel");
-    }   catch (DBNotFoundError &e) {
+    } catch (DBNotFoundError &e) {
     };
-  }
-  else if (pmttype != "toroidal") {
+  } else if (pmttype != "toroidal") {
     info << "Optical gel currently requires a toroidal PMT model, setting useGel = 0" << newline;
     fParams.useGel = 0;
   }
-  
+
   if (fParams.useGel == 1) {
     optical_gel_encapsulation_phys = 0;
 
