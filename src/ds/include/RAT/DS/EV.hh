@@ -24,6 +24,7 @@
 #include <RAT/DS/FitResult.hh>
 #include <RAT/DS/LAPPD.hh>
 #include <RAT/DS/PMT.hh>
+#include <limits>
 #include <vector>
 
 namespace RAT {
@@ -126,10 +127,24 @@ class EV : public TObject {
   virtual void PruneDigitizer() { digitizer.resize(0); }
 
   /** Event Cleaning **/
-  uint64_t GetEventCleaningWord() const { return eventCleaningWord; }
-  void SetEventCleaningWord(uint64_t _eventCleaningWord) { eventCleaningWord = _eventCleaningWord; }
+  virtual uint64_t GetEventCleaningWord() const { return eventCleaningWord; }
+  virtual void SetEventCleaningWord(uint64_t _eventCleaningWord) { eventCleaningWord = _eventCleaningWord; }
+  virtual void SetEventCleaningBit(uint8_t bit_position, bool value = true) {
+    if (bit_position >= std::numeric_limits<uint64_t>::digits) {
+      warn << "Tried to set bit out of event cleaning bit mask range, ignoring." << newline;
+      return;
+    }
+    eventCleaningWord = (eventCleaningWord & ~(1ULL << bit_position)) | (value << bit_position);
+  }
+  virtual bool GetEventCleaningBit(uint8_t bit_position) const {
+    if (bit_position >= std::numeric_limits<uint64_t>::digits) {
+      warn << "Tried to get bit out of event cleaning bit mask range, ignoring." << newline;
+      return false;
+    }
+    return (eventCleaningWord >> bit_position) & 0x1;
+  }
 
-  ClassDef(EV, 4);
+  ClassDef(EV, 5);
 
  protected:
   Int_t id;
