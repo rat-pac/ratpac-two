@@ -7,12 +7,12 @@
 #include <RAT/HemisphereEncapsulation.hh>
 #include <RAT/Log.hh>
 #include <RAT/Materials.hh>
-#include <RAT/PMTEncapsulationConstruction.hh>
+#include <RAT/PMTEncapsulation.hh>
 #include <algorithm>
 
 namespace RAT {
 
-PMTEncapsulationConstruction *PMTEncapsulationConstruction::NewConstruction(DBLinkPtr encaptable, DBLinkPtr pmttable,
+PMTEncapsulation *PMTEncapsulation::NewConstruction(DBLinkPtr encaptable, DBLinkPtr pmttable,
                                                                             G4LogicalVolume *mother) {
   std::string construction = encaptable->Get<std::string>("construction");
   if (construction == "hemisphere") {

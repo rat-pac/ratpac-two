@@ -8,7 +8,7 @@
 #include <RAT/Log.hh>
 #include <RAT/Materials.hh>
 #include <RAT/PMTConstruction.hh>
-#include <RAT/PMTEncapsulationConstruction.hh>
+#include <RAT/PMTEncapsulation.hh>
 #include <RAT/PMTFactoryBase.hh>
 #include <RAT/PMTInfoParser.hh>
 #include <algorithm>
@@ -46,7 +46,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
   }
   G4ThreeVector local_offset = PMTInfoParser::ComputeLocalOffset(mother_name);
 
-  PMTEncapsulationConstruction *encap_construction = 0;
+  PMTEncapsulation *encap_construction = 0;
   G4LogicalVolume *log_encapenv = 0;
   PMTConstruction *construction = 0;
   G4LogicalVolume *log_pmt = 0;
@@ -65,7 +65,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
 
     info << "Encapsulation is turned on, using model: " << encapsulation_model << newline;
 
-    encap_construction = PMTEncapsulationConstruction::NewConstruction(
+    encap_construction = PMTEncapsulation::NewConstruction(
         lencapsulation, lpmt, mother);  // make encapsulation, need to make/modify file
     log_encapenv = encap_construction->BuildVolume(volume_name);
 

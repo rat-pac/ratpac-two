@@ -1,7 +1,3 @@
-// This is the encapsulation that is used for BUTTON.
-// The 96 Hamamatsu r7081pe PMTs are encapsulated by two acryilic domes that are held together with metal flanges.
-// Created by Lewis Sexton (Sheffield) and Adam Tarrant (Liverpool)
-
 #include <CLHEP/Units/PhysicalConstants.h>
 
 #include <G4Box.hh>
@@ -19,13 +15,13 @@
 #include <RAT/HemisphereEncapsulation.hh>
 #include <RAT/Log.hh>
 #include <RAT/Materials.hh>
-#include <RAT/PMTEncapsulationConstruction.hh>
+#include <RAT/PMTEncapsulation.hh>
 #include <algorithm>
 
 namespace RAT {
 
 HemisphereEncapsulation::HemisphereEncapsulation(DBLinkPtr encaptable, DBLinkPtr pmttable, G4LogicalVolume *mother)
-    : PMTEncapsulationConstruction("hemisphere") {
+    : PMTEncapsulation("hemisphere") {
   inner_encapsulation_phys = 0;
   front_encapsulation_phys = 0;
   rear_encapsulation_phys = 0;

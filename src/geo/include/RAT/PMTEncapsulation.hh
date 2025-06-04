@@ -1,5 +1,5 @@
-#ifndef __RAT_PMTEncapsulationConstruction__
-#define __RAT_PMTEncapsulationConstruction__
+#ifndef __RAT_PMTEncapsulation__
+#define __RAT_PMTEncapsulation__
 
 #include <G4LogicalVolume.hh>
 #include <G4PVPlacement.hh>
@@ -10,14 +10,14 @@
 
 namespace RAT {
 
-class PMTEncapsulationConstruction {
+class PMTEncapsulation {
  public:
-  static PMTEncapsulationConstruction *NewConstruction(DBLinkPtr encaptable, DBLinkPtr pmttable,
+  static PMTEncapsulation *NewConstruction(DBLinkPtr encaptable, DBLinkPtr pmttable,
                                                        G4LogicalVolume *mother);
 
-  PMTEncapsulationConstruction(std::string _name) : name(_name) {}
+  PMTEncapsulation(std::string _name) : name(_name) {}
 
-  virtual ~PMTEncapsulationConstruction() {}
+  virtual ~PMTEncapsulation() {}
 
   virtual G4VSolid *BuildSolid(const std::string &prefix) = 0;
 

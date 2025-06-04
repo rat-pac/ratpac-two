@@ -1,3 +1,7 @@
+// This is the encapsulation model that is used for BUTTON.
+// The 96 Hamamatsu r7081pe PMTs are encapsulated by two acryilic domes that are held together with metal flanges.
+// Created by Lewis Sexton (Sheffield) and Adam Tarrant (Liverpool)
+
 #ifndef __RAT_HemisphereEncapsulation__
 #define __RAT_HemisphereEncapsulation__
 
@@ -17,7 +21,7 @@
 #include <RAT/DB.hh>
 #include <RAT/Factory.hh>
 #include <RAT/GLG4TorusStack.hh>
-#include <RAT/PMTEncapsulationConstruction.hh>
+#include <RAT/PMTEncapsulation.hh>
 #include <string>
 #include <vector>
 namespace RAT {
@@ -67,7 +71,7 @@ struct HemisphereEncapsulationParams {
   G4OpticalSurface *optical_gel_surface;
 };
 
-class HemisphereEncapsulation : public PMTEncapsulationConstruction {
+class HemisphereEncapsulation : public PMTEncapsulation {
  public:
   HemisphereEncapsulation(DBLinkPtr encaptable, DBLinkPtr pmttable, G4LogicalVolume *mother);
   virtual ~HemisphereEncapsulation() {}
