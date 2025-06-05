@@ -117,6 +117,18 @@ If /tracking/storeTrajectory is turned on, mc.track:particle is used, where part
 
 ----------------------
 
+.. _python:
+
+Python Processor
+````````````````
+
+The python processor is a relatively unsupported feature of ``ratpac-two``, but works for simple implementations of processors. There are several examples of python processors implemented in ``python/ratproc/`` that can be used to help develop a new processor. The base classes for the processors are provided in ``python/ratproc/base.py``, which can be overloaded in dedicated python processors. The easiest example to follow is the python count processor, which provides the same functionality as the C++ version discussed in :ref:`count_processor`, and is located in ``python/ratproc/count.py``. The python count processor (the class is named ``Count``) can be run from the macro using::
+
+/rat/proc python
+/rat/procset class "ratproc.Count(interval=10)"
+
+----------------------
+
 .. _pmt:
 
 PMT Processors
@@ -150,13 +162,4 @@ Output Processors
 `````````````````
 
 The output processors are described in :ref:`output_processors`.
-
-----------------------
-
-.. _python:
-
-Python Processor
-````````````````
-
-Document the python processor.
 

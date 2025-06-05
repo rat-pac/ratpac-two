@@ -20,7 +20,6 @@ class OutNtupleProc : public Processor {
  public:
   static int run_num;
   OutNtupleProc();
-  virtual ~OutNtupleProc();
 
   enum mc_pe_type { noise = 0, cherenkov = 1, scintillation = 2, reemission = 3, unknown = 4 };
 
@@ -45,6 +44,7 @@ class OutNtupleProc : public Processor {
     const ULong64_t stonano = 1000000000;
     return static_cast<ULong64_t>(ts.GetSec()) * stonano + static_cast<ULong64_t>(ts.GetNanoSec());
   }
+  virtual void EndOfRun(DS::Run *run) override;
 
   // Extensible functions
   virtual void AssignAdditionalAddresses(){};

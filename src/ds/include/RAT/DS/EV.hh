@@ -24,6 +24,7 @@
 #include <RAT/DS/FitResult.hh>
 #include <RAT/DS/LAPPD.hh>
 #include <RAT/DS/PMT.hh>
+#include <limits>
 #include <vector>
 
 namespace RAT {
@@ -80,8 +81,27 @@ class EV : public TObject {
   virtual Int_t GetDigitPMTCount() const { return digitpmt.size(); }
   virtual void PruneDigitPMT() { digitpmt.clear(); }
 
+  const std::vector<Int_t> GetAllCleanedDigitPMTIDs() const {
+    std::vector<Int_t> result;
+    for (std::pair<Int_t, DigitPMT> kv : digitpmt) {
+      DigitPMT::HCMask hit_cleaning_mask = kv.second.GetHitCleaningMask();
+      if (hit_cleaning_mask == 0) {
+        result.push_back(kv.first);
+      }
+    }
+    return result;
+  }
+
+  // TODO: Implemetation for PMT class
+  const std::vector<Int_t> GetAllCleanedPMTIDs() const {
+    std::vector<Int_t> result;
+    return result;
+  }
+
   /** Number of PMTs which were hit at least once. (Convenience method) */
   virtual Int_t Nhits() const { return GetPMTCount(); }
+  virtual Int_t cleanedNhits() const { return GetAllCleanedPMTIDs().size(); }
+  virtual Int_t cleanedDigitNhits() const { return GetAllCleanedDigitPMTIDs().size(); }
 
   /** List of LAPPDs with at least one charge sample in this event. */
   virtual LAPPD *GetLAPPD(Int_t i) { return &lappd[i]; }
@@ -126,10 +146,24 @@ class EV : public TObject {
   virtual void PruneDigitizer() { digitizer.resize(0); }
 
   /** Event Cleaning **/
-  uint64_t GetEventCleaningWord() const { return eventCleaningWord; }
-  void SetEventCleaningWord(uint64_t _eventCleaningWord) { eventCleaningWord = _eventCleaningWord; }
+  virtual uint64_t GetEventCleaningWord() const { return eventCleaningWord; }
+  virtual void SetEventCleaningWord(uint64_t _eventCleaningWord) { eventCleaningWord = _eventCleaningWord; }
+  virtual void SetEventCleaningBit(uint8_t bit_position, bool value = true) {
+    if (bit_position >= std::numeric_limits<uint64_t>::digits) {
+      warn << "Tried to set bit out of event cleaning bit mask range, ignoring." << newline;
+      return;
+    }
+    eventCleaningWord = (eventCleaningWord & ~(1ULL << bit_position)) | (value << bit_position);
+  }
+  virtual bool GetEventCleaningBit(uint8_t bit_position) const {
+    if (bit_position >= std::numeric_limits<uint64_t>::digits) {
+      warn << "Tried to get bit out of event cleaning bit mask range, ignoring." << newline;
+      return false;
+    }
+    return (eventCleaningWord >> bit_position) & 0x1;
+  }
 
-  ClassDef(EV, 4);
+  ClassDef(EV, 5);
 
  protected:
   Int_t id;

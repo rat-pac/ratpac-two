@@ -28,7 +28,6 @@
 #include <RAT/HeGen.hh>
 #include <RAT/LiGen.hh>
 #include <RAT/Log.hh>
-#include <RAT/MiniCleanPMTCharge.hh>
 #include <RAT/NGen.hh>
 #include <RAT/PDFPMTCharge.hh>
 #include <RAT/PDFPMTTime.hh>

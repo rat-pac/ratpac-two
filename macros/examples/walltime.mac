@@ -16,8 +16,6 @@
 /rat/proc count
 /rat/procset update 100
 
-/rat/proc classifychargebalance
-
 /rat/proclast outroot
 
 /generator/add combo gun2:fill:poisson
