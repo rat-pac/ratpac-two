@@ -82,7 +82,7 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
     if (mother == 0) {
       Log::Die("PMTParser: Unable to find mother volume " + mother_name + " for " + volume_name);
     }
-    phys_mother_encap = FindPhysMother(volume_name+"_inner_volume_encapsulation_phys");
+    phys_mother_encap = FindPhysMother(volume_name + "_inner_volume_encapsulation_phys");
     if (phys_mother == 0) {
       Log::Die("PMTParser: PMT mother physical volume " + mother_name + " not found");
     }
