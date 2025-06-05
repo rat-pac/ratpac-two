@@ -5,7 +5,7 @@ run_range: [0, 0],
 
 construction: "hemisphere",
 envelope_radius: 244.0,  // should be large enough to fit all objects (>flange_rmax)
-front_encapsulation_material: "nakano_acrylic",
+front_encapsulation_material: "acrylic_uvt_good",
 rear_encapsulation_material: "acrylic_black",
 flange_rmax: 243.0,  // applies to acrylic and metal flange
 encap_radius: 200.0,
