@@ -7,17 +7,17 @@
 /run/initialize
 
 /rat/proc splitevdaq
+/rat/procset trigger_threshold 5.0
+
 /rat/proc count
 /rat/procset update 100
 
-/rat/proc classifychargebalance
-
 /rat/proclast outroot
 
+# Central 2.5 MeV electrons
 /generator/add combo gun:point:poisson
 /generator/vtx/set e- 0.0 0.0 0.0 2.5
 /generator/pos/set 0.0 0.0 0.0
 /generator/rate/set 2.0
-
 
 /run/beamOn 100

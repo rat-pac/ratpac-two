@@ -1,0 +1,25 @@
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+/rat/db/set DETECTOR experiment "Validation"
+/rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+
+# Begin event processor loop
+/run/initialize
+
+/rat/proc forcedtrigger
+
+# An example for using the python processor
+/rat/proc python
+/rat/procset class "ratproc.Count(interval=10)"
+
+/rat/proclast outntuple
+# End processor loop
+
+##### GENERATORS #################
+# Uniformly fill the central volume with photon bombs
+/generator/add combo pbomb:fill:poisson
+/generator/vtx/set 100 500 # 100 photons, 500 nm
+/generator/pos/set 0.0 0.0 0.0
+
+/run/beamOn 100

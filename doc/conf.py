@@ -33,6 +33,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.intersphinx",
     "sphinx_rtd_theme",
+    "myst_parser"
 ]
 
 os.system("doxygen")
@@ -42,7 +43,7 @@ os.system("doxysphinx build . ./_build/html/ ./Doxyfile ")
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = {'.rst': 'restructuredtext', '.md': 'markdown'}
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'

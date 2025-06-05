@@ -10,22 +10,27 @@ Table of Contents
    installation
    command_interface
    producers_processors
-   random
    data_structure
    database
    generators
    geometry
-   processes
-   pmt
-   producers
+   physics_processes
+   photon_processes
    processors
-   user_processors
+   producers
+   pmt
+   daq
+   digitization
+   waveform_analysis
+   reconstruction
+   outputs
    root_analysis
    tracks
    rattest
    oglqt
    wired
    tools
+   random
    
 Indices and tables
 

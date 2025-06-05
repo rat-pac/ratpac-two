@@ -139,6 +139,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("triggerTime", &triggerTime);  // Local trigger time
   outputTree->Branch("timestamp", &timestamp);      // Global trigger time
   outputTree->Branch("trigger_word", &trigger_word);
+  outputTree->Branch("event_cleaning_word", &event_cleaning_word);
   outputTree->Branch("timeSinceLastTrigger_us", &timeSinceLastTrigger_us);
   // MC Information
   outputTree->Branch("mcid", &mcid);
@@ -487,6 +488,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     triggerTime = ev->GetCalibratedTriggerTime();
     timestamp = TTimeStamp_to_UnixTime(ev->GetUTC()) - TTimeStamp_to_UnixTime(runBranch->GetStartTime()) + triggerTime;
     trigger_word = ev->GetTriggerWord();
+    event_cleaning_word = ev->GetEventCleaningWord();
     timeSinceLastTrigger_us = ev->GetDeltaT() / 1000.;
     auto fitVector = ev->GetFitResults();
     std::map<std::string, double *> fitvalues;
@@ -710,7 +712,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   return Processor::OK;
 }
 
-OutNtupleProc::~OutNtupleProc() {
+void OutNtupleProc::EndOfRun(DS::Run *run) {
   if (outputFile) {
     outputFile->cd();
 
@@ -755,6 +757,7 @@ OutNtupleProc::~OutNtupleProc() {
     TTimeStamp rootTime = runBranch->GetStartTime();
     runTime = TTimeStamp_to_UnixTime(rootTime.GetSec());
     macro = Log::GetMacro();
+    FillMeta();
     metaTree->Fill();
     metaTree->Write();
     outputTree->Write();
