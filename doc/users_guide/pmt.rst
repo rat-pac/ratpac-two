@@ -1,25 +1,62 @@
+.. _photodetector_simulation:
+
+Photodetector Simulation
+------------------------
+
+Several different photodetectors are available in `ratpac-two`.
+
+----------------
+
 .. _pmt_simulation:
 
-PMT Simulation
---------------
+PMTs
+====
 
-RAT uses a custom PMT simulation extracted from GLG4Sim.
+`ratpac-two` uses a custom PMT simulation.
+
+For each photon that enters a PMT volume, there is a probability of creating a photoelectron (PE), which is equal to the product of the quantum efficiency, an efficiency correction factor, and an optical correction factor that accounts for the polarization and incidence angle of the photon (relative to the photocathode). The bulk of the code that calculates the optical correction factor and applies the overall efficiency can be found in ``src/physics/src/GLG4PMTOpticalModel.cc``.
+
+The quantum efficiency for each PMT is defined in ``OPTICS_Photocathode.ratdb`` and is specified for each PMT in ``PMT.ratdb`` using the index ``photocathode_surface``. The efficiency correction factor can be specified in two different ways. First, a field in ``PMT.ratdb`` called ``efficiency_correction`` can be set to scale the efficiency of all PMTs of the specified type. The value of this scaling defaults to one. Second, an array of correction factors, called ``efficiency_corr``, can be set in the ``PMTINFO.ratdb`` file for every individual PMT. This will scale the efficiency for each PMT separately.
+
+Once it has been determined that a photoelectron should be created for a PMT, it is added to the ``HitPMTCollection``. For each hit PMT, a ``DS::MCPMT`` object is created. The PMT may have detected more than one PE, in which case the ``DS::MCPhoton`` class (which can be accessed by the ``GetMCPhoton()`` method in the ``MCPMT`` class) keeps track of information for each ``MCPE``.
+
+The ``DS::PMT`` objects are created only after a trigger event has been issued (see DAQ documentation :ref:`daq_processors`) and can include effects from the ``DAQ`` and ``trigger``. Similarly, the ``DS::DigitPMT`` objects are created by the waveform analysis processors, which run over digitized waveforms, as described in :ref:`waveform_analysis`.
+
+
+.. _pmt_geometries:
+
+Geometries
+''''''''''
+
+Describe the different PMT geometries.
+
+Toroidal
+########
+
+Describe the toroidal PMTs.
+
+Revolution
+##########
+
+Describe the revolution PMTs.
+
+Cubic
+#####
+
+Describe the cubic PMTs.
+
+Cylindrical
+###########
+
+Describe the cylindrical PMTs.
 
 ----------------
 
 .. _pmt_response:
 
 Charge and Time Response
-````````````````````````
-Gsim checks the database for single photoelectron charge and transit time PDFs
-automatically for PMT models that are added to the geometry. These PDFs are
-stored in tables named ``PMTCHARGE`` and ``PMTTRANSIT`` respectively, where the
-index corresponds to a ``pmt_model`` field used in ``GEO`` tables. These PDFs
-are sampled whenever a photon is absorbed by the photocathode to create a
-realistic Q/T response automatically for PMTs independent of any DAQ processor.
-If no tables are defined for a ``pmt_model`` the time defaults to approximately
-zero spread from photoelectron absorption time and the charge defaults to a
-phenomenological model used by MiniCLEAN.
+''''''''''''''''''''''''
+The PMT charge and time response is set in ``Gsim``, which checks the database for single photoelectron charge and transit time PDFs automatically for PMT models that are added to the geometry. These PDFs are stored in tables named ``PMTCHARGE`` and ``PMTTRANSIT`` respectively, where the index corresponds to a ``pmt_model`` field used in ``GEO`` tables. These PDFs are sampled whenever a photon is absorbed by the photocathode to create realistic charge and time response automatically for PMTs independent of any DAQ processor. If no tables are defined for a ``pmt_model`` the time defaults to approximately zero spread from photoelectron absorption time and the charge defaults to the model for the large-area Hamamatsu r11780 12-inch PMT (arbitrary choice).
 
 ``PMTCHARGE`` fields:
  * ``charge`` - "x" values of the charge PDF (arbitrary units)
@@ -31,12 +68,14 @@ phenomenological model used by MiniCLEAN.
  * ``time`` - "x" values of the time PDF (nanoseconds)
  * ``time_prob`` - "y" values of the time PDF (will be normalized)
 
+Note that this ``cable_delay`` is applied to every single PE and can be used to shift the timing for all hits by a single value. This is separate from the per-PMT cable delays that can be applied, as described in :ref:`channel_status`.
+
 ----------------
 
 .. _dark_noise:
 
-Dark Noise
-``````````
+Dark Noise Processor
+''''''''''''''''''''
 
 PMTs have an intrinsic noise rate, or "dark current", which results from thermal excitation at the single electron level.  These thermal electrons can exactly mimic a photoelectron from the PMT's photocathode and, thus, noise hits cannot be distinguished from 'true' hits caused by incident photons. The dark-noise simulation is performed by the ``NoiseProc`` processor, with controllable parameters set in the ``NoiseProc.ratdb`` table.
 
@@ -45,7 +84,7 @@ The noise is included in the simulation after the physics event has been propaga
 .. _noise_control:
 
 Control
-'''''''
+#######
 The ``noise_flag`` in the ``NoiseProc.ratdb`` table sets the way in which the dark noise is simulated.
 
 0: Global rate -- all PMTs in the detector have the same dark-rate. The value of the global rate is set by the ``default_noise_rate`` parameter. The default behavior of the noise processor is to use this global setting with a default rate of 1 kHz.
@@ -86,10 +125,11 @@ Parameters::
 
 * [values] doubles - sets the relevant parameters for the noise window, described further below. 
 
-.. _pmt_timing_and_charge:
+.. _noise_timing_and_charge:
 
 Timing and charge distributions
-'''''''''''''''''''''''''''''''
+###############################
+
 Noise hits are generated uniformly in time, throughout a window defined by the ``noise_lookback`` and ``noise_lookforward`` parameters in the ``NoiseProc.ratdb`` table. The parameters are set by default to 1000 ns each, and are typically centered around the first true PMT hit-time in the event (in the case that there are no hits, the window is centered around zero). The value of ``noise_maxtime`` sets the timing cut-off for generating noise-hits in the case of long-lived particles in the MC.
 
 The PMT charge distribution is sampled assuming the normal SPE charge distribution, as described in :ref:`pmt_response`.
@@ -98,8 +138,8 @@ The PMT charge distribution is sampled assuming the normal SPE charge distributi
 
 .. _pmt_afterpulsing:
 
-PMT Afterpulsing
-````````````````
+PMT Afterpulsing Processor
+''''''''''''''''''''''''''
 
 Details of PMT afterpulsing
 
@@ -108,23 +148,14 @@ Details of PMT afterpulsing
 .. _pmt_pulse:
 
 PMT Pulse Generation
-````````````````````
+''''''''''''''''''''
 
 Details of the PMT pulse generation here.
 
 ----------------
 
-.. _channel_status:
-
-Channel Status
-``````````````
-
-Details of the channel status here.
-
-----------------
-
 PMT Encapsulation
-`````````````````
+'''''''''''''''''
 
 PMT encapsulation is used for several reasons, such as to ensure compatibility with multiple detection media (e.g. air, water, doped water).
 
@@ -135,7 +166,7 @@ The encapsulation code structure is based off the PMT construction structure, in
 When enabled, the encapsulation object is created first, followed the pmt object. The PMT is then placed inside the encapsulation before itself is placed in the mother volume given.
 
 Enabling Encapsulation
-''''''''''''''''''''''
+######################
 Encapsulation by default is turned off.
 In a .geo file, it can be enabled by adding the following line inside the ``inner_pmts`` index entry: ::
 
@@ -153,9 +184,9 @@ The other line that must be included inside the ``inner_pmts`` index entry is th
 Where "modelname" must match an index entry name in ``ENCAPSULATION.ratdb``.
 
 Encapsulation model information
-'''''''''''''''''''''''''''''''
-Encapsulation models need to be added to ``ENCAPSULATION.ratdb``, which is loacted in ``ratpac/ratdb``.
-A entry can be called by using the ``encapsulation_model:`` command as mentioned above.
+###############################
+Encapsulation models need to be added to ``ENCAPSULATION.ratdb``, which is located in ``ratpac/ratdb``.
+An entry can be called by using the ``encapsulation_model:`` command as mentioned above.
 Each entry provides all the important information that is needed to create the encapsulation objects:
 
 * Construction type
@@ -169,7 +200,7 @@ Any values given such as dimensions and positions should be given in mm.
 Multiple entries can use the same construction type, but can vary on the objects and object properties used.
 
 Adding a new Encapsulation construction
-'''''''''''''''''''''''''''''''''''''''
+#######################################
 Initially, the only encapsulation construction is the "hemisphere" type, which encapsulates the PMT inside two hemispheres.
 An inner volume is then created in which the PMT can be placed.
 
@@ -187,14 +218,48 @@ This file uses the construction type that is given in the called ``ENCAPSULATION
 For a working example please see ``HemisphereEncapsulation.cc/hh`` which uses the "hemisphere" construction type.
 
 Placing PMT
-'''''''''''
+###########
 If encapsulation is used, then is possible that the medium inside the encapsulation is different to the mother volume medium it would be placed in without encapsulation on.
-This can be change in ``PMTFactoryBase.cc`` to ensure that the correct mother volume is used for the placement. If using the visualizer, the scene tree is useful to see if the PMT has been placed inside the correct volume.
+This can be changed in ``PMTFactoryBase.cc`` to ensure that the correct mother volume is used for the placement. If using the visualizer, the scene tree is useful to see if the PMT has been placed inside the correct volume.
 
 
 PMT Offset
-''''''''''
+##########
 The encapsulation is placed using the PMT position(s) and direction(s) given, this means that by default the PMT is placed in the center of the encapsulation.
 An offset can be given in the ``ENCAPSULATION.ratdb`` entry so that the PMT is placed off-centre inside the encapsulation. This currently works for z-axis offsets (i.e move the PMT forwards/backwards).
 
 ----------------
+
+PMT Concentrators
+'''''''''''''''''
+
+Document the PMT concentrators.
+
+----------------
+
+Magnetic Compensation
+'''''''''''''''''''''
+
+Technically there is code in ``geo/src/pmt/PMTFactoryBase.cc`` that can be enabled to attempt to change the PMT efficiency based on a specified external magnetic field; however, this is not supported code and is by default turned off.
+
+LAPPDs
+======
+
+Describe LAPPDs here.
+
+----------------
+
+Optical Fibers
+==============
+
+Describe Liquid-O style fiber simulations here.
+
+----------------
+
+.. _channel_status:
+
+Channel Status
+==============
+
+Details of the channel status here.
+
