@@ -64,6 +64,8 @@ add_library(geo OBJECT
         src/pmt/RevolutionPMTConstruction.cc
         src/pmt/ToroidalPMTConstruction.cc
         src/pmt/CylindricalPMTConstruction.cc
+        src/pmt/PMTEncapsulation.cc 
+        src/pmt/HemisphereEncapsulation.cc
         )
 
 # Set our include directories
