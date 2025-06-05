@@ -7,7 +7,13 @@
 namespace RAT {
 
 PruneProc::PruneProc() : Processor("prune") {
-  mc = mc_particle = mc_track = mc_pmt = mc_pmt_photon = mc_pmt_pulse = ev = ev_pmt = false;
+  mc = false;
+  mc_particle = false;
+  mc_track = false;
+  mc_pmt = false;
+  mc_pmt_photon = false;
+  ev = false;
+  ev_pmt = false;
 }
 
 PruneProc::~PruneProc() {}
@@ -43,8 +49,6 @@ void PruneProc::SetPruneState(std::string item, bool state) {
     mc_pmt = state;
   else if (item == "mc.pmt.photon")
     mc_pmt_photon = state;
-  else if (item == "mc.pmt.pulse")
-    mc_pmt_pulse = state;
   else if (item == "ev")
     ev = state;
   else if (item == "ev.pmt")
@@ -64,8 +68,6 @@ bool PruneProc::GetPruneState(std::string item) {
     return mc_pmt;
   else if (item == "mc.pmt.photon")
     return mc_pmt_photon;
-  else if (item == "mc.pmt.pulse")
-    return mc_pmt_pulse;
   else if (item == "ev")
     return ev;
   else if (item == "ev.pmt")
