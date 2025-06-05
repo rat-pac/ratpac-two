@@ -647,6 +647,8 @@ ABSLENGTH_value2: [1.0e-3, 1.0e-3, 0.49e1, 2.75e1, 10.35e1, 14.99e1, 20.41e1, 28
 PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 }
 
+
+
 {
 name: "OPTICS",
 index: "acrylic_polycast",
