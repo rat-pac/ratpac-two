@@ -2,8 +2,6 @@
 # CMakeLists for geo module
 
 add_library(geo OBJECT
-        src/BWVetGenericChamber.cc
-        src/BWVetGenericChamberHit.cc
         src/ConeWaveguideConstruction.cc
         src/ConeWaveguideFactory.cc
         src/DetectorConstruction.cc
@@ -13,15 +11,12 @@ add_library(geo OBJECT
         src/GLG4TestSolid.cc
         src/GLG4TorusStack.cc
         src/GeoBoxFactory.cc
-        src/GeoBubbleFactory.cc
         src/GeoBuilder.cc
         src/GeoCalibrationStickFactory.cc
-        src/GeoCherenkovSourceFactory.cc
         src/GeoConvexLensFactory.cc
         src/GeoFiberSensitiveDetector.cc
         src/GeoFiberSensitiveDetectorHit.cc
         src/GeoCutTubeFactory.cc
-        src/GeoEosFactory.cc
         src/GeoFactory.cc
         src/GeoLensFactory.cc
         src/GeoPerfBoxFactory.cc
@@ -45,11 +40,9 @@ add_library(geo OBJECT
         src/GeoTubeArrayFactory.cc
         src/GeoTubeFactory.cc
         src/GeoTubeIntersectionFactory.cc
-        src/GeoWaterBoxArrayFactory.cc
         src/Materials.cc
         src/TubeFacetSolid.cc
         src/UnionSolidArray.cc
-        src/WaterBoxConstruction.cc
         src/WLSPFactory.cc
         src/WLSPCoverFactory.cc
         src/GDMLWriteStructure.cc
