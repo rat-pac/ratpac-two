@@ -46,11 +46,11 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
   }
   G4ThreeVector local_offset = PMTInfoParser::ComputeLocalOffset(mother_name);
 
-  PMTEncapsulation *encap_construction = 0;
-  G4LogicalVolume *log_encapenv = 0;
-  PMTConstruction *construction = 0;
-  G4LogicalVolume *log_pmt = 0;
-  G4VPhysicalVolume *phys_mother_encap = 0;
+  PMTEncapsulation *encap_construction = nullptr;
+  G4LogicalVolume *log_encapenv = nullptr;
+  PMTConstruction *construction = nullptr;
+  G4LogicalVolume *log_pmt = nullptr;
+  G4VPhysicalVolume *phys_mother_encap = nullptr;
   G4ThreeVector pmtoffsetposition(0.0, 0.0, 0.0);
 
   int encapsulation = 0;  // default to no encapsulation
@@ -88,7 +88,6 @@ G4VPhysicalVolume *PMTFactoryBase::ConstructPMTs(
     }
   }
 
-  info << "Creating PMT model" << newline;
   construction = PMTConstruction::NewConstruction(lpmt, mother);
   log_pmt = construction->BuildVolume(volume_name);
 
