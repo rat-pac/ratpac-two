@@ -22,9 +22,9 @@ namespace RAT {
 
 HemisphereEncapsulation::HemisphereEncapsulation(DBLinkPtr encaptable, DBLinkPtr pmttable, G4LogicalVolume *mother)
     : PMTEncapsulation("hemisphere") {
-  inner_encapsulation_phys = 0;
-  front_encapsulation_phys = 0;
-  rear_encapsulation_phys = 0;
+  inner_encapsulation_phys = nullptr;
+  front_encapsulation_phys = nullptr;
+  rear_encapsulation_phys = nullptr;
 
   fParams.envelope_radius = 0;  // default to 0
   try {
@@ -68,8 +68,8 @@ HemisphereEncapsulation::HemisphereEncapsulation(DBLinkPtr encaptable, DBLinkPtr
   } catch (DBNotFoundError &e) {
   };
   if (fParams.useMetalFlange == 1) {
-    front_metal_encapsulaion_flange_phys = 0;
-    rear_metal_encapsulation_flange_phys = 0;
+    front_metal_encapsulaion_flange_phys = nullptr;
+    rear_metal_encapsulation_flange_phys = nullptr;
     fParams.metal_flange_material = G4Material::GetMaterial(encaptable->GetS("metal_flange_material"));
     fParams.metal_flange_surface = Materials::optical_surface[encaptable->GetS("metal_flange_material")];
     fParams.metal_flange_dimensions = encaptable->GetDArray("metal_flange_dimensions");
@@ -92,7 +92,7 @@ HemisphereEncapsulation::HemisphereEncapsulation(DBLinkPtr encaptable, DBLinkPtr
   }
 
   if (fParams.useGel == 1) {
-    optical_gel_encapsulation_phys = 0;
+    optical_gel_encapsulation_phys = nullptr;
 
     // Setup PMT parameters
     fParams.zEdge = pmttable->GetDArray("z_edge");
@@ -133,7 +133,7 @@ HemisphereEncapsulation::HemisphereEncapsulation(DBLinkPtr encaptable, DBLinkPtr
   } catch (DBNotFoundError &e) {
   };
   if (fParams.useSilicaBag == 1) {
-    silica_bag_encapsulation_phys = 0;
+    silica_bag_encapsulation_phys = nullptr;
     fParams.silica_bag_material = G4Material::GetMaterial(encaptable->GetS("silica_bag_material"));
     fParams.silica_bag_surface = Materials::optical_surface[encaptable->GetS("silica_bag_material")];
     fParams.silica_bag_dimensions = encaptable->GetDArray("silica_bag_dimensions");
@@ -146,7 +146,7 @@ HemisphereEncapsulation::HemisphereEncapsulation(DBLinkPtr encaptable, DBLinkPtr
   } catch (DBNotFoundError &e) {
   };
   if (fParams.useCable == 1) {
-    cable_encapsulation_phys = 0;
+    cable_encapsulation_phys = nullptr;
     fParams.cable_material = G4Material::GetMaterial(encaptable->GetS("cable_material"));
     fParams.cable_surface = Materials::optical_surface[encaptable->GetS("cable_material")];
     fParams.cable_dimensions = encaptable->GetDArray("cable_dimensions");
@@ -199,7 +199,7 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
   rear_encapsulation_solid = new G4UnionSolid("rear_encapsulation_solid", rear_encapsulation_solid, dome_flange_solid,
                                               0, G4ThreeVector(0.0, 0.0, -(0.5 * fParams.encap_thickness) * CLHEP::mm));
 
-  G4Tubs *metal_flange_solid = 0;
+  G4Tubs *metal_flange_solid = nullptr;
   if (fParams.useMetalFlange == 1) {
     metal_flange_solid = new G4Tubs("front_metal_flange_solid",
                                     (fParams.metal_flange_dimensions[0]) * CLHEP::mm,  // rmin
@@ -216,8 +216,8 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
 
   // If optical gel is used generate pmt shape to substract from gel
   // NOTE: THIS WILL ONLY WORK FOR TOROIDAL
-  G4VSolid *optical_gel_encapsulation_solid = 0;
-  GLG4TorusStack *body_solid = 0;
+  G4VSolid *optical_gel_encapsulation_solid = nullptr;
+  GLG4TorusStack *body_solid = nullptr;
 
   if (fParams.useGel == 1) {
     body_solid = (GLG4TorusStack *)BuildSolid(prefix + "_body_solid");
@@ -228,14 +228,14 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
         optical_gel_pmt_subtraction(prefix + "_optical_gel_encapsulation_solid", body_solid);
   }
 
-  G4Box *silica_bag_solid = 0;
+  G4Box *silica_bag_solid = nullptr;
   if (fParams.useSilicaBag == 1) {
     silica_bag_solid =
         new G4Box("silica_bag_solid", (fParams.silica_bag_dimensions[0]) * CLHEP::mm,
                   (fParams.silica_bag_dimensions[1]) * CLHEP::mm, (fParams.silica_bag_dimensions[2]) * CLHEP::mm);
   }
 
-  G4Tubs *cable_solid = 0;
+  G4Tubs *cable_solid = nullptr;
   if (fParams.useCable == 1) {
     cable_solid = new G4Tubs("cable_solid",
                              (fParams.cable_dimensions[0]) * CLHEP::mm,  // rmin
@@ -246,9 +246,10 @@ G4LogicalVolume *HemisphereEncapsulation::BuildVolume(const std::string &prefix)
 
   // ---------- Logical volumes ----------
 
-  G4LogicalVolume *envelope_log, *front_encapsulation_log, *rear_encapsulation_log, *metal_flange_encapsulation_log = 0;
-  G4LogicalVolume *inner_encapsulation_log, *optical_gel_encapsulation_log = 0, *silica_bag_encapsulation_log = 0,
-                                            *cable_encapsulation_log = 0;
+  G4LogicalVolume *envelope_log, *front_encapsulation_log, *rear_encapsulation_log,
+      *metal_flange_encapsulation_log = nullptr;
+  G4LogicalVolume *inner_encapsulation_log, *optical_gel_encapsulation_log = nullptr,
+                                            *silica_bag_encapsulation_log = nullptr, *cable_encapsulation_log = nullptr;
 
   envelope_log = new G4LogicalVolume(envelope_solid, fParams.exterior_material, "envelope_log");
 
