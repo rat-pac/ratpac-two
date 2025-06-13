@@ -4,16 +4,16 @@
 
 {
 
-name: "WATCHMAN_PARAMS",
-run_range: [0, 0],
+"name": "WATCHMAN_PARAMS",
+"run_range": [0, 0],
 
-photocathode_coverage: 0.39,
-veto_coverage: 0.02,
+"photocathode_coverage": 0.39,
+"veto_coverage": 0.02,
 
 
-/*steel_thickness: 25.4, 
-veto_thickness_r: 1000.,
-detector_size_r: ,
-detector_size_z: */
+/*"steel_thickness": 25.4, 
+"veto_thickness_r": 1000.,
+"detector_size_r": ,
+"detector_size_z": */
 
 }

@@ -12,41 +12,41 @@ interpolation should be done while producing these data files.
 
 ### Add appropriate entries in RATDB
 The filters need to be defined as both a material and a optical surface. 
-Examples: 
+"Examples": 
 ```
 // In MATERIAL.ratdb:
 { // Copied from the glass material
-name: "MATERIAL",
-index: "longpass_dichroic",
-run_range : [0, 0],
-density: 2.2,
-nelements: 2,
-nmaterials: 0,
-elements: ["Silicon", "Oxygen",],
-elemprop: [0.4675, 0.5325],
+"name": "MATERIAL",
+"index": "longpass_dichroic",
+"run_range" : [0, 0],
+"density": 2.2,
+"nelements": 2,
+"nmaterials": 0,
+"elements": ["Silicon", "Oxygen",],
+"elemprop": [0.4675, 0.5325],
 }
 ```
 ```
 // In OPTICS_Dichroic.ratdb:
 {
-name: "OPTICS",
-index: "longpass_dichroic",
-run_range : [0, 0],
-surface: 1,
-finish: "polished",
-model: "dichroic",
-type: "dielectric_dichroic",
-dichroic_property_file: "dichroic_data/trans_longpass_dichroic.dat",
+"name": "OPTICS",
+"index": "longpass_dichroic",
+"run_range" : [0, 0],
+"surface": 1,
+"finish": "polished",
+"model": "dichroic",
+"type": "dielectric_dichroic",
+"dichroic_property_file": "dichroic_data/trans_longpass_dichroic.dat",
 // path with respect to $RATSHARE/ratdb
-polish: 0,
+"polish": 0,
 // From the Glass surface:
-RINDEX_option: "wavelength",
-RINDEX_value1: [60.0, 800.0],
-RINDEX_value2: [1.458, 1.458],
-ABSLENGTH_option: "wavelength",
-ABSLENGTH_value1: [60.0, 800.0],
-ABSLENGTH_value2: [1.0e3, 1.0e3], // Assuming no absorption
-PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
+"RINDEX_option": "wavelength",
+"RINDEX_value1": [60.0, 800.0],
+"RINDEX_value2": [1.458, 1.458],
+"ABSLENGTH_option": "wavelength",
+"ABSLENGTH_value1": [60.0, 800.0],
+"ABSLENGTH_value2": [1.0e3, 1.0e3], // Assuming no absorption
+"PROPERTY_LIST": ["RINDEX", "ABSLENGTH", ]
 }
 ```
 

@@ -9,18 +9,18 @@
 }
 
 {
-name: "Fitter",
-index: "FitTensor",
-run_range: [0, 0],
+"name": "Fitter",
+"index": "FitTensor",
+"run_range": [0, 0],
 
-directory: "/genericdetector/fitters/tensorfit"
+"directory": "/genericdetector/fitters/tensorfit"
 }
 
 {
-name: "Fitter",
-index: "FitDirectionCenter",
-run_range: [0, 0],
+"name": "Fitter",
+"index": "FitDirectionCenter",
+"run_range": [0, 0],
 
 // Speed of light in material [mm/ns]
-light_speed: 223.06  // Defaulting to water: c/n = 299.79/1.344
+"light_speed": 223.06  // Defaulting to water: c/n = 299.79/1.344
 }

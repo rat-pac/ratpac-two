@@ -1,30 +1,30 @@
 {
-name: "DIGITIZER",
-index: "V1730",
-run_range: [0, 0],
+"name": "DIGITIZER",
+"index": "V1730",
+"run_range": [0, 0],
 
-nbits: 14, // number of bits
-nsamples: 512, // number of samples
-sampling_rate: 0.5, // sampling rate in GHz
-volt_high: 1000.0, // upper voltage limit in mV
-volt_low: -1000.0, // lower voltage limit in mV
-offset: 800.0, // voltage offset in mV
-noise_amplitude: 0.40, // in mV
-termination_ohms: 50.0, // in ohms
+"nbits": 14, // number of bits
+"nsamples": 512, // number of samples
+"sampling_rate": 0.5, // sampling rate in GHz
+"volt_high": 1000.0, // upper voltage limit in mV
+"volt_low": -1000.0, // lower voltage limit in mV
+"offset": 800.0, // voltage offset in mV
+"noise_amplitude": 0.40, // in mV
+"termination_ohms": 50.0, // in ohms
 }
 
 {
-name: "DIGITIZER",
-index: "V1742",
-run_range: [0, 0],
+"name": "DIGITIZER",
+"index": "V1742",
+"run_range": [0, 0],
 
-nbits: 12, // number of bits
-nsamples: 1024, // number of samples
-sampling_rate: 5.0, // sampling rate in GHz
-volt_high: 1000.0, // upper voltage limit in mV
-volt_low: 0.0, // lower voltage limit in mV
-offset: 800, // voltage offset in mV
-noise_amplitude: 0.40, // in mV
-termination_ohms: 50.0, // in ohms
+"nbits": 12, // number of bits
+"nsamples": 1024, // number of samples
+"sampling_rate": 5.0, // sampling rate in GHz
+"volt_high": 1000.0, // upper voltage limit in mV
+"volt_low": 0.0, // lower voltage limit in mV
+"offset": 800, // voltage offset in mV
+"noise_amplitude": 0.40, // in mV
+"termination_ohms": 50.0, // in ohms
 }
 

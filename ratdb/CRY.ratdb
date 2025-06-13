@@ -1,20 +1,20 @@
 // Configuration for CRY generator
 {
-name: "CRY",
-run_range: [0, 0],
+"name": "CRY",
+"run_range": [0, 0],
 
-returnNeutrons: true,
-returnProtons: true,
-returnGammas: false,
-returnElectrons: false,
-returnMuons: true,
-returnPions: true,
+"returnNeutrons": true,
+"returnProtons": true,
+"returnGammas": false,
+"returnElectrons": false,
+"returnMuons": true,
+"returnPions": true,
 
-nParticlesMin: 1,
-nParticlesMax: 100,
+"nParticlesMin": 1,
+"nParticlesMax": 100,
 
-altitude: 0,
-latitude: 0,
-date: "7-1-2022",
-subboxLength: 10,
+"altitude": 0,
+"latitude": 0,
+"date": "7-1-2022",
+"subboxLength": 10,
 }

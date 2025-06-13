@@ -1,42 +1,42 @@
 {
-name: "DAQ",
-index: "",
-run_range: [0, 0],
-channel_efficiency: 1.0,
+"name": "DAQ",
+"index": "",
+"run_range": [0, 0],
+"channel_efficiency": 1.0,
 }
 
 {
-name: "DAQ",
-index: "SplitEVDAQ",
-run_range: [0, 0],
+"name": "DAQ",
+"index": "SplitEVDAQ",
+"run_range": [0, 0],
 
-pulse_width: 10.0, // in ns
-trigger_threshold: 8.0,
-trigger_window: 600.0,
-pmt_lockout: 400.0,
-trigger_lockout: 0.0,
-trigger_resolution: 0.05, // in ns
-lookback: 200.0,
-max_hit_time: 1000000.0,
-trigger_on_noise: 1,
-digitizer_name: "V1730",
-digitize: true, // Run digitization of PMT waveforms
+"pulse_width": 10.0, // in ns
+"trigger_threshold": 8.0,
+"trigger_window": 600.0,
+"pmt_lockout": 400.0,
+"trigger_lockout": 0.0,
+"trigger_resolution": 0.05, // in ns
+"lookback": 200.0,
+"max_hit_time": 1000000.0,
+"trigger_on_noise": 1,
+"digitizer_name": "V1730",
+"digitize": true, // Run digitization of PMT waveforms
 }
 
 {
-name: "DAQ",
-index: "ForcedTrigger",
-run_range: [0, 0],
+"name": "DAQ",
+"index": "ForcedTrigger",
+"run_range": [0, 0],
 
-digitizer_name: "V1730",
-digitize: true, // Run digitization of PMT waveforms
+"digitizer_name": "V1730",
+"digitize": true, // Run digitization of PMT waveforms
 }
 
 {
-name: "DAQ",
-index: "SimpleDAQ",
-run_range: [0, 0],
-channel_efficiency: 1.0,
+"name": "DAQ",
+"index": "SimpleDAQ",
+"run_range": [0, 0],
+"channel_efficiency": 1.0,
 
 // No option to digitize events
 }
