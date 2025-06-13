@@ -555,6 +555,9 @@ std::vector<DBTable *> DBTextLoader::parse(std::string filename) {
       if (table->GetFieldType("run_range") == DBTable::INTEGER_ARRAY && table->GetIArray("run_range").size() == 2) {
         const std::vector<int> &run_range = table->GetIArray("run_range");
         table->SetRunRange(run_range[0], run_range[1]);
+      } else if (table->GetFieldType("run_list") == DBTable::INTEGER_ARRAY) {
+        const std::vector<int> &run_list = table->GetIArray("run_list");
+        table->SetRunList(run_list);
       } else if (table->GetFieldType("valid_begin") == DBTable::INTEGER_ARRAY &&
                  table->GetIArray("valid_begin").size() == 2 &&
                  table->GetFieldType("valid_end") == DBTable::INTEGER_ARRAY &&

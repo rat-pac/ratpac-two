@@ -89,7 +89,7 @@ int DB::LoadTable(DBTable *table) {
     simple_ptr_nocopy<DBTable> tablePtr(table);
 
     // Insert a pointer for each valid run
-    for (int i = table->GetRunBegin(); i <= table->GetRunEnd(); i++) {
+    for (int i : table->GetValidRuns()) {
       id.run = i;
 
       DBTable *oldtable = FindTable(id.name, id.index, id.run);
@@ -390,8 +390,7 @@ DBTable *DB::FindTable(std::string tblname, std::string index, int runNumber) {
 
   // 6) Add this table to the memory cache
   simple_ptr_nocopy<DBTable> newTablePtr(newTable);
-  const std::vector<int> &run_range = newTable->GetIArray("run_range");
-  for (int i = run_range[0]; i <= run_range[1]; i++) {
+  for (int i : newTable->GetValidRuns()) {
     id.run = i;
     tables[id] = newTablePtr;
     std::pair<DBTableKey, bool> sizeRecord(id, false);
@@ -478,8 +477,12 @@ void DB::DumpContentsToJson(std::ostream &stream) {
     // include key information in table if it is not already in there
     table.second->Set("name", table.second->GetName());
     table.second->Set("index", table.second->GetIndex());
-    std::vector<int> run_range = {table.second->GetRunBegin(), table.second->GetRunEnd()};
-    table.second->Set("run_range", run_range);
+    if (table.second->UsesRunList()) {
+      table.second->Set("run_list", table.second->GetValidRuns());
+    } else {
+      std::vector<int> run_range = {table.second->GetRunBegin(), table.second->GetRunEnd()};
+      table.second->Set("run_range", run_range);
+    }
     writer.putValue(table.second->GetCompleteJSON(), "");
   }
   stream << "\n]\n";

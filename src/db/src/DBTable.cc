@@ -15,6 +15,8 @@ DBTable::DBTable(json::Value &jsonDoc) : tblname(""), index(""), run_begin(0), r
   if (jsonDoc.isMember("run_range"))
     SetRunRange(jsonDoc["run_range"][(unsigned)0].cast<int>(), jsonDoc["run_range"][(unsigned)1].cast<int>());
 
+  if (jsonDoc.isMember("run_list")) SetRunList(jsonDoc["run_list"].toVector<int>());
+
   table = jsonDoc;
 }
 
