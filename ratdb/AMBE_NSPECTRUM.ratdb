@@ -3,8 +3,7 @@
 {
 	name: "AMBE_NSPECTRUM",
 	index: "",
-	valid_begin: [0, 0],
-	valid_end: [0, 0],
+	run_range: [0, 0],
 	prob_gamma_emission: 0.75,
 	energy_spectrum: [
         0.019,  0.023,  0.03,   0.037,  0.046,  0.058,  0.074,  0.093,  0.109, 0.144, 0.213,

@@ -1,8 +1,7 @@
 {
 name: "QUENCHING",
 index: "",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 
 // quenching model --- only birks law is supported!
 model: "birks",

@@ -1,8 +1,7 @@
 {
   name: "GEO",
   index: "world",
-  valid_begin: [0, 0],
-  valid_end: [0, 0],
+  run_range: [0, 0],
   mother: "",
   type: "sphere",
   r_max: 4500.0,
@@ -13,8 +12,7 @@
 {
   name: "GEO",
   index: "detector",
-  valid_begin: [0, 0],
-  valid_end: [0, 0],
+  run_range: [0, 0],
   mother: "world",
   type: "sphere",
   r_max: 3500,
@@ -28,8 +26,7 @@
 {
   name: "GEO",
   index: "pmts",
-  valid_begin: [0, 0],
-  valid_end: [0, 0],
+  run_range: [0, 0],
   mother: "world",
   type: "pmtarray",
   pmt_model: "validPMT",

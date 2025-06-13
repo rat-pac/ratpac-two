@@ -9,8 +9,7 @@
 {
 name: "MATERIAL",
 index: "WLSExample",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.050,
 nelements: 2,
 nmaterials: 0,
@@ -21,8 +20,7 @@ index_of_refraction: 1.59
 {
 name: "OPTICS",
 index: "WLSExample",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "polished",
 model: "unified",
@@ -85,8 +83,7 @@ PROPERTY_LIST: ["LIGHT_YIELD", "RINDEX", "SCINTILLATION", "SCINTILLATION_WLS", "
 {
 name: "MATERIAL",
 index: "PMMA",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.19,
 nelements: 3,
 nmaterials: 0,
@@ -97,8 +94,7 @@ index_of_refraction: 1.49
 {
 name: "OPTICS",
 index: "PMMA",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 //------------------------------------------------//
 // REFRACTIVE INDEX
 //------------------------------------------------//
@@ -118,8 +114,7 @@ PROPERTY_LIST: ["RINDEX"],
 {
 name: "MATERIAL",
 index: "Fpolyethylene",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.430,
 nelements: 3,
 nmaterials: 0,
@@ -131,8 +126,7 @@ index_of_refraction: 1.42
 {
 name: "OPTICS",
 index: "Fpolyethylene",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 //------------------------------------------------//
 // REFRACTIVE INDEX
 //------------------------------------------------//

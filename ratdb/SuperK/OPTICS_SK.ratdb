@@ -3,8 +3,7 @@
 {
 name: "MATERIAL",
 index: "doped_water_skOptics_7_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.0,
 nelements: 0,
 nmaterials: 2,
@@ -15,8 +14,7 @@ matprop: [0.999, 0.001],
 {
 name: "OPTICS",
 index: "doped_water_skOptics_7_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 
 //Neturon values coppied from RAT's water entry (i.e. probably wrong for gd doping)
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
@@ -44,8 +42,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 {
 name: "MATERIAL",
 index: "doped_water_skOptics_8_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.0,
 nelements: 0,
 nmaterials: 2,
@@ -56,8 +53,7 @@ matprop: [0.999, 0.001],
 {
 name: "OPTICS",
 index: "doped_water_skOptics_8_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 
 //Neturon values coppied from RAT's water entry (i.e. probably wrong for gd doping)
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
@@ -85,8 +81,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 {
 name: "MATERIAL",
 index: "doped_water_skOptics_9_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.0,
 nelements: 0,
 nmaterials: 2,
@@ -97,8 +92,7 @@ matprop: [0.999, 0.001],
 {
 name: "OPTICS",
 index: "doped_water_skOptics_9_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 
 //Neturon values coppied from RAT's water entry (i.e. probably wrong for gd doping)
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
@@ -126,8 +120,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 {
 name: "MATERIAL",
 index: "doped_water_skOptics_10_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.0,
 nelements: 0,
 nmaterials: 2,
@@ -138,8 +131,7 @@ matprop: [0.999, 0.001],
 {
 name: "OPTICS",
 index: "doped_water_skOptics_10_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 
 //Neturon values coppied from RAT's water entry (i.e. probably wrong for gd doping)
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
@@ -167,8 +159,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 {
 name: "MATERIAL",
 index: "doped_water_skOptics_11_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.0,
 nelements: 0,
 nmaterials: 2,
@@ -179,8 +170,7 @@ matprop: [0.999, 0.001],
 {
 name: "OPTICS",
 index: "doped_water_skOptics_11_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 
 //Neturon values coppied from RAT's water entry (i.e. probably wrong for gd doping)
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
@@ -208,8 +198,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 {
 name: "MATERIAL",
 index: "doped_water_skOptics_12_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.0,
 nelements: 0,
 nmaterials: 2,
@@ -220,8 +209,7 @@ matprop: [0.999, 0.001],
 {
 name: "OPTICS",
 index: "doped_water_skOptics_12_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 
 //Neturon values coppied from RAT's water entry (i.e. probably wrong for gd doping)
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
@@ -249,8 +237,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 {
 name: "MATERIAL",
 index: "doped_water_skOptics_13_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.0,
 nelements: 0,
 nmaterials: 2,
@@ -261,8 +248,7 @@ matprop: [0.999, 0.001],
 {
 name: "OPTICS",
 index: "doped_water_skOptics_13_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 
 //Neturon values coppied from RAT's water entry (i.e. probably wrong for gd doping)
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
@@ -290,8 +276,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 {
 name: "MATERIAL",
 index: "doped_water_skOptics_14_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.0,
 nelements: 0,
 nmaterials: 2,
@@ -302,8 +287,7 @@ matprop: [0.999, 0.001],
 {
 name: "OPTICS",
 index: "doped_water_skOptics_14_ABS",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 
 //Neturon values coppied from RAT's water entry (i.e. probably wrong for gd doping)
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],

@@ -3,8 +3,7 @@
 {
 name: "OPTICS",
 index: "air",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength", //60 nm is bogus to prevent G4 from complaining when VUVs hit the air
 RINDEX_value1: [60.0, 200.0, 300.0, 500.0, 700.0, 800.0, ], //with neck some vuvs reach the air
 RINDEX_value2: [1.0003236, 1.0003236, 1.0002915, 1.0002792, 1.0002763, 1.0002756, ],
@@ -17,8 +16,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "validwater",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
 NEUTRON_CAPTURE_TIME_value2: [163000.0, 163000.0, ],
 NEUTRON_SLOW_DIFFUSION_CONST_value1: [0.0, 1.0, ],
@@ -41,8 +39,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 name: "OPTICS",
 
 index: "validwbls", 
-valid_begin : [0, 0],
-valid_end : [0, 0], 
+run_range : [0, 0], 
 LIGHT_YIELD: 100.000000,
 
 RSLENGTH_option: "wavelength",

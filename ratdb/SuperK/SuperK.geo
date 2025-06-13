@@ -1,8 +1,7 @@
 {
 name: "GEO",
 index: "world",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "", // world volume has no mother
 type: "box",
 size: [20000.0, 20000.0, 20000.0], // mm, half-length
@@ -16,8 +15,7 @@ invisible: 1,
 {
 name: "GEO",
 index: "rock_1",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "world", // world volume has no mother
 type: "tube",
 r_max: 21000.0,
@@ -40,8 +38,7 @@ invisible: 1,
 {
 name: "GEO",
 index: "tank",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "world",
 type: "tube",
 r_max: 20000.0,
@@ -55,8 +52,7 @@ drawstyle: "solid"
 {
 name: "GEO",
 index: "detector",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "tank",
 type: "tube",
 r_max: 19984.125,
@@ -71,8 +67,7 @@ drawstyle: "solid"
 {
 name: "GEO",
 index: "black_sheet",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "detector",
 type: "tube",
 r_max: 17025.0,// These are guessed. Need a proper estimate
@@ -88,8 +83,7 @@ invisible: 1
 {
 name: "GEO",
 index: "inner_volume",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "black_sheet",
 type: "tube",
 r_max: 17000.0,// These are guessed. Need a proper estimate
@@ -106,8 +100,7 @@ invisible: 1
 //are in the correct order
 name: "GEO",
 index: "midsurface",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 invisible: 0, // omitted for visualization
 mother: "black_sheet", //not used but needs to be a valid name, parent of 'a' and 'b' would be best choice
 type: "border",
@@ -121,8 +114,7 @@ surface: "black_water",
 name: "GEO",
 index: "inner_pmts",
 enable: 1,
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "inner_volume",
 type: "pmtarray",
 end_idx:  11037, //idx of the last pmt

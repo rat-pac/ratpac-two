@@ -1,8 +1,7 @@
 {
 name: "DIGITIZER",
 index: "V1730",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 
 nbits: 14, // number of bits
 nsamples: 512, // number of samples
@@ -17,8 +16,7 @@ termination_ohms: 50.0, // in ohms
 {
 name: "DIGITIZER",
 index: "V1742",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 
 nbits: 12, // number of bits
 nsamples: 1024, // number of samples

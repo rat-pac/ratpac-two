@@ -1,8 +1,7 @@
 {
 name: "SN_SPECTRUM",
 index : "livermore_ibd",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 4 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -16,8 +15,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nc_nue_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 1 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -31,8 +29,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nc_numu_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 2 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -46,8 +43,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nc_nutau_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 3 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -61,8 +57,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nue_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 1 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -76,8 +71,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nuebar_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 4 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -91,8 +85,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nc_nuebar_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 4 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -106,8 +99,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nc_numubar_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 5 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -121,8 +113,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nc_nutaubar_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 6 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -136,8 +127,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nue_O16_2",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 1 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -151,8 +141,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_ibd",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 4 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -166,8 +155,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nc_nue_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 1 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -181,8 +169,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nc_numu_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 2 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -196,8 +183,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nc_nutau_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 3 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -211,8 +197,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nue_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 1 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -226,8 +211,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nuebar_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 4 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -241,8 +225,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nc_nuebar_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 4 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -256,8 +239,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nc_numubar_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 5 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -271,8 +253,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nc_nutaubar_O16",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 6 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -286,8 +267,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nue_O16_2",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 1 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -301,8 +281,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nue_e",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 1 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -316,8 +295,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_numu_e",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 2 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -331,8 +309,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nutau_e",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 3 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -346,8 +323,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nuebar_e",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 4 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -361,8 +337,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_numubar_e",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 5 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -376,8 +351,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "livermore_nutaubar_e",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 6 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -391,8 +365,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nue_e",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 1 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -406,8 +379,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_numu_e",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 2 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -421,8 +393,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nutau_e",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 3 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -436,8 +407,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nuebar_e",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 4 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -451,8 +421,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_numubar_e",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 5 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [
@@ -466,8 +435,7 @@ spec_mag: [
 {
 name: "SN_SPECTRUM",
 index : "gvkm_nutaubar_e",
-valid_begin:[0,0],
-valid_end:[0,0],
+run_range:[0, 0],
 
 //// Type of neutrino 6 [1:nue, 2:numu, 3:nutau, 4:nuebar, 5:numubar, 6:nutaubar]
 spec_e : [

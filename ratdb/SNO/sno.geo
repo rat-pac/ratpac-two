@@ -3,8 +3,7 @@
 {
 name: "GEO",
 index: "world",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "", // world volume has no mother
 type: "box",
 size: [20000.0, 20000.0, 20000.0], // mm, half-height
@@ -16,8 +15,7 @@ invisible: 1,
 {
 name: "GEO",
 index: "cavity",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "world",
 type: "box",
 size: [10000.0, 10000.0, 10000.0], // mm
@@ -29,8 +27,7 @@ invisible: 1,
 {
 name: "GEO",
 index: "psup",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "cavity",
 type: "sphere",
 r_max: 9000.0, // Outer radius, mm
@@ -42,8 +39,7 @@ invisible: 1,
 {
 name: "GEO",
 index: "h2o",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "psup",
 type: "sphere",
 r_max: 8900.0, // Outer radius, mm
@@ -54,8 +50,7 @@ color: [0.7, 0.4, 0.5, 0.1],
 {
 name: "GEO",
 index: "av",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "h2o",
 type: "sphere",
 r_max: 6060.0, // Outer radius, mm
@@ -66,8 +61,7 @@ color: [1.0, 1.0, 0.0, 0.1],
 {
 name: "GEO",
 index: "innerPMT",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "h2o",
 type: "pmtarray",
 pmt_model: "r1408", 
@@ -85,8 +79,7 @@ orient_point: [0.0, 0.0, 0.0],
 {
 name: "GEO",
 index: "d2o",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 mother: "av",
 type: "sphere",
 r_max: 6005.0, // Outer radius, mm

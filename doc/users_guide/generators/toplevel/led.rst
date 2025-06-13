@@ -15,8 +15,7 @@ table::
     {
         name: "LED"
         index: "default",
-        valid_begin: [0,0],
-        valid_end: [0,0],
+        run_range: [0, 0],
         
         intensity: 100,
         // When using multiples LEDs in sequence, (x, y, z) are their positions.

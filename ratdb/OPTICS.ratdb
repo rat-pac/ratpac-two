@@ -3,8 +3,7 @@
 {
 name: "OPTICS",
 index: "cryostat_vacuum",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 800.0, ],
 RINDEX_value2: [1.000001, 1.000001, ],
@@ -17,8 +16,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "air",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength", //60 nm is bogus to prevent G4 from complaining when VUVs hit the air
 RINDEX_value1: [60.0, 200.0, 300.0, 500.0, 700.0, 800.0, ], //with neck some vuvs reach the air
 RINDEX_value2: [1.0003236, 1.0003236, 1.0002915, 1.0002792, 1.0002763, 1.0002756, ],
@@ -32,8 +30,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 name: "OPTICS",
 index: "water",
 
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
 NEUTRON_CAPTURE_TIME_value2: [163000.0, 163000.0, ],
@@ -72,8 +69,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 {
 name: "OPTICS",
 index: "salt_water",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
 NEUTRON_CAPTURE_TIME_value2: [163000.0, 163000.0, ],
 NEUTRON_SLOW_DIFFUSION_CONST_value1: [0.0, 1.0, ],
@@ -94,8 +90,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 // Assuming austenitic stainless (832MV on Figure) and assuming constant reflectivity below 200nm (limit of plot)
 name: "OPTICS",
 index: "stainless_steel",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -116,8 +111,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 // then assuming a linear decrease to zero by 120nm.
 name: "OPTICS",
 index: "stainless_steel_304H",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -138,8 +132,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 // then assuming a linear decrease to zero by 120nm.
 name: "OPTICS",
 index: "stainless_steel_316L",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -157,8 +150,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "aluminum",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -176,8 +168,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "copper",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 REFLECTIVITY_option: "wavelength",
 REFLECTIVITY_value1: [100.0, 120.0, 220.0, 240.0,  260.0,  280.0,   300.0,  315.0,  ],
 REFLECTIVITY_value2: [0.40, 0.40, 0.401, 0.390, 0.355, 0.336,  0.355, 0.363, ],
@@ -190,8 +181,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "ptfe",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -210,8 +200,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "lightcone",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -232,8 +221,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "ptfe_fabric", // Gore DRP Diffuse Reflector (ePTFE)
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -251,8 +239,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "ZnO2",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -270,8 +257,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "AR_coating",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0, 260.0, 270.0, 280.0,
 	       290.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0,
@@ -292,8 +278,7 @@ PROPERTY_LIST: ["RINDEX", ]
 {
 name: "OPTICS",
 index: "optical_grease",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 800.0, ],
 RINDEX_value2: [1.463,1.463,], // taken from V-788 Data Sheet. BC-630 is 1.467 instead
@@ -303,8 +288,7 @@ PROPERTY_LIST: ["RINDEX", ]
 {
 name: "OPTICS",
 index: "MgF2",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 //from table in App Opt 23 p. 1982, except 1st (bogus) and 2nd (calculated from a .8 transmittance at 150 nm)
 RINDEX_option: "wavelength",
 RINDEX_value1:[60.0,150.0,200.0,240.0,280.0,320.0,360.0,400.0,440.0,480.0,520.0,560.0,600.0,640.0,680.0,720.0,760.0,800.0,],
@@ -316,8 +300,7 @@ PROPERTY_LIST: ["RINDEX", /*"ABSLENGTH",*/ ]
 {
 name: "OPTICS",
 index: "TiO2",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 REFLECTIVITY_option: "wavelength",
 // Digitised from http://dx.doi.org/10.1109/TNS.2012.2183385
 surface: 1,
@@ -333,8 +316,7 @@ PROPERTY_LIST: ["REFLECTIVITY",]
 {
 name: "OPTICS",
 index: "sapphire",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -355,8 +337,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "quartz",  // fused quartz
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -376,8 +357,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "glass",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -395,8 +375,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "borosilicate_glass",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -416,8 +395,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "hamamatsu_borosilicate_glass",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -437,8 +415,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "mirror",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "polishedfrontpainted",
 model: "glisur",
@@ -453,8 +430,7 @@ PROPERTY_LIST: ["REFLECTIVITY", ]
 {
 name: "OPTICS",
 index: "pmt_vacuum",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 800.0, ],
 RINDEX_value2: [1.000001, 1.000001, ],
@@ -470,8 +446,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "mineral_oil",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
 NEUTRON_CAPTURE_TIME_value2: [163000.0, 163000.0, ],
 NEUTRON_SLOW_DIFFUSION_CONST_value1: [0.0, 1.0, ],
@@ -490,8 +465,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 {
 name: "OPTICS",
 index: "pseudocumene",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 ABSLENGTH_option: "wavelength",
 ABSLENGTH_value1: [200.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0, 450.0, 500.0, 570.0, 590.0, 600.0, 650.0, 680.0, 770.0, 800.0, ],
 ABSLENGTH_value2: [0.1e-3, 0.1e-3, 23.0, 39.0, 67.0, 100.0, 180.0, 360.0, 950.0, 2200.0, 3000.0, 4500.0, 9000.0, 20.0e3, 40.0e3, 40.0e3, 25.0e3, 20.0e3, 15.0e3, 10.0e3, 0.1e-3, ],
@@ -504,8 +478,7 @@ PROPERTY_LIST: ["ABSLENGTH", "REEMISSION_PROB", ]
 {
 name: "OPTICS",
 index: "scintillator",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
 NEUTRON_CAPTURE_TIME_value2: [163000.0, 163000.0, ],
 NEUTRON_SLOW_DIFFUSION_CONST_value1: [0.0, 1.0, ],
@@ -541,8 +514,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 {
 name: "OPTICS",
 index: "gd_scintillator",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 NEUTRON_CAPTURE_TIME_value1: [0.0, 1.0, ],
 NEUTRON_CAPTURE_TIME_value2: [163000.0, 163000.0, ],
 NEUTRON_SLOW_DIFFUSION_CONST_value1: [0.0, 1.0, ],
@@ -580,8 +552,7 @@ PROPERTY_LIST: ["NEUTRON_CAPTURE_TIME", "NEUTRON_SLOW_DIFFUSION_CONST", "NEUTRON
 {
 name: "OPTICS",
 index: "acrylic_black",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 REFLECTIVITY_option: "wavelength",
 REFLECTIVITY_value1: [60.0, 800.0, ],
 REFLECTIVITY_value2: [0.0, 0.0, ],
@@ -594,8 +565,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "acrylic_white",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -617,8 +587,7 @@ PROPERTY_LIST: ["RINDEX", "REFLECTIVITY", "ABSLENGTH", ]
 name: "OPTICS",
 index: "acrylic_uvt",
 // Values for SNO UVT acrylic, extended down to 60nm
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0, 260.0, 270.0, 280.0, 290.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0, 410.0, 420.0, 430.0, 440.0, 450.0, 460.0, 470.0, 480.0, 490.0, 500.0, 510.0, 520.0, 530.0, 540.0, 550.0, 560.0, 570.0, 580.0, 590.0, 600.0, 610.0, 620.0, 630.0, 640.0, 650.0, 660.0, 670.0, 680.0, 690.0, 700.0, 710.0, 720.0, 730.0, 740.0, 750.0, 760.0, 770.0, 780.0, 790.0, 800.0, ],
 RINDEX_value2: [1.597, 1.597, 1.584, 1.573, 1.564, 1.556, 1.550, 1.544, 1.539, 1.534, 1.531, 1.527, 1.524, 1.521, 1.519, 1.516, 1.514, 1.512, 1.510, 1.509, 1.507, 1.506, 1.505, 1.503, 1.502, 1.501, 1.500, 1.499, 1.499, 1.498, 1.497, 1.496, 1.496, 1.495, 1.494, 1.494, 1.493, 1.493, 1.492, 1.492, 1.491, 1.491, 1.490, 1.490, 1.490, 1.489, 1.489, 1.488, 1.488, 1.488, 1.488, 1.487, 1.487, 1.487, 1.486, 1.486, 1.486, 1.486, 1.485, 1.485, 1.485, 1.485, ],
@@ -634,8 +603,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 name: "OPTICS",
 index: "acrylic_uvt_good",
 // Values for SNO UVT Good acrylic, extended down to 60nm
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0, 260.0, 270.0, 280.0, 290.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0, 410.0, 420.0, 430.0, 440.0, 450.0, 460.0, 470.0, 480.0, 490.0, 500.0, 510.0, 520.0, 530.0, 540.0, 550.0, 560.0, 570.0, 580.0, 590.0, 600.0, 610.0, 620.0, 630.0, 640.0, 650.0, 660.0, 670.0, 680.0, 690.0, 700.0, 710.0, 720.0, 730.0, 740.0, 750.0, 760.0, 770.0, 780.0, 790.0, 800.0, ],
 RINDEX_value2: [1.597, 1.597, 1.584, 1.573, 1.564, 1.556, 1.550, 1.544, 1.539, 1.534, 1.531, 1.527, 1.524, 1.521, 1.519, 1.516, 1.514, 1.512, 1.510, 1.509, 1.507, 1.506, 1.505, 1.503, 1.502, 1.501, 1.500, 1.499, 1.499, 1.498, 1.497, 1.496, 1.496, 1.495, 1.494, 1.494, 1.493, 1.493, 1.492, 1.492, 1.491, 1.491, 1.490, 1.490, 1.490, 1.489, 1.489, 1.488, 1.488, 1.488, 1.488, 1.487, 1.487, 1.487, 1.486, 1.486, 1.486, 1.486, 1.485, 1.485, 1.485, 1.485, ],
@@ -653,8 +621,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 name: "OPTICS",
 index: "acrylic_polycast",
 // Values for Ploycast uvt acrylic from Keith et al's LANL/UNM measurements
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0, 260.0, 270.0, 280.0, 290.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0, 410.0, 420.0, 430.0, 440.0, 450.0, 460.0, 470.0, 480.0, 490.0, 500.0, 510.0, 520.0, 530.0, 540.0, 550.0, 560.0, 570.0, 580.0, 590.0, 600.0, 610.0, 620.0, 630.0, 640.0, 650.0, 660.0, 670.0, 680.0, 690.0, 700.0, 710.0, 720.0, 730.0, 740.0, 750.0, 760.0, 770.0, 780.0, 790.0, 800.0, ],
 RINDEX_value2: [1.597, 1.597, 1.584, 1.573, 1.564, 1.556, 1.550, 1.544, 1.539, 1.534, 1.531, 1.527, 1.524, 1.521, 1.519, 1.516, 1.514, 1.512, 1.510, 1.509, 1.507, 1.506, 1.505, 1.503, 1.502, 1.501, 1.500, 1.499, 1.499, 1.498, 1.497, 1.496, 1.496, 1.495, 1.494, 1.494, 1.493, 1.493, 1.492, 1.492, 1.491, 1.491, 1.490, 1.490, 1.490, 1.489, 1.489, 1.488, 1.488, 1.488, 1.488, 1.487, 1.487, 1.487, 1.486, 1.486, 1.486, 1.486, 1.485, 1.485, 1.485, 1.485, ],
@@ -674,8 +641,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 name: "OPTICS",
 index: "acrylic_uvt_RPT",
 // Values for SNO UVT acrylic, extended down to 60nm
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0, 260.0, 270.0, 280.0, 290.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0, 410.0, 420.0, 430.0, 440.0, 450.0, 460.0, 470.0, 480.0, 490.0, 500.0, 510.0, 520.0, 530.0, 540.0, 550.0, 560.0, 570.0, 580.0, 590.0, 600.0, 610.0, 620.0, 630.0, 640.0, 650.0, 660.0, 670.0, 680.0, 690.0, 700.0, 710.0, 720.0, 730.0, 740.0, 750.0, 760.0, 770.0, 780.0, 790.0, 800.0, ],
 RINDEX_value2: [1.597, 1.597, 1.584, 1.573, 1.564, 1.556, 1.550, 1.544, 1.539, 1.534, 1.531, 1.527, 1.524, 1.521, 1.519, 1.516, 1.514, 1.512, 1.510, 1.509, 1.507, 1.506, 1.505, 1.503, 1.502, 1.501, 1.500, 1.499, 1.499, 1.498, 1.497, 1.496, 1.496, 1.495, 1.494, 1.494, 1.493, 1.493, 1.492, 1.492, 1.491, 1.491, 1.490, 1.490, 1.490, 1.489, 1.489, 1.488, 1.488, 1.488, 1.488, 1.487, 1.487, 1.487, 1.486, 1.486, 1.486, 1.486, 1.485, 1.485, 1.485, 1.485, ],
@@ -690,8 +656,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 name: "OPTICS",
 index: "acrylic_suvt",
 
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 
 // Copied from polycast values
 RINDEX_option: "wavelength",
@@ -711,8 +676,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "acrylic_uva_McMaster", // EUV wavelength shifter, Data from USD group.
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0, 260.0, 270.0, 280.0, 290.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0, 410.0, 420.0, 430.0, 440.0, 450.0, 460.0, 470.0, 480.0, 490.0, 500.0, 510.0, 520.0, 530.0, 540.0, 550.0, 560.0, 570.0, 580.0, 590.0, 600.0, 610.0, 620.0, 630.0, 640.0, 650.0, 660.0, 670.0, 680.0, 690.0, 700.0, 710.0, 720.0, 730.0, 740.0, 750.0, 760.0, 770.0, 780.0, 790.0, 800.0, ],
@@ -728,8 +692,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "acrylic_rpt",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0, 260.0, 270.0, 280.0, 290.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0, 410.0, 420.0, 430.0, 440.0, 450.0, 460.0, 470.0, 480.0, 490.0, 500.0, 510.0, 520.0, 530.0, 540.0, 550.0, 560.0, 570.0, 580.0, 590.0, 600.0, 610.0, 620.0, 630.0, 640.0, 650.0, 660.0, 670.0, 680.0, 690.0, 700.0, 710.0, 720.0, 730.0, 740.0, 750.0, 760.0, 770.0, 780.0, 790.0, 800.0, ],
 RINDEX_value2: [1.597, 1.597, 1.584, 1.573, 1.564, 1.556, 1.550, 1.544, 1.539, 1.534, 1.531, 1.527, 1.524, 1.521, 1.519, 1.516, 1.514, 1.512, 1.510, 1.509, 1.507, 1.506, 1.505, 1.503, 1.502, 1.501, 1.500, 1.499, 1.499, 1.498, 1.497, 1.496, 1.496, 1.495, 1.494, 1.494, 1.493, 1.493, 1.492, 1.492, 1.491, 1.491, 1.490, 1.490, 1.490, 1.489, 1.489, 1.488, 1.488, 1.488, 1.488, 1.487, 1.487, 1.487, 1.486, 1.486, 1.486, 1.486, 1.485, 1.485, 1.485, 1.485, ],
@@ -743,8 +706,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "acrylic_SpartechSheet",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0, 260.0, 270.0, 280.0, 290.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0, 410.0, 420.0, 430.0, 440.0, 450.0, 460.0, 470.0, 480.0, 490.0, 500.0, 510.0, 520.0, 530.0, 540.0, 550.0, 560.0, 570.0, 580.0, 590.0, 600.0, 610.0,
 620.0, 630.0, 640.0, 650.0, 660.0, 670.0, 680.0, 690.0, 700.0, 710.0, 720.0, 730.0, 740.0, 750.0, 760.0, 770.0, 780.0, 790.0, 800.0, ],
@@ -759,8 +721,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "acrylic_uva_polycast",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 // Copied from polycast values
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0, 260.0, 270.0, 280.0, 290.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0, 410.0, 420.0, 430.0, 440.0, 450.0, 460.0, 470.0, 480.0, 490.0, 500.0, 510.0, 520.0, 530.0, 540.0, 550.0, 560.0, 570.0, 580.0, 590.0, 600.0, 610.0, 620.0, 630.0, 640.0, 650.0, 660.0, 670.0, 680.0, 690.0, 700.0, 710.0, 720.0, 730.0, 740.0, 750.0, 760.0, 770.0, 780.0, 790.0, 800.0, ],
@@ -775,8 +736,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "acrylic_uva_reynolds",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 // Copied from polycast values
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0, 260.0, 270.0, 280.0, 290.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0, 410.0, 420.0, 430.0, 440.0, 450.0, 460.0, 470.0, 480.0, 490.0, 500.0, 510.0, 520.0, 530.0, 540.0, 550.0, 560.0, 570.0, 580.0, 590.0, 600.0, 610.0, 620.0, 630.0, 640.0, 650.0, 660.0, 670.0, 680.0, 690.0, 700.0, 710.0, 720.0, 730.0, 740.0, 750.0, 760.0, 770.0, 780.0, 790.0, 800.0, ],
@@ -791,8 +751,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "delrin_black", // identical to acrylic_black
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 REFLECTIVITY_option: "wavelength",
 REFLECTIVITY_value1: [60.0, 800.0, ],
 REFLECTIVITY_value2: [0.0, 0.0, ],
@@ -805,8 +764,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "nylon",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 // arbitrarily extended properties from 200 down to 60 nm
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, ],
@@ -820,8 +778,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "tyvek",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -839,8 +796,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "styrofoam",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 type: "dielectric_metal",
@@ -859,8 +815,7 @@ PROPERTY_LIST: ["REFLECTIVITY", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "eljen_WLSP",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "polished",
 model: "unified",
@@ -907,8 +862,7 @@ PROPERTY_LIST: ["LIGHT_YIELD", "RINDEX", "SCINTILLATION", "SCINTILLATION_WLS", "
 name: "OPTICS",
 // Current values from the Eos requirements
 index: "acrylic_uvt_eos_spec",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength",
 RINDEX_value1: [60.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0, 260.0, 270.0, 280.0, 290.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0, 410.0, 420.0, 430.0, 440.0, 450.0, 460.0, 470.0, 480.0, 490.0, 500.0, 510.0, 520.0, 530.0, 540.0, 550.0, 560.0, 570.0, 580.0, 590.0, 600.0, 610.0, 620.0, 630.0, 640.0, 650.0, 660.0, 670.0, 680.0, 690.0, 700.0, 710.0, 720.0, 730.0, 740.0, 750.0, 760.0, 770.0, 780.0, 790.0, 800.0, ],
 RINDEX_value2: [1.597, 1.597, 1.584, 1.573, 1.564, 1.556, 1.550, 1.544, 1.539, 1.534, 1.531, 1.527, 1.524, 1.521, 1.519, 1.516, 1.514, 1.512, 1.510, 1.509, 1.507, 1.506, 1.505, 1.503, 1.502, 1.501, 1.500, 1.499, 1.499, 1.498, 1.497, 1.496, 1.496, 1.495, 1.494, 1.494, 1.493, 1.493, 1.492, 1.492, 1.491, 1.491, 1.490, 1.490, 1.490, 1.489, 1.489, 1.488, 1.488, 1.488, 1.488, 1.487, 1.487, 1.487, 1.486, 1.486, 1.486, 1.486, 1.485, 1.485, 1.485, 1.485, ],
@@ -922,8 +876,7 @@ PROPERTY_LIST: ["RINDEX", "ABSLENGTH", ]
 {
 name: "OPTICS",
 index: "acrylic_sno",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 RINDEX_option: "wavelength",
 RINDEX_value1: [200.0, 220.0, 240.0, 260.0, 280.0, 300.0, 320.0, 340.0, 360.0, 380.0, 400.0, 420.0, 440.0, 460.0, 480.0, 500.0, 520.0, 540.0, 560.0, 580.0, 600.0, 620.0, 640.0, 660.0, 680.0, 700.0, 720.0, 740.0, 760.0, 780.0, 800.0, ],
 RINDEX_value2: [1.59816, 1.57399, 1.55692, 1.54436, 1.5348, 1.52732, 1.52133, 1.51644, 1.51238, 1.50897, 1.50607, 1.50357, 1.50139, 1.49949, 1.49781, 1.49632, 1.49498, 1.49378, 1.49269, 1.49171, 1.49081, 1.48999, 1.48924, 1.48854, 1.4879, 1.4873, 1.48675, 1.48624, 1.48576, 1.48531, 1.48488, ],

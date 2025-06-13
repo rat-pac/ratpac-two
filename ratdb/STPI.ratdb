@@ -24,8 +24,7 @@
 name:
   "STPI",
 index: "full",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 
 // This flux corresponds to 20m from the source and assumes no oscillations 
 flux: 1.567e+07,

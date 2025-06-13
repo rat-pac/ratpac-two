@@ -5,8 +5,7 @@
 {
 name: "OPTICS",
 index: "photocathode_R7081HQE",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 /*EFFICIENCY_option: "wavelength",
@@ -42,8 +41,7 @@ PROPERTY_LIST: ["EFFICIENCY", "RINDEX", "KINDEX", "THICKNESS", ]
 {
 name: "OPTICS",
 index: "photocathode_R3600",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 EFFICIENCY_option: "wavelength",

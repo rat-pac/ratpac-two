@@ -1,8 +1,7 @@
 { //dummmy material for db loading
 name: "MATERIAL",
 index: "black_water",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.0,
 nelements: 0, 
 nmaterials: 1,
@@ -13,8 +12,7 @@ matprop: [1.0]
 {
 name: "OPTICS",
 index: "black_water",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",
@@ -40,8 +38,7 @@ PROPERTY_LIST: ["REFLECTIVITY","SPECULARLOBECONSTANT","SPECULARSPIKECONSTANT","B
 { //dummmy material for db loading
 name: "MATERIAL",
 index: "white_water",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 density: 1.0,
 nelements: 0, 
 nmaterials: 1,
@@ -52,8 +49,7 @@ matprop: [1.0]
 {
 name: "OPTICS",
 index: "white_water",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 surface: 1,
 finish: "ground",
 model: "glisur",

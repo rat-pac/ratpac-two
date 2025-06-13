@@ -34,8 +34,7 @@
 {
 name: "SOLAR",
 index: "n13",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 
 flux: 3.07e+08,
 emin: 0.0,
@@ -46,8 +45,7 @@ spec_flux: [0.0, 0.00032302, 0.0012825, 0.0028641, 0.0050537, 0.0078371, 0.0112,
 {
 name: "SOLAR",
 index: "pp",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 
 flux: 5.99e+10,
 emin: 0.0,
@@ -58,8 +56,7 @@ spec_flux: [0.0, 0.0035, 0.0138, 0.0307, 0.0538, 0.083, 0.1179, 0.1582, 0.2038, 
 {
 name: "SOLAR",
 index: "hep",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 
 flux: 7.93e+03,
 emin: 0.0,
@@ -70,8 +67,7 @@ spec_flux: [0.0, 1.4753e-06, 5.8897e-06, 1.3226e-05, 2.3467e-05, 3.6595e-05, 5.2
 {
 name: "SOLAR",
 index: "b8",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 
 flux: 5.69e+06,
 emin: 0.0,
@@ -82,8 +78,7 @@ spec_flux: [0.0, 0.000214, 0.000763, 0.001513, 0.002507, 0.003763, 0.005239, 0.0
 {
 name: "SOLAR",
 index: "o15",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 
 flux: 2.33e+08,
 emin: 0.0,
@@ -94,8 +89,7 @@ spec_flux: [0.0, 4.0646e-05, 0.00016206, 0.00036348, 0.00064412, 0.0010032, 0.00
 {
 name: "SOLAR",
 index: "pep",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 
 flux: 1.42e+08,
 emin: 1.442,
@@ -106,8 +100,7 @@ spec_flux: [1.0]
 {
 name: "SOLAR",
 index: "be7",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 
 flux: 4.84e+09,
 emin: 0.383,
@@ -119,8 +112,7 @@ spec_flux: [0.1, 0.9]
 {
 name: "SOLAR",
 index: "f17",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+run_range: [0, 0],
 flux: 5.84e+06,
 emin: 0.0,
 emax: 1.74,

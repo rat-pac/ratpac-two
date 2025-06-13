@@ -2,8 +2,7 @@
 {
 name: "OPTICS",
 index: "photocathode",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 EFFICIENCY_option: "wavelength",
@@ -26,8 +25,7 @@ PROPERTY_LIST: ["EFFICIENCY", "RINDEX", "KINDEX", "THICKNESS", ]
 {
 name: "OPTICS",
 index: "photocathode_r14688",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 // From the R14688 datasheet
@@ -52,8 +50,7 @@ PROPERTY_LIST: ["EFFICIENCY", "RINDEX", "KINDEX", "THICKNESS", ]
 {
 name: "OPTICS",
 index: "photocathode_R11065",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 EFFICIENCY_option: "wavelength",
@@ -77,8 +74,7 @@ PROPERTY_LIST: ["EFFICIENCY", "RINDEX", "KINDEX", "THICKNESS", ]
 {
 name: "OPTICS",
 index: "photocathode_R1408",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 EFFICIENCY_option: "wavelength",
@@ -101,8 +97,7 @@ PROPERTY_LIST: ["EFFICIENCY", "RINDEX", "KINDEX", "THICKNESS", ]
 {
 name: "OPTICS",
 index: "photocathode_R11780",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 EFFICIENCY_option: "wavelength",
@@ -127,8 +122,7 @@ PROPERTY_LIST: ["EFFICIENCY", "RINDEX", "KINDEX", "THICKNESS", ]
 {
 name: "OPTICS",
 index: "photocathode_et9390b",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 EFFICIENCY_option: "wavelength", 
@@ -159,8 +153,7 @@ PROPERTY_LIST: ["EFFICIENCY", "RINDEX", "KINDEX", "THICKNESS", ]
 {
 name: "OPTICS",
 index: "photocathode_H11934",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 EFFICIENCY_option: "wavelength",
@@ -184,8 +177,7 @@ PROPERTY_LIST: ["EFFICIENCY", "RINDEX", "KINDEX", "THICKNESS", ]
 {
 name: "OPTICS",
 index: "photocathode_lappd",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 EFFICIENCY_option: "wavelength",
@@ -211,8 +203,7 @@ PROPERTY_LIST: ["EFFICIENCY", "RINDEX", "KINDEX", "THICKNESS", ]
 {
 name: "OPTICS",
 index: "photocathode_ETEL",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 EFFICIENCY_option: "wavelength",
@@ -233,8 +224,7 @@ PROPERTY_LIST: ["EFFICIENCY", "RINDEX", "KINDEX", "THICKNESS", ]
 {
 name: "OPTICS",
 index: "photocathode_R3600",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 EFFICIENCY_option: "wavelength",
@@ -259,8 +249,7 @@ PROPERTY_LIST: ["EFFICIENCY", "RINDEX", "KINDEX", "THICKNESS", ]
 {
 name: "OPTICS",
 index: "photocathode_R7081HQE",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 //EFFICIENCY_option: "wavelength",
@@ -292,8 +281,7 @@ PROPERTY_LIST: ["EFFICIENCY", "RINDEX", "KINDEX", "THICKNESS", ]
 // E.Keener at Penn, copied from photocathode_R7081HQE, quantum efficiency data from R7081-20 datasheet
 name: "OPTICS",
 index: "photocathode_R7081",
-valid_begin : [0, 0],
-valid_end : [0, 0],
+run_range : [0, 0],
 photocathode: 1,
 
 

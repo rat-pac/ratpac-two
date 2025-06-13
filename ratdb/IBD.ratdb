@@ -123,7 +123,7 @@ spec_flux: [2.32812712e-03,1.01429648e-02,1.45675498e-02,1.82532105e-02,2.137528
 {
 name: "IBD",
 index: "torness_full",
-run_range: [0,0],
+run_range: [0, 0],
 
 apply_xs: 0,
 
@@ -140,7 +140,7 @@ spec_flux:  [0.0, 0.461, 0.635, 0.883, 0.979, 1.173, 1.28, 1.393, 1.537, 1.566, 
 {
 name: "IBD",
 index: "heysham_2",
-run_range: [0,0],
+run_range: [0, 0],
 
 apply_xs: 0,
 
@@ -157,7 +157,7 @@ spec_flux:  [0.0, 0.108, 0.182, 0.245, 0.301, 0.411, 0.435, 0.615, 0.616, 0.832,
 {
 name: "IBD",
 index: "heysham_full",
-run_range: [0,0],
+run_range: [0, 0],
 
 apply_xs: 0,
 
@@ -175,7 +175,7 @@ spec_flux:  [0.0, 0.19, 0.32, 0.431, 0.529, 0.723, 0.765, 1.083, 1.084, 1.463, 1
 {
 name: "IBD",
 index: "hartlepool_2",
-run_range: [0,0],
+run_range: [0, 0],
 
 apply_xs: 0,
 
@@ -192,7 +192,7 @@ spec_flux:  [0.0, 1.234, 1.835, 2.384, 2.969, 3.604, 4.263, 4.902, 5.471, 5.934,
 {
 name: "IBD",
 index: "hartlepool_1",
-run_range: [0,0],
+run_range: [0, 0],
 
 apply_xs: 0,
 
@@ -209,7 +209,7 @@ spec_flux:  [0.0, 1.65, 2.448, 3.174, 3.948, 4.79, 5.671, 6.529, 7.299, 7.928, 8
 {
 name: "IBD",
 index: "gravelines_full",
-run_range: [0,0],
+run_range: [0, 0],
 
 apply_xs: 0,
 
@@ -226,7 +226,7 @@ spec_flux: [0.0,0.144092682,0.234532,0.37669386,0.512283311,0.595187326,0.737637
 {
 name: "IBD",
 index: "sizewell_B",
-run_range: [0,0],
+run_range: [0, 0],
 
 apply_xs: 0,
 
@@ -244,7 +244,7 @@ spec_flux: [0.0,0.143428274,0.213028457,0.266779326,0.313356083,0.356895807,0.39
 {
 name: "IBD",
 index: "hinkley_C",
-run_range: [0,0],
+run_range: [0, 0],
 
 apply_xs: 0,
 
@@ -261,7 +261,7 @@ spec_flux: [0.0,0.107509598,0.137907875,0.130160883,0.107483483,0.105445304,0.12
 {
 name: "IBD",
 index: "boulby_worldbg",
-run_range: [0,0],
+run_range: [0, 0],
 
 apply_xs: 0,
 
