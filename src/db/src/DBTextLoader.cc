@@ -559,30 +559,10 @@ std::vector<DBTable *> DBTextLoader::parse(std::string filename) {
                  table->GetIArray("valid_begin").size() == 2 &&
                  table->GetFieldType("valid_end") == DBTable::INTEGER_ARRAY &&
                  table->GetIArray("valid_end").size() == 2) {
-        // Backward compatibility
-        const std::vector<int> &valid_begin = table->GetIArray("valid_begin");
-        const std::vector<int> &valid_end = table->GetIArray("valid_end");
-        std::vector<int> run_range(2);
-
-        if (valid_begin[0] == 0 && valid_begin[1] == 0 && valid_end[0] == 0 && valid_end[1] == 0) {
-          run_range[0] = run_range[1] = 0;
-
-          // Add modern run_range field
-          table->Set("run_range", run_range);
-          table->SetRunRange(run_range[0], run_range[1]);
-        } else if (valid_begin[0] == -1 && valid_begin[1] == -1 && valid_end[0] == -1 && valid_end[1] == -1) {
-          run_range[0] = run_range[1] = -1;
-
-          // Add modern run_range field
-          table->Set("run_range", run_range);
-          table->SetRunRange(run_range[0], run_range[1]);
-        } else {
-          warn << "Table has old-style valid_begin/valid_end arrays not set to "
-                  "default or user plane.  Discarding..."
-               << newline;
-          bad = true;
-        }
-
+        // valid_begin and valid_end will be deprecated.
+        warn << "Table " << table->GetName() << " has old-style valid_begin/valid_end arrays that are now deprecated."
+             << newline << "Discarding..." << newline << "Please replace them with run_range.";
+        bad = true;
       } else {
         warn << "Table " << table->GetName() << " has bad/missing validity information." << newline << "Discarding..."
              << newline;
