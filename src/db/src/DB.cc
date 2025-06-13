@@ -478,8 +478,8 @@ void DB::DumpContentsToJson(std::ostream &stream) {
     // include key information in table if it is not already in there
     table.second->Set("name", table.second->GetName());
     table.second->Set("index", table.second->GetIndex());
-    table.second->Set("valid_begin", table.second->GetRunBegin());
-    table.second->Set("valid_end", table.second->GetRunEnd());
+    std::vector<int> run_range = {table.second->GetRunBegin(), table.second->GetRunEnd()};
+    table.second->Set("run_range", run_range);
     writer.putValue(table.second->GetCompleteJSON(), "");
   }
   stream << "\n]\n";
