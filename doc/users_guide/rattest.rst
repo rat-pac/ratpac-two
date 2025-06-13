@@ -64,8 +64,7 @@ The RAT macro and ROOT macro do not need to have the same name as the test, they
     {
     name: "GEO",
     index: "world",
-    valid_begin: [0, 0],
-    valid_end: [0, 0],
+    run_range: [0, 0],
     mother: "",
     type: "box",
     size: [10000.0, 10000.0, 10000.0],

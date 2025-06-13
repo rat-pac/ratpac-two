@@ -15,8 +15,7 @@ table::
     {
     name: "SPECTRUM",
     index: "flat",
-    valid_begin: [0, 0],
-    valid_end: [0, 0],
+    run_range: [0, 0],
     
     // default spectrum is flat
     spec_e:     [ 1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 4.50, 5.00], // (MeV) 

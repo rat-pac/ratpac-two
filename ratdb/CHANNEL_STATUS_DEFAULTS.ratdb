@@ -5,7 +5,7 @@
   "run_range": [0, 0],
   // index of each channel_status table to use. If not specified, fall back to the "default" value.
   // for example, to use channel_online[example] rather than channel_online[], uncomment the line below.
-  // channel_online: "example"
+  // "channel_online": "example"
   "default": "",
 }
 

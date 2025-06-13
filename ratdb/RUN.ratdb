@@ -1,11 +1,11 @@
 /* Run conditions */
 {
-name: "RUN",
-run_range: [0, 0],
+"name": "RUN",
+"run_range": [0, 0],
 // index used to index table with name "channel_status_selection", which
 // provides indexes for every channel_status table to lookup.
-channel_status: "",
+"channel_status": "",
 
-runtype: 0,
+"runtype": 0,
 }
 
