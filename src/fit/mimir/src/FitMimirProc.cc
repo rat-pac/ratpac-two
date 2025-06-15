@@ -1,20 +1,30 @@
 #include <RAT/FitMimirProc.hh>
-#include <mimir/PositionTime_PMTTypeTimeResidual.hh>
+#include <mimir/Factory.hh>
+#include <mimir/FitStep.hh>
+
+#include "mimir/FitStrategy.hh"
 namespace RAT {
 
 FitMimirProc::FitMimirProc() : Processor("mimir"), inputHandler() {}
 
-void FitMimirProc::BeginOfRun(DS::Run *run) {
-  strategy = std::make_unique<Mimir::PositionTime_PMTTypeTimeResidual>(&inputHandler);
-  if (!strategy->Configure(RAT::DB::Get()->GetLink("FIT_MIMIR", ""))) {
-    RAT::Log::Die("FitMimirProc: Failed to configure strategy " + strategy->Name());
+void FitMimirProc::BeginOfRun(DS::Run *run) { Configure(); }
+
+void FitMimirProc::Configure(const std::string &index) {
+  DBLinkPtr lConfig = DB::Get()->GetLink("FIT_MIMIR", index);
+  std::string strategyName = lConfig->GetS("strategy");
+  std::string strategyConfig = lConfig->GetS("strategy_config");
+  auto factory = Mimir::Factory<Mimir::FitStrategy>::GetInstance();
+  strategy = factory.make_and_configure(strategyName, strategyConfig);
+  if (!strategy) {
+    Log::Die("Failed to create Mimir strategy: " + strategyName);
   }
+  strategy->SetInputHandler(&inputHandler);
 }
 
 Processor::Result FitMimirProc::Event(DS::Root *ds, DS::EV *ev) {
   inputHandler.RegisterEvent(ev);
   Mimir::ParamSet result = strategy->Execute();
-  RAT::DS::FitResult *ratds_result = new RAT::DS::FitResult();
+  RAT::DS::FitResult *ratds_result = new RAT::DS::FitResult(name);
   if (result.position_time.are_all_used()) {
     ratds_result->SetPosition(TVector3(result.position_time.components[0].value,
                                        result.position_time.components[1].value,

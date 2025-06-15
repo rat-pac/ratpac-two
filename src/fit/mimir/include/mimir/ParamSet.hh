@@ -31,6 +31,7 @@ struct ParamField {
   void set_all_lower_bounds(double value);
   void set_all_upper_bounds(double value);
   void set_all_status(ParamStatus status);
+  void set_status(std::vector<ParamStatus> status_vector);
   void set_values(std::vector<double> values);
   bool are_all_used() const {
     return std::all_of(components.begin(), components.end(), [](const ParamComponent& comp) { return comp.is_used(); });

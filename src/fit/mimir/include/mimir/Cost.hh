@@ -1,6 +1,6 @@
 #pragma once
 #include <RAT/DB.hh>
-#include <mimir/Constants.hh>
+#include <mimir/Common.hh>
 #include <mimir/ParamSet.hh>
 
 namespace RAT::Mimir {
@@ -35,10 +35,15 @@ class Cost {
     hit_charges.clear();
   }
 
+  const std::string GetName() const { return name; }
+
+  void SetName(const std::string& _name) { name = _name; }
+
  protected:
   std::vector<int> hit_pmtids;
   std::vector<double> hit_times;
   std::vector<double> hit_charges;
+  std::string name;
 };
 
 }  // namespace RAT::Mimir

@@ -62,6 +62,18 @@ void ParamField::set_all_status(ParamStatus status) {
   }
 }
 
+void ParamField::set_status(std::vector<ParamStatus> status_vector) {
+  if (status_vector.size() != components.size()) {
+    std::stringstream msg;
+    msg << "Mismatch in number of status codes provided. Expected " << components.size() << ", but got "
+        << status_vector.size();
+    RAT::Log::Die(msg.str());
+  }
+  for (size_t i = 0; i < components.size() && i < status_vector.size(); ++i) {
+    components[i].status = status_vector[i];
+  }
+}
+
 void ParamField::set_values(std::vector<double> values) {
   if (values.size() != components.size()) {
     std::stringstream msg;
@@ -98,7 +110,7 @@ std::vector<ParamComponent> ParamSet::to_active_components() const {
 void ParamSet::update_active(const std::vector<double>& values) {
   size_t index = 0;
   for (ParamField* field : {&position_time, &direction, &energy}) {
-    if (index >= values.size()) {
+    if (index > values.size()) {
       std::stringstream msg;
       msg << "Not enough values provided to from_fit_vector. Expected at least " << index << ", but got "
           << values.size();

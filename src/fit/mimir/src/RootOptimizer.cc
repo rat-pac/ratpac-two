@@ -13,7 +13,7 @@ bool RootOptimizer::Configure(RAT::DBLinkPtr db_link) {
   fMinimizer->SetMaxFunctionCalls(10000);
   fMinimizer->SetMaxIterations(1000);
   fMinimizer->SetTolerance(1e-4);
-  fMinimizer->SetPrintLevel(1);
+  fMinimizer->SetPrintLevel(0);
   info << "Mimir::RootOptimizer: Setting up the following optimizer: " << newline;
   std::stringstream minimizer_info;
   fMinimizer->Options().Print(minimizer_info);

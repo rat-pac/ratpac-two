@@ -8,8 +8,7 @@
 namespace RAT::Mimir {
 class FitStrategy {
  public:
-  FitStrategy(RAT::FitterInputHandler *input_handler, const std::string &type, const std::string &name = "")
-      : input_handler(input_handler), type_(type), name_(name) {}
+  FitStrategy() = default;
   virtual ~FitStrategy() = default;
 
   // Configure the fit strategy with a database link
@@ -48,16 +47,15 @@ class FitStrategy {
 
   virtual void Execute(ParamSet &params) = 0;
 
-  // Get the name of the fit strategy
-  const std::string &Name() const { return name_; }
+  void SetInputHandler(RAT::FitterInputHandler *handler) { input_handler = handler; }
 
-  // Get the type of the fit strategy
-  const std::string &Type() const { return type_; }
+  void SetName(const std::string &_name) { name = _name; }
+
+  const std::string &GetName() const { return name; }
 
  protected:
   RAT::FitterInputHandler *input_handler;
-  const std::string type_;
-  const std::string name_;
+  std::string name;
 };
 
 }  // namespace RAT::Mimir

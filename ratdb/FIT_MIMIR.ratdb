@@ -1,0 +1,42 @@
+// Configuration for the MIMIR fitter processor, as well as its underlying modular components.
+
+{
+"name": "FIT_MIMIR",
+"index": "",
+"strategy": "FitStep",
+"strategy_config": "PositionTime_PMTTypeTimeResidual",
+}
+
+
+{
+"name": "MIMIR_FitStep",
+"index": "PositionTime_PMTTypeTimeResidual",
+
+"optimizer_name": "RootOptimizer"
+"optimizer_config": "",
+"cost_name": "PMTTypeTimeResidualPDF",
+"cost_config": ""
+
+// status codes:
+// 0 = inactive (does not participate in fit, not evaluated by cost function)
+// 1 = active (participate in fit)
+// 2 = fixed (does not participate in fit, but evaluated by cost function)
+// omission means that the field is inactive. 
+//
+// Can either be given as an array of integers representing each component's status, or a single integer representing the status of all comoponents. 
+"position_time_status": 1, // x, y, z, t
+"direction_status": 0, // theta, phi
+"energy_status": 0, //...
+}
+
+{
+// Runs the Minuit2 minimizer with Migrad as the algotype. 
+// TODO: make this configurable.
+"name": "MIMIR_RootOptimizer",
+"index": ""
+}
+
+{
+"name": "MIMIR_PMTTypeTimeResidualPDF",
+"index": ""
+}

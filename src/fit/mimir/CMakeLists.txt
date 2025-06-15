@@ -1,8 +1,9 @@
 ###########################################################
-# CMakeLists for fit module
-add_library(mimir OBJECT
+add_library(mimir STATIC
   src/FitMimirProc.cc
+  src/PMTTypeTimeResidualPDF.cc
   src/ParamSet.cc
+  src/FitStep.cc
   src/RootOptimizer.cc
 )
 

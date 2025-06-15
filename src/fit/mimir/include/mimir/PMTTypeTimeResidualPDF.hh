@@ -3,6 +3,7 @@
 
 #include <RAT/DS/PMTInfo.hh>
 #include <mimir/Cost.hh>
+#include <mimir/Factory.hh>
 
 namespace RAT::Mimir {
 class PMTTypeTimeResidualPDF : public Cost {
@@ -17,5 +18,5 @@ class PMTTypeTimeResidualPDF : public Cost {
   std::map<int, ROOT::Math::Interpolator> tresid_nll_splines;
   RAT::DS::PMTInfo* pmt_info;
 };
-
+MIMIR_REGISTER_TYPE(Cost, PMTTypeTimeResidualPDF, "PMTTypeTimeResidualPDF")
 }  // namespace RAT::Mimir

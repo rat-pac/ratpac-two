@@ -13,14 +13,13 @@ bool PMTTypeTimeResidualPDF::Configure(RAT::DBLinkPtr db_link) {
   pmt_info = RAT::DS::RunStore::GetCurrentRun()->GetPMTInfo();
   left_bound = binning.front();
   right_bound = binning.back();
-  for (const auto& pmt_type : pmt_types) {
+  for (int pmt_type : pmt_types) {
     std::vector<double> histvals = db_link->GetDArray("hist_" + std::to_string(pmt_type));
     std::vector<double> nll_vals;
     for (const auto& val : histvals) {
       nll_vals.push_back(-std::log(val));
     }
-    tresid_nll_splines.emplace(pmt_type,
-                               ROOT::Math::Interpolator(binning, nll_vals, ROOT::Math::Interpolation::kCSPLINE));
+    tresid_nll_splines.try_emplace(pmt_type, binning, nll_vals, ROOT::Math::Interpolation::kCSPLINE);
   }
   group_velocity = db_link->GetD("group_velocity");
   return true;
@@ -62,10 +61,10 @@ double PMTTypeTimeResidualPDF::operator()(const ParamSet& params) const {
 }
 
 double PMTTypeTimeResidualPDF::clamped_spline(const ROOT::Math::Interpolator& spline, double x) const {
-  if (x < left_bound) {
-    return spline.Eval(left_bound);
-  } else if (x > right_bound) {
-    return spline.Eval(right_bound);
+  if (x <= left_bound) {
+    return spline.Eval(left_bound + 1e-4);
+  } else if (x >= right_bound) {
+    return spline.Eval(right_bound - 1e-4);
   } else {
     return spline.Eval(x);
   }
