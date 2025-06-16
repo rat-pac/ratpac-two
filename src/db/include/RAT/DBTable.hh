@@ -49,37 +49,15 @@ class DBTable {
   /** Get run number for which this table is valid. */
   int GetRunEnd() const { return run_end; };
   /** Get list of runs for which this table is valid. */
-  std::vector<int> GetValidRuns() const {
-    if (useRunList)
-      return run_list;
-    else {
-      std::vector<int> range_to_list(run_end - run_begin + 1);
-      std::iota(std::begin(range_to_list), std::end(range_to_list), run_begin);
-      return range_to_list;
-    }
-  };
+  std::vector<int> GetValidRuns() const;
 
   /** Returns true if validity range flags this as a user-plane table. */
-  bool IsUser() const {
-    if (useRunList)
-      return (run_list.size() == 1) && (run_list.at(0) == -1);
-    else
-      return (run_begin == -1) && (run_end == -1);
-  };
+  bool IsUser() const;
   /** Returns true if validity range flags this as a default-plane table. */
-  bool IsDefault() const {
-    if (useRunList)
-      return (run_list.size() == 1) && (run_list.at(0) == 0);
-    else
-      return (run_begin == 0) && (run_end == 0);
-  };
+  bool IsDefault() const;
   /** Returns true if this table is valid for the run given */
-  bool IsValidRun(const int run) {
-    if (useRunList)
-      return std::find(std::begin(run_list), std::end(run_list), run) != std::end(run_list);
-    else
-      return (run >= run_begin) && (run <= run_end);
-  };
+  bool IsValidRun(const int run);
+  /** Returns true if this table uses run list instead of range */
   bool UsesRunList() const { return useRunList; };
 
   /** Set run range for which this table is valid.  Begin and end are
@@ -89,15 +67,8 @@ class DBTable {
     run_end = _run_end;
     useRunList = false;
   }
-  void SetRunList(std::vector<int> _run_list) {
-    run_list = _run_list;
-    // make sorted, unique list of runs
-    std::sort(run_list.begin(), run_list.end());
-    auto last = std::unique(run_list.begin(), run_list.end());
-    run_list.erase(last, run_list.end());
-
-    useRunList = true;
-  }
+  /** Set run list for which this table is valid. */
+  void SetRunList(std::vector<int> _run_list);
   /** Set this as a user-override table */
   void SetUser() { SetRunRange(-1, -1); };
   /** Set this as a default table */
