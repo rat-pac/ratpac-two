@@ -85,6 +85,30 @@ void ParamField::set_values(std::vector<double> values) {
   }
 }
 
+void ParamField::set_lower_bounds(std::vector<double> lower_bounds) {
+  if (lower_bounds.size() != components.size()) {
+    std::stringstream msg;
+    msg << "Mismatch in number of bounds provided. Expected " << components.size() << ", but got "
+        << lower_bounds.size();
+    RAT::Log::Die(msg.str());
+  }
+  for (size_t i = 0; i < components.size() && i < lower_bounds.size(); ++i) {
+    components[i].lower_bound = lower_bounds[i];
+  }
+}
+
+void ParamField::set_upper_bounds(std::vector<double> upper_bounds) {
+  if (upper_bounds.size() != components.size()) {
+    std::stringstream msg;
+    msg << "Mismatch in number of bounds provided. Expected " << components.size() << ", but got "
+        << upper_bounds.size();
+    RAT::Log::Die(msg.str());
+  }
+  for (size_t i = 0; i < components.size() && i < upper_bounds.size(); ++i) {
+    components[i].upper_bound = upper_bounds[i];
+  }
+}
+
 std::vector<double> ParamSet::to_active_vector() const {
   std::vector<double> values;
   for (const ParamField& field : {position_time, direction, energy}) {
