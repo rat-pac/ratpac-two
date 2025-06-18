@@ -1,11 +1,11 @@
-# Controlling ratpac-two 
+# Controlling ratpac-two via macro files 
 
 This section of the guide will provide a high-level overview of controlling ratpac-two, which is accomplished through the use of macro files.
 Macro files are plain text files containing a sequence of commands that control ratpac-two.
 Using macros, you can configure various aspects of a ratpac experiment, such as:
 
-* The physics processes to be simulated and reporting of particle track information.
-* Detector geometry, materials, and calibration constants (via RATDB).
+* Detector geometry, materials, and calibration constants (via RATDB, see :doc:`database`).
+* Data processing chain (processors for digitization, reconstruction, output, etc., see :doc:`processors`).
 * Data processing chain (processors for digitization, reconstruction, output, etc.).
 * Primary particle sources (event generators).
 * Run-specific parameters like the number of events and random number seeds.
@@ -35,36 +35,22 @@ Then we will work through an example synthesizing multiple commands into a macro
 A comprehensive understanding requires extensive knowledge of the software.
 Revisiting this guide is recommended as you read through the rest of the documentation.
 
-# Table of Contents
+```{contents} Table of Contents
+:depth: 2
+```
 
-   [Controlling ratpac-two](#controlling-ratpac-two)
-1. [ratpac-two Commands and Workflow](#1-ratpac-two-commands-and-workflow)
-   1. [Command Syntax](#11-command-syntax)
-   2. [Command Hierarchy](#12-command-hierarchy)
-   3. [Command Execution Order](#13-command-execution-order)
-   4. [Example Macro](#14-example-macro)
-2. [Essential Geant4 Commands for ratpac-two Simulation](#2-essential-geant4-commands-for-ratpac-two-simulation)
-   1. [Run Control](#21-run-control)
-   2. [Verbosity Control](#22-verbosity-control)
-   3. [Detector Visualization](#23-detector-visualization)
-   4. [Other Useful UI Commands](#24-other-useful-ui-commands)
-3. [Navigating ratpac-two Specific Commands: The /rat/ Directory](#3-navigating-ratpac-two-specific-commands-the-rat-directory)
-4. [Configuring the ratpac-two Environment with RATDB via Macros](#4-configuring-the-ratpac-two-environment-with-ratdb-via-macros)
-5. [Orchestrating the Workflow: Processor Commands](#5-orchestrating-the-workflow-processor-commands)
-6. [Defining Event Sources: The Generator Commands](#6-defining-event-sources-the-generator-commands)
-7. [Conclusion and Further Learning](#7-conclusion-and-further-learning)
 
 
 ## 1. ratpac-two Commands and Workflow
 
 After successfully installing ratpac-two and loading the associated environment, ratpac-two is accessed via a command line interface by running the `rat` command.
-`rat` can execute a sequence of macro files if multiple are provided on the command line:
+`rat` can execute a sequence of macro files if multiple are provided on the command line.
 
 ```bash
-rat example_1.mac example_2.mac
+rat example.mac
 ```
 
-This will execute `example_1.mac` followed by `example_2.mac`. 
+This will execute `example.mac
 
 In addition to macro files, ratpac-two can be configured with various flags, which can be accessed by running `rat` with the `--help` flag
 
@@ -108,14 +94,15 @@ The syntax rules are straightforward:
       `/run/beamOn 10 #Run 10 events`
    
  * **Blank Lines:** Blank lines are also ignored and can be used to improve macro readability.
- * **No Leading Whitespace:** Commands must start at column 1. 
-       Any spaces or tabs before the command cause an "unknown command" error.
+* **No Leading Whitespace:** Commands must start at column 1.
+       Any spaces or tabs before the command cause an "unknown command" error. For example:
 
 ```
+# Note the additional whitespace below
     /run/beamOn 1
 ```
 
-Such indented lines will not run.
+Running a macro with this indentation will produce an "unknown command" error.
 
 
 ### 1.2. Command Hierarchy
@@ -290,8 +277,8 @@ Observing this textual output can be more illuminating for learning than just ex
 ### 2.3. Detector Visualization
 
 Basic visualization commands let you quickly open a viewer and inspect the geometry.
-Note to successfully run the visualizer you must run rat with the appropriate flag
-'rat visualization.mac --vis'
+Note that to successfully run the visualizer, you must start rat with the `--vis` flag, e.g. `rat visualization.mac --vis`.
+Without this option rat may exit with an error when the visualization commands are executed.
 Useful commands include:
 
 * `/vis/open OGL` - open an OpenGL viewer.
