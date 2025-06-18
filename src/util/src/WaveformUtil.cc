@@ -41,7 +41,7 @@ int GetThresholdCrossingBeforePeak(const std::vector<double>& waveform, int peak
   /*
   Identifies the sample at which threshold crossing occurs before a given peak
    */
-  int thresholdCrossing = 0;
+  int thresholdCrossing = INVALID;
   // Make sure we don't scan past the beginning of the waveform
   int lb = peakSample - int(lookBack / timeStep);
   int back_window = (lb > 0) ? lb : 0;
@@ -58,18 +58,11 @@ int GetThresholdCrossingBeforePeak(const std::vector<double>& waveform, int peak
   }
 
   // Start at the peak and scan backwards
-  for (int i = peakSample; i > back_window; i--) {
+  for (int i = peakSample; i >= back_window; i--) {
     double voltage = waveform[i];
 
     if (voltage > voltageThreshold) {
       thresholdCrossing = i;
-      break;
-    }
-
-    // Reached the begining of the waveform
-    // returned an invalid value
-    if (i == back_window) {
-      thresholdCrossing = INVALID;  // Invalid value for bad waveforms
       break;
     }
   }
