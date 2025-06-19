@@ -50,7 +50,7 @@ After successfully installing ratpac-two and loading the associated environment,
 rat example.mac
 ```
 
-This will execute `example.mac
+This will execute `example.mac`
 
 In addition to macro files, ratpac-two can be configured with various flags, which can be accessed by running `rat` with the `--help` flag
 
