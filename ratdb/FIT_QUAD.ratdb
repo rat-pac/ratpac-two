@@ -1,9 +1,9 @@
 {
-name: "FIT_QUAD",
-index: "",
-num_points: 20000,
-max_points: 10000,
-table_cut_off: 23,
-light_speed: 218.794131015,
-max_radius: 1200,
+"name": "FIT_QUAD",
+"index": "",
+"num_points": 20000,
+"max_points": 10000,
+"table_cut_off": 23,
+"light_speed": 218.794131015,
+"max_radius": 1200,
 }
