@@ -1,6 +1,6 @@
 ###########################################################
 # CMakeLists for fit module
-
+add_subdirectory(mimir)
 add_library(fit OBJECT
   src/ClassifyChargeBalance.cc
   src/FitPathProc.cc
@@ -10,7 +10,7 @@ add_library(fit OBJECT
   src/FitDirectionCenterProc.cc
   src/MiniSim.cc)
 
-
+target_link_libraries(fit PUBLIC mimir)
 # Set our include directories
 target_include_directories(fit SYSTEM PUBLIC 
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
