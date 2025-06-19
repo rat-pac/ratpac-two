@@ -45,6 +45,11 @@ int GetThresholdCrossingBeforePeak(const std::vector<double>& waveform, int peak
   // Make sure we don't scan past the beginning of the waveform
   int lb = peakSample - int(lookBack / timeStep);
   int back_window = (lb > 0) ? lb : 0;
+  // No threshold crossing if highest peak is below threshold
+  if (waveform.at(peakSample) > voltageThreshold) {
+    debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Peak not above threshold.\n";
+    return INVALID;
+  }
 
   if (static_cast<size_t>(back_window) >= waveform.size()) {
     debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before end of waveform."
@@ -53,8 +58,6 @@ int GetThresholdCrossingBeforePeak(const std::vector<double>& waveform, int peak
     debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before peak." << newline;
   } else if (static_cast<size_t>(peakSample) >= waveform.size()) {
     debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Peak not before end of waveform." << newline;
-  } else if (waveform.at(peakSample) > voltageThreshold) {
-    debug << "WaveformUtil: Peak not above threshold.\n";
   }
 
   // Start at the peak and scan backwards
