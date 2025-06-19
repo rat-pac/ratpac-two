@@ -218,7 +218,7 @@ The macro is broken down into:
 #-------------------------------------------------------------------------------
 
 #Generators are specified after processors; here we use a basic particle gun
-/generator/add combo gun:point:Poisson
+/generator/add combo gun:point:poisson
 # 2.0 MeV electrons at the center of the detector along the negative z axis
 /generator/vtx/set e- 0.0 0.0 -1.0 2.0
 /generator/pos/set 0.0 0.0 0.0
