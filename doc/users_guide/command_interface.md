@@ -4,8 +4,8 @@ This section of the guide will provide a high-level overview of controlling ratp
 Macro files are plain text files containing a sequence of commands that control ratpac-two.
 Using macros, you can configure various aspects of a ratpac experiment, such as:
 
-* Detector geometry, materials, and calibration constants (via RATDB, see :doc:`database`).
-* Data processing chain (processors for digitization, reconstruction, output, etc., see :doc:`processors`).
+* Detector geometry, materials, and calibration constants (via RATDB).
+* Data processing chain (processors for digitization, reconstruction, output, etc.).
 * Data processing chain (processors for digitization, reconstruction, output, etc.).
 * Primary particle sources (event generators).
 * Run-specific parameters like the number of events and random number seeds.
