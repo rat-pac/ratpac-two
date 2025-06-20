@@ -13,6 +13,7 @@
 
 #include <RAT/DS/WaveformAnalysisResult.hh>
 #include <RAT/Log.hh>
+#include <RAT/WaveformUtil.hh>
 #include <limits>
 
 namespace RAT {
@@ -31,9 +32,9 @@ class DigitPMT : public TObject {
   virtual Int_t GetID() { return id; }
 
   /** Threshold crossing time in ns */
-  virtual void SetDigitizedTime(Double_t _dTime) { this->dTime = _dTime - time_offset; }
-  virtual Double_t GetDigitizedTime() { return dTime; }
-  virtual Double_t GetDigitizedTimeNoOffset() { return dTime + time_offset; }
+  virtual void SetDigitizedTime(Double_t _dTime) { this->dTime = _dTime; }
+  virtual Double_t GetDigitizedTime() { return (dTime == WaveformUtil::INVALID) ? dTime : dTime - time_offset; }
+  virtual Double_t GetDigitizedTimeNoOffset() { return dTime; }
 
   /** Integrated charge around the peak [pC] */
   virtual void SetDigitizedCharge(Double_t _dCharge) { this->dCharge = _dCharge; }
