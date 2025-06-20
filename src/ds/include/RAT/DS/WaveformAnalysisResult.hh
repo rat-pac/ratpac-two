@@ -10,6 +10,7 @@
 #include <TObject.h>
 
 #include <RAT/Log.hh>
+#include <RAT/WaveformUtil.hh>
 #include <algorithm>
 #include <map>
 #include <string>
@@ -27,7 +28,7 @@ class WaveformAnalysisResult : public TObject {
    * @param fom    map of all figures of merits. key should be name of the field (e.g. chi2ndf)
    * */
   virtual size_t AddPE(Double_t time, Double_t charge, std::map<std::string, Double_t> fom = {}) {
-    Double_t time_corrected = time - time_offset;
+    Double_t time_corrected = (time == WaveformUtil::INVALID) ? time : time - time_offset;
     size_t insertion_index = std::upper_bound(times.begin(), times.end(), time_corrected) - times.begin();
     times.insert(times.begin() + insertion_index, time_corrected);
     charges.insert(charges.begin() + insertion_index, charge);
