@@ -54,7 +54,7 @@ Similarly to the outroot file, one can pass the filename using the "-o" flag by 
 
     rat example_macro.mac -o output.root
 
-The ntuple contains flat ``TTrees`` called ``meta`` and ``output``, and optionally a tree called ``waveform``. The ``output`` branch contains data for each event, and is structured to hold both the "true" simulated quantities as well as the "detector" quantities, that are filled after a data aquisition processor are run. As an example, we see in the below table that the ``output`` branch contains entries for ``mcx``, the true position of the simulated event, as well as ``triggerTime``, the time of the event trigger. This can lead to confusion because not all simulated events will trigger the detector. Importantly, if we do not run any DAQ simulation, none of the events will be saved unless ``include_untriggered_events`` is set to true. If you're entirely interested in studying variables generated prior to the data aquisition (e.g., particle position, number of Cherenkov photons produced, the true number of detected photoelectrons, etc.), be certain to set ``include_untriggered_events`` to true in the macro. 
+The ntuple contains flat ``TTrees`` called ``meta`` and ``output``, and optionally a tree called ``waveform``. The ``output`` branch contains data for each event, and is structured to hold both the "true" simulated quantities as well as the "detector" quantities, that are filled after a data acquisition processor are run. As an example, we see in the below table that the ``output`` branch contains entries for ``mcx``, the true position of the simulated event, as well as ``triggerTime``, the time of the event trigger. This can lead to confusion because not all simulated events will trigger the detector. Importantly, if we do not run any DAQ simulation, none of the events will be saved unless ``include_untriggered_events`` is set to true. If you're entirely interested in studying variables generated prior to the data aquisition (e.g., particle position, number of Cherenkov photons produced, the true number of detected photoelectrons, etc.), be certain to set ``include_untriggered_events`` to true in the macro. 
 
 If we do run the DAQ simulation, only information for the triggered events will be saved to the ``output`` branch, unless ``include_untriggered_events`` is set to true, in which case all events will be saved to the ``output`` branch. Furthermore, for triggered event we should expect to have differences between the simulated and detector quantities. For example, the ``mcPMTID`` (only filled when ``mchits`` is set true), the true set of PMTs that detected light, the ``hitPMTID`` (only filled when ``pmthits`` is set true), the set of PMTs that detected light after applying the data aquisition simulation, and the ``digitPMTID``, the set of PMTs that detected light after applying the data aquisition and waveform analysis simulations, can all be different length vectors (the ``hitPMTID`` and ``digitPMTID`` will always be a subset of ``mcPMTID``).
 
@@ -158,18 +158,18 @@ If ``include_digitizerhits`` is set then we additionally add the following infor
 ``digitTimeOverThreshold``     vector<double>       The total time each PMT waveform spent above threshold.
 ``digitVoltageOverThreshold``  vector<double>       The integrated voltage over threshold for each PMT.
 ``digitPeak``                  vector<double>       The peak voltage of each PMT waveform.
-``digitLocalTriggerTime``      vector<double>       Convienance variable to add per-PMT calibration timing.
+``digitLocalTriggerTime``      vector<double>       Convenience variable to add per-PMT calibration timing.
 ``digitReconNPEs``             vector<int>          The total number of PEs per PMT, as estimated by a PE counting method.
 =============================  ===================  ===================
 
-If ``include_digitizerfits`` is set then we additionally add the following information to the ``output`` branch of the ntuple. Note that a DAQ system and waveform analysis processor must also run in order for these variables to be filled, see :ref:`daq_processors` and :ref:`waveform_analysis` for more details. In particular, these are filled by a specific waveform analysis algorithm, such as the lognormal fits described in :ref:`lognormalfit`. The fitter will specfically append its name to the variable name (e.g., ``fit_pmtid_lognormal``). These are filled from the ``DS::WaveformAnalysisResult`` branch.
+If ``include_digitizerfits`` is set then we additionally add the following information to the ``output`` branch of the ntuple. Note that a DAQ system and waveform analysis processor must also run in order for these variables to be filled, see :ref:`daq_processors` and :ref:`waveform_analysis` for more details. In particular, these are filled by a specific waveform analysis algorithm, such as the lognormal fits described in :ref:`lognormalfit`. The fitter will append its name to the variable name (e.g., ``fit_pmtid_lognormal``). These are filled from the ``DS::WaveformAnalysisResult`` branch.
 
 ======================================  ===================  ===================
 **Name**                                **Type**             **Description**
 ======================================  ===================  ===================
 ``fit_pmtid_+{fitter_name}``            vector<int>          The unique ID of each of the PMT waveform that was fit.
 ``fit_time_+{fitter_name}``             vector<double>       The time extracted from each PMT waveform fit.
-``fit_time_+{fitter_name}``             vector<double>       The charge extracted from each PMT waveform fit.
+``fit_charge_+{fitter_name}``           vector<double>       The charge extracted from each PMT waveform fit.
 ``fit_FOM_+{fitter_name}_+{fom_name}``  vector<double>       The figure of merit extracted from each PMT waveform fit.
 ======================================  ===================  ===================
 
@@ -185,7 +185,7 @@ If ``include_nestedtubehits`` is set then we additionally add the following info
 ``mcNThitx``                   vector<double>       The true x position for each PE detected by a nested tube.
 ``mcNThity``                   vector<double>       The true y position for each PE detected by a nested tube.
 ``mcNThitz``                   vector<double>       The true z position for each PE detected by a nested tube.
-``ntId``                       vector<int>          The unique for each detector nested tube that detected light.
+``ntId``                       vector<int>          The unique ID for each detector nested tube that detected light.
 =============================  ===================  ===================
 
 If ``include_nestedtubehits`` is set then we additionally add the following information to the ``meta`` branch of the ntuple. 
@@ -246,7 +246,7 @@ If ``include_tracking`` is set then we additionally add the following informatio
 ``volumeCodeMap``              map<string, int>     A map from volume name to volume ID.
 =============================  ===================  ===================
 
-If ``include_digitizerwaveforms`` is set then we create a new branch in the ntuple called ``waveform`` that sores the full digitized waveforms. Note this will sigificantly increase the size of the files. The ``waveform`` branch will contain the following variables:
+If ``include_digitizerwaveforms`` is set then we create a new branch in the ntuple called ``waveform`` that stores the full digitized waveforms. Note this will significantly increase the size of the files. The ``waveform`` branch will contain the following variables:
 
 =============================  ===================  ===================
 **Name**                       **Type**             **Description**
