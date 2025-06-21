@@ -37,18 +37,18 @@ Parameters:
 
     /rat/procset file "filename"
 
-    /rat/procset include_mcparticles true
-    /rat/procset include_tracking true
-    /rat/procset include_pmthits true
-    /rat/procset include_nestedtubehits true
-    /rat/procset include_untriggered_events true
-    /rat/procset include_mchits true
-    /rat/procset include_digitizerwaveforms true
-    /rat/procset include_digitizerhits true
-    /rat/procset include_digitizerfits true
+    /rat/procset include_mcparticles 1
+    /rat/procset include_tracking 1
+    /rat/procset include_pmthits 1
+    /rat/procset include_nestedtubehits 1
+    /rat/procset include_untriggered_events 1
+    /rat/procset include_mchits 1
+    /rat/procset include_digitizerwaveforms 1
+    /rat/procset include_digitizerhits 1
+    /rat/procset include_digitizerfits 
 
 * filename (required, string) Sets output filename.  File will be deleted if it already exists.
-* include_* (optional, bool) Sets whether the ntuple structure will be extended to include more variables, as detailed below.
+* include_* (optional, int) Sets whether the ntuple structure will be extended to include more variables, as detailed below. By default the following, based on the entries in IO.ratdb, the following are set to 0 by default: ``include_tracking``, ``include_mcparticles``, and ``include_digitizerwaveforms`` and the rest are set to 1 by default (i.e., the associated variables aare included in the ntuple file, as detailed below).
 
 Similarly to the outroot file, one can pass the filename using the "-o" flag by running the macro as::
 
@@ -219,7 +219,7 @@ If ``include_mchits`` is set then we additionally add the following information 
 ``mcPECharge``                 vector<double>       The true charge of each PE.
 =============================  ===================  ===================
 
-If ``include_tracking`` is set then we additionally add the following information to the ``output`` branch of the ntuple. These variables are filled from the ``RAT::DS::MCTrack`` and ``RAT::DS::MCTrackStep`` branches. The variables below are mostly 2D vectors. The inner vector is the set of steps along the particle track (``RAT::DS::MCTrackStep``) and the outer vector is the set of tracks along the particle trajectory (``RAT:DS::MCTrack``). In other words, each track can have many steps, each of which as an associated position, momentum, process, and volume.
+If ``include_tracking`` is set then we additionally add the following information to the ``output`` branch of the ntuple. These variables are filled from the ``RAT::DS::MCTrack`` and ``RAT::DS::MCTrackStep`` branches. The variables below are mostly 2D vectors. The inner vector is the set of steps along the particle track (``RAT::DS::MCTrackStep``) and the outer vector is the set of tracks along the particle trajectory (``RAT:DS::MCTrack``). In other words, each track can have many steps, each of which as an associated position, momentum, process, and volume. As a reminder, ``/tracking/storeTrajectory 1`` must also be set in the macro in order to save the tracking information.
 
 =============================  ======================  ===================
 **Name**                       **Type**                **Description**
