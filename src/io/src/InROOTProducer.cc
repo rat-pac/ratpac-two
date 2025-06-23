@@ -102,14 +102,26 @@ bool InROOTProducer::ReadEvents(G4String filename) {
 
   // Read
   Int_t num_events = tree.GetEntries();
+  DS::Run *run;
   for (Int_t i = 0; i < num_events && !SignalHandler::IsTermRequested(); i++) {
     tree.GetEntry(i);
     // force the run entry to be loaded into memory so that it
     // can be written later.
     // If no runTree to read from, this will return 0, but we don't care.
+    if (i == 0) {
+      run = DS::RunStore::GetRun(branchDS);
+      mainBlock->BeginOfRun(run);
+    } else if (branchDS->GetRunID() != run->GetID()) {
+      mainBlock->EndOfRun(run);
+      run = DS::RunStore::GetRun(branchDS);
+      mainBlock->BeginOfRun(run);
+    }
     DS::RunStore::GetRun(branchDS);
 
     mainBlock->DSEvent(branchDS);
+  }
+  if (run) {
+    mainBlock->EndOfRun(run);
   }
 
   // Cleanup
