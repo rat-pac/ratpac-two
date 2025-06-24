@@ -147,6 +147,11 @@ double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, int
   }
   int time = GetThresholdCrossingBeforePeak(waveform, peakSample, voltageThreshold, lookBack, timeStep);
   if (time == INVALID) {
+    // If we didn't find threshold crossing but we also weren't able to scan the entire lookback range
+    // because we reached the beginning of the waveform, return 0 instead of INVALID... and don't interpolate.
+    if (peakSample - int(lookBack / timeStep) < 0) {
+      return 0;
+    }
     return INVALID;
   }
   // Linearly interpolate threshold crossing time, if time is not last sample of waveform
