@@ -12,7 +12,7 @@ interpolation should be done while producing these data files.
 
 ### Add appropriate entries in RATDB
 The filters need to be defined as both a material and a optical surface. 
-"Examples": 
+Examples: 
 ```
 // In MATERIAL.ratdb:
 { // Copied from the glass material
