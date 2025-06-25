@@ -10,9 +10,8 @@ namespace RAT {
 class VertexGen_Laserball : public GLG4VertexGen {
  public:
   VertexGen_Laserball(const char *arg_dbname = "laserball");
-  virtual ~VertexGen_Laserball(){};
   virtual void GeneratePrimaryVertex(G4Event *argEvent, G4ThreeVector &dx, G4double dt);
-  /** State format "num_photons wavelength_nm" */
+  /** State format "num_photons wavelength[nm]nm" */
   virtual void SetState(G4String newValues);
   virtual G4String GetState();
   double pickWavelength(std::vector<double> &values, std::vector<double> &probs);
