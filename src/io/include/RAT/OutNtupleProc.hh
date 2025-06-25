@@ -47,16 +47,17 @@ class OutNtupleProc : public Processor {
   virtual void EndOfRun(DS::Run *run) override;
 
   // Extensible functions
-  virtual void AssignAdditionalAddresses(){};
-  virtual void AssignAdditionalMetaAddresses(){};
-  virtual void FillEvent(DS::Root *, DS::EV *){};
-  virtual void FillNoTriggerEvent(DS::Root *){};
-  virtual void FillMeta(){};
+  virtual void AssignAdditionalAddresses() {};
+  virtual void AssignAdditionalMetaAddresses() {};
+  virtual void FillEvent(DS::Root *, DS::EV *) {};
+  virtual void FillNoTriggerEvent(DS::Root *) {};
+  virtual void FillMeta() {};
 
   // Exposed members for external tools
   DS::Run *runBranch;
   // Fill Functions
   struct NtupleOptions {
+    bool opticalproperties;
     bool tracking;
     bool mcparticles;
     bool pmthits;
@@ -119,6 +120,9 @@ class OutNtupleProc : public Processor {
   std::string calibName;
   ULong64_t calibTime;
   Double_t calibX, calibY, calibZ, calibU, calibV, calibW;
+  // Optical properties
+  std::vector<TGraph *> opticalProperties;
+  std::vector<TString> opticalProperties_names;
   // Digitizer waveforms
   int waveform_pmtid;
   std::vector<Double_t> inWindowPulseTimes;

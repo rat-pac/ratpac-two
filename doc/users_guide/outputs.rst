@@ -46,6 +46,7 @@ Parameters:
     /rat/procset include_digitizerwaveforms 1
     /rat/procset include_digitizerhits 1
     /rat/procset include_digitizerfits 
+    /rat/procset include_opticalproperties 1
 
 * filename (required, string) Sets output filename.  File will be deleted if it already exists.
 * include_* (optional, int) Sets whether the ntuple structure will be extended to include more variables, as detailed below. By default the following, based on the entries in IO.ratdb, the following are set to 0 by default: ``include_tracking``, ``include_mcparticles``, and ``include_digitizerwaveforms`` and the rest are set to 1 by default (i.e., the associated variables aare included in the ntuple file, as detailed below).
@@ -257,6 +258,18 @@ If ``include_digitizerwaveforms`` is set then we create a new branch in the ntup
 ``inWindowPulseCharges``       vector<double>       The list of MCPE charges that fall inside the waveform window.
 ``waveform``                   vector<ushort>       The digitized waveform, per PMT.
 =============================  ===================  ===================
+
+If ``include_opticalproperties`` is set then we create a new TDirectory in the ntuple called ``opticalProperies`` that stores the inputted optical properties as TGraphs. Every material is saved, such as refractive indices, absorption length, reflectivity and scintillation spectra. The format of the TGraphs is shown below, and is in the format ``<MATERIAL>_<OPTICALPROPERTY>``:
+
+=============================  ===================  ===================
+**Name**                       **Type**             **Description**
+=============================  ===================  ===================
+``water_RINDEX``               TGraph               RINDEX as a function of wavelength [nm]
+``water_ABSLENGTH``            TGraph               ABSLENGTH as a function of wavelength [nm]
+``tybek_REFLECTIVITY``         TGraph               REFLECTIVITY as a function of wavelength [nm]
+``wbls_SCINTILLATION``         TGraph               SCINTILLATION spectrum as a function of wavelength [nm]
+=============================  ===================  ===================
+
 
 .. _outnet:
 
