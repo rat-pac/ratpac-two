@@ -101,10 +101,7 @@ void VertexGen_Laserball::SetState(G4String newValues) {
 
 G4String VertexGen_Laserball::GetState() { return dformat("%d\t%f\t%f", fNumPhotons, fExpTime, fWavelengthIndex); }
 
-double VertexGen_Laserball::pickWavelength(std::vector<double> &values, std::vector<double> &probs) {
-  if (probs[0] != 0) {
-    Log::Die("VertexGen_Laserball::pickWavelength: Leading entry in intensity is not 0");
-  }
+double VertexGen_Laserball::pickWavelength(const std::vector<double> &values, const std::vector<double> &probs) {
   double integral = 0.0;
   std::vector<double> probCumu = std::vector<double>(values.size());
   probCumu[0] = 0.0;
@@ -112,14 +109,16 @@ double VertexGen_Laserball::pickWavelength(std::vector<double> &values, std::vec
   for (size_t i = 0; i < values.size() - 1; i++) {
     if (probs[i] < 0) {
       Log::Die("VertexGen_Laserball::pickWavelength: An intensity is negative");
-    } else if (i != 0 && probs[i] == 0) {
-      Log::Die("VertexGen_Laserball::pickWavelength: Non-leading entry in intensity is 0");
     }
     integral += (values[i + 1] - values[i]) * (probs[i] + probs[i + 1]) / 2.0;  // trapezoid integration
     probCumu[i + 1] = integral;
   }
+
+  if (integral == 0) {
+    Log::Die("VertexGen_Laserball::pickWavelength: Intensities sum to 0");
+  }
+
   for (size_t i = 0; i < values.size(); i++) {
-    probs[i] /= integral;
     probCumu[i] /= integral;
   }
 
@@ -127,30 +126,14 @@ double VertexGen_Laserball::pickWavelength(std::vector<double> &values, std::vec
 
   // Check edge cases first
 
-  if (rval < probCumu[1]) {
-    return rval * (values[1] - values[0]) / (probCumu[1]) + values[0];
-  } else if (rval == 1) {
-    return values[values.size() - 1];
+  if (rval == 0) {
+    return values[0];
   } else {
-    int low = 0;
-    int high = probCumu.size() - 1;
-    while (low <= high) {
-      int mid = low + (high - low) / 2;
+    std::vector<double>::iterator idxIt = std::lower_bound(probCumu.begin(), probCumu.end(), rval);
+    int idx = std::distance(probCumu.begin(), idxIt);
 
-      // Check if x is present at mid
-      if (rval <= probCumu[mid] && rval > probCumu[mid - 1]) {
-        return (rval - probCumu[mid - 1]) * (values[mid] - values[mid - 1]) / (probCumu[mid] - probCumu[mid - 1]) +
-               values[mid - 1];
-      }
-      // If x greater, ignore left half
-      if (rval > probCumu[mid]) {
-        low = mid + 1;
-      }
-      // If x is smaller, ignore right half
-      else {
-        high = mid - 1;
-      }
-    }
+    return (rval - probCumu[idx - 1]) * (values[idx] - values[idx - 1]) / (probCumu[idx] - probCumu[idx - 1]) +
+           values[idx - 1];
   }
 
   Log::Die("VertexGen_Laserball::pickWavelength: impossible condition encountered");

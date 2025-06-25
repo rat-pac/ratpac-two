@@ -14,7 +14,7 @@ class VertexGen_Laserball : public GLG4VertexGen {
   /** State format "num_photons wavelength[nm]nm" */
   virtual void SetState(G4String newValues);
   virtual G4String GetState();
-  double pickWavelength(std::vector<double> &values, std::vector<double> &probs);
+  double pickWavelength(const std::vector<double> &values, const std::vector<double> &probs);
 
  private:
   G4ParticleDefinition *fOpticalPhoton;
