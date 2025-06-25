@@ -93,10 +93,11 @@ The plane in which a RATDB entry is valid is determined by the ``run_range`` or
 ``run_list`` specified. ``run_range`` takes in a vector of length 2, which
 specifies the beginning and end of the run range. ``run_list`` takes in a
 non-empty vector that specifies the list of run numbers the RATDB entry is valid
-for. **The user plane is denoted with run number -1, and the default plane is
-denoted with run number 0.** Syntax that uses ``valid_begin`` and ``valid_end``
-are now officially deprecated. They should be replaced with ``run_range`` or
-``run_list``.
+for. If both ``run_range`` and ``run_list`` are provided, **RATDB will
+prioritize ``run_range``**. **The user plane is denoted with run number -1, and
+the default plane is denoted with run number 0.** Syntax that uses
+``valid_begin`` and ``valid_end`` are now officially deprecated. They should be
+replaced with ``run_range`` or ``run_list``.
 
 When an item is requested, RATDB will attempt to locate it in the user plane
 first, then the run plane, and finally the default plane.  Note that this is

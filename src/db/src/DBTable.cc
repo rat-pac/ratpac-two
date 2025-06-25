@@ -1,4 +1,5 @@
 #include <RAT/DBTable.hh>
+#include <RAT/Log.hh>
 
 namespace RAT {
 
@@ -12,10 +13,14 @@ DBTable::DBTable(json::Value &jsonDoc) : tblname(""), index(""), run_begin(0), r
   tblname = jsonDoc["name"].cast<std::string>();
   if (jsonDoc.isMember("index")) index = jsonDoc["index"].cast<std::string>();
 
-  if (jsonDoc.isMember("run_range"))
+  if (jsonDoc.isMember("run_range")) {
     SetRunRange(jsonDoc["run_range"][(unsigned)0].cast<int>(), jsonDoc["run_range"][(unsigned)1].cast<int>());
-
-  if (jsonDoc.isMember("run_list")) SetRunList(jsonDoc["run_list"].toVector<int>());
+    if (jsonDoc.isMember("run_list"))
+      warn << "DB: Both run_range and run_list given in table " << tblname << "[" << index << "]. "
+           << "Run_range will be prioritized." << newline;
+  } else if (jsonDoc.isMember("run_list")) {
+    SetRunList(jsonDoc["run_list"].toVector<int>());
+  }
 
   table = jsonDoc;
 }
