@@ -45,7 +45,7 @@ Parameters:
     /rat/procset include_mchits 1
     /rat/procset include_digitizerwaveforms 1
     /rat/procset include_digitizerhits 1
-    /rat/procset include_digitizerfits 
+    /rat/procset include_digitizerfits 1
 
 * filename (required, string) Sets output filename.  File will be deleted if it already exists.
 * include_* (optional, int) Sets whether the ntuple structure will be extended to include more variables, as detailed below. By default the following, based on the entries in IO.ratdb, the following are set to 0 by default: ``include_tracking``, ``include_mcparticles``, and ``include_digitizerwaveforms`` and the rest are set to 1 by default (i.e., the associated variables aare included in the ntuple file, as detailed below).
