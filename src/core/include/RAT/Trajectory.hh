@@ -3,6 +3,7 @@
 
 #include <G4Trajectory.hh>
 #include <RAT/DS/MCTrack.hh>
+#include <RAT/QuenchingCalculator.hh>
 #include <string>
 
 namespace RAT {
@@ -30,6 +31,7 @@ class Trajectory : public G4Trajectory {
   std::string creatorProcessName;
   DS::MCTrack *ratTrack;
   static bool fgDoAppendMuonStepSpecial;
+  QuenchingCalculator *fQuenching;
 };
 
 // GEANT4 uses a custom allocator on subclass, so we need to override it here.
