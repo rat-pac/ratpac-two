@@ -13,6 +13,7 @@
 
 #include <RAT/DS/ChannelStatus.hh>
 #include <RAT/DS/NestedTubeInfo.hh>
+#include <RAT/DS/Optical.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <vector>
 
@@ -35,6 +36,9 @@ class Run : public TObject {
   /** Run start time */
   virtual TTimeStamp GetStartTime() const { return startTime; }
   virtual void SetStartTime(const TTimeStamp &_startTime) { startTime = _startTime; }
+
+  /** Get optical information **/
+  virtual Optical *GetOpticalInfo() { return &opticalinfo; }
 
   /** PMT information */
   virtual PMTInfo *GetPMTInfo() {
@@ -80,6 +84,7 @@ class Run : public TObject {
   TTimeStamp startTime;
   std::vector<NestedTubeInfo> nestedtubeinfo;
   std::vector<PMTInfo> pmtinfo;  // ah.. why is this a vector?
+  Optical opticalinfo;
   ChannelStatus ch_status;
 };
 

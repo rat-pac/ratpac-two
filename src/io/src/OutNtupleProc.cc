@@ -57,6 +57,7 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.mchits = table->GetZ("include_mchits");
     options.nthits = table->GetZ("include_nestedtubehits");
     options.calib = table->GetZ("include_calib");
+    options.opticalproperties = table->GetZ("include_opticalproperties");
   } catch (DBNotFoundError &e) {
     options.tracking = false;
     options.mcparticles = false;
@@ -65,6 +66,7 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.mchits = true;
     options.calib = true;
     options.nthits = false;
+    options.opticalproperties = false;
   }
   if (options.digitizerfits) {
     waveform_fitters = table->GetSArray("waveform_fitters");
@@ -80,6 +82,29 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
 
 bool OutNtupleProc::OpenFile(std::string filename) {
   outputFile = TFile::Open(filename.c_str(), "RECREATE");
+  // optical TGraphs
+  if (options.opticalproperties) {
+    outputFile->mkdir("opticalProperties");
+    outputFile->cd("opticalProperties");
+    // optical properties
+    DS::Optical *optical = runBranch->GetOpticalInfo();
+    std::pair<std::vector<TString>, std::vector<TGraph *>> opticalProperties_tuple = optical->GetOpticalProperty();
+    opticalProperties_names = opticalProperties_tuple.first;
+    opticalProperties = opticalProperties_tuple.second;
+
+    std::cout << opticalProperties.size() << std::endl;
+    for (size_t i = 0; i < opticalProperties.size(); ++i) {
+      std::cout << i << std::endl;
+
+      (opticalProperties.at(i))->SetTitle(opticalProperties_names.at(i));
+      (opticalProperties.at(i))->SetName(opticalProperties_names.at(i));
+      (opticalProperties.at(i))->Write();
+
+      // metaTree->Branch(opticalProperties_names.at(i), &(opticalProperties.at(i)) );
+    }
+    outputFile->cd("../");
+  }
+
   // Meta Tree
   metaTree = new TTree("meta", "meta");
   metaTree->Branch("runId", &runId);
@@ -779,6 +804,9 @@ void OutNtupleProc::SetS(std::string param, std::string value) {
 }
 
 void OutNtupleProc::SetI(std::string param, int value) {
+  if (param == "include_opticalproperties") {
+    options.opticalproperties = value ? true : false;
+  }
   if (param == "include_tracking") {
     options.tracking = value ? true : false;
   }

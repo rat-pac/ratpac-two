@@ -57,6 +57,7 @@ class OutNtupleProc : public Processor {
   DS::Run *runBranch;
   // Fill Functions
   struct NtupleOptions {
+    bool opticalproperties;
     bool tracking;
     bool mcparticles;
     bool pmthits;
@@ -119,6 +120,9 @@ class OutNtupleProc : public Processor {
   std::string calibName;
   ULong64_t calibTime;
   Double_t calibX, calibY, calibZ, calibU, calibV, calibW;
+  // Optical properties
+  std::vector<TGraph *> opticalProperties;
+  std::vector<TString> opticalProperties_names;
   // Digitizer waveforms
   int waveform_pmtid;
   std::vector<Double_t> inWindowPulseTimes;
