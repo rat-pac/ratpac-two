@@ -1,8 +1,7 @@
 /** Spectra definitions for VertexGen_Spectrum generator */
 
-// B.Harris (Penn) 23/6/25
 // Derived by integrating over cos(theta) using equation 56.3 in https://pdg.lbl.gov/2020/reviews/rpp2020-rev-muon-decay-params.pdf and then normalizing to 1
-// It can be written as 3x**2 - 2x**3 where x = E_e / E_max and E_max = 52.8.
+// Mag = 3x**2 - 2x**3 where x = E_e / E_max and E_max = 52.8.
 {
 name: "SPECTRUM",
 index: "MICHEL",
