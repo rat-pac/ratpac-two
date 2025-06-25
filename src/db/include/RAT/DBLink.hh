@@ -77,42 +77,42 @@ class DBLink {
 
   /** Retrieve integer field.
    *
-   *  @throws DBNotFoundException if integer field @p name does not
+   *  @throws DBNotFoundError if integer field @p name does not
    *  exist.
    */
   int GetI(const std::string &name);
 
   /** Retrieve double field.
    *
-   *  @throws DBNotFoundException if double field @p name does not
+   *  @throws DBNotFoundError if double field @p name does not
    *  exist.
    */
   double GetD(const std::string &name);
 
   /** Retrieve string field.
    *
-   *  @throws DBNotFoundException if string field @p name does not
+   *  @throws DBNotFoundError if string field @p name does not
    *  exist.
    */
   std::string GetS(const std::string &name);
 
   /** Retrieve bool field.
    *
-   *  @throws DBNotFoundException if string field @p name does not
+   *  @throws DBNotFoundError if string field @p name does not
    *  exist.
    */
   bool GetZ(const std::string &name);
 
   /** Retrieve integer array field.
    *
-   *  @throws DBNotFoundException if integer array field @p name
+   *  @throws DBNotFoundError if integer array field @p name
    *  does not exist.
    */
   std::vector<int> GetIArray(const std::string &name);
 
   /** Retrieve float array field.
    *
-   *  @throws DBNotFoundException if float array field @p name
+   *  @throws DBNotFoundError if float array field @p name
    *  does not exist.
    */
   std::vector<float> GetFArrayFromD(const std::string &name);
@@ -120,28 +120,28 @@ class DBLink {
 
   /** Retrieve double array field.
    *
-   *  @throws DBNotFoundException if double array field @p name
+   *  @throws DBNotFoundError if double array field @p name
    *  does not exist.
    */
   std::vector<double> GetDArray(const std::string &name);
 
   /** Retrieve string array field.
    *
-   *  @throws DBNotFoundException if string array field @p name
+   *  @throws DBNotFoundError if string array field @p name
    *  does not exist.
    */
   std::vector<std::string> GetSArray(const std::string &name);
 
   /** Retrieve bool array field.
    *
-   *  @throws DBNotFoundException if string array field @p name
+   *  @throws DBNotFoundError if string array field @p name
    *  does not exist.
    */
   std::vector<bool> GetZArray(const std::string &name);
 
   /** Retrieve raw JSON value.
    *
-   *  @throws DBNotFoundException if field @p name
+   *  @throws DBNotFoundError if field @p name
    *  does not exist.
    */
   json::Value GetJSON(const std::string &name);
