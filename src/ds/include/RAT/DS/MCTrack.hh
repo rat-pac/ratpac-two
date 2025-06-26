@@ -94,6 +94,10 @@ class MCTrack : public TObject {
   virtual Double_t GetDepositedEnergy() const { return depositedEnergy; }
   virtual void SetDepositedEnergy(Double_t _depositedEnergy) { depositedEnergy = _depositedEnergy; }
 
+  /** True total quenched energy deposited along the track (MeV). **/
+  virtual Double_t GetScintEdepQuenched() const { return scintEdepQuenched; }
+  virtual void SetScintEdepQuenched(Double_t _scintEdepQuenched) { scintEdepQuenched = _scintEdepQuenched; }
+
   ClassDef(MCTrack, 2);
 
  protected:
@@ -102,6 +106,7 @@ class MCTrack : public TObject {
   Int_t pdgcode;
   Double_t length;
   Double_t depositedEnergy;
+  Double_t scintEdepQuenched;
   std::string particleName;
   std::vector<MCTrackStep> step;
 };
