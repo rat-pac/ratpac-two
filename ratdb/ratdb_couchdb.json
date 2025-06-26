@@ -2,11 +2,11 @@
    "_id": "_design/ratdb",
     "views": {
        "select": {
-           "map": "function(doc) { for (i=doc.run_range[0]; i <= doc.run_range[1]; i++) { emit([doc.name, doc.index, i], null);}};"
+           "map": "function(doc) {if ('run_range' in doc) {for (i=doc.run_range[0]; i <= doc.run_range[1]; i++) {emit([doc.name, doc.index, i], null);}} else if ('run_list' in doc) {for (i=0; i <= doc.run_list.length; i++) {emit([doc.name, doc.index, doc.run_list[i]], null);}}};"
        },
 
        "run": {
-           "map": "function(doc) { for (i=doc.run_range[0]; i <= doc.run_range[1]; i++) { emit(i, null);}};"
+           "map": "function(doc) {if ('run_range' in doc) {for (i=doc.run_range[0]; i <= doc.run_range[1]; i++) {emit(i, null);}} else if ('run_list' in doc) {for (i=0; i <= doc.run_list.length; i++) {emit(doc.run_list[i], null);}}};"
        },
        "name": {
            "map": "function(doc) { emit(doc.name, 1); };",

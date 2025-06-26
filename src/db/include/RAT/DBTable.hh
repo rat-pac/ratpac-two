@@ -13,7 +13,10 @@
 #include <RAT/DBFieldCallback.hh>
 #include <RAT/HashFunc.hh>
 #include <RAT/json.hh>
+#include <algorithm>
 #include <hash.hpp>
+#include <iterator>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -45,20 +48,27 @@ class DBTable {
   int GetRunBegin() const { return run_begin; };
   /** Get run number for which this table is valid. */
   int GetRunEnd() const { return run_end; };
+  /** Get list of runs for which this table is valid. */
+  std::vector<int> GetValidRuns() const;
 
   /** Returns true if validity range flags this as a user-plane table. */
-  bool IsUser() const { return (run_begin == -1) && (run_end == -1); };
+  bool IsUser() const;
   /** Returns true if validity range flags this as a default-plane table. */
-  bool IsDefault() const { return (run_begin == 0) && (run_end == 0); };
+  bool IsDefault() const;
   /** Returns true if this table is valid for the run given */
-  bool IsValidRun(const int run) { return (run >= run_begin) && (run <= run_end); };
+  bool IsValidRun(const int run);
+  /** Returns true if this table uses run list instead of range */
+  bool UsesRunList() const { return useRunList; };
 
   /** Set run range for which this table is valid.  Begin and end are
    * inclusive*/
   void SetRunRange(int _run_begin, int _run_end) {
     run_begin = _run_begin;
     run_end = _run_end;
+    useRunList = false;
   }
+  /** Set run list for which this table is valid. */
+  void SetRunList(std::vector<int> _run_list);
   /** Set this as a user-override table */
   void SetUser() { SetRunRange(-1, -1); };
   /** Set this as a default table */
@@ -198,6 +208,9 @@ class DBTable {
   std::string index;   /**< Index of table */
   int run_begin;       /**< First run in which this table is valid */
   int run_end;         /**< Last run in which this table is valid */
+
+  bool useRunList = false;   /**< Whether to use run list instead of range */
+  std::vector<int> run_list; /**< List of runs in which this table is valid */
 
   /** JSON object storage of all fields, except callbacks */
   json::Value table;

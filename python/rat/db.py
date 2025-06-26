@@ -32,10 +32,13 @@ def load_table(table, db=None):
     name = table['name']
     index = table.get('index', '')
     dbtable = RAT.DBTable(name, index)
-    dbtable.SetRunRange(*table['run_range'])
+    if 'run_range' in table:
+        dbtable.SetRunRange(*table['run_range'])
+    else if 'run_list' in table:
+        dbtable.SetRunList(table['run_list'])
 
     for key, value in table.items():
-        if key in ['name', 'index', 'run_range']:
+        if key in ['name', 'index', 'run_range', 'run_list']:
             continue
 
         if isinstance(value, str):

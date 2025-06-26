@@ -1,34 +1,32 @@
 {
-name: "IO",
-index: "ROOTProc",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+"name": "IO",
+"index": "ROOTProc",
+"run_range": [0, 0],
 
-default_input_filename: "input.root",
-default_output_filename: "output.root",
+"default_input_filename": "input.root",
+"default_output_filename": "output.root",
 }
 
 {
-name: "IO",
-index: "NtupleProc",
-valid_begin: [0, 0],
-valid_end: [0, 0],
+"name": "IO",
+"index": "NtupleProc",
+"run_range": [0, 0],
 
-default_output_filename: "output.ntuple.root",
-include_tracking: false,
-include_mcparticles: false,
-include_pmthits: true,
-include_nestedtubehits: false,
-include_digitizerhits: true,
-include_digitizerfits: true,
-include_digitizerwaveforms: false,
-include_untriggered_events: true,
-include_mchits: true,
-include_calib: true,
+"default_output_filename": "output.ntuple.root",
+"include_tracking": false,
+"include_mcparticles": false,
+"include_pmthits": true,
+"include_nestedtubehits": false,
+"include_digitizerhits": true,
+"include_digitizerfits": true,
+"include_digitizerwaveforms": false,
+"include_untriggered_events": true,
+"include_mchits": true,
+"include_calib": true,
 
-waveform_fitters: ["Lognormal", "Gaussian", "Sinc"],
+"waveform_fitters": ["Lognormal", "Gaussian", "Sinc"],
 
-waveform_fitter_FOM_Lognormal: ["baseline","chi2ndf"],
-waveform_fitter_FOM_Gaussian: ["baseline","width","chi2ndf"],
-waveform_fitter_FOM_Sinc: ["peak"]
+"waveform_fitter_FOM_Lognormal": ["baseline","chi2ndf"],
+"waveform_fitter_FOM_Gaussian": ["baseline","width","chi2ndf"],
+"waveform_fitter_FOM_Sinc": ["peak"]
 }
