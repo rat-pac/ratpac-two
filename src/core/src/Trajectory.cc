@@ -153,8 +153,15 @@ void Trajectory::FillStep(const G4StepPoint *point, const G4Step *step, DS::MCTr
     // Set step quenched energy, checking if the Birk's constant is set for the material
     RAT::DB *db = RAT::DB::Get();
     RAT::DBLinkPtr optics_tbl = db->GetLink("OPTICS", startPoint->GetMaterial()->GetName()); // get OPTICS table for current material
+    double birksConstant = 0.0; // kB = 0  =>  no quenching
     try { // the Birk's constant (SCINTMOD_value2) may not be defined for the material
-      double birksConstant = optics_tbl->GetDArray("SCINTMOD_value2")[0];
+      std::vector<double> scintmod1_array = optics_tbl->GetDArray("SCINTMOD_value1");
+      std::vector<double> scintmod2_array = optics_tbl->GetDArray("SCINTMOD_value2");
+      for (size_t i=0; i<scintmod1_array.size(); i++) {
+        if (scintmod1_array[i] == 1.0) {
+          birksConstant = scintmod2_array[i];
+        }
+      }
       ratStep->SetScintEdepQuenched(fQuenching->QuenchedEnergyDeposit(*step, birksConstant));
     } catch (DBNotFoundError &e) {
       ratStep->SetScintEdepQuenched(step->GetTotalEnergyDeposit());
