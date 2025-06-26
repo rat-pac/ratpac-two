@@ -7,7 +7,7 @@ valid_end: [0,0],
 pedestal_window_low: 0,
 pedestal_window_high: 10,
 constant_fraction: 0.40,
-// Number of samples to look back after the peak
+// Time to look back after the peak in ns
 lookback: 20.0,
 // Integration window, in samples
 integration_window_low: 4,

@@ -41,10 +41,15 @@ int GetThresholdCrossingBeforePeak(const std::vector<double>& waveform, int peak
   /*
   Identifies the sample at which threshold crossing occurs before a given peak
    */
-  int thresholdCrossing = 0;
+  int thresholdCrossing = INVALID;
   // Make sure we don't scan past the beginning of the waveform
   int lb = peakSample - int(lookBack / timeStep);
   int back_window = (lb > 0) ? lb : 0;
+  // No threshold crossing if highest peak is below threshold
+  if (waveform.at(peakSample) > voltageThreshold) {
+    debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Peak not above threshold.\n";
+    return INVALID;
+  }
 
   if (static_cast<size_t>(back_window) >= waveform.size()) {
     debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before end of waveform."
@@ -53,23 +58,14 @@ int GetThresholdCrossingBeforePeak(const std::vector<double>& waveform, int peak
     debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Start of lookback window not before peak." << newline;
   } else if (static_cast<size_t>(peakSample) >= waveform.size()) {
     debug << "WaveformUtil::GetThresholdCrossingBeforePeak: Peak not before end of waveform." << newline;
-  } else if (waveform.at(peakSample) > voltageThreshold) {
-    debug << "WaveformUtil: Peak not above threshold.\n";
   }
 
   // Start at the peak and scan backwards
-  for (int i = peakSample; i > back_window; i--) {
+  for (int i = peakSample; i >= back_window; i--) {
     double voltage = waveform[i];
 
     if (voltage > voltageThreshold) {
       thresholdCrossing = i;
-      break;
-    }
-
-    // Reached the begining of the waveform
-    // returned an invalid value
-    if (i == back_window) {
-      thresholdCrossing = INVALID;  // Invalid value for bad waveforms
       break;
     }
   }
@@ -151,16 +147,22 @@ double CalculateTimeCFD(const std::vector<double>& waveform, int peakSample, int
   }
   int time = GetThresholdCrossingBeforePeak(waveform, peakSample, voltageThreshold, lookBack, timeStep);
   if (time == INVALID) {
+    // If we didn't find threshold crossing but we also weren't able to scan the entire lookback range
+    // because we reached the beginning of the waveform, return 0 instead of INVALID... and don't interpolate.
+    if (peakSample - int(lookBack / timeStep) < 0) {
+      return 0;
+    }
     return INVALID;
   }
   // Linearly interpolate threshold crossing time, if time is not last sample of waveform
   double dt = 0;
   if (time + 1 < static_cast<int>(waveform.size())) {
     double deltav = waveform.at(time + 1) - waveform.at(time);
-    if (deltav != 0) {
-      dt = (voltageThreshold - waveform.at(time)) / deltav;
-    } else {
-      dt = 0;
+    dt = (deltav == 0) ? 0 : (voltageThreshold - waveform.at(time)) / deltav;
+    if (dt < 0) {
+      debug << "WaveformUtil::CalculateTimeCFD: Interpolating to value before threshold crossing. "
+            << "This should not happen." << newline;
+      return INVALID;
     }
   }
   return (time + dt) * timeStep;
