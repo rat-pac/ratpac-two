@@ -103,6 +103,8 @@ For all of these processors, there is a utility located in ``util/src/`` called 
 
 -------------------------
 
+.. _lognormalfit:
+
 Lognormal fitting
 `````````````````
 
