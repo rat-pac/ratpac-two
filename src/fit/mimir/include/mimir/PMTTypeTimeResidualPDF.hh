@@ -12,7 +12,7 @@ class PMTTypeTimeResidualPDF : public Cost {
   double operator()(const ParamSet& params) const override;
 
  protected:
-  double group_velocity;
+  double light_speed_in_medium;
   double clamped_spline(const ROOT::Math::Interpolator& spline, double x) const;
   double left_bound, right_bound;
   std::map<int, ROOT::Math::Interpolator> tresid_nll_splines;

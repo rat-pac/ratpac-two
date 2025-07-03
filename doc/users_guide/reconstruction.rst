@@ -397,15 +397,15 @@ PMTTypeTimeResidualPDF
 ++++++++++++++++++++++
 Evaluates a 1D time residual PDF as a negative log likelihood.
 
-======================  ==========================  ===================
-**Field**               **Type**                    **Description**
-======================  ==========================  ===================
-``group_velocity``      ``double``                  Speed of light (in mm/ns) in the material of the detector. Used to calculate time of flight. 
-``binning``             ``double[]``                Bin centers for the time residual PDF. 
-``pmt_types``           ``int[]``                   Types PMTs to use in the fit.
-``type_weights``        ``double[]``                Weights for each type of PMT.
-``hist_<pmttype>``      ``double[]``                Histogram content for each type of PMT, with ``binning`` as the bin centers.
-======================  ==========================  ===================
+===========================    ==========================  ===================
+**Field**                      **Type**                    **Description**
+===========================    ==========================  ===================
+``light_speed_in_medium``      ``double``                  Speed of light (in mm/ns) in the material of the detector. Used to calculate time of flight. 
+``binning``                    ``double[]``                Bin centers for the time residual PDF. 
+``pmt_types``                  ``int[]``                   Types PMTs to use in the fit.
+``type_weights``               ``double[]``                Weights for each type of PMT.
+``hist_<pmttype>``             ``double[]``                Histogram content for each type of PMT, with ``binning`` as the bin centers.
+============================   ==========================  ===================
 
 Note that the received histograms will be noramlized such that the integral in
 the range specified by ``binning`` is 1.0. The negative natural logirithms of

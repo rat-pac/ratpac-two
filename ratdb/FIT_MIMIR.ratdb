@@ -53,7 +53,7 @@
 // Specifies a time residual PDF for each PMT Type. 
 "name": "MIMIR_PMTTypeTimeResidualPDF",
 "index": "",
-"group_velocity": 300, // speed of light in the detector medium in mm/ns
+"light_speed_in_medium": 300, // speed of light in the detector medium in mm/ns
 "binning": [-2.0, -1.0, 0.0, 1.0, 2.0], // time residual binning
 "pmt_types": [-1], // PMT Types to support
 "type_weights": [1.0], // weights for each PMT Type, must match pmt_types.

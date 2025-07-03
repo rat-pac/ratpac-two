@@ -31,7 +31,7 @@ bool PMTTypeTimeResidualPDF::Configure(RAT::DBLinkPtr db_link) {
     }
     tresid_nll_splines.try_emplace(pmt_type, binning, nll_vals, ROOT::Math::Interpolation::kCSPLINE);
   }
-  group_velocity = db_link->GetD("group_velocity");
+  light_speed_in_medium = db_link->GetD("light_speed_in_medium");
   return true;
 }
 
@@ -68,7 +68,7 @@ double PMTTypeTimeResidualPDF::operator()(const ParamSet& params) const {
     TVector3 pmt_position = pmt_info->GetPosition(pmtid);
     const ROOT::Math::Interpolator& spline_to_use = tresid_nll_splines.at(pmt_type);
     double weight = type_weights.at(pmt_type);
-    double tof = (vertex_position - pmt_position).Mag() / group_velocity;
+    double tof = (vertex_position - pmt_position).Mag() / light_speed_in_medium;
     double tresid = time - vertex_time - tof;
     result += clamped_spline(spline_to_use, tresid) * weight;
   }
