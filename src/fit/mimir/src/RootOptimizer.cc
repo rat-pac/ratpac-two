@@ -8,12 +8,13 @@
 namespace RAT::Mimir {
 
 bool RootOptimizer::Configure(RAT::DBLinkPtr db_link) {
-  // TODO:: configurable minimizers and algorithms.
-  fMinimizer = std::unique_ptr<ROOT::Math::Minimizer>(ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad"));
-  fMinimizer->SetMaxFunctionCalls(10000);
-  fMinimizer->SetMaxIterations(1000);
-  fMinimizer->SetTolerance(1e-4);
-  fMinimizer->SetPrintLevel(0);
+  std::string minimizer_type = db_link->GetS("minimizer_type");
+  std::string algo_type = db_link->GetS("algo_type");
+  fMinimizer = std::unique_ptr<ROOT::Math::Minimizer>(ROOT::Math::Factory::CreateMinimizer(minimizer_type, algo_type));
+  fMinimizer->SetMaxFunctionCalls(db_link->GetI("max_function_calls"));
+  fMinimizer->SetMaxIterations(db_link->GetI("max_iterations"));
+  fMinimizer->SetTolerance(db_link->GetD("tolerance"));
+  fMinimizer->SetPrintLevel(db_link->GetI("print_level"));
   info << "Mimir::RootOptimizer: Setting up the following optimizer: " << newline;
   std::stringstream minimizer_info;
   fMinimizer->Options().Print(minimizer_info);

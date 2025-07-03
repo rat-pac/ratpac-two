@@ -39,9 +39,14 @@
 
 {
 // Runs the Minuit2 minimizer with Migrad as the algotype. 
-// TODO: make this configurable.
 "name": "MIMIR_RootOptimizer",
 "index": ""
+"minimizer_type": "Minuit2",
+"algo_type": "Migrad",
+"max_function_calls": 10000,
+"max_iterations": 1000,
+"tolerance": 1e-4,
+"print_level": 0, // 0 = no output, 1 = minimal output, 2 = detailed output
 }
 
 {
