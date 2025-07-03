@@ -519,10 +519,11 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     }
   }
 
-  fastStep.SetPrimaryTrackFinalPosition(pos);
-  fastStep.SetPrimaryTrackFinalTime(time);
-  fastStep.SetPrimaryTrackFinalMomentum(dir);
-  fastStep.SetPrimaryTrackFinalPolarization(pol);
+  fastStep.ProposePrimaryTrackFinalPosition(pos);
+  fastStep.ProposePrimaryTrackFinalTime(time);
+  fastStep.ProposePrimaryTrackFinalMomentumDirection(dir);
+  fastStep.ProposePrimaryTrackFinalPolarization(pol);
+
   // fastStep.SetPrimaryTrackPathLength( trackLength ); // does anyone care?
   if (weight <= 0) {
     fastStep.ProposeTrackStatus(fStopAndKill);
@@ -531,7 +532,7 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
     }
   } else {
     // in case multiphoton has been partly absorbed and partly reflected
-    fastStep.SetPrimaryTrackFinalEventBiasingWeight(weight);
+    fastStep.ProposePrimaryTrackFinalEventBiasingWeight(weight);
   }
 
   if (iloop >= max_iloop) {
