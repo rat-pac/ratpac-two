@@ -10,10 +10,17 @@ namespace RAT::Mimir {
 bool PMTTypeTimeResidualPDF::Configure(RAT::DBLinkPtr db_link) {
   std::vector<double> binning = db_link->GetDArray("binning");
   std::vector<int> pmt_types = db_link->GetIArray("pmt_types");
+  std::vector<double> _type_weights = db_link->GetDArray("type_weights");
+  RAT::Log::Assert(pmt_types.size() == _type_weights.size(),
+                   "mimir::PMTTypeTimeResidualPDF: pmt_types and type_weights must have the same size.");
   pmt_info = RAT::DS::RunStore::GetCurrentRun()->GetPMTInfo();
   left_bound = binning.front();
   right_bound = binning.back();
-  for (int pmt_type : pmt_types) {
+  tresid_nll_splines.clear();
+  type_weights.clear();
+  for (size_t idx = 0; idx < pmt_types.size(); ++idx) {
+    int pmt_type = pmt_types.at(idx);
+    type_weights[pmt_type] = _type_weights.at(idx);
     std::vector<double> histvals = db_link->GetDArray("hist_" + std::to_string(pmt_type));
     std::vector<double> nll_vals;
     for (const auto& val : histvals) {
@@ -52,9 +59,10 @@ double PMTTypeTimeResidualPDF::operator()(const ParamSet& params) const {
     int pmt_type = pmt_info->GetModel(pmtid);
     TVector3 pmt_position = pmt_info->GetPosition(pmtid);
     const ROOT::Math::Interpolator& spline_to_use = tresid_nll_splines.at(pmt_type);
+    double weight = type_weights.at(pmt_type);
     double tof = (vertex_position - pmt_position).Mag() / group_velocity;
     double tresid = time - vertex_time - tof;
-    result += clamped_spline(spline_to_use, tresid);
+    result += clamped_spline(spline_to_use, tresid) * weight;
   }
 
   return result;

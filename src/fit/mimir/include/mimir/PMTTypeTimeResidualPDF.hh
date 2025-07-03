@@ -16,6 +16,7 @@ class PMTTypeTimeResidualPDF : public Cost {
   double clamped_spline(const ROOT::Math::Interpolator& spline, double x) const;
   double left_bound, right_bound;
   std::map<int, ROOT::Math::Interpolator> tresid_nll_splines;
+  std::map<int, double> type_weights;
   RAT::DS::PMTInfo* pmt_info;
 };
 MIMIR_REGISTER_TYPE(Cost, PMTTypeTimeResidualPDF, "PMTTypeTimeResidualPDF")
