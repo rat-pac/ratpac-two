@@ -3,6 +3,7 @@
 #include <RAT/DS/RunStore.hh>
 #include <RAT/Log.hh>
 #include <mimir/PMTTypeTimeResidualPDF.hh>
+#include <numeric>
 
 #include "Math/Interpolator.h"
 
@@ -16,15 +17,17 @@ bool PMTTypeTimeResidualPDF::Configure(RAT::DBLinkPtr db_link) {
   pmt_info = RAT::DS::RunStore::GetCurrentRun()->GetPMTInfo();
   left_bound = binning.front();
   right_bound = binning.back();
+  double bin_width = binning.at(1) - binning.at(0);
   tresid_nll_splines.clear();
   type_weights.clear();
   for (size_t idx = 0; idx < pmt_types.size(); ++idx) {
     int pmt_type = pmt_types.at(idx);
     type_weights[pmt_type] = _type_weights.at(idx);
     std::vector<double> histvals = db_link->GetDArray("hist_" + std::to_string(pmt_type));
+    double norm = std::accumulate(histvals.begin(), histvals.end(), 0.0) * bin_width;
     std::vector<double> nll_vals;
     for (const auto& val : histvals) {
-      nll_vals.push_back(-std::log(val));
+      nll_vals.push_back(-std::log(val / norm));
     }
     tresid_nll_splines.try_emplace(pmt_type, binning, nll_vals, ROOT::Math::Interpolation::kCSPLINE);
   }
@@ -57,6 +60,11 @@ double PMTTypeTimeResidualPDF::operator()(const ParamSet& params) const {
     int pmtid = hit_pmtids.at(ihit);
     double time = hit_times.at(ihit);
     int pmt_type = pmt_info->GetModel(pmtid);
+    if (tresid_nll_splines.count(pmt_type) == 0) {
+      RAT::warn << "mimir::PMTTypeTimeResidualPDF: No spline for PMT type " << pmt_type << ". Skipping this hit."
+                << newline;
+      continue;
+    }
     TVector3 pmt_position = pmt_info->GetPosition(pmtid);
     const ROOT::Math::Interpolator& spline_to_use = tresid_nll_splines.at(pmt_type);
     double weight = type_weights.at(pmt_type);
