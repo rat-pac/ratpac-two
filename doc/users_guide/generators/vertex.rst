@@ -10,3 +10,4 @@ polarization.
 .. include:: /users_guide/generators/vertex/reacibd.rst
 .. include:: /users_guide/generators/vertex/pbomb.rst
 .. include:: /users_guide/generators/vertex/spectrum.rst
+.. include:: /users_guide/generators/vertex/hepevt.rst
