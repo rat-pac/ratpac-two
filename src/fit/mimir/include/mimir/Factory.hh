@@ -33,6 +33,7 @@ class Factory {
     std::unique_ptr<Base> instance = make(type_name);
     RAT::DBLinkPtr db_link = GetConfig(type_name, config_name);
     instance->SetName(GetConfigRepr(db_link));
+    info << "[MIMIR Factory] Configuring instance: " << instance->GetName() << newline;
     if (!instance->Configure(db_link)) {
       RAT::Log::Die("[MIMIR Factory] Failed to configure instance: " + instance->GetName());
     }

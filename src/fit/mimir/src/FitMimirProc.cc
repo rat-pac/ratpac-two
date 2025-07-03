@@ -7,18 +7,32 @@ namespace RAT {
 
 FitMimirProc::FitMimirProc() : Processor("mimir"), inputHandler() {}
 
-void FitMimirProc::BeginOfRun(DS::Run *run) { Configure(); }
+void FitMimirProc::BeginOfRun(DS::Run *run) {
+  if (!configured) {
+    info << "FitMimirProc: No strategy configured, using default from RATDB." << newline;
+    DBLinkPtr lConfig = DB::Get()->GetLink("FIT_MIMIR", "");
+    strategyName = lConfig->GetS("strategy");
+    strategyConfig = lConfig->GetS("strategy_config");
+  }
+  // defer actual configuration until beginOfRun such that RATDB is set up correctly.
+  Configure(strategyName, strategyConfig);
+}
 
-void FitMimirProc::Configure(const std::string &index) {
-  DBLinkPtr lConfig = DB::Get()->GetLink("FIT_MIMIR", index);
-  std::string strategyName = lConfig->GetS("strategy");
-  std::string strategyConfig = lConfig->GetS("strategy_config");
+void FitMimirProc::Configure(const std::string &strategyName, const std::string &strategyConfig) {
+  info << "Configuring FitMimirProc with strategy: " << strategyName << " and config: " << strategyConfig << newline;
   auto factory = Mimir::Factory<Mimir::FitStrategy>::GetInstance();
   strategy = factory.make_and_configure(strategyName, strategyConfig);
   if (!strategy) {
     Log::Die("Failed to create Mimir strategy: " + strategyName);
   }
   strategy->SetInputHandler(&inputHandler);
+}
+
+void FitMimirProc::SetS(std::string param, std::string value) {
+  if (param == "strategy") {
+    DB::ParseTableName(value, strategyName, strategyConfig);
+    configured = true;
+  }
 }
 
 Processor::Result FitMimirProc::Event(DS::Root *ds, DS::EV *ev) {
