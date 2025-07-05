@@ -555,13 +555,19 @@ std::vector<DBTable *> DBTextLoader::parse(std::string filename) {
       if (table->GetFieldType("run_range") == DBTable::INTEGER_ARRAY && table->GetIArray("run_range").size() == 2) {
         const std::vector<int> &run_range = table->GetIArray("run_range");
         table->SetRunRange(run_range[0], run_range[1]);
+        if (table->GetFieldType("run_list") == DBTable::INTEGER_ARRAY)
+          warn << "DB: Both run_range and run_list given in table " << table->GetName() << "[" << table->GetIndex()
+               << "]. Run_range will be prioritized." << newline;
+      } else if (table->GetFieldType("run_list") == DBTable::INTEGER_ARRAY) {
+        const std::vector<int> &run_list = table->GetIArray("run_list");
+        table->SetRunList(run_list);
       } else if (table->GetFieldType("valid_begin") == DBTable::INTEGER_ARRAY &&
                  table->GetIArray("valid_begin").size() == 2 &&
                  table->GetFieldType("valid_end") == DBTable::INTEGER_ARRAY &&
                  table->GetIArray("valid_end").size() == 2) {
         // valid_begin and valid_end will be deprecated.
         warn << "Table " << table->GetName() << " has old-style valid_begin/valid_end arrays that are now deprecated."
-             << newline << "Discarding..." << newline << "Please replace them with run_range.";
+             << newline << "Discarding..." << newline << "Please replace them with run_range or run_list.";
         bad = true;
       } else {
         warn << "Table " << table->GetName() << " has bad/missing validity information." << newline << "Discarding..."
