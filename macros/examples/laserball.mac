@@ -25,4 +25,4 @@
 /generator/vtx/set 100 400nm # 100 photons, 400nm
 /generator/pos/set 0.0 0.0 0.0
 
-/run/beamOn 100
+/run/beamOn 10000
