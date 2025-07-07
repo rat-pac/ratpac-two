@@ -1,4 +1,5 @@
 #include <RAT/DBTable.hh>
+#include <RAT/Log.hh>
 
 namespace RAT {
 
@@ -12,8 +13,14 @@ DBTable::DBTable(json::Value &jsonDoc) : tblname(""), index(""), run_begin(0), r
   tblname = jsonDoc["name"].cast<std::string>();
   if (jsonDoc.isMember("index")) index = jsonDoc["index"].cast<std::string>();
 
-  if (jsonDoc.isMember("run_range"))
+  if (jsonDoc.isMember("run_range")) {
     SetRunRange(jsonDoc["run_range"][(unsigned)0].cast<int>(), jsonDoc["run_range"][(unsigned)1].cast<int>());
+    if (jsonDoc.isMember("run_list"))
+      warn << "DB: Both run_range and run_list given in table " << tblname << "[" << index << "]. "
+           << "Run_range will be prioritized." << newline;
+  } else if (jsonDoc.isMember("run_list")) {
+    SetRunList(jsonDoc["run_list"].toVector<int>());
+  }
 
   table = jsonDoc;
 }
@@ -25,6 +32,47 @@ DBTable::DBTable(std::string _tblname, std::string _index)
 
 DBTable::~DBTable() {
   // Do nothing
+}
+
+std::vector<int> DBTable::GetValidRuns() const {
+  if (useRunList)
+    return run_list;
+  else {
+    std::vector<int> range_to_list(run_end - run_begin + 1);
+    std::iota(std::begin(range_to_list), std::end(range_to_list), run_begin);
+    return range_to_list;
+  }
+};
+
+bool DBTable::IsUser() const {
+  if (useRunList)
+    return (run_list.size() == 1) && (run_list.at(0) == -1);
+  else
+    return (run_begin == -1) && (run_end == -1);
+};
+
+bool DBTable::IsDefault() const {
+  if (useRunList)
+    return (run_list.size() == 1) && (run_list.at(0) == 0);
+  else
+    return (run_begin == 0) && (run_end == 0);
+};
+
+bool DBTable::IsValidRun(const int run) {
+  if (useRunList)
+    return std::find(std::begin(run_list), std::end(run_list), run) != std::end(run_list);
+  else
+    return (run >= run_begin) && (run <= run_end);
+};
+
+void DBTable::SetRunList(std::vector<int> _run_list) {
+  run_list = _run_list;
+  // make sorted, unique list of runs
+  std::sort(run_list.begin(), run_list.end());
+  auto last = std::unique(run_list.begin(), run_list.end());
+  run_list.erase(last, run_list.end());
+
+  useRunList = true;
 }
 
 DBTable::FieldType DBTable::GetFieldType(std::string name) const {
