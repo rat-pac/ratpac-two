@@ -47,6 +47,7 @@ set(gen_sources
     src/VertexGen_PhotonBomb.cc
     src/VertexGen_ReacIBD.cc
     src/VertexGen_SN.cc
+    src/VertexGen_Laserball.cc
     src/VertexGen_Spectrum.cc
     src/VertexGen_WIMP.cc)
 
