@@ -20,12 +20,8 @@
 
 #include "RAT/GLG4Scint.hh"
 
-#include <RAT/AdaptiveSimpsonQuadrature.hh>
 #include <RAT/DB.hh>
-#include <RAT/FixedTrapezoidalQuadrature.hh>
-#include <RAT/IntegratedQuenchingCalculator.hh>
 #include <RAT/Log.hh>
-#include <RAT/NaiveQuenchingCalculator.hh>
 #include <RAT/PhotonThinning.hh>
 #include <RAT/TrackInfo.hh>
 #include <fileio.hpp>
@@ -156,41 +152,7 @@ GLG4Scint::GLG4Scint(const G4String &tablename, G4double lowerMassLimit) {
   //    if integration is "adaptive", then
   //        Quadrature = AdaptiveQuadrature(tolerance)
   //    QC = new IQC(Quadrature)
-  RAT::DB *db = RAT::DB::Get();
-  RAT::DBLinkPtr tbl = db->GetLink("QUENCHING");
-  std::string selection = tbl->GetS("model");
-  BirksLaw model;
-  if (selection == "birks") {
-    model = BirksLaw();
-  } else {
-    // no such quenching model
-    std::string msg = "Invalid quenching model: " + selection;
-    RAT::Log::Die(msg);
-  }
-  std::string strategy = tbl->GetS("strategy");
-  if (strategy == "naive") {
-    this->fQuenching = new NaiveQuenchingCalculator(model);
-  } else if (strategy == "integrated") {
-    std::string method = tbl->GetS("integration");
-    Quadrature *quadrature;
-    if (method == "fixed") {
-      // TODO
-      double resolution = tbl->GetD("resolution");
-      quadrature = new FixedTrapezoidalQuadrature(resolution);
-    } else if (method == "adaptive") {
-      double tolerance = tbl->GetD("tolerance");
-      quadrature = new AdaptiveSimpsonQuadrature(tolerance);
-    } else {
-      // no such integration method
-      std::string msg = "Invalid integration method: " + method;
-      RAT::Log::Die(msg);
-    }
-    this->fQuenching = new IntegratedQuenchingCalculator(model, quadrature);
-  } else {
-    // no such quenching calculation strategy
-    std::string msg = "Invalid quenching calculation strategy: " + strategy;
-    RAT::Log::Die(msg);
-  }
+  this->fQuenching = QuenchingCalculator::BuildQuenchingCalculator();
 }
 
 // GLG4Scint::GLG4Scint(const GLG4Scint &right)
