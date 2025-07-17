@@ -5,10 +5,10 @@ SHELL ["/bin/bash", "-c"]
 
 USER ratuser
 
+COPY --chown=ratuser:ratuser . /ratpac-setup/ratpac
+WORKDIR /ratpac-setup/ratpac
+RUN source /ratpac-setup/env.sh && make -j$(nproc)
 WORKDIR /ratpac-setup
-
-RUN ./setup.sh --only ratpac -j$(nproc)
-RUN cd ratpac && cmake --install build && cd ..
 
 RUN sed -i '1s/^/#!\/bin\/bash\n/' /ratpac-setup/env.sh
 RUN printf '\nexec "$@"\n' >> /ratpac-setup/env.sh
