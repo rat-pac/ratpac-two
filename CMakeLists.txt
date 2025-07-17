@@ -108,9 +108,9 @@ option(RATPAC_RAT "build rat executable" ON)
 # Set up third party libraries
 
 if(ROOT_DIR)
-  find_package(ROOT NO_DEFAULT_PATH CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython)
+  find_package(ROOT NO_DEFAULT_PATH CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython MathMore)
 else()
-  find_package(ROOT CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython)
+  find_package(ROOT CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython MathMore)
 endif()
 include(${ROOT_USE_FILE})
 
