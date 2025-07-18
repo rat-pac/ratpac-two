@@ -20,11 +20,34 @@ VertexGen_PhotonBomb::VertexGen_PhotonBomb(const char *arg_dbname) : GLG4VertexG
   fMinEnergy = 0.0;
   fMaxEnergy = 0.0;
   fMaterial = "";
+  fDist = false;
+  fWavelengthIndex = "";
 }
 
 VertexGen_PhotonBomb::~VertexGen_PhotonBomb() { delete fRndmEnergy; }
 
 void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, G4double dt) {
+  DBLinkPtr spectradb;
+  std::vector<double> wls;
+  std::vector<double> wl_probs;
+
+  if (fDist) {
+    try {
+      spectradb = DB::Get()->GetLink("WLSPECTRUM", fWavelengthIndex);
+    } catch (DBNotFoundError &e) {
+      Log::Die("VertexGen_PhotonBomb: (Using Distribution) Wavelength simulated does not have measured spectrum.");
+    }
+    try {
+      wls = spectradb->GetDArray("wavelength");
+      wl_probs = spectradb->GetDArray("intensity");
+      if (wls.size() != wl_probs.size()) {
+        Log::Die("VertexGen_PhotonBomb: (Using Distribution) Wavelength and probability arrays have different length");
+      }
+    } catch (DBNotFoundError &e) {
+      Log::Die("VertexGen_PhotonBomb: (Using Distribution) Error with retrieving wavelength from spectrum.");
+    }
+  }
+
   for (int i = 0; i < fNumPhotons; i++) {
     // Pick direction isotropically
     G4ThreeVector mom;
@@ -33,10 +56,14 @@ void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &
 
     // Use fixed energy unless spectrum was provided
     double energy;
-    if (fRndmEnergy)
+    if (fRndmEnergy) {
       energy = fMinEnergy + (fMaxEnergy - fMinEnergy) * fRndmEnergy->shoot();
-    else
+    } else if (fDist) {
+      double wavelength = pickWavelength(wls, wl_probs);
+      energy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
+    } else {
       energy = fEnergy;
+    }
     mom.setRThetaPhi(energy, theta, phi);  // Momentum == energy units in GEANT4
     // Distribute times expoenentially, but don't bother picking a
     // random number if there is no time constant
@@ -59,6 +86,17 @@ void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &
 }
 
 void VertexGen_PhotonBomb::SetState(G4String newValues) {
+  info << "Setting the state." << newline;
+
+  DBLinkPtr spectraparam;
+  try {
+    spectraparam = DB::Get()->GetLink("WLSPECTRUM", "");
+    fDist = spectraparam->GetZ("use_dist");
+  } catch (DBNotFoundError &e) {
+    Log::Die("VertexGen_PhotonBomb (Using Distribution): Error in retrieving \"use_dist\" parameter.");
+  }
+  info << "DB found" << newline;
+
   if (newValues.length() == 0) {
     // print help and current state
     info << "Current state of this VertexGen_PhotonBomb:" << newline << " \"" << GetState() << "\"" << newline
@@ -111,8 +149,12 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
 
     if (fRndmEnergy) delete fRndmEnergy;
     fRndmEnergy = new CLHEP::RandGeneral(energyResample, nbins);
-  } else
+  } else {
     fEnergy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
+    fWavelengthIndex = std::to_string(wavelength);
+  }
+
+  info << "Values assigned." << newline;
 
   double exp = 0.0;
   is >> exp;
@@ -120,6 +162,8 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
 
   fNumPhotons = num;
   fExpTime = exp;
+
+  info << "State has been set." << newline;
 }
 
 G4String VertexGen_PhotonBomb::GetState() {
@@ -127,6 +171,44 @@ G4String VertexGen_PhotonBomb::GetState() {
     return dformat("%d\t%s\t%f", fNumPhotons, fMaterial.c_str(), fExpTime);
   else
     return dformat("%d\t%f\t%f", fNumPhotons, fEnergy, fExpTime);
+}
+
+double VertexGen_PhotonBomb::pickWavelength(const std::vector<double> &values, const std::vector<double> &probs) {
+  double integral = 0.0;
+  std::vector<double> probCumu = std::vector<double>(values.size());
+  probCumu[0] = 0.0;
+
+  for (size_t i = 0; i < values.size() - 1; i++) {
+    if (probs[i] < 0) {
+      Log::Die("VertexGen_PhotonBomb::pickWavelength: An intensity is negative");
+    }
+    integral += (values[i + 1] - values[i]) * (probs[i] + probs[i + 1]) / 2.0;  // trapezoid integration
+    probCumu[i + 1] = integral;
+  }
+
+  if (integral == 0) {
+    Log::Die("VertexGen_PhotonBomb::pickWavelength: Intensities sum to 0");
+  }
+
+  for (size_t i = 0; i < values.size(); i++) {
+    probCumu[i] /= integral;
+  }
+
+  double rval = G4UniformRand();
+
+  // Check edge cases first
+
+  if (rval == 0) {
+    return values[0];
+  } else {
+    std::vector<double>::iterator idxIt = std::lower_bound(probCumu.begin(), probCumu.end(), rval);
+    int idx = std::distance(probCumu.begin(), idxIt);
+
+    return (rval - probCumu[idx - 1]) * (values[idx] - values[idx - 1]) / (probCumu[idx] - probCumu[idx - 1]) +
+           values[idx - 1];
+  }
+
+  Log::Die("VertexGen_PhotonBomb::pickWavelength: impossible condition encountered");
 }
 
 }  // namespace RAT

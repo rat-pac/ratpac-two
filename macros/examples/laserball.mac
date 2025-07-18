@@ -7,6 +7,9 @@
 # Change database setting for PMT noise processor
 /rat/db/set NOISEPROC noise_flag 1
 
+# Enable using the wavelength spectra
+/rat/db/set WLSPECTRUM use_dist true
+
 # Begin event processor loop
 /run/initialize
 
@@ -21,8 +24,8 @@
 # End processor loop
 
 ##### GENERATORS #################
-/generator/add combo laserball:point:poisson
-/generator/vtx/set 100 400nm # 100 photons, 400nm
+/generator/add combo pbomb:point:poisson
+/generator/vtx/set 100 400 # 100 photons, 400
 /generator/pos/set 0.0 0.0 0.0
 
-/run/beamOn 10000
+/run/beamOn 100000

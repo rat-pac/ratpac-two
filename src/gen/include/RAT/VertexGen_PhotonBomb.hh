@@ -15,6 +15,7 @@ class VertexGen_PhotonBomb : public GLG4VertexGen {
   /** State format "num_photons wavelength_nm" */
   virtual void SetState(G4String newValues);
   virtual G4String GetState();
+  double pickWavelength(const std::vector<double> &values, const std::vector<double> &probs);
 
  private:
   G4ParticleDefinition *fOpticalPhoton;
@@ -25,6 +26,8 @@ class VertexGen_PhotonBomb : public GLG4VertexGen {
   double fMaxEnergy;
   std::string fMaterial;
   double fExpTime;
+  bool fDist;
+  std::string fWavelengthIndex;
 };
 
 }  // namespace RAT
