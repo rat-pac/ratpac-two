@@ -1,0 +1,14 @@
+{
+  "name": "WLSPECTRUM",
+  "index": "",
+  "use_dist": false,
+}
+
+{
+  "name": "WLSPECTRUM",
+  "index": "400",
+
+  // Wavelength distribution [nm]
+  "wavelength": [398.5, 399.0, 399.5, 400.0, 400.5, 401.0],
+  "intensity": [0.00, 0.10, 0.15, 0.50, 0.15, 0.10],
+}
