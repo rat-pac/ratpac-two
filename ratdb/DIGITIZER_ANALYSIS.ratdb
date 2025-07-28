@@ -65,3 +65,42 @@
 "tapering_constant": 30.0,
 "num_sinc_lobes": 6
 }
+
+{
+"name": "DIGITIZER_ANALYSIS",
+"index": "LucyDDM",
+"run_range": [0, 0],
+
+// Shaping parameters used to generate the single PE waveform.
+// Currently, LucyDDM only uses the Lognormal PE generation method.
+"vpe_scale": 12.5, // "m" in Lognormal
+"vpe_shape": 0.15, // "sigma" in Lognomral
+
+// nominal charge of a single PE in pC. Used to determine the correct 
+// normalization for a SPE waveform. Used to determine the correct 
+// normalization for a SPE waveform, and also how to convert gaussians in the 
+// deconvolved waveform to pC. 
+"vpe_charge": 1.6, 
+
+"internal_sampling_period": 0.2, // internal sampling period used for the deconvolution, in ns
+
+// number of samples in the SPE Waveform. Note that Lognormal distributions 
+// peak at `m`, i.e. vpe_scale. 
+"vpe_nsamples": 250, 
+
+// LucyDDM is sensitive to noise, and requires the waveform samples to be 
+// strictly positive. All samples below this threshold (in mV) are set to zero.
+"roi_threshold": 2, 
+
+// Maximum number of LucyDDM iterations to run.
+"max_iterations": 1000,
+
+// If LucyDDM makes gain in Poisson Log-likelihood less than this value, it 
+// will stop iterating.
+"stopping_nll_diff": 1e-3,
+
+// Height threshold for peak detection in the deconovlved waveform.
+"peak_height_threshold": 0.05,
+// Remove the hit if the charge is below this threshold.
+"charge_threshold": 0.2
+}
