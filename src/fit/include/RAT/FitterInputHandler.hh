@@ -29,12 +29,11 @@ class FitterInputHandler {
     kPMT = 0,
     kDigitPMT = 1,
     kWaveformAnalysis = 2,
-    kHitCleanedWaveformAnalysis = 3,
   };
 
   Mode mode;
   std::string wfm_ana_name;
-  int hit_cleaning_bit;
+  uint64_t hit_cleaning_cuts;
   std::string vertex_seed, direction_seed, energy_seed;
 
   /**
@@ -50,9 +49,8 @@ class FitterInputHandler {
   void Configure(const std::string& index) {
     DBLinkPtr tbl = DB::Get()->GetLink("FIT_COMMON", index);
     mode = static_cast<Mode>(tbl->GetI("mode"));
-    if (mode == Mode::kWaveformAnalysis || mode == Mode::kHitCleanedWaveformAnalysis)
-      wfm_ana_name = tbl->GetS("waveform_analyzer");
-    if (mode == Mode::kHitCleanedWaveformAnalysis) hit_cleaning_bit = tbl->GetI("hit_cleaning_bit");
+    if (mode == Mode::kWaveformAnalysis) wfm_ana_name = tbl->GetS("waveform_analyzer");
+    hit_cleaning_cuts = static_cast<uint64_t>(tbl->GetI("hit_cleaning_cuts"));
     vertex_seed = tbl->GetS("vertex_seed");
     direction_seed = tbl->GetS("direction_seed");
     energy_seed = tbl->GetS("energy_seed");
@@ -203,12 +201,13 @@ class FitterInputHandler {
     // This is true since ev->digitpmt and ev->pmt are both std::maps.
     hitPMTChannels = mode == Mode::kPMT ? ev->GetAllPMTIDs() : ev->GetAllDigitPMTIDs();
     // Only use channels that pass the chosen hit cleaning bit
-    if (mode == Mode::kHitCleanedWaveformAnalysis) {
+    if (hit_cleaning_cuts != 0) {
       std::vector<Int_t> hitPMTChannelsCleaned;
-      for (auto id : hitPMTChannels) {
+      for (int id : hitPMTChannels) {
         DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(id);
-        bool isBad = digitpmt->GetHitCleaningBit(hit_cleaning_bit);
-        if (!isBad) {
+        uint64_t mask = digitpmt->GetHitCleaningMask();
+        // passes if none of the bits specified in the cuts are set in the mask
+        if ((mask & hit_cleaning_cuts) == 0) {
           hitPMTChannelsCleaned.push_back(id);
         }
       }
@@ -255,8 +254,7 @@ class FitterInputHandler {
         return ev->GetOrCreatePMT(id)->GetCharge();
       case Mode::kDigitPMT:
         return ev->GetOrCreateDigitPMT(id)->GetDigitizedCharge();
-      case Mode::kWaveformAnalysis:
-      case Mode::kHitCleanedWaveformAnalysis: {
+      case Mode::kWaveformAnalysis: {
         DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(id);
         std::vector<std::string> fitterNames = digitpmt->GetFitterNames();
         if (std::find(fitterNames.begin(), fitterNames.end(), wfm_ana_name) == fitterNames.end()) {
@@ -307,8 +305,7 @@ class FitterInputHandler {
         return ev->GetOrCreatePMT(id)->GetTime();
       case Mode::kDigitPMT:
         return ev->GetOrCreateDigitPMT(id)->GetDigitizedTime();
-      case Mode::kWaveformAnalysis:
-      case Mode::kHitCleanedWaveformAnalysis: {
+      case Mode::kWaveformAnalysis: {
         DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(id);
         std::vector<std::string> fitterNames = digitpmt->GetFitterNames();
         if (std::find(fitterNames.begin(), fitterNames.end(), wfm_ana_name) == fitterNames.end()) {
@@ -360,8 +357,7 @@ class FitterInputHandler {
         return 1;  // no nhit information
       case Mode::kDigitPMT:
         return ev->GetOrCreateDigitPMT(id)->GetNCrossings();  // approximate
-      case Mode::kWaveformAnalysis:
-      case Mode::kHitCleanedWaveformAnalysis: {
+      case Mode::kWaveformAnalysis: {
         DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(id);
         std::vector<std::string> fitterNames = digitpmt->GetFitterNames();
         if (std::find(fitterNames.begin(), fitterNames.end(), wfm_ana_name) == fitterNames.end()) {
