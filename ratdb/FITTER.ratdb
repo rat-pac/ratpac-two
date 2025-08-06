@@ -3,7 +3,7 @@
 "index": "",
 "mode": 0, // 0 = use DS::PMT; 1 = use DS::DigitPMT DigitTime/Charge; 2 = use WaveformAnalysisResult
 "waveform_analyzer": "Lognormal", // only required if mode = 2
-"hit_cleaning_cuts": 0x0, // only use hits which pass all specified hit cleaning bits
+"hit_cleaning_mask": 0x0, // only use hits which pass all specified hit cleaning bits
 "vertex_seed": "quadfitter",
 "direction_seed": "fitdirectioncenter",
 "energy_seed": "DOESNOTEXIST"
