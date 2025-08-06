@@ -107,7 +107,8 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
   }
 
   std::istringstream is(newValues.c_str());
-  int num, wavelength;
+  int num;
+  std::string wavelength;
   is >> num >> wavelength;
   if (is.fail()) {
     // check for scintillation wavelength spectrum
@@ -151,7 +152,7 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
     fRndmEnergy = new CLHEP::RandGeneral(energyResample, nbins);
   } else {
     fEnergy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
-    fWavelengthIndex = std::to_string(wavelength);
+    fWavelengthIndex = wavelength;
   }
 
   info << "Values assigned." << newline;

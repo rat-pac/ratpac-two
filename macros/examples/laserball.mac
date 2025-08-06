@@ -25,7 +25,7 @@
 
 ##### GENERATORS #################
 /generator/add combo pbomb:point:poisson
-/generator/vtx/set 100 400 # 100 photons, 400
+/generator/vtx/set 100 400nm_example # 100 photons, example 400nm spectrum
 /generator/pos/set 0.0 0.0 0.0
 
 /run/beamOn 100000
