@@ -55,7 +55,7 @@
 "index": "",
 "light_speed_in_medium": 300, // speed of light in the detector medium in mm/ns
 "binning": [-2.0, -1.0, 0.0, 1.0, 2.0], // time residual binning
-"pmt_types": [-1], // PMT Types to support
+"pmt_types": [0], // PMT Types to support
 "type_weights": [1.0], // weights for each PMT Type, must match pmt_types.
-"hist_-1": [0, 0, 1, 0, 0] // histogram for PMT Type -1, key has format of `hist_<pmt_type>`. This value will be renormalized.
+"hist_0": [0, 0, 1, 0, 0] // histogram for PMT Type -1, key has format of `hist_<pmt_type>`. This value will be renormalized.
 }
