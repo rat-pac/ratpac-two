@@ -43,6 +43,7 @@ class WaveformAnalysisResult : public TObject {
   virtual Double_t getTime(size_t idx) { return times.at(idx); }
   virtual Double_t getCharge(size_t idx) { return charges.at(idx); }
   virtual Double_t getFOM(std::string key, size_t idx) { return figures_of_merit.at(key).at(idx); }
+
   virtual int getNPEs() { return times.size(); }
 
   virtual const std::vector<Double_t>& getTimes() { return times; }
