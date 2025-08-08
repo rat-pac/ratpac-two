@@ -179,6 +179,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("digitTime", &digitTime);
     outputTree->Branch("digitCharge", &digitCharge);
     outputTree->Branch("digitNCrossings", &digitNCrossings);
+    outputTree->Branch("digitHitCleaningMask", &digitHitCleaningMask);
     outputTree->Branch("digitTimeOverThreshold", &digitTimeOverThreshold);
     outputTree->Branch("digitVoltageOverThreshold", &digitVoltageOverThreshold);
     outputTree->Branch("digitPeak", &digitPeak);
@@ -587,7 +588,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitReconNPEs.clear();
       digitHitCleanedNhits = 0;
       digitHitCleanedPMTID.clear();
-      digitHitCleaningMask.clear();
 
       if (options.digitizerfits) {
         for (const std::string &fitter_name : waveform_fitters) {
@@ -700,7 +700,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitReconNPEs.clear();
       digitHitCleanedNhits = 0;
       digitHitCleanedPMTID.clear();
-      digitHitCleaningMask.clear();
       if (options.digitizerfits) {
         for (const std::string &fitter_name : waveform_fitters) {
           // construct arrays for all fitters
