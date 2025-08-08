@@ -15,7 +15,7 @@
 namespace RAT {
 
 // Helper to set placeholder figures of merit for failed fits
-void FitDirectionCenterProc::SetPlaceholderFOM(DS::FitResult* fit) {
+void FitDirectionCenterProc::SetPlaceholderFOM(DS::FitResult *fit) {
   fit->SetIntFigureOfMerit("num_PMT", 0);
   fit->SetDoubleFigureOfMerit("time_resid_low", NAN);
   fit->SetDoubleFigureOfMerit("time_resid_up", NAN);
@@ -312,4 +312,3 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
 }
 
 }  // namespace RAT
-
