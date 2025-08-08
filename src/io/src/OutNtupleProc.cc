@@ -179,6 +179,8 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("digitTime", &digitTime);
     outputTree->Branch("digitCharge", &digitCharge);
     outputTree->Branch("digitNCrossings", &digitNCrossings);
+    outputTree->Branch("digitHitCleanedNhits", &digitHitCleanedNhits);
+    outputTree->Branch("digitHitCleanedPMTID", &digitHitCleanedPMTID);
     outputTree->Branch("digitHitCleaningMask", &digitHitCleaningMask);
     outputTree->Branch("digitTimeOverThreshold", &digitTimeOverThreshold);
     outputTree->Branch("digitVoltageOverThreshold", &digitVoltageOverThreshold);
@@ -583,6 +585,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
       digitReconNPEs.clear();
+      digitHitCleanedNhits = 0;
+      digitHitCleanedPMTID.clear();
       digitHitCleaningMask.clear();
 
       if (options.digitizerfits) {
@@ -626,6 +630,11 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
             }
           }
         }
+      }
+      for (int pmtc : ev->GetAllCleanedDigitPMTIDs()) {
+        RAT::DS::DigitPMT *digitpmt = ev->GetOrCreateDigitPMT(pmtc);
+        digitHitCleanedPMTID.push_back(digitpmt->GetID());
+        digitHitCleanedNhits++;
       }
     }
     if (options.digitizerwaveforms) {
@@ -689,6 +698,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
       digitReconNPEs.clear();
+      digitHitCleanedNhits = 0;
+      digitHitCleanedPMTID.clear();
       digitHitCleaningMask.clear();
       if (options.digitizerfits) {
         for (const std::string &fitter_name : waveform_fitters) {
