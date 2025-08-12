@@ -21,33 +21,14 @@ VertexGen_PhotonBomb::VertexGen_PhotonBomb(const char *arg_dbname) : GLG4VertexG
   fMaxEnergy = 0.0;
   fMaterial = "";
   fDist = false;
+  fWavelengths = {};
+  fIntensities = {};
   fWavelengthIndex = "";
 }
 
 VertexGen_PhotonBomb::~VertexGen_PhotonBomb() { delete fRndmEnergy; }
 
 void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &dx, G4double dt) {
-  DBLinkPtr spectradb;
-  std::vector<double> wls;
-  std::vector<double> wl_probs;
-
-  if (fDist) {
-    try {
-      spectradb = DB::Get()->GetLink("WLSPECTRUM", fWavelengthIndex);
-    } catch (DBNotFoundError &e) {
-      Log::Die("VertexGen_PhotonBomb: (Using Distribution) Wavelength simulated does not have measured spectrum.");
-    }
-    try {
-      wls = spectradb->GetDArray("wavelength");
-      wl_probs = spectradb->GetDArray("intensity");
-      if (wls.size() != wl_probs.size()) {
-        Log::Die("VertexGen_PhotonBomb: (Using Distribution) Wavelength and probability arrays have different length");
-      }
-    } catch (DBNotFoundError &e) {
-      Log::Die("VertexGen_PhotonBomb: (Using Distribution) Error with retrieving wavelength from spectrum.");
-    }
-  }
-
   for (int i = 0; i < fNumPhotons; i++) {
     // Pick direction isotropically
     G4ThreeVector mom;
@@ -59,7 +40,7 @@ void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &
     if (fRndmEnergy) {
       energy = fMinEnergy + (fMaxEnergy - fMinEnergy) * fRndmEnergy->shoot();
     } else if (fDist) {
-      double wavelength = pickWavelength(wls, wl_probs);
+      double wavelength = pickWavelength(fWavelengths, fIntensities);
       energy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
     } else {
       energy = fEnergy;
@@ -86,16 +67,15 @@ void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &
 }
 
 void VertexGen_PhotonBomb::SetState(G4String newValues) {
-  info << "Setting the state." << newline;
 
   DBLinkPtr spectraparam;
+  DBLinkPtr spectradb;
   try {
     spectraparam = DB::Get()->GetLink("WLSPECTRUM", "");
     fDist = spectraparam->GetZ("use_dist");
   } catch (DBNotFoundError &e) {
     Log::Die("VertexGen_PhotonBomb (Using Distribution): Error in retrieving \"use_dist\" parameter.");
   }
-  info << "DB found" << newline;
 
   if (newValues.length() == 0) {
     // print help and current state
@@ -106,69 +86,94 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
     return;
   }
 
-  std::istringstream is(newValues.c_str());
   int num;
-  std::string wavelength;
-  is >> num >> wavelength;
-  if (is.fail()) {
-    // check for scintillation wavelength spectrum
-    is.str(newValues.c_str());
-    is.clear();
-    std::string material;
-    is >> num >> material;
-    if (is.fail()) Log::Die("VertexGen_PhotonBomb: Incorrect vertex setting " + newValues);
-    fMaterial = material;
-
-    // get the scintillation wavelength spectrum
-    DBLinkPtr loptics = DB::Get()->GetLink("OPTICS", material);
-    std::vector<double> wlarr = loptics->GetDArray("SCINTILLATION_value1");
-    std::vector<double> wlamp = loptics->GetDArray("SCINTILLATION_value2");
-    for (unsigned i = 0; i < wlarr.size(); i++) wlarr[i] = CLHEP::hbarc * CLHEP::twopi / (wlarr[i] * CLHEP::nm);
-    if (wlarr.front() > wlarr.back()) {
-      reverse(wlarr.begin(), wlarr.end());
-      reverse(wlamp.begin(), wlamp.end());
-    }
-    for (unsigned i = 1; i < wlarr.size(); i++)
-      if (wlarr[i - 1] >= wlarr[i]) Log::Die("VertexGen_PhotonBomb: wavelengths out of order");
-
-    // use a linear interpolator to get a uniform sampling with bin
-    // size smaller than the smallest bin in order to use RandGeneral
-    LinearInterp<double> energyInterp(wlarr, wlamp);
-    double step = 1.0e9;
-    for (int i = 0; i < (int)wlarr.size() - 1; i++) step = fmin(step, wlarr[i + 1] - wlarr[i]);
-    step /= 2;
-    int nbins = (int)((energyInterp.Max() - energyInterp.Min()) / step) + 1;
-    step = (energyInterp.Max() - energyInterp.Min()) / (nbins - 1);
-
-    // get the oversampled array, small padding at ends to avoid range error
-    double *energyResample = new double[nbins];
-    energyResample[0] = energyInterp(energyInterp.Min() + step * 1e-6);
-    energyResample[nbins - 1] = energyInterp(energyInterp.Max() - step * 1e-6);
-    for (int i = 1; i < nbins - 1; i++) energyResample[i] = energyInterp(energyInterp.Min() + i * step);
-    fMinEnergy = energyInterp.Min();
-    fMaxEnergy = energyInterp.Max();
-
-    if (fRndmEnergy) delete fRndmEnergy;
-    fRndmEnergy = new CLHEP::RandGeneral(energyResample, nbins);
-  } else {
-    fEnergy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
-    fWavelengthIndex = wavelength;
-  }
-
-  info << "Values assigned." << newline;
-
+  std::string wavelengthString;
+  std::istringstream is(newValues.c_str());
+  is >> num >> wavelengthString;
   double exp = 0.0;
-  is >> exp;
-  if (exp < 0.0) Log::Die("VertexGen_PhotonBomb: Exponential time constant must be positive");
+
+  if (fDist) {
+    fWavelengthIndex = wavelengthString;
+
+    try {
+      spectradb = DB::Get()->GetLink("WLSPECTRUM", fWavelengthIndex);
+    } catch (DBNotFoundError &e) {
+      Log::Die("VertexGen_PhotonBomb: (Using Distribution) Wavelength simulated does not have measured spectrum.");
+    }
+    try {
+      fWavelengths = spectradb->GetDArray("wavelength");
+      fIntensities = spectradb->GetDArray("intensity");
+      if (fWavelengths.size() != fIntensities.size()) {
+        Log::Die("VertexGen_PhotonBomb: (Using Distribution) Wavelength and probability arrays have different length");
+      }
+    } catch (DBNotFoundError &e) {
+      Log::Die("VertexGen_PhotonBomb: (Using Distribution) Error with retrieving wavelength from spectrum.");
+    }
+
+  } else{
+    int wavelength;
+
+    for (int i = 0; i < wavelengthString.size(); i++){
+      if (!std::isdigit(static_cast<unsigned char>(wavelengthString[i]))) Log::Die("VertexGen_PhotonBomb: macro state written incorrectly.");
+    }
+    wavelength = std::stoi(wavelengthString);
+
+    if (is.fail()) {
+      // check for scintillation wavelength spectrum
+      is.str(newValues.c_str());
+      is.clear();
+      std::string material;
+      is >> num >> material;
+      if (is.fail()) Log::Die("VertexGen_PhotonBomb: Incorrect vertex setting " + newValues);
+      fMaterial = material;
+
+      // get the scintillation wavelength spectrum
+      DBLinkPtr loptics = DB::Get()->GetLink("OPTICS", material);
+      std::vector<double> wlarr = loptics->GetDArray("SCINTILLATION_value1");
+      std::vector<double> wlamp = loptics->GetDArray("SCINTILLATION_value2");
+      for (unsigned i = 0; i < wlarr.size(); i++) wlarr[i] = CLHEP::hbarc * CLHEP::twopi / (wlarr[i] * CLHEP::nm);
+      if (wlarr.front() > wlarr.back()) {
+        reverse(wlarr.begin(), wlarr.end());
+        reverse(wlamp.begin(), wlamp.end());
+      }
+      for (unsigned i = 1; i < wlarr.size(); i++)
+        if (wlarr[i - 1] >= wlarr[i]) Log::Die("VertexGen_PhotonBomb: wavelengths out of order");
+
+      // use a linear interpolator to get a uniform sampling with bin
+      // size smaller than the smallest bin in order to use RandGeneral
+      LinearInterp<double> energyInterp(wlarr, wlamp);
+      double step = 1.0e9;
+      for (int i = 0; i < (int)wlarr.size() - 1; i++) step = fmin(step, wlarr[i + 1] - wlarr[i]);
+      step /= 2;
+      int nbins = (int)((energyInterp.Max() - energyInterp.Min()) / step) + 1;
+      step = (energyInterp.Max() - energyInterp.Min()) / (nbins - 1);
+
+      // get the oversampled array, small padding at ends to avoid range error
+      double *energyResample = new double[nbins];
+      energyResample[0] = energyInterp(energyInterp.Min() + step * 1e-6);
+      energyResample[nbins - 1] = energyInterp(energyInterp.Max() - step * 1e-6);
+      for (int i = 1; i < nbins - 1; i++) energyResample[i] = energyInterp(energyInterp.Min() + i * step);
+      fMinEnergy = energyInterp.Min();
+      fMaxEnergy = energyInterp.Max();
+
+      if (fRndmEnergy) delete fRndmEnergy;
+      fRndmEnergy = new CLHEP::RandGeneral(energyResample, nbins);
+    } else {
+        fEnergy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
+    }
+    is >> exp;
+    if (exp < 0.0) Log::Die("VertexGen_PhotonBomb: Exponential time constant must be positive");
+  }
 
   fNumPhotons = num;
   fExpTime = exp;
 
-  info << "State has been set." << newline;
 }
 
 G4String VertexGen_PhotonBomb::GetState() {
-  if (fRndmEnergy)
+  if (fDist)
+    return dformat("%d\t%s\t%f", fNumPhotons, fDist, fWavelengthIndex);
+  else if (fRndmEnergy)
     return dformat("%d\t%s\t%f", fNumPhotons, fMaterial.c_str(), fExpTime);
   else
     return dformat("%d\t%f\t%f", fNumPhotons, fEnergy, fExpTime);

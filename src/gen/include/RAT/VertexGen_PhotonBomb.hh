@@ -28,6 +28,8 @@ class VertexGen_PhotonBomb : public GLG4VertexGen {
   double fExpTime;
   bool fDist;
   std::string fWavelengthIndex;
+  std::vector<double> fWavelengths;
+  std::vector<double> fIntensities;
 };
 
 }  // namespace RAT
