@@ -1,0 +1,92 @@
+# Turn on/off various physics processes.
+# Here we turn muonic and hadronic processes off because
+# we are generating electrons. This will spped up the simulation.
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+# Open up a detector geometry. Here we choose to use
+# the validation geometry, which is a simple geometry
+# that we can use for testing. 
+/rat/db/set DETECTOR experiment "Validation"
+/rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+
+# Some examples of setting database parameters
+
+# Change the radius and material of the detector
+# /rat/db/set GEO[detector] r_max 3000
+# /rat/db/set GEO[world] material "air"
+
+# Setup photon thinning
+# /rat/db/set MC thin_factor 1.5
+
+# Change the PMT noise rate, in Hz
+# /rat/db/set NOISEPROC default_noise_rate 5000.0
+
+# Change the digitizer settings
+# /rat/db/set DAQ[SplitEVDAQ] digitizer_name "V1730"
+/# rat/db/set DIGITIZER[V1730] nsamples 100
+
+# Start the processor chain
+/run/initialize
+
+# Store all the particle trajectories to the data-structure
+# This is necessary if we want to write tracking information
+# to our output file.
+/tracking/storeTrajectory 1
+
+# Turn on the simulation of the PMT dark-noise
+/rat/proc noise
+
+# Run a data acquisition simulation, which can cause triggering
+# Here we show a couple of options, and then choose the "splitevdaq"
+# /rat/proc simpledaq
+# /rat/proc forcedtrigger 
+/rat/proc splitevdaq
+# Set the trigger threshold from the macro. For events with more than
+# five PMTs hit, we will issue a trigger.
+/rat/procset trigger_threshold 5.0
+
+# This will run simple processing on the digitize waveforms
+/rat/proc WaveformPrep
+
+# We will also run more sophisticated waveform analysis:
+/rat/proc WaveformAnalysisLognormal
+/rat/proc WaveformAnalysisGaussian
+/rat/proc WaveformAnalysisSinc
+
+# Then we can run the event reconstruction.
+# We just turn on the "quad fitter" for this example.
+# /rat/proc fitcentroid
+# /rat/proc fitdirectioncenter
+/rat/proc quadfitter
+
+# We count events and print the count to the screen.
+/rat/proc count
+/rat/procset update 100
+
+# Write the data to an ntuple file and set the various
+# flags to ensure that all of the possible information is 
+# stored to the file.
+/rat/proclast outntuple
+/rat/procset include_mcparticles 1
+/rat/procset include_tracking 1
+/rat/procset include_pmthits 1
+/rat/procset include_nestedtubehits 1
+/rat/procset include_untriggered_events 1
+/rat/procset include_mchits 1
+/rat/procset include_digitizerwaveforms 1
+/rat/procset include_digitizerhits 1
+/rat/procset include_digitizerfits 1
+
+# Generate isotropic 2.5 MeV electrons at the center 
+# of the detector.
+# See the Gsim generator documentation for more options.
+/generator/add combo gun:point:poisson
+/generator/vtx/set e- 0.0 0.0 0.0 2.5
+/generator/pos/set 0.0 0.0 0.0
+
+# Rate of simulated events, in Hz
+/generator/rate/set 5.0
+
+# Run 100 events
+/run/beamOn 100

@@ -1,71 +1,67 @@
 {
-name: "DIGITIZER_ANALYSIS",
-valid_begin: [0,0],
-valid_end: [0,0],
+"name": "DIGITIZER_ANALYSIS",
+"run_range": [0, 0],
 
 // Lower/upper limits of pedestal window, in samples
-pedestal_window_low: 0,
-pedestal_window_high: 10,
-constant_fraction: 0.40,
-// Number of samples to look back after the peak
-lookback: 20.0,
+"pedestal_window_low": 0,
+"pedestal_window_high": 10,
+"constant_fraction": 0.40,
+// Time to look back after the peak in ns
+"lookback": 20.0,
 // Integration window, in samples
-integration_window_low: 4,
-integration_window_high: 10,
+"integration_window_low": 4,
+"integration_window_high": 10,
 // Sliding integration window, in samples
-sliding_window_width: 10,
+"sliding_window_width": 10,
 // Charge threshold to contribute to total charge
-sliding_window_thresh: 0.2,
+"sliding_window_thresh": 0.2,
 // Threshold in mV
-voltage_threshold: -2.5,
+"voltage_threshold": -2.5,
 
 // Run configuration
-apply_cable_offset: 0,
-zero_suppress: 1  // If true, do not keep digitPMTs if the waveform never passes threshold
+"apply_cable_offset": 0,
+"zero_suppress": 1  // If true, do not keep digitPMTs if the waveform never passes threshold
 }
 
 {
-name: "DIGITIZER_ANALYSIS",
-index: "LognormalFit"
-valid_begin: [0,0],
-valid_end: [0,0],
+"name": "DIGITIZER_ANALYSIS",
+"index": "LognormalFit"
+"run_range": [0, 0],
 
 // Fit window, in ns
-fit_window_low: 10.0,
-fit_window_high: 15.0,
+"fit_window_low": 10.0,
+"fit_window_high": 15.0,
 // Fit shape
-lognormal_shape: 0.15,
-lognormal_scale: 10.5,
+"lognormal_shape": 0.15,
+"lognormal_scale": 10.5,
 }
 
 {
-name: "DIGITIZER_ANALYSIS",
-index: "GaussianFit"
-valid_begin: [0,0],
-valid_end: [0,0],
+"name": "DIGITIZER_ANALYSIS",
+"index": "GaussianFit"
+"run_range": [0, 0],
 
 // Fit window, in ns
-fit_window_low: 10.0,
-fit_window_high: 15.0,
+"fit_window_low": 10.0,
+"fit_window_high": 15.0,
 
 // Fit shape for gaussian
-gaussian_width: 1.5,
-gaussian_width_low: 0.5, // lower and upper limit for fitted sigma
-gaussian_width_high: 6.0,
+"gaussian_width": 1.5,
+"gaussian_width_low": 0.5, // lower and upper limit for fitted sigma
+"gaussian_width_high": 6.0,
 }
 
 {
-name: "DIGITIZER_ANALYSIS",
-index: "TSincInterpolation",
-valid_begin: [0,0],
-valid_end: [0,0],
+"name": "DIGITIZER_ANALYSIS",
+"index": "TSincInterpolation",
+"run_range": [0, 0],
 
 // Fit window, in ns
-fit_window_low: 10.0,
-fit_window_high: 15.0,
+"fit_window_low": 10.0,
+"fit_window_high": 15.0,
 
 // Interpolation variables
-num_interp_points: 8,
-tapering_constant: 30.0,
-num_sinc_lobes: 6
+"num_interp_points": 8,
+"tapering_constant": 30.0,
+"num_sinc_lobes": 6
 }

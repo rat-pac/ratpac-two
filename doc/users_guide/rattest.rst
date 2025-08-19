@@ -62,14 +62,13 @@ The RAT macro and ROOT macro do not need to have the same name as the test, they
 
     // -------- GEO[world]
     {
-    name: "GEO",
-    index: "world",
-    valid_begin: [0, 0],
-    valid_end: [0, 0],
-    mother: "",
-    type: "box",
-    size: [10000.0, 10000.0, 10000.0],
-    material: "acrylic_polycast",
+    "name": "GEO",
+    "index": "world",
+    "run_range": [0, 0],
+    "mother": "",
+    "type": "box",
+    "size": [10000.0, 10000.0, 10000.0],
+    "material": "acrylic_polycast",
     }
 
 RAT will prefer a geometry or database in your test directory, and defaults to the ones in `$RATSHARE/ratdb`.
