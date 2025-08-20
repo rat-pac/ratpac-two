@@ -56,6 +56,12 @@ void ParamField::set_all_upper_bounds(double value) {
   }
 }
 
+void ParamField::set_all_fit_valid(bool valid) {
+  for (auto& component : components) {
+    component.fit_valid = valid;
+  }
+}
+
 void ParamField::set_all_status(ParamStatus status) {
   for (auto& component : components) {
     component.status = status;
@@ -157,5 +163,15 @@ ParamSet ParamSet::from_active_vector(const std::vector<double>& values) const {
   ParamSet result = *this;
   result.update_active(values);
   return result;
+}
+
+void ParamSet::set_active_fit_valid(bool valid) {
+  for (ParamField* field : {&position_time, &direction, &energy}) {
+    for (ParamComponent& component : field->components) {
+      if (component.is_active()) {
+        component.fit_valid = valid;
+      }
+    }
+  }
 }
 }  // namespace RAT::Mimir

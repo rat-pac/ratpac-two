@@ -84,5 +84,6 @@ void FitStep::Execute(ParamSet& params) {
   params.energy.set_upper_bounds(energy_ub);
   optimizer->Minimize(cost_function.get(), params);
 }
+MIMIR_REGISTER_TYPE(FitStrategy, FitStep, "FitStep");
 
 }  // namespace RAT::Mimir

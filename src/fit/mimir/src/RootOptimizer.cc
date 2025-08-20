@@ -5,6 +5,8 @@
 #include <mimir/RootOptimizer.hh>
 #include <sstream>
 
+#include "Minuit2/Minuit2Minimizer.h"
+
 namespace RAT::Mimir {
 
 bool RootOptimizer::Configure(RAT::DBLinkPtr db_link) {
@@ -54,6 +56,7 @@ void RootOptimizer::MinimizeImpl(std::function<double(const ParamSet&)> cost, Pa
   fMinimizer->Minimize();
   std::vector<double> result(fMinimizer->X(), fMinimizer->X() + n_params);
   params = params.from_active_vector(result);
+  params.set_active_fit_valid(fMinimizer->Status() == 0);
 }
 
 }  // namespace RAT::Mimir

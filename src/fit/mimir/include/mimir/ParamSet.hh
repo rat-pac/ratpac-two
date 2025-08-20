@@ -16,6 +16,7 @@ struct ParamComponent {
   double upper_bound = std::numeric_limits<double>::max();
   double step = 0.01;
   ParamStatus status = ParamStatus::INACTIVE;
+  bool fit_valid = false;
 
   bool is_active() const { return status == ParamStatus::ACTIVE; }
   bool is_fixed() const { return status == ParamStatus::FIXED; }
@@ -31,6 +32,7 @@ struct ParamField {
   void set_all_lower_bounds(double value);
   void set_all_upper_bounds(double value);
   void set_all_status(ParamStatus status);
+  void set_all_fit_valid(bool valid);
   void set_status(std::vector<ParamStatus> status_vector);
   void set_values(std::vector<double> values);
   void set_lower_bounds(std::vector<double> lower_bounds);
@@ -41,6 +43,9 @@ struct ParamField {
   bool are_all_active() const {
     return std::all_of(components.begin(), components.end(),
                        [](const ParamComponent& comp) { return comp.is_active(); });
+  }
+  bool are_all_fit_valid() const {
+    return std::all_of(components.begin(), components.end(), [](const ParamComponent& comp) { return comp.fit_valid; });
   }
 };
 
@@ -58,6 +63,7 @@ struct ParamSet {
   std::vector<double> to_active_vector() const;
   std::vector<ParamComponent> to_active_components() const;
   void update_active(const std::vector<double>& values);
+  void set_active_fit_valid(bool valid);
   ParamSet from_active_vector(const std::vector<double>& values) const;
 };
 

@@ -32,6 +32,4 @@ class FitStep : public FitStrategy {
                   std::vector<double>& ub);
 };
 
-MIMIR_REGISTER_TYPE(FitStrategy, FitStep, "FitStep");
-
 }  // namespace RAT::Mimir

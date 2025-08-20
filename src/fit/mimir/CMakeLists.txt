@@ -1,5 +1,5 @@
 ###########################################################
-add_library(mimir STATIC
+add_library(mimir OBJECT
   src/FitMimirProc.cc
   src/PMTTypeTimeResidualPDF.cc
   src/ParamSet.cc
@@ -7,6 +7,7 @@ add_library(mimir STATIC
   src/RootOptimizer.cc
 )
 
+set_target_properties(mimir PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # Set our include directories
 target_include_directories(mimir SYSTEM PUBLIC 
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)

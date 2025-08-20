@@ -1,8 +1,7 @@
 #include <RAT/FitMimirProc.hh>
 #include <mimir/Factory.hh>
 #include <mimir/FitStep.hh>
-
-#include "mimir/FitStrategy.hh"
+#include <mimir/FitStrategy.hh>
 namespace RAT {
 
 FitMimirProc::FitMimirProc() : Processor("mimir"), inputHandler() {}
@@ -44,14 +43,18 @@ Processor::Result FitMimirProc::Event(DS::Root *ds, DS::EV *ev) {
                                        result.position_time.components[1].value,
                                        result.position_time.components[2].value));
     ratds_result->SetTime(result.position_time.components[3].value);
+    ratds_result->SetValidPosition(result.position_time.are_all_fit_valid());
+    ratds_result->SetValidTime(result.position_time.are_all_fit_valid());
   }
   if (result.direction.are_all_used()) {
     TVector3 direction;
     direction.SetMagThetaPhi(1.0, result.direction.components[0].value, result.direction.components[1].value);
     ratds_result->SetDirection(direction);
+    ratds_result->SetValidDirection(result.direction.are_all_fit_valid());
   }
   if (result.energy.are_all_used()) {
     ratds_result->SetEnergy(result.energy.components[0].value);
+    ratds_result->SetValidEnergy(result.energy.are_all_fit_valid());
   }
   ev->AddFitResult(ratds_result);
   return Processor::Result(OK);
