@@ -42,7 +42,6 @@ G4VPhysicalVolume *GeoSolidFactory::Construct(DBLinkPtr table) {
 }
 
 G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid, DBLinkPtr table) {
-
   std::string volume_name = table->GetIndex();
   std::string material_name = table->GetS("material");
   G4LogicalVolume *lv = NULL;
