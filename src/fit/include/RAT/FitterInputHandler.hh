@@ -67,7 +67,7 @@ class FitterInputHandler {
     for (auto& fit_result : fit_results) {
       if (fit_result->GetFitterName() == fitter_name) return fit_result;
     }
-    Log::Die("FitterInputHandler: Fitter " + fitter_name + " not found in the event.");
+    return nullptr;
   }
 
   /**
@@ -100,6 +100,7 @@ class FitterInputHandler {
       fitter_name = vertex_seed;
     }
     DS::FitResult* fit_result = FindFitResult(fitter_name);
+    if (!fit_result) return false;
     return (fit_result->GetEnablePosition() && fit_result->GetValidPosition());
   }
 
@@ -133,6 +134,7 @@ class FitterInputHandler {
       fitter_name = vertex_seed;
     }
     DS::FitResult* fit_result = FindFitResult(fitter_name);
+    if (!fit_result) return false;
     return (fit_result->GetEnableTime() && fit_result->GetValidTime());
   }
 
@@ -165,6 +167,7 @@ class FitterInputHandler {
       fitter_name = direction_seed;
     }
     DS::FitResult* fit_result = FindFitResult(fitter_name);
+    if (!fit_result) return false;
     return (fit_result->GetEnableDirection() && fit_result->GetValidDirection());
   }
 
@@ -187,6 +190,7 @@ class FitterInputHandler {
       fitter_name = energy_seed;
     }
     DS::FitResult* fit_result = FindFitResult(fitter_name);
+    if (!fit_result) return false;
     return (fit_result->GetEnableEnergy() && fit_result->GetValidEnergy());
   }
 
