@@ -27,6 +27,10 @@ bool PMTTypeTimeResidualPDF::Configure(RAT::DBLinkPtr db_link) {
     double norm = std::accumulate(histvals.begin(), histvals.end(), 0.0) * bin_width;
     std::vector<double> nll_vals;
     for (const auto& val : histvals) {
+      if (val <= 0) {
+        Log::Die("mimir::PMTTypeTimeResidualPDF: PDF histogram for PMT type " + std::to_string(pmt_type) +
+                 " has zero or negative bin content, cannot take log.");
+      }
       nll_vals.push_back(-std::log(val / norm));
     }
     tresid_nll_splines.try_emplace(pmt_type, binning, nll_vals, ROOT::Math::Interpolation::kCSPLINE);
