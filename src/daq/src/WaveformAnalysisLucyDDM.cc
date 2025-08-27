@@ -105,14 +105,17 @@ void WaveformAnalysisLucyDDM::RequestFFTSize(size_t size) {
 std::vector<double> WaveformAnalysisLucyDDM::ConvolveFFT(const std::vector<double>& a,
                                                          const std::vector<std::complex<double>>& b_fft,
                                                          size_t conv_size, double dt) const {
+  size_t complex_fft_size = fft->GetSize() / 2 + 1;
   std::vector<std::complex<double>> a_fft = fft->transform(a);
-  std::vector<std::complex<double>> product(a_fft.size());
-  for (size_t iw = 0; iw < a_fft.size(); ++iw) {
+  std::complex<double>* product = reinterpret_cast<std::complex<double>*>(fftw_alloc_complex(complex_fft_size));
+  for (size_t iw = 0; iw < complex_fft_size; ++iw) {
     double re = a_fft[iw].real() * b_fft[iw].real() - a_fft[iw].imag() * b_fft[iw].imag();
     double im = a_fft[iw].real() * b_fft[iw].imag() + a_fft[iw].imag() * b_fft[iw].real();
     product[iw] = std::complex<double>(re, im);
   }
-  std::vector<double> result = ifft->transform(product);
+  std::vector<double> result(ifft->GetSize());
+  ifft->ifft(product, result.data());
+  fftw_free(product);
   result.resize(conv_size);
   for (double& val : result) val *= dt;
   return result;

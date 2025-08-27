@@ -79,31 +79,36 @@ class FFTW1DTransformer {
 
     fftw_execute(plan);
 
-    std::vector<std::complex<double>> result(fft_size / 2 + 1);
     // assumes fftw_complex is directly compatible with std::complex<double>
-    std::copy(reinterpret_cast<std::complex<double>*>(cbuf.get()),
-              reinterpret_cast<std::complex<double>*>(cbuf.get() + (fft_size / 2 + 1)), result.begin());
-    return result;
+    return std::vector<std::complex<double>>(reinterpret_cast<std::complex<double>*>(cbuf.get()),
+                                             reinterpret_cast<std::complex<double>*>(cbuf.get() + fft_size / 2 + 1));
   }
 
   /// @brief Inverse transformation.
   std::vector<double> transform(const std::vector<std::complex<double>>& input) {
+    if (input.size() != fft_size / 2 + 1) {
+      throw std::invalid_argument("FFTW1DTransformer: Input size does not match FFT size for inverse transform.");
+    }
+    ifft(input.data(), rbuf.get());
+    std::vector<double> result(fft_size);
+    for (size_t i = 0; i < fft_size; ++i) {
+      result[i] = rbuf[i];
+    }
+    return result;
+  }
+
+  /// @brief Inverse transformation. Performant version since user can use fftw_malloc to ensure alignment.
+  void ifft(const std::complex<double>* input, double* output) {
     if (fft_direction != direction_t::INVERSE) {
       throw std::runtime_error("FFTW1DTransformer: This transformer is not configured for inverse FFT.");
     }
 
-    if (input.size() != fft_size / 2 + 1) {
-      throw std::invalid_argument("FFTW1DTransformer: Input size does not match FFT size for inverse transform.");
-    }
-
-    std::copy(input.begin(), input.end(), reinterpret_cast<std::complex<double>*>(cbuf.get()));
-    fftw_execute(plan);
-    std::vector<double> result(fft_size);
-    std::copy(rbuf.get(), rbuf.get() + fft_size, result.begin());
+    fftw_execute_dft_c2r(plan, reinterpret_cast<fftw_complex*>(const_cast<std::complex<double>*>(input)), output);
 
     // normalize the result
-    for (double& val : result) val /= static_cast<double>(fft_size);
-    return result;
+    for (size_t i = 0; i < fft_size; ++i) {
+      output[i] /= static_cast<double>(fft_size);
+    }
   }
 
  protected:

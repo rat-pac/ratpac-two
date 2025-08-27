@@ -82,11 +82,11 @@
 // deconvolved waveform to pC. 
 "vpe_charge": 1.6, 
 
-"internal_sampling_period": 0.2, // internal sampling period used for the deconvolution, in ns
+"internal_sampling_period": 0.5, // internal sampling period used for the deconvolution, in ns
 
 // number of samples in the SPE Waveform. Note that Lognormal distributions 
 // peak at `m`, i.e. vpe_scale. 
-"vpe_nsamples": 250, 
+"vpe_nsamples": 60, 
 
 // LucyDDM is sensitive to noise, and requires the waveform samples to be 
 // strictly positive. All samples below this threshold (in mV) are set to zero.
