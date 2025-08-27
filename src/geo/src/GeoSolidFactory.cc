@@ -45,12 +45,13 @@ G4LogicalVolume *GeoSolidFactory::ConstructLogicalVolume(G4VSolid *solid, DBLink
   std::string volume_name = table->GetIndex();
   std::string material_name = table->GetS("material");
   G4LogicalVolume *lv = NULL;
-  if (material_name == "G4_Gd") {
-    G4NistManager *man = G4NistManager::Instance();
-    lv = new G4LogicalVolume(solid, man->FindOrBuildMaterial("G4_Gd"), volume_name);
-  } else {
-    lv = new G4LogicalVolume(solid, G4Material::GetMaterial(material_name), volume_name);
+  G4Material *matptr = nullptr;
+  G4NistManager *man = G4NistManager::Instance();
+  matptr = man->FindOrBuildMaterial(material_name);
+  if (matptr == nullptr) {
+    matptr = G4Material::GetMaterial(material_name);
   }
+  lv = new G4LogicalVolume(solid, matptr, volume_name);
 
   // Create optional skin surface for volume.  For more complex surface
   // selection you need to write a separate factory
