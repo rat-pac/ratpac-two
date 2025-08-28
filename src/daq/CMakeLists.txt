@@ -20,7 +20,7 @@ add_library(daq OBJECT
   src/WaveformAnalysisSinc.cc
   src/WaveformAnalysisLucyDDM.cc
   )
-
+target_link_libraries(daq PUBLIC FFTW3::fftw3)
 # Set our include directories
 target_include_directories(daq SYSTEM PUBLIC 
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)

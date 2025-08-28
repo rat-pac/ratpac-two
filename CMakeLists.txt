@@ -108,9 +108,9 @@ option(RATPAC_RAT "build rat executable" ON)
 # Set up third party libraries
 
 if(ROOT_DIR)
-find_package(ROOT NO_DEFAULT_PATH CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython MathMore FFTW)
+find_package(ROOT NO_DEFAULT_PATH CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython MathMore)
 else()
-find_package(ROOT CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython MathMore FFTW)
+find_package(ROOT CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython MathMore)
 endif()
 include(${ROOT_USE_FILE})
 
@@ -122,6 +122,7 @@ include_directories(${CLHEP_INCLUDE_DIRS})
 include_directories(${XercesC_INCLUDE_DIRS})
 
 find_package(Threads REQUIRED)
+find_package(FFTW3 CONFIG REQUIRED)
 
 ###########################################################
 # Configure header with our version information
