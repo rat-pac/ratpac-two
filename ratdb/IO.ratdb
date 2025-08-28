@@ -29,5 +29,5 @@
 "waveform_fitter_FOM_Lognormal": ["baseline","chi2ndf"],
 "waveform_fitter_FOM_Gaussian": ["baseline","width","chi2ndf"],
 "waveform_fitter_FOM_Sinc": ["peak"],
-"waveform_fitter_FOM_LucyDDM": ["time_error", "charge_error", "chi2ndf", "poisson_nll", "iterations_ran"]
+"waveform_fitter_FOM_LucyDDM": ["time_error", "charge_error", "chi2ndf", "poisson_nll", "iterations_ran", "estimated_npe"]
 }

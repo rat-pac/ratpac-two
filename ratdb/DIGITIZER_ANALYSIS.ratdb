@@ -103,4 +103,13 @@
 "peak_height_threshold": 0.05,
 // Remove the hit if the charge is below this threshold.
 "charge_threshold": 0.2
+
+// if true, perform a final NPE estimation on all resolved wave packet in the deconvolved 
+// waveform. Estimate the number of PEs in each packet using a gaussian PDF on charge.
+// The mean of the single PE charge distribution is centered around `vpe_charge`.
+"npe_estimate": true,
+// Width of the single PE charge distribution, in pC.
+"npe_estimate_charge_width": 0.4,
+// Maximum number of PEs to consider in the NPE estimation.
+"npe_estimate_max_pes": 10
 }

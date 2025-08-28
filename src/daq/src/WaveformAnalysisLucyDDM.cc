@@ -27,6 +27,9 @@ void WaveformAnalysisLucyDDM::Configure(const std::string& config_name) {
     stopping_nll_diff = fDigit->GetD("stopping_nll_diff");
     peak_height_threshold = fDigit->GetD("peak_height_threshold");
     charge_threshold = fDigit->GetD("charge_threshold");
+    npe_estimate = fDigit->GetZ("npe_estimate");
+    npe_estimate_charge_width = fDigit->GetD("npe_estimate_charge_width");
+    npe_estimate_max_pes = fDigit->GetI("npe_estimate_max_pes");
   } catch (DBNotFoundError) {
     RAT::Log::Die("WaveformAnalysisLucyDDM: Unable to find analysis parameters.");
   }
@@ -67,13 +70,19 @@ void WaveformAnalysisLucyDDM::DoAnalysis(DS::DigitPMT* digitpmt, const std::vect
   debug << "Hit finding took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms."
         << newline;
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("LucyDDM");
-  for (size_t ipe = 0; ipe < reco_times.size(); ++ipe) {
-    fit_result->AddPE(reco_times[ipe], reco_charges[ipe],
-                      {{"time_error", reco_time_errors[ipe]},
-                       {"charge_error", reco_charge_errors[ipe]},
-                       {"chi2ndf", chi2ndf},
-                       {"poisson_nll", poisson_nll},
-                       {"iterations_ran", iterations_ran}});
+  for (size_t ipacket = 0; ipacket < reco_times.size(); ++ipacket) {
+    size_t npe = EstimateNPE(reco_charges[ipacket]);
+    for (size_t i = 0; i < npe; ++i) {
+      fit_result->AddPE(reco_times[ipacket], reco_charges[ipacket] / npe,
+                        {
+                            {"time_error", reco_time_errors[ipacket]},
+                            {"charge_error", reco_charge_errors[ipacket] / npe},
+                            {"chi2ndf", chi2ndf},
+                            {"poisson_nll", poisson_nll},
+                            {"iterations_ran", iterations_ran},
+                            {"estimated_npe", npe},
+                        });
+    }
   }
 }
 
@@ -224,6 +233,19 @@ void WaveformAnalysisLucyDDM::FindHits(const std::vector<double>& phi, std::vect
   chi2ndf = pulse_train->GetChisquare() / pulse_train->GetNDF();
 }
 
+size_t WaveformAnalysisLucyDDM::EstimateNPE(double charge) const {
+  if (!npe_estimate) {
+    return 1;
+  }
+  std::vector<double> log_likelihood(npe_estimate_max_pes, 0.0);
+  for (size_t npe = 1; npe <= npe_estimate_max_pes; ++npe) {
+    log_likelihood[npe - 1] =
+        -std::pow(charge - npe * vpe_charge, 2) / (2 * npe * std::pow(npe_estimate_charge_width, 2)) -
+        0.5 * std::log(2 * TMath::Pi() * npe * std::pow(npe_estimate_charge_width, 2));
+  }
+  return std::distance(log_likelihood.begin(), std::max_element(log_likelihood.begin(), log_likelihood.end())) + 1;
+}
+
 void WaveformAnalysisLucyDDM::ClampBelowThreshold(std::vector<double>& wfm, double thresh) const {
   if (thresh == -9999) {
     thresh = roi_threshold;
@@ -246,6 +268,7 @@ double WaveformAnalysisLucyDDM::PoissonNLL(const std::vector<double>& wfm,
   }
   return result;
 }
+
 std::vector<double> WaveformAnalysisLucyDDM::ReblurWaveform(const std::vector<double>& phi) const {
   // Reblur the waveform using the vpe template
   std::vector<double> result = ConvolveFFT(phi, vpe_norm_fft, phi.size() + vpe_nsamples - 1, ds);
@@ -253,6 +276,7 @@ std::vector<double> WaveformAnalysisLucyDDM::ReblurWaveform(const std::vector<do
   ClampBelowThreshold(result, epsilon);
   return result;
 }
+
 std::vector<double> WaveformAnalysisLucyDDM::Resample(const std::vector<double>& wfm, size_t n_samples) const {
   std::vector<double> result(n_samples, 0.0);
   std::vector<double> wfm_times(wfm.size());
