@@ -201,7 +201,6 @@ class OutNtupleProc : public Processor {
   std::vector<int> digitPMTID;
   // Hit cleaning information
   int digitHitCleanedNhits;
-  std::vector<int> digitHitCleanedPMTID;
   std::vector<uint64_t> digitHitCleaningMask;
   // Information from fit to the waveforms
   std::map<std::string, std::vector<int>> fitPmtID;
