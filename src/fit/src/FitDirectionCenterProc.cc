@@ -127,7 +127,6 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
   if (fPosMethod != "fixed") {
     std::vector<RAT::DS::FitResult *> fits = ev->GetFitResults();
     if (fits.size() == 0) {
-      SetPlaceholderFOM(fitDC);
       Log::Die("FitDirectionCenterProc: No position specified (fixed or reconstructed).");
     }
 
@@ -144,7 +143,6 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
         }
       }
       if (!foundPosFitter) {
-        SetPlaceholderFOM(fitDC);
         Log::Die("FitDirectionCenterProc: Position fitter \'" + fPosFitter + "\' not found.  Check name.");
       }
     }
@@ -169,7 +167,6 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
   if (applyDrive) {
     std::vector<RAT::DS::FitResult *> fits = ev->GetFitResults();
     if (fits.size() == 0) {
-      SetPlaceholderFOM(fitDC);
       Log::Die("FitDirectionCenterProc: No reconstructed direction available for drive correction.");
     }
 
@@ -183,7 +180,6 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
       }
     }
     if (!foundDirFitter) {
-      SetPlaceholderFOM(fitDC);
       Log::Die("FitDirectionCenterProc: Direction fitter \'" + fDirFitter + "\' not found.  Check that it was run.");
     }
 
@@ -207,10 +203,8 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
     fitDC->SetPosition(eventPos);
 
   } else if (fDrive != 0.0 && fDirFitter.empty()) {
-    SetPlaceholderFOM(fitDC);
     Log::Die("FitDirectionCenterProc: No direction fitter specified while drive value is specified.");
   } else if (fDrive == 0.0 && !fDirFitter.empty()) {
-    SetPlaceholderFOM(fitDC);
     Log::Die("FitDirectionCenterProc: No drive value specified while direction fitter \'" + fPosFitter +
              "\' is specified.");
   }
