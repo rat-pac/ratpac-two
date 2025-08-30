@@ -64,6 +64,7 @@ class WaveformAnalysisLucyDDM : public WaveformAnalyzerBase {
 
   double peak_height_threshold;  // peak height threshold for finding hits
   double charge_threshold;       // remove a hit if it has charge below this threshold.
+  double min_peak_distance;      // if peaks are closer than this, they will be merged.
 
   bool npe_estimate;  // if true, perform a final NPE estimation on all resolved wave packet in the deconvolved
                       // waveform. Estimate the number of PEs in each packet using a gaussian PDF on charge.
@@ -105,6 +106,13 @@ class WaveformAnalysisLucyDDM : public WaveformAnalyzerBase {
    * */
   void FindHits(const std::vector<double> &phi, std::vector<double> &out_times, std::vector<double> &out_charges,
                 std::vector<double> &out_time_errors, std::vector<double> &out_charge_errors, double &chi2ndf) const;
+
+  /**
+   * @brief Perform post processing on the hits. Occasionally LucyDDM will resolve a single PE into two peaks.
+   * This function merges peaks that are too close to each other, and adjust time and charge accordingly.
+   * */
+  void MergeClosePeaks(std::vector<double> &times, std::vector<double> &charges, std::vector<double> &time_errors,
+                       std::vector<double> &charge_errors);
 
   /**
    * @brief Estimate the number of PEs in a resolved wave packet using a gaussian single-PE charge PDF.
@@ -151,5 +159,4 @@ class WaveformAnalysisLucyDDM : public WaveformAnalyzerBase {
 };
 
 }  // namespace RAT
-
 #endif

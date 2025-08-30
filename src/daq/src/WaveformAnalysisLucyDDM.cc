@@ -28,6 +28,7 @@ void WaveformAnalysisLucyDDM::Configure(const std::string& config_name) {
     stopping_nll_diff = fDigit->GetD("stopping_nll_diff");
     peak_height_threshold = fDigit->GetD("peak_height_threshold");
     charge_threshold = fDigit->GetD("charge_threshold");
+    min_peak_distance = fDigit->GetD("min_peak_distance");
     npe_estimate = fDigit->GetZ("npe_estimate");
     npe_estimate_charge_width = fDigit->GetD("npe_estimate_charge_width");
     npe_estimate_max_pes = fDigit->GetI("npe_estimate_max_pes");
@@ -65,6 +66,9 @@ void WaveformAnalysisLucyDDM::DoAnalysis(DS::DigitPMT* digitpmt, const std::vect
   double chi2ndf;
   start = std::chrono::high_resolution_clock::now();
   FindHits(demod_result, reco_times, reco_charges, reco_time_errors, reco_charge_errors, chi2ndf);
+  if (min_peak_distance > 0) {
+    MergeClosePeaks(reco_times, reco_charges, reco_time_errors, reco_charge_errors);
+  }
   end = std::chrono::high_resolution_clock::now();
   debug << "Hit finding took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms."
         << newline;
@@ -83,6 +87,55 @@ void WaveformAnalysisLucyDDM::DoAnalysis(DS::DigitPMT* digitpmt, const std::vect
                         });
     }
   }
+}
+
+void WaveformAnalysisLucyDDM::MergeClosePeaks(std::vector<double>& times, std::vector<double>& charges,
+                                              std::vector<double>& time_errors, std::vector<double>& charge_errors) {
+  if (times.size() <= 1) {
+    return;
+  }
+  std::vector<double> merged_times;
+  merged_times.reserve(times.size());
+  std::vector<double> merged_charges;
+  merged_charges.reserve(charges.size());
+  std::vector<double> merged_time_errors;
+  merged_time_errors.reserve(time_errors.size());
+  std::vector<double> merged_charge_errors;
+  merged_charge_errors.reserve(charge_errors.size());
+
+  auto add_merged_peak = [&](size_t beg, size_t end) -> void {
+    size_t num = end - beg + 1;
+    double mean_time = std::accumulate(times.begin() + beg, times.begin() + end + 1, 0.0) / num;
+    // NOTE: This is rather arbitrary, and might not be the best metric for the error. But this is typically much bigger
+    // than the MINUIT error associated with each peak.
+    double time_error =
+        (num > 1) ? TMath::StdDev(times.begin() + beg, times.begin() + end + 1) / std::sqrt(num) : time_errors[beg];
+    double total_charge = std::accumulate(charges.begin() + beg, charges.begin() + end + 1, 0.0);
+    double charge_error = std::sqrt(std::accumulate(charge_errors.begin() + beg, charge_errors.begin() + end + 1, 0.0,
+                                                    [](double a, double b) { return a + b * b; }));
+    merged_times.push_back(mean_time);
+    merged_charges.push_back(total_charge);
+    merged_time_errors.push_back(time_error);
+    merged_charge_errors.push_back(charge_error);
+  };
+
+  size_t curr_beg = 0;
+  size_t curr_end = 0;
+  for (size_t idx = 1; idx < times.size(); idx++) {
+    if ((times[idx] - times[curr_end]) <= min_peak_distance) {
+      // grow current cluster
+      curr_end = idx;
+    } else {
+      add_merged_peak(curr_beg, curr_end);
+      curr_beg = idx;
+      curr_end = idx;
+    }
+  }
+  add_merged_peak(curr_beg, curr_end);
+  times = std::move(merged_times);
+  charges = std::move(merged_charges);
+  time_errors = std::move(merged_time_errors);
+  charge_errors = std::move(merged_charge_errors);
 }
 
 static constexpr size_t next_power_of_two(size_t n) {
@@ -229,6 +282,17 @@ void WaveformAnalysisLucyDDM::FindHits(const std::vector<double>& phi, std::vect
     out_time_errors.push_back(t0_error);
     out_charge_errors.push_back(charge_error);
   }
+  std::vector<size_t> out_idx(out_times.size());
+  TMath::Sort(out_times.size(), out_times.data(), out_idx.data(), false);
+  auto reorder = [&](std::vector<double>& vec) {
+    std::vector<double> tmp(vec.size());
+    for (size_t i = 0; i < vec.size(); i++) tmp[i] = vec[out_idx[i]];
+    vec = std::move(tmp);
+  };
+  reorder(out_times);
+  reorder(out_charges);
+  reorder(out_time_errors);
+  reorder(out_charge_errors);
   chi2ndf = pulse_train->GetChisquare() / pulse_train->GetNDF();
 }
 

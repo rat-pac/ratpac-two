@@ -102,7 +102,10 @@
 // Height threshold for peak detection in the deconovlved waveform.
 "peak_height_threshold": 0.05,
 // Remove the hit if the charge is below this threshold.
-"charge_threshold": 0.2
+"charge_threshold": 0.2,
+
+// Peaks will be merged if the tiem difference between are below this threadhold, in ns.
+"min_peak_distance": 4.5,
 
 // if true, perform a final NPE estimation on all resolved wave packet in the deconvolved 
 // waveform. Estimate the number of PEs in each packet using a gaussian PDF on charge.
