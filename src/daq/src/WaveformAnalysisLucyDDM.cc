@@ -3,6 +3,7 @@
 #include <TMath.h>
 #include <fftw3.h>
 
+#include <RAT/DS/RunStore.hh>
 #include <RAT/Log.hh>
 #include <RAT/ROOTInterpolator.hh>
 #include <RAT/WaveformAnalysisLucyDDM.hh>
@@ -43,10 +44,8 @@ void WaveformAnalysisLucyDDM::Configure(const std::string& config_name) {
 }
 
 void WaveformAnalysisLucyDDM::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
-  if ((vpe_integral != -9999) && (vpe_integral != vpe_charge * fTermOhms))
-    warn << "WaveformAnalysisLucyDDM: vpe_integral is about to be set to " << vpe_charge * fTermOhms
-         << ", but previously set to " << vpe_integral << ". This is probably a bug." << newline;
-  vpe_integral = vpe_charge * fTermOhms;
+  double gain_calibration = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByPMTID(digitpmt->GetID());
+  vpe_integral = vpe_charge * fTermOhms * gain_calibration;
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, -fVoltageRes, digitpmt->GetPedestal());
   ClampBelowThreshold(voltWfm);
   // We perform "full" size convolution throughout this calculation. The upsampled waveform is convolved with the kernel
