@@ -74,6 +74,7 @@ void WaveformAnalysisLucyDDM::DoAnalysis(DS::DigitPMT* digitpmt, const std::vect
         << newline;
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("LucyDDM");
   for (size_t ipacket = 0; ipacket < reco_times.size(); ++ipacket) {
+    if (reco_charges[ipacket] < charge_threshold) continue;
     size_t npe = EstimateNPE(reco_charges[ipacket]);
     for (size_t i = 0; i < npe; ++i) {
       fit_result->AddPE(reco_times[ipacket], reco_charges[ipacket] / npe,
@@ -274,7 +275,6 @@ void WaveformAnalysisLucyDDM::FindHits(const std::vector<double>& phi, std::vect
     double sigma = pulse_train->GetParameter(3 * ipulse + 2);
     double sigma_error = pulse_train->GetParError(3 * ipulse + 2);
     double charge = A * sigma * std::sqrt(2 * TMath::Pi()) * vpe_charge;
-    if (charge < charge_threshold) continue;
     double charge_error =
         charge * std::sqrt((A_error / A) * (A_error / A) + (sigma_error / sigma) * (sigma_error / sigma));
     out_times.push_back(t0 + vpe_scale);
