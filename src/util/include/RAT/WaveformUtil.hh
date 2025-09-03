@@ -84,6 +84,18 @@ double IntegratePeak(const std::vector<double>& waveform, int peakSample, int in
 double IntegrateSliding(const std::vector<double>& waveform, int slidingWindow, double chargeThresh, double timeStep,
                         double termOhms);
 
+// Perform convolution using Fast Fourier Transform (FFT).
+// Output of vectors of length and N and M have length N + M - 1.
+// Equivalent to scipy.signal.fftconvolve(mode="full")
+std::vector<double> ConvolveFFT(const std::vector<double>& a, const std::vector<double>& b, double dt = 1.0);
+
+// Find local maxima in a waveform.
+// @param wfm The waveform data.
+// @param threshold The minimum value for a peak to be considered valid.
+// @param peak_direction The direction of the peak to search for. If greater than 0, finds upward peaks; if less than 0,
+//        finds downward peaks.
+// @return indices of the peaks in the waveform.
+std::vector<size_t> FindPeaks(const std::vector<double>& wfm, double threshold = 0.0, int peak_direction = 1);
 }  // namespace WaveformUtil
 
 }  // namespace RAT
