@@ -1,0 +1,23 @@
+{
+  "name": "WLSPECTRUM",
+  "index": "",
+  "use_dist": false,
+}
+
+{
+  "name": "WLSPECTRUM",
+  "index": "400", // This table exists to handle the SetState call in the constructor when use_dist is true
+
+  // Wavelength distrution [nm]
+  "wavelength": [400.0],
+  "intensity": [1.0],
+}
+
+{
+  "name": "WLSPECTRUM",
+  "index": "400nm_example",
+
+  // Wavelength distribution [nm]
+  "wavelength": [398.5, 399.0, 399.5, 400.0, 400.5, 401.0],
+  "intensity": [0.00, 0.10, 0.15, 0.50, 0.15, 0.10],
+}
