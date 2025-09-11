@@ -13,16 +13,20 @@
 /// This class performs reverse sparse non-negative least squares (rsNNLS) analysis
 /// on digitized PMT waveforms to reconstruct photoelectron times and charges.
 ///
-/// The algorithm:
+/// The algorithm uses region-based processing for improved efficiency:
 /// 1. Builds a dictionary matrix of time-shifted LogNormal templates at configuration time
-/// 2. Uses NNLS to fit the waveform as a linear combination of dictionary elements
-/// 3. Applies iterative thresholding to remove low-weight components
-/// 4. Extracts PE times and charges from remaining significant weights
+/// 2. Identifies threshold crossing regions in the waveform for localized processing
+/// 3. For each region, extracts relevant dictionary submatrix and applies NNLS fitting
+/// 4. Uses iterative thresholding to remove low-weight components and redistribute weights
+/// 5. Extracts PE times and charges from remaining significant weights
 ///
 /// Dictionary matrix construction uses digitizer parameters from DIGITIZER.ratdb:
 /// - Sampling rate and number of samples define the time grid
 /// - Upsampling factor provides sub-sample time resolution
 /// - LogNormal templates model single photoelectron waveforms
+///
+/// Region-based processing improves performance by only analyzing signal-containing regions
+/// and reduces edge artifacts by using appropriate dictionary template selection.
 ////////////////////////////////////////////////////////////////////
 #ifndef __RAT_WaveformAnalysisRSNNLS__
 #define __RAT_WaveformAnalysisRSNNLS__
@@ -92,12 +96,6 @@ class WaveformAnalysisRSNNLS : public WaveformAnalyzerBase {
   /// @param digitpmt Pointer to DigitPMT object for storing results
   /// @param digitWfm Digital waveform in ADC units
   void DoAnalysis(DS::DigitPMT *digitpmt, const std::vector<UShort_t> &digitWfm) override;
-
-  /// Perform reverse sparse NNLS with iterative thresholding
-  /// @param voltWfm Input voltage waveform (pedestal-subtracted)
-  /// @param threshold Minimum weight threshold for component significance
-  /// @return Weight vector with components above threshold
-  TVectorD Thresholded_rsNNLS(const std::vector<double> &voltWfm, const double threshold);
 
   /// Perform reverse sparse NNLS with iterative thresholding on a region submatrix
   /// @param W_region Dictionary submatrix for the region

@@ -76,7 +76,7 @@
 
 // Shaping parameters used to generate the single PE waveform.
 // Currently, rsNNLS only uses the Lognormal PE generation method.
-"vpe_scale": 12.5, // "m" parameter in Lognormal distribution
+"vpe_scale": 10.5, // "m" parameter in Lognormal distribution
 "vpe_shape": 0.15, // "sigma" parameter in Lognormal distribution
 
 // Nominal charge of a single PE in pC. Used to determine the correct 

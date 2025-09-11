@@ -62,44 +62,26 @@ void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
 }
 
 void WaveformAnalysisRSNNLS::BuildDictionaryMatrix(int nsamples, double digitizer_period) {
-  /**
-   * Build dictionary matrix for NNLS fitting using time-shifted LogNormal templates.
-   *
-   * Dictionary structure:
-   * - Rows: Time samples (nsamples)
-   * - Columns: Time-shifted templates (nsamples * upsample_factor)
-   * - Each column represents a LogNormal template with different delay
-   * - Templates are negative for deconvolution (minimize ||Wx + y||²)
-   *
-   * Time grid with peak offset correction:
-   * - Sample i corresponds to time: i * digitizer_period
-   * - Dictionary column j has delay: j * digitizer_period / upsample_factor
-   * - PE time extracted as: delay + peak_offset (where peak_offset accounts for LogNormal peak position)
-   */
-
   const int dict_size = static_cast<int>(nsamples * upsample_factor);
   fW.ResizeTo(nsamples, dict_size);
   fW.Zero();
 
+  const double mag_factor = vpe_charge * fTermOhms;
+
   // Generate dictionary with time-shifted LogNormal templates
   for (int col = 0; col < dict_size; ++col) {
     double delay = col * digitizer_period / upsample_factor;
+    double lognormal_shift = delay - vpe_scale;
 
-    // Use simple delay as LogNormal shift parameter
-    // Peak offset will be handled during time extraction
-    double lognormal_shift = delay;
-
-    // Fill column with negative LogNormal template (negative for deconvolution)
     for (int row = 0; row < nsamples; ++row) {
       double sample_time = row * digitizer_period;
       double template_val = 0.0;
 
-      // LogNormal is only defined for sample_time > lognormal_shift
       if (sample_time > lognormal_shift) {
-        template_val = TMath::LogNormal(sample_time, vpe_shape, lognormal_shift, vpe_scale);
+        template_val = mag_factor * TMath::LogNormal(sample_time, vpe_shape, lognormal_shift, vpe_scale);
       }
 
-      fW(row, col) = -template_val;  // Negative for deconvolution formulation
+      fW(row, col) = -template_val;  // Negative for deconvolution
     }
   }
 }
@@ -140,138 +122,8 @@ void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
   }
 }
 
-TVectorD WaveformAnalysisRSNNLS::Thresholded_rsNNLS(const std::vector<double>& voltWfm, const double threshold) {
-  /**
-   * Reverse Sparse Non-Negative Least Squares with Iterative Thresholding
-   *
-   * Algorithm:
-   * 1. Solve initial NNLS problem: minimize ||Wx + y||² subject to x ≥ 0
-   * 2. Iteratively remove components with weights below threshold
-   * 3. Re-solve NNLS on reduced active set to redistribute weights
-   * 4. Continue until all remaining weights exceed threshold or convergence
-   *
-   * This approach allows weight redistribution and improves sparsity compared
-   * to simple post-thresholding of the full NNLS solution.
-   *
-   * @param voltWfm Input voltage waveform (pedestal-subtracted, in mV)
-   * @param threshold Minimum weight threshold for component significance
-   * @return Weight vector with thresholded components
-   */
-
-  const int D = static_cast<int>(voltWfm.size());
-  if (fW.GetNrows() != D) {
-    RAT::Log::Die("WaveformAnalysisRSNNLS: Dictionary row dimension mismatch.");
-  }
-  const int K = fW.GetNcols();
-
-  TVectorD x(D);
-  for (int i = 0; i < D; ++i) x(i) = voltWfm[i];
-
-  // Initial NNLS solve with configured tolerance
-  TVectorD h_full(K);
-  h_full.Zero();
-  h_full = Math::NNLS_LawsonHanson(fW, x, epsilon, 0);
-
-  // Build initial active set of positive components
-  std::vector<int> P;
-  P.reserve(K);
-  for (int j = 0; j < K; ++j) {
-    if (h_full(j) > 0.0) P.push_back(j);
-  }
-
-  // Helper lambda to extract dictionary submatrix for active components
-  auto subCols = [](const TMatrixD& W, const std::vector<int>& cols) {
-    TMatrixD S(W.GetNrows(), cols.size());
-    for (size_t jj = 0; jj < cols.size(); ++jj) {
-      int c = cols[jj];
-      for (int i = 0; i < W.GetNrows(); ++i) S(i, jj) = W(i, c);
-    }
-    return S;
-  };
-
-  // Iterative thresholding: remove components below threshold and re-solve
-  int iter = 0;
-  const int max_iter = std::min(50, K);  // Prevent excessive iterations
-  iterations_ran = 0;
-
-  while (!P.empty() && iter++ < max_iter) {
-    iterations_ran = iter;
-    // Find component with minimum weight
-    double minVal = std::numeric_limits<double>::infinity();
-    size_t minPos = 0;
-    for (size_t k = 0; k < P.size(); ++k) {
-      double v = h_full(P[k]);
-      if (v < minVal) {
-        minVal = v;
-        minPos = k;
-      }
-    }
-
-    // Stop if minimum weight exceeds threshold
-    if (minVal >= threshold) break;
-
-    // Remove component with smallest weight
-    h_full(P[minPos]) = 0.0;
-    P.erase(P.begin() + minPos);
-    if (P.empty()) {
-      h_full.Zero();
-      return h_full;
-    }
-
-    // Re-solve on reduced active set
-    TMatrixD W_P = subCols(fW, P);
-    TVectorD h_reduced(P.size());
-    h_reduced.Zero();
-    h_reduced = Math::NNLS_LawsonHanson(W_P, x, epsilon, 0);
-
-    // Update full weight vector
-    h_full.Zero();
-    for (size_t k = 0; k < P.size(); ++k) {
-      h_full(P[k]) = h_reduced(k);
-    }
-  }
-
-  // Ensure numerical stability (guard against small negative values)
-  for (int j = 0; j < K; ++j) {
-    if (h_full(j) < 0.0) h_full(j) = 0.0;
-  }
-
-  // Calculate chi-squared goodness of fit for solution quality assessment
-  TVectorD fitted = fW * h_full;  // Fitted waveform: W * h
-  double chi2_sum = 0.0;
-  for (int i = 0; i < D; ++i) {
-    double residual = x(i) - fitted(i);  // Data - model residual
-    chi2_sum += residual * residual;
-  }
-
-  // Compute degrees of freedom (data points - active parameters)
-  int active_components = 0;
-  for (int j = 0; j < K; ++j) {
-    if (h_full(j) > 0.0) active_components++;
-  }
-  int dof = std::max(1, D - active_components);  // Prevent division by zero
-  chi2ndf = chi2_sum / dof;
-
-  return h_full;
-}
-
 TVectorD WaveformAnalysisRSNNLS::Thresholded_rsNNLS_Region(const TMatrixD& W_region, const TVectorD& voltVec,
                                                            const double threshold) {
-  /**
-   * Reverse Sparse Non-Negative Least Squares with Iterative Thresholding for region processing
-   *
-   * Same algorithm as Thresholded_rsNNLS but works on region submatrices for efficiency:
-   * 1. Solve initial NNLS problem: minimize ||W_region * x + voltVec||² subject to x ≥ 0
-   * 2. Iteratively remove components with weights below threshold
-   * 3. Re-solve NNLS on reduced active set to redistribute weights
-   * 4. Continue until all remaining weights exceed threshold or convergence
-   *
-   * @param W_region Dictionary submatrix for this region
-   * @param voltVec Input voltage vector for this region
-   * @param threshold Minimum weight threshold for component significance
-   * @return Weight vector with thresholded components
-   */
-
   const int D = voltVec.GetNrows();
   const int K = W_region.GetNcols();
 
@@ -279,12 +131,12 @@ TVectorD WaveformAnalysisRSNNLS::Thresholded_rsNNLS_Region(const TMatrixD& W_reg
     RAT::Log::Die("WaveformAnalysisRSNNLS: Dictionary region row dimension mismatch.");
   }
 
-  // Initial NNLS solve with configured tolerance
+  // Initial NNLS solve
   TVectorD h_full(K);
   h_full.Zero();
   h_full = Math::NNLS_LawsonHanson(W_region, voltVec, epsilon, 0);
 
-  // Build initial active set of positive components
+  // Build initial active set
   std::vector<int> P;
   P.reserve(K);
   for (int j = 0; j < K; ++j) {
@@ -301,13 +153,14 @@ TVectorD WaveformAnalysisRSNNLS::Thresholded_rsNNLS_Region(const TMatrixD& W_reg
     return S;
   };
 
-  // Iterative thresholding: remove components below threshold and re-solve
+  // Iterative thresholding
   int iter = 0;
-  const int max_iter = std::min(50, K);  // Prevent excessive iterations
+  const int max_iter = std::min(50, K);
   int local_iterations_ran = 0;
 
   while (!P.empty() && iter++ < max_iter) {
     local_iterations_ran = iter;
+
     // Find component with minimum weight
     double minVal = std::numeric_limits<double>::infinity();
     size_t minPos = 0;
@@ -319,7 +172,6 @@ TVectorD WaveformAnalysisRSNNLS::Thresholded_rsNNLS_Region(const TMatrixD& W_reg
       }
     }
 
-    // Stop if minimum weight exceeds threshold
     if (minVal >= threshold) break;
 
     // Remove component with smallest weight
@@ -343,25 +195,24 @@ TVectorD WaveformAnalysisRSNNLS::Thresholded_rsNNLS_Region(const TMatrixD& W_reg
     }
   }
 
-  // Ensure numerical stability (guard against small negative values)
+  // Ensure numerical stability
   for (int j = 0; j < K; ++j) {
     if (h_full(j) < 0.0) h_full(j) = 0.0;
   }
 
-  // Calculate chi-squared goodness of fit for solution quality assessment
-  TVectorD fitted = W_region * h_full;  // Fitted waveform: W * h
+  // Calculate chi-squared goodness of fit
+  TVectorD fitted = W_region * h_full;
   double chi2_sum = 0.0;
   for (int i = 0; i < D; ++i) {
-    double residual = voltVec(i) - fitted(i);  // Data - model residual
+    double residual = voltVec(i) - fitted(i);
     chi2_sum += residual * residual;
   }
 
-  // Compute degrees of freedom (data points - active parameters)
   int active_components = 0;
   for (int j = 0; j < K; ++j) {
     if (h_full(j) > 0.0) active_components++;
   }
-  int dof = std::max(1, D - active_components);  // Prevent division by zero
+  int dof = std::max(1, D - active_components);
   chi2ndf = chi2_sum / dof;
   iterations_ran = local_iterations_ran;
 
@@ -370,33 +221,19 @@ TVectorD WaveformAnalysisRSNNLS::Thresholded_rsNNLS_Region(const TMatrixD& W_reg
 
 std::vector<std::pair<int, int>> WaveformAnalysisRSNNLS::FindThresholdRegions(const std::vector<double>& voltWfm,
                                                                               double threshold) {
-  /**
-   * Find contiguous regions where waveform is below voltage threshold.
-   * Returns vector of (start_sample, end_sample) pairs with some padding.
-   *
-   * For PMT signals (negative-going pulses), we look for regions where
-   * voltage < threshold (i.e., signal magnitude exceeds threshold).
-   */
-
   std::vector<std::pair<int, int>> regions;
-
   bool in_region = false;
   int region_start = -1;
-  // Use fixed padding instead of upsample_factor to avoid overly large padding
-  const int padding = 1;  // ~1 samples padding (conservative)
+  const int padding = 1;
 
   for (size_t i = 0; i < voltWfm.size(); ++i) {
     if (voltWfm[i] < threshold) {
-      // Below threshold (signal present)
       if (!in_region) {
-        // Start of new region - apply padding but don't go below 0
         region_start = std::max(0, static_cast<int>(i) - padding);
         in_region = true;
       }
     } else {
-      // Above threshold (no signal)
       if (in_region) {
-        // End of current region - apply padding but don't exceed waveform length
         int region_end = std::min(static_cast<int>(voltWfm.size()) - 1, static_cast<int>(i) + padding - 1);
         regions.emplace_back(region_start, region_end);
         in_region = false;
@@ -404,19 +241,16 @@ std::vector<std::pair<int, int>> WaveformAnalysisRSNNLS::FindThresholdRegions(co
     }
   }
 
-  // Handle case where region extends to end of waveform
   if (in_region) {
     regions.emplace_back(region_start, static_cast<int>(voltWfm.size()) - 1);
   }
 
-  // Optional: merge regions that are very close together to avoid redundant processing
+  // Merge close regions
   if (regions.size() > 1) {
     std::vector<std::pair<int, int>> merged_regions;
     merged_regions.push_back(regions[0]);
 
     for (size_t i = 1; i < regions.size(); ++i) {
-      // If current region starts within padding distance of previous region end, merge them
-      // Use smaller merge distance to preserve timing resolution
       if (regions[i].first <= merged_regions.back().second + padding) {
         merged_regions.back().second = regions[i].second;
       } else {
@@ -431,16 +265,6 @@ std::vector<std::pair<int, int>> WaveformAnalysisRSNNLS::FindThresholdRegions(co
 
 void WaveformAnalysisRSNNLS::ProcessThresholdRegion(const std::vector<double>& voltWfm, int start_sample,
                                                     int end_sample, DS::WaveformAnalysisResult* fit_result) {
-  /**
-   * Process a single threshold crossing region with rsNNLS.
-   *
-   * Key improvements for region-based processing:
-   * - Only uses dictionary templates whose peaks could contribute to this region
-   * - Proper LogNormal peak positioning ensures templates align with signal
-   * - Includes tail padding to capture templates with peaks slightly outside region
-   * - Direct mapping from dictionary index to PE peak time
-   */
-
   const int region_length = end_sample - start_sample + 1;
 
   // Extract waveform segment for this region
@@ -449,48 +273,34 @@ void WaveformAnalysisRSNNLS::ProcessThresholdRegion(const std::vector<double>& v
     region_wfm[i] = voltWfm[start_sample + i];
   }
 
-  // Build dictionary submatrix for this region
-  // We need templates whose effective peak times could contribute to this time window
-  // Dictionary column j has delay = j * digitizer_period / upsample_factor
-  // Effective peak time = delay + vpe_scale
-
+  // Calculate dictionary column range
   const double start_time = start_sample * digitizer_period;
   const double end_time = end_sample * digitizer_period;
 
-  // Calculate dictionary column range - no padding to completely eliminate edge artifacts
-  // Only include templates whose PEAKS are exactly within this region time window
-  // No tail padding - template selection matches region bounds exactly
+  double min_delay = start_time;
+  double max_delay = end_time;
 
-  double min_desired_pe_time = start_time;  // No padding
-  double max_desired_pe_time = end_time;    // No padding
-
-  // Convert PE times back to required delays
-  double min_delay = min_desired_pe_time - vpe_scale;
-  double max_delay = max_desired_pe_time - vpe_scale;
-
-  // Convert delays to dictionary column indices
   const int dict_start = std::max(0, static_cast<int>(min_delay * upsample_factor / digitizer_period));
   const int dict_end = std::min(fW.GetNcols() - 1, static_cast<int>(max_delay * upsample_factor / digitizer_period));
   const int dict_cols = dict_end - dict_start + 1;
 
   if (dict_cols <= 0) {
-    return;  // No valid dictionary columns for this region
+    return;
   }
 
-  // Extract relevant dictionary submatrix with proper bounds checking
+  // Extract relevant dictionary submatrix
   TMatrixD W_region(region_length, dict_cols);
-  W_region.Zero();  // Initialize to zero
+  W_region.Zero();
 
   for (int row = 0; row < region_length; ++row) {
     int global_row = start_sample + row;
-    if (global_row >= fW.GetNrows()) continue;  // Skip if beyond waveform
+    if (global_row >= fW.GetNrows()) continue;
 
     for (int col = 0; col < dict_cols; ++col) {
       int global_col = dict_start + col;
       if (global_col >= 0 && global_col < fW.GetNcols()) {
         W_region(row, col) = fW(global_row, global_col);
       }
-      // If global_col is out of bounds, W_region(row, col) remains 0.0 from initialization
     }
   }
 
@@ -500,35 +310,29 @@ void WaveformAnalysisRSNNLS::ProcessThresholdRegion(const std::vector<double>& v
     region_vec(i) = region_wfm[i];
   }
 
-  // Perform reverse sparse NNLS with iterative thresholding on this region
+  // Perform rsNNLS on this region
   TVectorD region_weights = Thresholded_rsNNLS_Region(W_region, region_vec, weight_threshold);
 
   // Extract PEs from significant weights
   for (int i = 0; i < dict_cols; ++i) {
     if (region_weights(i) > 0.0) {
-      // Convert local dictionary index to global dictionary index
       int global_dict_index = dict_start + i;
-
-      // PE time = delay + vpe_scale (simple approach that worked before)
       double delay = global_dict_index * digitizer_period / upsample_factor;
-      double pe_time = delay + vpe_scale;
+      double pe_time = delay;
 
-      // Sanity check: PE time should be reasonably close to the region time range
+      // Sanity check
       double region_start_time = start_sample * digitizer_period;
       double region_end_time = end_sample * digitizer_period;
 
-      // Allow some tolerance but flag obviously wrong times
       if (pe_time < region_start_time - 3.0 * vpe_scale || pe_time > region_end_time + 3.0 * vpe_scale) {
         warn << "WaveformAnalysisRSNNLS: PE time " << pe_time << " ns outside expected range ["
              << (region_start_time - 3.0 * vpe_scale) << ", " << (region_end_time + 3.0 * vpe_scale) << "] for region ["
              << start_sample << ", " << end_sample << "]" << newline;
-        continue;  // Skip this PE
+        continue;
       }
 
-      // Convert NNLS weight to charge
       double pe_charge = region_weights(i) * vpe_scale / fTermOhms;
 
-      // Store PE with individual weight as FOM
       fit_result->AddPE(pe_time, pe_charge,
                         {
                             {"chi2ndf", chi2ndf},
