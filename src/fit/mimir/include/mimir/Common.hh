@@ -2,7 +2,7 @@
 
 #include <RAT/DB.hh>
 
-namespace RAT::Mimir {
+namespace Mimir {
 constexpr int INVALID = -9999;
 
 inline RAT::DBLinkPtr GetConfig(const std::string& type_name, const std::string& index = "") {
@@ -15,4 +15,4 @@ inline std::string GetConfigRepr(RAT::DBLinkPtr db_link) {
   return result.str();
 }
 
-}  // namespace RAT::Mimir
+}  // namespace Mimir
