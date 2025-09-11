@@ -24,9 +24,10 @@
 "include_mchits": true,
 "include_calib": true,
 
-"waveform_fitters": ["Lognormal", "Gaussian", "Sinc"],
+"waveform_fitters": ["Lognormal", "Gaussian", "Sinc", "rsNNLS"],
 
 "waveform_fitter_FOM_Lognormal": ["baseline","chi2ndf"],
 "waveform_fitter_FOM_Gaussian": ["baseline","width","chi2ndf"],
 "waveform_fitter_FOM_Sinc": ["peak"]
+"waveform_fitter_FOM_rsNNLS": ["chi2ndf", "iterations_ran", "weight", "index"]
 }
