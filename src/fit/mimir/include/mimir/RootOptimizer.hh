@@ -3,7 +3,7 @@
 
 #include <mimir/Factory.hh>
 #include <mimir/Optimizer.hh>
-namespace RAT::Mimir {
+namespace Mimir {
 
 class RootOptimizer : public Optimizer {
  public:
@@ -13,5 +13,4 @@ class RootOptimizer : public Optimizer {
  protected:
   std::unique_ptr<ROOT::Math::Minimizer> fMinimizer = nullptr;
 };
-MIMIR_REGISTER_TYPE(Optimizer, RootOptimizer, "RootOptimizer")
-}  // namespace RAT::Mimir
+}  // namespace Mimir

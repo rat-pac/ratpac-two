@@ -7,7 +7,7 @@
 
 #include "Math/Interpolator.h"
 
-namespace RAT::Mimir {
+namespace Mimir {
 bool PMTTypeTimeResidualPDF::Configure(RAT::DBLinkPtr db_link) {
   std::vector<double> binning = db_link->GetDArray("binning");
   std::vector<int> pmt_types = db_link->GetIArray("pmt_types");
@@ -28,8 +28,8 @@ bool PMTTypeTimeResidualPDF::Configure(RAT::DBLinkPtr db_link) {
     std::vector<double> nll_vals;
     for (const auto& val : histvals) {
       if (val <= 0) {
-        Log::Die("mimir::PMTTypeTimeResidualPDF: PDF histogram for PMT type " + std::to_string(pmt_type) +
-                 " has zero or negative bin content, cannot take log.");
+        RAT::Log::Die("mimir::PMTTypeTimeResidualPDF: PDF histogram for PMT type " + std::to_string(pmt_type) +
+                      " has zero or negative bin content, cannot take log.");
       }
       nll_vals.push_back(-std::log(val / norm));
     }
@@ -90,4 +90,5 @@ double PMTTypeTimeResidualPDF::clamped_spline(const ROOT::Math::Interpolator& sp
   }
 }
 
-}  // namespace RAT::Mimir
+}  // namespace Mimir
+MIMIR_REGISTER_TYPE(Mimir::Cost, Mimir::PMTTypeTimeResidualPDF, "PMTTypeTimeResidualPDF")

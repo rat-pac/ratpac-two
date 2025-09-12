@@ -5,7 +5,7 @@
 
 #include "mimir/ParamSet.hh"
 
-namespace RAT::Mimir {
+namespace Mimir {
 class FitStrategy {
  public:
   FitStrategy() = default;
@@ -58,4 +58,4 @@ class FitStrategy {
   std::string name;
 };
 
-}  // namespace RAT::Mimir
+}  // namespace Mimir

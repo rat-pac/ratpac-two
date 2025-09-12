@@ -1,7 +1,7 @@
 #include <mimir/Factory.hh>
 #include <mimir/FitStep.hh>
 
-namespace RAT::Mimir {
+namespace Mimir {
 
 bool FitStep::Configure(RAT::DBLinkPtr db_link) {
   std::string optimizer_name = db_link->GetS("optimizer_name");
@@ -84,6 +84,5 @@ void FitStep::Execute(ParamSet& params) {
   params.energy.set_upper_bounds(energy_ub);
   optimizer->Minimize(cost_function.get(), params);
 }
-MIMIR_REGISTER_TYPE(FitStrategy, FitStep, "FitStep");
-
-}  // namespace RAT::Mimir
+}  // namespace Mimir
+MIMIR_REGISTER_TYPE(Mimir::FitStrategy, Mimir::FitStep, "FitStep");

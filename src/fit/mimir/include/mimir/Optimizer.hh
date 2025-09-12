@@ -4,7 +4,7 @@
 #include <mimir/Cost.hh>
 #include <mimir/ParamSet.hh>
 
-namespace RAT::Mimir {
+namespace Mimir {
 
 class Optimizer {
  public:
@@ -33,4 +33,4 @@ class Optimizer {
   std::string name;
 };
 
-}  // namespace RAT::Mimir
+}  // namespace Mimir

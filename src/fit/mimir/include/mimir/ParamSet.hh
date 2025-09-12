@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace RAT::Mimir {
+namespace Mimir {
 enum class ParamStatus { INACTIVE = 0, ACTIVE = 1, FIXED = 2 };
 
 struct ParamComponent {
@@ -67,4 +67,4 @@ struct ParamSet {
   ParamSet from_active_vector(const std::vector<double>& values) const;
 };
 
-}  // namespace RAT::Mimir
+}  // namespace Mimir

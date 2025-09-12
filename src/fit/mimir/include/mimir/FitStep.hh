@@ -1,11 +1,11 @@
 #pragma once
+#include <mimir/Cost.hh>
 #include <mimir/FitStrategy.hh>
-#include <mimir/PMTTypeTimeResidualPDF.hh>
-#include <mimir/RootOptimizer.hh>
+#include <mimir/Optimizer.hh>
 
 #include "mimir/ParamSet.hh"
 
-namespace RAT::Mimir {
+namespace Mimir {
 
 class FitStep : public FitStrategy {
  public:
@@ -32,4 +32,4 @@ class FitStep : public FitStrategy {
                   std::vector<double>& ub);
 };
 
-}  // namespace RAT::Mimir
+}  // namespace Mimir

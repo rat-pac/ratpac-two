@@ -3,7 +3,7 @@
 #include <mimir/Common.hh>
 #include <mimir/ParamSet.hh>
 
-namespace RAT::Mimir {
+namespace Mimir {
 
 class Cost {
  public:
@@ -46,4 +46,4 @@ class Cost {
   std::string name;
 };
 
-}  // namespace RAT::Mimir
+}  // namespace Mimir

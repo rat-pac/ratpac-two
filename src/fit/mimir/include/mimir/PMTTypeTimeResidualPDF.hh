@@ -5,7 +5,7 @@
 #include <mimir/Cost.hh>
 #include <mimir/Factory.hh>
 
-namespace RAT::Mimir {
+namespace Mimir {
 class PMTTypeTimeResidualPDF : public Cost {
  public:
   bool Configure(RAT::DBLinkPtr db_link) override;
@@ -19,5 +19,4 @@ class PMTTypeTimeResidualPDF : public Cost {
   std::map<int, double> type_weights;
   RAT::DS::PMTInfo* pmt_info;
 };
-MIMIR_REGISTER_TYPE(Cost, PMTTypeTimeResidualPDF, "PMTTypeTimeResidualPDF")
-}  // namespace RAT::Mimir
+}  // namespace Mimir

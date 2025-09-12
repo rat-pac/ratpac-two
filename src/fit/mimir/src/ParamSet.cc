@@ -2,7 +2,7 @@
 #include <mimir/ParamSet.hh>
 #include <sstream>
 
-namespace RAT::Mimir {
+namespace Mimir {
 
 std::vector<double> ParamField::active_values() const {
   std::vector<double> values;
@@ -174,4 +174,4 @@ void ParamSet::set_active_fit_valid(bool valid) {
     }
   }
 }
-}  // namespace RAT::Mimir
+}  // namespace Mimir
