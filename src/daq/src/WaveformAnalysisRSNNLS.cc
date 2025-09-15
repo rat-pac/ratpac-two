@@ -20,9 +20,20 @@ void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
   try {
     fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", config_name);
 
+    // Template type configuration
+    template_type = fDigit->GetI("rsnnls_template_type");  // 0=lognormal, 1=gaussian
+
     // Single photoelectron waveform parameters
-    vpe_scale = fDigit->GetD("vpe_scale");    // LogNormal 'm' parameter
-    vpe_shape = fDigit->GetD("vpe_shape");    // LogNormal 'sigma' parameter
+    if (template_type == 0) {                             // lognormal
+      lognormal_scale = fDigit->GetD("lognormal_scale");  // LogNormal 'm' parameter
+      lognormal_shape = fDigit->GetD("lognormal_shape");  // LogNormal 'sigma' parameter
+    } else if (template_type == 1) {                      // gaussian
+      gaussian_width = fDigit->GetD("gaussian_width");    // Gaussian sigma parameter
+    } else {
+      RAT::Log::Die("WaveformAnalysisRSNNLS: Invalid template_type " + std::to_string(template_type) +
+                    ". Must be 0 (lognormal) or 1 (gaussian).");
+    }
+
     vpe_charge = fDigit->GetD("vpe_charge");  // Nominal PE charge in pC
 
     // Algorithm configuration
@@ -31,54 +42,86 @@ void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
     upsample_factor = fDigit->GetD("upsampling_factor");    // Dictionary upsampling factor
     epsilon = fDigit->GetD("nnls_tolerance");               // NNLS convergence tolerance
     voltage_threshold = fDigit->GetD("voltage_threshold");  // Voltage threshold for region detection
-    digitizer_name = fDigit->GetS("digitizer_name");        // Digitizer configuration name
-
-    info << "WaveformAnalysisRSNNLS: Read digitizer_name: '" << digitizer_name << "'" << newline;
 
     // Validate critical parameters
     if (upsample_factor <= 0) {
       RAT::Log::Die("WaveformAnalysisRSNNLS: Invalid upsampling factor.");
     }
 
+    // Initialize dictionary flags
+    dictionary_built = false;
+
   } catch (DBNotFoundError) {
     RAT::Log::Die("WaveformAnalysisRSNNLS: Unable to find analysis parameters.");
   }
+}
 
-  // Build dictionary matrix using digitizer hardware configuration
-  try {
-    info << "WaveformAnalysisRSNNLS: Attempting to load digitizer config: " << digitizer_name << newline;
-    DBLinkPtr digitizer_db = DB::Get()->GetLink("DIGITIZER", digitizer_name);
+void WaveformAnalysisRSNNLS::SetD(std::string param, double value) {
+  if (param == "lognormal_scale") {
+    lognormal_scale = value;
+  } else if (param == "lognormal_shape") {
+    lognormal_shape = value;
+  } else if (param == "gaussian_width") {
+    gaussian_width = value;
+  } else if (param == "vpe_charge") {
+    vpe_charge = value;
+  } else if (param == "upsampling_factor") {
+    upsample_factor = value;
+  } else if (param == "weight_threshold") {
+    weight_threshold = value;
+  } else if (param == "voltage_threshold") {
+    voltage_threshold = value;
+  } else if (param == "nnls_tolerance") {
+    epsilon = value;
+  } else {
+    throw Processor::ParamUnknown(param);
+  }
+}
 
-    info << "WaveformAnalysisRSNNLS: Successfully loaded digitizer config" << newline;
-    double sampling_rate = digitizer_db->GetD("sampling_rate");  // Sampling rate in GHz
-    int nsamples = digitizer_db->GetD("nsamples");  // Number of samples per trace (using GetD like Digitizer.cc)
-    digitizer_period = 1.0 / sampling_rate;         // Convert GHz to ns sampling period
-
-    BuildDictionaryMatrix(nsamples, digitizer_period);
-
-  } catch (DBNotFoundError&) {
-    RAT::Log::Die("WaveformAnalysisRSNNLS: Unable to find digitizer configuration: " + digitizer_name);
+void WaveformAnalysisRSNNLS::SetI(std::string param, int value) {
+  if (param == "max_iterations") {
+    max_iterations = value;
+  } else if (param == "rsnnls_template_type") {
+    template_type = value;
+    if (template_type != 0 && template_type != 1) {
+      RAT::Log::Die("WaveformAnalysisRSNNLS: Invalid rsnnls_template_type " + std::to_string(value) +
+                    ". Must be 0 (lognormal) or 1 (gaussian).");
+    }
+  } else {
+    throw Processor::ParamUnknown(param);
   }
 }
 
 void WaveformAnalysisRSNNLS::BuildDictionaryMatrix(int nsamples, double digitizer_period) {
+  info << "WaveformAnalysisRSNNLS: Building dictionary matrix" << newline;
+  info << "WaveformAnalysisRSNNLS: Using rsnnls_template_type: " << template_type << " ("
+       << (template_type == 0 ? "lognormal" : "gaussian") << ")" << newline;
+  info << "WaveformAnalysisRSNNLS: Digitizer period: " << digitizer_period << " ns" << newline;
+  info << "WaveformAnalysisRSNNLS: Dictionary size: " << nsamples << " x "
+       << static_cast<int>(nsamples * upsample_factor) << newline;
+
   const int dict_size = static_cast<int>(nsamples * upsample_factor);
   fW.ResizeTo(nsamples, dict_size);
   fW.Zero();
 
   const double mag_factor = vpe_charge * fTermOhms;
 
-  // Generate dictionary with time-shifted LogNormal templates
+  // Generate dictionary with time-shifted templates
   for (int col = 0; col < dict_size; ++col) {
     double delay = col * digitizer_period / upsample_factor;
-    double lognormal_shift = delay - vpe_scale;
 
     for (int row = 0; row < nsamples; ++row) {
       double sample_time = row * digitizer_period;
       double template_val = 0.0;
 
-      if (sample_time > lognormal_shift) {
-        template_val = mag_factor * TMath::LogNormal(sample_time, vpe_shape, lognormal_shift, vpe_scale);
+      if (template_type == 0) {  // lognormal
+        double lognormal_shift = delay - lognormal_scale;
+        if (sample_time > lognormal_shift) {
+          template_val = mag_factor * TMath::LogNormal(sample_time, lognormal_shape, lognormal_shift, lognormal_scale);
+        }
+      } else if (template_type == 1) {  // gaussian
+        // For Gaussian, delay is the mean (peak time)
+        template_val = mag_factor * TMath::Gaus(sample_time, delay, gaussian_width, kTRUE);
       }
 
       fW(row, col) = -template_val;  // Negative for deconvolution
@@ -87,13 +130,27 @@ void WaveformAnalysisRSNNLS::BuildDictionaryMatrix(int nsamples, double digitize
 }
 
 void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
+  // Build dictionary on first call or when digitizer parameters change
+  if (!dictionary_built || cached_nsamples != static_cast<int>(digitWfm.size()) ||
+      cached_digitizer_period != fTimeStep) {
+    // Use current digitizer information from the waveform and base class
+    int nsamples = static_cast<int>(digitWfm.size());
+    double digitizer_period = fTimeStep;  // Already set by RunAnalysis() in base class
+
+    BuildDictionaryMatrix(nsamples, digitizer_period);
+
+    cached_nsamples = nsamples;
+    cached_digitizer_period = digitizer_period;
+    dictionary_built = true;
+  }
+
   // Validate pedestal has been computed
   double pedestal = digitpmt->GetPedestal();
   if (pedestal == -9999) {
     RAT::Log::Die("WaveformAnalysisRSNNLS: Pedestal is invalid! Did you run WaveformPrep first?");
   }
 
-  // Verify waveform size matches pre-built dictionary matrix
+  // Verify waveform size matches dictionary matrix
   if (static_cast<int>(digitWfm.size()) != fW.GetNrows()) {
     RAT::Log::Die("WaveformAnalysisRSNNLS: Waveform size mismatch with dictionary matrix.");
   }
@@ -122,8 +179,8 @@ void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
   }
 }
 
-TVectorD WaveformAnalysisRSNNLS::Thresholded_rsNNLS_Region(const TMatrixD& W_region, const TVectorD& voltVec,
-                                                           const double threshold) {
+TVectorD WaveformAnalysisRSNNLS::Thresholded_rsNNLS(const TMatrixD& W_region, const TVectorD& voltVec,
+                                                    const double threshold) {
   const int D = voltVec.GetNrows();
   const int K = W_region.GetNcols();
 
@@ -273,15 +330,12 @@ void WaveformAnalysisRSNNLS::ProcessThresholdRegion(const std::vector<double>& v
     region_wfm[i] = voltWfm[start_sample + i];
   }
 
-  // Calculate dictionary column range
-  const double start_time = start_sample * digitizer_period;
-  const double end_time = end_sample * digitizer_period;
+  // Calculate dictionary column range directly from sample indices
+  // Dictionary column j corresponds to sample time j/upsample_factor
+  // We want columns that correspond to this region's sample range
 
-  double min_delay = start_time;
-  double max_delay = end_time;
-
-  const int dict_start = std::max(0, static_cast<int>(min_delay * upsample_factor / digitizer_period));
-  const int dict_end = std::min(fW.GetNcols() - 1, static_cast<int>(max_delay * upsample_factor / digitizer_period));
+  const int dict_start = std::max(0, static_cast<int>(start_sample * upsample_factor));
+  const int dict_end = std::min(fW.GetNcols() - 1, static_cast<int>(end_sample * upsample_factor));
   const int dict_cols = dict_end - dict_start + 1;
 
   if (dict_cols <= 0) {
@@ -311,27 +365,37 @@ void WaveformAnalysisRSNNLS::ProcessThresholdRegion(const std::vector<double>& v
   }
 
   // Perform rsNNLS on this region
-  TVectorD region_weights = Thresholded_rsNNLS_Region(W_region, region_vec, weight_threshold);
+  TVectorD region_weights = Thresholded_rsNNLS(W_region, region_vec, weight_threshold);
 
   // Extract PEs from significant weights
   for (int i = 0; i < dict_cols; ++i) {
     if (region_weights(i) > 0.0) {
       int global_dict_index = dict_start + i;
-      double delay = global_dict_index * digitizer_period / upsample_factor;
-      double pe_time = delay;
+      double delay = global_dict_index * fTimeStep / upsample_factor;
 
-      // Sanity check
-      double region_start_time = start_sample * digitizer_period;
-      double region_end_time = end_sample * digitizer_period;
+      // Calculate PE time based on template type
+      double pe_time;
+      if (template_type == 0) {         // lognormal
+        pe_time = delay;                // For LogNormal, delay is already the proper time
+      } else if (template_type == 1) {  // gaussian
+        pe_time = delay;                // For Gaussian, delay is also the peak time
+      } else {
+        pe_time = delay;  // Default fallback
+      }
 
-      if (pe_time < region_start_time - 3.0 * vpe_scale || pe_time > region_end_time + 3.0 * vpe_scale) {
+      // Sanity check - use appropriate template scale for range checking
+      double template_scale = (template_type == 0) ? lognormal_scale : gaussian_width;
+      double region_start_time = start_sample * fTimeStep;
+      double region_end_time = end_sample * fTimeStep;
+
+      if (pe_time < region_start_time - 3.0 * template_scale || pe_time > region_end_time + 3.0 * template_scale) {
         warn << "WaveformAnalysisRSNNLS: PE time " << pe_time << " ns outside expected range ["
-             << (region_start_time - 3.0 * vpe_scale) << ", " << (region_end_time + 3.0 * vpe_scale) << "] for region ["
-             << start_sample << ", " << end_sample << "]" << newline;
+             << (region_start_time - 3.0 * template_scale) << ", " << (region_end_time + 3.0 * template_scale)
+             << "] for region [" << start_sample << ", " << end_sample << "]" << newline;
         continue;
       }
 
-      double pe_charge = region_weights(i) * vpe_scale / fTermOhms;
+      double pe_charge = region_weights(i) * vpe_charge;  // Charge in pC
 
       fit_result->AddPE(pe_time, pe_charge,
                         {
