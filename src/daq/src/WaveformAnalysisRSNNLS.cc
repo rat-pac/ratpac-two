@@ -20,6 +20,12 @@ void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
   try {
     fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", config_name);
 
+    // Threshold crossing region configuration
+    process_threshold_crossing = (fDigit->GetI("process_threshold_crossing") != 0);  // 0=no, 1=yes
+    if (process_threshold_crossing) {
+      voltage_threshold = fDigit->GetD("voltage_threshold");  // Voltage threshold in mV
+    }
+
     // Template type configuration
     template_type = fDigit->GetI("rsnnls_template_type");  // 0=lognormal, 1=gaussian
 
@@ -37,11 +43,10 @@ void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
     vpe_charge = fDigit->GetD("vpe_charge");  // Nominal PE charge in pC
 
     // Algorithm configuration
-    max_iterations = fDigit->GetI("max_iterations");        // Max thresholding iterations
-    weight_threshold = fDigit->GetD("weight_threshold");    // Component significance threshold
-    upsample_factor = fDigit->GetD("upsampling_factor");    // Dictionary upsampling factor
-    epsilon = fDigit->GetD("nnls_tolerance");               // NNLS convergence tolerance
-    voltage_threshold = fDigit->GetD("voltage_threshold");  // Voltage threshold for region detection
+    max_iterations = fDigit->GetI("max_iterations");      // Max thresholding iterations
+    weight_threshold = fDigit->GetD("weight_threshold");  // Component significance threshold
+    upsample_factor = fDigit->GetD("upsampling_factor");  // Dictionary upsampling factor
+    epsilon = fDigit->GetD("nnls_tolerance");             // NNLS convergence tolerance
 
     // Validate critical parameters
     if (upsample_factor <= 0) {
@@ -79,7 +84,9 @@ void WaveformAnalysisRSNNLS::SetD(std::string param, double value) {
 }
 
 void WaveformAnalysisRSNNLS::SetI(std::string param, int value) {
-  if (param == "max_iterations") {
+  if (param == "process_threshold_crossing") {
+    process_threshold_crossing = (value != 0);
+  } else if (param == "max_iterations") {
     max_iterations = value;
   } else if (param == "rsnnls_template_type") {
     template_type = value;
@@ -155,23 +162,31 @@ void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
 
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal);
 
-  // Find threshold crossing regions
-  std::vector<std::pair<int, int>> crossing_regions = FindThresholdRegions(voltWfm, voltage_threshold);
-
-  if (crossing_regions.empty()) {
-    // No signal above threshold - return empty result
-    digitpmt->GetOrCreateWaveformAnalysisResult("rsNNLS");
-    return;
-  }
-
-  // Process each threshold crossing region independently
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("rsNNLS");
 
-  for (const auto& region : crossing_regions) {
-    int start_sample = region.first;
-    int end_sample = region.second;
+  if (process_threshold_crossing) {
+    // Find threshold crossing regions
+    std::vector<std::pair<int, int>> crossing_regions = FindThresholdRegions(voltWfm, voltage_threshold);
 
-    // Perform rsNNLS on this region
+    if (crossing_regions.empty()) {
+      // No signal above threshold - return empty result
+      return;
+    }
+
+    // Process each threshold crossing region independently
+
+    for (const auto& region : crossing_regions) {
+      int start_sample = region.first;
+      int end_sample = region.second;
+
+      // Perform rsNNLS on this region
+      ProcessThresholdRegion(voltWfm, start_sample, end_sample, fit_result);
+    }
+  } else {
+    int start_sample = 0;
+    int end_sample = static_cast<int>(voltWfm.size()) - 1;
+
+    // Perform rsNNLS on the entire waveform
     ProcessThresholdRegion(voltWfm, start_sample, end_sample, fit_result);
   }
 }

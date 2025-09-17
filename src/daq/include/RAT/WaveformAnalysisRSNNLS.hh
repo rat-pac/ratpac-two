@@ -60,6 +60,9 @@ class WaveformAnalysisRSNNLS : public WaveformAnalyzerBase {
  protected:
   DBLinkPtr fDigit;
 
+  bool process_threshold_crossing;  ///< Whether to use threshold crossing region processing
+  double voltage_threshold;         ///< Voltage threshold for threshold crossing region detection
+
   int template_type;  ///< Template type: 0=lognormal, 1=gaussian
 
   // LogNormal template parameters
@@ -78,8 +81,7 @@ class WaveformAnalysisRSNNLS : public WaveformAnalyzerBase {
   double upsample_factor;  ///< Dictionary upsampling factor for sub-sample resolution
 
   // Thresholding parameters
-  double weight_threshold;   ///< Minimum weight threshold for component significance
-  double voltage_threshold;  ///< Voltage threshold for threshold crossing region detection
+  double weight_threshold;  ///< Minimum weight threshold for component significance
 
   // Analysis results (computed per waveform)
   double chi2ndf;      ///< Chi-squared per degree of freedom for goodness of fit

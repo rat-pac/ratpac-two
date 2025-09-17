@@ -71,6 +71,10 @@
 "index": "rsNNLS",
 "run_range": [0, 0],
 
+// Process only threshold crossing regions
+"process_threshold_crossing": 1, // 0=no, 1=yes
+"voltage_threshold": -2.5 // Voltage threshold for region detection (mV)
+
 // Template configuration
 "rsnnls_template_type": 0, // Template type: 0=lognormal, 1=gaussian
 
@@ -94,5 +98,4 @@
 
 // Thresholding parameters
 "weight_threshold": 0.7, // Minimum weight for component significance
-"voltage_threshold": -2.5 // Voltage threshold for region detection (mV)
 }
