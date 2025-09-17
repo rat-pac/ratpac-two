@@ -28,7 +28,7 @@ void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
       lognormal_scale = fDigit->GetD("lognormal_scale");  // LogNormal 'm' parameter
       lognormal_shape = fDigit->GetD("lognormal_shape");  // LogNormal 'sigma' parameter
     } else if (template_type == 1) {                      // gaussian
-      gaussian_width = fDigit->GetD("gaussian_width");    // Gaussian sigma parameter
+      gaussian_width = fDigit->GetD("gaussian_width");    // Gaussian 'sigma' parameter
     } else {
       RAT::Log::Die("WaveformAnalysisRSNNLS: Invalid template_type " + std::to_string(template_type) +
                     ". Must be 0 (lognormal) or 1 (gaussian).");
@@ -120,11 +120,10 @@ void WaveformAnalysisRSNNLS::BuildDictionaryMatrix(int nsamples, double digitize
           template_val = mag_factor * TMath::LogNormal(sample_time, lognormal_shape, lognormal_shift, lognormal_scale);
         }
       } else if (template_type == 1) {  // gaussian
-        // For Gaussian, delay is the mean (peak time)
         template_val = mag_factor * TMath::Gaus(sample_time, delay, gaussian_width, kTRUE);
       }
 
-      fW(row, col) = -template_val;  // Negative for deconvolution
+      fW(row, col) = -template_val;
     }
   }
 }
@@ -135,7 +134,7 @@ void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
       cached_digitizer_period != fTimeStep) {
     // Use current digitizer information from the waveform and base class
     int nsamples = static_cast<int>(digitWfm.size());
-    double digitizer_period = fTimeStep;  // Already set by RunAnalysis() in base class
+    double digitizer_period = fTimeStep;
 
     BuildDictionaryMatrix(nsamples, digitizer_period);
 
@@ -144,7 +143,6 @@ void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
     dictionary_built = true;
   }
 
-  // Validate pedestal has been computed
   double pedestal = digitpmt->GetPedestal();
   if (pedestal == -9999) {
     RAT::Log::Die("WaveformAnalysisRSNNLS: Pedestal is invalid! Did you run WaveformPrep first?");
@@ -155,10 +153,9 @@ void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
     RAT::Log::Die("WaveformAnalysisRSNNLS: Waveform size mismatch with dictionary matrix.");
   }
 
-  // Convert waveform from ADC units to voltage (mV, pedestal-subtracted)
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal);
 
-  // Find threshold crossing regions for efficient processing
+  // Find threshold crossing regions
   std::vector<std::pair<int, int>> crossing_regions = FindThresholdRegions(voltWfm, voltage_threshold);
 
   if (crossing_regions.empty()) {
@@ -174,7 +171,7 @@ void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
     int start_sample = region.first;
     int end_sample = region.second;
 
-    // Perform NNLS on this region with appropriate time mapping
+    // Perform rsNNLS on this region
     ProcessThresholdRegion(voltWfm, start_sample, end_sample, fit_result);
   }
 }
@@ -402,8 +399,6 @@ void WaveformAnalysisRSNNLS::ProcessThresholdRegion(const std::vector<double>& v
                             {"chi2ndf", chi2ndf},
                             {"iterations_ran", iterations_ran},
                             {"weight", region_weights(i)},
-                            {"index", static_cast<double>(global_dict_index)},
-                            {"region_start", static_cast<double>(start_sample)},
                         });
     }
   }
