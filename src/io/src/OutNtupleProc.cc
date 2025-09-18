@@ -179,7 +179,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("digitTime", &digitTime);
     outputTree->Branch("digitCharge", &digitCharge);
     outputTree->Branch("digitNCrossings", &digitNCrossings);
-    outputTree->Branch("digitHitCleanedNhits", &digitHitCleanedNhits);
+    outputTree->Branch("digitNhitsCleaned", &digitHitCleanedNhits);
     outputTree->Branch("digitHitCleaningMask", &digitHitCleaningMask);
     outputTree->Branch("digitTimeOverThreshold", &digitTimeOverThreshold);
     outputTree->Branch("digitVoltageOverThreshold", &digitVoltageOverThreshold);
