@@ -34,6 +34,7 @@ class PhysicsListMessenger : public G4UImessenger {
   G4UIcmdWithABool *fEnableCerenkov;
   G4UIcommand *fSetStepFunctionLightIons;
   G4UIcommand *fSetStepFunctionMuHad;
+  G4UIcommand *fRemoveProcess;
 };
 
 }  // namespace RAT
