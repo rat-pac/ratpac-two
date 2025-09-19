@@ -10,7 +10,7 @@
 
 /rat/proc splitevdaq
 /rat/proc count
-/rat/procset update 100
+/rat/procset update 1
 
 # Run Quad as a seed
 /rat/proc quadfitter
@@ -20,7 +20,7 @@
 /rat/proc mimir
 # Specify the fit strategy (in this case `FitStep`), configured by a RATDB table with index `PositionTime_PMTTypeTimeResidual`
 # The table name is the name of the strategy prefixed by `MIMIR_`. In this case, the specified look up is MIMIR_FitStep[PositionTime_PMTTypeTimeResidual]
-/rat/procset strategy "FitStep[PositionTime_PMTTypeTimeResidual]"
+/rat/procset strategy "FitSteps[PMTTypePositionDirection]"
 
 /rat/proclast outntuple
 
@@ -30,4 +30,4 @@
 /generator/rate/set 2.0
 
 
-/run/beamOn 1000
+/run/beamOn 100
