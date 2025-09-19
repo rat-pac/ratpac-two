@@ -24,6 +24,10 @@ class TrackInfo : public G4VUserTrackInformation {
   // Ok, I'm tired of getter/setter C++ bondage crap.  Just expose the
   // interface already.
 
+  // G4 does not guaranttee that preUserTrackingAction is only called once on each track. Track this status to prevent
+  // double counting
+  bool preUserTrackingActionDone = false;
+
   /** Centroid of steps, weighted by energy loss. */
   CentroidCalculator energyCentroid;
   /** Centroid of optical photon creation vertices. */
