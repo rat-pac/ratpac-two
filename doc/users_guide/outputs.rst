@@ -152,6 +152,7 @@ If ``include_digitizerhits`` is set then we additionally add the following infor
 =============================  ===================  ===================
 ``digitPMTID``                 vector<int>          The unique ID of each of the PMT waveform that crossed threshold.
 ``digitNhits``                 int                  The total number of PMT waveforms that crossed threshold.
+``digitNhitsCleaned``          int                  The total number of PMT waveforms that passed all enabled hit cleaning processors and crossed threshold.
 ``digitTime``                  vector<double>       The hit-time extracted from each PMT waveform.
 ``digitCharge``                vector<double>       The charge extracted from each PMT waveform.
 ``digitNCrossings``            vector<int>          The total number of times each PMT waveform crossed threshold.
