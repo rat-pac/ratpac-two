@@ -28,7 +28,7 @@ void FitSteps::SetInputHandler(RAT::FitterInputHandler* handler) {
 
 void FitSteps::Execute(ParamSet& params) {
   for (const std::unique_ptr<FitStrategy>& step : fSteps) {
-    RAT::info << "Executing step " << step->GetName() << newline;
+    RAT::debug << "Executing step " << step->GetName() << newline;
     step->Execute(params);
   }
 }
