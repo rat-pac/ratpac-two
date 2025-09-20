@@ -12,10 +12,13 @@ class PMTTypeCosAlphaPDF : public Cost {
   double operator()(const ParamSet& params) const override;
 
  protected:
-  double clamped_spline(const ROOT::Math::Interpolator& spline, double x) const;
+  double light_speed_in_medium;
   double left_bound, right_bound;
+  double tresid_min, tresid_max;
   std::map<int, ROOT::Math::Interpolator> cosalpha_nll_splines;
   std::map<int, double> type_weights;
   RAT::DS::PMTInfo* pmt_info;
+
+  double clamped_spline(const ROOT::Math::Interpolator& spline, double x) const;
 };
 }  // namespace Mimir

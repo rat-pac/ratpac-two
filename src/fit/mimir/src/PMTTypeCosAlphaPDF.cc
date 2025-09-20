@@ -35,6 +35,17 @@ bool PMTTypeCosAlphaPDF::Configure(RAT::DBLinkPtr db_link) {
     }
     cosalpha_nll_splines.try_emplace(pmt_type, binning, nll_vals, ROOT::Math::Interpolation::kCSPLINE);
   }
+
+  light_speed_in_medium = db_link->GetD("light_speed_in_medium");
+  try {
+    std::vector<double> tresid_range = db_link->GetDArray("tresid_range");
+    tresid_min = tresid_range.at(0);
+    tresid_max = tresid_range.at(1);
+  } catch (RAT::DBNotFoundError&) {
+    tresid_min = -std::numeric_limits<double>::infinity();
+    tresid_max = std::numeric_limits<double>::infinity();
+  }
+
   return true;
 }
 
@@ -61,20 +72,26 @@ double PMTTypeCosAlphaPDF::operator()(const ParamSet& params) const {
     RAT::Log::Die("mimir::PMTTypeCosAlphaPDF: position_time must have a valid position vertex (x, y, z, t).");
   std::vector<double> xyzt = params.position_time.used_values();
   TVector3 vertex_position(xyzt.at(0), xyzt.at(1), xyzt.at(2));
+  double vertex_time = xyzt.at(3);
 
   double result = 0.0;
   for (size_t ihit = 0; ihit < hit_pmtids.size(); ++ihit) {
     int pmtid = hit_pmtids.at(ihit);
+    double time = hit_times.at(ihit);
+    TVector3 pmt_position = pmt_info->GetPosition(pmtid);
+    TVector3 to_pmt = (pmt_position - vertex_position);
+    double tof = to_pmt.Mag() / light_speed_in_medium;
+    double tresid = time - vertex_time - tof;
+    if (tresid < tresid_min || tresid > tresid_max) {
+      continue;
+    }
+    double cosalpha = vertex_direction.Dot(to_pmt.Unit());
     int pmt_type = pmt_info->GetModel(pmtid);
     if (cosalpha_nll_splines.count(pmt_type) == 0) {
       RAT::warn << "mimir::PMTTypeCosAlphaPDF: No spline for PMT type " << pmt_type << ". Skipping this hit."
                 << newline;
       continue;
     }
-    TVector3 pmt_position = pmt_info->GetPosition(pmtid);
-    TVector3 to_pmt = pmt_position - vertex_position;
-    to_pmt.SetMag(1.0);
-    double cosalpha = vertex_direction.Dot(to_pmt);
     const ROOT::Math::Interpolator& spline_to_use = cosalpha_nll_splines.at(pmt_type);
     double weight = type_weights.at(pmt_type);
     result += clamped_spline(spline_to_use, cosalpha) * weight;
