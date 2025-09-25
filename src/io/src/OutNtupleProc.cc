@@ -629,7 +629,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           }
         }
       }
-      digitHitCleanedNhits = ev->GetAllCleanedDigitPMTIDs().size();
+      digitHitCleanedNhits = ev->cleanedDigitNhits();
     }
     if (options.digitizerwaveforms) {
       DS::Digit digitizer = ev->GetDigitizer();
