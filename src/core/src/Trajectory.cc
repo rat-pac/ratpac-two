@@ -5,16 +5,22 @@
 #include <RAT/Log.hh>
 #include <RAT/TrackInfo.hh>
 #include <RAT/Trajectory.hh>
+#include <RAT/QuenchingCalculator.hh>
+
 
 namespace RAT {
 
 G4Allocator<Trajectory> aTrajectoryAllocator;
 bool Trajectory::fgDoAppendMuonStepSpecial = false;
 
-Trajectory::Trajectory() : G4Trajectory() { ratTrack = new DS::MCTrack; }
+Trajectory::Trajectory() : G4Trajectory() {
+  ratTrack = new DS::MCTrack;
+  this->fQuenching = QuenchingCalculator::BuildQuenchingCalculator();
+}
 
 Trajectory::Trajectory(const G4Track *aTrack) : G4Trajectory(aTrack), creatorProcessName("start") {
   ratTrack = new DS::MCTrack;
+  this->fQuenching = QuenchingCalculator::BuildQuenchingCalculator();
 
   ratTrack->SetID(GetTrackID());
   ratTrack->SetParentID(GetParentID());
@@ -29,9 +35,13 @@ Trajectory::Trajectory(const G4Track *aTrack) : G4Trajectory(aTrack), creatorPro
 
   ratTrack->SetLength(0.0);
   ratTrack->SetDepositedEnergy(0.0);
+  ratTrack->SetScintEdepQuenched(0.0);
 }
 
-Trajectory::~Trajectory() { delete ratTrack; }
+Trajectory::~Trajectory() {
+  delete ratTrack;
+  delete fQuenching;
+}
 
 void Trajectory::AppendStep(const G4Step *aStep) {
   if (ratTrack->GetMCTrackStepCount() == 0) {
@@ -58,6 +68,7 @@ void Trajectory::AppendStep(const G4Step *aStep) {
       // determine length
       ratTrack->SetLength(-1.);
       ratTrack->SetDepositedEnergy(-1.);
+      ratTrack->SetScintEdepQuenched(-1.);
     }
     return;
   }
@@ -68,6 +79,7 @@ void Trajectory::AppendStep(const G4Step *aStep) {
   // Update total track length
   ratTrack->SetLength(ratTrack->GetLength() + ratStep->GetLength());
   ratTrack->SetDepositedEnergy(ratTrack->GetDepositedEnergy() + ratStep->GetDepositedEnergy());
+  ratTrack->SetScintEdepQuenched(ratTrack->GetScintEdepQuenched() + ratStep->GetScintEdepQuenched());
   if (Gsim::GetFillPointCont()) G4Trajectory::AppendStep(aStep);
 }
 
@@ -89,8 +101,26 @@ void Trajectory::FillStep(const G4StepPoint *point, const G4Step *step, DS::MCTr
 
   if (isInit) {
     ratStep->SetDepositedEnergy(0);
+    ratStep->SetScintEdepQuenched(0);
   } else {
     ratStep->SetDepositedEnergy(step->GetTotalEnergyDeposit());
+
+    // Set step quenched energy, checking if the Birk's constant is set for the material
+    RAT::DB *db = RAT::DB::Get();
+    RAT::DBLinkPtr optics_tbl = db->GetLink("OPTICS", startPoint->GetMaterial()->GetName()); // get OPTICS table for current material
+    double birksConstant = 0.0; // kB = 0  =>  no quenching
+    try { // the Birk's constant (SCINTMOD_value2) may not be defined for the material
+      std::vector<double> scintmod1_array = optics_tbl->GetDArray("SCINTMOD_value1");
+      std::vector<double> scintmod2_array = optics_tbl->GetDArray("SCINTMOD_value2");
+      for (size_t i=0; i<scintmod1_array.size(); i++) {
+        if (scintmod1_array[i] == 1.0) {
+          birksConstant = scintmod2_array[i];
+        }
+      }
+      ratStep->SetScintEdepQuenched(fQuenching->QuenchedEnergyDeposit(*step, birksConstant));
+    } catch (DBNotFoundError &e) {
+      ratStep->SetScintEdepQuenched(step->GetTotalEnergyDeposit());
+    }
   }
 
   const G4VProcess *process = point->GetProcessDefinedStep();
@@ -117,6 +147,7 @@ void Trajectory::MergeTrajectory(G4VTrajectory *secondTrajectory) {
       *ratTrack->AddNewMCTrackStep() = *secondTraj->ratTrack->GetMCTrackStep(i);
     ratTrack->SetLength(ratTrack->GetLength() + secondTraj->ratTrack->GetLength());
     ratTrack->SetDepositedEnergy(ratTrack->GetDepositedEnergy() + secondTraj->ratTrack->GetDepositedEnergy());
+    ratTrack->SetScintEdepQuenched(ratTrack->GetScintEdepQuenched() + secondTraj->ratTrack->GetScintEdepQuenched());
     secondTraj->ratTrack->PruneMCTrackStep();
   }
 }
