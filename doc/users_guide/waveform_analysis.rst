@@ -124,6 +124,34 @@ Sinc interpolation
 
 Describe sinc interpolation.
 
+
+-------------------------
+
+Richardson-Lucy Direct De-modulation (LucyDDM)
+``````````````````
+
+Performs PMT waveform analysis using Perform PMT waveform analysis using LucyDDM, a time-domain deconvolution algorithm that enhanced resolution compared to FFT-based convolution methods. This method is able to recosntruction multiple photoelectrons in a single PMT. The primary procedure is described in Sec. 3.3.2 of https://arxiv.org/abs/2112.06913. After deconvolution, peaks in the deconvolved waveform are identified, and a Gaussian fit is performed on each peak to extract time and charge information. Optionally, a likelihood-based NPE estimation can be performed on each resolved wave packet to further improve the charge and time resolution.
+
+The method can be configured using the following ratdb parameters.
+
+
+================================  ===================
+**Name**                          **Description**
+================================  ===================
+``vpe_scale``                     The "m" parameter in the lognormal function that generates single PE waveform template.
+``vpe_shape``                     The "sigma" parameter in the lognormal function.
+``vpe_charge``                    The nominal charge of a single photoelectron in pC. A resolved wave packet with integral of 1 will have be assigned this amount of charge.
+``roi_threshold``                 The threshold (in mV) above which the deconvolution will be performed on. All samples below threshold will be set to effectively zero (small positive value for numerical stability).
+``max_iterations``                Maximum number of LucyDDM iterations to run.
+``stopping_nll_diff``             Stop LucyDDM iterations if the negative log likelihood improvement is less than this value.
+``peak_height_threshold``         All peaks below this peak height in the deconvolved waveform will not be considered.
+``charge_threshold``              All wave packets with integrated charge below this threshold will not be considered.
+``min_peak_distance``             If two resolved wave packets are closer than this distance (in ns), they will be merged and considered as one wave packet. 
+``npe_estimate``                  If true, perform a NPE estimation on all resolved waveform packets using a likelihood on the integral of the packets.
+``npe_estimate_charge_width``     Width of the single PE charge distribution (in pC) used in the NPE estimation likelihood.
+``npe_estimate_max_pes``          Maximum number of PEs to consider in the NPE estimation likelihood.
+================================  ===================
+
 -------------------------
 
 WaveformAnalysisResult
