@@ -63,7 +63,7 @@ double PMTTypeTimeResidualPDF::operator()(const ParamSet& params) const {
   for (size_t ihit = 0; ihit < hit_pmtids.size(); ++ihit) {
     int pmtid = hit_pmtids.at(ihit);
     double time = hit_times.at(ihit);
-    int pmt_type = pmt_info->GetModel(pmtid);
+    int pmt_type = pmt_info->GetType(pmtid);
     if (tresid_nll_splines.count(pmt_type) == 0) {
       RAT::warn << "mimir::PMTTypeTimeResidualPDF: No spline for PMT type " << pmt_type << ". Skipping this hit."
                 << newline;
