@@ -629,10 +629,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           }
         }
       }
-      for (int pmtc : ev->GetAllCleanedDigitPMTIDs()) {
-        RAT::DS::DigitPMT *digitpmt = ev->GetOrCreateDigitPMT(pmtc);
-        digitHitCleanedNhits++;
-      }
+      digitHitCleanedNhits = ev->cleanedDigitNhits();
     }
     if (options.digitizerwaveforms) {
       DS::Digit digitizer = ev->GetDigitizer();
