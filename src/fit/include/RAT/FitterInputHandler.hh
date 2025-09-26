@@ -369,6 +369,8 @@ class FitterInputHandler {
         }
         return digitpmt->GetOrCreateWaveformAnalysisResult(wfm_ana_name)->getNPEs();
       }
+      default:
+        Log::Die("INVALID TYPE! Should never reach here.");
     }
   }
 
