@@ -32,6 +32,7 @@ apptainer run [-B /disks/to/mount] ratpac2.sif
 
 ## Installation
 
+### Dependencies
 Installation requires [ROOT 6.25+](https://root.cern.ch),
 [Geant4 11.0+](https://geant4.web.cern.ch/), and [cmake 3.22+](https://cmake.org/)
 
@@ -45,19 +46,25 @@ script](https://github.com/rat-pac/ratpac-setup). Follow the instruction will
 produce a standalone directory that includes all dependencies. You can also
 check this repo for the best-tested minor versions of each dependency.
 
-A convenience Makefile exists to automate the above process, simply type `make`.
 
-Install using cmake:
+### Building from source
 
-``` sh
-    cmake . -Bbuild
-    cmake --build build -- -j$(nproc)
-```
+#### Using the convenience Makefile
+A convenience Makefile exists to automate the above process, simply type `make`. Several targets are available:
 
-If you want to install the code, just add
+- `make` or `make all`: Builds in installs ratpac-two to `install/` directory. Default to the `RelWithDebInfo` build type.
+- `make debug/release/Minsize/relwithdebinfo`: Builds and installs ratpac-two with the specified build type.
+- `make clean`: Removes the `build/` and `install/` directories.
 
-``` sh
-    cmake --build build . --target install -j$(nproc)
+#### Custom Configuration with CMake
+Ratpac-two follows standard CMake conventions. The following is a step-by-step list CMake commands to compile:
+
+```sh
+mkdir build install
+cd build
+cmake .. -DCMAKEINSTALL_PREFIX=../install # Add any additional configuration flags here
+make  # use -jN to parallelize with N threads
+make install
 ```
 
 ## Usage
