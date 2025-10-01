@@ -47,7 +47,7 @@ class FitStrategy {
 
   virtual void Execute(ParamSet &params) = 0;
 
-  void SetInputHandler(RAT::FitterInputHandler *handler) { input_handler = handler; }
+  virtual void SetInputHandler(RAT::FitterInputHandler *handler) { input_handler = handler; }
 
   void SetName(const std::string &_name) { name = _name; }
 

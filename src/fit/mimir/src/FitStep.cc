@@ -69,10 +69,7 @@ void FitStep::set_bounds(RAT::DBLinkPtr db_link, const std::vector<std::string>&
 
 void FitStep::Execute(ParamSet& params) {
   cost_function->ClearHits();
-  std::vector<int> pmtids = input_handler->GetAllHitPMTIDs();
-  for (int pmtid : pmtids) {
-    cost_function->AddHit(pmtid, input_handler->GetTime(pmtid), input_handler->GetCharge(pmtid));
-  }
+  cost_function->AddAllHits(*input_handler);
   params.position_time.set_status(position_time_status);
   params.position_time.set_lower_bounds(position_time_lb);
   params.position_time.set_upper_bounds(position_time_ub);
