@@ -84,7 +84,7 @@ double PMTTypeCosAlphaPDF::operator()(const ParamSet& params) const {
       continue;
     }
     double cosalpha = vertex_direction.Dot(to_pmt.Unit());
-    int pmt_type = pmt_info->GetModel(pmtid);
+    int pmt_type = pmt_info->GetType(pmtid);
     if (cosalpha_nll_splines.count(pmt_type) == 0) {
       RAT::warn << "mimir::PMTTypeCosAlphaPDF: No spline for PMT type " << pmt_type << ". Skipping this hit."
                 << newline;
