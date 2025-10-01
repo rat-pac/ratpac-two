@@ -15,8 +15,6 @@ bool PMTTypeCosAlphaPDF::Configure(RAT::DBLinkPtr db_link) {
   RAT::Log::Assert(pmt_types.size() == _type_weights.size(),
                    "mimir::PMTTypeCosAlphaPDF: pmt_types and type_weights must have the same size.");
   pmt_info = RAT::DS::RunStore::GetCurrentRun()->GetPMTInfo();
-  left_bound = binning.front();
-  right_bound = binning.back();
   double bin_width = binning.at(1) - binning.at(0);
   cosalpha_nll_splines.clear();
   type_weights.clear();
@@ -92,22 +90,12 @@ double PMTTypeCosAlphaPDF::operator()(const ParamSet& params) const {
                 << newline;
       continue;
     }
-    const ROOT::Math::Interpolator& spline_to_use = cosalpha_nll_splines.at(pmt_type);
+    const RAT::BoundedInterpolator& spline_to_use = cosalpha_nll_splines.at(pmt_type);
     double weight = type_weights.at(pmt_type);
-    result += clamped_spline(spline_to_use, cosalpha) * weight;
+    result += spline_to_use.Eval(cosalpha) * weight;
   }
 
   return result;
-}
-
-double PMTTypeCosAlphaPDF::clamped_spline(const ROOT::Math::Interpolator& spline, double x) const {
-  if (x <= left_bound) {
-    return spline.Eval(left_bound + 1e-4);
-  } else if (x >= right_bound) {
-    return spline.Eval(right_bound - 1e-4);
-  } else {
-    return spline.Eval(x);
-  }
 }
 
 }  // namespace Mimir

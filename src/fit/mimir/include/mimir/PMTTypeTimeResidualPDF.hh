@@ -1,6 +1,5 @@
 #pragma once
-#include <Math/Interpolator.h>
-
+#include <RAT/BoundedInterpolator.hh>
 #include <RAT/DS/PMTInfo.hh>
 #include <mimir/Cost.hh>
 #include <mimir/Factory.hh>
@@ -13,11 +12,8 @@ class PMTTypeTimeResidualPDF : public Cost {
 
  protected:
   double light_speed_in_medium;
-  double left_bound, right_bound;
-  std::map<int, ROOT::Math::Interpolator> tresid_nll_splines;
+  std::map<int, RAT::BoundedInterpolator> tresid_nll_splines;
   std::map<int, double> type_weights;
   RAT::DS::PMTInfo* pmt_info;
-
-  double clamped_spline(const ROOT::Math::Interpolator& spline, double x) const;
 };
 }  // namespace Mimir
