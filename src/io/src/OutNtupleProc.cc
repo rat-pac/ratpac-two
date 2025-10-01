@@ -607,9 +607,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         digitNCrossings.push_back(digitpmt->GetNCrossings());
         digitTimeOverThreshold.push_back(digitpmt->GetTimeOverThreshold());
         digitReconNPEs.push_back(digitpmt->GetReconNPEs());
-        if (digitpmt->GetNCrossings() > 0) {
-          digitNhits++;
-        }
         digitHitCleaningMask.push_back(digitpmt->GetHitCleaningMask());
         digitVoltageOverThreshold.push_back(digitpmt->GetVoltageOverThreshold());
         digitPeak.push_back(digitpmt->GetPeakVoltage());
@@ -629,10 +626,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           }
         }
       }
-      for (int pmtc : ev->GetAllCleanedDigitPMTIDs()) {
-        RAT::DS::DigitPMT *digitpmt = ev->GetOrCreateDigitPMT(pmtc);
-        digitHitCleanedNhits++;
-      }
+      digitNhits = ev->DigitNhits();
+      digitHitCleanedNhits = ev->DigitNhitsCleaned();
     }
     if (options.digitizerwaveforms) {
       DS::Digit digitizer = ev->GetDigitizer();
