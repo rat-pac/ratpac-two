@@ -126,26 +126,18 @@ class RatTest:
         else:
             self.rat_bin = rat_bin
 
-        # Determine the name of file holding events from last macro
+        # Set name of file holding events from last macro
+        # rattest will always use -o flag to set the output filename
         mac = self.rat_macro
         suffix = ".mac"
         if self.num_macros > 1:
             suffix = "_" + str(self.num_macros-1) + ".mac"
         mac = self.rat_macro.replace(".mac", suffix)
         
-        # Try to find output filename in macro (for backward compatibility)
-        parsed_filename = find_outfile_name(mac)
-        
-        if parsed_filename is not None:
-            # Macro specifies output file - use it (backward compatible behavior)
-            self.event_file = os.path.join(self.testdir, parsed_filename)
-            self.use_output_flag = False
-        else:
-            # Macro doesn't specify output file - rattest will set it via -o flag
-            # This allows rattest to work with any output processor
-            mac_basename = os.path.basename(mac).replace(".mac", "")
-            self.event_file = os.path.join(self.testdir, mac_basename + "_events.root")
-            self.use_output_flag = True
+        # Generate event file name based on macro name
+        # This will be passed to RAT via the -o flag
+        mac_basename = os.path.basename(mac).replace(".mac", "")
+        self.event_file = os.path.join(self.testdir, mac_basename + "_events.root")
         
         print('Event file: {}'.format(self.event_file))
 
@@ -195,10 +187,10 @@ class RatTest:
                 suffix = "_" + str(i) + ".mac"
             mac = self.rat_macro.replace(".mac", suffix)
             
-            # For the last macro, use -o flag to specify output file if needed
+            # For the last macro, always use -o flag to specify output file
             # This allows rattest to work with any output processor
             output_flag = ""
-            if i == self.num_macros - 1 and self.use_output_flag:
+            if i == self.num_macros - 1:
                 mac_basename = os.path.basename(mac).replace(".mac", "")
                 output_file = mac_basename + "_events.root"
                 output_flag = f" -o {output_file}"
