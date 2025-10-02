@@ -14,11 +14,11 @@
 
 #include <CLHEP/Random/Random.h>
 
-#include <G4Cerenkov.hh>
+#include <RAT/nRangeG4Cerenkov.hh>
 
 namespace RAT {
 
-class ThinnableG4Cerenkov : public G4Cerenkov {
+class ThinnableG4Cerenkov : public nRangeG4Cerenkov {
  public:
   ThinnableG4Cerenkov();
   void SetThinningFactor(double);

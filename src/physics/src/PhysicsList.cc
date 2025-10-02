@@ -35,6 +35,7 @@ PhysicsList::PhysicsList() : Shielding(), wlsModel(nullptr) {
 
   // Cherenkov process settings
   this->IsCerenkovEnabled = physicsdb->GetZ("enable_cerenkov");
+  // this->CerenkovMaxBetaChangePerStep = physicsdb->GetD("cerenkov_max_beta_change_per_step");
   this->CerenkovMaxNumPhotonsPerStep = physicsdb->GetI("cerenkov_max_num_photons_per_step");
 
   // Step sizes for light ions (alpha), muons, and hadrons
@@ -139,6 +140,7 @@ void PhysicsList::ConstructOpticalProcesses() {
     cerenkovProcess->SetUpperWavelengthThreshold(RAT::PhotonThinning::GetCherenkovUpperWavelengthThreshold());
     cerenkovProcess->SetTrackSecondariesFirst(true);
     cerenkovProcess->SetMaxNumPhotonsPerStep(this->CerenkovMaxNumPhotonsPerStep);
+    cerenkovProcess->SetMaxBetaChangePerStep(this->CerenkovMaxBetaChangePerStep);
   }
 
   // Attenuation: RAT's GLG4OpAttenuation
