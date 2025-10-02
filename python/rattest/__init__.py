@@ -53,9 +53,9 @@ def find_outfile_name(filename):
     '''
     Find the name of the output file in a RAT macro.
     
-    DEPRECATED: This function is no longer used by rattest, which now uses
-    the -o flag to set the output filename directly. This function is kept
-    for backward compatibility only.
+    This function searches for output processor declarations (outroot, outntuple, outsoc)
+    and their associated file specifications in the macro. Returns None if no output
+    file is found, which allows rattest to fall back to using the -o flag.
     '''
     with open(filename, 'r', encoding="utf-8") as output_file:
         output_file_str = output_file.read()
@@ -126,18 +126,27 @@ class RatTest:
         else:
             self.rat_bin = rat_bin
 
-        # Set name of file holding events from last macro
-        # Use a standardized name that rattest will specify via the -o flag
+        # Determine the name of file holding events from last macro
         mac = self.rat_macro
         suffix = ".mac"
         if self.num_macros > 1:
             suffix = "_" + str(self.num_macros-1) + ".mac"
         mac = self.rat_macro.replace(".mac", suffix)
         
-        # Generate event file name based on macro name
-        # This will be passed to RAT via the -o flag
-        mac_basename = os.path.basename(mac).replace(".mac", "")
-        self.event_file = os.path.join(self.testdir, mac_basename + "_events.root")
+        # Try to find output filename in macro (for backward compatibility)
+        parsed_filename = find_outfile_name(mac)
+        
+        if parsed_filename is not None:
+            # Macro specifies output file - use it (backward compatible behavior)
+            self.event_file = os.path.join(self.testdir, parsed_filename)
+            self.use_output_flag = False
+        else:
+            # Macro doesn't specify output file - rattest will set it via -o flag
+            # This allows rattest to work with any output processor
+            mac_basename = os.path.basename(mac).replace(".mac", "")
+            self.event_file = os.path.join(self.testdir, mac_basename + "_events.root")
+            self.use_output_flag = True
+        
         print('Event file: {}'.format(self.event_file))
 
         # Generate names of standard and current output files
@@ -186,10 +195,10 @@ class RatTest:
                 suffix = "_" + str(i) + ".mac"
             mac = self.rat_macro.replace(".mac", suffix)
             
-            # For the last macro, use -o flag to specify output file
+            # For the last macro, use -o flag to specify output file if needed
             # This allows rattest to work with any output processor
             output_flag = ""
-            if i == self.num_macros - 1:
+            if i == self.num_macros - 1 and self.use_output_flag:
                 mac_basename = os.path.basename(mac).replace(".mac", "")
                 output_file = mac_basename + "_events.root"
                 output_flag = f" -o {output_file}"
