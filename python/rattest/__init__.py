@@ -49,31 +49,7 @@ def target_needs_update(target, sources):
 
     return False
 
-def find_outfile_name(filename):
-    '''
-    Find the name of the output file in a RAT macro.
-    
-    This function searches for output processor declarations (outroot, outntuple, outsoc)
-    and their associated file specifications in the macro. Returns None if no output
-    file is found, which allows rattest to fall back to using the -o flag.
-    '''
-    with open(filename, 'r', encoding="utf-8") as output_file:
-        output_file_str = output_file.read()
 
-    dsmatch = re.search(r'/rat/proc[last]*\s+outroot\s+/rat/procset\s+file\s+"(.+)"', output_file_str)
-    socmatch = re.search(r'/rat/proc[last]*\s+outsoc\s+/rat/procset\s+file\s+"(.+)"', output_file_str)
-    ntuplematch = re.search(r'/rat/proc[last]*\s+outntuple\s+/rat/procset\s+file\s+"(.+)"', output_file_str)
-
-    if dsmatch:
-        return dsmatch.group(1)
-    
-    if socmatch:
-        return socmatch.group(1)
-    
-    if ntuplematch:
-        return ntuplematch.group(1)
-    
-    return None
 
 def dir_to_strlist(directory):
     '''
