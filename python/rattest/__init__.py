@@ -52,6 +52,10 @@ def target_needs_update(target, sources):
 def find_outfile_name(filename):
     '''
     Find the name of the output file in a RAT macro.
+    
+    DEPRECATED: This function is no longer used by rattest, which now uses
+    the -o flag to set the output filename directly. This function is kept
+    for backward compatibility only.
     '''
     with open(filename, 'r', encoding="utf-8") as output_file:
         output_file_str = output_file.read()
@@ -122,13 +126,18 @@ class RatTest:
         else:
             self.rat_bin = rat_bin
 
-        # Find name of file holding events from last macro
+        # Set name of file holding events from last macro
+        # Use a standardized name that rattest will specify via the -o flag
         mac = self.rat_macro
         suffix = ".mac"
         if self.num_macros > 1:
             suffix = "_" + str(self.num_macros-1) + ".mac"
         mac = self.rat_macro.replace(".mac", suffix)
-        self.event_file = os.path.join(self.testdir, find_outfile_name(mac))
+        
+        # Generate event file name based on macro name
+        # This will be passed to RAT via the -o flag
+        mac_basename = os.path.basename(mac).replace(".mac", "")
+        self.event_file = os.path.join(self.testdir, mac_basename + "_events.root")
         print('Event file: {}'.format(self.event_file))
 
         # Generate names of standard and current output files
@@ -176,7 +185,16 @@ class RatTest:
             if i > 0:
                 suffix = "_" + str(i) + ".mac"
             mac = self.rat_macro.replace(".mac", suffix)
-            self.run_cmd_in_testdir(self.rat_bin + " " + self.rat_flags + " " + os.path.basename(mac))
+            
+            # For the last macro, use -o flag to specify output file
+            # This allows rattest to work with any output processor
+            output_flag = ""
+            if i == self.num_macros - 1:
+                mac_basename = os.path.basename(mac).replace(".mac", "")
+                output_file = mac_basename + "_events.root"
+                output_flag = f" -o {output_file}"
+            
+            self.run_cmd_in_testdir(self.rat_bin + " " + self.rat_flags + output_flag + " " + os.path.basename(mac))
 
     def run_root(self):
         '''
