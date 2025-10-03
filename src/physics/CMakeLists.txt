@@ -13,7 +13,7 @@ add_library(physics OBJECT
         src/OpRayleigh.cc
         src/PhotonThinning.cc
         src/PhysicsList.cc
-	src/nRangeG4Cerenkov.cc
+        src/nRangeG4Cerenkov.cc
         src/ThinnableG4Cerenkov.cc
         src/quenching/EnergyLossFunction.cc
         src/quenching/AppliedQuenchingModel.cc

@@ -29,7 +29,7 @@ PhysicsListMessenger::PhysicsListMessenger(PhysicsList *physicsList) : fPhysicsL
   fSetCerenkovMaxNumPhotonsPerStep = new G4UIcmdWithAnInteger("/rat/physics/setCerenkovMaxNumPhotonsPerStep", this);
   fSetCerenkovMaxNumPhotonsPerStep->SetParameterName("CerenkovMaxNumPhotonsPerStep", false);
   fSetCerenkovMaxNumPhotonsPerStep->SetGuidance("Indirectly controls the track step size");
-  fSetCerenkovMaxNumPhotonsPerStep->SetDefaultValue(1);
+  fSetCerenkovMaxNumPhotonsPerStep->SetDefaultValue(4);
 
   fEnableCerenkov = new G4UIcmdWithABool("/rat/physics/enableCerenkov", this);
   fEnableCerenkov->SetParameterName("EnableCerenkov", false);
