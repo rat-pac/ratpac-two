@@ -27,6 +27,7 @@
 #include <RAT/PhysicsList.hh>
 #include <RAT/PhysicsListMessenger.hh>
 #include <RAT/ThinnableG4Cerenkov.hh>
+#include <RAT/nRangeG4Cerenkov.hh>
 
 namespace RAT {
 
@@ -35,6 +36,9 @@ PhysicsList::PhysicsList() : Shielding(), wlsModel(nullptr) {
 
   // Cherenkov process settings
   this->IsCerenkovEnabled = physicsdb->GetZ("enable_cerenkov");
+  // FIXME: currently having issues making the max beta change a settable parameter through the database.
+  //  whenever I call this in PHYSICS.ratdb I get an error for wrong type or it doesn't exist...
+  // this->CerenkovMaxBetaChangePerStep = physicsdb->GetD("cerenkov_max_beta_change_per_step");
   this->CerenkovMaxNumPhotonsPerStep = physicsdb->GetI("cerenkov_max_num_photons_per_step");
 
   // Step sizes for light ions (alpha), muons, and hadrons
@@ -146,8 +150,7 @@ void PhysicsList::SetOpWLSModel(std::string model) {
 }
 
 void PhysicsList::ConstructOpticalProcesses() {
-  // Cherenkov: G4Cerenkov with thinning and thresholding applied after-the-fact
-  //
+  // Cerenkov: nRangeG4Cerenkov with thinning and thresholding applied after-the-fact
   // Request that Cerenkov photons be tracked first, before continuing
   // originating particle step.  Otherwise, we get too many secondaries!
   ThinnableG4Cerenkov *cerenkovProcess = nullptr;
@@ -159,6 +162,7 @@ void PhysicsList::ConstructOpticalProcesses() {
     cerenkovProcess->SetUpperWavelengthThreshold(RAT::PhotonThinning::GetCherenkovUpperWavelengthThreshold());
     cerenkovProcess->SetTrackSecondariesFirst(true);
     cerenkovProcess->SetMaxNumPhotonsPerStep(this->CerenkovMaxNumPhotonsPerStep);
+    cerenkovProcess->SetMaxBetaChangePerStep(this->CerenkovMaxBetaChangePerStep);
   }
 
   // Attenuation: RAT's GLG4OpAttenuation
