@@ -177,7 +177,7 @@ class FitterInputHandler {
       fitter_name = energy_seed;
     }
     DS::FitResult* fit_result = FindFitResult(fitter_name);
-    if (!ValidSeedTime(fitter_name)) {
+    if (!ValidSeedEnergy(fitter_name)) {
       warn << "The Requested Seed Energy (from " << fitter_name << ") is not valid." << newline;
       return 0;
     }
