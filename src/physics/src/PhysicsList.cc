@@ -36,7 +36,9 @@ PhysicsList::PhysicsList() : Shielding(), wlsModel(nullptr) {
 
   // Cherenkov process settings
   this->IsCerenkovEnabled = physicsdb->GetZ("enable_cerenkov");
-  this->CerenkovMaxBetaChangePerStep = physicsdb->GetD("cerenkov_max_beta_change_per_step");
+  // FIXME: currently having issues making the max beta change a settable parameter through the database.
+  //  whenever I call this in PHYSICS.ratdb I get an error for wrong type or it doesn't exist...
+  // this->CerenkovMaxBetaChangePerStep = physicsdb->GetD("cerenkov_max_beta_change_per_step");
   this->CerenkovMaxNumPhotonsPerStep = physicsdb->GetI("cerenkov_max_num_photons_per_step");
 
   // Step sizes for light ions (alpha), muons, and hadrons
