@@ -371,6 +371,14 @@ FitStep
 ``x_bound``                 ``double[2]``               Bounds for the field ``x``. Also works for all other fields: y, z, t, theta, phi, energy. 
 ========================   ==========================  ===================
 
+FitSteps
++++++++
+
+========================   ==========================  ===================
+**Field**                  **Type**                    **Description**
+========================   ==========================  ===================
+``steps``                  ``string[]``                A list of ``FitStep`` configurations to run in order.
+========================   ==========================  ===================
 
 Available Optimizers
 ''''''''''''''''''''
@@ -412,3 +420,19 @@ the range specified by ``binning`` is 1.0. The negative natural logirithms of
 the bin heights are then calculated and evaluated via a cubic spline. When the
 computed time reisudal is out of range for the current hypothesis, the PDF will
 evaluate to the left or right edge of the binning.
+
+PMTTypeCosAlphaPDF
+++++++++++++++++++++++
+Evaluates a 1D CosAlpha PDF as a negative log likelihood.
+
+===========================    ==========================  ===================
+**Field**                      **Type**                    **Description**
+===========================    ==========================  ===================
+``light_speed_in_medium``      ``double``                  Speed of light (in mm/ns) in the material of the detector. Used to calculate time of flight. 
+``binning``                    ``double[]``                Bin centers for the time residual PDF. 
+``pmt_types``                  ``int[]``                   Types PMTs to use in the fit.
+``type_weights``               ``double[]``                Weights for each type of PMT.
+``hist_<pmttype>``             ``double[]``                Histogram content for each type of PMT, with ``binning`` as the bin centers.
+``tresid_range``               ``double[2]``               Range of time residuals to use for evaluating the PDF.
+============================   ==========================  ===================
+

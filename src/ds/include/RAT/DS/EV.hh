@@ -94,14 +94,33 @@ class EV : public TObject {
 
   // TODO: Implemetation for PMT class
   const std::vector<Int_t> GetAllCleanedPMTIDs() const {
-    std::vector<Int_t> result;
-    return result;
+    throw std::logic_error("EV::GetAllCleanedPMTIDs is not yet implemented.");
   }
 
   /** Number of PMTs which were hit at least once. (Convenience method) */
   virtual Int_t Nhits() const { return GetPMTCount(); }
-  virtual Int_t cleanedNhits() const { return GetAllCleanedPMTIDs().size(); }
-  virtual Int_t cleanedDigitNhits() const { return GetAllCleanedDigitPMTIDs().size(); }
+  virtual Int_t NhitsCleaned() const { return GetAllCleanedPMTIDs().size(); }
+
+  /** For digitPMTs, nhit should only include channels that crossed threshold at least once */
+  virtual Int_t DigitNhits() const {
+    int result = 0;
+    for (std::pair<Int_t, DigitPMT> kv : digitpmt) {
+      if (kv.second.GetNCrossings() > 0) {
+        result++;
+      }
+    }
+    return result;
+  }
+  virtual Int_t DigitNhitsCleaned() const {
+    int result = 0;
+    for (std::pair<Int_t, DigitPMT> kv : digitpmt) {
+      DigitPMT::HCMask hit_cleaning_mask = kv.second.GetHitCleaningMask();
+      if (kv.second.GetNCrossings() > 0 && hit_cleaning_mask == 0) {
+        result++;
+      }
+    }
+    return result;
+  }
 
   /** List of LAPPDs with at least one charge sample in this event. */
   virtual LAPPD *GetLAPPD(Int_t i) { return &lappd[i]; }
@@ -163,7 +182,7 @@ class EV : public TObject {
     return (eventCleaningWord >> bit_position) & 0x1;
   }
 
-  ClassDef(EV, 5);
+  ClassDef(EV, 6);
 
  protected:
   Int_t id;

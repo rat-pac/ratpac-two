@@ -303,6 +303,7 @@ void Gsim::PreUserTrackingAction(const G4Track *aTrack) {
     // grumble, grumble, C++ const keyword, grumble
     const_cast<G4Track *>(aTrack)->SetUserInformation(new TrackInfo);
   }
+  TrackInfo *trackInfo = dynamic_cast<TrackInfo *>(aTrack->GetUserInformation());
 
   // For very large, complex tracks, it is not sufficient to
   // discard the track if we do not want it.  We must prevent
@@ -322,10 +323,12 @@ void Gsim::PreUserTrackingAction(const G4Track *aTrack) {
     fpTrackingManager->SetStoreTrajectory(false);
   }
 
-  if (aTrack->GetDefinition()->GetParticleName() == "opticalphoton") {
+  if (aTrack->GetDefinition()->GetParticleName() == "opticalphoton" &&
+      !trackInfo->preUserTrackingActionDone  // this is needed because it is _not_ guaranteed that G4 only calls this
+                                             // function once per track.
+  ) {
     G4Event *event = G4EventManager::GetEventManager()->GetNonconstCurrentEvent();
     EventInfo *eventInfo = dynamic_cast<EventInfo *>(event->GetUserInformation());
-    TrackInfo *trackInfo = dynamic_cast<TrackInfo *>(aTrack->GetUserInformation());
 
     std::string creatorProcessName;
     const G4VProcess *creatorProcess = aTrack->GetCreatorProcess();
@@ -345,6 +348,7 @@ void Gsim::PreUserTrackingAction(const G4Track *aTrack) {
       eventInfo->numCerenkovPhoton++;
     }
   }
+  trackInfo->preUserTrackingActionDone = true;
 }
 
 void Gsim::PostUserTrackingAction(const G4Track *aTrack) {

@@ -50,6 +50,9 @@ class PhysicsList : public Shielding {
     this->finalRangeMuHad = v2;
   }
 
+  // Remove a process from a particle's process list
+  void RemoveProcess(G4String particleName, G4String processName);
+
  private:
   // Construct and register optical processes
   void ConstructOpticalProcesses();

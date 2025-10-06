@@ -5,14 +5,15 @@
 #include <mimir/Factory.hh>
 
 namespace Mimir {
-class PMTTypeTimeResidualPDF : public Cost {
+class PMTTypeCosAlphaPDF : public Cost {
  public:
   bool Configure(RAT::DBLinkPtr db_link) override;
   double operator()(const ParamSet& params) const override;
 
  protected:
   double light_speed_in_medium;
-  std::map<int, RAT::BoundedInterpolator> tresid_nll_splines;
+  double tresid_min, tresid_max;
+  std::map<int, RAT::BoundedInterpolator> cosalpha_nll_splines;
   std::map<int, double> type_weights;
   RAT::DS::PMTInfo* pmt_info;
 };

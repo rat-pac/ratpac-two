@@ -44,6 +44,7 @@ Processor::Result ForcedTriggerProc::DSEvent(DS::Root *ds) {
   // Loop over the mcpmts and fill the pmt branch assuming we've triggered
   for (int imcpmt = 0; imcpmt < mc->GetMCPMTCount(); imcpmt++) {
     DS::MCPMT *mcpmt = mc->GetMCPMT(imcpmt);
+    mcpmt->SortMCPhotons();
     int pmtID = mcpmt->GetID();
     double integratedCharge = 0;
     double time = 0;
