@@ -98,6 +98,13 @@ There are several additional waveform analysis proccesors described below, each 
     /rat/proc WaveformAnalysisGaussian
     
     /rat/proc WaveformAnalysisSinc
+    
+    /rat/proc WaveformAnalysisRSNNLS
+    # This automatically loads the 
+    # DIGITIZER_ANALYSIS table with an
+    # index of 'rsNNLS' unless we
+    # select something else using
+    # /rat/procset analyzer_name "custom_settings"
 
 For all of these processors, there is a utility located in ``util/src/`` called ``WaveformUtil.cc`` that provides useful analysis tools. For example, there are public methods to convert ADC counts to voltage, identify the peak of the waveform and the corresponding sample, get the total number of threshold crossings, etc.
 
@@ -151,6 +158,44 @@ The method can be configured using the following ratdb parameters.
 ``npe_estimate_charge_width``     Width of the single PE charge distribution (in pC) used in the NPE estimation likelihood.
 ``npe_estimate_max_pes``          Maximum number of PEs to consider in the NPE estimation likelihood.
 ================================  ===================
+
+-------------------------
+
+Reverse Sparse Non-Negative Least Squares (rsNNLS)
+```````````````````````````````````````````````````
+
+Performs PMT waveform analysis using reverse sparse non-negative least squares (rsNNLS) to reconstruct multiple photoelectron times and charges from digitized waveforms. The primary procedure is described in Sec. 3.1.1 of https://www.sciencedirect.com/science/article/pii/S0925231211006370.
+
+The rsNNLS algorithm operates by:
+
+1. **Dictionary Construction**: Building a matrix of time-shifted single photoelectron templates sampled at sub-nanosecond resolution through upsampling
+2. **Region Processing**: Optionally identifying threshold-crossing regions for computational efficiency
+3. **NNLS Fitting**: Applying non-negative least squares to find optimal template weights
+4. **Iterative Thresholding**: Removing low-significance components and redistributing weights to improve sparsity
+5. **PE Extraction**: Converting significant weights to photoelectron times and charges
+
+The method supports two template types for single photoelectron waveforms:
+
+* **Lognormal**: Asymmetric pulse shape
+* **Gaussian**: Symmetric pulse shape
+
+The method can be configured using the following ratdb parameters:
+
+======================================  ===================
+**Name**                                **Description**
+======================================  ===================
+``process_threshold_crossing``          Enable region-based processing (0=no, 1=yes). When enabled, only processes waveform regions that cross the voltage threshold.
+``voltage_threshold``                   Voltage threshold for region detection, in mV. Used when process_threshold_crossing is enabled.
+``rsnnls_template_type``                Template type: 0=lognormal, 1=gaussian.
+``lognormal_scale``                     The "m" parameter in the lognormal template (used when rsnnls_template_type=0).
+``lognormal_shape``                     The "sigma" parameter in the lognormal template (used when rsnnls_template_type=0).
+``gaussian_width``                      The "sigma" parameter in the Gaussian template (used when rsnnls_template_type=1).
+``vpe_charge``                          Nominal charge of a single photoelectron in pC. Used for template normalization and charge conversion.
+``upsampling_factor``                   Dictionary upsampling factor for sub-sample resolution. Higher values provide better timing resolution at increased computational cost.
+``max_iterations``                      Maximum number of iterative thresholding iterations.
+``nnls_tolerance``                      Convergence tolerance for the NNLS algorithm.
+``weight_threshold``                    Minimum weight threshold for component significance. Components below this threshold are removed during iterative thresholding.
+======================================  ===================
 
 -------------------------
 
