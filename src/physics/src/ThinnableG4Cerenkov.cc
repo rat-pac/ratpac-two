@@ -1,6 +1,7 @@
 #include <RAT/Log.hh>
 #include <RAT/MuteGeant4.hh>
 #include <RAT/ThinnableG4Cerenkov.hh>
+#include <RAT/nRangeG4Cerenkov.hh>
 #include <vector>
 
 namespace RAT {
@@ -58,7 +59,7 @@ double ThinnableG4Cerenkov::GetUpperWavelengthThreshold() {
 
 G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) {
   // let G4 predict how many photons should be produced...
-  G4VParticleChange *rv = G4Cerenkov::PostStepDoIt(aTrack, aStep);
+  G4VParticleChange *rv = nRangeG4Cerenkov::PostStepDoIt(aTrack, aStep);
 
   if (!should_thin) {
     return rv;
