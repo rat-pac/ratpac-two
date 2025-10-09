@@ -62,6 +62,7 @@ class WaveformAnalysisRSNNLS : public WaveformAnalyzerBase {
 
   bool process_threshold_crossing;  ///< Whether to use threshold crossing region processing
   double voltage_threshold;         ///< Voltage threshold for threshold crossing region detection
+  int threshold_region_padding;     ///< Number of samples to pad around threshold crossing regions
 
   int template_type;  ///< Template type: 0=lognormal, 1=gaussian
 
@@ -83,10 +84,6 @@ class WaveformAnalysisRSNNLS : public WaveformAnalyzerBase {
   // Thresholding parameters
   double weight_threshold;  ///< Minimum weight threshold for component significance
 
-  // Analysis results (computed per waveform)
-  double chi2ndf;      ///< Chi-squared per degree of freedom for goodness of fit
-  int iterations_ran;  ///< Number of thresholding iterations performed
-
   // Dictionary management
   bool dictionary_built;           ///< Flag to track if dictionary has been built
   int cached_nsamples;             ///< Cached number of samples for dictionary
@@ -95,14 +92,21 @@ class WaveformAnalysisRSNNLS : public WaveformAnalyzerBase {
   void DoAnalysis(DS::DigitPMT *digitpmt, const std::vector<UShort_t> &digitWfm) override;
 
   /// Perform reverse sparse NNLS with iterative thresholding on a region submatrix
-  TVectorD Thresholded_rsNNLS(const TMatrixD &W_region, const TVectorD &voltVec, const double threshold);
+  TVectorD Thresholded_rsNNLS(const TMatrixD &W_region, const TVectorD &voltVec, const double threshold,
+                              double &chi2ndf_out, int &iterations_out);
 
   /// Find threshold crossing regions in waveform for efficient processing
-  std::vector<std::pair<int, int>> FindThresholdRegions(const std::vector<double> &voltWfm, double threshold);
+  std::vector<std::pair<int, int>> FindThresholdRegions(const std::vector<double> &voltWfm, double threshold,
+                                                        int region_padding);
 
   /// Process a single threshold crossing region with rsNNLS
   void ProcessThresholdRegion(const std::vector<double> &voltWfm, int start_sample, int end_sample,
                               DS::WaveformAnalysisResult *fit_result);
+
+  /// Extract photoelectrons from significant weights in the region
+  void ExtractPhotoelectrons(const TVectorD &region_weights, int dict_start, int dict_cols, int start_sample,
+                             int end_sample, double chi2ndf, int iterations_ran,
+                             DS::WaveformAnalysisResult *fit_result);
 };
 
 }  // namespace RAT

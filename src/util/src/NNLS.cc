@@ -10,7 +10,6 @@ namespace Math {
 
 namespace {
 // Build A[:, P] as a dense matrix with columns in 'Pidx'.
-// Reuse existing matrix when possible to avoid repeated allocations.
 static void ColSubset(const TMatrixD& A, const std::vector<int>& Pidx, TMatrixD& AP) {
   const int m = A.GetNrows();
   const int k = static_cast<int>(Pidx.size());
@@ -28,9 +27,8 @@ static TVectorD SolveLeastSquares(const TMatrixD& AP, const TVectorD& b) {
   const int ncols = AP.GetNcols();
   const int nrows = AP.GetNrows();
 
-  TVectorD z(ncols);
   if (ncols == 0) {
-    z.Zero();
+    TVectorD z(0);
     return z;
   }
 
@@ -38,33 +36,22 @@ static TVectorD SolveLeastSquares(const TMatrixD& AP, const TVectorD& b) {
   if (nrows < ncols) {
     TDecompSVD svd(AP);
     Bool_t ok = kFALSE;
-    TVectorD temp_z = svd.Solve(b, ok);
+    TVectorD result = svd.Solve(b, ok);
     if (!ok) throw std::runtime_error("NNLS: least-squares solve failed (SVD for underdetermined).");
-
-    // Manual copy for numerical stability
-    z.ResizeTo(temp_z.GetNrows());
-    for (int i = 0; i < temp_z.GetNrows(); ++i) {
-      z[i] = temp_z[i];
-    }
-    return z;
+    return result;
   }
 
   // Try QR decomposition first, fallback to SVD if needed
   TDecompQRH qr(AP);
   Bool_t ok = kFALSE;
-  TVectorD temp_z = qr.Solve(b, ok);
+  TVectorD result = qr.Solve(b, ok);
   if (!ok) {
     TDecompSVD svd(AP);
-    temp_z = svd.Solve(b, ok);
+    result = svd.Solve(b, ok);
     if (!ok) throw std::runtime_error("NNLS: least-squares solve failed (QR & SVD).");
   }
 
-  // Manual copy for numerical stability
-  z.ResizeTo(temp_z.GetNrows());
-  for (int i = 0; i < temp_z.GetNrows(); ++i) {
-    z[i] = temp_z[i];
-  }
-  return z;
+  return result;
 }
 
 // Compute infinity norm of vector
@@ -78,7 +65,7 @@ static double InfNorm(const TVectorD& v) {
 
 }  // namespace
 
-TVectorD NNLS_LawsonHanson(const TMatrixD& A, const TVectorD& b, double tol, int max_outer) {
+TVectorD NNLS_LawsonHanson(const TMatrixD& A, const TVectorD& b, double tol, int max_outer, int max_inner) {
   const int m = A.GetNrows();
   const int n = A.GetNcols();
   if (b.GetNrows() != m) {
@@ -89,7 +76,7 @@ TVectorD NNLS_LawsonHanson(const TMatrixD& A, const TVectorD& b, double tol, int
   TVectorD x(n);
   x.Zero();
   TVectorD r(m);
-  for (int i = 0; i < m; ++i) r[i] = b[i];  // r = b - A*x (x starts at zero)
+  for (int i = 0; i < m; ++i) r[i] = b[i];
 
   // Compute gradient w = A^T * r
   TVectorD w(n);
@@ -100,32 +87,30 @@ TVectorD NNLS_LawsonHanson(const TMatrixD& A, const TVectorD& b, double tol, int
     }
   }
 
-  // Active set management: P = passive set (in solution), Z = zero set (complement)
-  std::vector<char> inP(n, 0);  // Boolean flags for passive set membership
-  std::vector<int> Pidx;        // Indices of variables in passive set
+  // Active set management
+  std::vector<char> inP(n, 0);
+  std::vector<int> Pidx;
 
   // Algorithm parameters and tolerances
   if (tol < 0.0) {
-    // Adaptive tolerance based on gradient magnitude
     const double atb_norm = InfNorm(w);
     tol = std::max(1e-15, 1e-12 * atb_norm);
   }
   if (max_outer <= 0) max_outer = 3 * std::max(1, n);
+  if (max_inner <= 0) max_inner = 3 * std::max(1, n);
 
-  // Early termination if optimality conditions already satisfied
   if (InfNorm(w) <= tol) {
     return x;
   }
 
   // Pre-allocate workspace matrices for efficiency
   TMatrixD AP;
-  int outer_iter = 0;
 
   // Main optimization loop
-  while (true) {
-    // Find variable with most positive gradient (steepest ascent direction)
+  for (int outer_iter = 0; outer_iter < max_outer; ++outer_iter) {
+    // Find variable with most positive gradient
     int t = -1;
-    double wmax = tol;  // Only consider gradients above tolerance
+    double wmax = tol;
     for (int j = 0; j < n; ++j) {
       if (!inP[j] && w[j] > wmax) {
         wmax = w[j];
@@ -133,8 +118,7 @@ TVectorD NNLS_LawsonHanson(const TMatrixD& A, const TVectorD& b, double tol, int
       }
     }
 
-    // Check termination conditions
-    if (t < 0 || outer_iter++ >= max_outer) break;
+    if (t < 0) break;
 
     // Add variable t to passive set
     inP[t] = 1;
@@ -145,7 +129,7 @@ TVectorD NNLS_LawsonHanson(const TMatrixD& A, const TVectorD& b, double tol, int
     }
 
     // Inner loop: solve unconstrained problem on passive set with feasibility enforcement
-    while (true) {
+    for (int inner_iter = 0; inner_iter < max_inner; ++inner_iter) {
       // Solve least squares subproblem: minimize ||A_P * z - b||^2
       ColSubset(A, Pidx, AP);
       TVectorD zP = SolveLeastSquares(AP, b);
@@ -190,24 +174,22 @@ TVectorD NNLS_LawsonHanson(const TMatrixD& A, const TVectorD& b, double tol, int
       for (int j = 0; j < n; ++j) {
         if (inP[j] && x[j] <= numerical_zero) {
           inP[j] = 0;
-          x[j] = 0.0;  // Ensure exact zero
+          x[j] = 0.0;
           removed = true;
         }
       }
 
       if (removed) {
-        // Rebuild passive set index list
         Pidx.clear();
         for (int j = 0; j < n; ++j) {
           if (inP[j]) Pidx.push_back(j);
         }
-        if (Pidx.empty()) break;  // No variables left in passive set
+        if (Pidx.empty()) break;
       }
     }
 
     // Update residual and gradient for next iteration
     if (outer_iter < max_outer) {
-      // Compute residual r = b - A*x
       r.ResizeTo(b.GetNrows());
       for (int i = 0; i < b.GetNrows(); ++i) {
         r[i] = b[i];
@@ -216,7 +198,6 @@ TVectorD NNLS_LawsonHanson(const TMatrixD& A, const TVectorD& b, double tol, int
         }
       }
 
-      // Compute gradient w = A^T * r
       w.ResizeTo(A.GetNcols());
       for (int j = 0; j < A.GetNcols(); ++j) {
         w[j] = 0.0;
@@ -236,7 +217,6 @@ TVectorD NNLS_LawsonHanson(const TMatrixD& A, const TVectorD& b, double tol, int
 }
 
 double NNLS_ResidualNorm(const TMatrixD& A, const TVectorD& b, const TVectorD& x) {
-  // Compute residual r = b - A*x
   TVectorD r(b.GetNrows());
   for (int i = 0; i < b.GetNrows(); ++i) {
     r[i] = b[i];
@@ -245,7 +225,6 @@ double NNLS_ResidualNorm(const TMatrixD& A, const TVectorD& b, const TVectorD& x
     }
   }
 
-  // Compute Euclidean norm
   double norm_sq = 0.0;
   for (int i = 0; i < r.GetNrows(); ++i) {
     norm_sq += r[i] * r[i];

@@ -17,11 +17,13 @@ namespace Math {
  * @param b  (m)     RHS vector
  * @param tol Numerical tolerance for optimality (default ~ 1e-12 * ||A^T b||_inf)
  * @param max_outer Optional cap on outer iterations (0 => default 3*n)
+ * @param max_inner Optional cap on inner iterations (0 => default 3*n)
  * @return x  solution vector (size n). Throws std::runtime_error on hard failure.
  */
-TVectorD NNLS_LawsonHanson(const TMatrixD& A, const TVectorD& b, double tol = -1.0, int max_outer = 0);
+TVectorD NNLS_LawsonHanson(const TMatrixD& A, const TVectorD& b, double tol = -1.0, int max_outer = 0,
+                           int max_inner = 0);
 
-/** Convenience: return residual norm ||A x - b||_2 after solve. */
+/** Return residual norm ||A x - b||_2 after solve. */
 double NNLS_ResidualNorm(const TMatrixD& A, const TVectorD& b, const TVectorD& x);
 
 }  // namespace Math

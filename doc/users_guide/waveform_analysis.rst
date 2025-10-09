@@ -100,11 +100,6 @@ There are several additional waveform analysis proccesors described below, each 
     /rat/proc WaveformAnalysisSinc
     
     /rat/proc WaveformAnalysisRSNNLS
-    # This automatically loads the 
-    # DIGITIZER_ANALYSIS table with an
-    # index of 'rsNNLS' unless we
-    # select something else using
-    # /rat/procset analyzer_name "custom_settings"
 
 For all of these processors, there is a utility located in ``util/src/`` called ``WaveformUtil.cc`` that provides useful analysis tools. For example, there are public methods to convert ADC counts to voltage, identify the peak of the waveform and the corresponding sample, get the total number of threshold crossings, etc.
 

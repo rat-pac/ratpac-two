@@ -124,7 +124,8 @@
 
 // Process only threshold crossing regions
 "process_threshold_crossing": 1, // 0=no, 1=yes
-"voltage_threshold": -2.5 // Voltage threshold for region detection (mV)
+"voltage_threshold": -2.5, // Voltage threshold for region detection (mV)
+"region_padding": 1, // Number of samples to pad around threshold crossing regions
 
 // Template configuration
 "rsnnls_template_type": 0, // Template type: 0=lognormal, 1=gaussian
