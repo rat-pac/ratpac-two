@@ -114,7 +114,7 @@ The lognormal function used has the following form:
 
 .. math::
 
-   f(t) = \frac{A e^{-\ln\left(\frac{(t - \theta)}{m}\right)^2}}{(t-\theta)\sigma\sqrt{2\pi}}\qquad x > \theta; m, \sigma > 0
+   f(t) = \frac{A e^{-\frac{\left(\ln\left((t - \theta)/m\right)\right)^2}{2\sigma^2}}}{(t-\theta)\sigma\sqrt{2\pi}}\qquad x > \theta; m, \sigma > 0
 
 where :math:`\theta` is the time offset parameter, :math:`m` is the scale parameter, :math:`\sigma` is the shape parameter (fixed during fitting), and the magnitude parameter :math:`a` determines the pulse amplitude. The fitted time is calculated as :math:`\theta + m`, and the charge is derived from the magnitude parameter.
 
@@ -216,8 +216,8 @@ Key features of the ``WaveformAnalysisResult`` include:
 
 The ``WaveformAnalysisResult`` objects are accessed from the ``DigitPMT`` using the method name as a key::
 
-    DS::WaveformAnalysisResult* lognormal_result = digitpmt->GetWaveformAnalysisResult("Lognormal");
-    DS::WaveformAnalysisResult* gaussian_result = digitpmt->GetWaveformAnalysisResult("Gaussian");
+    DS::WaveformAnalysisResult* lognormal_result = digitpmt->GetOrCreateWaveformAnalysisResult("Lognormal");
+    DS::WaveformAnalysisResult* gaussian_result = digitpmt->GetOrCreateWaveformAnalysisResult("Gaussian");
 
     int n_pes = lognormal_result->getNPEs();
 
