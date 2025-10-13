@@ -16,8 +16,7 @@
 namespace RAT {
 
 void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
-  info << "WaveformAnalysisRSNNLS::Configure called with config_name: " << config_name << " (instance @ " << this << ")"
-       << newline;
+  debug << "WaveformAnalysisRSNNLS: Configure called with config_name " << config_name << newline;
   // Load analysis parameters from DIGITIZER_ANALYSIS database
   try {
     fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", config_name);
