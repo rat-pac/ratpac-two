@@ -1,0 +1,86 @@
+// Configuration for the MIMIR fitter processor, as well as its underlying modular components.
+
+{
+"name": "FIT_MIMIR",
+"index": "",
+"strategy": "FitStep",
+"strategy_config": "PositionTime_PMTTypeTimeResidual",
+}
+
+{
+// Runs the Minuit2 minimizer with Migrad as the algotype. 
+"name": "MIMIR_RootOptimizer",
+"index": ""
+"minimizer_type": "Minuit2",
+"algo_type": "Migrad",
+"max_function_calls": 10000,
+"max_iterations": 1000,
+"tolerance": 1e-4,
+"print_level": 0, // 0 = no output, 1 = minimal output, 2 = detailed output
+}
+
+{
+"name": "MIMIR_FitStep",
+"index": "PositionTime_PMTTypeTimeResidual",
+
+"optimizer_name": "RootOptimizer"
+"optimizer_config": "",
+"cost_name": "PMTTypeTimeResidualPDF",
+"cost_config": ""
+
+// status codes:
+// 0 = inactive (does not participate in fit, not evaluated by cost function)
+// 1 = active (participate in fit)
+// 2 = fixed (does not participate in fit, but evaluated by cost function)
+// omission means that the field is inactive. 
+//
+// Can either be given as an array of integers representing each component's status, or a single integer representing the status of all comoponents. 
+"position_time_status": 1, // x, y, z, t
+"direction_status": 0, // theta, phi
+"energy_status": 0, //...
+
+// bounds:
+// for each component (x, y, z, t, theta, phi, energy), the lower and upper bounds can be specified.
+// if omitted, the component is set to the following defaults:
+// x, y, z, t: [-numerical_limit, +numerical_limit]
+// theta: [0, pi]
+// phi: [-pi, pi]
+// energy: [0, +numerical_limit]
+}
+
+{
+"name": "MIMIR_FitStep",
+"index": "Direction_PMTTypeCosAlpha",
+
+"optimizer_name": "RootOptimizer"
+"optimizer_config": "",
+"cost_name": "PMTTypeCosAlphaPDF",
+"cost_config": ""
+
+// status codes:
+// 0 = inactive (does not participate in fit, not evaluated by cost function)
+// 1 = active (participate in fit)
+// 2 = fixed (does not participate in fit, but evaluated by cost function)
+// omission means that the field is inactive. 
+//
+// Can either be given as an array of integers representing each component's status, or a single integer representing the status of all comoponents. 
+"position_time_status": 2, // x, y, z, t
+"direction_status": 1, // theta, phi
+"energy_status": 0, //...
+
+// bounds:
+// for each component (x, y, z, t, theta, phi, energy), the lower and upper bounds can be specified.
+// if omitted, the component is set to the following defaults:
+// x, y, z, t: [-numerical_limit, +numerical_limit]
+// theta: [0, pi]
+// phi: [-pi, pi]
+// energy: [0, +numerical_limit]
+}
+
+{
+"name": "MIMIR_FitSteps",
+"index": "PMTTypePositionDirection"
+"steps": ["FitStep[PositionTime_PMTTypeTimeResidual]", "FitStep[Direction_PMTTypeCosAlpha]"]
+}
+
+

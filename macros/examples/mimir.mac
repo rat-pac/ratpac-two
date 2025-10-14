@@ -1,0 +1,33 @@
+# Example macro showing how to use quadfitte
+
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+/rat/db/set DETECTOR experiment "Validation"
+/rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+
+/run/initialize
+
+/rat/proc splitevdaq
+/rat/proc count
+/rat/procset update 1
+
+# Run Quad as a seed
+/rat/proc quadfitter
+/rat/procset max_radius 4250.0  # Set max_radius > r_max of Valid.geo to account for resolution
+
+# Run MIMIR
+/rat/proc mimir
+# Specify the fit strategy (in this case `FitStep`), configured by a RATDB table with index `PositionTime_PMTTypeTimeResidual`
+# The table name is the name of the strategy prefixed by `MIMIR_`. In this case, the specified look up is MIMIR_FitStep[PositionTime_PMTTypeTimeResidual]
+/rat/procset strategy "FitSteps[PMTTypePositionDirection]"
+
+/rat/proclast outntuple
+
+/generator/add combo gun:fill:poisson
+/generator/vtx/set e- 0.0 0.0 0.0 2.5
+/generator/pos/set 0.0 0.0 0.0
+/generator/rate/set 2.0
+
+
+/run/beamOn 100

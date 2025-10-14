@@ -207,3 +207,232 @@ FitTensor
 
 Document this!
 
+FitMimir
+========
+
+``MIMIR`` is a general purpose event reconstruction framework that is meant to
+encapsulate a large number of minimization-based reconstruction strategies
+using a modular appraoch. It is designed to be flexible and extensible,
+allowing a fit to be described in components taht can be added both in RATPAC2
+itself and in a downstram prirvate experiment.
+
+Command
+'''''''
+::
+
+    /rat/proc mimir
+
+Concepts
+''''''''
+
+Comoponents
++++++++++++
+The MIMIR framework consists of a number of **components** that can be put
+together into a full reconstruction recipe. There are three types of
+components: 
+
+- **CostFunction**: A function that the fit aims to minimize. This is typically a likelihood function
+  or a similar function that produces a numerical value that represents the goodness of the current fit. 
+- **Optimizer**: An engine that can minimize a given cost function (e.g. minuit, minuit2, NLOPT). 
+- **FitStrategy**: A recipe that controls what is done in a fit. A fit strategy typically instantiates 
+  and utilizes the above components during a fit. It is worthy of note that FitStrategies 
+  can also consists of other FitStrategies, making them flexible and extensible.
+
+
+ParamSet
+++++++++
+
+All MIMIR components manipulates a parameter set (``ParamSet``). This is a
+structure that consists of the 7 possible paramers that could be fitted for a
+event: The position of the event (xyz), the time of the event (t), the
+direction of the event (theta, phi), and the energy of the event (E). For each
+of these fields, ``ParamSet`` keeps track of the current value (either for
+seeding or in the middle of a fit) of the field, the left and right bounds of
+the value, as well as the status of the field. By default, the fields are set
+to have bounds that are effectively infinite: the positional and time
+coordinates have bounds at ``std::numerical_limits``, the directional componets
+have bounds at ``[0, pi]`` and ``[-pi, pi]``, and energy has bounds at ``[0,
+std::numerical_limits]``. 
+
+The fields can take on the following statuses: 
+
+- **INACTIVE**: The field does not participate in the fit nor the cost function.
+  It will be ignored completely. 
+- **FIXED**: The field does not participate in the fit, but is relevant for 
+  evaluating the cost function. It will be passed to the cost function but its 
+  value will not be modified by the optimizer.
+- **ACTIVE**: The field is currently being fitted, it will be passed to the cost
+  function and its value will be modified by the optimizer.
+
+
+Top-level Configuration
+'''''''''''''''''''''''
+All components of MIMIR are cinfigured via entries to the RATDB. All
+MIMIR-related configuration blocks have the tablename prefix of ``MIMIR_``. At
+the very top level, the processor instance needs to be pointed to a
+configuration for a ``FitStrategy`` configuration block. This can be done in
+the macro via ``procset`` comamands. For example, to instruct the fitter to use
+the strategy ``FitStep`` with the configuration type
+``PositionTime_PMTTypeTimeResidual``, one would use:
+
+::
+
+    /rat/procset strategy "FitStep[PositionTime_PMTTypeTimeResidual]"
+
+If no such ``procset`` command is given, MIMIR will fall back to the strategy specified in the RATDB. The following RATDB block does the same thing as above:
+
+::
+
+    {
+      "name": "FIT_MIMIR",
+      "index": "",
+      "strategy": "FitStep",
+      "strategy_config": "PositionTime_PMTTypeTimeResidual",
+    }
+
+
+Writing a MIMIR component
+''''''''''''''''''''''''''
+MIMIR components are all templated classes that requires the override of
+several functions. The components can be added in either RATPAC2 itsslef or a
+downstream experiment.
+
+All components require the following to be done:
+
+- override ``bool configure(ratdblinkptr db_link)``: this function receives a
+  ratdb configuration block and correctly instatiates the component.
+- register the component with the mimir framework by calling the following
+  preprocessor macro: ``mimir_register_type(componettype, classname,
+  "humanreadableclassname")``, where ``componenttype`` is either
+  ``fitstrategy``, ``cost``, or ``optimizer`` in the ``rat::mimir`` namespace. 
+
+Each type of component has the following additional requirements:
+
+- **Cost**: Override the following functions:
+
+  - ``double operator()(const ParamSet& params)``: takes in a ParamSet and 
+    returns the value of the cost function for that set of parameters.
+
+- **Optimizer**: Override the following function:
+
+  - ``void minimizeimpl(std::function<double(const paramset&)> cost, paramset&params)``: 
+    given a callable function `cost`, modifies `params` such that
+    `cost` is minimized. note that the internal templating of `optimizer`
+    allows this minimization routine to be used for both minimization and
+    maximization via ``optimizer::minimize`` and ``optimizer::maximize``.
+
+- **FitStrategy**:
+
+  - Override the following functions:
+
+    - ``void Execute(ParamSet &params)``: takes in the ``params`` as a set of
+      seeds and bounds, perform the fit, and writes ther eseult back to
+      ``params``.
+  - During initialization, the FitStrategy also should:
+    - correctly identifies the optimizers and costs associates with the
+    strategy, look up the correct configuration bloccks from RATDB, and
+    instantiate the components.
+
+The Component Factory
++++++++++++++++++++++
+
+To instantiate a MIMIR component, one should utilize the MIMIR component
+factory, which provides many convenience functions for creating components
+based on their type and configuration. The factory can be used as follows:
+
+::
+
+  Factory<Cost>::GetInstance().make_and_configure(name, index);
+
+Where the complating typename ``Cost`` can be replaced with ``Optimizer`` or
+``FitStrategy`` to create the corresponding component. The ``name`` and
+``index`` are the type name and configuration index for the component,
+respectively. The factory will create a component with typename ``name`` and
+use the RATDB entry of ``MIMIR_name[index]`` for configuration.
+
+
+Available Strategies
+''''''''''''''''''''
+
+FitStep
++++++++
+``FitStep`` is the simplest fit strategies that can be used with MIMIR. It takes in an optimizer and a cost function, and runs the optimizer to minimize the cost function.
+
+========================   ==========================  ===================
+**Field**                  **Type**                    **Description**
+========================   ==========================  ===================
+``optimizer_name``          ``string``                  Name of the optimizer type to use.
+``optimizer_config``        ``string``                  Configuration to use for the optimizer.
+``cost_name``               ``string``                  Name of the cost type to use.
+``cost_config``             ``string``                  Configuration to use for the cost function.
+``position_time_status``    ``int`` or ``int[4]``       Status codes for ``[x, y, z, t]``, ``0 = INIACTIVE, 1 = ACTIVE, 2 = FIXED``.
+``direction_status``        ``int`` or ``int[2]``       Status codes for ``[theta, phi]``
+``energy_status``           ``int`` or ``int[1]``       Status codes for ``E``
+``x_bound``                 ``double[2]``               Bounds for the field ``x``. Also works for all other fields: y, z, t, theta, phi, energy. 
+========================   ==========================  ===================
+
+FitSteps
++++++++
+
+========================   ==========================  ===================
+**Field**                  **Type**                    **Description**
+========================   ==========================  ===================
+``steps``                  ``string[]``                A list of ``FitStep`` configurations to run in order.
+========================   ==========================  ===================
+
+Available Optimizers
+''''''''''''''''''''
+
+RootOptimizer
++++++++++++++
+``RootOptimizer`` is a wrapper around the ``ROOT::Math::Minimizer`` class. See the `official documentation <https://root.cern/doc/v606/classROOT_1_1Math_1_1Minimizer.html>`_ for details.
+
+======================  ==========================  ===================
+**Field**               **Type**                    **Description**
+======================  ==========================  ===================
+``minimizer_type``       ``string``                  Passed to ``ROOT::Math::Factory::CreateMinimizer`` as ``minimizerType``.
+``algo_type``            ``string``                  Passed to ``Root::Math::Factory::CreateMinimizer`` as ``algoType``.
+``max_function_calls``   ``int``                     Specifies the max number of calls to the cost function.
+``max_iterations``       ``int``                     Specifies the maximum number of iterations to run the minimizer.
+``tolerance``            ``double``                  Absolute tolerance for the minimizer. Detailed use may vary depending on the minimzier and algorithm used.
+``print_level``          ``int``                     Verbosity level for the minimizer. 0 is silent, 1 is normal, 2 is verbose.
+======================  ==========================  ===================
+
+Available Costs
+'''''''''''''''
+
+PMTTypeTimeResidualPDF
+++++++++++++++++++++++
+Evaluates a 1D time residual PDF as a negative log likelihood.
+
+===========================    ==========================  ===================
+**Field**                      **Type**                    **Description**
+===========================    ==========================  ===================
+``light_speed_in_medium``      ``double``                  Speed of light (in mm/ns) in the material of the detector. Used to calculate time of flight. 
+``binning``                    ``double[]``                Bin centers for the time residual PDF. 
+``pmt_types``                  ``int[]``                   Types PMTs to use in the fit.
+``type_weights``               ``double[]``                Weights for each type of PMT.
+``hist_<pmttype>``             ``double[]``                Histogram content for each type of PMT, with ``binning`` as the bin centers.
+============================   ==========================  ===================
+
+Note that the received histograms will be noramlized such that the integral in
+the range specified by ``binning`` is 1.0. The negative natural logirithms of
+the bin heights are then calculated and evaluated via a cubic spline. When the
+computed time reisudal is out of range for the current hypothesis, the PDF will
+evaluate to the left or right edge of the binning.
+
+PMTTypeCosAlphaPDF
+++++++++++++++++++++++
+Evaluates a 1D CosAlpha PDF as a negative log likelihood.
+
+===========================    ==========================  ===================
+**Field**                      **Type**                    **Description**
+===========================    ==========================  ===================
+``light_speed_in_medium``      ``double``                  Speed of light (in mm/ns) in the material of the detector. Used to calculate time of flight. 
+``binning``                    ``double[]``                Bin centers for the time residual PDF. 
+``pmt_types``                  ``int[]``                   Types PMTs to use in the fit.
+``type_weights``               ``double[]``                Weights for each type of PMT.
+``hist_<pmttype>``             ``double[]``                Histogram content for each type of PMT, with ``binning`` as the bin centers.
+``tresid_range``               ``double[2]``               Range of time residuals to use for evaluating the PDF.
+============================   ==========================  ===================
+

@@ -108,14 +108,53 @@ For all of these processors, there is a utility located in ``util/src/`` called 
 Lognormal fitting
 `````````````````
 
-Describe lognormal fits.
+Performs PMT waveform analysis using a lognormal distribution fit to extract timing and charge information from PMT pulses. This method fits a single lognormal function to the entire waveform around the peak region, seeded by digitTime.
+
+The lognormal function used has the following form:
+
+.. math::
+
+   f(t) = \frac{A e^{-\frac{\left(\ln\left((t - \theta)/m\right)\right)^2}{2\sigma^2}}}{(t-\theta)\sigma\sqrt{2\pi}}\qquad x > \theta; m, \sigma > 0
+
+where :math:`\theta` is the time offset parameter, :math:`m` is the scale parameter, :math:`\sigma` is the shape parameter (fixed during fitting), and the magnitude parameter :math:`a` determines the pulse amplitude. The fitted time is calculated as :math:`\theta + m`, and the charge is derived from the magnitude parameter.
+
+The method can be configured using the following ratdb parameters:
+
+================================  ===================
+**Name**                          **Description**
+================================  ===================
+``fit_window_low``                Time window before the digitized peak time to include in the fit, in ns.
+``fit_window_high``               Time window after the digitized peak time to include in the fit, in ns.
+``lognormal_shape``               The "sigma" parameter in the lognormal function controlling the pulse width.
+``lognormal_scale``               The "m" parameter in the lognormal function controlling the pulse timing characteristics.
+================================  ===================
 
 -------------------------
 
 Gaussian fitting
 ````````````````
 
-Describe Gaussian fits.
+Performs PMT waveform analysis using a Gaussian distribution fit to extract timing and charge information from PMT pulses. This method fits a single Gaussian function to the waveform around the peak region, seeded by digitTime.
+
+The Gaussian function used has the following form:
+
+.. math::
+
+   g(t) = \frac{A e^{-\frac{(t - \mu)^2}{2\sigma^2}}}{\sigma\sqrt{2\pi}}
+
+where :math:`\mu` is the mean (fitted time), :math:`\sigma` is the standard deviation (fitted within specified bounds), and the magnitude parameter :math:`A` determines the pulse amplitude. The fitted time is directly :math:`\mu`, and the charge is derived from the magnitude parameter.
+
+The method can be configured using the following ratdb parameters:
+
+================================  ===================
+**Name**                          **Description**
+================================  ===================
+``fit_window_low``                Time window before the digitized peak time to include in the fit, in ns.
+``fit_window_high``               Time window after the digitized peak time to include in the fit, in ns.
+``gaussian_width``                Initial value for the Gaussian width (sigma) parameter, in ns.
+``gaussian_width_low``            Lower bound for the fitted Gaussian width parameter, in ns.
+``gaussian_width_high``           Upper bound for the fitted Gaussian width parameter, in ns.
+================================  ===================
 
 -------------------------
 
@@ -124,10 +163,69 @@ Sinc interpolation
 
 Describe sinc interpolation.
 
+
+-------------------------
+
+Richardson-Lucy Direct De-modulation (LucyDDM)
+``````````````````
+
+Performs PMT waveform analysis using Perform PMT waveform analysis using LucyDDM, a time-domain deconvolution algorithm that enhanced resolution compared to FFT-based convolution methods. This method is able to recosntruction multiple photoelectrons in a single PMT. The primary procedure is described in Sec. 3.3.2 of https://arxiv.org/abs/2112.06913. After deconvolution, peaks in the deconvolved waveform are identified, and a Gaussian fit is performed on each peak to extract time and charge information. Optionally, a likelihood-based NPE estimation can be performed on each resolved wave packet to further improve the charge and time resolution.
+
+The method can be configured using the following ratdb parameters.
+
+
+================================  ===================
+**Name**                          **Description**
+================================  ===================
+``vpe_scale``                     The "m" parameter in the lognormal function that generates single PE waveform template.
+``vpe_shape``                     The "sigma" parameter in the lognormal function.
+``vpe_charge``                    The nominal charge of a single photoelectron in pC. A resolved wave packet with integral of 1 will have be assigned this amount of charge.
+``roi_threshold``                 The threshold (in mV) above which the deconvolution will be performed on. All samples below threshold will be set to effectively zero (small positive value for numerical stability).
+``max_iterations``                Maximum number of LucyDDM iterations to run.
+``stopping_nll_diff``             Stop LucyDDM iterations if the negative log likelihood improvement is less than this value.
+``peak_height_threshold``         All peaks below this peak height in the deconvolved waveform will not be considered.
+``charge_threshold``              All wave packets with integrated charge below this threshold will not be considered.
+``min_peak_distance``             If two resolved wave packets are closer than this distance (in ns), they will be merged and considered as one wave packet. 
+``npe_estimate``                  If true, perform a NPE estimation on all resolved waveform packets using a likelihood on the integral of the packets.
+``npe_estimate_charge_width``     Width of the single PE charge distribution (in pC) used in the NPE estimation likelihood.
+``npe_estimate_max_pes``          Maximum number of PEs to consider in the NPE estimation likelihood.
+================================  ===================
+
 -------------------------
 
 WaveformAnalysisResult
 ``````````````````````
 
-Describe how the waveform analysis result works.
+The ``WaveformAnalysisResult`` class is a data structure that stores the output from waveform analysis processors. Each waveform analysis method creates a ``WaveformAnalysisResult`` object that is attached to the ``DigitPMT`` to store its specific analysis results. This design allows multiple analysis methods to be run on the same waveform, with each method's results stored separately and accessible independently.
+
+The ``WaveformAnalysisResult`` object maintains three parallel arrays that are automatically sorted by time:
+
+* **Times**: The reconstructed pulse times within the digitization window (no cable delay or trigger offset applied)
+* **Charges**: The corresponding pulse charges, nominally in units of pC
+* **Figures of Merit**: Additional analysis-specific metrics stored in a map structure
+
+Key features of the ``WaveformAnalysisResult`` include:
+
+**Multiple PE Support**: Unlike the basic ``DigitPMT`` analysis which typically identifies a single PE per waveform, ``WaveformAnalysisResult`` can store multiple reconstructed photoelectrons.
+
+**Automatic Time Ordering**: When pulses are added using ``AddPE()``, they are automatically inserted in the correct time-ordered position, ensuring that all arrays remain synchronized and sorted.
+
+**Flexible Figures of Merit**: Each analysis method can store method-specific quality metrics (e.g., chi-squared, fit width, baseline) that are automatically synchronized with the time and charge arrays.
+
+**Time Offset Handling**: The class supports time offset corrections to account for cable delays or trigger timing, which can be applied when retrieving results without affecting the stored raw timing.
+
+The ``WaveformAnalysisResult`` objects are accessed from the ``DigitPMT`` using the method name as a key::
+
+    DS::WaveformAnalysisResult* lognormal_result = digitpmt->GetOrCreateWaveformAnalysisResult("Lognormal");
+    DS::WaveformAnalysisResult* gaussian_result = digitpmt->GetOrCreateWaveformAnalysisResult("Gaussian");
+
+    int n_pes = lognormal_result->getNPEs();
+
+    for (int i = 0; i < n_pes; i++) {
+        double time = lognormal_result->getTime(i);
+        double charge = lognormal_result->getCharge(i);
+        double chi2 = lognormal_result->getFOM("chi2ndf", i);  // Method-specific FOM
+    }
+
+This design enables comprehensive comparison between different waveform analysis methods and supports multi-PE reconstruction techniques.
 
