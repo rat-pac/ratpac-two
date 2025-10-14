@@ -17,6 +17,7 @@
 #include <G4RunManager.hh>
 #include <RAT/BNLOpWLSBuilder.hh>
 #include <RAT/DB.hh>
+#include <RAT/G4CerenkovProcess.hh>
 #include <RAT/G4OpWLSBuilder.hh>
 #include <RAT/GLG4OpAttenuation.hh>
 #include <RAT/GLG4Scint.hh>
@@ -27,7 +28,6 @@
 #include <RAT/PhysicsList.hh>
 #include <RAT/PhysicsListMessenger.hh>
 #include <RAT/ThinnableG4Cerenkov.hh>
-#include <RAT/nRangeG4Cerenkov.hh>
 
 namespace RAT {
 
@@ -128,7 +128,7 @@ void PhysicsList::SetOpWLSModel(std::string model) {
 }
 
 void PhysicsList::ConstructOpticalProcesses() {
-  // Cerenkov: nRangeG4Cerenkov with thinning and thresholding applied after-the-fact
+  // Cerenkov: G4CerenkovProcess with thinning and thresholding applied after-the-fact
   // Request that Cerenkov photons be tracked first, before continuing
   // originating particle step.  Otherwise, we get too many secondaries!
   ThinnableG4Cerenkov *cerenkovProcess = nullptr;

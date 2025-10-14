@@ -7,6 +7,11 @@
  *
  * @detail This class extends G4Cerenkov to allow for arbitary downscalings
  * (i.e., a factor of < 1) of the production of Cherenkov photons
+ *
+ * Updates:
+ *   2025-09-30 Zach Larsen <z.larsen@berkeley.edu>
+ *   - ThinnableG4Cerenkov now inherets Cerenkov production from a modified
+ *     version of the original G4Cerenkov class --> RAT::G4CerenkovProcess
  */
 
 #ifndef __RAT_ThinnableG4Cereknov__
@@ -14,11 +19,11 @@
 
 #include <CLHEP/Random/Random.h>
 
-#include <RAT/nRangeG4Cerenkov.hh>
+#include <RAT/G4CerenkovProcess.hh>
 
 namespace RAT {
 
-class ThinnableG4Cerenkov : public nRangeG4Cerenkov {
+class ThinnableG4Cerenkov : public G4CerenkovProcess {
  public:
   ThinnableG4Cerenkov();
   void SetThinningFactor(double);
