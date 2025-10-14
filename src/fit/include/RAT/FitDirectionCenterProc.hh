@@ -44,6 +44,8 @@ class FitDirectionCenterProc : public Processor {
   virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
 
  protected:
+  void SetPlaceholderFOM(DS::FitResult *fit);
+
   std::vector<int> fPMTtype;  // Types of PMT to use in reconstruction.  If empty, uses all PMT types.
   int fVerbose = 0;  // Save FOMs in FitResult.  1 saves num_PMT.  2 also saves time_resid_low and time_resid_up.
   std::string fFitterName = "fitdirectioncenter";  // Default fitter name.  User can specify.

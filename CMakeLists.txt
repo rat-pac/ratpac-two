@@ -17,7 +17,7 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 if(NOT RATVERSION_SEMVERS)
-  set(RATVERSION_SEMVERS 3.2.0)
+  set(RATVERSION_SEMVERS 3.3.0)
 endif()
 
 project(ratpac
@@ -36,20 +36,20 @@ endif()
 # Require out-of-source builds
 file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
 if(EXISTS "${LOC_PATH}")
-    message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
+  message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
 endif()
 
 # Use RPATH for install
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
- 
+
 # add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 ###########################################################
 # Set default build type
 set(default_build_type "Release")
-#set(CMAKE_BUILD_TYPE Debug)
-#set(CMAKE_CXX_FLAGS -pg)
+# set(CMAKE_BUILD_TYPE Debug)
+# set(CMAKE_CXX_FLAGS -pg)
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
@@ -108,9 +108,9 @@ option(RATPAC_RAT "build rat executable" ON)
 # Set up third party libraries
 
 if(ROOT_DIR)
-  find_package(ROOT NO_DEFAULT_PATH CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython)
+find_package(ROOT NO_DEFAULT_PATH CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython MathMore)
 else()
-  find_package(ROOT CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython)
+find_package(ROOT CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython MathMore)
 endif()
 include(${ROOT_USE_FILE})
 
@@ -122,7 +122,7 @@ include_directories(${CLHEP_INCLUDE_DIRS})
 include_directories(${XercesC_INCLUDE_DIRS})
 
 find_package(Threads REQUIRED)
-
+find_package(FFTW3 CONFIG REQUIRED)
 
 ###########################################################
 # Configure header with our version information
@@ -140,7 +140,7 @@ configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.csh.in
   ${PROJECT_SOURCE_DIR}/ratpac.csh
   @ONLY NEWLINE_STYLE UNIX)
 #configure_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
-#  ${PROJECT_SOURCE_DIR}/RatpacConfig.cmake 
+#  ${PROJECT_SOURCE_DIR}/RatpacConfig.cmake
 #  @ONLY NEWLINE_STYLE UNIX)
 
 ###########################################################
@@ -161,7 +161,7 @@ configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.csh.in
   ${RATPAC_BINARY_DIR}/ratpac.csh
   @ONLY NEWLINE_STYLE UNIX)
 configure_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
-  ${RATPAC_CMAKE_DIR}/RatpacConfig.cmake 
+  ${RATPAC_CMAKE_DIR}/RatpacConfig.cmake
   @ONLY NEWLINE_STYLE UNIX)
 write_basic_package_version_file(
   "${RATPAC_CMAKE_DIR}/RatpacConfigVersion.cmake"

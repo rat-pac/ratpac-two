@@ -61,6 +61,15 @@ PhysicsListMessenger::PhysicsListMessenger(PhysicsList *physicsList) : fPhysicsL
   G4UIparameter *unitMuHad = new G4UIparameter("unit", 's', true);
   unitMuHad->SetDefaultValue("mm");
   fSetStepFunctionMuHad->SetParameter(unitMuHad);
+
+  fRemoveProcess = new G4UIcommand("/rat/physics/removeProcess", this);
+  fRemoveProcess->SetGuidance("Remove a physics process by name");
+  fRemoveProcess->SetGuidance("  particleName: name of the particle from which to remove the process");
+  fRemoveProcess->SetGuidance("  processName: name of process to remove");
+  G4UIparameter *particleName = new G4UIparameter("particleName", 's', false);
+  G4UIparameter *processName = new G4UIparameter("processName", 's', false);
+  fRemoveProcess->SetParameter(particleName);
+  fRemoveProcess->SetParameter(processName);
 }
 
 PhysicsListMessenger::~PhysicsListMessenger() {
@@ -70,6 +79,7 @@ PhysicsListMessenger::~PhysicsListMessenger() {
   delete fEnableCerenkov;
   delete fSetStepFunctionLightIons;
   delete fSetStepFunctionMuHad;
+  delete fRemoveProcess;
 }
 
 G4String PhysicsListMessenger::GetCurrentValue(G4UIcommand *command) {
@@ -89,8 +99,8 @@ G4String PhysicsListMessenger::GetCurrentValue(G4UIcommand *command) {
 }
 
 void PhysicsListMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
-  info << "PhysicsListMessenger: Setting WLS model to " << newValue << newline;
   if (command == fSetOpWLSCmd) {
+    info << "PhysicsListMessenger: Setting WLS model to " << newValue << newline;
     fPhysicsList->SetOpWLSModel(std::string(newValue.data()));
   } else if (command == fSetMaxBetaChangePerStep) {
     fPhysicsList->SetCerenkovMaxBetaChange(std::stod(newValue));
@@ -109,6 +119,11 @@ void PhysicsListMessenger::SetNewValue(G4UIcommand *command, G4String newValue) 
     } else if (command == fSetStepFunctionMuHad) {
       fPhysicsList->SetStepFunctionMuHad(v1, v2);
     }
+  } else if (command == fRemoveProcess) {
+    G4String particleName, processName;
+    std::istringstream is(newValue);
+    is >> particleName >> processName;
+    fPhysicsList->RemoveProcess(particleName, processName);
   } else {
     Log::Die(dformat("PhysicsListMessenger::SetCurrentValue: Unknown command %s", command->GetCommandPath().data()));
   }

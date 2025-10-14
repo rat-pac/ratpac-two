@@ -34,6 +34,11 @@
 # to our output file.
 /tracking/storeTrajectory 1
 
+# Remove any physics processes that we don't want. For example, to disable
+# muon decays:
+# /rat/physics/removeProcess mu+ Decay
+# /rat/physics/removeProcess mu- Decay
+
 # Turn on the simulation of the PMT dark-noise
 /rat/proc noise
 

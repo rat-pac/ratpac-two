@@ -69,6 +69,26 @@ void PhysicsList::ConstructProcess() {
   EnableThermalNeutronScattering();
 }
 
+void PhysicsList::RemoveProcess(G4String particleName, G4String processName) {
+  G4ParticleDefinition *particle = G4ParticleTable::GetParticleTable()->FindParticle(particleName);
+  if (!particle) {
+    warn << "PhysicsList::RemoveProcess: couldn't find particle \"" << particleName << "\"" << newline;
+    throw std::runtime_error(std::string("Missing") + " particle " + particleName + " in PhysicsList");
+  }
+  info << "Removing process " << processName << " from particle " << particleName << newline;
+
+  G4ProcessManager *pmanager = particle->GetProcessManager();
+  std::regex process_re(processName);
+  for (int i = 0; i < pmanager->GetProcessListLength(); i++) {
+    G4VProcess *proc = pmanager->GetProcessList()->operator[](i);
+    std::string pname = proc->GetProcessName();
+    if (std::regex_match(pname, process_re)) {
+      info << "Removing process " << pname << " from particle " << particleName << newline;
+      pmanager->RemoveProcess(proc);
+    }
+  }
+}
+
 void PhysicsList::EnableThermalNeutronScattering() {
   // Get the particle definition for neutrons
   G4ParticleDefinition *n_definition = G4Neutron::Definition();

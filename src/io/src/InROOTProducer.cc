@@ -102,7 +102,7 @@ bool InROOTProducer::ReadEvents(G4String filename) {
 
   // Read
   Int_t num_events = tree.GetEntries();
-  DS::Run *run;
+  DS::Run *run = nullptr;
   for (Int_t i = 0; i < num_events && !SignalHandler::IsTermRequested(); i++) {
     tree.GetEntry(i);
     // force the run entry to be loaded into memory so that it

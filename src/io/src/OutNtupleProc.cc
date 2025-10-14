@@ -179,6 +179,8 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("digitTime", &digitTime);
     outputTree->Branch("digitCharge", &digitCharge);
     outputTree->Branch("digitNCrossings", &digitNCrossings);
+    outputTree->Branch("digitNhitsCleaned", &digitHitCleanedNhits);
+    outputTree->Branch("digitHitCleaningMask", &digitHitCleaningMask);
     outputTree->Branch("digitTimeOverThreshold", &digitTimeOverThreshold);
     outputTree->Branch("digitVoltageOverThreshold", &digitVoltageOverThreshold);
     outputTree->Branch("digitPeak", &digitPeak);
@@ -582,6 +584,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
       digitReconNPEs.clear();
+      digitHitCleanedNhits = 0;
+      digitHitCleaningMask.clear();
 
       if (options.digitizerfits) {
         for (const std::string &fitter_name : waveform_fitters) {
@@ -603,9 +607,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         digitNCrossings.push_back(digitpmt->GetNCrossings());
         digitTimeOverThreshold.push_back(digitpmt->GetTimeOverThreshold());
         digitReconNPEs.push_back(digitpmt->GetReconNPEs());
-        if (digitpmt->GetNCrossings() > 0) {
-          digitNhits++;
-        }
+        digitHitCleaningMask.push_back(digitpmt->GetHitCleaningMask());
         digitVoltageOverThreshold.push_back(digitpmt->GetVoltageOverThreshold());
         digitPeak.push_back(digitpmt->GetPeakVoltage());
         digitLocalTriggerTime.push_back(digitpmt->GetLocalTriggerTime());
@@ -624,6 +626,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           }
         }
       }
+      digitNhits = ev->DigitNhits();
+      digitHitCleanedNhits = ev->DigitNhitsCleaned();
     }
     if (options.digitizerwaveforms) {
       DS::Digit digitizer = ev->GetDigitizer();
@@ -686,6 +690,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       digitPMTID.clear();
       digitLocalTriggerTime.clear();
       digitReconNPEs.clear();
+      digitHitCleanedNhits = 0;
+      digitHitCleaningMask.clear();
       if (options.digitizerfits) {
         for (const std::string &fitter_name : waveform_fitters) {
           // construct arrays for all fitters
