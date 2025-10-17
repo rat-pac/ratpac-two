@@ -26,6 +26,8 @@
 
 "waveform_fitters": ["Lognormal", "Gaussian", "Sinc", "LucyDDM"],
 
+"event_fitters": ["quadfitter"],
+
 "waveform_fitter_FOM_Lognormal": ["baseline","chi2ndf"],
 "waveform_fitter_FOM_Gaussian": ["baseline","width","chi2ndf"],
 "waveform_fitter_FOM_Sinc": ["peak"],

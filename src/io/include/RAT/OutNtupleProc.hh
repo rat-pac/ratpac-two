@@ -71,6 +71,7 @@ class OutNtupleProc : public Processor {
   NtupleOptions options;
 
   std::vector<std::string> waveform_fitters;
+  std::vector<std::string> event_fitters;
   std::map<std::string, std::vector<std::string>> waveform_fitter_FOMs;
 
  protected:
@@ -181,9 +182,8 @@ class OutNtupleProc : public Processor {
   std::vector<double> mcDirz;
   std::vector<double> mcTime;
   // Reconstruted variables
-  std::vector<int> fitterId;
-  std::vector<double> fitx, fity, fitz;
-  std::vector<double> fitu, fitv, fitw;
+  std::map<std::string, double> fitvalues;
+  std::map<std::string, bool> fitvalids;
   // Store PMT Hit Positions
   std::vector<int> hitPMTID;
   std::vector<double> hitPMTTime;
