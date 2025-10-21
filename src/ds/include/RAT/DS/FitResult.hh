@@ -5,9 +5,9 @@
 #include <TVector3.h>
 
 #include <RAT/DS/Classifier.hh>
+#include <RAT/Log.hh>
 #include <map>
 #include <string>
-#include <vector>
 
 namespace RAT {
 namespace DS {
@@ -84,24 +84,21 @@ class FitResult : public TObject {
   virtual const bool GetEnableTime() { return enable_time; }
   virtual void SetEnableTime(const bool _enable) { enable_time = _enable; }
 
-  // Figures of Merit (arbitrary number)
-  void SetIntFigureOfMerit(const std::string &name, int value) { intFiguresOfMerit[name] = value; }
-  void SetBoolFigureOfMerit(const std::string &name, bool value) { boolFiguresOfMerit[name] = value; }
-  void SetDoubleFigureOfMerit(const std::string &name, double value) { doubleFiguresOfMerit[name] = value; }
+  // Figure of Merit
+  void SetFigureOfMerit(const std::string &name, double value) { figuresOfMerit[name] = value; }
+  double GetFigureOfMerit(const std::string &name) {
+    if (figuresOfMerit.find(name) == figuresOfMerit.end()) {
+      return -9999;
+    }
+    return figuresOfMerit.at(name);
+  }
 
-  int GetIntFigureOfMerit(const std::string &name) { return intFiguresOfMerit[name]; }
-  bool GetBoolFigureOfMerit(const std::string &name) { return boolFiguresOfMerit[name]; }
-  double GetDoubleFigureOfMerit(const std::string &name) { return doubleFiguresOfMerit[name]; }
-
-  // Figures of Merit
-  std::map<std::string, int> intFiguresOfMerit;
-  std::map<std::string, bool> boolFiguresOfMerit;
-  std::map<std::string, double> doubleFiguresOfMerit;
+  std::map<std::string, double> figuresOfMerit;
 
   // Classification
   std::map<std::string, Classifier> classifiers;
 
-  ClassDef(FitResult, 1);
+  ClassDef(FitResult, 2);
 
  protected:
   std::string fit_name;
