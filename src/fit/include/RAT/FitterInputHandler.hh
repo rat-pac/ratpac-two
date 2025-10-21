@@ -83,7 +83,7 @@ class FitterInputHandler {
     }
     DS::FitResult* fit_result = FindFitResult(fitter_name);
     if (!ValidSeedPosition(fitter_name)) {
-      debug << "The Requested Seed Position (from " << fitter_name << ") is not valid." << newline;
+      warn << "The Requested Seed Position (from " << fitter_name << ") is not valid." << newline;
       return TVector3(0, 0, 0);
     }
     return fit_result->GetPosition();
@@ -117,7 +117,7 @@ class FitterInputHandler {
     }
     DS::FitResult* fit_result = FindFitResult(fitter_name);
     if (!ValidSeedTime(fitter_name)) {
-      debug << "The Requested Seed Time (from " << fitter_name << ") is not valid." << newline;
+      warn << "The Requested Seed Time (from " << fitter_name << ") is not valid." << newline;
       return 0;
     }
     return fit_result->GetTime();
@@ -150,7 +150,7 @@ class FitterInputHandler {
     }
     DS::FitResult* fit_result = FindFitResult(fitter_name);
     if (!ValidSeedDirection(fitter_name)) {
-      debug << "The Requested Seed Direction (from " << fitter_name << ") is not valid." << newline;
+      warn << "The Requested Seed Direction (from " << fitter_name << ") is not valid." << newline;
       return TVector3(0, 0, 0);
     }
     return fit_result->GetDirection();
@@ -178,7 +178,7 @@ class FitterInputHandler {
     }
     DS::FitResult* fit_result = FindFitResult(fitter_name);
     if (!ValidSeedEnergy(fitter_name)) {
-      debug << "The Requested Seed Energy (from " << fitter_name << ") is not valid." << newline;
+      warn << "The Requested Seed Energy (from " << fitter_name << ") is not valid." << newline;
       return 0;
     }
     return fit_result->GetEnergy();
