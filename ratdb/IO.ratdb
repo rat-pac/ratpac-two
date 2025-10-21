@@ -30,6 +30,6 @@
 "waveform_fitter_FOM_Sinc": ["peak"],
 "waveform_fitter_FOM_LucyDDM": ["time_error", "charge_error", "chi2ndf", "poisson_nll", "iterations_ran", "estimated_npe"]
 
-"event_fitters": ["quadfitter", "fitdirectioncenter"],
+"event_fitters": ["quadfitter", "fitcentroid", "fitdirectioncenter", "mimir"],
 "event_fitter_FOM_fitdirectioncenter": ["num_PMT", "time_resid_low", "time_resid_up"]
 }

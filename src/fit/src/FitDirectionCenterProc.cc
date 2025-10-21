@@ -25,9 +25,9 @@ void FitDirectionCenterProc::BeginOfRun(DS::Run *run) {
 }
 
 void FitDirectionCenterProc::SetS(std::string param, std::string value) {
-  if (param == "fitter_name") {
-    if (value.empty()) throw ParamInvalid(param, "fitter_name cannot be empty.");
-    fFitterName = value;
+  if (param == "label") {
+    if (value.empty()) throw ParamInvalid(param, "label cannot be empty.");
+    fFitLabel = value;
   } else if (param == "position_fitter") {
     if (!fPosMethod.empty()) throw ParamInvalid(param, "Cannot specify both fixed and reconstructed position.");
     fPosFitter = value;
@@ -96,7 +96,7 @@ void FitDirectionCenterProc::SetD(std::string param, double value) {
 Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
   inputHandler.RegisterEvent(ev);
 
-  DS::FitResult *fitDC = new DS::FitResult(fFitterName);
+  DS::FitResult *fitDC = new DS::FitResult(name, fFitLabel);
   fitDC->SetEnableDirection(true);
   fitDC->SetValidDirection(true);
   fitDC->SetDirection(TVector3(0, 0, 0));
@@ -128,7 +128,7 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
     } else {
       bool foundPosFitter = false;
       for (unsigned int iFit = 0; iFit < fits.size(); iFit++) {
-        if (fPosFitter == (fits[iFit])->GetFitterName()) {
+        if (fPosFitter == (fits[iFit])->GetFullName()) {
           fit = fits[iFit];
           foundPosFitter = true;
           break;
@@ -164,7 +164,7 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
     RAT::DS::FitResult *fit;
     bool foundDirFitter = false;
     for (unsigned int iFit = 0; iFit < fits.size(); iFit++) {
-      if (fDirFitter == (fits[iFit])->GetFitterName()) {
+      if (fDirFitter == (fits[iFit])->GetFullName()) {
         fit = fits[iFit];
         foundDirFitter = true;
         break;

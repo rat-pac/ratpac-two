@@ -21,6 +21,7 @@
 #include <iostream>
 #include <numeric>
 #include <sstream>
+#include <stlplus/string_utilities.hpp>
 #include <string>
 #include <vector>
 
@@ -77,11 +78,12 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     }
   }
   event_fitters = table->GetSArray("event_fitters");
-  for (const std::string &fitter_name : event_fitters) {
+  for (const std::string &full_name : event_fitters) {
+    if (event_fitter_FOMs.find(full_name) != event_fitter_FOMs.end()) continue;
     try {
-      event_fitter_FOMs[fitter_name] = table->GetSArray("event_fitter_FOM_" + fitter_name);
+      event_fitter_FOMs[full_name] = table->GetSArray("event_fitter_FOM_" + full_name);
     } catch (DBNotFoundError &e) {
-      event_fitter_FOMs[fitter_name].clear();
+      event_fitter_FOMs[full_name].clear();
     }
   }
 }
@@ -205,21 +207,22 @@ bool OutNtupleProc::OpenFile(std::string filename) {
       }
     }
   }
-  for (const std::string &fitter_name : event_fitters) {
-    outputTree->Branch(TString("x_" + fitter_name), &fitvalues["x_" + fitter_name]);
-    outputTree->Branch(TString("y_" + fitter_name), &fitvalues["y_" + fitter_name]);
-    outputTree->Branch(TString("z_" + fitter_name), &fitvalues["z_" + fitter_name]);
-    outputTree->Branch(TString("u_" + fitter_name), &fitvalues["u_" + fitter_name]);
-    outputTree->Branch(TString("v_" + fitter_name), &fitvalues["v_" + fitter_name]);
-    outputTree->Branch(TString("w_" + fitter_name), &fitvalues["w_" + fitter_name]);
-    outputTree->Branch(TString("energy_" + fitter_name), &fitvalues["energy_" + fitter_name]);
-    outputTree->Branch(TString("time_" + fitter_name), &fitvalues["time_" + fitter_name]);
-    outputTree->Branch(TString("validposition_" + fitter_name), &fitvalids["validposition_" + fitter_name]);
-    outputTree->Branch(TString("validdirection_" + fitter_name), &fitvalids["validdirection_" + fitter_name]);
-    outputTree->Branch(TString("validenergy_" + fitter_name), &fitvalids["validenergy_" + fitter_name]);
-    outputTree->Branch(TString("validtime_" + fitter_name), &fitvalids["validtime_" + fitter_name]);
-    for (const std::string &fom_name : event_fitter_FOMs[fitter_name]) {
-      outputTree->Branch(TString(fom_name + "_" + fitter_name), &fiteventFOMs[fitter_name][fom_name]);
+  for (const std::string &fitter_full_name : event_fitters) {
+    // fitter names are specified as either fittername__tag or just fittername.
+    outputTree->Branch(TString("x_" + fitter_full_name), &fitvalues["x_" + fitter_full_name]);
+    outputTree->Branch(TString("y_" + fitter_full_name), &fitvalues["y_" + fitter_full_name]);
+    outputTree->Branch(TString("z_" + fitter_full_name), &fitvalues["z_" + fitter_full_name]);
+    outputTree->Branch(TString("u_" + fitter_full_name), &fitvalues["u_" + fitter_full_name]);
+    outputTree->Branch(TString("v_" + fitter_full_name), &fitvalues["v_" + fitter_full_name]);
+    outputTree->Branch(TString("w_" + fitter_full_name), &fitvalues["w_" + fitter_full_name]);
+    outputTree->Branch(TString("energy_" + fitter_full_name), &fitvalues["energy_" + fitter_full_name]);
+    outputTree->Branch(TString("time_" + fitter_full_name), &fitvalues["time_" + fitter_full_name]);
+    outputTree->Branch(TString("validposition_" + fitter_full_name), &fitvalids["validposition_" + fitter_full_name]);
+    outputTree->Branch(TString("validdirection_" + fitter_full_name), &fitvalids["validdirection_" + fitter_full_name]);
+    outputTree->Branch(TString("validenergy_" + fitter_full_name), &fitvalids["validenergy_" + fitter_full_name]);
+    outputTree->Branch(TString("validtime_" + fitter_full_name), &fitvalids["validtime_" + fitter_full_name]);
+    for (const std::string &fom_name : event_fitter_FOMs[fitter_full_name]) {
+      outputTree->Branch(TString(fom_name + "_" + fitter_full_name), &fiteventFOMs[fitter_full_name][fom_name]);
     }
   }
   if (options.nthits) {
@@ -518,35 +521,36 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     event_cleaning_word = ev->GetEventCleaningWord();
     timeSinceLastTrigger_us = ev->GetDeltaT() / 1000.;
     for (DS::FitResult *fit : ev->GetFitResults()) {
-      std::string name = fit->GetFitterName();
+      std::string full_name = fit->GetFullName();
       // Check the validity and write it out
-      if (std::find(event_fitters.begin(), event_fitters.end(), name) == event_fitters.end()) {
-        info << "Fitter " << name << " not found in the list of requested fitters. Will not be written to the ntuple."
-             << newline;
+      if (std::find(event_fitters.begin(), event_fitters.end(), full_name) == event_fitters.end()) {
+        info << "Fitter " << full_name
+             << " not found in the list of requested fitters. Will not be written to the ntuple." << newline;
+        continue;
       }
       if (fit->GetEnablePosition()) {
         TVector3 pos = fit->GetPosition();
-        fitvalues.at("x_" + name) = pos.X();
-        fitvalues.at("y_" + name) = pos.Y();
-        fitvalues.at("z_" + name) = pos.Z();
-        fitvalids.at("validposition_" + name) = fit->GetValidPosition();
+        fitvalues.at("x_" + full_name) = pos.X();
+        fitvalues.at("y_" + full_name) = pos.Y();
+        fitvalues.at("z_" + full_name) = pos.Z();
+        fitvalids.at("validposition_" + full_name) = fit->GetValidPosition();
       }
       if (fit->GetEnableDirection()) {
         TVector3 dir = fit->GetDirection();
-        fitvalues.at("u_" + name) = dir.X();
-        fitvalues.at("v_" + name) = dir.Y();
-        fitvalues.at("w_" + name) = dir.Z();
-        fitvalids.at("validdirection_" + name) = fit->GetValidDirection();
+        fitvalues.at("u_" + full_name) = dir.X();
+        fitvalues.at("v_" + full_name) = dir.Y();
+        fitvalues.at("w_" + full_name) = dir.Z();
+        fitvalids.at("validdirection_" + full_name) = fit->GetValidDirection();
       }
       if (fit->GetEnableEnergy()) {
-        fitvalues.at("energy_" + name) = fit->GetEnergy();
-        fitvalids.at("validenergy_" + name) = fit->GetValidEnergy();
+        fitvalues.at("energy_" + full_name) = fit->GetEnergy();
+        fitvalids.at("validenergy_" + full_name) = fit->GetValidEnergy();
       }
       if (fit->GetEnableTime()) {
-        fitvalues.at("time_" + name) = fit->GetTime();
-        fitvalids.at("validtime_" + name) = fit->GetValidTime();
+        fitvalues.at("time_" + full_name) = fit->GetTime();
+        fitvalids.at("validtime_" + full_name) = fit->GetValidTime();
       }
-      for (const std::string &fom_name : event_fitter_FOMs[name]) {
+      for (const std::string &fom_name : event_fitter_FOMs[full_name]) {
         fiteventFOMs[name][fom_name] = fit->GetFigureOfMerit(fom_name);
       }
     }

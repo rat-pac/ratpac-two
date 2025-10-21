@@ -5,6 +5,10 @@
 
 /rat/db/set DETECTOR experiment "Validation"
 /rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+/rat/db/set IO[NtupleProc] event_fitters ["quadfitter","fitdirectioncenter__fixed","fitdirectioncenter__quad","fitdirectioncenter__quad_drive"]
+/rat/db/set IO[NtupleProc] event_fitter_FOM_fitdirectioncenter__fixed ["num_PMT","time_resid_low","time_resid_up"]
+/rat/db/set IO[NtupleProc] event_fitter_FOM_fitdirectioncenter__quad ["num_PMT","time_resid_low","time_resid_up"]
+/rat/db/set IO[NtupleProc] event_fitter_FOM_fitdirectioncenter__quad_drive ["num_PMT","time_resid_low","time_resid_up"]
 
 
 /run/initialize
@@ -18,7 +22,7 @@
 
 ### Reconstruct direction at the generator position
 /rat/proc fitdirectioncenter
-/rat/procset fitter_name "fitdirectioncenter_fixed"       # unique fitter name
+/rat/procset label "fixed"       # unique fitter name
 /rat/procset event_position_x 100.0                       # x event position fixed to that used by generator [mm]
 /rat/procset event_position_y 100.0                       # y event position fixed to that used by generator [mm]
 /rat/procset event_position_z 100.0                       # z event position fixed to that used by generator [mm]
@@ -36,7 +40,7 @@
 
 ### Reconstruct direction at a reconstructed position and apply a drive correction
 /rat/proc fitdirectioncenter
-/rat/procset fitter_name "fitdirectioncenter_quad"        # unique fitter name
+/rat/procset label "quad"        # unique fitter name
 /rat/procset position_fitter "quadfitter"                 # event position reconstruction to be used
 /rat/procset time_resid_up  0.7                           # upper cut on time residuals using direct cut [ns]
 /rat/procset time_resid_low 0.06                          # lower cut on time residuals using direct cut [ns]
@@ -47,9 +51,9 @@
 /rat/procset pmt_type 2                                   # type of pmt to be used in reconstruction
 
 /rat/proc fitdirectioncenter
-/rat/procset fitter_name "fitdirectioncenter_quad_drive"  # unique fitter name
+/rat/procset label "quad_drive"  # unique fitter name
 /rat/procset position_fitter "quadfitter"                 # event position reconstruction to be used
-/rat/procset direction_fitter "fitdirectioncenter_quad"   # event direction reconstruction to be used to correct drive
+/rat/procset direction_fitter "fitdirectioncenter__quad"   # event direction reconstruction to be used to correct drive
 /rat/procset event_drive 26.0                             # size of drive effect to correct position [mm]
 /rat/procset time_resid_up  0.7                           # upper cut on time residuals using direct cut [ns]
 /rat/procset time_resid_low 0.06                          # lower cut on time residuals using direct cut [ns]

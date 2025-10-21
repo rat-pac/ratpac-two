@@ -43,7 +43,7 @@ Processor::Result FitCentroidProc::Event(DS::Root *ds, DS::EV *ev) {
     centroid += Qpow * pmtpos;
   }
 
-  DS::FitResult *fit = new DS::FitResult("FitCentroid");
+  DS::FitResult *fit = new DS::FitResult(name);
   fit->SetEnablePosition(true);
   if (totalQ) {
     centroid *= 1.0 / totalQ;

@@ -61,11 +61,11 @@ class FitterInputHandler {
    * @param fitter_name  name of the fitter to find.
    * @return pointer to the found fit result.
    * */
-  DS::FitResult* FindFitResult(const std::string& fitter_name) const {
+  DS::FitResult* FindFitResult(const std::string& name) const {
     if (!ev) Log::Die("FitterInputHandler: Trying to acccess event info without registering the event.");
     std::vector<DS::FitResult*> fit_results = ev->GetFitResults();
     for (auto& fit_result : fit_results) {
-      if (fit_result->GetFitterName() == fitter_name) return fit_result;
+      if (fit_result->GetFullName() == name) return fit_result;
     }
     return nullptr;
   }
