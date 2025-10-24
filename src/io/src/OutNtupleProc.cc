@@ -76,6 +76,7 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
       }
     }
   }
+  event_fitters = table->GetSArray("event_fitters");
 }
 
 bool OutNtupleProc::OpenFile(std::string filename) {
@@ -196,6 +197,20 @@ bool OutNtupleProc::OpenFile(std::string filename) {
         outputTree->Branch(TString("fit_FOM_" + fitter_name + "_" + fom_name), &fitFOM[fitter_name][fom_name]);
       }
     }
+  }
+  for (const std::string &efitter_name : event_fitters) {
+    outputTree->Branch(TString("x_" + efitter_name), &fitvalues["x_" + efitter_name]);
+    outputTree->Branch(TString("y_" + efitter_name), &fitvalues["y_" + efitter_name]);
+    outputTree->Branch(TString("z_" + efitter_name), &fitvalues["z_" + efitter_name]);
+    outputTree->Branch(TString("u_" + efitter_name), &fitvalues["u_" + efitter_name]);
+    outputTree->Branch(TString("v_" + efitter_name), &fitvalues["v_" + efitter_name]);
+    outputTree->Branch(TString("w_" + efitter_name), &fitvalues["w_" + efitter_name]);
+    outputTree->Branch(TString("energy_" + efitter_name), &fitvalues["energy_" + efitter_name]);
+    outputTree->Branch(TString("time_" + efitter_name), &fitvalues["time_" + efitter_name]);
+    outputTree->Branch(TString("validposition_" + efitter_name), &fitvalids["validposition_" + efitter_name]);
+    outputTree->Branch(TString("validdirection_" + efitter_name), &fitvalids["validdirection_" + efitter_name]);
+    outputTree->Branch(TString("validenergy_" + efitter_name), &fitvalids["validenergy_" + efitter_name]);
+    outputTree->Branch(TString("validtime_" + efitter_name), &fitvalids["validtime_" + efitter_name]);
   }
   if (options.nthits) {
     outputTree->Branch("mcnNTs", &mcnNTs);
@@ -492,63 +507,31 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     trigger_word = ev->GetTriggerWord();
     event_cleaning_word = ev->GetEventCleaningWord();
     timeSinceLastTrigger_us = ev->GetDeltaT() / 1000.;
-    auto fitVector = ev->GetFitResults();
-    std::map<std::string, double *> fitvalues;
-    std::map<std::string, bool *> fitvalids;
-    std::map<std::string, int *> intFOMs;
-    std::map<std::string, bool *> boolFOMs;
-    std::map<std::string, double *> doubleFOMs;
-    for (auto fit : fitVector) {
+    for (auto fit : ev->GetFitResults()) {
       std::string name = fit->GetFitterName();
       // Check the validity and write it out
       if (fit->GetEnablePosition()) {
         TVector3 pos = fit->GetPosition();
-        fitvalues["x_" + name] = new double(pos.X());
-        fitvalues["y_" + name] = new double(pos.Y());
-        fitvalues["z_" + name] = new double(pos.Z());
-        fitvalids["validposition_" + name] = new bool(fit->GetValidPosition());
+        fitvalues["x_" + name] = pos.X();
+        fitvalues["y_" + name] = pos.Y();
+        fitvalues["z_" + name] = pos.Z();
+        fitvalids["validposition_" + name] = fit->GetValidPosition();
       }
       if (fit->GetEnableDirection()) {
         TVector3 dir = fit->GetDirection();
-        fitvalues["u_" + name] = new double(dir.X());
-        fitvalues["v_" + name] = new double(dir.Y());
-        fitvalues["w_" + name] = new double(dir.Z());
-        fitvalids["validdirection_" + name] = new bool(fit->GetValidDirection());
+        fitvalues["u_" + name] = dir.X();
+        fitvalues["v_" + name] = dir.Y();
+        fitvalues["w_" + name] = dir.Z();
+        fitvalids["validdirection_" + name] = fit->GetValidDirection();
       }
       if (fit->GetEnableEnergy()) {
-        fitvalues["energy_" + name] = new double(fit->GetEnergy());
-        fitvalids["validenergy_" + name] = new bool(fit->GetValidEnergy());
+        fitvalues["energy_" + name] = fit->GetEnergy();
+        fitvalids["validenergy_" + name] = fit->GetValidEnergy();
       }
       if (fit->GetEnableTime()) {
-        fitvalues["time_" + name] = new double(fit->GetTime());
-        fitvalids["validtime_" + name] = new bool(fit->GetValidTime());
+        fitvalues["time_" + name] = fit->GetTime();
+        fitvalids["validtime_" + name] = fit->GetValidTime();
       }
-      // Figures of merit > 3 types
-      for (auto const &[label, value] : fit->boolFiguresOfMerit) {
-        boolFOMs[label + "_" + name] = new bool(value);
-      }
-      for (auto const &[label, value] : fit->intFiguresOfMerit) {
-        intFOMs[label + "_" + name] = new int(value);
-      }
-      for (auto const &[label, value] : fit->doubleFiguresOfMerit) {
-        doubleFOMs[label + "_" + name] = new double(value);
-      }
-    }
-    // Write fitter values into TTree
-    for (auto const &[label, value] : fitvalues) {
-      this->SetBranchValue(label, value);
-    }
-    for (auto const &[label, value] : fitvalids) {
-      this->SetBranchValue(label, value);
-    }
-    for (auto const &[label, value] : intFOMs) {
-      this->SetBranchValue(label, value);
-    }
-    for (auto const &[label, value] : boolFOMs) {
-      this->SetBranchValue(label, value);
-    }
-    for (auto const &[label, value] : doubleFOMs) {
-      this->SetBranchValue(label, value);
     }
     nhits = ev->GetPMTCount();
     if (options.pmthits) {
