@@ -8,30 +8,19 @@ namespace Mimir {
 bool NLOPTOptimizer::Configure(RAT::DBLinkPtr db_link) {
   std::string algo_type = db_link->GetS("algo_type");
 
-  // Map algorithm string to NLopt algorithm enum (derivative-free only)
-  nlopt::algorithm algorithm = nlopt::LN_NELDERMEAD;  // Default to derivative-free
-  if (algo_type == "LN_COBYLA")
-    algorithm = nlopt::LN_COBYLA;
-  else if (algo_type == "LN_BOBYQA")
-    algorithm = nlopt::LN_BOBYQA;
-  else if (algo_type == "LN_NEWUOA")
-    algorithm = nlopt::LN_NEWUOA;
-  else if (algo_type == "LN_NELDERMEAD")
-    algorithm = nlopt::LN_NELDERMEAD;
-  else if (algo_type == "LN_SBPLX")
-    algorithm = nlopt::LN_SBPLX;
-  else {
-    // If a gradient-based algorithm was requested, fall back and warn
-    if (algo_type == "LD_MMA" || algo_type == "LD_CCSAQ" || algo_type == "LD_SLSQP" || algo_type == "LD_LBFGS") {
-      RAT::warn << "Mimir::NLOPTOptimizer: Gradient-based algorithm '" << algo_type
-                << "' requested; gradients are disabled. Falling back to LN_NELDERMEAD." << newline;
-    } else {
-      RAT::warn << "Mimir::NLOPTOptimizer: Unknown algorithm '" << algo_type << "', using LN_NELDERMEAD" << newline;
-    }
+  // Use the C API to parse the algorithm string
+  nlopt_algorithm algo_c = nlopt_algorithm_from_string(algo_type.c_str());
+  if (algo_c == NLOPT_NUM_ALGORITHMS) {
+    RAT::Log::Die(std::string("Mimir::NLOPTOptimizer: Unknown or unsupported algorithm '") + algo_type + "'.");
   }
+  // Check if the algorithm is gradient-free (LN_ or GN_) by inspecting algo_type
+  if (algo_type.rfind("D_", 0) == 0) {
+    RAT::Log::Die(std::string("Mimir::NLOPTOptimizer: Gradient-based algorithm '") + algo_type +
+                  "' is not supported. Please use a gradient-free (LN_ or GN_) algorithm.");
+  }
+  fAlgorithm = static_cast<nlopt::algorithm>(algo_c);
 
-  // Store configuration parameters - minimizer will be created in MinimizeImpl
-  fAlgorithm = algorithm;
+  // Store remaining configuration parameters
   fMaxEval = db_link->GetI("max_function_calls");
   fTolerance = db_link->GetD("tolerance");
 
