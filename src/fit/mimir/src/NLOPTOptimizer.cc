@@ -8,12 +8,12 @@ namespace Mimir {
 bool NLOPTOptimizer::Configure(RAT::DBLinkPtr db_link) {
   std::string algo_type = db_link->GetS("algo_type");
 
-  // Use the C API to parse the algorithm string
+  // Parse and validate the algorithm string using the NLopt C API
   nlopt_algorithm algo_c = nlopt_algorithm_from_string(algo_type.c_str());
   if (algo_c == NLOPT_NUM_ALGORITHMS) {
     RAT::Log::Die(std::string("Mimir::NLOPTOptimizer: Unknown or unsupported algorithm '") + algo_type + "'.");
   }
-  // Check if the algorithm is gradient-free (LN_ or GN_) by inspecting algo_type
+  // Only allow gradient-free algorithms (LN_ or GN_)
   if (algo_type.rfind("D_", 0) == 0) {
     RAT::Log::Die(std::string("Mimir::NLOPTOptimizer: Gradient-based algorithm '") + algo_type +
                   "' is not supported. Please use a gradient-free (LN_ or GN_) algorithm.");
@@ -24,10 +24,11 @@ bool NLOPTOptimizer::Configure(RAT::DBLinkPtr db_link) {
   fMaxEval = db_link->GetI("max_function_calls");
   fTolerance = db_link->GetD("tolerance");
 
-  RAT::debug << "Mimir::NLOPTOptimizer: Configured with algorithm " << algo_type
-             << ", max_function_calls=" << db_link->GetI("max_function_calls")
-             << ", tolerance=" << db_link->GetD("tolerance");
-  RAT::debug << newline;
+  // Print configuration summary (match RootOptimizer style)
+  RAT::info << "Mimir::NLOPTOptimizer: Setting up the following optimizer:" << newline;
+  RAT::info << "  Algorithm: " << algo_type << newline;
+  RAT::info << "  Max function calls: " << fMaxEval << newline;
+  RAT::info << "  Tolerance: " << fTolerance << newline;
   return true;
 }
 
@@ -47,7 +48,7 @@ void NLOPTOptimizer::MinimizeImpl(std::function<double(const ParamSet&)> cost, P
   optimizer.set_maxeval(fMaxEval);
   optimizer.set_xtol_rel(fTolerance);
 
-  // Create a wrapper function for NLopt (no gradients)
+  // Set up the objective function
   struct OptData {
     std::function<double(const ParamSet&)> cost_func;
     ParamSet* param_template;
@@ -63,7 +64,7 @@ void NLOPTOptimizer::MinimizeImpl(std::function<double(const ParamSet&)> cost, P
 
   optimizer.set_min_objective(nlopt_wrapper, &opt_data);
 
-  // Set bounds
+  // Set bounds for each parameter
   std::vector<ParamComponent> active_components = params.to_active_components();
   std::vector<double> lower_bounds, upper_bounds;
 
@@ -88,7 +89,7 @@ void NLOPTOptimizer::MinimizeImpl(std::function<double(const ParamSet&)> cost, P
   optimizer.set_lower_bounds(lower_bounds);
   optimizer.set_upper_bounds(upper_bounds);
 
-  // Run optimization
+  // Run the optimization
   std::vector<double> result = fit_vector;
   double final_cost;
 
@@ -103,7 +104,7 @@ void NLOPTOptimizer::MinimizeImpl(std::function<double(const ParamSet&)> cost, P
                       nlopt_result == nlopt::FTOL_REACHED || nlopt_result == nlopt::XTOL_REACHED);
     params.set_active_fit_valid(fit_valid);
 
-    RAT::debug << "Mimir::NLOPTOptimizer: Optimization completed with result " << nlopt_result
+    RAT::debug << "Mimir::NLOPTOptimizer: Optimization completed with result code " << nlopt_result
                << ", final cost: " << final_cost << newline;
 
   } catch (const std::exception& e) {
