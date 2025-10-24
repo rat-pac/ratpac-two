@@ -1,3 +1,4 @@
+#if NLOPT_ENABLED
 #pragma once
 #include <mimir/Factory.hh>
 #include <mimir/Optimizer.hh>
@@ -15,3 +16,4 @@ class NLOPTOptimizer : public Optimizer {
   double fTolerance;
 };
 }  // namespace Mimir
+#endif

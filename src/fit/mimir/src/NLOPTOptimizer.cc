@@ -1,6 +1,6 @@
 #include <RAT/Log.hh>
-#include <limits>
 #include <mimir/NLOPTOptimizer.hh>
+#if NLOPT_ENABLED
 #include <nlopt.hpp>
 
 namespace Mimir {
@@ -114,3 +114,5 @@ void NLOPTOptimizer::MinimizeImpl(std::function<double(const ParamSet&)> cost, P
 }
 }  // namespace Mimir
 MIMIR_REGISTER_TYPE(Mimir::Optimizer, Mimir::NLOPTOptimizer, "NLOPTOptimizer")
+
+#endif
