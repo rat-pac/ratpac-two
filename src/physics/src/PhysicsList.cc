@@ -1,7 +1,7 @@
 #include <Shielding.hh>
+#include <regex>
 #include <stdexcept>
 #include <string>
-#include <regex>
 // Required for G4 > 10.5
 #include <G4EmParameters.hh>
 #include <G4FastSimulationManagerProcess.hh>
