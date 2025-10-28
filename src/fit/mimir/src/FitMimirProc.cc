@@ -31,8 +31,6 @@ void FitMimirProc::SetS(std::string param, std::string value) {
   if (param == "strategy") {
     DB::ParseTableName(value, strategyName, strategyConfig);
     configured = true;
-  } else if (param == "name") {
-    name = value;
   }
 }
 
