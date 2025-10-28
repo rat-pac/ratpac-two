@@ -1,4 +1,5 @@
-#if NLOPT_ENABLED
+#include <RAT/Config.hh>
+#if NLOPT_Enabled
 #pragma once
 #include <mimir/Factory.hh>
 #include <mimir/Optimizer.hh>
