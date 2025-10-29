@@ -5,6 +5,7 @@
 #include <mimir/Optimizer.hh>
 #include <nlopt.hpp>
 #include <string>
+
 namespace Mimir {
 
 class NLOPTOptimizer : public Optimizer {

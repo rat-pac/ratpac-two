@@ -2,8 +2,6 @@
 #include <RAT/Log.hh>
 #include <mimir/NLOPTOptimizer.hh>
 #if NLOPT_Enabled
-#include <nlopt.h>
-
 #include <nlopt.hpp>
 
 namespace Mimir {
