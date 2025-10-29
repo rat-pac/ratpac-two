@@ -461,3 +461,30 @@
 
 "noise_rate": 10000.0, // Hz
 }
+
+{
+"name": "PMT",
+"index": "r12860",
+"run_range": [0, 0],
+"construction": "toroidal",
+
+// same shape as r3600
+"dynode_material": "stainless_steel",
+"glass_material": "hamamatsu_borosilicate_glass",
+"pmt_vacuum_material": "pmt_vacuum",
+"photocathode_surface": "photocathode_R12860",
+"photocathode_MINrho": 230.0,
+"photocathode_MAXrho": 254.0,
+"mirror_surface": "mirror",
+"dynode_surface": "stainless_steel",
+
+"dynode_radius": 27.5, // mm
+"dynode_top":   -5.9, // mm
+"wall_thickness": 4.0, // mm
+
+"z_edge": [ 194.2, 92.0, 0.0, -92.0, -207.0, -300.0 ],
+"rho_edge": [ 0.0, 200.0, 254.0, 200.0, 127.5, 127.5 ],
+"z_origin": [ -60.0, 0.0, 0.0, 60.0, -300.0 ],
+
+"noise_rate": 4000.0, // from https://ieeexplore.ieee.org/document/9875925
+}

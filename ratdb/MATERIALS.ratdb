@@ -520,6 +520,17 @@
 "elemprop": [1.0],
 }
 
+{
+"name": "MATERIAL",
+"index": "photocathode_R12860",
+"run_range" : [0, 0],
+"density": 5.0,
+"nelements": 1,
+"nmaterials": 0,
+"elements": ["Potassium"],
+"elemprop": [1.0],
+}
+
 
 
 ////   The photocathode material for the ET 9390B
