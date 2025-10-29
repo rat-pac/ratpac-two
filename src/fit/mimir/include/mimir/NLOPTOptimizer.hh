@@ -4,6 +4,7 @@
 #include <mimir/Factory.hh>
 #include <mimir/Optimizer.hh>
 #include <nlopt.hpp>
+#include <string>
 namespace Mimir {
 
 class NLOPTOptimizer : public Optimizer {
@@ -12,7 +13,7 @@ class NLOPTOptimizer : public Optimizer {
   void MinimizeImpl(std::function<double(const ParamSet&)> cost, ParamSet& params) override;
 
  protected:
-  nlopt::algorithm fAlgorithm;
+  std::string fAlgoType;
   int fMaxEval;
   double fTolerance;
 };

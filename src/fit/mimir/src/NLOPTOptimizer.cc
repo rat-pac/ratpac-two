@@ -9,21 +9,12 @@
 namespace Mimir {
 
 bool NLOPTOptimizer::Configure(RAT::DBLinkPtr db_link) {
-  std::string algo_type = db_link->GetS("algo_type");
-
-  // Parse and validate the algorithm string using the NLopt C API
-  nlopt_algorithm algo_c = nlopt_algorithm_from_string(algo_type.c_str());
-  if (algo_c == NLOPT_NUM_ALGORITHMS) {
-    RAT::Log::Die("Mimir::NLOPTOptimizer: Unknown or unsupported algorithm '" + algo_type + "'.");
-  }
-
   // Only allow gradient-free algorithms (LN_ or GN_)
-  if (algo_type.size() >= 2 && algo_type[1] == 'D') {
-    RAT::Log::Die("Mimir::NLOPTOptimizer: Gradient-based algorithm '" + algo_type +
+  fAlgoType = db_link->GetS("algo_type");
+  if (fAlgoType.size() >= 2 && fAlgoType[1] == 'D') {
+    RAT::Log::Die("Mimir::NLOPTOptimizer: Gradient-based algorithm '" + fAlgoType +
                   "' is not supported. Please use a gradient-free (LN_ or GN_) algorithm.");
   }
-
-  fAlgorithm = static_cast<nlopt::algorithm>(algo_c);
 
   // Store remaining configuration parameters
   fMaxEval = db_link->GetI("max_function_calls");
@@ -31,7 +22,7 @@ bool NLOPTOptimizer::Configure(RAT::DBLinkPtr db_link) {
 
   // Print configuration summary
   RAT::info << "Mimir::NLOPTOptimizer: Setting up the following optimizer:" << newline;
-  RAT::info << "  Algorithm: " << algo_type << newline;
+  RAT::info << "  Algorithm: " << fAlgoType << newline;
   RAT::info << "  Max function calls: " << fMaxEval << newline;
   RAT::info << "  Tolerance: " << fTolerance << newline;
   return true;
@@ -46,28 +37,29 @@ void NLOPTOptimizer::MinimizeImpl(std::function<double(const ParamSet&)> cost, P
     return;
   }
 
-  // Create the optimizer with the correct dimension using stored configuration
-  nlopt::opt optimizer = nlopt::opt(fAlgorithm, n_params);
+  // Create the optimizer
+  nlopt::opt optimizer;
+  try {
+    optimizer = nlopt::opt(fAlgoType.c_str(), n_params);
+  } catch (const std::invalid_argument& e) {
+    RAT::Log::Die("Mimir::NLOPTOptimizer: Invalid algorithm '" + fAlgoType + "': " + std::string(e.what()));
+  } catch (const std::bad_alloc& e) {
+    RAT::Log::Die("Mimir::NLOPTOptimizer: Memory allocation failed during optimizer creation: " +
+                  std::string(e.what()));
+  }
 
   // Set the configuration parameters
   optimizer.set_maxeval(fMaxEval);
   optimizer.set_xtol_rel(fTolerance);
 
-  // Set up the objective function
-  struct OptData {
-    std::function<double(const ParamSet&)> cost_func;
-    ParamSet* param_template;
+  // Set up the objective function using lambda capture
+  auto nlopt_wrapper = [&cost, &params](unsigned n, const double* x, double* grad) -> double {
+    std::vector<double> x_vec(x, x + n);
+    ParamSet trial = params.from_active_vector(x_vec);
+    return cost(trial);
   };
 
-  OptData opt_data{cost, &params};
-
-  auto nlopt_wrapper = [](const std::vector<double>& x, std::vector<double>& /*grad*/, void* data) -> double {
-    OptData* opt_data_ptr = static_cast<OptData*>(data);
-    ParamSet trial = opt_data_ptr->param_template->from_active_vector(x);
-    return opt_data_ptr->cost_func(trial);
-  };
-
-  optimizer.set_min_objective(nlopt_wrapper, &opt_data);
+  optimizer.set_min_objective(nlopt_wrapper);
 
   // Set bounds for each parameter
   std::vector<ParamComponent> active_components = params.to_active_components();
