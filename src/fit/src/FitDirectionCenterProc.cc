@@ -14,17 +14,6 @@
 
 namespace RAT {
 
-// Helper to set placeholder figures of merit for failed fits
-void FitDirectionCenterProc::SetPlaceholderFOM(DS::FitResult *fit) {
-  if (fVerbose >= 1) {
-    fit->SetIntFigureOfMerit("num_PMT", 0);
-  }
-  if (fVerbose >= 2) {
-    fit->SetDoubleFigureOfMerit("time_resid_low", NAN);
-    fit->SetDoubleFigureOfMerit("time_resid_up", NAN);
-  }
-}
-
 void FitDirectionCenterProc::BeginOfRun(DS::Run *run) {
   DB *db = DB::Get();
   DBLinkPtr table = db->GetLink("Fitter", "FitDirectionCenter");
@@ -36,9 +25,9 @@ void FitDirectionCenterProc::BeginOfRun(DS::Run *run) {
 }
 
 void FitDirectionCenterProc::SetS(std::string param, std::string value) {
-  if (param == "fitter_name") {
-    if (value.empty()) throw ParamInvalid(param, "fitter_name cannot be empty.");
-    fFitterName = value;
+  if (param == "label") {
+    if (value.empty()) throw ParamInvalid(param, "label cannot be empty.");
+    fFitLabel = value;
   } else if (param == "position_fitter") {
     if (!fPosMethod.empty()) throw ParamInvalid(param, "Cannot specify both fixed and reconstructed position.");
     fPosFitter = value;
@@ -107,14 +96,13 @@ void FitDirectionCenterProc::SetD(std::string param, double value) {
 Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
   inputHandler.RegisterEvent(ev);
 
-  DS::FitResult *fitDC = new DS::FitResult(fFitterName);
+  DS::FitResult *fitDC = new DS::FitResult(name, fFitLabel);
   fitDC->SetEnableDirection(true);
   fitDC->SetValidDirection(true);
   fitDC->SetDirection(TVector3(0, 0, 0));
 
   int numPMTs = inputHandler.GetNHits();
   if (numPMTs <= 0) {
-    SetPlaceholderFOM(fitDC);
     fitDC->SetValidDirection(false);
     ev->AddFitResult(fitDC);
     return Processor::FAIL;
@@ -140,7 +128,7 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
     } else {
       bool foundPosFitter = false;
       for (unsigned int iFit = 0; iFit < fits.size(); iFit++) {
-        if (fPosFitter == (fits[iFit])->GetFitterName()) {
+        if (fPosFitter == (fits[iFit])->GetFullName()) {
           fit = fits[iFit];
           foundPosFitter = true;
           break;
@@ -156,7 +144,6 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
       validPos = fit->GetValidPosition();
       if (!validPos) fitDC->SetValidDirection(false);
     } else {
-      SetPlaceholderFOM(fitDC);
       fitDC->SetValidDirection(false);
       ev->AddFitResult(fitDC);
       return Processor::FAIL;
@@ -177,7 +164,7 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
     RAT::DS::FitResult *fit;
     bool foundDirFitter = false;
     for (unsigned int iFit = 0; iFit < fits.size(); iFit++) {
-      if (fDirFitter == (fits[iFit])->GetFitterName()) {
+      if (fDirFitter == (fits[iFit])->GetFullName()) {
         fit = fits[iFit];
         foundDirFitter = true;
         break;
@@ -194,7 +181,6 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
       validDir = fit->GetValidDirection();
       if (!validDir) fitDC->SetValidDirection(false);
     } else {
-      SetPlaceholderFOM(fitDC);
       fitDC->SetValidDirection(false);
       ev->AddFitResult(fitDC);
       return Processor::FAIL;
@@ -237,7 +223,6 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
       pmtTimes.push_back(timeResidual);
     }
     if (pmtTimes.empty()) {  // No PMTs selected
-      SetPlaceholderFOM(fitDC);
       fitDC->SetValidDirection(false);
       ev->AddFitResult(fitDC);
       return Processor::FAIL;
@@ -286,7 +271,6 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
   }
 
   if (numDir == 0) {
-    SetPlaceholderFOM(fitDC);
     fitDC->SetValidDirection(false);
     ev->AddFitResult(fitDC);
     return Processor::FAIL;
@@ -298,11 +282,11 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
     fitDC->SetValidDirection(false);
 
   if (fVerbose >= 1) {
-    fitDC->SetIntFigureOfMerit("num_PMT", numDir);
+    fitDC->SetFigureOfMerit("num_PMT", numDir);
   }
   if (fVerbose >= 2) {
-    fitDC->SetDoubleFigureOfMerit("time_resid_low", timeResLow);
-    fitDC->SetDoubleFigureOfMerit("time_resid_up", timeResUp);
+    fitDC->SetFigureOfMerit("time_resid_low", timeResLow);
+    fitDC->SetFigureOfMerit("time_resid_up", timeResUp);
   }
 
   ev->AddFitResult(fitDC);

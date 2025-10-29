@@ -142,7 +142,7 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
   }
   size_t nhits = pmtt.size();
 
-  DS::FitResult *fit = new DS::FitResult("quadfitter");
+  DS::FitResult *fit = new DS::FitResult(name);
   fit->SetValidEnergy(false);
   fit->SetValidDirection(false);
   fit->SetPosition(TVector3(-9999, -9999, -9999));
