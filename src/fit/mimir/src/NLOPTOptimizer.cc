@@ -51,10 +51,9 @@ void NLOPTOptimizer::MinimizeImpl(std::function<double(const ParamSet&)> cost, P
   optimizer.set_xtol_rel(fTolerance);
 
   // Set up the objective function using lambda capture
-  auto nlopt_wrapper = [&cost, &params](unsigned n, const double* x, double* grad) -> double {
-    std::vector<double> x_vec(x, x + n);
-    ParamSet trial = params.from_active_vector(x_vec);
-    return cost(trial);
+  auto nlopt_wrapper = [&cost, &params](unsigned n, const double* x, double* /*grad*/) -> double {
+    params.update_active(x, n);
+    return cost(params);
   };
 
   optimizer.set_min_objective(nlopt_wrapper);
@@ -91,8 +90,8 @@ void NLOPTOptimizer::MinimizeImpl(std::function<double(const ParamSet&)> cost, P
   try {
     nlopt::result nlopt_result = optimizer.optimize(result, final_cost);
 
-    // Update parameters with result
-    params = params.from_active_vector(result);
+    // Update parameters with result in-place
+    params.update_active(result.data(), result.size());
 
     // Set fit validity based on NLopt result
     bool fit_valid = (nlopt_result == nlopt::SUCCESS || nlopt_result == nlopt::STOPVAL_REACHED ||
