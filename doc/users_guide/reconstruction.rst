@@ -398,6 +398,20 @@ RootOptimizer
 ``print_level``          ``int``                     Verbosity level for the minimizer. 0 is silent, 1 is normal, 2 is verbose.
 ======================  ==========================  ===================
 
+NLOPTOptimizer
+++++++++++++++
+``NLOPTOptimizer`` is a wrapper around the ``nlopt::opt`` class. See the `official documentation <https://nlopt.readthedocs.io/en/latest/>`_ for details.
+
+This optimizer only supports **gradient-free** (derivative-free) algorithms. Gradient-based algorithms (those starting with ``LD_`` or ``GD_``) are not supported and will cause the configuration to fail with a clear error message.
+
+======================  ==========================  ===================
+**Field**               **Type**                    **Description**
+======================  ==========================  ===================
+``algo_type``            ``string``                  NLopt algorithm name (e.g., ``LN_COBYLA``, ``LN_NELDERMEAD``, ``LN_SBPLX``). Must be a gradient-free algorithm (``LN_*`` or ``GN_*``). See `NLopt algorithms <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_ for a full list.
+``max_function_calls``   ``int``                     Maximum number of objective function evaluations allowed.
+``tolerance``            ``double``                  Relative tolerance on the optimization parameters (``xtol_rel``). The optimizer stops when the change in all parameters is less than this tolerance.
+======================  ==========================  ===================
+
 Available Costs
 '''''''''''''''
 

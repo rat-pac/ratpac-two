@@ -94,6 +94,15 @@ else()
   set(TENSORFLOW_LIBRARIES "")
 endif()
 
+set(NLOPT_Enabled 0)
+find_library(NLOPT_LIBRARIES nlopt)
+if(NLOPT_LIBRARIES)
+    message(STATUS "Compiling with NLOPT")
+    set(NLOPT_Enabled 1)
+else()
+    message(WARNING "NLOPT Not Found")
+    set(NLOPT_LIBRARIES "")
+endif()
 
 ###########################################################
 # Options

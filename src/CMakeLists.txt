@@ -27,7 +27,7 @@ add_subdirectory(ratbase)
 # RAT shared library
 add_library(RATPAC SHARED)
 target_link_libraries(RATPAC PUBLIC
-  ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} ${CRY_LIBRARIES} ${TENSORFLOW_LIBRARIES}
+  ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} ${CRY_LIBRARIES} ${TENSORFLOW_LIBRARIES} ${NLOPT_LIBRARIES}
   cmd core daq db ds gen geo io fit physics ratbase stlplus cppflow util RATDict)
 target_include_directories(RATPAC PUBLIC ${CLHEP_INCLUDE_DIRS})
 message("Including ${CLHEP_INCLUDE_DIRS}")
