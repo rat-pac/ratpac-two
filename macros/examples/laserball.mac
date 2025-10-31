@@ -1,0 +1,31 @@
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+/rat/db/set DETECTOR experiment "Validation"
+/rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+
+# Change database setting for PMT noise processor
+/rat/db/set NOISEPROC noise_flag 1
+
+# Enable using the wavelength spectra
+/rat/db/set WLSPECTRUM use_dist true
+
+# Begin event processor loop
+/run/initialize
+
+/rat/proc noise
+
+/rat/proc forcedtrigger
+
+/rat/proc count
+/rat/procset update 100
+
+/rat/proclast outntuple
+# End processor loop
+
+##### GENERATORS #################
+/generator/add combo pbomb:point:poisson
+/generator/vtx/set 100 400nm_example # 100 photons, example 400nm spectrum
+/generator/pos/set 0.0 0.0 0.0
+
+/run/beamOn 100000
