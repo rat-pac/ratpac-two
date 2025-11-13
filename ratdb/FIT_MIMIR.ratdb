@@ -10,13 +10,22 @@
 {
 // Runs the Minuit2 minimizer with Migrad as the algotype. 
 "name": "MIMIR_RootOptimizer",
-"index": ""
+"index": "",
 "minimizer_type": "Minuit2",
 "algo_type": "Migrad",
 "max_function_calls": 10000,
 "max_iterations": 1000,
 "tolerance": 1e-4,
 "print_level": 0, // 0 = no output, 1 = minimal output, 2 = detailed output
+}
+
+{
+// Runs the NLOPT minimizer with SBPLX as the algorithm.
+"name": "MIMIR_NLOPTOptimizer",
+"index": "",
+"algo_type": "LN_SBPLX",
+"max_function_calls": 10000,
+"tolerance": 1e-4,
 }
 
 {
@@ -46,6 +55,21 @@
 // theta: [0, pi]
 // phi: [-pi, pi]
 // energy: [0, +numerical_limit]
+}
+
+{
+"name": "MIMIR_FitStep",
+"index": "PositionTime_PMTTypeTimeResidual_NLOPT",
+
+"optimizer_name": "NLOPTOptimizer"
+"optimizer_config": "",
+"cost_name": "PMTTypeTimeResidualPDF",
+"cost_config": ""
+
+"position_time_status": 1, // x, y, z, t
+"direction_status": 0, // theta, phi
+"energy_status": 0, //...
+
 }
 
 {

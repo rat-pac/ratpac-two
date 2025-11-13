@@ -7,6 +7,7 @@ add_library(mimir OBJECT
   src/FitStep.cc
   src/RootOptimizer.cc
   src/FitSteps.cc
+  src/NLOPTOptimizer.cc
 )
 
 set_target_properties(mimir PROPERTIES POSITION_INDEPENDENT_CODE ON)

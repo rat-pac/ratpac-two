@@ -63,6 +63,7 @@ struct ParamSet {
   std::vector<double> to_active_vector() const;
   std::vector<ParamComponent> to_active_components() const;
   void update_active(const std::vector<double>& values);
+  void update_active(const double* values, size_t n);
   void set_active_fit_valid(bool valid);
   ParamSet from_active_vector(const std::vector<double>& values) const;
 };
