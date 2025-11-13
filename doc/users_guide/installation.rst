@@ -67,3 +67,29 @@ repository.
     # Full container:
     apptainer build ratpac-two.sif docker://ratpac/ratpac-two:main
 
+
+Build from source
+`````````````````
+
+Using the convenience Makefile
+''''''''''''''''''''''''''''''
+
+A convenience Makefile exists to automate the above process, simply type `make`. Several targets are available:
+
+- ``make`` or ``make all``: Builds in installs ratpac-two to ``install/`` directory. Default to the ``RelWithDebInfo`` build type.
+- ``make debug/release/Minsize/relwithdebinfo``: Builds and installs ratpac-two with the specified build type.
+- ``make clean``: Removes the ``build/`` and ``install/`` directories.
+
+Custom Configuration with CMake
+'''''''''''''''''''''''''''''''
+
+Ratpac-two follows standard CMake conventions. The following is a step-by-step list CMake commands to compile:
+
+.. code-block:: bash
+    
+    mkdir build install
+    cd build
+    cmake .. -DCMAKEINSTALL_PREFIX=../install # Add any additional configuration flags here
+    make  # use -jN to parallelize with N threads
+    make install
+
