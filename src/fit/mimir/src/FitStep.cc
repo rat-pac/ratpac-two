@@ -11,7 +11,7 @@ bool FitStep::Configure(RAT::DBLinkPtr db_link) {
   std::string cost_index = db_link->GetS("cost_config");
   cost_function = Factory<Cost>::GetInstance().make_and_configure(cost_name, cost_index);
   position_time_status.resize(4, ParamStatus::INACTIVE);
-  direction_status.resize(2, ParamStatus::INACTIVE);
+  direction_status.resize(3, ParamStatus::INACTIVE);
   energy_status.resize(1, ParamStatus::INACTIVE);
   set_status(db_link, "position_time_status", position_time_status);
   set_status(db_link, "direction_status", direction_status);
@@ -19,12 +19,12 @@ bool FitStep::Configure(RAT::DBLinkPtr db_link) {
 
   position_time_lb.resize(4, std::numeric_limits<double>::lowest());
   position_time_ub.resize(4, std::numeric_limits<double>::max());
-  direction_lb = {0, -CLHEP::pi};
-  direction_ub = {CLHEP::pi, CLHEP::pi};
+  direction_lb.resize(3, std::numeric_limits<double>::lowest());
+  direction_ub.resize(3, std::numeric_limits<double>::max());
   energy_lb = {0.0};
   energy_ub = {std::numeric_limits<double>::max()};
   set_bounds(db_link, {"x", "y", "z", "t"}, position_time_lb, position_time_ub);
-  set_bounds(db_link, {"theta", "phi"}, direction_lb, direction_ub);
+  set_bounds(db_link, {"u", "v", "w"}, direction_lb, direction_ub);
   set_bounds(db_link, {"energy"}, energy_lb, energy_ub);
   return true;
 }

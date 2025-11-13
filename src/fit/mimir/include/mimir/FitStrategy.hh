@@ -29,8 +29,7 @@ class FitStrategy {
     params.position_time.set_values(xyzt);
     if (input_handler->ValidSeedDirection()) {
       TVector3 seed_dir = input_handler->GetSeedDirection();
-      std::vector<double> seed_theta_phi = {seed_dir.Theta(), seed_dir.Phi()};
-      params.direction.set_values(seed_theta_phi);
+      params.direction.set_values({seed_dir.X(), seed_dir.Y(), seed_dir.Z()});
     }
     if (input_handler->ValidSeedEnergy()) {
       params.energy.set_values({input_handler->GetSeedEnergy()});

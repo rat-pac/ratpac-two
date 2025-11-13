@@ -61,16 +61,13 @@ double PMTTypeCosAlphaPDF::operator()(const ParamSet& params) const {
         "times.");
   }
   if (!params.direction.are_all_active()) {
-    RAT::Log::Die("mimir::PMTTypeCosAlphaPDF: theta_phi must have 2 active components (theta, phi).");
+    RAT::Log::Die("mimir::PMTTypeCosAlphaPDF: not all direction comoponents are active.");
   }
-  std::vector<double> theta_phi = params.direction.active_values();
-  TVector3 vertex_direction;
-  vertex_direction.SetMagThetaPhi(1.0, theta_phi.at(0), theta_phi.at(1));
+  TVector3 vertex_direction = params.GetDirection();
   if (!params.position_time.are_all_used())
     RAT::Log::Die("mimir::PMTTypeCosAlphaPDF: position_time must have a valid position vertex (x, y, z, t).");
-  std::vector<double> xyzt = params.position_time.used_values();
-  TVector3 vertex_position(xyzt.at(0), xyzt.at(1), xyzt.at(2));
-  double vertex_time = xyzt.at(3);
+  TVector3 vertex_position = params.GetPosition();
+  double vertex_time = params.GetTime();
 
   double result = 0.0;
   for (size_t ihit = 0; ihit < hit_pmtids.size(); ++ihit) {
