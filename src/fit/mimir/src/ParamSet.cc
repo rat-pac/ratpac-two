@@ -167,27 +167,6 @@ void ParamSet::update_active(const double* values, size_t n) {
   }
 }
 
-void ParamSet::update_active(const double* values, size_t n) {
-  size_t index = 0;
-  for (ParamField* field : {&position_time, &direction, &energy}) {
-    if (index > n) {
-      std::stringstream msg;
-      msg << "Not enough values provided to from_fit_vector. Expected at least " << index << ", but got " << n;
-      RAT::Log::Die(msg.str());
-    }
-    for (size_t idx_in_field = 0; idx_in_field < field->components.size(); ++idx_in_field) {
-      if (field->components[idx_in_field].is_active()) {
-        field->components[idx_in_field].value = values[index++];
-      }
-    }
-  }
-  if (index != n) {
-    std::stringstream msg;
-    msg << "Too many values provided to from_fit_vector. Expected " << index << ", but got " << n;
-    RAT::Log::Die(msg.str());
-  }
-}
-
 ParamSet ParamSet::from_active_vector(const std::vector<double>& values) const {
   ParamSet result = *this;
   result.update_active(values);
