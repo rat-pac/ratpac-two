@@ -80,37 +80,44 @@ void ParamField::set_status(std::vector<ParamStatus> status_vector) {
   }
 }
 
-void ParamField::set_values(std::vector<double> values) {
-  if (values.size() != components.size()) {
+void ParamField::set_values(std::vector<double> values) { set_values(values.data(), values.size()); }
+
+void ParamField::set_values(const double* values, size_t n) {
+  if (n != components.size()) {
     std::stringstream msg;
-    msg << "Mismatch in number of values provided. Expected " << components.size() << ", but got " << values.size();
+    msg << "Mismatch in number of values provided. Expected " << components.size() << ", but got " << n;
     RAT::Log::Die(msg.str());
   }
-  for (size_t i = 0; i < components.size() && i < values.size(); ++i) {
+  for (size_t i = 0; i < components.size() && i < n; ++i) {
     components[i].value = values[i];
   }
 }
 
 void ParamField::set_lower_bounds(std::vector<double> lower_bounds) {
-  if (lower_bounds.size() != components.size()) {
+  set_lower_bounds(lower_bounds.data(), lower_bounds.size());
+}
+
+void ParamField::set_lower_bounds(const double* lower_bounds, size_t n) {
+  if (n != components.size()) {
     std::stringstream msg;
-    msg << "Mismatch in number of bounds provided. Expected " << components.size() << ", but got "
-        << lower_bounds.size();
+    msg << "Mismatch in number of bounds provided. Expected " << components.size() << ", but got " << n;
     RAT::Log::Die(msg.str());
   }
-  for (size_t i = 0; i < components.size() && i < lower_bounds.size(); ++i) {
+  for (size_t i = 0; i < components.size() && i < n; ++i) {
     components[i].lower_bound = lower_bounds[i];
   }
 }
 
 void ParamField::set_upper_bounds(std::vector<double> upper_bounds) {
-  if (upper_bounds.size() != components.size()) {
+  set_upper_bounds(upper_bounds.data(), upper_bounds.size());
+}
+void ParamField::set_upper_bounds(const double* upper_bounds, size_t n) {
+  if (n != components.size()) {
     std::stringstream msg;
-    msg << "Mismatch in number of bounds provided. Expected " << components.size() << ", but got "
-        << upper_bounds.size();
+    msg << "Mismatch in number of bounds provided. Expected " << components.size() << ", but got " << n;
     RAT::Log::Die(msg.str());
   }
-  for (size_t i = 0; i < components.size() && i < upper_bounds.size(); ++i) {
+  for (size_t i = 0; i < components.size() && i < n; ++i) {
     components[i].upper_bound = upper_bounds[i];
   }
 }
@@ -137,13 +144,14 @@ std::vector<ParamComponent> ParamSet::to_active_components() const {
   return active_components;
 }
 
-void ParamSet::update_active(const std::vector<double>& values) {
+void ParamSet::update_active(const std::vector<double>& values) { return update_active(values.data(), values.size()); }
+
+void ParamSet::update_active(const double* values, size_t n) {
   size_t index = 0;
   for (ParamField* field : {&position_time, &direction, &energy}) {
-    if (index > values.size()) {
+    if (index > n) {
       std::stringstream msg;
-      msg << "Not enough values provided to from_fit_vector. Expected at least " << index << ", but got "
-          << values.size();
+      msg << "Not enough values provided to from_fit_vector. Expected at least " << index << ", but got " << n;
       RAT::Log::Die(msg.str());
     }
     for (size_t idx_in_field = 0; idx_in_field < field->components.size(); ++idx_in_field) {
@@ -152,9 +160,9 @@ void ParamSet::update_active(const std::vector<double>& values) {
       }
     }
   }
-  if (index != values.size()) {
+  if (index != n) {
     std::stringstream msg;
-    msg << "Too many values provided to from_fit_vector. Expected " << index << ", but got " << values.size();
+    msg << "Too many values provided to from_fit_vector. Expected " << index << ", but got " << n;
     RAT::Log::Die(msg.str());
   }
 }
@@ -195,4 +203,19 @@ void ParamSet::set_active_fit_valid(bool valid) {
     }
   }
 }
+
+TVector3 ParamSet::GetPosition() const {
+  return TVector3(position_time.components[0].value, position_time.components[1].value,
+                  position_time.components[2].value);
+}
+
+TVector3 ParamSet::GetDirection() const {
+  TVector3 result =
+      TVector3(direction.components[0].value, direction.components[1].value, direction.components[2].value);
+  return result.Unit();
+}
+
+double ParamSet::GetTime() const { return position_time.components[3].value; }
+
+double ParamSet::GetEnergy() const { return energy.components[0].value; }
 }  // namespace Mimir

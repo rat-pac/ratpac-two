@@ -53,10 +53,10 @@ void RootOptimizer::MinimizeImpl(std::function<double(const ParamSet&)> cost, Pa
       fMinimizer->SetVariable(icomp, comp.name, comp.value, comp.step);
     }
   }
-  fMinimizer->Minimize();
+  bool fit_valid = fMinimizer->Minimize();
   std::vector<double> result(fMinimizer->X(), fMinimizer->X() + n_params);
   params = params.from_active_vector(result);
-  params.set_active_fit_valid(fMinimizer->Status() == 0);
+  params.set_active_fit_valid(fit_valid);
 }
 }  // namespace Mimir
 MIMIR_REGISTER_TYPE(Mimir::Optimizer, Mimir::RootOptimizer, "RootOptimizer")

@@ -1,5 +1,6 @@
 #pragma once
 #include <CLHEP/Units/PhysicalConstants.h>
+#include <TVector3.h>
 
 #include <algorithm>
 #include <limits>
@@ -34,8 +35,11 @@ struct ParamField {
   void set_all_status(ParamStatus status);
   void set_all_fit_valid(bool valid);
   void set_status(std::vector<ParamStatus> status_vector);
+  void set_values(const double* values, size_t n);
   void set_values(std::vector<double> values);
+  void set_lower_bounds(const double* lower_bounds, size_t n);
   void set_lower_bounds(std::vector<double> lower_bounds);
+  void set_upper_bounds(const double* upper_bouonds, size_t n);
   void set_upper_bounds(std::vector<double> upper_bounds);
   bool are_all_used() const {
     return std::all_of(components.begin(), components.end(), [](const ParamComponent& comp) { return comp.is_used(); });
@@ -54,10 +58,8 @@ struct ParamSet {
                                              {.name = "y", .value = 0.0},
                                              {.name = "z", .value = 0.0},
                                              {.name = "t", .value = 0.0}}};
-  ParamField direction = {.components = {
-                              {.name = "theta", .value = CLHEP::pi / 2, .lower_bound = 0, .upper_bound = CLHEP::pi},
-                              {.name = "phi", .value = 0.0, .lower_bound = -CLHEP::pi, .upper_bound = CLHEP::pi},
-                          }};
+  ParamField direction = {
+      .components = {{.name = "u", .value = 0.0}, {.name = "v", .value = 0.0}, {.name = "w", .value = 0.0}}};
   ParamField energy = {.components = {{.name = "energy", .value = 1.0, .lower_bound = 0.0}}};
 
   std::vector<double> to_active_vector() const;
@@ -66,6 +68,11 @@ struct ParamSet {
   void update_active(const double* values, size_t n);
   void set_active_fit_valid(bool valid);
   ParamSet from_active_vector(const std::vector<double>& values) const;
+
+  TVector3 GetPosition() const;
+  TVector3 GetDirection() const;
+  double GetTime() const;
+  double GetEnergy() const;
 };
 
 }  // namespace Mimir
