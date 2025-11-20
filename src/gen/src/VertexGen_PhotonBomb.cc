@@ -67,7 +67,6 @@ void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &
 }
 
 void VertexGen_PhotonBomb::SetState(G4String newValues) {
-
   DBLinkPtr spectraparam;
   DBLinkPtr spectradb;
   try {
@@ -110,11 +109,12 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
       Log::Die("VertexGen_PhotonBomb: (Using Distribution) Error with retrieving wavelength from spectrum.");
     }
 
-  } else{
+  } else {
     int wavelength;
 
-    for (int i = 0; i < wavelengthString.size(); i++){
-      if (!std::isdigit(static_cast<unsigned char>(wavelengthString[i]))) Log::Die("VertexGen_PhotonBomb: macro state written incorrectly.");
+    for (int i = 0; i < wavelengthString.size(); i++) {
+      if (!std::isdigit(static_cast<unsigned char>(wavelengthString[i])))
+        Log::Die("VertexGen_PhotonBomb: macro state written incorrectly.");
     }
     wavelength = std::stoi(wavelengthString);
 
@@ -159,7 +159,7 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
       if (fRndmEnergy) delete fRndmEnergy;
       fRndmEnergy = new CLHEP::RandGeneral(energyResample, nbins);
     } else {
-        fEnergy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
+      fEnergy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
     }
     is >> exp;
     if (exp < 0.0) Log::Die("VertexGen_PhotonBomb: Exponential time constant must be positive");
@@ -167,7 +167,6 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
 
   fNumPhotons = num;
   fExpTime = exp;
-
 }
 
 G4String VertexGen_PhotonBomb::GetState() {
