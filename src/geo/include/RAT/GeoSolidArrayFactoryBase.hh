@@ -9,6 +9,7 @@ class GeoSolidArrayFactoryBase : public GeoFactory {
   GeoSolidArrayFactoryBase(const std::string &name) : GeoFactory(name){};
 
  protected:
+  using GeoFactory::Construct;
   virtual G4VPhysicalVolume *Construct(G4VSolid *BaseSolid, DBLinkPtr table);
   virtual G4VPhysicalVolume *Construct(G4LogicalVolume *logiSolid, DBLinkPtr table);
 };

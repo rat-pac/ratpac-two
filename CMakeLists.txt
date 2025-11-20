@@ -45,11 +45,21 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 # add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# Automatically generate compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+add_custom_target(
+    copy-compile-commands ALL
+    ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_BINARY_DIR}/compile_commands.json
+        ${CMAKE_CURRENT_LIST_DIR}
+)
+
 ###########################################################
 # Set default build type
-set(default_build_type "Release")
-# set(CMAKE_BUILD_TYPE Debug)
-# set(CMAKE_CXX_FLAGS -pg)
+set(default_build_type "RelWithDebInfo")
+#set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_CXX_FLAGS -pg)
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
@@ -94,6 +104,15 @@ else()
   set(TENSORFLOW_LIBRARIES "")
 endif()
 
+set(NLOPT_Enabled 0)
+find_library(NLOPT_LIBRARIES nlopt)
+if(NLOPT_LIBRARIES)
+    message(STATUS "Compiling with NLOPT")
+    set(NLOPT_Enabled 1)
+else()
+    message(WARNING "NLOPT Not Found")
+    set(NLOPT_LIBRARIES "")
+endif()
 
 ###########################################################
 # Options
