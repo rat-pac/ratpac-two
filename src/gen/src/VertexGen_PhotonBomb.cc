@@ -112,7 +112,7 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
   } else {
     int wavelength;
 
-    for (int i = 0; i < wavelengthString.size(); i++) {
+    for (size_t i = 0; i < wavelengthString.size(); i++) {
       if (!std::isdigit(static_cast<unsigned char>(wavelengthString[i])))
         Log::Die("VertexGen_PhotonBomb: macro state written incorrectly.");
     }
