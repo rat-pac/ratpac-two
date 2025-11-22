@@ -97,7 +97,7 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
     try {
       spectradb = DB::Get()->GetLink("PHOTONBOMB", fWavelengthIndex);
     } catch (DBNotFoundError &e) {
-      Log::Die("VertexGen_PhotonBomb: (Using Distribution) Wavelength simulated does not have measured spectrum.");
+      Log::Die("VertexGen_PhotonBomb: (Using Distribution) Requested wavelength spectrum is not found.");
     }
     try {
       fWavelengths = spectradb->GetDArray("wavelength");
@@ -106,7 +106,7 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
         Log::Die("VertexGen_PhotonBomb: (Using Distribution) Wavelength and probability arrays have different length");
       }
     } catch (DBNotFoundError &e) {
-      Log::Die("VertexGen_PhotonBomb: (Using Distribution) Error with retrieving wavelength from spectrum.");
+      Log::Die("VertexGen_PhotonBomb: (Using Distribution) Error with retrieving wavelength spectrum.");
     }
 
   } else {
