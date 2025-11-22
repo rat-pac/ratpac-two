@@ -171,11 +171,11 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
 
 G4String VertexGen_PhotonBomb::GetState() {
   if (fDist)
-    return dformat("%d\t%s\t%f", fNumPhotons, fDist, fWavelengthIndex);
+    return dformat("Using wavelength specrum:\t%d\t%s", fNumPhotons, fWavelengthIndex);
   else if (fRndmEnergy)
     return dformat("%d\t%s\t%f", fNumPhotons, fMaterial.c_str(), fExpTime);
   else
-    return dformat("%d\t%f\t%f", fNumPhotons, fEnergy, fExpTime);
+    return dformat("Using exact wavelength:\t%d\t%f\t%f", fNumPhotons, fEnergy, fExpTime);
 }
 
 double VertexGen_PhotonBomb::pickWavelength(const std::vector<double> &values, const std::vector<double> &probs) {
