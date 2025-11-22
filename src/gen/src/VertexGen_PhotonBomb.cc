@@ -20,7 +20,7 @@ VertexGen_PhotonBomb::VertexGen_PhotonBomb(const char *arg_dbname) : GLG4VertexG
   fMinEnergy = 0.0;
   fMaxEnergy = 0.0;
   fMaterial = "";
-  fDist = false;
+  fSpectrum = false;
   fWavelengths = {};
   fIntensities = {};
   fWavelengthIndex = "";
@@ -39,7 +39,7 @@ void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &
     double energy;
     if (fRndmEnergy) {
       energy = fMinEnergy + (fMaxEnergy - fMinEnergy) * fRndmEnergy->shoot();
-    } else if (fDist) {
+    } else if (fSpectrum) {
       double wavelength = pickWavelength(fWavelengths, fIntensities);
       energy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
     } else {
@@ -70,10 +70,10 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
   DBLinkPtr spectraparam;
   DBLinkPtr spectradb;
   try {
-    spectraparam = DB::Get()->GetLink("WLSPECTRUM", "");
-    fDist = spectraparam->GetZ("use_dist");
+    spectraparam = DB::Get()->GetLink("PHOTONBOMB", "");
+    fSpectrum = spectraparam->GetZ("use_spectrum");
   } catch (DBNotFoundError &e) {
-    Log::Die("VertexGen_PhotonBomb (Using Distribution): Error in retrieving \"use_dist\" parameter.");
+    Log::Die("VertexGen_PhotonBomb (Using Distribution): Error in retrieving \"use_spectrum\" parameter.");
   }
 
   if (newValues.length() == 0) {
@@ -91,11 +91,11 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
   is >> num >> wavelengthString;
   double exp = 0.0;
 
-  if (fDist) {
+  if (fSpectrum) {
     fWavelengthIndex = wavelengthString;
 
     try {
-      spectradb = DB::Get()->GetLink("WLSPECTRUM", fWavelengthIndex);
+      spectradb = DB::Get()->GetLink("PHOTONBOMB", fWavelengthIndex);
     } catch (DBNotFoundError &e) {
       Log::Die("VertexGen_PhotonBomb: (Using Distribution) Wavelength simulated does not have measured spectrum.");
     }
@@ -170,7 +170,7 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
 }
 
 G4String VertexGen_PhotonBomb::GetState() {
-  if (fDist)
+  if (fSpectrum)
     return dformat("Using wavelength specrum:\t%d\t%s", fNumPhotons, fWavelengthIndex);
   else if (fRndmEnergy)
     return dformat("%d\t%s\t%f", fNumPhotons, fMaterial.c_str(), fExpTime);

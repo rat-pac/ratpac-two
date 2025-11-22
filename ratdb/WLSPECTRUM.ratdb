@@ -1,11 +1,11 @@
 {
-  "name": "WLSPECTRUM",
+  "name": "PHOTONBOMB",
   "index": "",
-  "use_dist": false,
+  "use_spectrum": false,
 }
 
 {
-  "name": "WLSPECTRUM",
+  "name": "PHOTONBOMB",
   "index": "400", // This table exists to handle the SetState call in the constructor when use_dist is true
 
   // Wavelength distrution [nm]
@@ -14,7 +14,7 @@
 }
 
 {
-  "name": "WLSPECTRUM",
+  "name": "PHOTONBOMB",
   "index": "400nm_example_triangle",
 
   // Wavelength distribution [nm]
@@ -23,7 +23,7 @@
 }
 
 {
-  "name": "WLSPECTRUM",
+  "name": "PHOTONBOMB",
   "index": "400nm_example_flat",
   
   // Wavelength distribution [nm]

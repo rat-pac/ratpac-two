@@ -26,7 +26,7 @@ class VertexGen_PhotonBomb : public GLG4VertexGen {
   double fMaxEnergy;
   std::string fMaterial;
   double fExpTime;
-  bool fDist;
+  bool fSpectrum;
   std::string fWavelengthIndex;
   std::vector<double> fWavelengths;
   std::vector<double> fIntensities;
