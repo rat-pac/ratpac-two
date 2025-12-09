@@ -557,7 +557,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     for (auto clf : classifierVector) {
       std::string name = clf->GetClassifierName();
       for (auto const &label : clf->classificationLabels) {
-        classifiervalues[label + "_" + name] = new double(clf->GetClassificationResult(label));
+        classifiervalues[name + "_" + label] = new double(clf->GetClassificationResult(label));
       }
     }
     // Write classifier values into TTree
