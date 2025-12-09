@@ -492,6 +492,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     trigger_word = ev->GetTriggerWord();
     event_cleaning_word = ev->GetEventCleaningWord();
     timeSinceLastTrigger_us = ev->GetDeltaT() / 1000.;
+
     auto fitVector = ev->GetFitResults();
     std::map<std::string, double *> fitvalues;
     std::map<std::string, bool *> fitvalids;
@@ -550,6 +551,20 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     for (auto const &[label, value] : doubleFOMs) {
       this->SetBranchValue(label, value);
     }
+
+    auto classifierVector = ev->GetClassifierResults();
+    std::map<std::string, double *> classifiervalues;
+    for (auto clf : classifierVector) {
+      std::string name = clf->GetClassifierName();
+      for (auto const &label : clf->classificationLabels) {
+        classifiervalues[label + "_" + name] = new double(clf->GetClassificationResult(label));
+      }
+    }
+    // Write classifier values into TTree
+    for (auto const &[label, value] : classifiervalues) {
+      this->SetBranchValue(label, value);
+    }
+
     nhits = ev->GetPMTCount();
     if (options.pmthits) {
       hitPMTID.clear();
