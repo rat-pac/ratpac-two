@@ -197,10 +197,27 @@ MiniSim
 
 What does this do? Do we need this in RAT?
 
+.. _chargeblanace:
+
 ClassifyChargeBalance
 =====================
 
-Document this!
+The ``classifychargebalance`` processor calculates the standard deviation divided by
+the mean of the charges on hit PMT channels.
+
+Command:
+::
+
+    /rat/proc classifychargebalance
+
+Parameters: None
+
+Classifier information in data structure
+''''''''''''''''''''''''''''''''''''''''''
+* name - ``chargebalance``
+* figures of merit - None
+
+----------------------
 
 FitTensor
 =========
@@ -449,4 +466,3 @@ Evaluates a 1D CosAlpha PDF as a negative log likelihood.
 ``hist_<pmttype>``             ``double[]``                Histogram content for each type of PMT, with ``binning`` as the bin centers.
 ``tresid_range``               ``double[2]``               Range of time residuals to use for evaluating the PDF.
 ============================   ==========================  ===================
-
