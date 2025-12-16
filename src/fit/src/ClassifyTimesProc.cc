@@ -23,9 +23,10 @@ void ClassifyTimesProc::BeginOfRun(DS::Run *run) {
     throw ParamInvalid("light_speed", "light_speed in Classifier table must be > 0 and <= 299.792458 mm/ns.");
 
   fNumerTimeResLow = table->GetD("numer_time_resid_low");
-  fNumerTimeResUp  = table->GetD("numer_time_resid_up");
+  fNumerTimeResUp = table->GetD("numer_time_resid_up");
   if (fNumerTimeResLow > fNumerTimeResUp)
-    throw ParamInvalid("numer_time_resid_low", "numer_time_resid_low in Classifier table must be <= numer_time_resid_up.");
+    throw ParamInvalid("numer_time_resid_low",
+                       "numer_time_resid_low in Classifier table must be <= numer_time_resid_up.");
 
   fPMTInfo = run->GetPMTInfo();
 }
@@ -162,8 +163,7 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
       fit = fits[fits.size() - 1];  // use last fit result
     } else {
       fit = inputHandler.FindFitResult(fPosFitter);
-      if (fit == nullptr)
-        Log::Die("ClassifyTimesProc: Position fitter \'" + fPosFitter + "\' not found.  Check name.");
+      if (fit == nullptr) Log::Die("ClassifyTimesProc: Position fitter \'" + fPosFitter + "\' not found.  Check name.");
     }
 
     if (fit->GetEnablePosition()) {
@@ -234,8 +234,7 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
     double timeResidual = inputHandler.GetTime(pmtid) - transitTime - eventTime;
 
     // Apply time residual cuts for ratio
-    if (timeResidual <= fNumerTimeResUp && timeResidual >= fNumerTimeResLow)
-      numPMTnumer += 1;
+    if (timeResidual <= fNumerTimeResUp && timeResidual >= fNumerTimeResLow) numPMTnumer += 1;
     if ((timeResidual <= fDenomTimeResUp && timeResidual >= fDenomTimeResLow) ||
         fDenomTimeResUp == fDenomTimeResLow)  // Use full range if cuts are equal
       numPMTdenom += 1;
@@ -292,20 +291,19 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
     sumTimes3 += pow(diff, 3);
     sumTimes4 += pow(diff, 4);
   }
-  double sigma=0, skew=0, kurt=0;
+  double sigma = 0, skew = 0, kurt = 0;
   if (num > 1) {
-    sigma = sqrt(sumTimes2 / (num - 1));                               // unbiased standard deviation
+    sigma = sqrt(sumTimes2 / (num - 1));  // unbiased standard deviation
     if (num > 2) {
       skew = sumTimes3 / pow(sigma, 3) * num / (num - 1) / (num - 2);  // standardized unbiased skewness
       if (num > 3)
         kurt = sumTimes4 / pow(sigma, 4) * num * (num + 1) / (num - 1) / (num - 2) / (num - 3) -
-               3.0 * (num - 1) * (num - 1) / (num - 2) / (num - 3);    // standardized unbiased excess kurtosis
+               3.0 * (num - 1) * (num - 1) / (num - 2) / (num - 3);  // standardized unbiased excess kurtosis
     }
   }
 
   /// Save results
-  if (numPMTdenom > 0)
-    clf->SetClassificationResult("ratio", static_cast<double>(numPMTnumer) / numPMTdenom);
+  if (numPMTdenom > 0) clf->SetClassificationResult("ratio", static_cast<double>(numPMTnumer) / numPMTdenom);
 
   if (numPMT > 0) {
     clf->SetClassificationResult("mean", mean);
@@ -313,8 +311,7 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
       clf->SetClassificationResult("stddev", sigma);
       if (num > 2) {
         clf->SetClassificationResult("skewness", skew);
-	if (num > 3)
-          clf->SetClassificationResult("kurtosis", kurt);
+        if (num > 3) clf->SetClassificationResult("kurtosis", kurt);
       }
     }
   }
