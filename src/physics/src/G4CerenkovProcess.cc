@@ -108,11 +108,11 @@ void G4CerenkovProcess::ProcessDescription(std::ostream& out) const {
   G4VProcess::DumpInfo();
 
   G4OpticalParameters* params = G4OpticalParameters::Instance();
-  out << "Maximum beta change per step: " << params->GetCerenkovMaxBetaChange();
-  out << "Maximum photons per step: " << params->GetCerenkovMaxPhotonsPerStep();
-  out << "Track secondaries first: " << params->GetCerenkovTrackSecondariesFirst();
-  out << "Stack photons: " << params->GetCerenkovStackPhotons();
-  out << "Verbose level: " << params->GetCerenkovVerboseLevel();
+  out << "Maximum beta change per step: " << params->GetCerenkovMaxBetaChange() << "\n";
+  out << "Maximum photons per step: " << params->GetCerenkovMaxPhotonsPerStep() << "\n";
+  out << "Track secondaries first: " << params->GetCerenkovTrackSecondariesFirst() << "\n";
+  out << "Stack photons: " << params->GetCerenkovStackPhotons() << "\n";
+  out << "Verbose level: " << params->GetCerenkovVerboseLevel() << "\n";
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -151,6 +151,9 @@ void G4CerenkovProcess::BuildPhysicsTable(const G4ParticleDefinition&) {
     G4Material* aMaterial = (*theMaterialTable)[i];
     G4MaterialPropertiesTable* MPT = aMaterial->GetMaterialPropertiesTable();
 
+    // refractive index vectors, 30-Sep-2025, Zach Larsen
+    // looped over in G4CerenkovProcess::GetAverageNumberOfPhotons
+    // while checking the Cherenkov condition before photon production
     std::vector<G4double> refractiveIndexValues;
     std::vector<G4double> refractiveIndexEnergy;
 
@@ -169,6 +172,7 @@ void G4CerenkovProcess::BuildPhysicsTable(const G4ParticleDefinition&) {
 
           cerenkovIntegral->InsertValues(currentPM, currentCAI);
 
+	  // append current refractive index values to each vector
           refractiveIndexValues.push_back(currentRI);
           refractiveIndexEnergy.push_back(currentPM);
 
@@ -356,7 +360,7 @@ G4VParticleChange* G4CerenkovProcess::PostStepDoIt(const G4Track& aTrack, const 
   }
 
   if (verboseLevel > 1) {
-    G4cout << "\n Exiting from nRangeG4Cerenkov::DoIt -- NumberOfSecondaries = "
+    G4cout << "\n Exiting from G4CerenkovProcess::DoIt -- NumberOfSecondaries = "
            << aParticleChange.GetNumberOfSecondaries() << G4endl;
   }
 
@@ -399,7 +403,8 @@ G4double G4CerenkovProcess::PostStepGetPhysicalInteractionLength(const G4Track& 
   G4MaterialPropertyVector* Rindex = nullptr;
 
   if (aMaterialPropertiesTable) Rindex = aMaterialPropertiesTable->GetProperty(kRINDEX);
-
+  // loop over refractive index vectors, 30-Sep-2025
+  // previous version used nMax = Rindex->GetMaxValue(), --> global maximum
   G4double nMax;
   if (Rindex) {
     std::vector<G4double>* rindex_vals = rindex_vals = &(*refractiveIndexValuesVectors)[materialIndex];
@@ -470,6 +475,7 @@ G4double G4CerenkovProcess::GetAverageNumberOfPhotons(const G4double charge, con
   // Retrieve the Cerenkov Angle Integrals for this material
   G4PhysicsVector* CerenkovAngleIntegrals = ((*thePhysicsTable)(materialIndex));
 
+  // Retrieve the refractive index values, 30-Sep-2025
   std::vector<G4double>* rindex_vals = &(*refractiveIndexValuesVectors)[materialIndex];
   std::vector<G4double>* rindex_energy = &(*refractiveIndexEnergyVectors)[materialIndex];
 
@@ -480,7 +486,7 @@ G4double G4CerenkovProcess::GetAverageNumberOfPhotons(const G4double charge, con
   G4double Pmin = Rindex->Energy(0);
   G4double Pmax = Rindex->GetMaxEnergy();
 
-  // Min and Max Refraction Indices
+  // Min and Max refractive index values, 30-Sep-2025
   auto [min_it, max_it] = std::minmax_element(rindex_vals->begin(), rindex_vals->end());
   G4double nMin = *min_it;
   G4double nMax = *max_it;
@@ -503,8 +509,8 @@ G4double G4CerenkovProcess::GetAverageNumberOfPhotons(const G4double charge, con
     // get the number of photons produced
     NumPhotons = Rfact * charge / eplus * charge / eplus * (dp - ge * BetaInverse * BetaInverse);
   }
-  // If the index is non-monotonic (i.e., crosses 1/Beta more than once), integrate each region above the Cerenkov
-  // threshold
+  // If the inverse phase velocity 1/Beta crosses the refractive index one or more times, integrate each region above the Cerenkov threshold to find the average photon yield, 30-Sep-2025
+  // This condition repleces the previous version that checked for n(Pmin) < 1/Beta, and n(Pmax) >= 1/Beta, and looked for only a single crossing point.
   else {
     G4double validEnergyRange = 0.0;
     G4double totalCAI = 0.0;
@@ -554,11 +560,12 @@ G4double G4CerenkovProcess::GetAverageNumberOfPhotons(const G4double charge, con
       }
     }
 
-    // get the total number of photons produced
+    // Get the total number of photons produced
     dp = validEnergyRange;
     ge = totalCAI;
     NumPhotons = Rfact * charge / eplus * charge / eplus * (dp - ge * BetaInverse * BetaInverse);
 
+    // Print the minimum initial kinetic energy, valid energy range while continuously stopping, and the Cherenkov angle contribution, 30-Sep-2025
     if (verboseLevel > 1) {
       G4cout << "Threshold kinetic energy: " << Pmin / eV << " eV" << G4endl;
       G4cout << "Total valid energy range: " << validEnergyRange / eV << " eV" << G4endl;
