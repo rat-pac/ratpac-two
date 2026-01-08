@@ -172,7 +172,7 @@ void G4CerenkovProcess::BuildPhysicsTable(const G4ParticleDefinition&) {
 
           cerenkovIntegral->InsertValues(currentPM, currentCAI);
 
-	  // append current refractive index values to each vector
+          // append current refractive index values to each vector
           refractiveIndexValues.push_back(currentRI);
           refractiveIndexEnergy.push_back(currentPM);
 
@@ -509,8 +509,9 @@ G4double G4CerenkovProcess::GetAverageNumberOfPhotons(const G4double charge, con
     // get the number of photons produced
     NumPhotons = Rfact * charge / eplus * charge / eplus * (dp - ge * BetaInverse * BetaInverse);
   }
-  // If the inverse phase velocity 1/Beta crosses the refractive index one or more times, integrate each region above the Cerenkov threshold to find the average photon yield, 30-Sep-2025
-  // This condition repleces the previous version that checked for n(Pmin) < 1/Beta, and n(Pmax) >= 1/Beta, and looked for only a single crossing point.
+  // If the inverse phase velocity 1/Beta crosses the refractive index one or more times, integrate each region above
+  // the Cerenkov threshold to find the average photon yield, 30-Sep-2025 This condition repleces the previous version
+  // that checked for n(Pmin) < 1/Beta, and n(Pmax) >= 1/Beta, and looked for only a single crossing point.
   else {
     G4double validEnergyRange = 0.0;
     G4double totalCAI = 0.0;
@@ -565,7 +566,8 @@ G4double G4CerenkovProcess::GetAverageNumberOfPhotons(const G4double charge, con
     ge = totalCAI;
     NumPhotons = Rfact * charge / eplus * charge / eplus * (dp - ge * BetaInverse * BetaInverse);
 
-    // Print the minimum initial kinetic energy, valid energy range while continuously stopping, and the Cherenkov angle contribution, 30-Sep-2025
+    // Print the minimum initial kinetic energy, valid energy range while continuously stopping, and the Cherenkov angle
+    // contribution, 30-Sep-2025
     if (verboseLevel > 1) {
       G4cout << "Threshold kinetic energy: " << Pmin / eV << " eV" << G4endl;
       G4cout << "Total valid energy range: " << validEnergyRange / eV << " eV" << G4endl;
