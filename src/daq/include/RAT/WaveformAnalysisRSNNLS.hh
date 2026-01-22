@@ -84,6 +84,11 @@ class WaveformAnalysisRSNNLS : public WaveformAnalyzerBase {
   // Thresholding parameters
   double weight_threshold;  ///< Minimum weight threshold for component significance
 
+  // NPE estimation parameters
+  bool npe_estimate;                 ///< Whether to perform NPE estimation on resolved wave packets
+  double npe_estimate_charge_width;  ///< Width of Gaussian single-PE charge distribution
+  size_t npe_estimate_max_pes;       ///< Upper limit for NPE estimation
+
   // Dictionary management
   bool dictionary_built;           ///< Flag to track if dictionary has been built
   int cached_nsamples;             ///< Cached number of samples for dictionary
@@ -101,12 +106,15 @@ class WaveformAnalysisRSNNLS : public WaveformAnalyzerBase {
 
   /// Process a single threshold crossing region with rsNNLS
   void ProcessThresholdRegion(const std::vector<double> &voltWfm, int start_sample, int end_sample,
-                              DS::WaveformAnalysisResult *fit_result);
+                              DS::WaveformAnalysisResult *fit_result, double gain_calibration);
 
   /// Extract photoelectrons from significant weights in the region
   void ExtractPhotoelectrons(const TVectorD &region_weights, int dict_start, int dict_cols, int start_sample,
-                             int end_sample, double chi2ndf, int iterations_ran,
-                             DS::WaveformAnalysisResult *fit_result);
+                             int end_sample, double chi2ndf, int iterations_ran, DS::WaveformAnalysisResult *fit_result,
+                             double gain_calibration);
+
+  /// Estimate the number of PEs in a resolved wave packet using a Gaussian single-PE charge PDF
+  size_t EstimateNPE(double charge) const;
 };
 
 }  // namespace RAT

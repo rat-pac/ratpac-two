@@ -4,6 +4,7 @@
 #include <TMatrixD.h>
 #include <TVectorD.h>
 
+#include <RAT/DS/RunStore.hh>
 #include <RAT/Log.hh>
 #include <RAT/WaveformAnalysisRSNNLS.hh>
 #include <cmath>
@@ -50,6 +51,11 @@ void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
     upsample_factor = fDigit->GetD("upsampling_factor");  // Dictionary upsampling factor
     epsilon = fDigit->GetD("nnls_tolerance");             // NNLS convergence tolerance
 
+    // NPE estimation configuration
+    npe_estimate = fDigit->GetZ("npe_estimate");
+    npe_estimate_charge_width = fDigit->GetD("npe_estimate_charge_width");
+    npe_estimate_max_pes = fDigit->GetI("npe_estimate_max_pes");
+
     // Validate critical parameters
     if (upsample_factor <= 0) {
       RAT::Log::Die("WaveformAnalysisRSNNLS: Invalid upsampling factor.");
@@ -82,6 +88,8 @@ void WaveformAnalysisRSNNLS::SetD(std::string param, double value) {
     voltage_threshold = value;
   } else if (param == "nnls_tolerance") {
     epsilon = value;
+  } else if (param == "npe_estimate_charge_width") {
+    npe_estimate_charge_width = value;
   } else {
     throw Processor::ParamUnknown(param);
   }
@@ -98,6 +106,10 @@ void WaveformAnalysisRSNNLS::SetI(std::string param, int value) {
       RAT::Log::Die("WaveformAnalysisRSNNLS: Invalid rsnnls_template_type " + std::to_string(value) +
                     ". Must be 0 (lognormal) or 1 (gaussian).");
     }
+  } else if (param == "npe_estimate") {
+    npe_estimate = (value != 0);
+  } else if (param == "npe_estimate_max_pes") {
+    npe_estimate_max_pes = static_cast<size_t>(value);
   } else {
     throw Processor::ParamUnknown(param);
   }
@@ -163,6 +175,9 @@ void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
     RAT::Log::Die("WaveformAnalysisRSNNLS: Pedestal is invalid! Did you run WaveformPrep first?");
   }
 
+  // Get per-PMT gain calibration for consistent charge calculation (same as LucyDDM)
+  double gain_calibration = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByPMTID(digitpmt->GetID());
+
   // Verify waveform size matches dictionary matrix
   if (static_cast<int>(digitWfm.size()) != fW.GetNrows()) {
     RAT::Log::Die("WaveformAnalysisRSNNLS: Waveform size mismatch with dictionary matrix.");
@@ -189,14 +204,14 @@ void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
       int end_sample = region.second;
 
       // Perform rsNNLS on this region
-      ProcessThresholdRegion(voltWfm, start_sample, end_sample, fit_result);
+      ProcessThresholdRegion(voltWfm, start_sample, end_sample, fit_result, gain_calibration);
     }
   } else {
     int start_sample = 0;
     int end_sample = static_cast<int>(voltWfm.size()) - 1;
 
     // Perform rsNNLS on the entire waveform
-    ProcessThresholdRegion(voltWfm, start_sample, end_sample, fit_result);
+    ProcessThresholdRegion(voltWfm, start_sample, end_sample, fit_result, gain_calibration);
   }
 }
 
@@ -333,7 +348,8 @@ std::vector<std::pair<int, int>> WaveformAnalysisRSNNLS::FindThresholdRegions(co
 }
 
 void WaveformAnalysisRSNNLS::ProcessThresholdRegion(const std::vector<double>& voltWfm, int start_sample,
-                                                    int end_sample, DS::WaveformAnalysisResult* fit_result) {
+                                                    int end_sample, DS::WaveformAnalysisResult* fit_result,
+                                                    double gain_calibration) {
   const int region_length = end_sample - start_sample + 1;
 
   // Use iterators to avoid copying waveform segment
@@ -381,12 +397,12 @@ void WaveformAnalysisRSNNLS::ProcessThresholdRegion(const std::vector<double>& v
 
   // Extract PEs from significant weights
   ExtractPhotoelectrons(region_weights, dict_start, dict_cols, start_sample, end_sample, chi2ndf, iterations_ran,
-                        fit_result);
+                        fit_result, gain_calibration);
 }
 
 void WaveformAnalysisRSNNLS::ExtractPhotoelectrons(const TVectorD& region_weights, int dict_start, int dict_cols,
                                                    int start_sample, int end_sample, double chi2ndf, int iterations_ran,
-                                                   DS::WaveformAnalysisResult* fit_result) {
+                                                   DS::WaveformAnalysisResult* fit_result, double gain_calibration) {
   // Extract PEs from significant weights
   for (int i = 0; i < dict_cols; ++i) {
     if (region_weights(i) > 0.0) {
@@ -405,15 +421,36 @@ void WaveformAnalysisRSNNLS::ExtractPhotoelectrons(const TVectorD& region_weight
         continue;
       }
 
-      double pe_charge = region_weights(i) * vpe_charge;  // Charge in pC
+      // Charge calculation consistent with LucyDDM: apply gain calibration
+      double pe_charge = region_weights(i) * vpe_charge * gain_calibration;  // Charge in pC
 
-      fit_result->AddPE(delay, pe_charge,
-                        {
-                            {"chi2ndf", chi2ndf},
-                            {"iterations_ran", iterations_ran},
-                            {"weight", region_weights(i)},
-                        });
+      // Estimate number of PEs using likelihood method
+      size_t npe = EstimateNPE(pe_charge);
+
+      // Add each estimated PE with divided charge
+      for (size_t ipe = 0; ipe < npe; ++ipe) {
+        fit_result->AddPE(delay, pe_charge / npe,
+                          {
+                              {"chi2ndf", chi2ndf},
+                              {"iterations_ran", static_cast<double>(iterations_ran)},
+                              {"weight", region_weights(i) / npe},
+                              {"estimated_npe", static_cast<double>(npe)},
+                          });
+      }
     }
   }
+}
+
+size_t WaveformAnalysisRSNNLS::EstimateNPE(double charge) const {
+  if (!npe_estimate) {
+    return 1;
+  }
+  std::vector<double> log_likelihood(npe_estimate_max_pes, 0.0);
+  for (size_t npe = 1; npe <= npe_estimate_max_pes; ++npe) {
+    log_likelihood[npe - 1] =
+        -std::pow(charge - npe * vpe_charge, 2) / (2 * npe * std::pow(npe_estimate_charge_width, 2)) -
+        0.5 * std::log(2 * TMath::Pi() * npe * std::pow(npe_estimate_charge_width, 2));
+  }
+  return std::distance(log_likelihood.begin(), std::max_element(log_likelihood.begin(), log_likelihood.end())) + 1;
 }
 }  // namespace RAT

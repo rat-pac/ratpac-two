@@ -125,10 +125,10 @@
 // Process only threshold crossing regions
 "process_threshold_crossing": 1, // 0=no, 1=yes
 "voltage_threshold": -2.5, // Voltage threshold for region detection (mV)
-"region_padding": 1, // Number of samples to pad around threshold crossing regions
+"region_padding": 0, // Number of samples to pad around threshold crossing regions
 
 // Template configuration
-"rsnnls_template_type": 0, // Template type: 0=lognormal, 1=gaussian
+"rsnnls_template_type": 1, // Template type: 0=lognormal, 1=gaussian
 
 // LogNormal template parameters (used when rsnnls_template_type = 0)
 "lognormal_scale": 10.5, // "m" parameter in Lognormal distribution
@@ -142,12 +142,21 @@
 "vpe_charge": 1.6, 
 
 // Dictionary matrix parameters
-"upsampling_factor": 4.0, // Upsampling resolution factor for dictionary
+"upsampling_factor": 10.0, // Upsampling resolution factor for dictionary
 
 // Algorithm parameters  
 "max_iterations": 100000, // Maximum number of rsNNLS iterations
 "nnls_tolerance": 1e-10, // NNLS convergence tolerance
 
 // Thresholding parameters
-"weight_threshold": 0.7, // Minimum weight for component significance
+"weight_threshold": 0.6, // Minimum weight for component significance
+
+// if true, perform a final NPE estimation on all resolved wave packet in the deconvolved 
+// waveform. Estimate the number of PEs in each packet using a gaussian PDF on charge.
+// The mean of the single PE charge distribution is centered around `vpe_charge`.
+"npe_estimate": true,
+// Width of the single PE charge distribution, in pC.
+"npe_estimate_charge_width": 0.4,
+// Maximum number of PEs to consider in the NPE estimation.
+"npe_estimate_max_pes": 10
 }
