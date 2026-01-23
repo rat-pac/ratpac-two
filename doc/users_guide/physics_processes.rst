@@ -41,7 +41,7 @@ There are a few commands users can use to 'tune' their simulation to match physi
 | :------------------------------------------- | :---------------------------------------------------------------------------- | :--- |
 | /rat/physics/enableCerenkov                  | Controls whether we simulate Cerenkov photons (bool | true / false).          | true |
 | /rat/physics/setCerenkovMaxNumPhotonsPerStep | Controls the maximum number of photons produced within a step (integer).      |   4  |
-| /rat/physics/setCerenkovMaxBetaChangePerStep | Controls the maximum change in the phase velocity within a step (percentage). | 10.0 |
+| /rat/physics/setCerenkovMaxBetaChangePerStep | Controls the maximum change in the phase velocity within a step (percentage). | 1.0 |
 
 -------------------
 

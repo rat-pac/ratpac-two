@@ -24,7 +24,7 @@ PhysicsListMessenger::PhysicsListMessenger(PhysicsList *physicsList) : fPhysicsL
   fSetMaxBetaChangePerStep = new G4UIcmdWithADouble("/rat/physics/setCerenkovMaxBetaChangePerStep", this);
   fSetMaxBetaChangePerStep->SetGuidance("Controls the maximum phase velocity change per step");
   fSetMaxBetaChangePerStep->SetParameterName("MaxBetaChange", false);
-  fSetMaxBetaChangePerStep->SetDefaultValue(10.0);
+  fSetMaxBetaChangePerStep->SetDefaultValue(1.0);
 
   fSetCerenkovMaxNumPhotonsPerStep = new G4UIcmdWithAnInteger("/rat/physics/setCerenkovMaxNumPhotonsPerStep", this);
   fSetCerenkovMaxNumPhotonsPerStep->SetParameterName("CerenkovMaxNumPhotonsPerStep", false);
