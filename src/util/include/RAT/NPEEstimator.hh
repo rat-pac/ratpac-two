@@ -1,7 +1,7 @@
 #ifndef __RAT_NPEESTIMATOR__
 #define __RAT_NPEESTIMATOR__
 
-#include <cstddef>
+#include <TObject.h>
 
 namespace RAT {
 
