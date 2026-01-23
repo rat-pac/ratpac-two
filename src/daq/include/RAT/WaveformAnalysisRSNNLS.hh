@@ -112,9 +112,6 @@ class WaveformAnalysisRSNNLS : public WaveformAnalyzerBase {
   void ExtractPhotoelectrons(const TVectorD &region_weights, int dict_start, int dict_cols, int start_sample,
                              int end_sample, double chi2ndf, int iterations_ran, DS::WaveformAnalysisResult *fit_result,
                              double gain_calibration);
-
-  /// Estimate the number of PEs in a resolved wave packet using a Gaussian single-PE charge PDF
-  size_t EstimateNPE(double charge) const;
 };
 
 }  // namespace RAT

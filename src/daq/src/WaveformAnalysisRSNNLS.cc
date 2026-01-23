@@ -6,6 +6,7 @@
 
 #include <RAT/DS/RunStore.hh>
 #include <RAT/Log.hh>
+#include <RAT/NPEEstimator.hh>
 #include <RAT/WaveformAnalysisRSNNLS.hh>
 #include <cmath>
 
@@ -425,7 +426,8 @@ void WaveformAnalysisRSNNLS::ExtractPhotoelectrons(const TVectorD& region_weight
       double pe_charge = region_weights(i) * vpe_charge * gain_calibration;  // Charge in pC
 
       // Estimate number of PEs using likelihood method
-      size_t npe = EstimateNPE(pe_charge);
+      size_t npe =
+          npe_estimate ? EstimateNPE(pe_charge, vpe_charge, npe_estimate_charge_width, npe_estimate_max_pes) : 1;
 
       // Add each estimated PE with divided charge
       for (size_t ipe = 0; ipe < npe; ++ipe) {
@@ -439,18 +441,5 @@ void WaveformAnalysisRSNNLS::ExtractPhotoelectrons(const TVectorD& region_weight
       }
     }
   }
-}
-
-size_t WaveformAnalysisRSNNLS::EstimateNPE(double charge) const {
-  if (!npe_estimate) {
-    return 1;
-  }
-  std::vector<double> log_likelihood(npe_estimate_max_pes, 0.0);
-  for (size_t npe = 1; npe <= npe_estimate_max_pes; ++npe) {
-    log_likelihood[npe - 1] =
-        -std::pow(charge - npe * vpe_charge, 2) / (2 * npe * std::pow(npe_estimate_charge_width, 2)) -
-        0.5 * std::log(2 * TMath::Pi() * npe * std::pow(npe_estimate_charge_width, 2));
-  }
-  return std::distance(log_likelihood.begin(), std::max_element(log_likelihood.begin(), log_likelihood.end())) + 1;
 }
 }  // namespace RAT

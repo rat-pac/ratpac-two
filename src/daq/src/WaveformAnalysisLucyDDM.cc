@@ -5,6 +5,7 @@
 
 #include <RAT/DS/RunStore.hh>
 #include <RAT/Log.hh>
+#include <RAT/NPEEstimator.hh>
 #include <RAT/ROOTInterpolator.hh>
 #include <RAT/WaveformAnalysisLucyDDM.hh>
 #include <chrono>
@@ -75,7 +76,9 @@ void WaveformAnalysisLucyDDM::DoAnalysis(DS::DigitPMT* digitpmt, const std::vect
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("LucyDDM");
   for (size_t ipacket = 0; ipacket < reco_times.size(); ++ipacket) {
     if (reco_charges[ipacket] < charge_threshold) continue;
-    size_t npe = EstimateNPE(reco_charges[ipacket]);
+    size_t npe = npe_estimate
+                     ? EstimateNPE(reco_charges[ipacket], vpe_charge, npe_estimate_charge_width, npe_estimate_max_pes)
+                     : 1;
     for (size_t i = 0; i < npe; ++i) {
       fit_result->AddPE(reco_times[ipacket], reco_charges[ipacket] / npe,
                         {
@@ -294,19 +297,6 @@ void WaveformAnalysisLucyDDM::FindHits(const std::vector<double>& phi, std::vect
   reorder(out_time_errors);
   reorder(out_charge_errors);
   chi2ndf = pulse_train->GetChisquare() / pulse_train->GetNDF();
-}
-
-size_t WaveformAnalysisLucyDDM::EstimateNPE(double charge) const {
-  if (!npe_estimate) {
-    return 1;
-  }
-  std::vector<double> log_likelihood(npe_estimate_max_pes, 0.0);
-  for (size_t npe = 1; npe <= npe_estimate_max_pes; ++npe) {
-    log_likelihood[npe - 1] =
-        -std::pow(charge - npe * vpe_charge, 2) / (2 * npe * std::pow(npe_estimate_charge_width, 2)) -
-        0.5 * std::log(2 * TMath::Pi() * npe * std::pow(npe_estimate_charge_width, 2));
-  }
-  return std::distance(log_likelihood.begin(), std::max_element(log_likelihood.begin(), log_likelihood.end())) + 1;
 }
 
 void WaveformAnalysisLucyDDM::ClampBelowThreshold(std::vector<double>& wfm, double thresh) const {
