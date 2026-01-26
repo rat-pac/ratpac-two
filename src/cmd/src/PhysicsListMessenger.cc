@@ -24,12 +24,12 @@ PhysicsListMessenger::PhysicsListMessenger(PhysicsList *physicsList) : fPhysicsL
   fSetMaxBetaChangePerStep = new G4UIcmdWithADouble("/rat/physics/setCerenkovMaxBetaChangePerStep", this);
   fSetMaxBetaChangePerStep->SetGuidance("Controls the maximum phase velocity change per step");
   fSetMaxBetaChangePerStep->SetParameterName("MaxBetaChange", false);
-  fSetMaxBetaChangePerStep->SetDefaultValue(1.0);
+  fSetMaxBetaChangePerStep->SetDefaultValue(10.0);
 
   fSetCerenkovMaxNumPhotonsPerStep = new G4UIcmdWithAnInteger("/rat/physics/setCerenkovMaxNumPhotonsPerStep", this);
   fSetCerenkovMaxNumPhotonsPerStep->SetParameterName("CerenkovMaxNumPhotonsPerStep", false);
   fSetCerenkovMaxNumPhotonsPerStep->SetGuidance("Indirectly controls the track step size");
-  fSetCerenkovMaxNumPhotonsPerStep->SetDefaultValue(4);
+  fSetCerenkovMaxNumPhotonsPerStep->SetDefaultValue(1);
 
   fEnableCerenkov = new G4UIcmdWithABool("/rat/physics/enableCerenkov", this);
   fEnableCerenkov->SetParameterName("EnableCerenkov", false);

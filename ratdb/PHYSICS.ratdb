@@ -6,8 +6,8 @@
 "wls_model_name": "",
 
 "enable_cerenkov": true,
-"cerenkov_max_beta_change_per_step": 1.0,
-"cerenkov_max_num_photons_per_step": 4,
+"cerenkov_max_beta_change_per_step": 10.0,
+"cerenkov_max_num_photons_per_step": 1,
 
 "step_function_light_ions_d_over_R": 0.01,
 //In mm
