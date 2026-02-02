@@ -407,8 +407,8 @@ G4double G4CerenkovProcess::PostStepGetPhysicalInteractionLength(const G4Track& 
   // previous version used nMax = Rindex->GetMaxValue(), --> global maximum
   G4double nMax;
   if (Rindex) {
-    std::vector<G4double>* rindex_vals = rindex_vals = &(*refractiveIndexValuesVectors)[materialIndex];
-    std::vector<G4double>* rindex_energy = rindex_energy = &(*refractiveIndexEnergyVectors)[materialIndex];
+    std::vector<G4double>* rindex_vals = &(*refractiveIndexValuesVectors)[materialIndex];
+    std::vector<G4double>* rindex_energy = &(*refractiveIndexEnergyVectors)[materialIndex];
     auto [min_it, max_it] = std::minmax_element(rindex_vals->begin(), rindex_vals->end());
     nMax = *max_it;
   } else {
