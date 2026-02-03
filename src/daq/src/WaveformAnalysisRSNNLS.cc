@@ -8,6 +8,7 @@
 #include <RAT/Log.hh>
 #include <RAT/NPEEstimator.hh>
 #include <RAT/WaveformAnalysisRSNNLS.hh>
+#include <algorithm>
 #include <cmath>
 
 #include "RAT/DS/DigitPMT.hh"
@@ -57,6 +58,9 @@ void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
     npe_estimate_charge_width = fDigit->GetD("npe_estimate_charge_width");
     npe_estimate_max_pes = fDigit->GetI("npe_estimate_max_pes");
 
+    // Weight merging configuration
+    weight_merge_window = fDigit->GetD("weight_merge_window");  // Time window for merging nearby weights (ns)
+
     // Validate critical parameters
     if (upsample_factor <= 0) {
       RAT::Log::Die("WaveformAnalysisRSNNLS: Invalid upsampling factor.");
@@ -91,6 +95,8 @@ void WaveformAnalysisRSNNLS::SetD(std::string param, double value) {
     epsilon = value;
   } else if (param == "npe_estimate_charge_width") {
     npe_estimate_charge_width = value;
+  } else if (param == "weight_merge_window") {
+    weight_merge_window = value;
   } else {
     throw Processor::ParamUnknown(param);
   }
@@ -401,44 +407,103 @@ void WaveformAnalysisRSNNLS::ProcessThresholdRegion(const std::vector<double>& v
                         fit_result, gain_calibration);
 }
 
-void WaveformAnalysisRSNNLS::ExtractPhotoelectrons(const TVectorD& region_weights, int dict_start, int dict_cols,
-                                                   int start_sample, int end_sample, double chi2ndf, int iterations_ran,
-                                                   DS::WaveformAnalysisResult* fit_result, double gain_calibration) {
-  // Extract PEs from significant weights
+std::vector<std::pair<double, double>> WaveformAnalysisRSNNLS::MergeNearbyWeights(const TVectorD& region_weights,
+                                                                                  int dict_start, int dict_cols,
+                                                                                  double merge_window) {
+  // Collect non-zero weights with their times
+  std::vector<std::pair<double, double>> time_weight_pairs;  // (time, weight)
   for (int i = 0; i < dict_cols; ++i) {
     if (region_weights(i) > 0.0) {
       int global_dict_index = dict_start + i;
-      double delay = global_dict_index * fTimeStep / upsample_factor;
+      double time = global_dict_index * fTimeStep / upsample_factor;
+      time_weight_pairs.emplace_back(time, region_weights(i));
+    }
+  }
 
-      // Sanity check - use appropriate template scale for range checking
-      double template_scale = (template_type == 0) ? lognormal_scale : gaussian_width;
-      double region_start_time = start_sample * fTimeStep;
-      double region_end_time = end_sample * fTimeStep;
+  if (time_weight_pairs.empty() || merge_window <= 0.0) {
+    return time_weight_pairs;
+  }
 
-      if (delay < region_start_time - 3.0 * template_scale || delay > region_end_time + 3.0 * template_scale) {
-        warn << "WaveformAnalysisRSNNLS: PE time " << delay << " ns outside expected range ["
-             << (region_start_time - 3.0 * template_scale) << ", " << (region_end_time + 3.0 * template_scale)
-             << "] for region [" << start_sample << ", " << end_sample << "]" << newline;
-        continue;
+  // Sort by time (should already be sorted, but ensure it)
+  std::sort(time_weight_pairs.begin(), time_weight_pairs.end(),
+            [](const auto& a, const auto& b) { return a.first < b.first; });
+
+  // Merge weights within the time window
+  std::vector<std::pair<double, double>> merged_weights;
+  merged_weights.reserve(time_weight_pairs.size());
+
+  size_t i = 0;
+  while (i < time_weight_pairs.size()) {
+    // Start a new cluster
+    double cluster_weight_sum = time_weight_pairs[i].second;
+    double cluster_time_weighted_sum = time_weight_pairs[i].first * time_weight_pairs[i].second;
+    size_t cluster_end = i + 1;
+
+    // Extend cluster to include all weights within merge_window of any cluster member
+    while (cluster_end < time_weight_pairs.size()) {
+      // Check if next weight is within merge_window of the cluster's weighted mean time
+      double cluster_mean_time = cluster_time_weighted_sum / cluster_weight_sum;
+      if (time_weight_pairs[cluster_end].first - cluster_mean_time <= merge_window) {
+        // Add to cluster
+        cluster_weight_sum += time_weight_pairs[cluster_end].second;
+        cluster_time_weighted_sum += time_weight_pairs[cluster_end].first * time_weight_pairs[cluster_end].second;
+        cluster_end++;
+      } else {
+        break;
       }
+    }
 
-      // Charge calculation consistent with LucyDDM: apply gain calibration
-      double pe_charge = region_weights(i) * vpe_charge * gain_calibration;  // Charge in pC
+    // Store merged weight with charge-weighted mean time
+    double merged_time = cluster_time_weighted_sum / cluster_weight_sum;
+    merged_weights.emplace_back(merged_time, cluster_weight_sum);
 
-      // Estimate number of PEs using likelihood method
-      size_t npe =
-          npe_estimate ? EstimateNPE(pe_charge, vpe_charge, npe_estimate_charge_width, npe_estimate_max_pes) : 1;
+    i = cluster_end;
+  }
 
-      // Add each estimated PE with divided charge
-      for (size_t ipe = 0; ipe < npe; ++ipe) {
-        fit_result->AddPE(delay, pe_charge / npe,
-                          {
-                              {"chi2ndf", chi2ndf},
-                              {"iterations_ran", static_cast<double>(iterations_ran)},
-                              {"weight", region_weights(i) / npe},
-                              {"estimated_npe", static_cast<double>(npe)},
-                          });
-      }
+  return merged_weights;
+}
+
+void WaveformAnalysisRSNNLS::ExtractPhotoelectrons(const TVectorD& region_weights, int dict_start, int dict_cols,
+                                                   int start_sample, int end_sample, double chi2ndf, int iterations_ran,
+                                                   DS::WaveformAnalysisResult* fit_result, double gain_calibration) {
+  // Merge nearby weights to prevent PE overcounting from weight splitting
+  std::vector<std::pair<double, double>> merged_weights =
+      MergeNearbyWeights(region_weights, dict_start, dict_cols, weight_merge_window);
+
+  // Sanity check parameters
+  double template_scale = (template_type == 0) ? lognormal_scale : gaussian_width;
+  double region_start_time = start_sample * fTimeStep;
+  double region_end_time = end_sample * fTimeStep;
+
+  // Extract PEs from merged weights
+  for (const auto& [delay, weight] : merged_weights) {
+    // Sanity check - ensure PE time is within expected range
+    if (delay < region_start_time - 3.0 * template_scale || delay > region_end_time + 3.0 * template_scale) {
+      warn << "WaveformAnalysisRSNNLS: PE time " << delay << " ns outside expected range ["
+           << (region_start_time - 3.0 * template_scale) << ", " << (region_end_time + 3.0 * template_scale)
+           << "] for region [" << start_sample << ", " << end_sample << "]" << newline;
+      continue;
+    }
+
+    // Charge calculation: apply gain calibration
+    double pe_charge = weight * vpe_charge * gain_calibration;  // Charge in pC
+
+    // Estimate number of PEs using likelihood method
+    // Use calibrated vpe_charge so expected charge per PE matches the scale of pe_charge
+    double calibrated_vpe_charge = vpe_charge * gain_calibration;
+    size_t npe = npe_estimate
+                     ? EstimateNPE(pe_charge, calibrated_vpe_charge, npe_estimate_charge_width, npe_estimate_max_pes)
+                     : 1;
+
+    // Add each estimated PE with divided charge
+    for (size_t ipe = 0; ipe < npe; ++ipe) {
+      fit_result->AddPE(delay, pe_charge / npe,
+                        {
+                            {"chi2ndf", chi2ndf},
+                            {"iterations_ran", static_cast<double>(iterations_ran)},
+                            {"weight", weight / npe},
+                            {"estimated_npe", static_cast<double>(npe)},
+                        });
     }
   }
 }

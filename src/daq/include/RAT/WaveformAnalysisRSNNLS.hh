@@ -34,6 +34,7 @@
 #include <RAT/Digitizer.hh>
 #include <RAT/Processor.hh>
 #include <RAT/WaveformAnalyzerBase.hh>
+#include <utility>
 #include <vector>
 
 #include "TMatrixD.h"
@@ -82,7 +83,8 @@ class WaveformAnalysisRSNNLS : public WaveformAnalyzerBase {
   double upsample_factor;  ///< Dictionary upsampling factor for sub-sample resolution
 
   // Thresholding parameters
-  double weight_threshold;  ///< Minimum weight threshold for component significance
+  double weight_threshold;     ///< Minimum weight threshold for component significance
+  double weight_merge_window;  ///< Time window (ns) for merging nearby weights before NPE estimation
 
   // NPE estimation parameters
   bool npe_estimate;                 ///< Whether to perform NPE estimation on resolved wave packets
@@ -112,6 +114,11 @@ class WaveformAnalysisRSNNLS : public WaveformAnalyzerBase {
   void ExtractPhotoelectrons(const TVectorD &region_weights, int dict_start, int dict_cols, int start_sample,
                              int end_sample, double chi2ndf, int iterations_ran, DS::WaveformAnalysisResult *fit_result,
                              double gain_calibration);
+
+  /// Merge nearby weights within a time window to prevent PE overcounting
+  /// Returns vector of (time, merged_weight) pairs
+  std::vector<std::pair<double, double>> MergeNearbyWeights(const TVectorD &region_weights, int dict_start,
+                                                            int dict_cols, double merge_window);
 };
 
 }  // namespace RAT
