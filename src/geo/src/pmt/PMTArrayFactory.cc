@@ -37,6 +37,12 @@ G4VPhysicalVolume *PMTArrayFactory::Construct(DBLinkPtr table) {
   } catch (DBNotFoundError &e) {
     end_idx = pmtinfo_pos.size() - 1;  // defaults to whole array
   }
+
+  if (end_idx >= static_cast<int>(pmtinfo_pos.size())) {
+    Log::Die("PMTFactoryBase error: end_idx (" + std::to_string(end_idx) +
+             ") must be less than the size of the PMT position array (" + std::to_string(pmtinfo_pos.size()) + ")");
+  }
+
   info << "    start_idx: " << start_idx << "\n";
   info << "    end_idx: " << end_idx << "\n";
 
