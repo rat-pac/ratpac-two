@@ -25,7 +25,7 @@
 
 {
 "name": "DIGITIZER_ANALYSIS",
-"index": "LognormalFit"
+"index": "LognormalFit",
 "run_range": [0, 0],
 
 // Fit window, in ns
@@ -38,7 +38,7 @@
 
 {
 "name": "DIGITIZER_ANALYSIS",
-"index": "GaussianFit"
+"index": "GaussianFit",
 "run_range": [0, 0],
 
 // Fit window, in ns
@@ -93,7 +93,7 @@
 "roi_threshold": 2, 
 
 // Maximum number of LucyDDM iterations to run.
-"max_iterations": 1000,
+"max_iterations": 50,
 
 // If LucyDDM makes gain in Poisson Log-likelihood less than this value, it 
 // will stop iterating.
@@ -102,10 +102,10 @@
 // Height threshold for peak detection in the deconovlved waveform.
 "peak_height_threshold": 0.05,
 // Remove the hit if the charge is below this threshold.
-"charge_threshold": 0.45,
+"charge_threshold": 0.4,
 
 // Peaks will be merged if the tiem difference between are below this threadhold, in ns.
-"min_peak_distance": 4.5,
+"min_peak_distance": 2,
 
 // if true, perform a final NPE estimation on all resolved wave packet in the deconvolved 
 // waveform. Estimate the number of PEs in each packet using a gaussian PDF on charge.
@@ -114,5 +114,55 @@
 // Width of the single PE charge distribution, in pC.
 "npe_estimate_charge_width": 0.4,
 // Maximum number of PEs to consider in the NPE estimation.
-"npe_estimate_max_pes": 10
+"npe_estimate_max_pes": 20
+}
+
+{
+"name": "DIGITIZER_ANALYSIS",
+"index": "rsNNLS",
+"run_range": [0, 0],
+
+// Process only threshold crossing regions
+"process_threshold_crossing": 1, // 0=no, 1=yes
+"voltage_threshold": -2, // Voltage threshold for region detection (mV)
+"region_padding": 0, // Number of samples to pad around threshold crossing regions
+
+// Template configuration
+"rsnnls_template_type": 1, // Template type: 0=lognormal, 1=gaussian
+
+// LogNormal template parameters (used when rsnnls_template_type = 0)
+"lognormal_scale": 10.5, // "m" parameter in Lognormal distribution
+"lognormal_shape": 0.15, // "sigma" parameter in Lognormal distribution
+
+// Gaussian template parameters (used when rsnnls_template_type = 1)  
+"gaussian_width": 1.5, // Gaussian sigma parameter for SPE template
+
+// Nominal charge of a single PE in pC. Used to determine the correct 
+// normalization for a SPE waveform and to convert deconvolved weights to charge.
+"vpe_charge": 1.6, 
+
+// Dictionary matrix parameters
+"upsampling_factor": 10.0, // Upsampling resolution factor for dictionary
+
+// Algorithm parameters  
+"max_iterations": 50, // Maximum number of rsNNLS iterations
+"nnls_tolerance": 1e-10, // NNLS convergence tolerance
+
+// Thresholding parameters
+"weight_threshold": 0.25, // Minimum weight for component significance
+
+// Weight merging parameters
+// Merge nearby weights within this time window (ns) before NPE estimation.
+// This prevents a single PE from being split across multiple dictionary columns
+// and counted multiple times. Set to 0 to disable merging.
+"weight_merge_window": 2,
+
+// if true, perform a final NPE estimation on all resolved wave packet in the deconvolved 
+// waveform. Estimate the number of PEs in each packet using a gaussian PDF on charge.
+// The mean of the single PE charge distribution is centered around `vpe_charge`.
+"npe_estimate": true,
+// Width of the single PE charge distribution, in pC.
+"npe_estimate_charge_width": 0.4,
+// Maximum number of PEs to consider in the NPE estimation.
+"npe_estimate_max_pes": 20
 }

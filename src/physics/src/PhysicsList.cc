@@ -1,4 +1,5 @@
 #include <Shielding.hh>
+#include <regex>
 #include <stdexcept>
 #include <string>
 // Required for G4 > 10.5

@@ -25,9 +25,10 @@ add_subdirectory(ratbase)
 # Create our libraries and executables
 
 # RAT shared library
+set(CMAKE_SHARED_LIBRARY_SUFFIX ".so") # for macOS users, cmake produces dynamic library (.dylib) files instead of share objects (.so) - this just forces the latter
 add_library(RATPAC SHARED)
 target_link_libraries(RATPAC PUBLIC
-  ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} ${CRY_LIBRARIES} ${TENSORFLOW_LIBRARIES}
+  ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} ${CRY_LIBRARIES} ${TENSORFLOW_LIBRARIES} ${NLOPT_LIBRARIES}
   cmd core daq db ds gen geo io fit physics ratbase stlplus cppflow util RATDict)
 target_include_directories(RATPAC PUBLIC ${CLHEP_INCLUDE_DIRS})
 message("Including ${CLHEP_INCLUDE_DIRS}")
