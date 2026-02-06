@@ -36,8 +36,9 @@ def target_needs_update(target, sources):
     '''
     Determine if the target needs to be updated.
     Based on its timestamp and whether or not it already exists.
+    Returns True if target is None, doesn't exist, or is older than any source.
     '''
-    if not os.path.exists(target):
+    if target is None or not os.path.exists(target):
         return True
     
     target_date = os.path.getmtime(target)
@@ -48,6 +49,18 @@ def target_needs_update(target, sources):
 
     return False
 
+
+def find_event_file(testdir, basename):
+    '''
+    Find the event file created by rat.
+    Rat appends .root or .ntuple.root depending on the output processor.
+    Check .ntuple.root first since .root is a substring.
+    '''
+    for ext in ['.ntuple.root', '.root']:
+        candidate = os.path.join(testdir, basename + ext)
+        if os.path.exists(candidate):
+            return candidate
+    return None
 
 
 def dir_to_strlist(directory):
@@ -101,10 +114,10 @@ class RatTest:
         else:
             self.rat_bin = rat_bin
 
-        # Set the event file name
-        self.event_file = os.path.join(self.testdir, 'mc_events.root')
-        self.rat_flags += f' -o "{os.path.basename(self.event_file)}"'
-        print('Event file: {}'.format(self.event_file))
+        # Set the event file basename (rat appends .root or .ntuple.root automatically)
+        self.event_file_basename = 'mc_events'
+        self.event_file = None  # Determined after rat runs
+        self.rat_flags += f' -o "{self.event_file_basename}"'
 
         # Generate names of standard and current output files
         self.standard_results = os.path.join(self.testdir, 'standard.root')
@@ -136,8 +149,18 @@ class RatTest:
         '''
         Run the RAT simulation and the corresponding ROOT macro for processing the results.
         '''
+        self.event_file = find_event_file(self.testdir, self.event_file_basename)
+        
         if regen_mc or target_needs_update(self.event_file, [self.rat_macro, self.rat_script, self.rat_bin]):
             self.run_rat()
+            self.event_file = find_event_file(self.testdir, self.event_file_basename)
+            if self.event_file is None:
+                raise RuntimeError(f"Event file not found after running rat. "
+                                 f"Expected {self.event_file_basename}.root or "
+                                 f"{self.event_file_basename}.ntuple.root in {self.testdir}")
+        
+        print('Event file: {}'.format(self.event_file))
+        
         if regen_plots or target_needs_update(self.current_results, [self.event_file, self.root_macro]):
             self.run_root()
 
