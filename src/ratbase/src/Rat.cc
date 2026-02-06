@@ -104,7 +104,7 @@ void Rat::Configure() {
   if (this->seed == -1) this->seed = start_time ^ (pid << 16);
   detail << "Seeding random number generator: " << this->seed << newline;
   CLHEP::HepRandom::setTheSeed(this->seed);
-  gRandom->SetSeed(this->seed);  // ROOT rng should not be used, but just in case
+  gRandom->SetSeed(static_cast<UInt_t>(this->seed));  // ROOT rng should not be used, but just in case
   rdb->LoadDefaults();
 }
 
