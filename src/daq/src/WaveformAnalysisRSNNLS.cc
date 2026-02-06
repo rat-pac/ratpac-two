@@ -424,10 +424,6 @@ std::vector<std::pair<double, double>> WaveformAnalysisRSNNLS::MergeNearbyWeight
     return time_weight_pairs;
   }
 
-  // Sort by time (should already be sorted, but ensure it)
-  std::sort(time_weight_pairs.begin(), time_weight_pairs.end(),
-            [](const auto& a, const auto& b) { return a.first < b.first; });
-
   // Merge weights within the time window
   std::vector<std::pair<double, double>> merged_weights;
   merged_weights.reserve(time_weight_pairs.size());
