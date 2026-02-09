@@ -26,6 +26,7 @@ ToroidalPMTConstruction::ToroidalPMTConstruction(DBLinkPtr table, G4LogicalVolum
 
   // Setup PMT parameters
   fParams.faceGap = 0.1 * CLHEP::mm;
+  fParams.minEnvelopeRadius = 0.0;
   fParams.zEdge = table->GetDArray("z_edge");
   fParams.rhoEdge = table->GetDArray("rho_edge");
   fParams.zOrigin = table->GetDArray("z_origin");
@@ -272,7 +273,7 @@ G4LogicalVolume *ToroidalPMTConstruction::BuildVolume(const std::string &prefix)
     central_gap_log->SetVisAttributes(G4VisAttributes::GetInvisible());
   }
 
-  log_pmt = body_log;
+  log_pmt = fParams.useEnvelope ? envelope_log : body_log;
 
   // if using envelope place waveguide now
   if (fParams.useEnvelope && fWaveguideFactory) {
