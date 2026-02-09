@@ -1,17 +1,21 @@
 ////////////////////////////////////////////////////////////////////
-/// \class RAT::WaveformAnalysisRSNNLS
+/// \class RAT::WaveformAnalysisRAVEN
 ///
-/// \brief Perform reverse sparse non-negative least squares fitting on digitized waveforms
+/// \brief Perform reverse sparse non-negative least squares fitting and NPE likelihood estimation on digitized
+/// waveforms
 ///
 /// \author Ravi Carpen Pitelka <rpitelka@sas.upenn.edu>
 ///
 /// REVISION HISTORY:\n
 ///     12 Sep 2025: Initial commit
-///     15 Sep 2025: Add Gaussian template option
+///     12 Nov 2025: Added to ratpac-two
+///     15 Jan 2026: Added region-based processing and NPE estimation features
+///     09 Feb 2026: Renamed to RAVEN
 ///
 /// \details
-/// This class performs reverse sparse non-negative least squares (rsNNLS) analysis
-/// on digitized PMT waveforms to reconstruct photoelectron times and charges.
+/// RAVEN (Reverse Analysis of Voltage Events with Nonegativity) is a waveform analysis algorithm
+/// that performs reverse sparse non-negative least squares (rsNNLS) analysis, followed by
+/// NPE likelihood estimation on digitized PMT waveforms to reconstruct photoelectron times and charges.
 ///
 /// The algorithm uses region-based processing for improved efficiency:
 /// 1. Builds a dictionary matrix of time-shifted templates
@@ -24,8 +28,8 @@
 /// - Lognormal
 /// - Gaussian
 ////////////////////////////////////////////////////////////////////
-#ifndef __RAT_WaveformAnalysisRSNNLS__
-#define __RAT_WaveformAnalysisRSNNLS__
+#ifndef __RAT_WaveformAnalysisRAVEN__
+#define __RAT_WaveformAnalysisRAVEN__
 
 #include <TObject.h>
 
@@ -41,15 +45,15 @@
 
 namespace RAT {
 
-class WaveformAnalysisRSNNLS : public WaveformAnalyzerBase {
+class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
  public:
-  WaveformAnalysisRSNNLS() : WaveformAnalysisRSNNLS("rsNNLS"){};
+  WaveformAnalysisRAVEN() : WaveformAnalysisRAVEN("RAVEN"){};
 
-  WaveformAnalysisRSNNLS(std::string config_name) : WaveformAnalyzerBase("WaveformAnalysisRSNNLS", config_name) {
+  WaveformAnalysisRAVEN(std::string config_name) : WaveformAnalyzerBase("WaveformAnalysisRAVEN", config_name) {
     Configure(config_name);
   };
 
-  virtual ~WaveformAnalysisRSNNLS(){};
+  virtual ~WaveformAnalysisRAVEN(){};
 
   void BuildDictionaryMatrix(int nsamples, double digitizer_period);
 

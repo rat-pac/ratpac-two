@@ -7,7 +7,7 @@
 #include <RAT/DS/RunStore.hh>
 #include <RAT/Log.hh>
 #include <RAT/NPEEstimator.hh>
-#include <RAT/WaveformAnalysisRSNNLS.hh>
+#include <RAT/WaveformAnalysisRAVEN.hh>
 #include <algorithm>
 #include <cmath>
 
@@ -18,8 +18,8 @@
 
 namespace RAT {
 
-void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
-  debug << "WaveformAnalysisRSNNLS: Configure called with config_name " << config_name << newline;
+void WaveformAnalysisRAVEN::Configure(const std::string& config_name) {
+  debug << "WaveformAnalysisRAVEN: Configure called with config_name " << config_name << newline;
   // Load analysis parameters from DIGITIZER_ANALYSIS database
   try {
     fDigit = DB::Get()->GetLink("DIGITIZER_ANALYSIS", config_name);
@@ -32,7 +32,7 @@ void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
     }
 
     // Template type configuration
-    template_type = fDigit->GetI("rsnnls_template_type");  // 0=lognormal, 1=gaussian
+    template_type = fDigit->GetI("raven_template_type");  // 0=lognormal, 1=gaussian
 
     // Single photoelectron waveform parameters
     if (template_type == 0) {                             // lognormal
@@ -41,7 +41,7 @@ void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
     } else if (template_type == 1) {                      // gaussian
       gaussian_width = fDigit->GetD("gaussian_width");    // Gaussian 'sigma' parameter
     } else {
-      RAT::Log::Die("WaveformAnalysisRSNNLS: Invalid template_type " + std::to_string(template_type) +
+      RAT::Log::Die("WaveformAnalysisRAVEN: Invalid template_type " + std::to_string(template_type) +
                     ". Must be 0 (lognormal) or 1 (gaussian).");
     }
 
@@ -63,7 +63,7 @@ void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
 
     // Validate critical parameters
     if (upsample_factor <= 0) {
-      RAT::Log::Die("WaveformAnalysisRSNNLS: Invalid upsampling factor.");
+      RAT::Log::Die("WaveformAnalysisRAVEN: Invalid upsampling factor.");
     }
 
     // Initialize dictionary flags
@@ -72,11 +72,11 @@ void WaveformAnalysisRSNNLS::Configure(const std::string& config_name) {
     cached_digitizer_period = -1.0;  // Invalid initial value to force dictionary build on first use
 
   } catch (DBNotFoundError) {
-    RAT::Log::Die("WaveformAnalysisRSNNLS: Unable to find analysis parameters.");
+    RAT::Log::Die("WaveformAnalysisRAVEN: Unable to find analysis parameters.");
   }
 }
 
-void WaveformAnalysisRSNNLS::SetD(std::string param, double value) {
+void WaveformAnalysisRAVEN::SetD(std::string param, double value) {
   if (param == "lognormal_scale") {
     lognormal_scale = value;
   } else if (param == "lognormal_shape") {
@@ -102,15 +102,15 @@ void WaveformAnalysisRSNNLS::SetD(std::string param, double value) {
   }
 }
 
-void WaveformAnalysisRSNNLS::SetI(std::string param, int value) {
+void WaveformAnalysisRAVEN::SetI(std::string param, int value) {
   if (param == "process_threshold_crossing") {
     process_threshold_crossing = (value != 0);
   } else if (param == "max_iterations") {
     max_iterations = value;
-  } else if (param == "rsnnls_template_type") {
+  } else if (param == "raven_template_type") {
     template_type = value;
     if (template_type != 0 && template_type != 1) {
-      RAT::Log::Die("WaveformAnalysisRSNNLS: Invalid rsnnls_template_type " + std::to_string(value) +
+      RAT::Log::Die("WaveformAnalysisRAVEN: Invalid raven_template_type " + std::to_string(value) +
                     ". Must be 0 (lognormal) or 1 (gaussian).");
     }
   } else if (param == "npe_estimate") {
@@ -122,15 +122,15 @@ void WaveformAnalysisRSNNLS::SetI(std::string param, int value) {
   }
 }
 
-void WaveformAnalysisRSNNLS::BuildDictionaryMatrix(int nsamples, double digitizer_period) {
-  debug << "WaveformAnalysisRSNNLS: Building dictionary matrix" << newline;
-  debug << "WaveformAnalysisRSNNLS: Dictionary state - built: " << dictionary_built
+void WaveformAnalysisRAVEN::BuildDictionaryMatrix(int nsamples, double digitizer_period) {
+  debug << "WaveformAnalysisRAVEN: Building dictionary matrix" << newline;
+  debug << "WaveformAnalysisRAVEN: Dictionary state - built: " << dictionary_built
         << ", cached_nsamples: " << cached_nsamples << ", cached_period: " << cached_digitizer_period << newline;
-  debug << "WaveformAnalysisRSNNLS: Current params - nsamples: " << nsamples << ", period: " << digitizer_period
+  debug << "WaveformAnalysisRAVEN: Current params - nsamples: " << nsamples << ", period: " << digitizer_period
         << newline;
-  debug << "WaveformAnalysisRSNNLS: Using rsnnls_template_type: " << template_type << " ("
+  debug << "WaveformAnalysisRAVEN: Using raven_template_type: " << template_type << " ("
         << (template_type == 0 ? "lognormal" : "gaussian") << ")" << newline;
-  debug << "WaveformAnalysisRSNNLS: Dictionary size: " << nsamples << " x "
+  debug << "WaveformAnalysisRAVEN: Dictionary size: " << nsamples << " x "
         << static_cast<int>(nsamples * upsample_factor) << newline;
 
   const int dict_size = static_cast<int>(nsamples * upsample_factor);
@@ -161,7 +161,7 @@ void WaveformAnalysisRSNNLS::BuildDictionaryMatrix(int nsamples, double digitize
   }
 }
 
-void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
+void WaveformAnalysisRAVEN::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
   // Build dictionary on first call or when digitizer parameters change
   const double period_tolerance = 1e-9;  // 1 ps tolerance for digitizer period comparison
   if (!dictionary_built || cached_nsamples != static_cast<int>(digitWfm.size()) ||
@@ -179,7 +179,7 @@ void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
 
   double pedestal = digitpmt->GetPedestal();
   if (pedestal == -9999) {
-    RAT::Log::Die("WaveformAnalysisRSNNLS: Pedestal is invalid! Did you run WaveformPrep first?");
+    RAT::Log::Die("WaveformAnalysisRAVEN: Pedestal is invalid! Did you run WaveformPrep first?");
   }
 
   // Get per-PMT gain calibration for consistent charge calculation (same as LucyDDM)
@@ -187,12 +187,12 @@ void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
 
   // Verify waveform size matches dictionary matrix
   if (static_cast<int>(digitWfm.size()) != fW.GetNrows()) {
-    RAT::Log::Die("WaveformAnalysisRSNNLS: Waveform size mismatch with dictionary matrix.");
+    RAT::Log::Die("WaveformAnalysisRAVEN: Waveform size mismatch with dictionary matrix.");
   }
 
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal);
 
-  DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("rsNNLS");
+  DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("RAVEN");
 
   if (process_threshold_crossing) {
     // Find threshold crossing regions
@@ -222,13 +222,13 @@ void WaveformAnalysisRSNNLS::DoAnalysis(DS::DigitPMT* digitpmt, const std::vecto
   }
 }
 
-TVectorD WaveformAnalysisRSNNLS::Thresholded_rsNNLS(const TMatrixD& W_region, const TVectorD& voltVec,
-                                                    const double threshold, double& chi2ndf_out, int& iterations_out) {
+TVectorD WaveformAnalysisRAVEN::Thresholded_rsNNLS(const TMatrixD& W_region, const TVectorD& voltVec,
+                                                   const double threshold, double& chi2ndf_out, int& iterations_out) {
   const int D = voltVec.GetNrows();
   const int K = W_region.GetNcols();
 
   if (W_region.GetNrows() != D) {
-    RAT::Log::Die("WaveformAnalysisRSNNLS: Dictionary region row dimension mismatch.");
+    RAT::Log::Die("WaveformAnalysisRAVEN: Dictionary region row dimension mismatch.");
   }
 
   // Initial NNLS solve
@@ -312,8 +312,8 @@ TVectorD WaveformAnalysisRSNNLS::Thresholded_rsNNLS(const TMatrixD& W_region, co
   return h_full;
 }
 
-std::vector<std::pair<int, int>> WaveformAnalysisRSNNLS::FindThresholdRegions(const std::vector<double>& voltWfm,
-                                                                              double threshold, int region_padding) {
+std::vector<std::pair<int, int>> WaveformAnalysisRAVEN::FindThresholdRegions(const std::vector<double>& voltWfm,
+                                                                             double threshold, int region_padding) {
   std::vector<std::pair<int, int>> regions;
   bool in_region = false;
   int region_start = -1;
@@ -354,9 +354,8 @@ std::vector<std::pair<int, int>> WaveformAnalysisRSNNLS::FindThresholdRegions(co
   return regions;
 }
 
-void WaveformAnalysisRSNNLS::ProcessThresholdRegion(const std::vector<double>& voltWfm, int start_sample,
-                                                    int end_sample, DS::WaveformAnalysisResult* fit_result,
-                                                    double gain_calibration) {
+void WaveformAnalysisRAVEN::ProcessThresholdRegion(const std::vector<double>& voltWfm, int start_sample, int end_sample,
+                                                   DS::WaveformAnalysisResult* fit_result, double gain_calibration) {
   const int region_length = end_sample - start_sample + 1;
 
   // Use iterators to avoid copying waveform segment
@@ -407,9 +406,9 @@ void WaveformAnalysisRSNNLS::ProcessThresholdRegion(const std::vector<double>& v
                         fit_result, gain_calibration);
 }
 
-std::vector<std::pair<double, double>> WaveformAnalysisRSNNLS::MergeNearbyWeights(const TVectorD& region_weights,
-                                                                                  int dict_start, int dict_cols,
-                                                                                  double merge_window) {
+std::vector<std::pair<double, double>> WaveformAnalysisRAVEN::MergeNearbyWeights(const TVectorD& region_weights,
+                                                                                 int dict_start, int dict_cols,
+                                                                                 double merge_window) {
   // Collect non-zero weights with their times
   std::vector<std::pair<double, double>> time_weight_pairs;  // (time, weight)
   for (int i = 0; i < dict_cols; ++i) {
@@ -459,9 +458,9 @@ std::vector<std::pair<double, double>> WaveformAnalysisRSNNLS::MergeNearbyWeight
   return merged_weights;
 }
 
-void WaveformAnalysisRSNNLS::ExtractPhotoelectrons(const TVectorD& region_weights, int dict_start, int dict_cols,
-                                                   int start_sample, int end_sample, double chi2ndf, int iterations_ran,
-                                                   DS::WaveformAnalysisResult* fit_result, double gain_calibration) {
+void WaveformAnalysisRAVEN::ExtractPhotoelectrons(const TVectorD& region_weights, int dict_start, int dict_cols,
+                                                  int start_sample, int end_sample, double chi2ndf, int iterations_ran,
+                                                  DS::WaveformAnalysisResult* fit_result, double gain_calibration) {
   // Merge nearby weights to prevent PE overcounting from weight splitting
   std::vector<std::pair<double, double>> merged_weights =
       MergeNearbyWeights(region_weights, dict_start, dict_cols, weight_merge_window);
@@ -475,7 +474,7 @@ void WaveformAnalysisRSNNLS::ExtractPhotoelectrons(const TVectorD& region_weight
   for (const auto& [delay, weight] : merged_weights) {
     // Sanity check - ensure PE time is within expected range
     if (delay < region_start_time - 3.0 * template_scale || delay > region_end_time + 3.0 * template_scale) {
-      warn << "WaveformAnalysisRSNNLS: PE time " << delay << " ns outside expected range ["
+      warn << "WaveformAnalysisRAVEN: PE time " << delay << " ns outside expected range ["
            << (region_start_time - 3.0 * template_scale) << ", " << (region_end_time + 3.0 * template_scale)
            << "] for region [" << start_sample << ", " << end_sample << "]" << newline;
       continue;

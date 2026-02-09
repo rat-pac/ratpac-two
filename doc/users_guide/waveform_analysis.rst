@@ -11,6 +11,8 @@ In order to enable the digitization of waveforms, discussed in :ref:`digitizatio
 
 The waveform analysis is enabled by running the waveform analysis processor (e.g., ``/rat/proc WaveformPrep``). The analysis processors reads from a ratdb table called ``DIGITIZER_ANALYSIS``. In order to change the index of the table that is loaded, the user can select a new index using ``/rat/procset index_name``. More details are provided below. 
 
+.. _base_analysis:
+
 Base analysis
 `````````````
 
@@ -99,7 +101,7 @@ There are several additional waveform analysis proccesors described below, each 
     
     /rat/proc WaveformAnalysisSinc
     
-    /rat/proc WaveformAnalysisRSNNLS
+    /rat/proc WaveformAnalysisRAVEN
 
 For all of these processors, there is a utility located in ``util/src/`` called ``WaveformUtil.cc`` that provides useful analysis tools. For example, there are public methods to convert ADC counts to voltage, identify the peak of the waveform and the corresponding sample, get the total number of threshold crossings, etc.
 
@@ -133,6 +135,8 @@ The method can be configured using the following ratdb parameters:
 
 -------------------------
 
+.. _gaussianfit:
+
 Gaussian fitting
 ````````````````
 
@@ -160,6 +164,8 @@ The method can be configured using the following ratdb parameters:
 
 -------------------------
 
+.. _sincinterpolation:
+
 Sinc interpolation
 ``````````````````
 
@@ -168,10 +174,12 @@ Describe sinc interpolation.
 
 -------------------------
 
+.. _lucyddm:
+
 Richardson-Lucy Direct De-modulation (LucyDDM)
 ``````````````````
 
-Performs PMT waveform analysis using Perform PMT waveform analysis using LucyDDM, a time-domain deconvolution algorithm that enhanced resolution compared to FFT-based convolution methods. This method is able to recosntruction multiple photoelectrons in a single PMT. The primary procedure is described in Sec. 3.3.2 of https://arxiv.org/abs/2112.06913. After deconvolution, peaks in the deconvolved waveform are identified, and a Gaussian fit is performed on each peak to extract time and charge information. Optionally, a likelihood-based NPE estimation can be performed on each resolved wave packet to further improve the charge and time resolution.
+Perform PMT waveform analysis using LucyDDM, a time-domain deconvolution algorithm that enhanced resolution compared to FFT-based convolution methods. This method is able to recosntruction multiple photoelectrons in a single PMT. The primary procedure is described in Sec. 3.3.2 of https://arxiv.org/abs/2112.06913. After deconvolution, peaks in the deconvolved waveform are identified, and a Gaussian fit is performed on each peak to extract time and charge information. Optionally, a likelihood-based NPE estimation can be performed on each resolved wave packet to further improve the charge and time resolution.
 
 The method can be configured using the following ratdb parameters.
 
@@ -195,41 +203,35 @@ The method can be configured using the following ratdb parameters.
 
 -------------------------
 
-Reverse Sparse Non-Negative Least Squares (rsNNLS)
-```````````````````````````````````````````````````
+.. _raven:
 
-Performs PMT waveform analysis using reverse sparse non-negative least squares (rsNNLS) to reconstruct multiple photoelectron times and charges from digitized waveforms. The primary procedure is described in Sec. 3.1.1 of https://www.sciencedirect.com/science/article/pii/S0925231211006370.
+RAVEN
+`````
 
-The rsNNLS algorithm operates by:
-
-1. **Dictionary Construction**: Building a matrix of time-shifted single photoelectron templates sampled at sub-nanosecond resolution through upsampling
-2. **Region Processing**: Optionally identifying threshold-crossing regions for computational efficiency
-3. **NNLS Fitting**: Applying non-negative least squares to find optimal template weights
-4. **Iterative Thresholding**: Removing low-significance components and redistributing weights to improve sparsity
-5. **PE Extraction**: Converting significant weights to photoelectron times and charges
-
-The method supports two template types for single photoelectron waveforms:
-
-* **Lognormal**: Asymmetric pulse shape
-* **Gaussian**: Symmetric pulse shape
+Performs PMT waveform analysis using RAVEN (Reverse Analysis of Voltage Events with Nonnegativity), a sparse non-negative least squares fitting algorithm that reconstructs multiple photoelectron times and charges from digitized waveforms. The underlying algorithm (rsNNLS) is described in Sec. 3.1.1 of https://www.sciencedirect.com/science/article/pii/S0925231211006370. The method builds a dictionary matrix of time-shifted single PE templates at sub-sample resolution, applies non-negative least squares to find optimal template weights, and iteratively removes low-significance components to improve sparsity. After weight merging, NPE estimation can be performed on resolved peaks. Two template types are supported: lognormal (asymmetric) and Gaussian (symmetric).
 
 The method can be configured using the following ratdb parameters:
 
-======================================  ===================
-**Name**                                **Description**
-======================================  ===================
-``process_threshold_crossing``          Enable region-based processing (0=no, 1=yes). When enabled, only processes waveform regions that cross the voltage threshold.
-``voltage_threshold``                   Voltage threshold for region detection, in mV. Used when process_threshold_crossing is enabled.
-``rsnnls_template_type``                Template type: 0=lognormal, 1=gaussian.
-``lognormal_scale``                     The "m" parameter in the lognormal template (used when rsnnls_template_type=0).
-``lognormal_shape``                     The "sigma" parameter in the lognormal template (used when rsnnls_template_type=0).
-``gaussian_width``                      The "sigma" parameter in the Gaussian template (used when rsnnls_template_type=1).
-``vpe_charge``                          Nominal charge of a single photoelectron in pC. Used for template normalization and charge conversion.
-``upsampling_factor``                   Dictionary upsampling factor for sub-sample resolution. Higher values provide better timing resolution at increased computational cost.
-``max_iterations``                      Maximum number of iterative thresholding iterations.
-``nnls_tolerance``                      Convergence tolerance for the NNLS algorithm.
-``weight_threshold``                    Minimum weight threshold for component significance. Components below this threshold are removed during iterative thresholding.
-======================================  ===================
+================================  ===================
+**Name**                          **Description**
+================================  ===================
+``process_threshold_crossing``    Enable region-based processing (0=no, 1=yes).
+``voltage_threshold``             Voltage threshold for region detection, in mV.
+``region_padding``                Number of samples to pad around threshold crossing regions.
+``raven_template_type``           Template type: 0=lognormal, 1=gaussian.
+``lognormal_scale``               Lognormal "m" parameter (used when raven_template_type=0).
+``lognormal_shape``               Lognormal "sigma" parameter (used when raven_template_type=0).
+``gaussian_width``                Gaussian sigma parameter (used when raven_template_type=1).
+``vpe_charge``                    Nominal charge of a single PE in pC.
+``upsampling_factor``             Dictionary upsampling factor for sub-sample timing resolution.
+``max_iterations``                Maximum iterative thresholding iterations.
+``nnls_tolerance``                NNLS convergence tolerance.
+``weight_threshold``              Minimum weight for component significance.
+``weight_merge_window``           Time window (ns) for merging nearby weights. Set to 0 to disable.
+``npe_estimate``                  If true, perform NPE estimation on resolved wave packets.
+``npe_estimate_charge_width``     Width of single PE charge distribution (in pC) for NPE estimation.
+``npe_estimate_max_pes``          Maximum number of PEs to consider in NPE estimation.
+================================  ===================
 
 -------------------------
 
