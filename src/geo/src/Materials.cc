@@ -500,7 +500,7 @@ void Materials::BuildMaterialPropertiesTable(G4Material *material, DBLinkPtr tab
         *i == "LAMBERTIAN_REFLECTION" || *i == "LAMBERTIAN_FORWARD" || *i == "LAMBERTIAN_BACKWARD" ||
         *i == "ELECTRICFIELD" || *i == "TOTALNUM_INT_SITES" || *i == "MIEHG_FORWARD" || *i == "MIEHG_BACKWARD" ||
         *i == "MIEHG_FORWARD_RATIO" || *i == "TOTALNUM_INT_SITES" || *i == "NUM_COMP" || *i == "SCINT_RISE_TIME" ||
-        *i == "SCINT_RISE_TIMEalpha") {
+        *i == "SCINT_RISE_TIMEalpha" || *i == "SCINT_RISE_TIMEproton") {
       mpt->AddConstProperty(i->c_str(), table->GetD(*i), true);
       continue;
     }
@@ -552,7 +552,7 @@ void Materials::RescaleProperty(DBLinkPtr dbTable, G4MaterialPropertiesTable *pr
       reciprocalSum.resize(current->GetVectorLength(), 0.0);
       energies.resize(current->GetVectorLength(), -1.0);
     } else if (reciprocalSum.size() != current->GetVectorLength())
-      Log::Die("Optics::RescaleProperty: " + property + " components are different length arrays.");
+      Log::Die("Materials::RescaleProperty: " + property + " components are different length arrays.");
 
     current->ScaleVector(1.0, 1.0 / scalings[iScale]);  // Scale the values (not energy)
     for (size_t bin = 0; bin < current->GetVectorLength(); bin++) {
@@ -560,16 +560,15 @@ void Materials::RescaleProperty(DBLinkPtr dbTable, G4MaterialPropertiesTable *pr
       energies[bin] = current->Energy(bin);
     }
   }
-  // This is empty if no component data exists, in which case don't add the
-  // property to the properties table
+  // This is empty if no component data exists, in which case the scaling(s) cannot be applied
   if (reciprocalSum.empty()) {
-    return;
+    Log::Die("Materials::RescaleProperty: No " + property + " component data to scale for " + dbTable->GetIndex());
   }
   G4MaterialPropertyVector *total = new G4MaterialPropertyVector();
   for (size_t bin = 0; bin < energies.size(); bin++) {
     total->InsertValues(energies[bin], 1.0 / reciprocalSum[bin]);
   }
-  propertiesTable->AddProperty(property.c_str(), total);
+  propertiesTable->AddProperty(property.c_str(), total, true);  // Add true for GEANT4-non-native "RSLENGTH"
 }
 
 void Materials::LoadOptics() {
@@ -630,7 +629,7 @@ void Materials::LoadOptics() {
 
     // Loop over components, adding their properties to the current material's
     // properties table. They are numbered by their index so that we can
-    // e.g. absorb on X and it with the right spectrum, except for
+    // e.g. absorb on X and emit with the right spectrum, except for
     // scattering, which is combined into a single scattering length
     mpt->AddConstProperty("NCOMPONENTS", components.size(), true);
 
@@ -683,7 +682,7 @@ void Materials::LoadOptics() {
           /// same properties as components");
           info << compname << " has " << pname << "!" << newline;
           std::stringstream ss2;
-          ss << pname << i + 1;
+          ss2 << pname << i + 1;
           //// mpt->AddProperty(ss2.str().c_str(), it->second);
           mpt->AddProperty(ss2.str().c_str(), propertyVector, true);
 
