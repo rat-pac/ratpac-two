@@ -35,6 +35,9 @@ class PhysicsList : public Shielding {
   // Get the WLS model name
   std::string GetOpWLSModelName() { return this->wlsModelName; }
 
+  void SetCerenkovMaxBetaChange(double MaxBetaChange) { this->CerenkovMaxBetaChangePerStep = MaxBetaChange; }
+  double GetCerenkovMaxBetaChange() { return this->CerenkovMaxBetaChangePerStep; }
+
   void SetCerenkovMaxNumPhotonsPerStep(int maxphotons) { this->CerenkovMaxNumPhotonsPerStep = maxphotons; }
   int GetCerenkovMaxNumPhotonsPerStep() { return this->CerenkovMaxNumPhotonsPerStep; }
 
@@ -61,10 +64,12 @@ class PhysicsList : public Shielding {
   // Register opticalphotons with the PMT G4FastSimulationManagerProcess
   void AddParameterization();
 
-  std::string wlsModelName;          // The name of the WLS model
-  G4VPhysicsConstructor *wlsModel;   // The WLS model constructor
-  int CerenkovMaxNumPhotonsPerStep;  // Controlls step-size for cerenkov
-                                     // processes
+  std::string wlsModelName;             // The name of the WLS model
+  G4VPhysicsConstructor *wlsModel;      // The WLS model constructor
+                                        //
+  double CerenkovMaxBetaChangePerStep;  // Sets the maximum phase velocity change within a step
+  int CerenkovMaxNumPhotonsPerStep;     // Controlls step-size for cerenkov
+                                        // processes
   bool IsCerenkovEnabled;
   double stepRatioLightIons;
   double finalRangeLightIons;

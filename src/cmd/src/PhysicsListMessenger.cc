@@ -21,6 +21,11 @@ PhysicsListMessenger::PhysicsListMessenger(PhysicsList *physicsList) : fPhysicsL
   fSetOpWLSCmd->SetGuidance("Select a WLS model (g4|bnl)");
   fSetOpWLSCmd->SetDefaultValue("g4");
 
+  fSetMaxBetaChangePerStep = new G4UIcmdWithADouble("/rat/physics/setCerenkovMaxBetaChangePerStep", this);
+  fSetMaxBetaChangePerStep->SetGuidance("Controls the maximum phase velocity change per step");
+  fSetMaxBetaChangePerStep->SetParameterName("MaxBetaChange", false);
+  fSetMaxBetaChangePerStep->SetDefaultValue(10.0);
+
   fSetCerenkovMaxNumPhotonsPerStep = new G4UIcmdWithAnInteger("/rat/physics/setCerenkovMaxNumPhotonsPerStep", this);
   fSetCerenkovMaxNumPhotonsPerStep->SetParameterName("CerenkovMaxNumPhotonsPerStep", false);
   fSetCerenkovMaxNumPhotonsPerStep->SetGuidance("Indirectly controls the track step size");
@@ -69,6 +74,7 @@ PhysicsListMessenger::PhysicsListMessenger(PhysicsList *physicsList) : fPhysicsL
 
 PhysicsListMessenger::~PhysicsListMessenger() {
   delete fSetOpWLSCmd;
+  delete fSetMaxBetaChangePerStep;
   delete fSetCerenkovMaxNumPhotonsPerStep;
   delete fEnableCerenkov;
   delete fSetStepFunctionLightIons;
@@ -79,6 +85,8 @@ PhysicsListMessenger::~PhysicsListMessenger() {
 G4String PhysicsListMessenger::GetCurrentValue(G4UIcommand *command) {
   if (command == fSetOpWLSCmd) {
     return G4String(fPhysicsList->GetOpWLSModelName().c_str());
+  } else if (command == fSetMaxBetaChangePerStep) {
+    return std::to_string(fPhysicsList->GetCerenkovMaxBetaChange());
   } else if (command == fSetCerenkovMaxNumPhotonsPerStep) {
     return std::to_string(fPhysicsList->GetCerenkovMaxNumPhotonsPerStep());
   } else if (command == fEnableCerenkov) {
@@ -94,6 +102,8 @@ void PhysicsListMessenger::SetNewValue(G4UIcommand *command, G4String newValue) 
   if (command == fSetOpWLSCmd) {
     info << "PhysicsListMessenger: Setting WLS model to " << newValue << newline;
     fPhysicsList->SetOpWLSModel(std::string(newValue.data()));
+  } else if (command == fSetMaxBetaChangePerStep) {
+    fPhysicsList->SetCerenkovMaxBetaChange(std::stod(newValue));
   } else if (command == fSetCerenkovMaxNumPhotonsPerStep) {
     fPhysicsList->SetCerenkovMaxNumPhotonsPerStep(std::stoi(newValue));
   } else if (command == fEnableCerenkov) {

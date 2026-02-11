@@ -8,11 +8,13 @@
 #ifndef __RAT_PhysicsListMessenger__
 #define __RAT_PhysicsListMessenger__
 
+#include <G4UIcmdWithADouble.hh>
 #include <G4UImessenger.hh>
 
 class G4UIcmdWithAString;
 class G4UIcmdWithAnInteger;
 class G4UIcmdWithABool;
+class G4UIcmdWithADouble;
 
 namespace RAT {
 
@@ -31,6 +33,7 @@ class PhysicsListMessenger : public G4UImessenger {
  protected:
   G4UIcmdWithAString *fSetOpWLSCmd;
   G4UIcmdWithAnInteger *fSetCerenkovMaxNumPhotonsPerStep;
+  G4UIcmdWithADouble *fSetMaxBetaChangePerStep;
   G4UIcmdWithABool *fEnableCerenkov;
   G4UIcommand *fSetStepFunctionLightIons;
   G4UIcommand *fSetStepFunctionMuHad;
