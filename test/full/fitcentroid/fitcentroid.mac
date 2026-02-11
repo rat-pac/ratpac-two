@@ -13,7 +13,6 @@
 /rat/proc count
 /rat/procset update 10
 /rat/proc outroot
-/rat/procset file "fitcentroid.root"
 # END EVENT LOOP
 
 /generator/add combo gun2:point
