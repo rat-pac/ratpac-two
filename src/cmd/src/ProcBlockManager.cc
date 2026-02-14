@@ -10,6 +10,7 @@
 // Processors
 #include <RAT/AfterPulseProc.hh>
 #include <RAT/ClassifyChargeBalance.hh>
+#include <RAT/ClassifyTimesProc.hh>
 #include <RAT/Config.hh>
 #include <RAT/CountProc.hh>
 #include <RAT/FitCentroidProc.hh>
@@ -90,6 +91,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<FitMimirProc>();
   // Classifiers
   AppendProcessor<ClassifyChargeBalance>();
+  AppendProcessor<ClassifyTimesProc>();
   // DAQ
   AppendProcessor<NoiseProc>();
   AppendProcessor<AfterPulseProc>();

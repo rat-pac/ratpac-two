@@ -3,6 +3,7 @@
 add_subdirectory(mimir)
 add_library(fit_common OBJECT
   src/ClassifyChargeBalance.cc
+  src/ClassifyTimesProc.cc
   src/FitPathProc.cc
   src/FitCentroidProc.cc
   src/FitTensorProc.cc
