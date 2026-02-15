@@ -119,7 +119,7 @@
 
 {
 "name": "DIGITIZER_ANALYSIS",
-"index": "rsNNLS",
+"index": "RAVEN",
 "run_range": [0, 0],
 
 // Process only threshold crossing regions
@@ -128,13 +128,13 @@
 "region_padding": 0, // Number of samples to pad around threshold crossing regions
 
 // Template configuration
-"rsnnls_template_type": 1, // Template type: 0=lognormal, 1=gaussian
+"raven_template_type": 1, // Template type: 0=lognormal, 1=gaussian
 
-// LogNormal template parameters (used when rsnnls_template_type = 0)
+// LogNormal template parameters (used when raven_template_type = 0)
 "lognormal_scale": 10.5, // "m" parameter in Lognormal distribution
 "lognormal_shape": 0.15, // "sigma" parameter in Lognormal distribution
 
-// Gaussian template parameters (used when rsnnls_template_type = 1)  
+// Gaussian template parameters (used when raven_template_type = 1)  
 "gaussian_width": 1.5, // Gaussian sigma parameter for SPE template
 
 // Nominal charge of a single PE in pC. Used to determine the correct 
