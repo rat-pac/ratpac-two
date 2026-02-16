@@ -61,11 +61,11 @@ class FitterInputHandler {
    * @param fitter_name  name of the fitter to find.
    * @return pointer to the found fit result.
    * */
-  DS::FitResult* FindFitResult(const std::string& fitter_name) const {
+  DS::FitResult* FindFitResult(const std::string& name) const {
     if (!ev) Log::Die("FitterInputHandler: Trying to acccess event info without registering the event.");
     std::vector<DS::FitResult*> fit_results = ev->GetFitResults();
     for (auto& fit_result : fit_results) {
-      if (fit_result->GetFitterName() == fitter_name) return fit_result;
+      if (fit_result->GetFullName() == name) return fit_result;
     }
     return nullptr;
   }
@@ -241,12 +241,12 @@ class FitterInputHandler {
   }
 
   /**
-   * @brief Get the charge of a pmt.
-   * In the case where a waveoform analyzer created multiple hits on the PMT (multi-PE), this method only returns
-   * information about this first hit. To get information about all the hits, use getCharges.
+   * @brief Get the integrated charge of a PMT.
+   * This method returns the integrated charge of all hits on a PMT.
+   * To get information about individual hits, use GetCharges.
    *
    * @param id PMT ID.
-   * @return charge of the first hit.
+   * @return integrated charge of a PMT.
    */
   double GetCharge(Int_t id) const {
     if (!ev) Log::Die("FitterInputHandler: Trying to acccess event info without registering the event.");
@@ -259,12 +259,10 @@ class FitterInputHandler {
       case Mode::kDigitPMT:
         return ev->GetOrCreateDigitPMT(id)->GetDigitizedCharge();
       case Mode::kWaveformAnalysis: {
-        DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(id);
-        std::vector<std::string> fitterNames = digitpmt->GetFitterNames();
-        if (std::find(fitterNames.begin(), fitterNames.end(), wfm_ana_name) == fitterNames.end()) {
-          info << "FitResult not found for pmt id " << id << " " << wfm_ana_name << newline;
-        }
-        return digitpmt->GetOrCreateWaveformAnalysisResult(wfm_ana_name)->getCharge(0);
+        std::vector<double> charges = GetCharges(id);
+        double charge = 0;
+        for (size_t ic = 0; ic < charges.size(); ic++) charge += charges[ic];
+        return charge;
       }
       default:
         Log::Die("INVALID TYPE! Should never reach here.");
@@ -272,8 +270,8 @@ class FitterInputHandler {
   }
 
   /**
-   * @brief Get the charge of all hits registered on a PMT.
-   * To only get information about the first hit (assume SPE), see getCharge.
+   * @brief Get the charge of each hit registered on a PMT.
+   * To get the integrated charge a PMT, use GetCharge.
    *
    * @param id PMT ID.
    * @return vector of the charges registered on all hits on the PMT.
@@ -292,11 +290,11 @@ class FitterInputHandler {
   }
 
   /**
-   * @brief Get the time of a pmt hit.
-   * In the case where a waveoform analyzer created multiple hits on the PMT (multi-PE), this method only returns
-   * information about this first hit. To get information about all the hits, use getTimes.
-   * @param id PMT ID.
+   * @brief Get the earliest time for a hit PMT.
+   * In the case where a waveoform analyzer created multiple hits on the PMT (multi-PE), this method returns
+   * the time of only the first hit. To get the times of each hit, use GetTimes.
    *
+   * @param id PMT ID.
    * @return time of the first hit.
    */
   double GetTime(Int_t id) const {
@@ -323,11 +321,11 @@ class FitterInputHandler {
   }
 
   /**
-   * @brief Get the time of all hits registered on a PMT.
-   * To only get information about the first hit (assume SPE), see getTime.
+   * @brief Get the time of each hit registered on a PMT.
+   * To get the time of only the first hit, see GetTime.
    *
    * @param id PMT ID.
-   * @return vector of the times registered on all hits on the PMT.
+   * @return vector of the times registered for each hit on the PMT.
    */
   std::vector<double> GetTimes(Int_t id) const {
     if (mode != Mode::kWaveformAnalysis) return std::vector<double>{GetTime(id)};

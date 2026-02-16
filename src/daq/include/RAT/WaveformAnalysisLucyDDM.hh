@@ -115,12 +115,6 @@ class WaveformAnalysisLucyDDM : public WaveformAnalyzerBase {
                        std::vector<double> &charge_errors);
 
   /**
-   * @brief Estimate the number of PEs in a resolved wave packet using a gaussian single-PE charge PDF.
-   * @return estimated number of PEs.
-   * */
-  size_t EstimateNPE(double charge) const;
-
-  /**
    * @brief Clamp all samples of a waveform below a threashold to epsilon (a positive value close to zero).
    *
    * @param wfm waveform to clamp (modified in place).

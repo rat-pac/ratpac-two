@@ -513,10 +513,6 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
           sampledMomentum = ReemissionIntegral->GetEnergy(CIIvalue);
         }
 
-        fAParticleChange.ProposeLocalEnergyDeposit(aTrack.GetKineticEnergy() - sampledMomentum);
-        if (sampledMomentum > aTrack.GetKineticEnergy()) {
-          goto PostStepDoIt_DONE;
-        }
 #ifdef RATDEBUG
         if (sampledMomentum > aTrack.GetKineticEnergy()) {
           RAT::warn << "GLG4Scint: Error in GLG4Scint: sampled reemitted photon momentum " << sampledMomentum
@@ -528,6 +524,10 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
                      << "GLG4Scint: reemittedCIIvalue =        " << CIIvalue << newline;
         }
 #endif
+        fAParticleChange.ProposeLocalEnergyDeposit(aTrack.GetKineticEnergy() - sampledMomentum);
+        if (sampledMomentum > aTrack.GetKineticEnergy()) {
+          goto PostStepDoIt_DONE;
+        }
       }
 
       // Check whether sampled wavelength is within the accepted range, and skip if not
@@ -890,6 +890,7 @@ GLG4Scint::MyPhysicsTable::Entry::Entry() {
   fSpectrumIntegral = nullptr;
   fReemissionIntegral = nullptr;
   fTimeIntegral = nullptr;
+  fReemissionTimeIntegral = nullptr;
   fOwnSpectrumIntegral = 0;
   fOwnTimeIntegral = 0;
   fOwnReemissionTimeIntegral = 0;

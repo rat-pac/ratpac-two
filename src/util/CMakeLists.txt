@@ -7,6 +7,7 @@ add_library(util OBJECT
         src/PolygonOrientation.cc
         src/ReadFile.cc
         src/NNLS.cc
+        src/NPEEstimator.cc
         src/Sampling.cc
         src/SilenceRooFitBanner.cc
         src/SimpsIntegral.cc
