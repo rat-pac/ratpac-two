@@ -86,16 +86,19 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
     return;
   }
 
+  std::istringstream is(newValues.c_str());
   int num;
   std::string wavelengthString;
-  std::istringstream is(newValues.c_str());
-  is >> num >> wavelengthString;
+  int wavelength;
   double exp = 0.0;
 
-  if (!fFirst){
+  if (!fFirst) {
     if (fSpectrum) {
+      is >> num >> wavelengthString;
+      if (is.fail()) Log::Die("VertexGen_PhotonBomb: (Using Distribution) Incorrect vertex setting");
+
       fWavelengthIndex = wavelengthString;
-      std::cout << fWavelengthIndex << newline;
+      info << "VertexGen_PhotonBomb: (Using Distribution) with spectrum name: " << fWavelengthIndex << newline;
       try {
         spectradb = DB::Get()->GetLink("PHOTONBOMB", fWavelengthIndex);
       } catch (DBNotFoundError &e) {
@@ -105,20 +108,15 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
         fWavelengths = spectradb->GetDArray("wavelength");
         fIntensities = spectradb->GetDArray("intensity");
         if (fWavelengths.size() != fIntensities.size()) {
-          Log::Die("VertexGen_PhotonBomb: (Using Distribution) Wavelength and probability arrays have different length");
+          Log::Die(
+              "VertexGen_PhotonBomb: (Using Distribution) Wavelength and probability arrays have different length");
         }
       } catch (DBNotFoundError &e) {
         Log::Die("VertexGen_PhotonBomb: (Using Distribution) Error with retrieving wavelength spectrum.");
       }
 
     } else {
-      int wavelength;
-
-      for (size_t i = 0; i < wavelengthString.size(); i++) {
-        if (!std::isdigit(static_cast<unsigned char>(wavelengthString[i])))
-          Log::Die("VertexGen_PhotonBomb: Macro state written incorrectly.");
-      }
-      wavelength = std::stoi(wavelengthString);
+      is >> num >> wavelength;
 
       if (is.fail()) {
         // check for scintillation wavelength spectrum
@@ -126,7 +124,8 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
         is.clear();
         std::string material;
         is >> num >> material;
-        if (is.fail()) Log::Die("VertexGen_PhotonBomb: Incorrect vertex setting " + newValues);
+        if (is.fail())
+          Log::Die("VertexGen_PhotonBomb: (Using scintillation spectrum) Incorrect vertex setting " + newValues);
         fMaterial = material;
 
         // get the scintillation wavelength spectrum
@@ -139,7 +138,8 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
           reverse(wlamp.begin(), wlamp.end());
         }
         for (unsigned i = 1; i < wlarr.size(); i++)
-          if (wlarr[i - 1] >= wlarr[i]) Log::Die("VertexGen_PhotonBomb: wavelengths out of order");
+          if (wlarr[i - 1] >= wlarr[i])
+            Log::Die("VertexGen_PhotonBomb: (Using scintillation spectrum) wavelengths out of order");
 
         // use a linear interpolator to get a uniform sampling with bin
         // size smaller than the smallest bin in order to use RandGeneral
