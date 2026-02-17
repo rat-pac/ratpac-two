@@ -49,6 +49,7 @@ class ClassifyTimesProc : public Processor {
   std::vector<int> fPMTtype;                      // Types of PMT to use in classifier.  If empty, uses all PMT types.
   std::string fClassifierName = "classifytimes";  // Default classifier name.  User can specify.
   std::string fPosFitter;                         // Position fitter from which to get reconstructed position.
+  bool fSetSpeed = false;
   double fLightSpeed = 0.0;  // mm / ns.  Speed of light in material.  Defaults to value in CLASSIFIER.ratdb
   double fFixedTime = 0.0;   // ns.  User-specified event time.
   TVector3 fFixedPosition;   // mm.  User-specified event position.

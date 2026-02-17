@@ -89,6 +89,7 @@ void ClassifyTimesProc::SetD(std::string param, double value) {
     if (value <= 0 || value > 299.792458)
       throw ParamInvalid(param, "light_speed must be positive and <= 299.792458 mm/ns.");
     fLightSpeed = value;
+    fSetSpeed = true;
   } else if (param == "event_position_x") {
     if (!fPosFitter.empty()) throw ParamInvalid(param, "Cannot specify both fixed and reconstructed position.");
     fFixedPosition.SetX(value);
@@ -164,6 +165,15 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
     } else {
       fit = inputHandler.FindFitResult(fPosFitter);
       if (fit == nullptr) Log::Die("ClassifyTimesProc: Position fitter \'" + fPosFitter + "\' not found.  Check name.");
+    }
+
+    // If light speed not set by user, check if saved in fitter
+    if (!fSetSpeed) {
+      try {
+        fLightSpeed = fit->GetFigureOfMerit("light_speed");
+      } catch (...) {
+        // keep default light speed
+      }
     }
 
     if (fit->GetEnablePosition()) {
