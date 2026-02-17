@@ -1,0 +1,9 @@
+{
+"name": "Classifier",
+"index": "ClassifyTimes",
+"run_range": [0, 0],
+
+"light_speed": 223.06,         // [mm/ns] Defaulting to water: c/n = 299.79/1.344
+"numer_time_resid_low": -3.0,  // [ns] Lower bound time residual for numerator of ratio
+"numer_time_resid_up": 5.0     // [ns] Upper bound time residual for numerator of ratio
+}
