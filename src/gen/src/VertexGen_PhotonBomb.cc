@@ -47,7 +47,7 @@ void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &
 
       // Check edge cases first
       if (rval == 0) {
-        wavelength = 0;
+        wavelength = fWavelengths[0];
       } else {
         std::vector<double>::iterator idxIt = std::lower_bound(fProbCumu.begin(), fProbCumu.end(), rval);
         idx = std::distance(fProbCumu.begin(), idxIt);
