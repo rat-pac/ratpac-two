@@ -22,7 +22,7 @@ VertexGen_PhotonBomb::VertexGen_PhotonBomb(const char *arg_dbname) : GLG4VertexG
   fMaterial = "";
   fSpectrum = false;
   fWavelengths = {};
-  fIntensities = {};
+  fProbCumu = {};
   fFirst = false;
   fWavelengthIndex = "";
 }
@@ -41,7 +41,20 @@ void VertexGen_PhotonBomb::GeneratePrimaryVertex(G4Event *event, G4ThreeVector &
     if (fRndmEnergy) {
       energy = fMinEnergy + (fMaxEnergy - fMinEnergy) * fRndmEnergy->shoot();
     } else if (fSpectrum) {
-      double wavelength = pickWavelength(fWavelengths, fIntensities);
+      double rval = G4UniformRand();
+      double wavelength;
+      int idx = 0;
+
+      // Check edge cases first
+      if (rval == 0) {
+        wavelength = 0;
+      } else {
+        std::vector<double>::iterator idxIt = std::lower_bound(fProbCumu.begin(), fProbCumu.end(), rval);
+        idx = std::distance(fProbCumu.begin(), idxIt);
+      }
+      wavelength = (rval - fProbCumu[idx - 1]) * (fWavelengths[idx] - fWavelengths[idx - 1]) /
+                       (fProbCumu[idx] - fProbCumu[idx - 1]) +
+                   fWavelengths[idx - 1];
       energy = CLHEP::hbarc * CLHEP::twopi / (wavelength * CLHEP::nm);
     } else {
       energy = fEnergy;
@@ -104,15 +117,33 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
       } catch (DBNotFoundError &e) {
         Log::Die("VertexGen_PhotonBomb: (Using Distribution) Requested wavelength spectrum is not found.");
       }
+      std::vector<double> intensities;
       try {
         fWavelengths = spectradb->GetDArray("wavelength");
-        fIntensities = spectradb->GetDArray("intensity");
-        if (fWavelengths.size() != fIntensities.size()) {
-          Log::Die(
-              "VertexGen_PhotonBomb: (Using Distribution) Wavelength and probability arrays have different length");
-        }
+        intensities = spectradb->GetDArray("intensity");
+        fProbCumu = std::vector<double>(fWavelengths.size(), 0.0);
       } catch (DBNotFoundError &e) {
         Log::Die("VertexGen_PhotonBomb: (Using Distribution) Error with retrieving wavelength spectrum.");
+      }
+
+      if (fWavelengths.size() != intensities.size()) {
+        Log::Die("VertexGen_PhotonBomb: (Using Distribution) Wavelength and probability arrays have different length");
+      }
+
+      double integral = 0.0;
+      for (size_t i = 0; i < fWavelengths.size() - 1; i++) {
+        if (intensities[i] < 0) Log::Die("VertexGen_PhotonBomb: (Using Distribution) An intensity is negative");
+        integral += (fWavelengths[i + 1] - fWavelengths[i]) * (intensities[i] + intensities[i + 1]) /
+                    2.0;  // trapezoid integration
+        fProbCumu[i + 1] = integral;
+      }
+
+      if (integral == 0) {
+        Log::Die("VertexGen_PhotonBomb: (Using Distribution) Intensities sum to 0");
+      }
+
+      for (size_t i = 0; i < fWavelengths.size(); i++) {
+        fProbCumu[i] /= integral;
       }
 
     } else {
@@ -179,44 +210,6 @@ G4String VertexGen_PhotonBomb::GetState() {
     return dformat("%d\t%s\t%f", fNumPhotons, fMaterial.c_str(), fExpTime);
   else
     return dformat("Using exact wavelength:\t%d\t%f\t%f", fNumPhotons, fEnergy, fExpTime);
-}
-
-double VertexGen_PhotonBomb::pickWavelength(const std::vector<double> &values, const std::vector<double> &probs) {
-  double integral = 0.0;
-  std::vector<double> probCumu = std::vector<double>(values.size());
-  probCumu[0] = 0.0;
-
-  for (size_t i = 0; i < values.size() - 1; i++) {
-    if (probs[i] < 0) {
-      Log::Die("VertexGen_PhotonBomb::pickWavelength: An intensity is negative");
-    }
-    integral += (values[i + 1] - values[i]) * (probs[i] + probs[i + 1]) / 2.0;  // trapezoid integration
-    probCumu[i + 1] = integral;
-  }
-
-  if (integral == 0) {
-    Log::Die("VertexGen_PhotonBomb::pickWavelength: Intensities sum to 0");
-  }
-
-  for (size_t i = 0; i < values.size(); i++) {
-    probCumu[i] /= integral;
-  }
-
-  double rval = G4UniformRand();
-
-  // Check edge cases first
-
-  if (rval == 0) {
-    return values[0];
-  } else {
-    std::vector<double>::iterator idxIt = std::lower_bound(probCumu.begin(), probCumu.end(), rval);
-    int idx = std::distance(probCumu.begin(), idxIt);
-
-    return (rval - probCumu[idx - 1]) * (values[idx] - values[idx - 1]) / (probCumu[idx] - probCumu[idx - 1]) +
-           values[idx - 1];
-  }
-
-  Log::Die("VertexGen_PhotonBomb::pickWavelength: impossible condition encountered");
 }
 
 }  // namespace RAT
