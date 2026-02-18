@@ -25,6 +25,11 @@ class VertexGen_PhotonBomb : public GLG4VertexGen {
   double fMaxEnergy;
   std::string fMaterial;
   double fExpTime;
+  bool fSpectrum;
+  bool fFirst = true;
+  std::string fWavelengthIndex;
+  std::vector<double> fWavelengths;
+  std::vector<double> fProbCumu;
 };
 
 }  // namespace RAT
