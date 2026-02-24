@@ -14,7 +14,6 @@
 "pressure": 0.01,
 }
 
-
 {
 "name": "MATERIAL",
 "index": "air",
@@ -25,7 +24,6 @@
 "elemprop": [0.7, 0.3, ],
 "nmaterials": 0,
 }
-
 
 {
 "name": "MATERIAL",
@@ -38,7 +36,6 @@
 "elemprop": [0.1119, 0.8881],
 }
 
-
 {
 "name": "MATERIAL",
 "index": "aluminum",
@@ -49,7 +46,6 @@
 "elements": ["Aluminum"],
 "elemprop": [1.0],
 }
-
 
 {
 "name": "MATERIAL",
@@ -62,7 +58,6 @@
 "elemprop": [1.0],
 }
 
-
 {
 "name": "MATERIAL",
 "index": "brass",
@@ -74,7 +69,6 @@
 "elemprop": [0.66, 0.34],
 }
 
-
 {
 "name": "MATERIAL",
 "index": "brass_360", // C36000 "Free Machining" Brass
@@ -85,7 +79,6 @@
 "elements": ["Copper", "Zinc", "Lead", "Iron"],
 "elemprop": [0.615, 0.355, 0.0265, 0.0035],
 }
-
 
 {
 "name": "MATERIAL",
@@ -317,11 +310,26 @@
 "elemprop": [0.52925, 0.47075],
 }
 
+
 // ------------------- PMT materials ----------------
+// ------ Since quantum efficiency measurements generally include glass absorption, PMT ------------
+// ------ models should not include glass absorption.  Therefore, several window materials ---------
+// ------ below include versions of glass that are effectively without absorption ('_noAbs'). ------
 
 {
 "name": "MATERIAL",
 "index": "quartz",
+"run_range" : [0, 0],
+"density": 2.65,
+"nelements": 2,
+"nmaterials": 0,
+"elements": ["Silicon", "Oxygen",],
+"elemprop": [0.4675, 0.5325],
+}
+
+{
+"name": "MATERIAL",
+"index": "quartz_noAbs",  // version without optical absorption
 "run_range" : [0, 0],
 "density": 2.65,
 "nelements": 2,
@@ -343,6 +351,97 @@
 
 {
 "name": "MATERIAL",
+"index": "glass_noAbs",
+"run_range" : [0, 0],
+"density": 2.2,
+"nelements": 2,
+"nmaterials": 0,
+"elements": ["Silicon", "Oxygen",],
+"elemprop": [0.4675, 0.5325],
+}
+
+{
+"name": "MATERIAL",
+"index": "borosilicate_glass",
+"run_range" : [0, 0],
+"density": 2.23, // g/cm^3, from Wikipedia
+"nelements": 3,
+"nmaterials": 0,
+"elements": ["Boron","Oxygen","Silicon",],
+"elemprop": [0.38889, 0.55873, 0.05238,],
+}
+
+{
+"name": "MATERIAL",
+"index": "borosilicate_glass_noAbs",  // version without optical absorption
+"run_range" : [0, 0],
+"density": 2.23, // g/cm^3, from Wikipedia
+"nelements": 3,
+"nmaterials": 0,
+"elements": ["Boron","Oxygen","Silicon",],
+"elemprop": [0.38889, 0.55873, 0.05238,],
+}
+
+{
+"name": "MATERIAL",
+"index": "hamamatsu_borosilicate_glass",
+"run_range" : [0, 0],
+"density": 2.23, // g/cm^3, from Wikipedia
+"nelements": 7,
+"nmaterials": 0,
+"elements": ["Lithium","Boron","Oxygen","Sodium","Aluminum","Silicon","Barium",],
+"elemprop": [0.001, 0.059, 0.523, 0.042, 0.049, 0.284, 0.042,],
+}
+
+{
+"name": "MATERIAL",
+"index": "hamamatsu_borosilicate_glass_noAbs",  // version without optical absorption
+"run_range" : [0, 0],
+"density": 2.23, // g/cm^3, from Wikipedia
+"nelements": 7,
+"nmaterials": 0,
+"elements": ["Lithium","Boron","Oxygen","Sodium","Aluminum","Silicon","Barium",],
+"elemprop": [0.001, 0.059, 0.523, 0.042, 0.049, 0.284, 0.042,],
+}
+
+{
+"name": "MATERIAL",
+"index": "MgF2",
+"run_range" : [0, 0],
+"density": 3.18,
+"nelements": 2,
+"nmaterials": 0,
+"elements": ["Magnesium","Fluorine"],
+"elemprop": [0.39, 0.61],
+}
+
+{
+"name": "MATERIAL",
+"index": "mirror",
+"run_range" : [0, 0],
+"density": 2.2,
+"nelements": 2,
+"nmaterials": 0,
+"elements": ["Silicon", "Oxygen",],
+"elemprop": [0.4675, 0.5325],
+}
+
+{
+"name": "MATERIAL",
+"index": "pmt_vacuum",
+"run_range" : [0, 0],
+"density": 1.0e-5,
+"nelements": 0,
+"nmaterials": 1,
+"materials": ["air",],
+"matprop": [1.0,],
+"state": "gas",
+"temperature": 273.15,
+"pressure": 0.01,
+}
+
+{
+"name": "MATERIAL",
 "index": "longpass_dichroic_placeholder",
 "run_range" : [0, 0],
 "density": 2.2,
@@ -355,17 +454,6 @@
 {
 "name": "MATERIAL",
 "index": "shortpass_dichroic_placeholder",
-"run_range" : [0, 0],
-"density": 2.2,
-"nelements": 2,
-"nmaterials": 0,
-"elements": ["Silicon", "Oxygen",],
-"elemprop": [0.4675, 0.5325],
-}
-
-{
-"name": "MATERIAL",
-"index": "mirror",
 "run_range" : [0, 0],
 "density": 2.2,
 "nelements": 2,
@@ -429,7 +517,6 @@
 "elemprop": [1.0],
 }
 
-////   The photocathode material for the R5912-HQE
 {
 "name": "MATERIAL",
 "index": "photocathode_R5912_HQE",
@@ -452,7 +539,6 @@
 "elemprop": [1.0],
 }
 
-//// The photocathode material for the R1408.
 {
 "name": "MATERIAL",
 "index": "photocathode_R1408",
@@ -497,7 +583,6 @@
 "elemprop": [1.0],
 }
 
-// E.Keener at Penn, copied from photocathode_R7081HQE
 {
 "name": "MATERIAL",
 "index": "photocathode_R7081",
@@ -531,9 +616,6 @@
 "elemprop": [1.0],
 }
 
-
-
-////   The photocathode material for the ET 9390B
 {
 "name": "MATERIAL",
 "index": "photocathode_et9390b",
@@ -545,57 +627,8 @@
 "elemprop": [1.0],
 }
 
-{
-"name": "MATERIAL",
-"index": "pmt_vacuum",
-"run_range" : [0, 0],
-"density": 1.0e-5,
-"nelements": 0,
-"nmaterials": 1,
-"materials": ["air",],
-"matprop": [1.0,],
-"state": "gas",
-"temperature": 273.15,
-"pressure": 0.01,
-}
 
-//// Approximate Borosilicate glass
-{
-"name": "MATERIAL",
-"index": "borosilicate_glass",
-"run_range" : [0, 0],
-"density": 2.23, // g/cm^3, from Wikipedia
-"nelements": 3,
-"nmaterials": 0,
-"elements": ["Boron","Oxygen","Silicon",],
-"elemprop": [0.38889, 0.55873, 0.05238,],
-}
-
-//// hamamatsu borosilicate glass composition
-{
-"name": "MATERIAL",
-"index": "hamamatsu_borosilicate_glass",
-"run_range" : [0, 0],
-"density": 2.23, // g/cm^3, from Wikipedia
-"nelements": 7,
-"nmaterials": 0,
-"elements": ["Lithium","Boron","Oxygen","Sodium","Aluminum","Silicon","Barium",],
-"elemprop": [0.001, 0.059, 0.523, 0.042, 0.049, 0.284, 0.042,],
-}
-
-{
-"name": "MATERIAL",
-"index": "MgF2",
-"run_range" : [0, 0],
-"density": 3.18,
-"nelements": 2,
-"nmaterials": 0,
-"elements": ["Magnesium","Fluorine"],
-"elemprop": [0.39, 0.61],
-}
-
-
-// --------------- Liquid organic scintillator experiments ------------------
+// --------------- Liquid organic scintillators ------------------
 
 {
 "name": "MATERIAL",
@@ -752,6 +785,7 @@
 "matprop": [0.999425, 0.000575],
 }
 
+
 // --------------------- Plastics ----------------------------
 
 {
@@ -775,8 +809,6 @@
 "elements": ["Carbon", "Fluorine",],
 "elemprop": [0.24018, 0.75982],
 }
-
-
 
 {
 "name": "MATERIAL",
@@ -1054,6 +1086,7 @@
 "formula": "AROMATIC",
 }
 
+
 // ------------------ Gunite ---------------------
 //Place holder for when we get more info
 {
@@ -1066,7 +1099,6 @@
 "elements": ["Silicon","Oxygen","Hydrogen","Calcium","Aluminum","Iron",],
 "elemprop": [0.227915, 0.60541, 0.09972, 0.04986, 0.014245, 0.00285],
 }
-
 
 
 // ------------------ Concrete ---------------------
@@ -1115,8 +1147,8 @@
 "elemprop": [0.337, 0.529, 0.01, 0.044, 0.034, 0.014, 0.002, 0.001, 0.016, 0.013],
 }
 
-// ----------------- Cryogenic scintillator experiments ---------------
 
+// ----------------- Cryogenic scintillators ---------------
 
 {
 "name": "MATERIAL",
@@ -1209,7 +1241,9 @@
 "nmaterials": 0,
 }
 
+
 // ------------------- other detector materials ----------------
+
 {
 "name": "MATERIAL",
 "index": "NaI",
