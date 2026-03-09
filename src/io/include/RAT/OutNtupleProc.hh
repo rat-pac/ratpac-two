@@ -136,6 +136,7 @@ class OutNtupleProc : public Processor {
   int evid;
   int subev;
   int nhits;
+  double totalcharge;
   double triggerTime;
   ULong64_t timestamp;
   ULong64_t trigger_word;
