@@ -1,20 +1,12 @@
 #include "RAT/WaveformAnalyzerBase.hh"
 
-#include "RAT/DB.hh"
 #include "RAT/DS/DigitPMT.hh"
 #include "RAT/DS/RunStore.hh"
 
 namespace RAT {
 
-void WaveformAnalyzerBase::Configure(const std::string& config_name) {
-  try {
-    DBLinkPtr digitLink = DB::Get()->GetLink("DIGITIZER_ANALYSIS", config_name);
-    fMinTotalCharge = digitLink->GetD("min_total_charge");
-    fMaxTotalCharge = digitLink->GetD("max_total_charge");
-  } catch (DBNotFoundError&) {
-    // Optional parameter; keep default
-  }
-}
+// Common features that need to be extracted from the analysis would go here. So far there's none.
+void WaveformAnalyzerBase::Configure(const std::string& config_name) {}
 
 void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer* fDigitizer) {
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
@@ -22,8 +14,6 @@ void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digiti
 
   std::vector<UShort_t> digitWfm = fDigitizer->fDigitWaveForm[pmtID];
   fTermOhms = fDigitizer->fTerminationOhms;
-  double totalCharge = digitpmt->GetDigitizedTotalCharge();
-  if (totalCharge < fMinTotalCharge || totalCharge > fMaxTotalCharge) return;
   DoAnalysis(digitpmt, digitWfm);
 }
 
@@ -32,8 +22,6 @@ void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Di
   fTimeStep = dsdigit->GetTimeStepNS();
   fTermOhms = dsdigit->GetTerminationOhms();
   std::vector<UShort_t> digitWfm = dsdigit->GetWaveform(pmtID);
-  double totalCharge = digitpmt->GetDigitizedTotalCharge();
-  if (totalCharge < fMinTotalCharge || totalCharge > fMaxTotalCharge) return;
   DoAnalysis(digitpmt, digitWfm);
 }
 
@@ -59,15 +47,7 @@ void WaveformAnalyzerBase::SetS(std::string param, std::string value) {
   }
 }
 
-void WaveformAnalyzerBase::SetD(std::string param, double value) {
-  if (param == "min_total_charge") {
-    fMinTotalCharge = value;
-  } else if (param == "max_total_charge") {
-    fMaxTotalCharge = value;
-  } else {
-    throw Processor::ParamUnknown(param);
-  }
-}
+void WaveformAnalyzerBase::SetD(std::string param, double value) { throw Processor::ParamUnknown(param); }
 void WaveformAnalyzerBase::SetI(std::string param, int value) { throw Processor::ParamUnknown(param); }
 
 }  // namespace RAT

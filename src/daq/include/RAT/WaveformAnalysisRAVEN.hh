@@ -95,6 +95,11 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
   double npe_estimate_charge_width;  ///< Width of Gaussian single-PE charge distribution
   size_t npe_estimate_max_pes;       ///< Upper limit for NPE estimation
 
+  // Charge thresholds: skip analysis if digitized total charge is outside [min_total_charge, max_total_charge] (pC).
+  // Defaults effectively disable both thresholds.
+  double min_total_charge = -1e9;
+  double max_total_charge = 1e9;
+
   // Dictionary management
   bool dictionary_built;           ///< Flag to track if dictionary has been built
   int cached_nsamples;             ///< Cached number of samples for dictionary

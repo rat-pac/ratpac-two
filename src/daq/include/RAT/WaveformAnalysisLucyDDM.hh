@@ -38,7 +38,7 @@ class WaveformAnalysisLucyDDM : public WaveformAnalyzerBase {
   };
   virtual ~WaveformAnalysisLucyDDM(){};
   void Configure(const std::string &config_name) override;
-  // virtual void SetD(std::string param, double value) override;
+  void SetD(std::string param, double value) override;
 
  protected:
   // Digitizer settings
@@ -71,6 +71,11 @@ class WaveformAnalysisLucyDDM : public WaveformAnalyzerBase {
                       // The mean of the single PE charge distribution is centered around `vpe_charge`.
   bool npe_estimate_charge_width;  // the width of the gaussian single-PE charge distribution.
   size_t npe_estimate_max_pes;     // upper limit for the number of PEs in a single resolved wave packet.
+
+  // Charge thresholds: skip analysis if digitized total charge is outside [min_total_charge, max_total_charge] (pC).
+  // Defaults effectively disable both thresholds.
+  double min_total_charge = -1e9;
+  double max_total_charge = 1e9;
 
   // FFT transfomration engines.
   std::unique_ptr<FFTW1DTransformer> fft = nullptr;

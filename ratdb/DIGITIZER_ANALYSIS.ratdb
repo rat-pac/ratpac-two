@@ -117,7 +117,7 @@
 "npe_estimate_max_pes": 20,
 // Skip analysis for waveforms whose total integrated charge is outside [min_total_charge, max_total_charge] (pC).
 // Defaults effectively disable both thresholds.
-"min_total_charge": -1e9,
+"min_total_charge": 0,
 "max_total_charge": 1e9
 }
 
@@ -171,6 +171,6 @@
 "npe_estimate_max_pes": 20,
 // Skip analysis for waveforms whose total integrated charge is outside [min_total_charge, max_total_charge] (pC).
 // Defaults effectively disable both thresholds.
-"min_total_charge": -1e9,
+"min_total_charge": 0,
 "max_total_charge": 1e9
 }

@@ -33,6 +33,9 @@ void WaveformAnalysisLucyDDM::Configure(const std::string& config_name) {
     npe_estimate = fDigit->GetZ("npe_estimate");
     npe_estimate_charge_width = fDigit->GetD("npe_estimate_charge_width");
     npe_estimate_max_pes = fDigit->GetI("npe_estimate_max_pes");
+    // Charge threshold configuration (optional)
+    min_total_charge = fDigit->GetD("min_total_charge");
+    max_total_charge = fDigit->GetD("max_total_charge");
   } catch (DBNotFoundError) {
     RAT::Log::Die("WaveformAnalysisLucyDDM: Unable to find analysis parameters.");
   }
@@ -45,7 +48,20 @@ void WaveformAnalysisLucyDDM::Configure(const std::string& config_name) {
   }
 }
 
+void WaveformAnalysisLucyDDM::SetD(std::string param, double value) {
+  if (param == "min_total_charge") {
+    min_total_charge = value;
+  } else if (param == "max_total_charge") {
+    max_total_charge = value;
+  } else {
+    throw Processor::ParamUnknown(param);
+  }
+}
+
 void WaveformAnalysisLucyDDM::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
+  double totalCharge = digitpmt->GetDigitizedTotalCharge();
+  if (totalCharge < min_total_charge || totalCharge > max_total_charge) return;
+
   double gain_calibration = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByPMTID(digitpmt->GetID());
   vpe_integral = vpe_charge * fTermOhms * gain_calibration;
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, -fVoltageRes, digitpmt->GetPedestal());
