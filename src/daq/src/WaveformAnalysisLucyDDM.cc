@@ -48,16 +48,6 @@ void WaveformAnalysisLucyDDM::Configure(const std::string& config_name) {
   }
 }
 
-void WaveformAnalysisLucyDDM::SetD(std::string param, double value) {
-  if (param == "min_total_charge") {
-    min_total_charge = value;
-  } else if (param == "max_total_charge") {
-    max_total_charge = value;
-  } else {
-    throw Processor::ParamUnknown(param);
-  }
-}
-
 void WaveformAnalysisLucyDDM::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
   double totalCharge = digitpmt->GetDigitizedTotalCharge();
   if (totalCharge < min_total_charge || totalCharge > max_total_charge) return;
