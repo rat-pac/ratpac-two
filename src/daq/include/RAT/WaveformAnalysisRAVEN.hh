@@ -31,6 +31,7 @@
 #ifndef __RAT_WaveformAnalysisRAVEN__
 #define __RAT_WaveformAnalysisRAVEN__
 
+#include <TMatrixDfwd.h>
 #include <TObject.h>
 
 #include <RAT/DB.hh>
@@ -40,8 +41,6 @@
 #include <RAT/WaveformAnalyzerBase.hh>
 #include <utility>
 #include <vector>
-
-#include "TMatrixD.h"
 
 namespace RAT {
 
