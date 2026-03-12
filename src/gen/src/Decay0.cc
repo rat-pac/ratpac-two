@@ -506,6 +506,11 @@ void Decay0::GenEvent() {
         fTdnuc = time;
       }
       fPtime[fNbPart0 + 1] = fPtime[fNbPart0 + 1] + fTdnuc;
+      //set the time of the following 214Po-decay emitted particles to be after the first one
+      int jj = 0;
+      for (jj=fNbPart0+2; jj<=fNbPart; jj++){
+        fPtime[jj]=fPtime[fNbPart0+1]+fPtime[jj];
+      }
     }
   } else if (fIsotope == "C10") {
     // information from
@@ -4083,7 +4088,7 @@ void Decay0::Bi214() {
       } else if (p <= 65.4) {
         nucltransK(fEnGamma[120], fEbindeK2, 2.8e-3, 1.4e-6);
         next1378 = true;
-      } else if (p <= 674.8) {
+      } else if (p <= 74.8) {
         nucltransK(fEnGamma[121], fEbindeK2, 5.7e-3, 0.);
         next1730 = true;
       } else {
@@ -10911,7 +10916,8 @@ void Decay0::particle(int np, double E1, double E2, double teta1, double teta2, 
   // phi1,phi2   - range of phi  angle (radians);
   fTclev = tclev;
   fThlev = thlev;
-
+  double tprev = 0.;
+  
   fNbPart = fNbPart + 1;
   fPparent.push_back(fCurParentIdx);
   if (fNbPart > 100) {
@@ -10921,6 +10927,8 @@ void Decay0::particle(int np, double E1, double E2, double teta1, double teta2, 
   if (np < 1 || np > 50 || (np > 32 && np < 45)) {
     warn << "Decay0::particle :WARNING: unknown particle number: " << np << newline;
   }
+
+  if ( fNbPart > 1 ) tprev = fPtime[fNbPart-1];
 
   fNpGeant[fNbPart] = np;
   double pmass = GetMass(np);
@@ -10944,7 +10952,7 @@ void Decay0::particle(int np, double E1, double E2, double teta1, double teta2, 
   fPmoment[2][fNbPart] = p * ctet;
   fTdlev = fTclev;
 
-  if (fThlev > 0) fTdlev = fTclev - fThlev / log(2.) * log(GetRandom());
+  if (fThlev > 0) fTdlev = tprev + fTclev - fThlev / log(2.) * log(GetRandom());
 
   fPtime[fNbPart] = fTdlev;
   return;
