@@ -10,6 +10,7 @@
 #ifndef __RAT_WaveformAnalyzerBase__
 #define __RAT_WaveformAnalyzerBase__
 
+#include <limits>
 #include <vector>
 
 #include "RAT/DS/Digit.hh"
@@ -114,8 +115,8 @@ class WaveformAnalyzerBase : public Processor {
   double fTermOhms;
 
   // Charge thresholds: skip analysis if digitized total charge is outside [fMinTotalCharge, fMaxTotalCharge] (pC).
-  double fMinTotalCharge = 0;
-  double fMaxTotalCharge = 9999;
+  double fMinTotalCharge = -std::numeric_limits<double>::max();
+  double fMaxTotalCharge = std::numeric_limits<double>::max();
 };
 
 }  // namespace RAT
