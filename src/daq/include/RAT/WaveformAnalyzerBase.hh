@@ -115,7 +115,7 @@ class WaveformAnalyzerBase : public Processor {
   double fTermOhms;
 
   // Charge thresholds: skip analysis if digitized total charge is outside [fMinTotalCharge, fMaxTotalCharge] (pC).
-  double fMinTotalCharge = -std::numeric_limits<double>::max();
+  double fMinTotalCharge = std::numeric_limits<double>::lowest();
   double fMaxTotalCharge = std::numeric_limits<double>::max();
 };
 
