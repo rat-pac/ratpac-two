@@ -43,7 +43,7 @@ void WaveformAnalysisSinc::SetD(std::string param, double value) {
   } else if (param == "tapering_constant") {
     fTaperingConst = value;
   } else {
-    throw Processor::ParamUnknown(param);
+    WaveformAnalyzerBase::SetD(param, value);
   }
 }
 

@@ -61,10 +61,6 @@ void WaveformAnalysisRAVEN::Configure(const std::string& config_name) {
     // Weight merging configuration
     weight_merge_window = fDigit->GetD("weight_merge_window");  // Time window for merging nearby weights (ns)
 
-    // Charge threshold configuration (optional)
-    min_total_charge = fDigit->GetD("min_total_charge");
-    max_total_charge = fDigit->GetD("max_total_charge");
-
     // Validate critical parameters
     if (upsample_factor <= 0) {
       RAT::Log::Die("WaveformAnalysisRAVEN: Invalid upsampling factor.");
@@ -101,12 +97,8 @@ void WaveformAnalysisRAVEN::SetD(std::string param, double value) {
     npe_estimate_charge_width = value;
   } else if (param == "weight_merge_window") {
     weight_merge_window = value;
-  } else if (param == "min_total_charge") {
-    min_total_charge = value;
-  } else if (param == "max_total_charge") {
-    max_total_charge = value;
   } else {
-    throw Processor::ParamUnknown(param);
+    WaveformAnalyzerBase::SetD(param, value);
   }
 }
 
@@ -170,9 +162,6 @@ void WaveformAnalysisRAVEN::BuildDictionaryMatrix(int nsamples, double digitizer
 }
 
 void WaveformAnalysisRAVEN::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
-  double totalCharge = digitpmt->GetDigitizedTotalCharge();
-  if (totalCharge < min_total_charge || totalCharge > max_total_charge) return;
-
   // Build dictionary on first call or when digitizer parameters change
   const double period_tolerance = 1e-9;  // 1 ps tolerance for digitizer period comparison
   if (!dictionary_built || cached_nsamples != static_cast<int>(digitWfm.size()) ||

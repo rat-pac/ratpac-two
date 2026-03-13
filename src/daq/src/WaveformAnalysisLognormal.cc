@@ -17,6 +17,15 @@ void WaveformAnalysisLognormal::Configure(const std::string& config_name) {
     fFitWindowHigh = fDigit->GetD("fit_window_high");
     fFitShape = fDigit->GetD("lognormal_shape");
     fFitScale = fDigit->GetD("lognormal_scale");
+    // Charge threshold configuration (optional, falls back to base class defaults)
+    try {
+      fMinTotalCharge = fDigit->GetD("min_total_charge");
+    } catch (DBNotFoundError) {
+    }
+    try {
+      fMaxTotalCharge = fDigit->GetD("max_total_charge");
+    } catch (DBNotFoundError) {
+    }
   } catch (DBNotFoundError) {
     RAT::Log::Die("WaveformAnalysisLognormal: Unable to find analysis parameters.");
   }
@@ -32,7 +41,7 @@ void WaveformAnalysisLognormal::SetD(std::string param, double value) {
   } else if (param == "lognormal_scale") {
     fFitScale = value;
   } else {
-    throw Processor::ParamUnknown(param);
+    WaveformAnalyzerBase::SetD(param, value);
   }
 }
 

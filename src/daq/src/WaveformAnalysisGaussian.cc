@@ -18,6 +18,15 @@ void WaveformAnalysisGaussian::Configure(const std::string& config_name) {
     fFitWidth = fDigit->GetD("gaussian_width");
     fFitWidthLow = fDigit->GetD("gaussian_width_low");
     fFitWidthHigh = fDigit->GetD("gaussian_width_high");
+    // Charge threshold configuration (optional, falls back to base class defaults)
+    try {
+      fMinTotalCharge = fDigit->GetD("min_total_charge");
+    } catch (DBNotFoundError) {
+    }
+    try {
+      fMaxTotalCharge = fDigit->GetD("max_total_charge");
+    } catch (DBNotFoundError) {
+    }
   } catch (DBNotFoundError) {
     RAT::Log::Die("WaveformAnalysisGaussian: Unable to find analysis parameters.");
   }
@@ -35,7 +44,7 @@ void WaveformAnalysisGaussian::SetD(std::string param, double value) {
   } else if (param == "gaussian_width_high") {
     fFitWidthHigh = value;
   } else {
-    throw Processor::ParamUnknown(param);
+    WaveformAnalyzerBase::SetD(param, value);
   }
 }
 

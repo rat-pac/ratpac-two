@@ -114,11 +114,7 @@
 // Width of the single PE charge distribution, in pC.
 "npe_estimate_charge_width": 0.4,
 // Maximum number of PEs to consider in the NPE estimation.
-"npe_estimate_max_pes": 20,
-// Skip analysis for waveforms whose total integrated charge is outside [min_total_charge, max_total_charge] (pC).
-// Defaults effectively disable both thresholds.
-"min_total_charge": 0,
-"max_total_charge": 100
+"npe_estimate_max_pes": 20
 }
 
 {
@@ -168,9 +164,5 @@
 // Width of the single PE charge distribution, in pC.
 "npe_estimate_charge_width": 0.4,
 // Maximum number of PEs to consider in the NPE estimation.
-"npe_estimate_max_pes": 20,
-// Skip analysis for waveforms whose total integrated charge is outside [min_total_charge, max_total_charge] (pC).
-// Defaults effectively disable both thresholds.
-"min_total_charge": 0,
-"max_total_charge": 100
+"npe_estimate_max_pes": 20
 }

@@ -71,10 +71,6 @@ class WaveformAnalysisLucyDDM : public WaveformAnalyzerBase {
   bool npe_estimate_charge_width;  // the width of the gaussian single-PE charge distribution.
   size_t npe_estimate_max_pes;     // upper limit for the number of PEs in a single resolved wave packet.
 
-  // Charge thresholds: skip analysis if digitized total charge is outside [min_total_charge, max_total_charge] (pC).
-  double min_total_charge;
-  double max_total_charge;
-
   // FFT transfomration engines.
   std::unique_ptr<FFTW1DTransformer> fft = nullptr;
   std::unique_ptr<FFTW1DTransformer> ifft = nullptr;
