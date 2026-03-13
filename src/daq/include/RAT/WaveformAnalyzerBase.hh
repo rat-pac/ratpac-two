@@ -114,8 +114,8 @@ class WaveformAnalyzerBase : public Processor {
   double fTermOhms;
 
   // Charge thresholds: skip analysis if digitized total charge is outside [fMinTotalCharge, fMaxTotalCharge] (pC).
-  double fMinTotalCharge;
-  double fMaxTotalCharge;
+  double fMinTotalCharge = 0;
+  double fMaxTotalCharge = 9999;
 };
 
 }  // namespace RAT
