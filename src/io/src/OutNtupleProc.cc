@@ -146,6 +146,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("evid", &evid);
   outputTree->Branch("subev", &subev);
   outputTree->Branch("nhits", &nhits);
+  outputTree->Branch("totalcharge", &totalcharge);
   outputTree->Branch("triggerTime", &triggerTime);  // Local trigger time
   outputTree->Branch("timestamp", &timestamp);      // Global trigger time
   outputTree->Branch("trigger_word", &trigger_word);
@@ -555,6 +556,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       }
     }
     nhits = ev->GetPMTCount();
+    totalcharge = ev->GetTotalCharge();
     if (options.pmthits) {
       hitPMTID.clear();
       hitPMTTime.clear();
@@ -676,6 +678,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     evid = -1;
     subev = -1;
     nhits = -1;
+    totalcharge = 0;
     triggerTime = 0;
     timeSinceLastTrigger_us = 0;
     if (options.pmthits) {
