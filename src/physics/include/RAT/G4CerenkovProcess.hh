@@ -61,6 +61,8 @@ class G4Step;
 class G4Track;
 class G4VParticleChange;
 
+namespace RAT {
+
 class G4CerenkovProcess : public G4VProcess {
  public:
   explicit G4CerenkovProcess(const G4String& processName = "G4CerenkovProcess", G4ProcessType type = fElectromagnetic);
@@ -182,5 +184,7 @@ inline G4bool G4CerenkovProcess::GetStackPhotons() const { return fStackingFlag;
 inline G4int G4CerenkovProcess::GetNumPhotons() const { return fNumPhotons; }
 
 inline G4PhysicsTable* G4CerenkovProcess::GetPhysicsTable() const { return thePhysicsTable; }
+
+}  // namespace RAT
 
 #endif /* __RAT_G4CerenkovProcess_h */

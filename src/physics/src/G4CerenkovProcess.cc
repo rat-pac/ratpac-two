@@ -79,6 +79,8 @@
 #include "G4ios.hh"
 #include "Randomize.hh"
 
+namespace RAT {
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 G4CerenkovProcess::G4CerenkovProcess(const G4String& processName, G4ProcessType type)
     : G4VProcess(processName, type), fNumPhotons(0) {
@@ -613,3 +615,5 @@ void G4CerenkovProcess::SetVerboseLevel(G4int verbose) {
   verboseLevel = verbose;
   G4OpticalParameters::Instance()->SetCerenkovVerboseLevel(verboseLevel);
 }
+
+}  // namespace RAT
