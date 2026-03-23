@@ -98,7 +98,7 @@ void WaveformAnalysisRAVEN::SetD(std::string param, double value) {
   } else if (param == "weight_merge_window") {
     weight_merge_window = value;
   } else {
-    throw Processor::ParamUnknown(param);
+    WaveformAnalyzerBase::SetD(param, value);
   }
 }
 

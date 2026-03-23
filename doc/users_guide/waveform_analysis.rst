@@ -105,6 +105,26 @@ There are several additional waveform analysis proccesors described below, each 
 
 For all of these processors, there is a utility located in ``util/src/`` called ``WaveformUtil.cc`` that provides useful analysis tools. For example, there are public methods to convert ADC counts to voltage, identify the peak of the waveform and the corresponding sample, get the total number of threshold crossings, etc.
 
+.. _common_parameters:
+
+Common parameters
+`````````````````
+
+All waveform analysis processors inherit from ``WaveformAnalyzerBase`` and share the following parameters, which can be set using ``/rat/procset``::
+
+    min_total_charge
+    max_total_charge
+
+* Lower and upper bounds (in pC) on the digitized total charge of the waveform (``DigitPMT::GetDigitizedTotalCharge()``). If the total charge falls outside ``[min_total_charge, max_total_charge]``, the analysis for that channel is skipped entirely. By default these are set to the most negative and most positive finite ``double`` values respectively, so all waveforms are analyzed unless a cut is explicitly specified.
+
+For example, to restrict analysis to waveforms with total charge between -5 pC and 50 pC::
+
+    /rat/proc WaveformAnalysisLognormal
+    /rat/procset min_total_charge -5.0
+    /rat/procset max_total_charge 50.0
+
+These cuts are applied per-channel, per-event, before ``DoAnalysis()`` is called, so they are a lightweight way to skip waveforms that are clearly noise or saturated without running the full analysis.
+
 -------------------------
 
 .. _lognormalfit:

@@ -38,7 +38,6 @@ class WaveformAnalysisLucyDDM : public WaveformAnalyzerBase {
   };
   virtual ~WaveformAnalysisLucyDDM(){};
   void Configure(const std::string &config_name) override;
-  // virtual void SetD(std::string param, double value) override;
 
  protected:
   // Digitizer settings

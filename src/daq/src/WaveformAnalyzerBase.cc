@@ -18,6 +18,9 @@ void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digiti
 }
 
 void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Digit* dsdigit) {
+  double totalCharge = digitpmt->GetDigitizedTotalCharge();
+  if (totalCharge < fMinTotalCharge || totalCharge > fMaxTotalCharge) return;
+
   fVoltageRes = dsdigit->GetVoltageResolution();
   fTimeStep = dsdigit->GetTimeStepNS();
   fTermOhms = dsdigit->GetTerminationOhms();
@@ -47,7 +50,16 @@ void WaveformAnalyzerBase::SetS(std::string param, std::string value) {
   }
 }
 
-void WaveformAnalyzerBase::SetD(std::string param, double value) { throw Processor::ParamUnknown(param); }
+void WaveformAnalyzerBase::SetD(std::string param, double value) {
+  if (param == "min_total_charge") {
+    fMinTotalCharge = value;
+  } else if (param == "max_total_charge") {
+    fMaxTotalCharge = value;
+  } else {
+    throw Processor::ParamUnknown(param);
+  }
+}
+
 void WaveformAnalyzerBase::SetI(std::string param, int value) { throw Processor::ParamUnknown(param); }
 
 }  // namespace RAT
