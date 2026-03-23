@@ -506,7 +506,7 @@ void Decay0::GenEvent() {
         fTdnuc = time;
       }
       fPtime[fNbPart0 + 1] = fPtime[fNbPart0 + 1] + fTdnuc;
-      //set the time of the following 214Po-decay emitted particles to be after the first one
+      // Set the time of the following 214Po-decay emitted particles to be after the first one
       int jj = 0;
       for (jj = fNbPart0 + 2; jj <= fNbPart; jj++) {
         fPtime[jj] = fPtime[fNbPart0 + 1] + fPtime[jj];
