@@ -508,8 +508,8 @@ void Decay0::GenEvent() {
       fPtime[fNbPart0 + 1] = fPtime[fNbPart0 + 1] + fTdnuc;
       //set the time of the following 214Po-decay emitted particles to be after the first one
       int jj = 0;
-      for (jj=fNbPart0+2; jj<=fNbPart; jj++){
-        fPtime[jj]=fPtime[fNbPart0+1]+fPtime[jj];
+      for (jj = fNbPart0 + 2; jj <= fNbPart; jj++) {
+        fPtime[jj] = fPtime[fNbPart0 + 1] + fPtime[jj];
       }
     }
   } else if (fIsotope == "C10") {
@@ -10917,7 +10917,7 @@ void Decay0::particle(int np, double E1, double E2, double teta1, double teta2, 
   fTclev = tclev;
   fThlev = thlev;
   double tprev = 0.;
-  
+
   fNbPart = fNbPart + 1;
   fPparent.push_back(fCurParentIdx);
   if (fNbPart > 100) {
@@ -10928,7 +10928,7 @@ void Decay0::particle(int np, double E1, double E2, double teta1, double teta2, 
     warn << "Decay0::particle :WARNING: unknown particle number: " << np << newline;
   }
 
-  if ( fNbPart > 1 ) tprev = fPtime[fNbPart-1];
+  if (fNbPart > 1) tprev = fPtime[fNbPart - 1];
 
   fNpGeant[fNbPart] = np;
   double pmass = GetMass(np);
