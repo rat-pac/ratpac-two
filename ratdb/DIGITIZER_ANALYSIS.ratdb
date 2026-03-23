@@ -34,6 +34,11 @@
 // Fit shape
 "lognormal_shape": 0.15,
 "lognormal_scale": 10.5,
+
+// Optional charge thresholds. When uncommented, processor will only run
+// if total charge in waveform is between these values.
+// min_total_charge = -50.,
+// max_total_charge = 500.
 }
 
 {
@@ -49,6 +54,11 @@
 "gaussian_width": 1.5,
 "gaussian_width_low": 0.5, // lower and upper limit for fitted sigma
 "gaussian_width_high": 6.0,
+
+// Optional charge thresholds. When uncommented, processor will only run
+// if total charge in waveform is between these values.
+// min_total_charge = -50.,
+// max_total_charge = 500.
 }
 
 {
@@ -63,7 +73,12 @@
 // Interpolation variables
 "num_interp_points": 8,
 "tapering_constant": 30.0,
-"num_sinc_lobes": 6
+"num_sinc_lobes": 6,
+
+// Optional charge thresholds. When uncommented, processor will only run
+// if total charge in waveform is between these values.
+// min_total_charge = -50.,
+// max_total_charge = 500.
 }
 
 {
@@ -114,7 +129,12 @@
 // Width of the single PE charge distribution, in pC.
 "npe_estimate_charge_width": 0.4,
 // Maximum number of PEs to consider in the NPE estimation.
-"npe_estimate_max_pes": 20
+"npe_estimate_max_pes": 20,
+
+// Optional charge thresholds. When uncommented, processor will only run
+// if total charge in waveform is between these values.
+// min_total_charge = -50.,
+// max_total_charge = 500.
 }
 
 {
@@ -164,5 +184,10 @@
 // Width of the single PE charge distribution, in pC.
 "npe_estimate_charge_width": 0.4,
 // Maximum number of PEs to consider in the NPE estimation.
-"npe_estimate_max_pes": 20
+"npe_estimate_max_pes": 20,
+
+// Optional charge thresholds. When uncommented, processor will only run
+// if total charge in waveform is between these values.
+// min_total_charge = -50.,
+// max_total_charge = 500.
 }
