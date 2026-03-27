@@ -321,62 +321,57 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
     int numAngles = angles.size();
     /// ======= Percentiles ======
     /// ---- Octile 7
-    int m = numAngles * 7 / 8 - 1;
-    if (m < 0) m = 0;
+    int m = numAngles * 7 / 8;
     std::nth_element(angles.begin(), angles.begin() + m, angles.end());
     angleO7 = angles[m];
     // if percentile sits between two values, average them
     if (std::fmod(numAngles * 7.0 / 8.0, 1.0) == 0.0) {
-      m += 1;
-      if (m >= numAngles) m = numAngles - 1;
+      m -= 1;
+      if (m < 0) m = 0;
       std::nth_element(angles.begin(), angles.begin() + m, angles.end());
       angleO7 = (angleO7 + angles[m]) / 2.0;
     }
     /// ---- Quartile 3
-    m = numAngles * 3 / 4 - 1;
-    if (m < 0) m = 0;
+    m = numAngles * 3 / 4;
     std::nth_element(angles.begin(), angles.begin() + m, angles.end());
     angleQ3 = angles[m];
     // if percentile sits between two values, average them
     if (std::fmod(numAngles * 3.0 / 4.0, 1.0) == 0.0) {
-      m += 1;
-      if (m >= numAngles) m = numAngles - 1;
+      m -= 1;
+      if (m < 0) m = 0;
       std::nth_element(angles.begin(), angles.begin() + m, angles.end());
       angleQ3 = (angleQ3 + angles[m]) / 2.0;
     }
     /// ---- Median
-    m = numAngles / 2 - 1;
-    if (m < 0) m = 0;
+    m = numAngles / 2;
     std::nth_element(angles.begin(), angles.begin() + m, angles.end());
     angleMedian = angles[m];
     // if percentile sits between two values, average them
     if (std::fmod(numAngles / 2.0, 1.0) == 0.0) {
-      m += 1;
-      if (m >= numAngles) m = numAngles - 1;
+      m -= 1;
+      if (m < 0) m = 0;
       std::nth_element(angles.begin(), angles.begin() + m, angles.end());
       angleMedian = (angleMedian + angles[m]) / 2.0;
     }
     /// ---- Quartile 1
-    m = numAngles / 4 - 1;
-    if (m < 0) m = 0;
+    m = numAngles / 4;
     std::nth_element(angles.begin(), angles.begin() + m, angles.end());
     angleQ1 = angles[m];
     // if percentile sits between two values, average them
     if (std::fmod(numAngles / 4.0, 1.0) == 0.0) {
-      m += 1;
-      if (m >= numAngles) m = numAngles - 1;
+      m -= 1;
+      if (m < 0) m = 0;
       std::nth_element(angles.begin(), angles.begin() + m, angles.end());
       angleQ1 = (angleQ1 + angles[m]) / 2.0;
     }
     /// ---- Octile 1
-    m = numAngles / 8 - 1;
-    if (m < 0) m = 0;
+    m = numAngles / 8;
     std::nth_element(angles.begin(), angles.begin() + m, angles.end());
     angleO1 = angles[m];
     // if percentile sits between two values, average them
     if (std::fmod(numAngles / 8.0, 1.0) == 0.0) {
-      m += 1;
-      if (m >= numAngles) m = numAngles - 1;
+      m -= 1;
+      if (m < 0) m = 0;
       std::nth_element(angles.begin(), angles.begin() + m, angles.end());
       angleO1 = (angleO1 + angles[m]) / 2.0;
     }

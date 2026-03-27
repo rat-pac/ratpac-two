@@ -35,5 +35,5 @@
 "event_fitters": ["quadfitter", "fitcentroid", "fitdirectioncenter", "mimir"],
 
 "event_fitter_FOM_fitdirectioncenter": ["num_PMT", "angle_mean"]
-# fitdirectioncenter FOMs available: ["num_PMT", "time_resid_low", "time_resid_up", angle_mean", "angle_stddev", "angle_octile7", "angle_quartile3", "angle_median", "angle_quartile1", "angle_octile1"]
+// fitdirectioncenter FOMs available: ["num_PMT", "time_resid_low", "time_resid_up", angle_mean", "angle_stddev", "angle_octile7", "angle_quartile3", "angle_median", "angle_quartile1", "angle_octile1"]
 }
