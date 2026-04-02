@@ -552,7 +552,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         fitvalids.at("validtime_" + full_name) = fit->GetValidTime();
       }
       for (const std::string &fom_name : event_fitter_FOMs[full_name]) {
-        fiteventFOMs[name][fom_name] = fit->GetFigureOfMerit(fom_name);
+        fiteventFOMs[full_name][fom_name] = fit->GetFigureOfMerit(fom_name);
       }
     }
     nhits = ev->GetPMTCount();
