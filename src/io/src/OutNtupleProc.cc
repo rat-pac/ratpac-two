@@ -20,6 +20,7 @@
 #include <RAT/OutNtupleProc.hh>
 #include <iostream>
 #include <numeric>
+#include <set>
 #include <sstream>
 #include <stlplus/string_utilities.hpp>
 #include <string>
@@ -80,11 +81,25 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
   event_fitters = table->GetSArray("event_fitters");
   for (const std::string &full_name : event_fitters) {
     if (event_fitter_FOMs.find(full_name) != event_fitter_FOMs.end()) continue;
-    try {
-      event_fitter_FOMs[full_name] = table->GetSArray("event_fitter_FOM_" + full_name);
-    } catch (DBNotFoundError &e) {
-      event_fitter_FOMs[full_name].clear();
+    std::set<std::string> fom_set;
+    // Load FOMs declared under the base fitter name (applies to all tagged variants)
+    std::string fitter_name = DS::FitResult::GetFitterNameFromFullName(full_name);
+    if (fitter_name != full_name) {
+      try {
+        for (const std::string &fom : table->GetSArray("event_fitter_FOM_" + fitter_name)) {
+          fom_set.insert(fom);
+        }
+      } catch (DBNotFoundError &e) {
+      }
     }
+    // Load FOMs declared under the full name and merge
+    try {
+      for (const std::string &fom : table->GetSArray("event_fitter_FOM_" + full_name)) {
+        fom_set.insert(fom);
+      }
+    } catch (DBNotFoundError &e) {
+    }
+    event_fitter_FOMs[full_name] = std::vector<std::string>(fom_set.begin(), fom_set.end());
   }
 }
 
