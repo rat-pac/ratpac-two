@@ -57,34 +57,47 @@ GLG4Scint object has been identified for the track, the
 GLG4Scint::!PostPostStepDoIt() method is called.   The rest of this page
 describes what GLG4Scint::!PostPostStepDoIt() actually does.
 
+Scintillator Definition
+'''''''''''''''''''''''
+The model parameters discussed below are defined as single-valued variables or arrays that are typically
+a function of photon wavelength in nm or time in ns.  Most of the parameters can be defined to represent the
+bulk response of a scintillator, but can also be defined for each component of the scintillator (identified
+by a numerical index appended to the variable/array name).  Component information will be used only if the
+number of components ''NUM_COMP'' is defined.  Otherwise, non-component varibales/arrays will be used for
+the material as a whole.  Non-component information can be used even if ''NUM_COMP'' is defined.
+If ''NUM_COMP'' is not defined or set to 0, no component information will be used.
+
 Computing Number of Scintillation Photons
 '''''''''''''''''''''''''''''''''''''''''
-
 Normal particles (i.e. not optical photons) can deposit energy gradually in the
 medium through ionization and other processes.  At the end of each track step,
 GLG4Scint determines the total deposited energy, ''dE'', and the step length,
-''dx''.  Then it applies Birk's Law to compute the deposited energy after
+''dx''.  Then it applies Birks' Law to compute the deposited energy after
 quenching:
 
 .. math::
 
     dE_{\rm quench} = \frac{dE}{1 + B \times dE/dx}
 
-where ''B'' is Birk's Constant for your scintillator.  If ''B'' is set to zero,
-then Birk's Law has no effect and the scintillator response is independent of
-''dE/dx''.
+where ''B'' is Birks' constant for your scintillator.  If ''B'' is set to zero,
+then Birks' Law has no effect and the scintillator response is independent of
+''dE/dx''. Birks' constant gets defined as one of the ''SCINTMOD'' parameters (key = 1), along with resolution
+scale (key = 0) and the reference ''dE/dx'' (key = 2) discussed below.  These parameters can be defined per
+particle type.
 
 An additional particle-dependent quenching factor, ''P(E)'' can also be set
 which depends on the kinetic energy of the particle at the end of the step.
 This is useful if the scintillator quenching has been measured directly for a
-range of energies.
+range of energies.  This quenching factor array gets defined as ''QF''.
+A single value can also be defined through macro command ''setQF''.
 
 The deposited energy is converted to scintillation photons using the product of
 the light yield (''Y'') of the scintillator (which is in units of photons per
-MeV), the deposited energy, Birk's Law scaling, the particle-dependent
-quenching, and a "reference ''dE/dx''" for Birk's Law.  The reference ''dE/dx''
-is useful if you have measured the light yield of the scintillator only with
-highly ionizing particles, like alphas, which already have a significant Birk's
+MeV), the deposited energy, Birks' Law scaling, the particle-dependent
+quenching, and a "reference ''dE/dx''" for Birks' Law.
+The light yield variable gets defined as ''LIGHT_YIELD''.
+The reference ''dE/dx'' gets defined as noted above and is useful if you have measured the light yield of
+the scintillator only with highly ionizing particles, like alphas, which already have a significant Birks'
 Law component.  The reference dE/dx effectively removes the quenching already
 in the light yield.
 
@@ -106,21 +119,30 @@ to 1 for ''P(E)'' and ''T'' and 0 for ''B'' and ''dE/dx_{ref}''.
 The actual number of scintillation photons produced in the step is drawn from a
 Poisson distribution with mean N.
 
+Light Yield
+'''''''''''
+If LIGHT_YIELD is not defined, then it will be extracted as the integral of the SCINTILLATION spectrum (or spectra) and
+a warning will be printed.  A LIGHT_YIELD can be defined for each scintillator component.
+
 Scintillation Spectrum
 ''''''''''''''''''''''
-Once the number of scintillation photons has been specified, the photon energy
-is drawn from a spectrum supplied for the material.  The direction of each
-photon is randomly drawn from an isotropic distribution, and the polarization
+Once the number of scintillation photons has been specified, the photon energy is drawn from the supplied SCINTILLATION
+spectrum, which can be defined per particle type.  A non-component SCINTILLATION spectrum and a component SCINTILLATION#
+spectrum are not allowed to exist in the OPTICS definition of a material.
+If no SCINTILLATION specturm exists, then the material will not scintillate,
+though it could still re-emit.  This can be used to simulate a wavelength shifter (see below).
+The direction of each photon is randomly drawn from an isotropic distribution, and the polarization
 vector is randomly selected, but constrained to be orthogonal to the direction
 vector.  The position of the photon is drawn from a uniform distribution along
 the line connecting the start and end points of the step.
 
 Time Structure
 ''''''''''''''
-The scintillation process has some time structure associated with it.  The
+The scintillation process can have a time structure associated with it.  The
 start time of a scintillation photon is the time the particle passed through
 the origin point of the photon, plus a delay drawn from the user-specified
-distribution.  There are three possible options for the delay distribution:
+distribution SCINTWAVEFORM, which can also have a separately defined SCINT_RISE_TIME.
+There are three possible options for the delay distribution:
 
 1. A sampled time distribution, in the form of a list of (time, intensity)
    pairs.
@@ -129,8 +151,9 @@ distribution.  There are three possible options for the delay distribution:
 3. A sum of two decaying exponential distributions, whose time constants are a
    function of particle energy.
 
-The specification of delay distribution is described in the RATDB section
-below.
+The time structure can be defined per particle type.
+
+------------------------
 
 Wavelength Shifting
 ```````````````````
@@ -148,23 +171,21 @@ inside the medium, but not at a geometry boundary.  If the photon is absorbed
 in the bulk, then it is possible that it was absorbed by wavelength-shifter
 present in the scintillator.
 
-The decision whether to reemit the photon is made by looking at the
-REEMISSION_PROB table, which gives the Poisson mean number of photons number of
-photons produced per photon absorbed.  (NOTE: This model is used because TPB
-shifts extreme UV light to visible light, so it is energetically possible for
-more than one photon to be produced.  This model of reemission may not be
-applicable to all wavelength shifters.)  The number of outgoing photons is
-drawn from this Poisson distribution.
+The spectrum of the outgoing photons is drawn from a SCINTILLATION_WLS distribution, which is defined separately from the
+primary scintillation distribution and can also be defined per particle type.  A non-component SCINTILLATION_WLS spectrum
+and a component SCINTILLATION_WLS# spectrum are not allowed to exist in the OPTICS definition of a material.
+If no SCINTILLATION_WLS specturm exists, then the material will not re-emit.
 
-The spectrum of the outgoing photons is drawn from a separate distribution from
-the primary scintillation distribution, unless no wavelength-shifting
-distribution is specified.  In this case, the scintillation distribution is
-reused.
+The decision whether to reemit a photon is made by looking at the REEMISSION_PROB array, which gives the probability of
+photon re-emission as a function of wavelength of the absorbed photon.  Multiple photon re-emission is possible and off
+by default.  (NOTE: TPB is one example of a material that shifts extreme UV light to visible light, where it is energetically
+possible for more than one photon to be produced.)
+To activate, set the REEMISSION_MULT variable to be > 0.  The wavelength (and number if REEMISSION_MULT > 0) of re-emitted
+photons is determined by randomly sampling the availble portion of the re-emission spectrum until the sum of energies of
+re-emitted photons is greater than the absorbed photon.
 
-Wavelength shifted photons are delayed from their absorption time according to
-the same time distribution as the original scintillator.  (WARNING: THIS IS
-ALMOST CERTAINLY WRONG FOR MEDIA WITH BOTH SCINTILLATOR AND WAVELENGTH SHIFTER.
-SHOULD FIX!)
+Re-emitted photons are delayed from their absorption time according to a unique time distribution, REEMITWAVEFORM.  The
+emission time of multiple re-emitted photons is random and uncorrelated.
 
 G4OpWLS Model
 '''''''''''''
