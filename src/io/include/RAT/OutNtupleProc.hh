@@ -77,6 +77,7 @@ class OutNtupleProc : public Processor {
   std::map<std::string, std::vector<std::string>> event_fitter_FOMs;
 
  protected:
+  bool has_run_completed;
   std::string defaultFilename;
   TFile *outputFile;
   TTree *outputTree;

@@ -30,6 +30,7 @@
 namespace RAT {
 
 OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
+  has_run_completed = false;
   outputFile = nullptr;
   outputTree = nullptr;
   metaTree = nullptr;
@@ -290,6 +291,11 @@ bool OutNtupleProc::OpenFile(std::string filename) {
 }
 
 Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
+  if (has_run_completed) {
+    Log::Die(
+        "Multiple /run/beamOn commands are not supported while OutNtupleProc is active. Please use a single beamOn "
+        "command.");
+  }
   if (!this->outputFile) {
     if (!OpenFile(this->defaultFilename.c_str())) {
       Log::Die("No output file specified");
@@ -726,6 +732,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 }
 
 void OutNtupleProc::EndOfRun(DS::Run *run) {
+  has_run_completed = true;
   if (outputFile) {
     outputFile->cd();
 
