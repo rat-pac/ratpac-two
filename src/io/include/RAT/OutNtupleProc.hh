@@ -48,10 +48,10 @@ class OutNtupleProc : public Processor {
   virtual void EndOfRun(DS::Run *run) override;
 
   // Extensible functions
-  virtual void AssignAdditionalAddresses() {};
-  virtual void AssignAdditionalMetaAddresses() {};
-  virtual void FillEvent(DS::Root *, DS::EV *) {};
-  virtual void FillNoTriggerEvent(DS::Root *) {};
+  virtual void AssignAdditionalAddresses(){};
+  virtual void AssignAdditionalMetaAddresses(){};
+  virtual void FillEvent(DS::Root *, DS::EV *){};
+  virtual void FillNoTriggerEvent(DS::Root *){};
   virtual void FillMeta() {};
 
   // Exposed members for external tools
