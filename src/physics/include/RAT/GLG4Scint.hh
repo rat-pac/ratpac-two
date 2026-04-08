@@ -14,7 +14,9 @@
                    non-zero values; correct error in GetScintillatedCount.
       29 Feb 2016: W Heintzelman - Add functions: GetTotEdepall, SetTotEdep
       23 Oct 2016: N Barros - Added UserTrackInformation objects to secondary
-   particles to track the process history of the photons.
+                   particles to track the process history of the photons.
+      31 Mar 2026: Logan Lebanowski - Added multiple emitting components,
+                   multi-photon re-emission, material definition logic control.
 */
 
 // [see detailed class documentation below]
@@ -96,15 +98,14 @@ class G4UIdirectory;
       will definitely see the energy loss by charged particles accurately.
 
     - Modified to allow specification of absolute yield spectra,
-      resolution scale, Birk's-law coefficient, and digitized waveform,
+      resolution scale, Birks'-law coefficient, and digitized waveform,
       customized for medium and (optionally) particle type.
 
     - No longer calls G4MaterialPropertiesTable::GetProperty() in
       [Post]PostStepDoit() -- all needed data can be found quickly in
       the internal physics table.
 
-    - Uses poisson random distribution for number of photons if
-      mean number of photons <= 12.
+    - Uses poisson random distribution for number of photons.
 
     - The total scintillation yield is now found implicitly from
       the integral of the scintillation spectrum, which must now be
@@ -116,9 +117,19 @@ class G4UIdirectory;
       spectrum, but different light yields.
 
     - The materials property tables used are
+      ========== Photon Production ==========
+        SCINTMOD       ==  resolution scale, Birks' constant, reference dE/dx
+      ========== Photon Emission ==========
+        LIGHT_YIELD    ==  scintillation yield
         SCINTILLATION  ==  scintillation spectrum
         SCINTWAVEFORM  ==  scintillation waveform or time constant
-        SCINTMOD       ==  resolution scale, Birk's constant, reference dE/dx
+      ========== Photon Re-emission ==========
+        REEMISSION_MULT   ==  allow multi-photon re-emission
+        REEMISSION_PROB   ==  probability of re-emission
+        SCINTILLATION_WLS ==  re-emission spectrum
+        REEMITWAVEFORM    ==  re-emission waveform or time constant
+
+    - Augmented to allow multiple emitting components.
 
     - SCINTILLATION is required in each scintillating medium.
       (Okay to omit if you don't want the medium to scintillate.)
@@ -130,13 +141,12 @@ class G4UIdirectory;
       Otherwise, the "PhotonEnergy" of each element is a time, and the
       Value of each element is the relative strength.
 
-    - Default values of resolution scale (=1.0), Birk's constant (=0.0)
+    - Default values of resolution scale (=1.0), Birks' constant (=0.0)
       and reference dE/dx (=0.0) are used if all or part of SCINTMOD is
       is missing.  SCINTMOD "PhotonEnergy" values should be set to the
       index number (0.0, 1.0, 2.0, with no units).
 
-    - Birk's law (see 1998 Particle Data Booklet eq. 25.1) is implemented
-      as
+    - Birks' law (see 1998 Particle Data Booklet eq. 25.1) is implemented as
    yield(dE/dx) = yield_ref * dE/dx * (1 + kb*(dE/dx)_ref) / (1 + kb*(dE/dx)).
       I.e., the scintillation spectrum given in SCINTILLATION is
       measured for particles with dE/dx = (dE/dx)_ref.  The usual
@@ -183,14 +193,18 @@ class GLG4Scint : public G4UImessenger  // not creating a separate class is my l
       G4PhysicsOrderedFreeVector *fReemissionIntegral;
       G4PhysicsOrderedFreeVector *fTimeIntegral;
       G4PhysicsOrderedFreeVector *fReemissionTimeIntegral;
+      std::vector<G4PhysicsOrderedFreeVector *> fEmissionTimeVector;
+      std::vector<G4PhysicsOrderedFreeVector *> fEmissionSpectrumVector;
       std::vector<G4PhysicsOrderedFreeVector *> fReemissionTimeVector;
       std::vector<G4PhysicsOrderedFreeVector *> fReemissionSpectrumVector;
-      int fOwnSpectrumIntegral, fOwnTimeIntegral, fOwnReemissionTimeIntegral, fOwnReemissionTimeVector;
+      int fOwnSpectrumIntegral, fOwnTimeIntegral, fOwnReemissionTimeIntegral;
       G4double fResolutionScale;
       G4double fBirksConstant;
       G4double fRefdEdx;
       G4double fLightYield;
+      std::vector<G4double> fLightYieldVector;
       G4MaterialPropertyVector *fQuenchingArray;
+      G4bool flagReemitMult;
 
       Entry();
       ~Entry();
@@ -350,6 +364,7 @@ class GLG4Scint : public G4UImessenger  // not creating a separate class is my l
   // Bogus processes used to tag photons created in GLG4Scint
   static GLG4DummyProcess fScintProcess;
   static GLG4DummyProcess fReemissionProcess;
+  static std::list<GLG4DummyProcess *> fEmissionProcessVector;
   static std::list<GLG4DummyProcess *> fReemissionProcessVector;
 
   // Quenching Factor
