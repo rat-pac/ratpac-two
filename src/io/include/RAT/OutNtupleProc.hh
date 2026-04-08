@@ -52,7 +52,7 @@ class OutNtupleProc : public Processor {
   virtual void AssignAdditionalMetaAddresses(){};
   virtual void FillEvent(DS::Root *, DS::EV *){};
   virtual void FillNoTriggerEvent(DS::Root *){};
-  virtual void FillMeta() {};
+  virtual void FillMeta(){};
 
   // Exposed members for external tools
   DS::Run *runBranch;
