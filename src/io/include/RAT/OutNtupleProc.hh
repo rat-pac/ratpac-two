@@ -48,11 +48,11 @@ class OutNtupleProc : public Processor {
   virtual void EndOfRun(DS::Run *run) override;
 
   // Extensible functions
-  virtual void AssignAdditionalAddresses(){};
-  virtual void AssignAdditionalMetaAddresses(){};
-  virtual void FillEvent(DS::Root *, DS::EV *){};
-  virtual void FillNoTriggerEvent(DS::Root *){};
-  virtual void FillMeta(){};
+  virtual void AssignAdditionalAddresses() {};
+  virtual void AssignAdditionalMetaAddresses() {};
+  virtual void FillEvent(DS::Root *, DS::EV *) {};
+  virtual void FillNoTriggerEvent(DS::Root *) {};
+  virtual void FillMeta() {};
 
   // Exposed members for external tools
   DS::Run *runBranch;
@@ -77,6 +77,7 @@ class OutNtupleProc : public Processor {
   std::map<std::string, std::vector<std::string>> event_fitter_FOMs;
 
  protected:
+  bool has_run_completed;
   std::string defaultFilename;
   TFile *outputFile;
   TTree *outputTree;
