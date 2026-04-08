@@ -7,8 +7,8 @@
 /rat/db/set DETECTOR geo_file "Validation/Valid.geo"
 /rat/db/set IO[NtupleProc] event_fitters ["quadfitter","fitdirectioncenter__fixed","fitdirectioncenter__quad","fitdirectioncenter__quad_drive"]
 /rat/db/set IO[NtupleProc] event_fitter_FOM_fitdirectioncenter__fixed ["num_PMT","time_resid_low","time_resid_up"]
-/rat/db/set IO[NtupleProc] event_fitter_FOM_fitdirectioncenter__quad ["num_PMT","time_resid_low","time_resid_up"]
-/rat/db/set IO[NtupleProc] event_fitter_FOM_fitdirectioncenter__quad_drive ["num_PMT","time_resid_low","time_resid_up"]
+/rat/db/set IO[NtupleProc] event_fitter_FOM_fitdirectioncenter__quad ["num_PMT"]
+/rat/db/set IO[NtupleProc] event_fitter_FOM_fitdirectioncenter__quad_drive ["num_PMT","angle_mean","angle_stddev","angle_octile7"]
 
 
 /run/initialize
@@ -22,14 +22,13 @@
 
 ### Reconstruct direction at the generator position
 /rat/proc fitdirectioncenter
-/rat/procset label "fixed"       # unique fitter name
+/rat/procset label "fixed"                                # unique fitter label
 /rat/procset event_position_x 100.0                       # x event position fixed to that used by generator [mm]
 /rat/procset event_position_y 100.0                       # y event position fixed to that used by generator [mm]
 /rat/procset event_position_z 100.0                       # z event position fixed to that used by generator [mm]
 /rat/procset event_time -18.0                             # offset applied to time residuals [ns]
 /rat/procset time_resid_frac_up  0.88                     # upper cut on time residuals using fraction in (0.0, 1.0]
 /rat/procset time_resid_frac_low 0.01                     # lower cut on time residuals using fraction in [0.0, 1.0)
-/rat/procset verbose 2                                    # save additional parameters in data structure
 
 
 ###### EXAMPLE 2 ######
@@ -40,24 +39,22 @@
 
 ### Reconstruct direction at a reconstructed position and apply a drive correction
 /rat/proc fitdirectioncenter
-/rat/procset label "quad"        # unique fitter name
+/rat/procset label "quad"                                 # unique fitter label
 /rat/procset position_fitter "quadfitter"                 # event position reconstruction to be used
 /rat/procset time_resid_up  0.7                           # upper cut on time residuals using direct cut [ns]
 /rat/procset time_resid_low 0.06                          # lower cut on time residuals using direct cut [ns]
-/rat/procset verbose 1                                    # save additional parameter in data structure
 # Illustration of how to select multiple pmt types - Valid.geo has only the default pmt_type==0
 /rat/procset pmt_type 0                                   # type of pmt to be used in reconstruction
 /rat/procset pmt_type 1                                   # type of pmt to be used in reconstruction
 /rat/procset pmt_type 2                                   # type of pmt to be used in reconstruction
 
 /rat/proc fitdirectioncenter
-/rat/procset label "quad_drive"  # unique fitter name
+/rat/procset label "quad_drive"                           # unique fitter label
 /rat/procset position_fitter "quadfitter"                 # event position reconstruction to be used
-/rat/procset direction_fitter "fitdirectioncenter__quad"   # event direction reconstruction to be used to correct drive
+/rat/procset direction_fitter "fitdirectioncenter__quad"  # event direction reconstruction to be used to correct drive
 /rat/procset event_drive 26.0                             # size of drive effect to correct position [mm]
 /rat/procset time_resid_up  0.7                           # upper cut on time residuals using direct cut [ns]
 /rat/procset time_resid_low 0.06                          # lower cut on time residuals using direct cut [ns]
-/rat/procset verbose 2                                    # save additional parameters in data structure
 
 
 /rat/proclast outntuple
