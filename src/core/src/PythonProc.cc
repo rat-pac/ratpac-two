@@ -1,3 +1,4 @@
+#include <RVersion.h>
 #include <TPython.h>
 #include <TRegexp.h>
 
@@ -57,7 +58,11 @@ void PythonProc::SetS(std::string param, std::string value) {
   }
 }
 
-Processor::Result PythonProc::DSEvent(DS::Root *ds) {
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 34, 0)
+[[deprecated(
+    "ROOT < 6.34: This implementation is outdated due to the deprecation of TPython::Eval(). Please upgrade to a newer "
+    "version of ROOT.")]] Processor::Result
+PythonProc::DSEvent(DS::Root *ds) {
   TPython::Bind(ds, "ds");
   std::string cmd = fPyProcName + ".dsevent(ds)";
   // First cast to int since that is supported by TPyResult
@@ -65,5 +70,16 @@ Processor::Result PythonProc::DSEvent(DS::Root *ds) {
   if (result == -1) Log::Die("Python exception.");
   return (Processor::Result)result;
 }
+#else
+Processor::Result PythonProc::DSEvent(DS::Root *ds) {
+  TPython::Bind(ds, "ds");
+  std::string cmd = "_anyresult = " + fPyProcName + ".dsevent(ds)";
+  std::any result;
+  bool python_ok = TPython::Exec(cmd.c_str(), &result);
+  if (!python_ok) Log::Die("Python exception.");
+  return std::any_cast<Processor::Result>(result);
+}
+
+#endif
 
 }  // namespace RAT
