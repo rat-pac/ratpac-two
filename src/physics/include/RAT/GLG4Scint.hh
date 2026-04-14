@@ -364,7 +364,7 @@ class GLG4Scint : public G4UImessenger  // not creating a separate class is my l
   // Bogus processes used to tag photons created in GLG4Scint
   static GLG4DummyProcess fScintProcess;
   static GLG4DummyProcess fReemissionProcess;
-  static std::list<GLG4DummyProcess *> fEmissionProcessVector;
+  static std::list<GLG4DummyProcess *> fScintProcessVector;
   static std::list<GLG4DummyProcess *> fReemissionProcessVector;
 
   // Quenching Factor

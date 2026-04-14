@@ -92,7 +92,7 @@ range of energies.  This quenching factor array gets defined as ''QF''.
 A single value can also be defined through macro command ''setQF''.
 
 The deposited energy is converted to scintillation photons using the product of
-the light yield (''Y'') of the scintillator (which is in units of photons per
+the total light yield (''Y'') of the scintillator (which is in units of photons per
 MeV), the deposited energy, Birks' Law scaling, the particle-dependent
 quenching, and a "reference ''dE/dx''" for Birks' Law.
 The light yield variable gets defined as ''LIGHT_YIELD''.
@@ -128,7 +128,7 @@ Scintillation Spectrum
 ''''''''''''''''''''''
 Once the number of scintillation photons has been specified, the photon energy is drawn from the supplied SCINTILLATION
 spectrum, which can be defined per particle type.  A non-component SCINTILLATION spectrum and a component SCINTILLATION#
-spectrum are not allowed to exist in the OPTICS definition of a material.
+spectrum are not allowed to exist simultaneously in the OPTICS definition of a material.
 If no SCINTILLATION specturm exists, then the material will not scintillate,
 though it could still re-emit.  This can be used to simulate a wavelength shifter (see below).
 The direction of each photon is randomly drawn from an isotropic distribution, and the polarization
@@ -142,7 +142,8 @@ The scintillation process can have a time structure associated with it.  The
 start time of a scintillation photon is the time the particle passed through
 the origin point of the photon, plus a delay drawn from the user-specified
 distribution SCINTWAVEFORM, which can also have a separately defined SCINT_RISE_TIME.
-There are three possible options for the delay distribution:
+A SCINTWAVEFORM can be defined for each scintillator component and per particle type.
+There are three possible options for this delay distribution:
 
 1. A sampled time distribution, in the form of a list of (time, intensity)
    pairs.
@@ -150,8 +151,6 @@ There are three possible options for the delay distribution:
    branching fraction and time constant.
 3. A sum of two decaying exponential distributions, whose time constants are a
    function of particle energy.
-
-The time structure can be defined per particle type.
 
 ------------------------
 
@@ -173,19 +172,21 @@ present in the scintillator.
 
 The spectrum of the outgoing photons is drawn from a SCINTILLATION_WLS distribution, which is defined separately from the
 primary scintillation distribution and can also be defined per particle type.  A non-component SCINTILLATION_WLS spectrum
-and a component SCINTILLATION_WLS# spectrum are not allowed to exist in the OPTICS definition of a material.
+and a component SCINTILLATION_WLS spectrum are not allowed to exist simultaneously in the OPTICS definition of a material.
 If no SCINTILLATION_WLS specturm exists, then the material will not re-emit.
 
 The decision whether to reemit a photon is made by looking at the REEMISSION_PROB array, which gives the probability of
-photon re-emission as a function of wavelength of the absorbed photon.  Multiple photon re-emission is possible and off
-by default.  (NOTE: TPB is one example of a material that shifts extreme UV light to visible light, where it is energetically
-possible for more than one photon to be produced.)
-To activate, set the REEMISSION_MULT variable to be > 0.  The wavelength (and number if REEMISSION_MULT > 0) of re-emitted
-photons is determined by randomly sampling the availble portion of the re-emission spectrum until the sum of energies of
-re-emitted photons is greater than the absorbed photon.
+photon re-emission as a function of wavelength of the absorbed photon, for each absorbing scintillator component.
 
-Re-emitted photons are delayed from their absorption time according to a unique time distribution, REEMITWAVEFORM.  The
-emission time of multiple re-emitted photons is random and uncorrelated.
+Multiple photon re-emission is possible and off by default.  (NOTE: TPB is one example of a material that shifts extreme
+UV light to visible light, where it is energetically possible for more than one photon to be produced.)
+To activate, set the REEMISSION_MULT variable to be > 0.  The wavelength of re-emitted photons (and number if
+REEMISSION_MULT > 0) is determined by randomly sampling the availble portion of the re-emission spectrum until the sum of
+energies of re-emitted photons is greater than the absorbed photon.
+
+Re-emitted photons are delayed from their absorption time according to a unique time distribution, REEMITWAVEFORM.  This
+distribution can be defined for each absorbing scintillator component.  The emission time of multiple re-emitted photons
+is random and uncorrelated.
 
 G4OpWLS Model
 '''''''''''''

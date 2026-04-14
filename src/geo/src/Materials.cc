@@ -500,7 +500,8 @@ void Materials::BuildMaterialPropertiesTable(G4Material *material, DBLinkPtr tab
         *i == "LAMBERTIAN_REFLECTION" || *i == "LAMBERTIAN_FORWARD" || *i == "LAMBERTIAN_BACKWARD" ||
         *i == "ELECTRICFIELD" || *i == "TOTALNUM_INT_SITES" || *i == "MIEHG_FORWARD" || *i == "MIEHG_BACKWARD" ||
         *i == "MIEHG_FORWARD_RATIO" || *i == "TOTALNUM_INT_SITES" || *i == "NUM_COMP" || *i == "SCINT_RISE_TIME" ||
-        *i == "SCINT_RISE_TIMEalpha" || *i == "SCINT_RISE_TIMEproton") {
+        *i == "SCINT_RISE_TIMEalpha" || *i == "SCINT_RISE_TIMEproton" || *i == "REEMISSION_MULT" ||
+        i->substr(0, 11) == "LIGHT_YIELD") {
       mpt->AddConstProperty(i->c_str(), table->GetD(*i), true);
       continue;
     }

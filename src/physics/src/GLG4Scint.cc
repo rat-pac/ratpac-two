@@ -72,7 +72,7 @@ G4double GLG4Scint::fPrimaryEnergy = 0.0;
 
 GLG4DummyProcess GLG4Scint::fScintProcess("Scintillation", fUserDefined);
 GLG4DummyProcess GLG4Scint::fReemissionProcess("Reemission", fUserDefined);
-std::list<GLG4DummyProcess *> GLG4Scint::fEmissionProcessVector;
+std::list<GLG4DummyProcess *> GLG4Scint::fScintProcessVector;
 std::list<GLG4DummyProcess *> GLG4Scint::fReemissionProcessVector;
 
 unsigned int GLG4Scint::fsScintillatedCount = 0;
@@ -466,19 +466,7 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
     std::vector<G4PhysicsOrderedFreeVector *> EmitSpectrumVector = physicsEntry->fEmissionSpectrumVector;
     std::vector<G4double> LightYieldVector = physicsEntry->fLightYieldVector;
 
-#ifdef RATDEBUG
-    if (num_comp && !ScintillationIntegral) {
-      G4double LYtotal = 0;
-      for (G4double LY : LightYieldVector) {
-        LYtotal += LY;
-      }  // CROSS CHECK
-      if (LYtotal != ScintillationYield)
-        RAT::warn << "GLG4Scint: LYtotal (" << LYtotal << " != ScintillationYield (" << ScintillationYield << ")."
-                  << newline;
-    }
-#endif
-
-    // if reemission, first determine photon energies to determine actual number of secondaries
+    /// if reemission, first determine photon energies to determine actual number of secondaries
     std::vector<G4double> reemitMomenta;
     if (flagReemission) {
       G4double CIIvalue;
@@ -544,6 +532,7 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
           CIIvalue = G4UniformRand() * ScintillationIntegral->GetMaxValue();
           sampledMomentum = ScintillationIntegral->GetEnergy(CIIvalue);
         } else if (num_comp) {  // emission from a component
+          emitted = -1;
           G4double LY, prob = 0;
           const G4double rand = G4UniformRand();
           for (int j = 0; j < num_comp; j++) {
@@ -675,7 +664,7 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
           trackInfo->SetCreatorProcess(fReemissionProcess.GetProcessName());
         } else if (num_comp && (ReemitVector.size() > 0)) {
           // If multi-component, get absorbing component and assign
-          // the creator process "Reemission_from_comp.."
+          // the creator process "ReemissionFromComp.."
           std::list<GLG4DummyProcess *>::iterator it;
           it = fReemissionProcessVector.begin();
           advance(it, absorbed);
@@ -688,9 +677,9 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
           trackInfo->SetCreatorProcess(fScintProcess.GetProcessName());
         } else if (num_comp && emitted >= 0) {
           // If multi-component, get emitting component and assign
-          // the creator process "Emission_from_comp.."
+          // the creator process "ScintillationFromComp.."
           std::list<GLG4DummyProcess *>::iterator it;
-          it = fEmissionProcessVector.begin();
+          it = fScintProcessVector.begin();
           advance(it, emitted);
           aSecondaryTrack->SetCreatorProcess((*it));
           trackInfo->SetCreatorProcess((*it)->GetProcessName());
@@ -1110,6 +1099,7 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, const G4Strin
       LYtot += LY;
       fLightYieldVector.push_back(LY);
     }
+
     // Overwrite total light yield with sum of components only if components will be used
     if (!theScintillationLightVector) {
       fLightYield = LYtot;
@@ -1452,12 +1442,12 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, const G4Strin
 
   // Create dummy processes describing emission and reemission for each component
   // up to the max number of components in any material in RAT
-  if (fEmissionProcessVector.size() < num_comp) {
-    for (int i = fEmissionProcessVector.size(); i < num_comp; i++) {
+  if (fScintProcessVector.size() < num_comp) {
+    for (int i = fScintProcessVector.size(); i < num_comp; i++) {
       std::stringstream process_name;
-      process_name << "EmissionFromComp" << i;
-      GLG4DummyProcess *EmissionCompProcess = new GLG4DummyProcess((process_name.str()).c_str(), fUserDefined);
-      fEmissionProcessVector.push_back(EmissionCompProcess);
+      process_name << "ScintillationFromComp" << i;
+      GLG4DummyProcess *ScintCompProcess = new GLG4DummyProcess((process_name.str()).c_str(), fUserDefined);
+      fScintProcessVector.push_back(ScintCompProcess);
     }
   }
   if (fReemissionProcessVector.size() < num_comp) {
