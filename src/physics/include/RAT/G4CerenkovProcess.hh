@@ -161,6 +161,9 @@ class G4CerenkovProcess : public G4VProcess {
   std::shared_ptr<std::vector<std::vector<G4double>>> refractiveIndexEnergyVectors =
       std::make_shared<std::vector<std::vector<G4double>>>();
 
+  std::vector<G4double> fMinRindex;
+  std::vector<G4double> fMaxRindex;
+
  private:
   G4double fMaxBetaChange;
 

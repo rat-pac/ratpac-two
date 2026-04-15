@@ -144,6 +144,9 @@ void G4CerenkovProcess::BuildPhysicsTable(const G4ParticleDefinition&) {
 
   thePhysicsTable = new G4PhysicsTable(numOfMaterials);
 
+  fMinRindex.assign(numOfMaterials, 1.0);
+  fMaxRindex.assign(numOfMaterials, 1.0);
+
   // loop over materials
   for (std::size_t i = 0; i < numOfMaterials; ++i) {
     G4PhysicsFreeVector* cerenkovIntegral = nullptr;
@@ -200,6 +203,10 @@ void G4CerenkovProcess::BuildPhysicsTable(const G4ParticleDefinition&) {
             prevCAI = currentCAI;
             prevRI = currentRI;
           }
+          // Precompute the global minimum and maximum refractive index values
+          auto [min_it, max_it] = std::minmax_element(refractiveIndexValues.begin(), refractiveIndexValues.end());
+          fMinRindex[i] = *min_it;
+          fMaxRindex[i] = *max_it;
         }
       }
     }
@@ -277,16 +284,13 @@ G4VParticleChange* G4CerenkovProcess::PostStepDoIt(const G4Track& aTrack, const 
   }
 
   std::size_t materialIndex = aMaterial->GetIndex();
-  std::vector<G4double>* rindex_vals = &(*refractiveIndexValuesVectors)[materialIndex];
-  std::vector<G4double>* rindex_energy = &(*refractiveIndexEnergyVectors)[materialIndex];
 
   ////////////////////////////////////////////////////////////////
   G4double Pmin = Rindex->Energy(0);
   G4double Pmax = Rindex->GetMaxEnergy();
   G4double dp = Pmax - Pmin;
 
-  auto [min_it, max_it] = std::minmax_element(rindex_vals->begin(), rindex_vals->end());
-  G4double nMax = *max_it;
+  G4double nMax = fMaxRindex[materialIndex];
   G4double BetaInverse = 1. / beta;
 
   G4double maxCos = BetaInverse / nMax;
@@ -405,14 +409,9 @@ G4double G4CerenkovProcess::PostStepGetPhysicalInteractionLength(const G4Track& 
   G4MaterialPropertyVector* Rindex = nullptr;
 
   if (aMaterialPropertiesTable) Rindex = aMaterialPropertiesTable->GetProperty(kRINDEX);
-  // loop over refractive index vectors, 30-Sep-2025
-  // previous version used nMax = Rindex->GetMaxValue(), --> global maximum
   G4double nMax;
   if (Rindex) {
-    std::vector<G4double>* rindex_vals = &(*refractiveIndexValuesVectors)[materialIndex];
-    std::vector<G4double>* rindex_energy = &(*refractiveIndexEnergyVectors)[materialIndex];
-    auto [min_it, max_it] = std::minmax_element(rindex_vals->begin(), rindex_vals->end());
-    nMax = *max_it;
+    nMax = fMaxRindex[materialIndex];
   } else {
     return StepLimit;
   }
@@ -488,10 +487,9 @@ G4double G4CerenkovProcess::GetAverageNumberOfPhotons(const G4double charge, con
   G4double Pmin = Rindex->Energy(0);
   G4double Pmax = Rindex->GetMaxEnergy();
 
-  // Min and Max refractive index values, 30-Sep-2025
-  auto [min_it, max_it] = std::minmax_element(rindex_vals->begin(), rindex_vals->end());
-  G4double nMin = *min_it;
-  G4double nMax = *max_it;
+  // Min and Max refractive index values
+  G4double nMin = fMinRindex[materialIndex];
+  G4double nMax = fMaxRindex[materialIndex];
 
   // Max Cerenkov Angle Integral
   G4double CAImax = (*CerenkovAngleIntegrals)[length - 1];
