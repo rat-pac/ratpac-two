@@ -32,7 +32,7 @@
 "r_max": 2500.0,
 "size_z": 2500.0,
 "position": [0.0, 0.0, 0.0],
-"material": "scintillator",
+"material": "scintillator_lab_ppo0p6",
 "color": [0.4, 0.4, 0.6, 0.1],
 
 }
