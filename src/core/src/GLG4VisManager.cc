@@ -23,8 +23,10 @@
 #include "G4DAWNFILE.hh"
 #include "G4HepRepFile.hh"
 #include "G4HitFilterFactories.hh"
+#ifdef G4VIS_USE_QT
 #include "G4OpenGLImmediateQt.hh"
 #include "G4OpenGLStoredQt.hh"
+#endif
 #include "G4RayTracer.hh"
 #include "G4TrajectoryDrawByParticleID.hh"
 #include "G4TrajectoryFilterFactories.hh"
@@ -83,8 +85,10 @@ void GLG4VisManager::RegisterGraphicsSystems() {
   RegisterGraphicsSystem(new G4HepRepFile);
   RegisterGraphicsSystem(new G4RayTracer);
   RegisterGraphicsSystem(new G4VRML2File);
+#ifdef G4VIS_USE_QT
   RegisterGraphicsSystem(new G4OpenGLImmediateQt);
   RegisterGraphicsSystem(new G4OpenGLStoredQt);
+#endif
 
   // Graphics systems needing external packages or libraries...
 
