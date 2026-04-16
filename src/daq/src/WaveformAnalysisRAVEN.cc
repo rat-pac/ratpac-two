@@ -267,13 +267,12 @@ TVectorD WaveformAnalysisRAVEN::Thresholded_rsNNLS(const TMatrixD& W_region, con
 
     if (minVal >= threshold) break;
 
+    // Never prune the last remaining component — always fit at least one PE per threshold crossing
+    if (P.size() == 1) break;
+
     // Remove component with smallest weight
     h_full(P[minPos]) = 0.0;
     P.erase(P.begin() + minPos);
-    if (P.empty()) {
-      h_full.Zero();
-      return h_full;
-    }
 
     // Re-solve on reduced active set
     TMatrixD W_P = subCols(W_region, P);
