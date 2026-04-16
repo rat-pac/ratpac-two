@@ -782,6 +782,7 @@ void OutNtupleProc::EndOfRun(DS::Run *run) {
     // outputFile->Write(0, TObject::kOverwrite);
     outputFile->Close();
     delete outputFile;
+    outputFile = nullptr;
   }
 }
 
