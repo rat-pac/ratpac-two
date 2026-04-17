@@ -91,7 +91,7 @@ void Rat::Configure() {
   Log::Init(logfilename, Log::Level(display_level), Log::Level(log_level));
 
   info << "RATPAC-2, version " << RATVERSION << newline;
-  if (this->parser->GetValue("version", false)) return;
+  if (this->parser->GetValue("version", false)) std::exit(0);
   info << "Status messages enabled: info ";
   detail << "detail ";
   debug << "debug ";
