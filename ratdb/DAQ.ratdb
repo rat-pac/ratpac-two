@@ -17,7 +17,8 @@
 "trigger_lockout": 0.0,
 "trigger_resolution": 0.05, // in ns
 "lookback": 200.0,
-"max_hit_time": 1000000.0,
+"max_hit_time": 0.0, // ns.  <= 0 means no max time
+"max_hit_duration": 1000000.0, // ns.  <= 0 means no max duration
 "trigger_on_noise": 1,
 "digitizer_name": "V1730",
 "digitize": true, // Run digitization of PMT waveforms
