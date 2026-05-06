@@ -80,7 +80,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   double end = *std::max_element(trigPulses.begin(), trigPulses.end());
   end = (floor(end / fTriggerResolution) + 1) * fTriggerResolution;
 
-  if (fMaxHitDuration > 0 && end - start > fMaxHitDuration) end = start + fMaxHitDuration;
+  if (fMaxHitDuration > 0 && (end - start) > fMaxHitDuration) end = start + fMaxHitDuration;
 
   // Turns hits into a histogram of trigger pulse leading edges
   //        _
