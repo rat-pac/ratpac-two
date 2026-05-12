@@ -71,9 +71,10 @@ Parameters:
     /rat/procset pmt_lockout "value"
     /rat/procset lookback "value"
     /rat/procset max_hit_time "value"
+    /rat/procset max_hit_duration "value"
     /rat/procset trigger_on_noise "0"|"1"
     /rat/procset digitizer_name "digitizer"
-    /rat/procset digitize
+    /rat/procset digitize "true"|"false"
 
 The digitization settings can also be configured through the ``DAQ.ratdb`` table.
 
