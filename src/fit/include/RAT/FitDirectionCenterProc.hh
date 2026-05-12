@@ -44,8 +44,6 @@ class FitDirectionCenterProc : public Processor {
   virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
 
  protected:
-  void SetPlaceholderFOM(DS::FitResult *fit);
-
   std::vector<int> fPMTtype;     // Types of PMT to use in reconstruction.  If empty, uses all PMT types.
   std::string fFitLabel = "";    // Label for the fit result.  User can specify.
   std::string fPosFitter;        // Position fitter from which to get reconstructed position.

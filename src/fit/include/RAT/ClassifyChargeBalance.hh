@@ -20,7 +20,7 @@ class ClassifyChargeBalance : public Processor {
   virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
 
  protected:
-  std::vector<std::string> fLabels = {"chargebalance"};
+  std::string fNameTag = "";  // Tag for the classifier result.  User can specify.
   FitterInputHandler inputHandler;
 };
 

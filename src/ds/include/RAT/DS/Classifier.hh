@@ -12,42 +12,36 @@ namespace DS {
 
 class Classifier : public TObject {
  public:
-  Classifier() : TObject(), classificationLabels(std::vector<std::string>{""}), classifier_name("") {
-    int index = 0;
-    for (auto &L : classificationLabels) {
-      this->nameIndexMap[L] = index++;
-      this->classificationResults.push_back(0.0);
-    }
-  }
-  Classifier(std::string name, std::vector<std::string> labels)
-      : TObject(), classificationLabels(labels), classifier_name(name) {
-    int index = 0;
-    for (auto &L : labels) {
-      this->nameIndexMap[L] = index++;
-      this->classificationResults.push_back(0.0);
-    }
-  }
+  Classifier(std::string _name = "", std::string _tag = "") : TObject(), classifier_name(_name), tag(_tag) {}
   virtual ~Classifier() {}
 
   // Classifier name
   virtual const std::string &GetClassifierName() const { return classifier_name; }
   virtual void SetClassifierName(const std::string &_name) { classifier_name = _name; }
-
-  // Classifier Results
-  virtual void SetClassificationResult(const std::string &name, double val) {
-    classificationResults[nameIndexMap[name]] = val;
+  virtual const std::string &GetTag() const { return tag; }
+  virtual void SetTag(const std::string &_tag) { tag = _tag; }
+  virtual const std::string GetFullName() const {
+    if (tag.empty()) return classifier_name;
+    return classifier_name + "__" + tag;
   }
-  virtual double GetClassificationResult(const std::string &name) { return classificationResults[nameIndexMap[name]]; }
 
   // Classifier Results
-  std::vector<std::string> classificationLabels;
-  std::vector<double> classificationResults;
-  std::map<std::string, int> nameIndexMap;
+  virtual void SetClassificationResult(const std::string &name, double val) { classificationResults[name] = val; }
+  virtual double GetClassificationResult(const std::string &name) {
+    if (classificationResults.find(name) == classificationResults.end()) {
+      return -9999;
+    }
+    return classificationResults.at(name);
+  }
 
-  ClassDef(Classifier, 1);
+  // Classifier Results
+  std::map<std::string, double> classificationResults;
+
+  ClassDef(Classifier, 2);
 
  protected:
-  std::string classifier_name;
+  std::string classifier_name;  // name of the classifier that produced this result
+  std::string tag;              // appended label for this specific classifier result
 };
 
 }  // namespace DS
