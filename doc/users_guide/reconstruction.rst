@@ -50,8 +50,8 @@ Quad fitter details.
 
 Direction Center Fitter
 =======================
-The ``fitdirectioncenter`` processor reconstructs the direction of events
-as the average of the vectors from the event position to the hit PMT positions.
+The ``fitdirectioncenter`` processor reconstructs the direction of events as the
+average of the vectors from the event position to the selected PMT positions.
 
 Command:
 ::
@@ -60,9 +60,9 @@ Command:
 
 Parameters
 ''''''''''
-No parameters are required though a position reconstruction would need to be run before.
-Several useful parameters can be set in macro, which allows the processor to be run
-multiple times with different settings in a single macro.
+No parameters are required aside from an event position.  Several useful parameters
+can be set in macro, which allows the processor to be run multiple times with
+different settings in a single macro.  Several figures of merit are available.
 
 Detailed implementations are illustrated in macros/examples/fitdirectioncenter.mac
 In particular, there is an example to correct for the drive effect in reconstructed
@@ -74,12 +74,11 @@ position is then saved in the fitdirectioncenter FitResult.
 =========================   ==========================  ===================
 **Field**                   **Type**                    **Description**
 =========================   ==========================  ===================
-``fitter_name``             ``string``                  Defaults to "fitdirectioncenter"
+``label``                   ``string``                  Additional string appended to "fitdirectioncenter"
 ``position_fitter``         ``string``                  Name of fitter providing position input
 ``direction_fitter``        ``string``                  Name of fitter providing direction for drive correction
 
 ``pmt_type``                ``int``                     PMT "type" to use.  Multiple types can be used.  Defaults to all types.
-``verbose``                 ``int``                     FOMs saved in FitResult.  1 saves ``num_PMT``.  2 also saves ``time_resid_low`` and ``time_resid_up``
 
 ``time_resid_low``          ``double``                  Lower cut on time residuals in ns
 ``time_resid_up``           ``double``                  Upper cut on time residuals in ns
@@ -100,9 +99,16 @@ position is then saved in the fitdirectioncenter FitResult.
 
 Direction fit information in data structure
 '''''''''''''''''''''''''''''''''''''''''''
-* figure of merit - ``num_PMT`` is the number of PMTs used in a reconstruction
+* figure of merit - ``num_PMT``        is the number of PMTs used in the reconstruction
 * figure of merit - ``time_resid_low`` is the earliest time residual that passes the lower time residual cut
-* figure of merit - ``time_resid_up`` is the latest time residual that passes the upper time residual cut
+* figure of merit - ``time_resid_up``  is the latest time residual that passes the upper time residual cut
+* figure of merit - ``angle_mean``     is the mean angle between reconstructed direction and photon path directions 
+* figure of merit - ``angle_stddev``   is the standard deviation of directions about the mean angle
+* figure of merit - ``angle_octile7`` is the seventh octile (87.5%) of angles between reconstructed direction and photon path directions
+* figure of merit - ``angle_quartile3`` is the third quartile (75%) of angles between reconstructed direction and photon path directions
+* figure of merit - ``angle_median``    is the median         (50%) of angles between reconstructed direction and photon path directions
+* figure of merit - ``angle_quartile1`` is the first quartile (25%) of angles between reconstructed direction and photon path directions
+* figure of merit - ``angle_octile1``   is the first octile (12.5%) of angles between reconstructed direction and photon path directions
 
 ----------------------
 
@@ -216,6 +222,75 @@ Classifier information in data structure
 ''''''''''''''''''''''''''''''''''''''''''
 * name - ``chargebalance``
 * figures of merit - None
+
+----------------------
+
+.. _classifytimes:
+
+ClassifyTimes
+=====================
+
+The ``classifytimes`` processor calculates characteristic parameters of a hit time residual distribution.
+One parameter is the ratio of hits in a time window (typically narrow around prompt times) divided by the
+hits in another time window (often the full time window; i.e., all hits).  Within another specified time
+window, the four central moments are calculated: mean, unbiased standard deviation, standardized unbiased
+skewness, and standardized unbiased excess kurtosis.
+
+Command:
+::
+
+    /rat/proc classifytimes
+
+Parameters
+''''''''''
+No parameters are required though a position reconstruction should be run before (or a fixed position specified) and a
+light speed is needed to calculate time residuals.  The light speed and a time window for the ratio are specified in
+CLASSIFIER.ratdb.  Several useful parameters can be set in macro, which allows the processor to be run multiple times
+with different settings in a single macro.  Detailed implementations are illustrated in macros/examples/classifytimes.mac.
+
+=========================   ==========================  ===================
+**Field**                   **Type**                    **Description**
+=========================   ==========================  ===================
+``classifier_name``         ``string``                  Defaults to "classifytimes".
+``position_fitter``         ``string``                  Name of fitter providing position input.
+
+``pmt_type``                ``int``                     PMT "type" to use.  Multiple types can be used.  Defaults to all types.
+``verbose``                 ``int``                     FOM save option.  1 saves ``num_PMT``'s.  2 also saves ``time_resid_low`` and ``time_resid_up``
+
+``numer_time_resid_low``    ``double``                  Lower cut on time residuals in ns.  Used for ``ratio``.  Defaults to value in CLASSIFIER.ratdb.
+``numer_time_resid_up``     ``double``                  Upper cut on time residuals in ns.  Used for ``ratio``.  Defaults to value in CLASSIFIER.ratdb.
+
+``denom_time_resid_low``    ``double``                  Lower cut on time residuals in ns.  Used for ``ratio``.  Defaults to full range.
+``denom_time_resid_up``     ``double``                  Upper cut on time residuals in ns.  Used for ``ratio``.  Defaults to full range.
+
+``time_resid_low``          ``double``                  Lower cut on time residuals in ns.  Option for central moments.
+``time_resid_up``           ``double``                  Upper cut on time residuals in ns.  Option for central moments.
+
+``time_resid_frac_low``     ``double``                  Lower cut on time residuals as a fraction in [0.0, 1.0).  Option for central moments.
+``time_resid_frac_up``      ``double``                  Upper cut on time residuals as a fraction in (0.0, 1.0].  Option for central moments.
+
+``light_speed``             ``double``                  Speed of light in material in mm/ns.  Defaults to water value in CLASSIFIER.ratdb.
+
+``event_position_x``        ``double``                  Fixed position of event in mm.
+``event_position_y``        ``double``                  Fixed position of event in mm.
+``event_position_z``        ``double``                  Fixed position of event in mm.
+
+``event_time``              ``double``                  Fixed offset of time residuals in ns.
+=========================   ==========================  ===================
+
+Classifier information in data structure
+''''''''''''''''''''''''''''''''''''''''''
+* name - ``classifytimes``
+* classifier result - ``ratio`` is the ratio of the numbers of PMTs selected by specified time windows
+* classifier result - ``mean`` is the mean time within the time window for central moments
+* classifier result - ``stddev`` is the unbiased standard deviation of times within the time window for central moments
+* classifier result - ``skewness`` is the standardized unbiased skewness of times within the time window for central moments
+* classifier result - ``kurtosis`` is the standardized unbiased excess kurtosis of times within the time window for central moments
+* classifier result - ``num_PMT`` is the number of PMTs used in the central moment calculations
+* classifier result - ``num_PMT_numer`` is the number of PMTs used in the numerator of the ratio
+* classifier result - ``num_PMT_denom`` is the number of PMTs used in the denominator of the ratio
+* classifier result - ``time_resid_low`` is the earliest time residual in the time window for central moments
+* classifier result - ``time_resid_up`` is the latest time residual in the time window for central moments
 
 ----------------------
 

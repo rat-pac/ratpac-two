@@ -10,7 +10,6 @@
 /rat/procset update 50
 
 /rat/proc outroot
-/rat/procset file "acrylic_attenuation.root"
 
 # END EVENT LOOP
 /tracking/storeTrajectory 1

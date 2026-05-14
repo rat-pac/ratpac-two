@@ -140,7 +140,13 @@ include_directories(${CLHEP_INCLUDE_DIRS})
 include_directories(${XercesC_INCLUDE_DIRS})
 
 find_package(Threads REQUIRED)
-find_package(FFTW3 CONFIG REQUIRED)
+find_package(PkgConfig REQUIRED)
+find_package(FFTW3 CONFIG)
+pkg_check_modules(FFTW3 REQUIRED IMPORTED_TARGET fftw3)
+if (NOT TARGET FFTW3::fftw3)
+  add_library(FFTW3::fftw3 ALIAS PkgConfig::FFTW3)
+  include_directories(${FFTW3_INCLUDE_DIRS})
+endif()
 
 ###########################################################
 # Configure header with our version information

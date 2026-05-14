@@ -10,6 +10,7 @@
 // Processors
 #include <RAT/AfterPulseProc.hh>
 #include <RAT/ClassifyChargeBalance.hh>
+#include <RAT/ClassifyTimesProc.hh>
 #include <RAT/Config.hh>
 #include <RAT/CountProc.hh>
 #include <RAT/FitCentroidProc.hh>
@@ -30,7 +31,7 @@
 #include <RAT/WaveformAnalysisGaussian.hh>
 #include <RAT/WaveformAnalysisLognormal.hh>
 #include <RAT/WaveformAnalysisLucyDDM.hh>
-#include <RAT/WaveformAnalysisRSNNLS.hh>
+#include <RAT/WaveformAnalysisRAVEN.hh>
 #include <RAT/WaveformAnalysisSinc.hh>
 #include <RAT/WaveformPrep.hh>
 
@@ -90,6 +91,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<FitMimirProc>();
   // Classifiers
   AppendProcessor<ClassifyChargeBalance>();
+  AppendProcessor<ClassifyTimesProc>();
   // DAQ
   AppendProcessor<NoiseProc>();
   AppendProcessor<AfterPulseProc>();
@@ -101,7 +103,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<WaveformAnalysisLognormal>();
   AppendProcessor<WaveformAnalysisSinc>();
   AppendProcessor<WaveformAnalysisLucyDDM>();
-  AppendProcessor<WaveformAnalysisRSNNLS>();
+  AppendProcessor<WaveformAnalysisRAVEN>();
   // Misc
   AppendProcessor<CountProc>();
   AppendProcessor<PruneProc>();
