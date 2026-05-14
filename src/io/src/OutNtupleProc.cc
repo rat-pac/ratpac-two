@@ -83,21 +83,20 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     if (event_fitter_FOMs.find(full_name) != event_fitter_FOMs.end()) continue;
     std::set<std::string> fom_set;
     // Load FOMs declared under the base fitter name (applies to all tagged variants)
-    std::string fitter_name = DS::FitResult::GetFitterNameFromFullName(full_name);
-    if (fitter_name != full_name) {
-      try {
-        for (const std::string &fom : table->GetSArray("event_fitter_FOM_" + fitter_name)) {
-          fom_set.insert(fom);
-        }
-      } catch (DBNotFoundError &e) {
-      }
-    }
-    // Load FOMs declared under the full name and merge
     try {
       for (const std::string &fom : table->GetSArray("event_fitter_FOM_" + full_name)) {
         fom_set.insert(fom);
       }
     } catch (DBNotFoundError &e) {
+      std::string fitter_name = DS::FitResult::GetFitterNameFromFullName(full_name);
+      try {
+        for (const std::string &fom : table->GetSArray("event_fitter_FOM_" + fitter_name)) {
+          fom_set.insert(fom);
+        }
+      } catch (DBNotFoundError &e) {
+        info << "No FOMs found for fitter " << full_name << " or " << fitter_name
+             << ". No FOM will be saved for this fitter." << newline;
+      }
     }
     event_fitter_FOMs[full_name] = std::vector<std::string>(fom_set.begin(), fom_set.end());
   }
