@@ -46,9 +46,17 @@ Parameters:
     /rat/procset include_digitizerwaveforms 1
     /rat/procset include_digitizerhits 1
     /rat/procset include_digitizerfits 1
+    /rat/procset waveform_fitters ["Lognormal","Gaussian","Sinc","LucyDDM","RAVEN"]
+    /rat/procset waveform_fitter_FOM_FITTERNAME ["FOM1","FOM2"]
+    /rat/procset event_fitters ["quadfitter","fitcentroid","fitdirectioncenter","mimir"]
+    /rat/procset event_fitter_FOM_FITTERNAME ["FOM1","FOM2"]
 
-* filename (required, string) Sets output filename.  File will be deleted if it already exists.
-* include_* (optional, int) Sets whether the ntuple structure will be extended to include more variables, as detailed below. By default the following, based on the entries in IO.ratdb, the following are set to 0 by default: ``include_tracking``, ``include_mcparticles``, and ``include_digitizerwaveforms`` and the rest are set to 1 by default (i.e., the associated variables aare included in the ntuple file, as detailed below).
+* ``filename`` (required, string) Sets output filename.  File will be deleted if it already exists.
+* ``include_*`` (optional, int) Sets whether the ntuple structure will be extended to include more variables, as detailed below. By default the following, based on the entries in IO.ratdb, the following are set to 0 by default: ``include_tracking``, ``include_mcparticles``, and ``include_digitizerwaveforms`` and the rest are set to 1 by default (i.e., the associated variables aare included in the ntuple file, as detailed below).
+* ``waveform_fitters`` (optional, vector<string>) Waveform analysis algorithm results to include in the ntuple. See below for naming of the specific variables.
+* ``waveform_fitter_FOM_FITTERNAME`` (optional, vector<string>) The figure of merit to include for each waveform fitter. See below for naming of the specific variables.
+* ``event_fitters`` (optional, vector<string>) Event reconstruction algorithm results to include in the ntuple. See below for naming of the specific variables.
+* ``event_fitter_FOM_FITTERNAME`` (optional, vector<string>) The figure of merit to include for each event fitter. See below for naming of the specific variables. FOM can be specified by the base name of the reconstruction algorithm (e.g., ``event_fitter_FOM_quadfitter``) or by the specific instances of each algorithm (e.g. ``event_fitter_FOM_fitdirectioncenter__0_quad``).
 
 Similarly to the outroot file, one can pass the filename using the "-o" flag by running the macro as::
 
@@ -258,6 +266,27 @@ If ``include_digitizerwaveforms`` is set then we create a new branch in the ntup
 ``inWindowPulseCharges``       vector<double>       The list of MCPE charges that fall inside the waveform window.
 ``waveform``                   vector<ushort>       The digitized waveform, per PMT.
 =============================  ===================  ===================
+
+
+If ``event_fitters`` specify that event reconstruction algorithm results should be included in the ntuple, then we add the following variables to the ``output`` branch of the ntuple. These are filled from the ``DS::EventFitResult`` branch. All fitter instances are labeled by the "full name" of the fitter instance, which is the name of the fitter type + the instance name of the fitter separated by double underscores (e.g., ``quadfitter__instance1``). The variables are as follows:
+
+===================================   ===================  ===================
+**Name**                              **Type**             **Description**
+===================================   ===================  ===================
+``x_fitter__FULLNAME``                double               X coordinate of the reconstructed event vertex.
+``y_fitter__FULLNAME``                double               Y coordinate of the reconstructed event vertex.
+``z_fitter__FULLNAME``                double               Z coordinate of the reconstructed event vertex.
+``u_fitter__FULLNAME``                double               X component of the reconstructed event direction.
+``v_fitter__FULLNAME``                double               Y component of the reconstructed event direction.
+``w_fitter__FULLNAME``                double               Z component of the reconstructed event direction.
+``energy_fitter__FULLNAME``           double               Reconstructed event energy.
+``time_fitter__FULLNAME``             double               Reconstructed event time.
+``validposition_fitter__FULLNAME``    bool                 Whether the reconstructed event position is valid.
+``validdirection_fitter__FULLNAME``   bool                 Whether the reconstructed event direction is valid.
+``validenergy_fitter__FULLNAME``      bool                 Whether the reconstructed event energy is valid.
+``validtime_fitter__FULLNAME``        bool                 Whether the reconstructed event time is valid.
+``FOMNAME_fitter__FULLNAME``          double               The figure of merit for the event fit.
+===================================   ===================  ===================
 
 .. _outnet:
 
