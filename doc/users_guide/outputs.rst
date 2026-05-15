@@ -291,14 +291,6 @@ If ``event_fitters`` specify that event reconstruction algorithm results should 
 ``FOMNAME_fitter__FULLNAME``          double               A figure of merit for the event fit.
 ===================================   ===================  ===================
 
-If ``event_classifiers`` specify that event classification algorithm results should be included in the ntuple, then we add the following variables to the ``output`` branch of the ntuple. These are filled from the ``DS::Classifier`` branch. All classifier instances are labeled by the "full name" of the classifier instance, which is the name of the classifier type + the instance name of the classifier separated by double underscores (e.g., ``classifytimes__instance1``).
-
-===================================   ===================  ===================
-**Name**                              **Type**             **Description**
-===================================   ===================  ===================
-``FOMNAME_classifier__FULLNAME``      double               A figure of merit for the event classification.
-===================================   ===================  ===================
-
 .. _outnet:
 
 OutNet
