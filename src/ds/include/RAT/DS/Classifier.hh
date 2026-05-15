@@ -24,6 +24,14 @@ class Classifier : public TObject {
     if (tag.empty()) return classifier_name;
     return classifier_name + "__" + tag;
   }
+  // Extract the base classifier name from a full name (strips the "__tag" suffix if present)
+  static std::string GetClassifierNameFromFullName(const std::string &full_name) {
+    size_t sep = full_name.find("__");
+    if (sep != std::string::npos) {
+      return full_name.substr(0, sep);
+    }
+    return full_name;
+  }
 
   // Classifier Results
   virtual void SetClassificationResult(const std::string &name, double val) { classificationResults[name] = val; }

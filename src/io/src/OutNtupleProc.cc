@@ -20,6 +20,7 @@
 #include <RAT/OutNtupleProc.hh>
 #include <iostream>
 #include <numeric>
+#include <set>
 #include <sstream>
 #include <stlplus/string_utilities.hpp>
 #include <string>
@@ -89,11 +90,24 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
   event_classifiers = table->GetSArray("event_classifiers");
   for (const std::string &full_name : event_classifiers) {
     if (event_classifier_FOMs.find(full_name) != event_classifier_FOMs.end()) continue;
+    std::set<std::string> fom_set;
+    // Load FOMs declared under the base classifier name (applies to all tagged variants)
     try {
-      event_classifier_FOMs[full_name] = table->GetSArray("event_classifier_FOM_" + full_name);
+      for (const std::string &fom : table->GetSArray("event_classifier_FOM_" + full_name)) {
+        fom_set.insert(fom);
+      }
     } catch (DBNotFoundError &e) {
-      event_classifier_FOMs[full_name].clear();
+      std::string classifier_name = DS::Classifier::GetClassifierNameFromFullName(full_name);
+      try {
+        for (const std::string &fom : table->GetSArray("event_classifier_FOM_" + classifier_name)) {
+          fom_set.insert(fom);
+        }
+      } catch (DBNotFoundError &e) {
+        info << "No FOMs found for classifier " << full_name << " or " << classifier_name
+             << ". No FOM will be saved for this classifier." << newline;
+      }
     }
+    event_classifier_FOMs[full_name] = std::vector<std::string>(fom_set.begin(), fom_set.end());
   }
 }
 
