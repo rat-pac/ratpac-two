@@ -21,6 +21,7 @@ add_library(geo OBJECT
         src/GeoFiberSensitiveDetector.cc
         src/GeoFiberSensitiveDetectorHit.cc
         src/GeoCutTubeFactory.cc
+        src/GeoEllipticalTubeFactory.cc
         src/GeoFactory.cc
         src/GeoLensFactory.cc
         src/GeoPerfBoxFactory.cc
