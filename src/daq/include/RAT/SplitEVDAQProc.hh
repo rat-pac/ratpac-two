@@ -28,6 +28,7 @@ class SplitEVDAQProc : public Processor {
   double fTriggerResolution;
   double fLookback;
   double fMaxHitTime;
+  double fMaxHitDuration;
   bool fDigitize;
 
   int fTriggerOnNoise;
