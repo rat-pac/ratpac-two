@@ -24,6 +24,7 @@
 "include_mchits": true,
 "include_calib": true,
 
+
 "waveform_fitters": ["Lognormal", "Gaussian", "Sinc", "LucyDDM", "RAVEN"],
 
 "waveform_fitter_FOM_Lognormal": ["baseline","chi2ndf"],
@@ -32,8 +33,15 @@
 "waveform_fitter_FOM_LucyDDM": ["time_error", "charge_error", "chi2ndf", "poisson_nll", "iterations_ran", "estimated_npe"],
 "waveform_fitter_FOM_RAVEN": ["chi2ndf", "iterations_ran", "weight", "estimated_npe"],
 
+
 "event_fitters": ["quadfitter", "fitcentroid", "fitdirectioncenter", "mimir"],
 
-"event_fitter_FOM_fitdirectioncenter": ["num_PMT", "angle_mean"]
+"event_fitter_FOM_fitdirectioncenter": ["num_PMT", "angle_mean"],
 // fitdirectioncenter FOMs available: ["num_PMT", "time_resid_low", "time_resid_up", angle_mean", "angle_stddev", "angle_octile7", "angle_quartile3", "angle_median", "angle_quartile1", "angle_octile1"]
+
+
+"event_classifiers": ["classifychargebalance", "classifytimes"],
+
+"event_classifier_FOM_classifytimes": ["ratio", "mean", "stddev"],
+// classifytimes FOMs available: ["ratio", "mean", "stddev", "skewness", "kurtosis", "num_PMT", "num_PMT_numer", "num_PMT_denom", "time_resid_low", "time_resid_up"]
 }

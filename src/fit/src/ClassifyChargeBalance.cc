@@ -10,7 +10,7 @@ namespace RAT {
 Processor::Result ClassifyChargeBalance::Event(DS::Root *ds, DS::EV *ev) {
   inputHandler.RegisterEvent(ev);
 
-  DS::Classifier *classification = new DS::Classifier("ChargeBalance", fLabels);
+  DS::Classifier *classification = new DS::Classifier(name, fNameTag);
 
   // Initialize ALL parameters with placeholder values
   classification->SetClassificationResult("chargebalance", NAN);

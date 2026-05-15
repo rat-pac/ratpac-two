@@ -44,11 +44,9 @@ class ClassifyTimesProc : public Processor {
   virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
 
  protected:
-  std::vector<std::string> fParamNames = {"ratio", "mean", "stddev", "skewness", "kurtosis"};
-
-  std::vector<int> fPMTtype;                      // Types of PMT to use in classifier.  If empty, uses all PMT types.
-  std::string fClassifierName = "classifytimes";  // Default classifier name.  User can specify.
-  std::string fPosFitter;                         // Position fitter from which to get reconstructed position.
+  std::vector<int> fPMTtype;  // Types of PMT to use in classifier.  If empty, uses all PMT types.
+  std::string fNameTag;       // Label for the fit result. user can specify.
+  std::string fPosFitter;     // Position fitter from which to get reconstructed position.
   bool fSetSpeed = false;
   double fLightSpeed = 0.0;  // mm / ns.  Speed of light in material.  Defaults to value in CLASSIFIER.ratdb
   double fFixedTime = 0.0;   // ns.  User-specified event time.
@@ -66,8 +64,6 @@ class ClassifyTimesProc : public Processor {
   double fDenomTimeResUp = 0.0;   // Denominator - Upper cut on time residuals in ns
 
   // Parameters for the four central moments in specified window
-  int fVerbose =
-      0;  // Save FOMs in ClassifierResult.  1 saves num_PMT's.  2 also saves time_resid_low and time_resid_up.
   std::string fCutMethod;        // "time"     selects time residuals in [fTimeResLow,fTimeResUp] ns.
                                  // "fraction" selects time residuals in [fTimeResFracLow,fTimeResFracUp].
   double fTimeResLow = 0.0;      // Lower cut on time residuals in ns

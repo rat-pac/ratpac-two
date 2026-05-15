@@ -100,6 +100,28 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     }
     event_fitter_FOMs[full_name] = std::vector<std::string>(fom_set.begin(), fom_set.end());
   }
+  event_classifiers = table->GetSArray("event_classifiers");
+  for (const std::string &full_name : event_classifiers) {
+    if (event_classifier_FOMs.find(full_name) != event_classifier_FOMs.end()) continue;
+    std::set<std::string> fom_set;
+    // Load FOMs declared under the base classifier name (applies to all tagged variants)
+    try {
+      for (const std::string &fom : table->GetSArray("event_classifier_FOM_" + full_name)) {
+        fom_set.insert(fom);
+      }
+    } catch (DBNotFoundError &e) {
+      std::string classifier_name = DS::Classifier::GetClassifierNameFromFullName(full_name);
+      try {
+        for (const std::string &fom : table->GetSArray("event_classifier_FOM_" + classifier_name)) {
+          fom_set.insert(fom);
+        }
+      } catch (DBNotFoundError &e) {
+        info << "No FOMs found for classifier " << full_name << " or " << classifier_name
+             << ". No FOM will be saved for this classifier." << newline;
+      }
+    }
+    event_classifier_FOMs[full_name] = std::vector<std::string>(fom_set.begin(), fom_set.end());
+  }
 }
 
 bool OutNtupleProc::OpenFile(std::string filename) {
@@ -238,6 +260,13 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch(TString("validtime_" + fitter_full_name), &fitvalids["validtime_" + fitter_full_name]);
     for (const std::string &fom_name : event_fitter_FOMs[fitter_full_name]) {
       outputTree->Branch(TString(fom_name + "_" + fitter_full_name), &fiteventFOMs[fitter_full_name][fom_name]);
+    }
+  }
+  for (const std::string &classifier_full_name : event_classifiers) {
+    // classifier names are specified as either classifiername__tag or just classifiername.
+    for (const std::string &fom_name : event_classifier_FOMs[classifier_full_name]) {
+      outputTree->Branch(TString(classifier_full_name + "_" + fom_name),
+                         &classifyeventFOMs[classifier_full_name][fom_name]);
     }
   }
   if (options.nthits) {
@@ -535,6 +564,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     trigger_word = ev->GetTriggerWord();
     event_cleaning_word = ev->GetEventCleaningWord();
     timeSinceLastTrigger_us = ev->GetDeltaT() / 1000.;
+
     for (DS::FitResult *fit : ev->GetFitResults()) {
       std::string full_name = fit->GetFullName();
       // Check the validity and write it out
@@ -569,6 +599,20 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         fiteventFOMs[full_name][fom_name] = fit->GetFigureOfMerit(fom_name);
       }
     }
+
+    for (DS::Classifier *clf : ev->GetClassifierResults()) {
+      std::string full_name = clf->GetFullName();
+      // Check the validity and write it out
+      if (std::find(event_classifiers.begin(), event_classifiers.end(), full_name) == event_classifiers.end()) {
+        info << "Classifier " << full_name
+             << " not found in the list of requested classifiers. Will not be written to the ntuple." << newline;
+        continue;
+      }
+      for (const std::string &fom_name : event_classifier_FOMs[full_name]) {
+        classifyeventFOMs[full_name][fom_name] = clf->GetClassificationResult(fom_name);
+      }
+    }
+
     nhits = ev->GetPMTCount();
     totalcharge = ev->GetTotalCharge();
     if (options.pmthits) {

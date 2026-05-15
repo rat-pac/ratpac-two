@@ -1,0 +1,65 @@
+# Example macro showing how to use classifytimes
+
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+/rat/db/set DETECTOR experiment "Validation"
+/rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+
+/rat/db/set IO[NtupleProc] event_fitters ["quadfitter"]
+/rat/db/set IO[NtupleProc] event_classifiers ["classifytimes__0p88_fixed","classifytimes__5p0_quad"]
+/rat/db/set IO[NtupleProc] event_classifier_FOM_classifytimes__0p88_fixed ["mean","stddev","skewness","kurtosis","num_PMT","time_resid_low","time_resid_up"]
+/rat/db/set IO[NtupleProc] event_classifier_FOM_classifytimes__5p0_quad ["ratio","mean","stddev","num_PMT_numer","num_PMT_denom","num_PMT"]
+
+/run/initialize
+
+/rat/proc splitevdaq
+/rat/proc count
+/rat/procset update 100
+
+
+###### EXAMPLE 1 ######
+
+### Obtain time parameters for the fixed generator position
+/rat/proc classifytimes
+/rat/procset label "0p88_fixed"            # unique classifier suffix
+/rat/procset event_position_x 100.0        # x event position fixed to that used by generator [mm]
+/rat/procset event_position_y 100.0        # y event position fixed to that used by generator [mm]
+/rat/procset event_position_z 100.0        # z event position fixed to that used by generator [mm]
+/rat/procset event_time -18.0              # offset applied to time residuals [ns]
+/rat/procset time_resid_frac_up  0.88      # upper cut on time residuals using fraction in (0.0, 1.0]
+/rat/procset time_resid_frac_low 0.00      # lower cut on time residuals using fraction in [0.0, 1.0)
+# Illustration of how to select multiple pmt types - Valid.geo has only the default pmt_type==0
+/rat/procset pmt_type 0                    # type of pmt to be used in reconstruction
+/rat/procset pmt_type 1                    # type of pmt to be used in reconstruction
+/rat/procset pmt_type 2                    # type of pmt to be used in reconstruction
+
+
+###### EXAMPLE 2 ######
+
+# Reconstruct position
+/rat/proc quadfitter
+/rat/procset light_speed 223.06
+/rat/procset max_radius 4250.0
+
+### Obtain time parameters for a reconstructed position
+/rat/proc classifytimes
+/rat/procset label "5p0_quad"              # unique classifier suffix
+/rat/procset position_fitter "quadfitter"  # event position reconstruction to be used
+/rat/procset light_speed 223.06            # light speed value used in time residual calculation [mm/ns]
+/rat/procset time_resid_up   5.0           # upper cut on time residuals using direct cut [ns]
+/rat/procset time_resid_low -3.0           # lower cut on time residuals using direct cut [ns]
+/rat/procset numer_time_resid_up   5.0     # upper cut on time residuals for numerator of ratio [ns]
+/rat/procset numer_time_resid_low -3.0     # lower cut on time residuals for numerator of ratio [ns]
+
+
+/rat/proclast outntuple
+
+
+/generator/add combo gun:point:poisson
+/generator/vtx/set e- 0.0 0.0 -1.0 5.0
+/generator/pos/set 100.0 100.0 100.0
+/generator/rate/set 2.0
+
+
+/run/beamOn 1000
