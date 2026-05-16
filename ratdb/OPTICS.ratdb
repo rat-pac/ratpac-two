@@ -234,6 +234,24 @@
 
 {
 "name": "OPTICS",
+"index": "glass",
+"run_range" : [0, 0],
+"surface": 1,
+"finish": "ground",
+"model": "glisur",
+"type": "dielectric_dielectric",
+"polish": 0.9,
+"RINDEX_option": "wavelength",
+"RINDEX_value1": [60.0, 200.0, 300.0, 600.0, 800.0, ],
+"RINDEX_value2": [1.458, 1.458, 1.458, 1.458, 1.458, ],
+"ABSLENGTH_option": "wavelength",
+"ABSLENGTH_value1": [60.0, 200.0, 300.0, 330.0, 500.0, 600.0, 770.0, 800.0, ],
+"ABSLENGTH_value2": [0.1e-3, 0.1e-3, 0.1e-3, 1.0e3, 2.0e3, 1.0e3, 0.5e3, 0.1e-3, ],
+"PROPERTY_LIST": ["RINDEX", "ABSLENGTH", ]
+}
+
+{
+"name": "OPTICS",
 "index": "ZnO2",
 "run_range" : [0, 0],
 "surface": 1,
@@ -289,7 +307,6 @@
 "RINDEX_option": "wavelength",
 "RINDEX_value1":[60.0,150.0,200.0,240.0,280.0,320.0,360.0,400.0,440.0,480.0,520.0,560.0,600.0,640.0,680.0,720.0,760.0,800.0,],
 "RINDEX_value2":[38.0,2.61803,1.42983,1.41213,1.40248,1.39657,1.39265,1.3899,1.38789,1.38637,1.38517,1.38421,1.38342,1.38277,1.3822,1.38172,1.38129,1.3809,],
-
 "PROPERTY_LIST": ["RINDEX", /*"ABSLENGTH",*/ ]
 }
 
@@ -328,6 +345,9 @@
 }
 
 // ------------------- PMT materials ----------------
+// ------ Since quantum efficiency measurements generally include glass -----------------
+// ------ absorption, PMT glass models should not separately account for it. ------------
+// ------ Furthermore, GLG4PMTOpticalModel does not consider PMT glass absorption. ------
 
 {
 "name": "OPTICS",
@@ -342,29 +362,11 @@
 // Refractive index of Fused silica (fused quartz) from https://refractiveindex.info/?shelf=glass&book=fused_silica&page=Malitson
 "RINDEX_value1": [60.0, 117.0, 120.0, 140.0, 160.0, 180.0, 200.0, 220.0, 240.0, 260.0, 280.0, 300.0, 320.0, 340.0, 360.0, 380.0, 400.0, 420.0, 440.0, 460.0, 480.0, 500.0, 520.0, 540.0, 560.0, 580.0, 600.0, 620.0, 640.0, 660.0, 680.0, 700.0, 720.0, 740.0, 760.0, 780.0, 800.0, 820.0, 840.0, 860.0, 880.0, 900.0, 920.0, 940.0, 960.0, 980.0, 1000, ],
 "RINDEX_value2": [5.7982, 5.7982, 2.9406, 1.7966, 1.6479, 1.5853, 1.5505, 1.5285, 1.5133, 1.5024, 1.4942, 1.4878, 1.4827, 1.4787, 1.4753, 1.4725, 1.4701, 1.4681, 1.4663, 1.4648, 1.4635, 1.4623, 1.4613, 1.4603, 1.4595, 1.4587, 1.4580, 1.4574, 1.4568, 1.4563, 1.4558, 1.4553, 1.4549, 1.4544, 1.4540, 1.4537, 1.4533, 1.4530, 1.4527, 1.4523, 1.4520, 1.4518, 1.4515, 1.4512, 1.4509, 1.4507, 1.4504, ],
-"ABSLENGTH_option": "wavelength",
+//"ABSLENGTH_option": "wavelength",
 // Values inherited from "glass" except cutoff set to ~160 nm based on https://www.hamamatsu.com/us/en/support/glossary/w.html
-"ABSLENGTH_value1": [60.0, 130.0, 160.0, 330.0, 500.0, 600.0, 770.0, 800.0, ],
-"ABSLENGTH_value2": [0.1e-3, 0.1e-3, 1.0e3, 1.0e3, 2.0e3, 1.0e3, 0.5e3, 0.1e-3, ],
-"PROPERTY_LIST": ["RINDEX", "ABSLENGTH", ]
-}
-
-{
-"name": "OPTICS",
-"index": "glass",
-"run_range" : [0, 0],
-"surface": 1,
-"finish": "ground",
-"model": "glisur",
-"type": "dielectric_dielectric",
-"polish": 0.9,
-"RINDEX_option": "wavelength",
-"RINDEX_value1": [60.0, 200.0, 300.0, 600.0, 800.0, ],
-"RINDEX_value2": [1.458, 1.458, 1.458, 1.458, 1.458, ],
-"ABSLENGTH_option": "wavelength",
-"ABSLENGTH_value1": [60.0, 200.0, 300.0, 330.0, 500.0, 600.0, 770.0, 800.0, ],
-"ABSLENGTH_value2": [0.1e-3, 0.1e-3, 0.1e-3, 1.0e3, 2.0e3, 1.0e3, 0.5e3, 0.1e-3, ],
-"PROPERTY_LIST": ["RINDEX", "ABSLENGTH", ]
+//"ABSLENGTH_value1": [60.0, 130.0, 160.0, 330.0, 500.0, 600.0, 770.0, 800.0, ],
+//"ABSLENGTH_value2": [0.1e-3, 0.1e-3, 1.0e3, 1.0e3, 2.0e3, 1.0e3, 0.5e3, 0.1e-3, ],
+"PROPERTY_LIST": ["RINDEX", /*"ABSLENGTH",*/ ]
 }
 
 {
@@ -381,10 +383,10 @@
 // There is no data below 300 nm, so the Sellmeier formulas extrapolated below using an exponential fit.
 "RINDEX_value1": [60.0, 100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, ],
 "RINDEX_value2": [1.707, 1.662, 1.589, 1.551, 1.531, 1.521, 1.516, 1.513, 1.512, ],
-"ABSLENGTH_option": "wavelength",
-"ABSLENGTH_value1": [60.0, 200.0, 300.0, 330.0, 500.0, 600.0, 770.0, 800.0, ],
-"ABSLENGTH_value2": [0.1e-3, 0.1e-3, 0.1e-3, 1.0e3, 2.0e3, 1.0e3, 0.5e3, 0.1e-3, ],
-"PROPERTY_LIST": ["RINDEX", "ABSLENGTH", ]
+//"ABSLENGTH_option": "wavelength",
+//"ABSLENGTH_value1": [60.0, 200.0, 300.0, 330.0, 500.0, 600.0, 770.0, 800.0, ],
+//"ABSLENGTH_value2": [0.1e-3, 0.1e-3, 0.1e-3, 1.0e3, 2.0e3, 1.0e3, 0.5e3, 0.1e-3, ],
+"PROPERTY_LIST": ["RINDEX", /*"ABSLENGTH",*/ ]
 }
 
 {
@@ -401,10 +403,10 @@
 "RINDEX_option": "wavelength",
 "RINDEX_value1": [60.0, 100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, ],
 "RINDEX_value2": [1.707, 1.662, 1.589, 1.551, 1.531, 1.521, 1.516, 1.513, 1.512, ],
-"ABSLENGTH_option": "wavelength",
-"ABSLENGTH_value1": [60.0, 200.0, 300.0, 330.0, 500.0, 600.0, 770.0, 800.0, ],
-"ABSLENGTH_value2": [0.1e-3, 0.1e-3, 0.1e-3, 1.0e3, 2.0e3, 1.0e3, 0.5e3, 0.1e-3, ],
-"PROPERTY_LIST": ["RINDEX", "ABSLENGTH", ]
+//"ABSLENGTH_option": "wavelength",
+//"ABSLENGTH_value1": [60.0, 200.0, 300.0, 330.0, 500.0, 600.0, 770.0, 800.0, ],
+//"ABSLENGTH_value2": [0.1e-3, 0.1e-3, 0.1e-3, 1.0e3, 2.0e3, 1.0e3, 0.5e3, 0.1e-3, ],
+"PROPERTY_LIST": ["RINDEX", /*"ABSLENGTH",*/ ]
 }
 
 {
