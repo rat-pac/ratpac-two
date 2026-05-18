@@ -11,6 +11,7 @@ class FitQuadProc : public Processor {
   FitQuadProc();
   virtual ~FitQuadProc() {}
   void BeginOfRun(DS::Run *run);
+  virtual void SetS(std::string param, std::string value);
   virtual void SetI(std::string param, int value);
   virtual void SetD(std::string param, double value);
   Processor::Result Event(DS::Root *ds, DS::EV *ev);
@@ -19,13 +20,16 @@ class FitQuadProc : public Processor {
   std::array<unsigned int, 4> ChoosePMTs(unsigned int nhits);
   std::vector<std::array<unsigned int, 4> > BuildTable(const unsigned int n);
 
+  std::vector<int> fPMTtype;   // Types of PMT to use in reconstruction.  If empty, uses all PMT types.
+  std::string fFitLabel = "";  // Label for the fit result.  User can specify.
   DS::Run *fRun;
   DS::PMTInfo *fPMTInfo;
   unsigned int fNumQuadPoints;
   unsigned int fMaxQuadPoints;
   unsigned int fTableCutOff;
-  double fLightSpeed;
+  double fLightSpeed;  // mm / ns.  Speed of light in material.  Defaults to value in FIT_COMMON table.
   double fMaxRadius;
+  double fMaxX, fMaxY, fMaxZ;  // Optional alternative to fMaxRadius.
   const std::array<unsigned int, 24> fNumPointsTbl = {0,    0,    0,    0,    1,    5,    15,   35,
                                                       70,   126,  210,  330,  495,  715,  1001, 1365,
                                                       1820, 2380, 3060, 3876, 4845, 5985, 7315, 8855};
