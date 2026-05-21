@@ -36,6 +36,7 @@ class WaveformAnalysisResult : public TObject {
       std::vector<Double_t>& fom_array = figures_of_merit[kv.first];
       fom_array.insert(fom_array.begin() + insertion_index, kv.second);
     }
+    fit_valid = true;
     return insertion_index;
   }
   virtual void setTimeOffset(Double_t _offset) { time_offset = _offset; }
@@ -47,7 +48,13 @@ class WaveformAnalysisResult : public TObject {
 
   virtual const std::vector<Double_t>& getTimes() { return times; }
   virtual const std::vector<Double_t>& getCharges() { return charges; }
-  ClassDef(WaveformAnalysisResult, 2);
+
+  virtual void setFitValid(Bool_t v) { fit_valid = v; }
+  // The `|| !times.empty()` clause keeps older ROOT files readable: pre-v3 results
+  // serialize fit_valid as default-false, but a non-empty PE vector still implies validity.
+  virtual Bool_t getFitValid() const { return fit_valid || !times.empty(); }
+
+  ClassDef(WaveformAnalysisResult, 3);
 
  protected:
   // All arrays are parallel arrays. It is assumed that they are sorted in time
@@ -55,6 +62,7 @@ class WaveformAnalysisResult : public TObject {
   std::vector<Double_t> charges;
   std::map<std::string, std::vector<Double_t>> figures_of_merit;
   Double_t time_offset;
+  Bool_t fit_valid = false;
 };
 
 }  // namespace DS

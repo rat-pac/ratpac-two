@@ -21,6 +21,7 @@ class Cost {
   virtual void AddAllHits(const RAT::FitterInputHandler& input_handler) {
     std::vector<int> pmtids = input_handler.GetAllHitPMTIDs();
     for (int pmtid : pmtids) {
+      if (!input_handler.IsHitValid(pmtid)) continue;
       AddHit(pmtid, input_handler);
     }
   }

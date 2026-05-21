@@ -372,6 +372,22 @@ class FitterInputHandler {
     }
   }
 
+  /**
+   * @brief Check whether the configured waveform analyzer produced a valid result for a PMT.
+   *
+   * In kWaveformAnalysis mode, returns the analyzer's fit_valid flag — false for empty results
+   * (e.g. RAVEN finding no threshold crossings) so callers can skip them safely. In kPMT and
+   * kDigitPMT modes the hit list itself is the validity filter, so this always returns true.
+   *
+   * @param id PMT ID.
+   */
+  bool IsHitValid(Int_t id) const {
+    if (mode != Mode::kWaveformAnalysis) return true;
+    if (!ev) return false;
+    DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(id);
+    return digitpmt->GetOrCreateWaveformAnalysisResult(wfm_ana_name)->getFitValid();
+  }
+
  protected:
   DS::EV* ev = nullptr;
   std::vector<Int_t> hitPMTChannels;
