@@ -211,8 +211,7 @@ class OutNtupleProc : public Processor {
   std::map<std::string, std::vector<double>> wfmFitTime;
   std::map<std::string, std::vector<double>> wfmFitCharge;
   std::map<std::string, std::map<std::string, std::vector<double>>> wfmFitFOM;
-  // Per-PMT fit validity, parallel to digitPMTID. False when the fitter did not run on a PMT
-  // or its WaveformAnalysisResult reports an invalid fit.
+  // Per-PMT fit validity, parallel to digitPMTID.
   std::map<std::string, std::vector<bool>> wfmFitValid;
   // Tracking
   std::map<std::string, int> processCodeMap;
