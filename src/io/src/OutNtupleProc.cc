@@ -217,6 +217,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
       outputTree->Branch(TString("fit_pmtid_" + fitter_name), &wfmFitPmtID[fitter_name]);
       outputTree->Branch(TString("fit_time_" + fitter_name), &wfmFitTime[fitter_name]);
       outputTree->Branch(TString("fit_charge_" + fitter_name), &wfmFitCharge[fitter_name]);
+      outputTree->Branch(TString("fit_valid_" + fitter_name), &wfmFitValid[fitter_name]);
       for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
         outputTree->Branch(TString("fit_FOM_" + fitter_name + "_" + fom_name), &wfmFitFOM[fitter_name][fom_name]);
       }
@@ -613,6 +614,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           wfmFitPmtID[fitter_name].clear();
           wfmFitTime[fitter_name].clear();
           wfmFitCharge[fitter_name].clear();
+          wfmFitValid[fitter_name].clear();
           for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
             wfmFitFOM[fitter_name][fom_name].clear();
           }
@@ -632,9 +634,16 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         digitPeak.push_back(digitpmt->GetPeakVoltage());
         digitLocalTriggerTime.push_back(digitpmt->GetLocalTriggerTime());
         if (options.digitizerfits) {
-          const std::vector<std::string> fitters = digitpmt->GetFitterNames();
-          for (std::string fitter_name : fitters) {
+          const std::vector<std::string> ran_fitter_names = digitpmt->GetFitterNames();
+          std::set<std::string> ran_fitters(ran_fitter_names.begin(), ran_fitter_names.end());
+          for (const std::string &fitter_name : waveform_fitters) {
+            if (!ran_fitters.count(fitter_name)) {
+              // Fitter never ran on this PMT — record invalid, leave per-PE arrays untouched.
+              wfmFitValid[fitter_name].push_back(false);
+              continue;
+            }
             DS::WaveformAnalysisResult *fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(fitter_name);
+            wfmFitValid[fitter_name].push_back(fit_result->getFitValid());
             for (int hitidx = 0; hitidx < fit_result->getNPEs(); hitidx++) {
               wfmFitPmtID[fitter_name].push_back(digitpmt->GetID());
               wfmFitTime[fitter_name].push_back(fit_result->getTime(hitidx));
@@ -719,6 +728,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
           wfmFitPmtID[fitter_name].clear();
           wfmFitTime[fitter_name].clear();
           wfmFitCharge[fitter_name].clear();
+          wfmFitValid[fitter_name].clear();
           for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
             wfmFitFOM[fitter_name][fom_name].clear();
           }
