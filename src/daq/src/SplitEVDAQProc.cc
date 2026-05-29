@@ -26,6 +26,7 @@ void SplitEVDAQProc::BeginOfRun(DS::Run *run) {
   fTriggerResolution = ldaq->GetD("trigger_resolution");
   fLookback = ldaq->GetD("lookback");
   fMaxHitTime = ldaq->GetD("max_hit_time");
+  fMaxHitDuration = ldaq->GetD("max_hit_duration");
   fTriggerOnNoise = ldaq->GetI("trigger_on_noise");
   fDigitizerType = ldaq->GetS("digitizer_name");
   fDigitize = ldaq->GetZ("digitize");
@@ -65,7 +66,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
       // Do we want to trigger on noise hits?
       if (!fTriggerOnNoise && photon->IsDarkHit()) continue;
       double time = photon->GetFrontEndTime();
-      if (time > fMaxHitTime) continue;
+      if (fMaxHitTime > 0 && time > fMaxHitTime) continue;
       if (time > (lastTrigger + fPmtLockout)) {
         trigPulses.push_back(time);
         lastTrigger = time;
@@ -78,7 +79,8 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
   start = floor(start / fTriggerResolution) * fTriggerResolution;
   double end = *std::max_element(trigPulses.begin(), trigPulses.end());
   end = (floor(end / fTriggerResolution) + 1) * fTriggerResolution;
-  std::sort(trigPulses.begin(), trigPulses.end());
+
+  if (fMaxHitDuration > 0 && (end - start) > fMaxHitDuration) end = start + fMaxHitDuration;
 
   // Turns hits into a histogram of trigger pulse leading edges
   //        _
@@ -89,6 +91,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
 
   std::vector<double> triggerTrain(nbins);
   for (auto v : trigPulses) {
+    if (v > end) continue;
     int select = int((v - start) / bw);
     triggerTrain[select] += 1.0;
   }
@@ -136,7 +139,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     ev->SetUTC(mc->GetUTC());
     ev->SetDeltaT(tt - lastTrigger);
     lastTrigger = tt;
-    double totalEVCharge = 0;  // What does total charge get used for?
+    double totalEVCharge = 0;
     for (int imcpmt = 0; imcpmt < mc->GetMCPMTCount(); imcpmt++) {
       DS::MCPMT *mcpmt = mc->GetMCPMT(imcpmt);
       int pmtID = mcpmt->GetID();
@@ -196,6 +199,8 @@ void SplitEVDAQProc::SetD(std::string param, double value) {
     fLookback = value;
   else if (param == "max_hit_time")
     fMaxHitTime = value;
+  else if (param == "max_hit_duration")
+    fMaxHitDuration = value;
   else
     throw ParamUnknown(param);
 }
