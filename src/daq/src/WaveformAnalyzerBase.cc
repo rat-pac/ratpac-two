@@ -18,6 +18,9 @@ void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digiti
 }
 
 void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Digit* dsdigit) {
+  // Guarantee a result always exists for this PMT, even if analysis is skipped below.
+  digitpmt->GetOrCreateWaveformAnalysisResult(GetAnalyzerName());
+
   double totalCharge = digitpmt->GetDigitizedTotalCharge();
   if (totalCharge < fMinTotalCharge || totalCharge > fMaxTotalCharge) return;
 

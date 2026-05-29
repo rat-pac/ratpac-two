@@ -101,6 +101,8 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
 
   void DoAnalysis(DS::DigitPMT *digitpmt, const std::vector<UShort_t> &digitWfm) override;
 
+  std::string GetAnalyzerName() const override { return "RAVEN"; }
+
   /// Perform reverse sparse NNLS with iterative thresholding on a region submatrix
   TVectorD Thresholded_rsNNLS(const TMatrixD &W_region, const TVectorD &voltVec, const double threshold,
                               double &chi2ndf_out, int &iterations_out);

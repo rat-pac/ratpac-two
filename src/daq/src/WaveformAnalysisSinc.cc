@@ -63,7 +63,7 @@ void WaveformAnalysisSinc::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
 
   InterpolateWaveform(voltWfm);
 
-  DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("Sinc");
+  DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(GetAnalyzerName());
   fit_result->AddPE(fFitTime, fFitCharge, {{"peak", fFitPeak}});
 }
 

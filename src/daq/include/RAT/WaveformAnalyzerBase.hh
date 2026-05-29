@@ -108,6 +108,14 @@ class WaveformAnalyzerBase : public Processor {
    */
   virtual void DoAnalysis(DS::DigitPMT *digitpmt, const std::vector<UShort_t> &digitwfm) = 0;
 
+  /**
+   * Short name under which this analyzer's WaveformAnalysisResult is stored (e.g. "Lognormal").
+   * Used to guarantee a result is always created, even when analysis is skipped (e.g. due to
+   * the charge thresholds). Must match the name passed to GetOrCreateWaveformAnalysisResult()
+   * inside DoAnalysis().
+   */
+  virtual std::string GetAnalyzerName() const = 0;
+
  protected:
   // Digitizer Settings
   double fTimeStep;

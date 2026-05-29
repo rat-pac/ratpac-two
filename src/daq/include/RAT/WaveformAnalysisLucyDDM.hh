@@ -78,6 +78,8 @@ class WaveformAnalysisLucyDDM : public WaveformAnalyzerBase {
   /// @brief Main analysis function entry point, provided by WaveformAnalyzerBase.
   void DoAnalysis(DS::DigitPMT *pmt, const std::vector<UShort_t> &digitWfm) override;
 
+  std::string GetAnalyzerName() const override { return "LucyDDM"; }
+
   /// @brief Ensure that hte requested size can be done with the existing transformers. If the transformers are too
   /// small or doesnt exist, create a new one that is big enough to acocmodate the request.
   void RequestFFTSize(size_t size);
