@@ -21,6 +21,7 @@ file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
 include_directories(${RATPAC_INCLUDE_DIR})
 root_generate_dictionary(G__RATDict
         RAT/DS/Root.hh
+        RAT/DS/RootFactory.hh
         RAT/DS/Classifier.hh
         RAT/DS/Digit.hh
         RAT/DS/EV.hh

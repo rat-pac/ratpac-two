@@ -1,3 +1,4 @@
+#include <RAT/DS/RootFactory.hh>
 #include <RAT/DSReader.hh>
 #include <RAT/Log.hh>
 #include <iostream>

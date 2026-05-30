@@ -15,10 +15,8 @@
  * but the DAQ simulation might split the early and late light into
  * separate triggered events, depending on how the DAQ is configured.
  *
- * Custom user processors are allowed to store values in the @c user*
- * variables, which are also written to disk (except @c userPtr).
- * Official processors distributed with RAT are never allowed to use
- * these variables.  New variables should be created instead.
+ * REVISION HISTORY:
+ * - 2026-05-29: J Shen - Removed unused user-parameter vector and associated methods.
  */
 
 #ifndef __RAT_DS_Root__
@@ -124,15 +122,6 @@ class Root : public TObject {
   virtual void PruneEV() { ev.resize(0); }
   virtual void PruneEV(int i) { ev.erase(ev.begin() + i); }
 
-  /**
-   * A list of user-defined doubles can store data for a particular
-   * user's analysis. No official processor should ever use this.
-   */
-  virtual int GetUserDataCount() const { return user.size(); }
-  virtual void SetUserDataCount(int count) { user.resize(count); }
-  virtual double GetUserData(int i) const { return user.at(i); }
-  virtual void SetUserData(int i, double val) { user.at(i) = val; }
-
   ClassDef(Root, 1);
 
  protected:
@@ -142,7 +131,6 @@ class Root : public TObject {
   std::vector<MC> mc;
   std::vector<Calib> calib;
   std::vector<EV> ev;
-  std::vector<double> user;
 };
 
 }  // namespace DS

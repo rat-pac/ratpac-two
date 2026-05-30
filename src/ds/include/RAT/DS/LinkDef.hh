@@ -1,6 +1,7 @@
 #ifdef __CINT__
 
 #pragma link C++ class RAT::DS::Root + ;
+#pragma link C++ class RAT::DS::RootFactory + ;
 #pragma link C++ class RAT::DS::PMTInfo + ;
 #pragma link C++ class RAT::DS::NestedTubeInfo + ;
 #pragma link C++ class RAT::DS::ChannelStatus + ;

@@ -21,16 +21,16 @@ class DSReader : public TObject {
 
   TTree *GetT() { return &T; };
   TTree *GetRunT() { return &runT; };
-  DS::Root *GetDS() { return ds; };
+  virtual DS::Root *GetDS() { return ds; };
   Long64_t GetTotal() { return total; };
 
   // Load event.  Returns ds (which will now point to specified event)
-  DS::Root *GetEvent(Long64_t num) {
+  virtual DS::Root *GetEvent(Long64_t num) {
     next = num + 1;
     T.GetEntry(num);
     return ds;
   };
-  DS::Root *NextEvent();
+  virtual DS::Root *NextEvent();
 
   ClassDef(DSReader, 0);
 
