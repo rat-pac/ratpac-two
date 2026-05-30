@@ -8,6 +8,7 @@
 #include <RAT/CfGen.hh>
 #include <RAT/Coincidence_Gen.hh>
 #include <RAT/Config.hh>
+#include <RAT/DS/RootFactory.hh>
 #include <RAT/DS/RunStore.hh>
 #include <RAT/DecayChain_Gen.hh>
 #include <RAT/DetectorConstruction.hh>
@@ -259,7 +260,7 @@ void Gsim::BeginOfEventAction(const G4Event *anEvent) {
 
 void Gsim::EndOfEventAction(const G4Event *anEvent) {
   // Now build data structure out of G4Event
-  DS::Root *ds = new DS::Root;
+  DS::Root *ds = DS::RootFactory::Create();
   MakeEvent(anEvent, ds);
   ds->SetRunID(runID);
   ds->AppendProcResult("gsim", Processor::OK);
