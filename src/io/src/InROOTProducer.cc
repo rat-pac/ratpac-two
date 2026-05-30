@@ -7,6 +7,7 @@
 #include <G4UIdirectory.hh>
 #include <RAT/DB.hh>
 #include <RAT/DS/Root.hh>
+#include <RAT/DS/RootFactory.hh>
 #include <RAT/DS/RunStore.hh>
 #include <RAT/InROOTProducer.hh>
 #include <RAT/Log.hh>
@@ -97,7 +98,7 @@ bool InROOTProducer::ReadEvents(G4String filename) {
     // delete ftemp;
   }
 
-  DS::Root *branchDS = new DS::Root();
+  DS::Root *branchDS = DS::RootFactory::Create();
   tree.SetBranchAddress("ds", &branchDS);
 
   // Read
