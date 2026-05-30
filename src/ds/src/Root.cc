@@ -14,6 +14,7 @@
 #include <RAT/TrackNav.hh>
 
 ClassImp(RAT::DS::Root);
+ClassImp(RAT::DS::RootFactory);
 ClassImp(RAT::DS::MC);
 ClassImp(RAT::DS::MCParticle);
 ClassImp(RAT::DS::MCPMT);
