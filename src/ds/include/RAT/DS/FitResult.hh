@@ -33,6 +33,14 @@ class FitResult : public TObject {
     if (tag.empty()) return fitter_name;
     return fitter_name + "__" + tag;
   }
+  // Extract the base fitter name from a full name (strips the "__tag" suffix if present)
+  static std::string GetFitterNameFromFullName(const std::string &full_name) {
+    size_t sep = full_name.find("__");
+    if (sep != std::string::npos) {
+      return full_name.substr(0, sep);
+    }
+    return full_name;
+  }
 
   // Fitted Position
   virtual const TVector3 &GetPosition() const { return fit_position; }

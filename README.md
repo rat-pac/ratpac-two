@@ -33,8 +33,8 @@ apptainer run [-B /disks/to/mount] ratpac2.sif
 ## Installation
 
 ### Dependencies
-Installation requires [ROOT 6.25+](https://root.cern.ch),
-[Geant4 11.0+](https://geant4.web.cern.ch/), and [cmake 3.22+](https://cmake.org/)
+Installation requires [ROOT 6.34+](https://root.cern.ch),
+[Geant4 11.4](https://geant4.web.cern.ch/), and [cmake 3.22+](https://cmake.org/)
 
 For development, the following are also required:
 

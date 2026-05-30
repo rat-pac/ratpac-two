@@ -31,12 +31,26 @@ Produces Michel electron events drawn from the spectrum stored in the SPECTRUM[M
 
     {
     name: "SPECTRUM",
-    index: "MICHEL",
-    valid_begin: [0, 0],
-    valid_end: [0, 0],
+    "index": "MICHEL",
+    "run_range": [0, 0],
 
     // (Note that the energy spectrum has a maximum of 52.8 MeV)
-    spec_e:     [ 0.00, 0.1, ..., 52.7, 52.8],
+    "spec_e":     [ 0.00, 0.1, ..., 52.7, 52.8],
     // (Note that first point is minimum of spectrum, last is maximum)
-    spec_mag:   [ 0.00000000,0.00000041, ..., 0.03780678, 0.03780718],
+    "spec_mag":   [ 0.00000000,0.00000041, ..., 0.03780678, 0.03780718],
+    }
+
+Example::
+
+    /generator/vtx/set e- BOUND_MICHEL
+
+Energy spectrum for michel electron from decay of mu- bound to oxygen from  At. Data Nucl. Data Tables 54, 165 (1993)::
+
+    {
+    name: "SPECTRUM",
+    "index": "BOUND_MICHEL",
+    "run_range": [0, 0],
+
+    "spec_e":     [ 0.0, 1.0, ..., 58.0, 59.0],
+    "spec_mag":   [0.00e+00, 4.27e-05, ..., 1.02e-04, 4.76e-05],
     }
