@@ -95,8 +95,6 @@ class WaveformAnalysisSinc : public WaveformAnalyzerBase {
   }
 
   void DoAnalysis(DS::DigitPMT *pmt, const std::vector<UShort_t> &digitWfm) override;
-
-  std::string GetAnalyzerName() const override { return "Sinc"; }
 };
 
 }  // namespace RAT

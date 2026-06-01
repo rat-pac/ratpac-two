@@ -8,6 +8,15 @@ namespace RAT {
 // Common features that need to be extracted from the analysis would go here. So far there's none.
 void WaveformAnalyzerBase::Configure(const std::string& config_name) {}
 
+std::string WaveformAnalyzerBase::GetAnalyzerName() const {
+  const std::string prefix = "WaveformAnalysis";
+  std::string procName = GetName();
+  if (procName.compare(0, prefix.size(), prefix) == 0) {
+    return procName.substr(prefix.size());
+  }
+  return procName;
+}
+
 void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, Digitizer* fDigitizer) {
   fVoltageRes = (fDigitizer->fVhigh - fDigitizer->fVlow) / (pow(2, fDigitizer->fNBits));
   fTimeStep = 1.0 / fDigitizer->fSamplingRate;  // in ns

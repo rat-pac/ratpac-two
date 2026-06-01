@@ -63,8 +63,6 @@ class WaveformAnalysisLognormal : public WaveformAnalyzerBase {
   double fChi2NDF;
 
   void DoAnalysis(DS::DigitPMT *pmt, const std::vector<UShort_t> &digitWfm) override;
-
-  std::string GetAnalyzerName() const override { return "Lognormal"; }
 };
 
 }  // namespace RAT
