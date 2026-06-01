@@ -133,7 +133,7 @@ endif()
 include(${ROOT_USE_FILE})
 
 find_package(Geant4 11.4 REQUIRED)
-find_package(Geant4 QUIET OPTIONAL_COMPONENTS qt)
+find_package(Geant4 QUIET OPTIONAL_COMPONENTS vis_all ui_all)
 include(${Geant4_USE_FILE})
 include_directories(${Geant4_INCLUDE_DIRS})
 include_directories(${CLHEP_INCLUDE_DIRS})

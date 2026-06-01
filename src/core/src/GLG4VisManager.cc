@@ -22,7 +22,7 @@
 #include "G4ASCIITree.hh"
 #include "G4DAWNFILE.hh"
 #include "G4HitFilterFactories.hh"
-#ifdef G4VIS_USE_QT
+#ifdef G4VIS_USE_OPENGLQT
 #include "G4OpenGLImmediateQt.hh"
 #include "G4OpenGLStoredQt.hh"
 #endif
@@ -83,7 +83,7 @@ void GLG4VisManager::RegisterGraphicsSystems() {
   RegisterGraphicsSystem(new G4DAWNFILE);
   RegisterGraphicsSystem(new G4RayTracer);
   RegisterGraphicsSystem(new G4VRML2File);
-#ifdef G4VIS_USE_QT
+#ifdef G4VIS_USE_OPENGLQT
   RegisterGraphicsSystem(new G4OpenGLImmediateQt);
   RegisterGraphicsSystem(new G4OpenGLStoredQt);
 #endif
