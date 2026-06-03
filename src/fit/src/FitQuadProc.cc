@@ -59,7 +59,7 @@ void FitQuadProc::SetD(std::string param, double value) {
     fLightSpeed = value;
   } else if (param == "max_radius") {
     if (fMaxX > 0 || fMaxY > 0 || fMaxZ > 0)
-      throw ParamInvalid(param, "cannot set max_radius and (max_x or max_y or max_z).");
+      throw ParamInvalid(param, "cannot set both max_radius and (max_x or max_y or max_z).");
     fMaxRadius = value;
   } else if (param == "max_x") {
     fMaxX = value;
@@ -70,6 +70,10 @@ void FitQuadProc::SetD(std::string param, double value) {
   } else if (param == "max_z") {
     fMaxZ = value;
     fMaxRadius = 0;
+  } else if (param == "max_hit_time") {
+    fMaxHitTime = value;
+  } else if (param == "min_hit_time") {
+    fMinHitTime = value;
   } else
     throw ParamUnknown(param);
 }
@@ -165,11 +169,16 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
       if (iType == fPMTtype.size()) continue;  // No match found
     }
 
-    TVector3 pmtpos = fPMTInfo->GetPosition(pmtid);
     double time = inputHandler.GetTime(pmtid);
     if (time > 1e6) {
       continue;
     }
+    // Select PMTs by time - optional
+    if (fMaxHitTime > fMinHitTime && (time > fMaxHitTime || time < fMinHitTime)) {
+      continue;
+    }
+
+    TVector3 pmtpos = fPMTInfo->GetPosition(pmtid);
     pmtt.push_back(time);
     pmtx.push_back(pmtpos.X());
     pmty.push_back(pmtpos.Y());
