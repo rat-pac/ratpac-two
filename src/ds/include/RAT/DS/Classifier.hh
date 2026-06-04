@@ -37,7 +37,7 @@ class Classifier : public TObject {
   virtual void SetClassificationResult(const std::string &name, double val) { classificationResults[name] = val; }
   virtual double GetClassificationResult(const std::string &name) {
     if (classificationResults.find(name) == classificationResults.end()) {
-      return -9999;
+      return NAN;
     }
     return classificationResults.at(name);
   }
