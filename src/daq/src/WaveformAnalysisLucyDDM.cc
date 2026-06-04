@@ -73,7 +73,7 @@ void WaveformAnalysisLucyDDM::DoAnalysis(DS::DigitPMT* digitpmt, const std::vect
   end = std::chrono::high_resolution_clock::now();
   debug << "Hit finding took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms."
         << newline;
-  DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("LucyDDM");
+  DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(GetAnalyzerName());
   for (size_t ipacket = 0; ipacket < reco_times.size(); ++ipacket) {
     if (reco_charges[ipacket] < charge_threshold) continue;
     size_t npe = npe_estimate

@@ -17,7 +17,7 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 if(NOT RATVERSION_SEMVERS)
-  set(RATVERSION_SEMVERS 3.3.0)
+  set(RATVERSION_SEMVERS 4.0.0)
 endif()
 
 project(ratpac
@@ -132,8 +132,8 @@ find_package(ROOT CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython MathMore)
 endif()
 include(${ROOT_USE_FILE})
 
-find_package(Geant4 REQUIRED)
-find_package(Geant4 QUIET OPTIONAL_COMPONENTS qt)
+find_package(Geant4 11.4 REQUIRED)
+find_package(Geant4 QUIET OPTIONAL_COMPONENTS vis_all ui_all)
 include(${Geant4_USE_FILE})
 include_directories(${Geant4_INCLUDE_DIRS})
 include_directories(${CLHEP_INCLUDE_DIRS})
