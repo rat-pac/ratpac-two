@@ -56,7 +56,7 @@ void WaveformAnalysisLognormal::DoAnalysis(DS::DigitPMT* digitpmt, const std::ve
   // Fit waveform to lognormal
   FitWaveform(voltWfm);
 
-  DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("Lognormal");
+  DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(GetAnalyzerName());
   fit_result->AddPE(fFittedTime, fFittedCharge, {{"baseline", fFittedBaseline}, {"chi2ndf", fChi2NDF}});
 }
 
