@@ -60,7 +60,7 @@ Parameters:
 * ``event_fitters`` (optional, vector<string>) Event reconstruction algorithm results to include in the ntuple. See below for naming of the specific variables.
 * ``event_fitter_FOM_FITTERNAME`` (optional, vector<string>) The figure of merit to include for each event fitter. See below for naming of the specific variables. FOM can be specified by the base name of the reconstruction algorithm (e.g., ``event_fitter_FOM_quadfitter``) or by the specific instances of each algorithm (e.g. ``event_fitter_FOM_fitdirectioncenter__0_quad``).
 * ``event_classifiers`` (optional, vector<string>) Event classification algorithm results to include in the ntuple. See below for naming of the specific variables.
-* ``event_classifier_FOM_CLASSIFIERNAME`` (optional, vector<string>) The figure of merit to include for each event classifier. See below for naming of the specific variables. FOM can be specified by the base name of the classification algorithm (e.g., ``event_classifier_FOM_classifytimes``) or by the specific instances of each algorithm (e.g. ``event_fitter_FOM_classifytimes__5p0_quad``).
+* ``event_classifier_FOM_CLASSIFIERNAME`` (optional, vector<string>) The figure of merit to include for each event classifier. See below for naming of the specific variables. FOM can be specified by the base name of the classification algorithm (e.g., ``event_classifier_FOM_classifytimes``) or by the specific instances of each algorithm (e.g. ``event_classifier_FOM_classifytimes__5p0_quad``).
 
 Similarly to the outroot file, one can pass the filename using the "-o" flag by running the macro as::
 
