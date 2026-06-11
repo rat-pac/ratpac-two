@@ -152,8 +152,13 @@ static inline int matinvert(double (*const ans)[3], const double (*const m)[3]) 
 }
 
 Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
-  if (fMaxRadius > 0 && (fMaxX > 0 || fMaxY > 0 || fMaxZ > 0))
-    Log::Die("Quad tried to set both max_radius and (max_x or max_y or max_z).");
+  if (fMaxRadius > 0) {
+    if (fMaxX > 0 || fMaxY > 0 || fMaxZ > 0)
+      Log::Die("Quad tried to set both max_radius and (max_x or max_y or max_z).");
+  } else {
+    if (fMaxX <= 0 || fMaxY <= 0 || fMaxZ <= 0)
+      Log::Die("Quad must set either max_radius or each of max_x, max_y, and max_z).");
+  }
 
   inputHandler.RegisterEvent(ev);
 
