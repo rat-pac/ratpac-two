@@ -70,8 +70,12 @@ OutROOTProc::~OutROOTProc() {
     TObjString *macro = new TObjString(Log::GetMacro().c_str());
     macro->Write("macro");
 
-    TMap *dbtrace = Log::GetDBTraceMap();
-    dbtrace->Write("db", TObject::kSingleKey);
+    // Snapshot the full resolved RATDB so the geometry/materials can be
+    // reconstructed from this file alone (see DSReader::LoadDB).
+    std::ostringstream ratdb_dump;
+    DB::Get()->DumpContentsToJson(ratdb_dump);
+    TObjString *ratdb = new TObjString(ratdb_dump.str().c_str());
+    ratdb->Write("ratdb");
 
     // Save any objects that processors have logged
     f->mkdir("obj");

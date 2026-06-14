@@ -33,44 +33,54 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
   DB *db = DB::Get();
   DBLinkPtr ldetector = db->GetLink("DETECTOR");
   std::string experiment = "";
-
-  // Load experiment RATDB files before doing anything else
+  bool is_snapshot = false;
   try {
-    experiment = ldetector->GetS("experiment");
+    is_snapshot = (db->GetLink("DB")->GetZ("is_snapshot"));
   } catch (DBNotFoundError &e) {
-    info << "No experiment-specific tables loaded." << newline;
   }
-  info << "Loading experiment-specific RATDB files for: " << experiment << newline;
-  // Attempt to load literal experiments (absolute paths and/or experiments defined in local directory).
-  int result = db->LoadAll(experiment);
-  if (result == 2) {
-    info << "Found experiment files in " << experiment << newline;
+  if (is_snapshot) {
+    info << "DB snapshot detected; skipping RATDB loading. This should only happen when running analysis on existing "
+            "sim files!"
+         << newline;
   } else {
-    for (auto dir : Rat::ratdb_directories) {
-      std::string experimentDirectoryString = dir + "/" + experiment;
-      int result = db->LoadAll(experimentDirectoryString);
-      if (result == 2) {
-        info << "Found experiment files in " << experimentDirectoryString << newline;
-        break;
+    // Load experiment RATDB files before doing anything else
+    try {
+      experiment = ldetector->GetS("experiment");
+    } catch (DBNotFoundError &e) {
+      info << "No experiment-specific tables loaded." << newline;
+    }
+    info << "Loading experiment-specific RATDB files for: " << experiment << newline;
+    // Attempt to load literal experiments (absolute paths and/or experiments defined in local directory).
+    int result = db->LoadAll(experiment);
+    if (result == 2) {
+      info << "Found experiment files in " << experiment << newline;
+    } else {
+      for (auto dir : Rat::ratdb_directories) {
+        std::string experimentDirectoryString = dir + "/" + experiment;
+        int result = db->LoadAll(experimentDirectoryString);
+        if (result == 2) {
+          info << "Found experiment files in " << experimentDirectoryString << newline;
+          break;
+        }
       }
     }
-  }
 
-  try {
-    std::string detector_factory = ldetector->GetS("detector_factory");
-    info << "Loading detector factory " << detector_factory << newline;
-    DetectorFactory::DefineWithFactory(detector_factory, ldetector);
-  } catch (DBNotFoundError &e) {
-    info << "DetectorConstruction: could not access " << e.table << "[" << e.index << "]." << e.field << newline;
     try {
-      std::string geo_file = ldetector->GetS("geo_file");
-      info << "Loading detector geometry from " << geo_file << newline;
-      if (db->Load(geo_file) == 0) {
-        Log::Die("DetectorConstruction: Could not open detector geometry");
+      std::string detector_factory = ldetector->GetS("detector_factory");
+      info << "Loading detector factory " << detector_factory << newline;
+      DetectorFactory::DefineWithFactory(detector_factory, ldetector);
+    } catch (DBNotFoundError &e) {
+      info << "DetectorConstruction: could not access " << e.table << "[" << e.index << "]." << e.field << newline;
+      try {
+        std::string geo_file = ldetector->GetS("geo_file");
+        info << "Loading detector geometry from " << geo_file << newline;
+        if (db->Load(geo_file) == 0) {
+          Log::Die("DetectorConstruction: Could not open detector geometry");
+        }
+      } catch (DBNotFoundError &_e) {
+        info << "DetectorConstruction: could not access " << _e.table << "[" << _e.index << "]." << _e.field << newline;
+        Log::Die("DetectorConstruction: Could not open geo_file or detector_factory");
       }
-    } catch (DBNotFoundError &_e) {
-      info << "DetectorConstruction: could not access " << _e.table << "[" << _e.index << "]." << _e.field << newline;
-      Log::Die("DetectorConstruction: Could not open geo_file or detector_factory");
     }
   }
 
