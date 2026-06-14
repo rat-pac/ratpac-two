@@ -89,14 +89,11 @@ void Log::SetLogLevel(Level level) {
 
 void Log::Die(std::string message, int return_code) {
   warn << message << newline;
-  std::exit(return_code);
+  throw FatalError(message, return_code);
 }
 
 void Log::Assert(bool condition, std::string message, int return_code) {
-  if (!condition) {
-    warn << message << newline;
-    std::exit(return_code);
-  }
+  if (!condition) Die(message, return_code);
 }
 
 void Log::SetupIO() {
