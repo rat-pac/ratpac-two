@@ -168,6 +168,10 @@ configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.csh.in
 #  @ONLY NEWLINE_STYLE UNIX)
 
 ###########################################################
+# Helper functions
+include(${CMAKE_SOURCE_DIR}/cmake/RATDictionary.cmake)
+
+###########################################################
 # Compile our libraries and executables
 
 add_subdirectory(src)
