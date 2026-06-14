@@ -15,10 +15,36 @@ add_subdirectory(io)
 add_subdirectory(physics)
 add_subdirectory(external)
 add_subdirectory(util)
-# ds has to come last to avoid race condition with ratdict 
 add_subdirectory(ds)
 add_subdirectory(ratbase)
 
+
+###########################################################
+# Create Root Dictionary
+#
+# Subdirectories register their headers and LinkDef fragments via
+# rat_dictionary_headers()/rat_dictionary_linkdef(); we generate the single
+# RATDict here, once every subdirectory has contributed. RATPAC_INCLUDE_DIR must
+# be on the include path so rootcling can resolve the collected header names.
+include_directories(${RATPAC_INCLUDE_DIR})
+get_property(RATDICT_HEADERS GLOBAL PROPERTY RATDICT_HEADERS)
+rat_generate_linkdef(RATDICT_LINKDEF ${CMAKE_CURRENT_BINARY_DIR}/RATDictLinkDef.hh)
+root_generate_dictionary(G__RATDict
+        ${RATDICT_HEADERS}
+        LINKDEF ${RATDICT_LINKDEF}
+        DEPENDENCIES core ds db io util
+        OPTIONS -Wno-exceptions)
+add_library(RATDict OBJECT G__RATDict.cxx)
+target_include_directories(RATDict SYSTEM PUBLIC
+        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
+target_include_directories(RATDict PUBLIC
+        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
+        $<INSTALL_INTERFACE:include>)
+
+# Export the dictionary support files to the install tree.
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libRATDict.rootmap
+              ${CMAKE_CURRENT_BINARY_DIR}/libRATDict_rdict.pcm
+        DESTINATION lib)
 
 
 ###########################################################
@@ -58,17 +84,17 @@ target_link_libraries(RATEvent PUBLIC
        ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RATDict stlplus)
 
 # This copies the root dict files to <build>/lib
-add_custom_command(TARGET RATEvent POST_BUILD
+add_custom_command(TARGET RATPAC POST_BUILD
    COMMAND ${CMAKE_COMMAND} -E copy
-       ${CMAKE_CURRENT_BINARY_DIR}/ds/libRATDict_rdict.pcm
-       ${CMAKE_CURRENT_BINARY_DIR}/ds/libRATDict.rootmap
+       ${CMAKE_CURRENT_BINARY_DIR}/libRATDict_rdict.pcm
+       ${CMAKE_CURRENT_BINARY_DIR}/libRATDict.rootmap
        ${PROJECT_BINARY_DIR}/lib)
 
-# This copies the root dict files to <build>/lib
-add_custom_command(TARGET RATEvent POST_BUILD
+# This copies the root dict files to <build>/bin
+add_custom_command(TARGET RATPAC POST_BUILD
    COMMAND ${CMAKE_COMMAND} -E copy
-       ${CMAKE_CURRENT_BINARY_DIR}/ds/libRATDict_rdict.pcm
-       ${CMAKE_CURRENT_BINARY_DIR}/ds/libRATDict.rootmap
+       ${CMAKE_CURRENT_BINARY_DIR}/libRATDict_rdict.pcm
+       ${CMAKE_CURRENT_BINARY_DIR}/libRATDict.rootmap
        ${PROJECT_BINARY_DIR}/bin)
 
 set_target_properties(RATPAC RATEvent 
