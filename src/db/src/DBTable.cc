@@ -98,19 +98,26 @@ DBTable::FieldType DBTable::GetFieldType(std::string name) const {
         return DBTable::STRING;
       case json::TARRAY:
         if (val.getArraySize() > 0) {
-          switch (val[0].getType()) {
-            case json::TINTEGER:
-            case json::TUINTEGER:
-              return DBTable::INTEGER_ARRAY;
-            case json::TBOOL:
-              return DBTable::BOOLEAN_ARRAY;
-            case json::TREAL:
-              return DBTable::DOUBLE_ARRAY;
-            case json::TSTRING:
-              return DBTable::STRING_ARRAY;
-            default:
-              return DBTable::JSON;
+          DBTable::FieldType result = DBTable::JSON;
+          for (size_t i = 0; i < val.getArraySize(); i++) {
+            json::Value curr_val = val[i];
+            switch (curr_val.getType()) {
+              case json::TINTEGER:
+              case json::TUINTEGER:
+                result = DBTable::INTEGER_ARRAY;
+                break;
+              case json::TBOOL:
+                if (result != DBTable::INTEGER_ARRAY) result = DBTable::BOOLEAN_ARRAY;
+                break;
+              case json::TREAL:
+                return DBTable::DOUBLE_ARRAY;
+              case json::TSTRING:
+                return DBTable::STRING_ARRAY;
+              default:
+                return DBTable::JSON;
+            }
           }
+          return result;
         }
         return DBTable::EMPTY_ARRAY;
       default:
