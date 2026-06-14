@@ -529,10 +529,28 @@ void Writer::writeValue(const Value &value, const std::string &depth) {
     case TUINTEGER:
       out << value.data.uinteger;
       break;
-    case TREAL:
-      out.precision(std::numeric_limits<double>::digits10);
-      out << value.data.real;
+    case TREAL: {
+      std::ostringstream realbuf;
+      realbuf.precision(std::numeric_limits<double>::digits10);
+      realbuf << value.data.real;
+      std::string realstr = realbuf.str();
+
+      // A whole-valued double prints as e.g. "1", which the parser reads back
+      // as an integer -- changing the RATDB field's type on round-trip. Test
+      // what the emitted text actually parses to, and if it is no longer a
+      // real, re-emit with a fixed decimal point to preserve the type.
+      Reader check(realstr);
+      Value parsed;
+      if (!check.getValue(parsed) || parsed.getType() != TREAL) {
+        std::ostringstream fixedbuf;
+        fixedbuf.setf(std::ios::fixed, std::ios::floatfield);
+        fixedbuf.precision(1);
+        fixedbuf << value.data.real;
+        realstr = fixedbuf.str();
+      }
+      out << realstr;
       break;
+    }
     case TSTRING:
       out << '"' << escapeString(*(value.data.string)) << '"';
       break;
