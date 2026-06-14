@@ -59,6 +59,7 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.mchits = table->GetZ("include_mchits");
     options.nthits = table->GetZ("include_nestedtubehits");
     options.calib = table->GetZ("include_calib");
+    options.transittime = table->GetZ("include_mctransittime");
   } catch (DBNotFoundError &e) {
     options.tracking = false;
     options.mcparticles = false;
@@ -99,6 +100,19 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
       }
     }
     event_fitter_FOMs[full_name] = std::vector<std::string>(fom_set.begin(), fom_set.end());
+  }
+}
+
+void OutNtupleProc::BeginOfRun(DS::Run *run) {
+  info << "Running OUTNtuple BeginOfRun" << newline;
+  DBLinkPtr table = DB::Get()->GetLink("IO", "NtupleProc");
+  if (options.transittime) {
+    std::vector<std::string> ttime_cfg = table->GetSArray("transittime_calculator_config");
+    Log::Assert(ttime_cfg.size() == 2,
+                "transittime_calculator_config should have 2 entries: path calculator ID and velocity calculator ID");
+    fTransitTimeCalculator = std::make_unique<RAT::TransitTimeCalculator>(ttime_cfg[0], ttime_cfg[1]);
+    info << "Initialized TransitTimeCalculator with calculator ID " << ttime_cfg[0] << " and velocity calculator ID "
+         << ttime_cfg[1] << newline;
   }
 }
 
@@ -156,6 +170,9 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("mcw", &mcw);
   outputTree->Branch("mcke", &mcke);
   outputTree->Branch("mct", &mct);
+  if (options.transittime) {
+    outputTree->Branch("mcTransitTimesToPMTs", &mcTransitTimes);
+  }
   // Event IDs and trigger time and nhits
   outputTree->Branch("evid", &evid);
   outputTree->Branch("subev", &subev);
@@ -371,6 +388,18 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcw = mcpcount ? mcDirz[0] : -9999;
   mct = mcpcount ? mcTime[0] : -9999;
   mcke = accumulate(mcKEnergies.begin(), mcKEnergies.end(), 0.0);
+
+  // Transit time to PMTs
+  if (options.transittime) {
+    TVector3 event_vertex(mcx, mcy, mcz);
+    mcTransitTimes.clear();
+    for (int id = 0; id < pmtinfo->GetPMTCount(); id++) {
+      TVector3 pmt_pos = pmtinfo->GetPosition(id);
+      TransitTimeCalculator::Result ttime_result = fTransitTimeCalculator->Compute(event_vertex, pmt_pos);
+      mcTransitTimes.push_back(ttime_result.totalTime);
+    }
+  }
+
   // Tracking
   if (options.tracking) {
     int nTracks = mc->GetMCTrackCount();
