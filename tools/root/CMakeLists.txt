@@ -4,7 +4,7 @@
 add_executable(root root.cc)
 target_link_libraries(root PUBLIC ${ROOT_LIBRARIES} Threads::Threads)
 # Add dependency because we're not linking, but the root.cc adds it dynamically
-add_dependencies(root RATEvent)
+add_dependencies(root RATPAC)
 
 file(COPY rootinit.C DESTINATION ${PROJECT_BINARY_DIR}/src)
 

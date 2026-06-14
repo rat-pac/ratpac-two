@@ -30,27 +30,6 @@
 #pragma link C++ class RAT::DS::RunStore + ;
 #pragma link C++ class RAT::DS::Run + ;
 
-#pragma link C++ class RAT::DSReader;
-#pragma link C++ class RAT::DSWriter;
-
-#pragma link C++ class RAT::TrackNav;
-#pragma link C++ class RAT::TrackCursor;
-#pragma link C++ class RAT::TrackNode;
-
-#pragma link C++ class RAT::DB + ;
-#pragma link C++ class RAT::DBLink + ;
-#pragma link C++ class RAT::DBLinkPtr + ;
-#pragma link C++ class RAT::DBTable + ;
-#pragma link C++ class RAT::DBTextLoader + ;
-#pragma link C++ class RAT::DBJsonLoader + ;
-#pragma link C++ class json::Value + ;
-
-#pragma link C++ class RAT::ObjInt + ;
-#pragma link C++ class RAT::ObjDbl + ;
-#pragma link C++ class RAT::Log + ;
-#pragma link C++ class RAT::HTTPDownloader + ;
-#pragma link C++ class RAT::DBFieldCallback + ;
-
 #endif  // __CINT__
 
 #ifdef __MAKECINT__
@@ -82,9 +61,7 @@
 #pragma link C++ class vector < RAT::DS::LAPPDHit>;
 #pragma link C++ class vector < RAT::DS::Digit>;
 #pragma link C++ class vector < pair < string, int>>;
-#pragma link C++ class vector < RAT::DBTable *>;
 
-#pragma link C++ class vector < RAT::TrackNode *>;
 #pragma link C++ class vector < RAT::DS::EV *>;
 #pragma link C++ class vector < RAT::DS::PMT *>;
 #pragma link C++ class map < Int_t, RAT::DS::PMT>;
