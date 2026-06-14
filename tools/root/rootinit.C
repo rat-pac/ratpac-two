@@ -10,7 +10,7 @@
   //gStyle->SetLabelFont(132);
   //gStyle->SetTitleFont(132);
 
-  gSystem->Load("libRATEvent");
+  gSystem->Load("libRATPAC");
   gSystem->AddIncludePath(" -I$RATROOT/include");
 }
 
