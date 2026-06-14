@@ -2,6 +2,7 @@
 # CMakeLists for root tool
 
 add_executable(root root.cc)
+target_include_directories(root PUBLIC ${RATPAC_INCLUDE_DIR})
 target_link_libraries(root PUBLIC ${ROOT_LIBRARIES} Threads::Threads)
 # Add dependency because we're not linking, but the root.cc adds it dynamically
 add_dependencies(root RATPAC)
