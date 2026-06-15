@@ -56,7 +56,7 @@ class FitDirectionCenterProc : public Processor {
   double fTimeResUp = 50.0;      // Upper cut on time residuals in ns
   double fTimeResFracLow = 0.0;  // Lower cut on time residuals as a fraction in [0.0, 1.0)
   double fTimeResFracUp = 1.0;   // Upper cut on time residuals as a fraction in (0.0, 1.0]
-  double fLightSpeed = 0.0;      // mm / ns.  Speed of light in material.  Defaults to value in FITTER.ratdb
+  double fLightSpeed;            // mm / ns.  Speed of light in material.  Defaults to value in FIT_COMMON table.
   double fDrive = 0.0;           // mm.  User-specified bias applied to event positions.
   double fFixedTime = 0.0;       // ns.  User-specified event time.
   TVector3 fFixedPosition;       // mm.  User-specified event position.
