@@ -17,6 +17,9 @@ add_library(util OBJECT
         src/quadrature/Quadrature.cc
         src/quadrature/FixedTrapezoidalQuadrature.cc
         src/quadrature/AdaptiveSimpsonQuadrature.cc 
+        src/LightPathCalculator.cc
+        src/GroupVelocityCalculator.cc
+        src/TransitTimeCalculator.cc
         )
 # Set our include directories
 target_include_directories(util SYSTEM PUBLIC 
@@ -27,6 +30,11 @@ target_include_directories(util PUBLIC
 
 # Copy our headers when installing
 file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
+
+# Contribute this module's headers and LinkDef fragment to the RAT ROOT
+# dictionary (RATDict).
+rat_dictionary_linkdef(RAT/util/LinkDef.hh)
+rat_dictionary_headers(RAT/TransitTimeCalculator.hh)
 
 #### Target: Shared library to make RooFit stop printing that stupid banner
 add_library(SilenceRooFitBanner SHARED src/SilenceRooFitBanner.cc)

@@ -1,11 +1,12 @@
 #include <RAT/AnyParse.hh>
 #include <RAT/DB.hh>
 #include <RAT/DBTable.hh>
+#include <RAT/FatalError.hh>
 #include <fstream>
 #include <iostream>
 #include <string>
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv) try {
   auto parser = new RAT::AnyParse(argc, argv);
   parser->SetHelpLine("[options] inputfile.ratdb");
   parser->AddArgument("output", "", "o", 1, "Output json file", RAT::ParseString);
@@ -41,4 +42,8 @@ int main(int argc, char **argv) {
     json::Writer writer(std::cout);
     writer.putValue(jsontable);
   }
+  return 0;
+} catch (const RAT::FatalError &e) {
+  // Message has already been logged by Log::Die(); just propagate the code.
+  return e.return_code;
 }

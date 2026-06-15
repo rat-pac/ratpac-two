@@ -39,3 +39,8 @@ target_include_directories(core PUBLIC
 
 # Copy our headers when installing
 file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
+
+# Contribute this module's headers and LinkDef fragment to the RAT ROOT
+# dictionary (RATDict).
+rat_dictionary_linkdef(RAT/core/LinkDef.hh)
+rat_dictionary_headers(RAT/Log.hh)

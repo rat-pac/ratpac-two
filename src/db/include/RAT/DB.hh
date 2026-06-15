@@ -87,6 +87,7 @@ double rindex = lmedia->GetD("index_of_refraction");
 #include <RAT/HTTPDownloader.hh>
 #include <RAT/Log.hh>
 #include <deque>
+#include <limits>
 #include <list>
 #include <map>
 #include <set>
@@ -268,10 +269,18 @@ class DB : public DBFieldCallback {
   void SetArrayIndex(const std::string &tblname, const std::string &index, const std::string &fieldname, size_t idx,
                      const T &val);
 
-  /** Dump all tables in the db to a JSON file.
+  /** Sentinel for DumpContentsToJson's run argument: use the current default
+   *  run (GetDefaultRun()), as rat would when no run is given by hand. */
+  static constexpr int kUseDefaultRun = std::numeric_limits<int>::min();
+
+  /** Dump the effective database as seen at @p run: exactly one table per
+   *  (name, index), with each field holding the value that run would read out
+   *  (user plane overrides run plane overrides default plane). Tables are
+   *  emitted on the default plane so they resolve for any run on read-back.
+   *  When @p run is left at the default, GetDefaultRun() is used.
    * @todo: Currently doesn't support server tables
    * */
-  void DumpContentsToJson(std::ostream &stream);
+  void DumpContentsToJson(std::ostream &stream, int run = kUseDefaultRun);
 
   /************************DBLink interface********************/
   // This is the low level interface that DBLinks use.

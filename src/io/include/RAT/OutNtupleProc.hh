@@ -8,6 +8,7 @@
 #include <RAT/DS/FitResult.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/Processor.hh>
+#include <RAT/TransitTimeCalculator.hh>
 #include <functional>
 
 #include "Math/Types.h"
@@ -21,6 +22,7 @@ class OutNtupleProc : public Processor {
  public:
   static int run_num;
   OutNtupleProc();
+  void BeginOfRun(DS::Run *run) override;
 
   enum mc_pe_type { noise = 0, cherenkov = 1, scintillation = 2, reemission = 3, unknown = 4 };
 
@@ -68,6 +70,7 @@ class OutNtupleProc : public Processor {
     bool mchits;
     bool nthits;
     bool calib;
+    bool transittime;
   };
   NtupleOptions options;
 
@@ -75,6 +78,8 @@ class OutNtupleProc : public Processor {
   std::map<std::string, std::vector<std::string>> waveform_fitter_FOMs;
   std::vector<std::string> event_fitters;
   std::map<std::string, std::vector<std::string>> event_fitter_FOMs;
+
+  std::unique_ptr<RAT::TransitTimeCalculator> fTransitTimeCalculator;
 
  protected:
   std::string defaultFilename;
@@ -133,6 +138,7 @@ class OutNtupleProc : public Processor {
   double mcu, mcv, mcw;
   double mcke;
   double mct;
+  std::vector<double> mcTransitTimes;
   int evid;
   int subev;
   int nhits;
