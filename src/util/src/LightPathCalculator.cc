@@ -1,11 +1,11 @@
 #include "RAT/LightPathCalculator.hh"
 
+#include "G4GeometryTolerance.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Material.hh"
 #include "G4Navigator.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4TransportationManager.hh"
-#include "G4UnitsTable.hh"
 #include "G4VPhysicalVolume.hh"
 #include "RAT/Log.hh"
 
@@ -42,7 +42,7 @@ std::vector<LightPathCalculator::Segment> G4LightPathCalculator::Navigate(const 
   }
   const G4ThreeVector direction = delta.unit();
 
-  const G4double kPush = 1.0e-7 * mm;
+  const G4double kPush = 10.0 * G4GeometryTolerance::GetInstance()->GetSurfaceTolerance();
 
   G4ThreeVector point = start;
   G4double traveled = 0.;
