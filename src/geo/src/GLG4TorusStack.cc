@@ -745,7 +745,7 @@ G4ThreeVector GLG4TorusStack::SurfaceNormal(const G4ThreeVector &p) const {
     norm = G4ThreeVector(0.0, 0.0, -1.0);
   } else if (i == n) {  // top surface
     norm = G4ThreeVector(0.0, 0.0, +1.0);
-  } else if (pr == 0.0) {  // point is on z-axis -- it is silly!
+  } else if (pr <= surfaceTolerance) {  // point is on z-axis -- it is silly!
     norm = G4ThreeVector(0.0, 0.0, +1.0);
   } else if (radius[i] == 0.0) {  // cylindrical surface
     norm = G4ThreeVector(p.x() / pr, p.y() / pr, 0.0);
@@ -1085,7 +1085,7 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
       G4double pr, pz;
       pz = psurf.z();
       pr = glg4_hypot(psurf.x(), psurf.y());
-      if (pr == 0.0) {  // point is on z-axis -- it is silly!
+      if (pr <= surfaceTolerance) {  // point is on z-axis -- it is silly!
         *norm = G4ThreeVector(0.0, 0.0, +1.0);
         *validNorm = false;
       } else if (radius[isurface] == 0.0) {  // cylindrical surface
@@ -1112,12 +1112,16 @@ G4double GLG4TorusStack::DistanceToOut(const G4ThreeVector &p, const G4ThreeVect
       }
     }
     if ((*norm) * v <= 0.0) {
-      G4cerr << "Warning from GLG4TorusStack::DistanceToOut: I have calculated "
-                "a normal that is antiparallel to the momentum std::vector!  I must "
-                "have done something wrong! isurface="
-             << isurface << " a[isurface]=" << r_o[isurface] << " b[isurface]=" << radius[isurface] << " v=" << v
-             << " norm=" << (*norm) << newline;
-      *norm = -*norm;
+      // Degenerate query (point on surface / velocity pointing into the solid):
+      // the computed *norm is the true outward normal but is antiparallel to the
+      // motion, so this is not a clean convex exit. Don't certify the normal;
+      // leave it unflipped and let the navigator fall back to SurfaceNormal().
+      if (validNorm) *validNorm = false;
+      RAT::debug << "GLG4TorusStack::DistanceToOut: non-certifiable exit normal "
+                    "(norm antiparallel to v) isurface="
+                 << isurface << " a[isurface]=" << r_o[isurface] << " b[isurface]=" << radius[isurface] << " v=("
+                 << v.x() << "," << v.y() << "," << v.z() << ") norm=(" << norm->x() << "," << norm->y() << ","
+                 << norm->z() << ")" << newline;
     }
   }
 
