@@ -15,12 +15,13 @@ target_include_directories(ds PUBLIC
 file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
 
 #################################################
-# Create Root Dictionary
-
-# hack hack hack hack hack
-include_directories(${RATPAC_INCLUDE_DIR})
-root_generate_dictionary(G__RATDict
+# Contribute this module's headers and LinkDef fragment to the RAT ROOT
+# dictionary (RATDict). The dictionary is generated once in src/CMakeLists.txt
+# from the headers and fragments gathered across all subdirectories.
+rat_dictionary_linkdef(RAT/DS/LinkDef.hh)
+rat_dictionary_headers(
         RAT/DS/Root.hh
+        RAT/DS/RootFactory.hh
         RAT/DS/Classifier.hh
         RAT/DS/Digit.hh
         RAT/DS/EV.hh
@@ -43,31 +44,4 @@ root_generate_dictionary(G__RATDict
         RAT/DS/MCTrack.hh
         RAT/DS/MCTrackStep.hh
         RAT/DS/Calib.hh
-        RAT/DS/WaveformAnalysisResult.hh
-        RAT/DSReader.hh
-        RAT/DSWriter.hh
-        RAT/TrackNav.hh
-        RAT/TrackNode.hh
-        RAT/TrackCursor.hh
-        RAT/DB.hh
-        RAT/DBLink.hh
-        RAT/DBTextLoader.hh
-        RAT/DBJsonLoader.hh
-        RAT/HTTPDownloader.hh
-        RAT/Log.hh
-        RAT/ObjInt.hh
-        RAT/ObjDbl.hh
-        LINKDEF include/RAT/DS/LinkDef.hh
-        DEPENDENCIES core ds db io
-        OPTIONS -Wno-exceptions)
-add_library(RATDict OBJECT G__RATDict.cxx)
-target_include_directories(RATDict SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
-target_include_directories(RATDict PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:include>)
-
-# Export the proper dicitonary file to lib
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libRATDict.rootmap
-              ${CMAKE_CURRENT_BINARY_DIR}/libRATDict_rdict.pcm
-        DESTINATION lib)
+        RAT/DS/WaveformAnalysisResult.hh)

@@ -1,5 +1,6 @@
 #include <TObjString.h>
 
+#include <RAT/DS/RootFactory.hh>
 #include <RAT/DS/RunStore.hh>
 #include <RAT/DSWriter.hh>
 #include <RAT/Log.hh>
@@ -8,7 +9,7 @@
 namespace RAT {
 
 DSWriter::DSWriter(const char *filename, bool update, int autosave) : fFilename(filename) {
-  fBranchDS = new DS::Root();
+  fBranchDS = DS::RootFactory::Create();
   fBranchRun = new DS::Run();
 
   if (update) {

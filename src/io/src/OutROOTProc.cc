@@ -3,6 +3,7 @@
 #include <TTree.h>
 
 #include <RAT/DB.hh>
+#include <RAT/DS/RootFactory.hh>
 #include <RAT/DS/RunStore.hh>
 #include <RAT/Log.hh>
 #include <RAT/ObjInt.hh>
@@ -20,7 +21,7 @@ OutROOTProc::OutROOTProc() : Processor("outroot") {
   tree = 0;
   autosave = 1024;  // kB
   savetree = true;
-  branchDS = new DS::Root();
+  branchDS = DS::RootFactory::Create();
   branchRun = new DS::Run();
 
   // Extract default filename from database.  Used if no
