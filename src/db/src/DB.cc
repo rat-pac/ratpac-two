@@ -466,24 +466,46 @@ std::vector<DBTable *> DB::ReadRATDBFile(const std::string &filename) {
   return contents;
 }
 
-void DB::DumpContentsToJson(std::ostream &stream) {
+void DB::DumpContentsToJson(std::ostream &stream, int run) {
+  // Default: dump the DB as seen at the current default run, like rat would
+  // when no run is given by hand.
+  if (run == kUseDefaultRun) run = GetDefaultRun();
+
   json::Writer writer(stream);
   stream << "[\n";
-  const DBTableSet &tables = GetAllTables();
+
+  // Collect the unique (name, index) identities present in the DB.
+  std::set<std::pair<std::string, std::string>> ids;
+  for (const auto &table : GetAllTables()) ids.insert({table.first.name, table.first.index});
+
   bool first = true;
-  for (auto table : tables) {
+  for (const auto &id : ids) {
+    const std::string &name = id.first;
+    const std::string &index = id.second;
+
+    // Merge the planes in increasing precedence so each field ends up holding
+    // the value `run` would read out: default < run-specific < user
+    // (mirrors DBLink::Get).
+    json::Value merged(json::TOBJECT);
+    DBTable *planes[] = {GetDefaultTable(name, index), GetRunTable(name, index, run), GetUserTable(name, index)};
+    bool found = false;
+    for (DBTable *tbl : planes) {
+      if (tbl == nullptr) continue;
+      found = true;
+      json::Value src = tbl->GetCompleteJSON();
+      for (const std::string &field : src.getMembers()) merged.setMember(field, src.getMember(field));
+    }
+    if (!found) continue;
+
+    // Stamp canonical identity and collapse onto the default plane so the
+    // table resolves for any run when the dump is reloaded.
+    merged.setMember("name", json::Value(name));
+    merged.setMember("index", json::Value(index));
+    merged.setMember("run_range", json::Value(std::vector<int>{0, 0}));
+
     if (!first) stream << ",\n";
     first = false;
-    // include key information in table if it is not already in there
-    table.second->Set("name", table.second->GetName());
-    table.second->Set("index", table.second->GetIndex());
-    if (table.second->UsesRunList()) {
-      table.second->Set("run_list", table.second->GetValidRuns());
-    } else {
-      std::vector<int> run_range = {table.second->GetRunBegin(), table.second->GetRunEnd()};
-      table.second->Set("run_range", run_range);
-    }
-    writer.putValue(table.second->GetCompleteJSON(), "");
+    writer.putValue(merged, "");
   }
   stream << "\n]\n";
 }
