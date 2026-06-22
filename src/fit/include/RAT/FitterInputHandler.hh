@@ -372,6 +372,21 @@ class FitterInputHandler {
     }
   }
 
+  /**
+   * @brief Check whether the configured waveform analyzer produced a valid result for a PMT.
+   *
+   * Only meaningful in kWaveformAnalysis mode; other modes filter via the hit list and
+   * always return true.
+   *
+   * @param id PMT ID.
+   */
+  bool IsHitValid(Int_t id) const {
+    if (mode != Mode::kWaveformAnalysis) return true;
+    if (!ev) return false;
+    DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(id);
+    return digitpmt->GetOrCreateWaveformAnalysisResult(wfm_ana_name)->getFitValid();
+  }
+
  protected:
   DS::EV* ev = nullptr;
   std::vector<Int_t> hitPMTChannels;

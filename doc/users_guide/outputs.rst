@@ -180,6 +180,7 @@ If ``include_digitizerfits`` is set then we additionally add the following infor
 ``fit_time_+{fitter_name}``             vector<double>       The time extracted from each PMT waveform fit.
 ``fit_charge_+{fitter_name}``           vector<double>       The charge extracted from each PMT waveform fit.
 ``fit_FOM_+{fitter_name}_+{fom_name}``  vector<double>       The figure of merit extracted from each PMT waveform fit.
+``fit_valid_+{fitter_name}``            vector<bool>         Per-PMT flag (parallel to ``digitPMTID``) indicating whether the named fitter produced a valid result for that PMT. ``false`` when the fitter did not run on that PMT or its analysis reported no extracted PEs.
 ======================================  ===================  ===================
 
 If ``include_nestedtubehits`` is set then we additionally add the following information to the ``output`` branch of the ntuple. These "nested tubes" are intended for use with liquid-O style fiber optics detectors. These are filled from the ``DS::MCNestedTube`` branch.

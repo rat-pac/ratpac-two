@@ -276,6 +276,8 @@ Key features of the ``WaveformAnalysisResult`` include:
 
 **Time Offset Handling**: The class supports time offset corrections to account for cable delays or trigger timing, which can be applied when retrieving results without affecting the stored raw timing.
 
+**Fit Validity Flag**: Each ``WaveformAnalysisResult`` carries a ``fit_valid`` flag, accessed via ``getFitValid()`` and ``setFitValid()``. ``AddPE()`` automatically sets it to ``true``, so any analyzer that extracts at least one PE produces a valid result. Analyzers that may legitimately produce empty results should explicitly initialize the flag to ``false`` so downstream consumers — such as fitters reading hits through ``FitterInputHandler::IsHitValid()`` — can skip PMTs without a usable analysis. For backward compatibility, results read from older ROOT files (schema version <3) are reported as valid whenever the times array is non-empty.
+
 The ``WaveformAnalysisResult`` objects are accessed from the ``DigitPMT`` using the method name as a key::
 
     DS::WaveformAnalysisResult* lognormal_result = digitpmt->GetOrCreateWaveformAnalysisResult("Lognormal");
