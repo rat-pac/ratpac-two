@@ -225,12 +225,21 @@
 // Model search: maximum number of PEs added per ROI in greedy selection.
 "max_iterations": 20,
 
-// Phase 2 stochastic sampler (not yet active). Set enable_stochastic true to
-// run the MCMC refinement after the deterministic FBMP core.
-"enable_stochastic": false,
-"n_mcmc_samples": 2000,
-"burn_in": 500,
-"random_seed": 0,
+// Stochastic sampler. When true (default), run the Metropolis-Hastings-within-
+// Gibbs sampler (over PE configuration z and the light-curve time t0) after the
+// greedy initialisation. This yields the unbiased fsmp_t0 / fsmp_mu estimators
+// (paper eqs. 3.25-3.26). Set false to report only the faster greedy solution.
+"enable_stochastic": true,
+"n_mcmc_samples": 2000, // post-burn-in samples
+"burn_in": 500, // discarded warm-up samples
+"random_seed": 0, // RNG seed for reproducibility
+
+// Light-curve prior on PE arrival times (paper eq. 2.2), used by the sampler.
+// tau_l = exponential time constant (ns); 0 => pure Gaussian (Cherenkov).
+// sigma_l = timing spread (ns), mainly PMT transit-time spread.
+"lightcurve_tau": 0.0,
+"lightcurve_sigma": 10.0,
+"t0_step": 2.0, // random-walk proposal step for t0 (ns)
 
 // Split each resolved hit's posterior charge into integer PEs using a gaussian
 // single-PE charge PDF centered on vpe_charge.

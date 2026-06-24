@@ -47,6 +47,12 @@ void WaveformAnalysisFSMP::Configure(const std::string& config_name) {
     burn_in = fDigit->GetI("burn_in");
     random_seed = fDigit->GetI("random_seed");
 
+    // Light curve prior on PE arrival times, used by the stochastic sampler.
+    lightcurve_tau = fDigit->GetD("lightcurve_tau");
+    lightcurve_sigma = fDigit->GetD("lightcurve_sigma");
+    t0_step = fDigit->GetD("t0_step");
+    fRNG = std::make_unique<TRandom3>(static_cast<UInt_t>(random_seed));
+
     // NPE estimation
     npe_estimate = fDigit->GetZ("npe_estimate");
     npe_estimate_charge_width = fDigit->GetD("npe_estimate_charge_width");
@@ -85,6 +91,12 @@ void WaveformAnalysisFSMP::SetD(std::string param, double value) {
     gamma_theta = value;
   } else if (param == "npe_estimate_charge_width") {
     npe_estimate_charge_width = value;
+  } else if (param == "lightcurve_tau") {
+    lightcurve_tau = value;
+  } else if (param == "lightcurve_sigma") {
+    lightcurve_sigma = value;
+  } else if (param == "t0_step") {
+    t0_step = value;
   } else {
     WaveformAnalyzerBase::SetD(param, value);
   }
@@ -287,40 +299,37 @@ void WaveformAnalysisFSMP::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
     std::vector<std::pair<int, int>> regions =
         FindThresholdRegions(voltWfm, voltage_threshold, threshold_region_padding);
     for (const auto& region : regions) {
-      ProcessRegion(voltWfm, region.first, region.second, fit_result, gain_calibration, logodds);
+      ProcessRegion(voltWfm, region.first, region.second, fit_result, gain_calibration, logodds, mu0);
     }
   } else {
-    ProcessRegion(voltWfm, 0, static_cast<int>(voltWfm.size()) - 1, fit_result, gain_calibration, logodds);
+    ProcessRegion(voltWfm, 0, static_cast<int>(voltWfm.size()) - 1, fit_result, gain_calibration, logodds, mu0);
   }
 }
 
-void WaveformAnalysisFSMP::ProcessRegion(const std::vector<double>& voltWfm, int start_sample, int end_sample,
-                                         DS::WaveformAnalysisResult* fit_result, double gain_calibration,
-                                         double logodds) {
-  const int region_length = end_sample - start_sample + 1;
-  if (region_length <= 0) return;
+double WaveformAnalysisFSMP::LightCurve(double dt) const {
+  const double sigma = lightcurve_sigma;
+  const double tau = lightcurve_tau;
+  const double sqrt2 = std::sqrt(2.0);
 
-  // Candidate dictionary columns whose PE time falls within the region.
-  const int dict_start = std::max(0, static_cast<int>(start_sample * upsample_factor));
-  const int dict_end = std::min(fW.GetNcols() - 1, static_cast<int>(end_sample * upsample_factor));
-  const int dict_cols = dict_end - dict_start + 1;
-  if (dict_cols <= 0) return;
-
-  // Region waveform vector
-  TVectorD v(region_length);
-  for (int i = 0; i < region_length; ++i) v(i) = voltWfm[start_sample + i];
-
-  // Region sub-dictionary W_roi (region_length x dict_cols)
-  TMatrixD W_roi(region_length, dict_cols);
-  W_roi.Zero();
-  for (int row = 0; row < region_length; ++row) {
-    const int global_row = start_sample + row;
-    for (int col = 0; col < dict_cols; ++col) {
-      W_roi(row, col) = fW(global_row, dict_start + col);
-    }
+  if (tau <= 1e-6) {
+    // Pure Gaussian (Cherenkov limit, tau_l -> 0).
+    if (sigma <= 0.0) return (std::abs(dt) < 1e-9) ? 1.0 : 0.0;
+    return std::exp(-0.5 * (dt / sigma) * (dt / sigma)) / (sigma * std::sqrt(2.0 * TMath::Pi()));
   }
+  if (sigma <= 0.0) {
+    // Pure exponential (no timing spread).
+    return (dt > 0.0) ? std::exp(-dt / tau) / tau : 0.0;
+  }
+  // Exponentially-modified Gaussian (ex-Gaussian), paper eq. 2.2.
+  double expo = sigma * sigma / (2.0 * tau * tau) - dt / tau;
+  expo = std::min(expo, 300.0);  // guard against overflow
+  const double arg = sigma / (sqrt2 * tau) - dt / (sqrt2 * sigma);
+  return (1.0 / (2.0 * tau)) * std::exp(expo) * TMath::Erfc(arg);
+}
 
-  // Helper to build the active sub-matrix from local column indices.
+void WaveformAnalysisFSMP::GreedySelect(const TMatrixD& W_roi, const TVectorD& v, int dict_cols, double logodds,
+                                        std::vector<int>& active, TVectorD& charges) {
+  const int region_length = v.GetNrows();
   auto buildActive = [&](const std::vector<int>& cols) {
     TMatrixD A(region_length, static_cast<int>(cols.size()));
     for (size_t j = 0; j < cols.size(); ++j) {
@@ -329,11 +338,9 @@ void WaveformAnalysisFSMP::ProcessRegion(const std::vector<double>& voltWfm, int
     return A;
   };
 
-  // Greedy forward selection (deterministic FBMP, Phase 1).
-  std::vector<int> active;
+  active.clear();
   TVectorD dummy;
   double current_score = LogEvidence(TMatrixD(region_length, 0), v, dummy);  // empty-set evidence
-  TVectorD best_charges;
 
   while (active.size() < max_iterations) {
     double best_delta = 0.0;
@@ -363,15 +370,251 @@ void WaveformAnalysisFSMP::ProcessRegion(const std::vector<double>& voltWfm, int
     if (best_col < 0) break;  // no addition improves the posterior
     active.push_back(best_col);
     current_score += best_delta;
-    best_charges.ResizeTo(best_trial_charges);
-    best_charges = best_trial_charges;
+    charges.ResizeTo(best_trial_charges);
+    charges = best_trial_charges;
+  }
+  std::sort(active.begin(), active.end());
+  if (!active.empty()) {
+    // Recompute charges for the sorted active set so charges[j] matches active[j].
+    TMatrixD A = buildActive(active);
+    LogEvidence(A, v, charges);
+  }
+}
+
+void WaveformAnalysisFSMP::SampleConfigurations(const TMatrixD& W_roi, const TVectorD& v, int dict_cols, int dict_start,
+                                                double mu0, std::vector<int>& active, TVectorD& charges, double& t0_hat,
+                                                double& mu_hat) {
+  const int region_length = v.GetNrows();
+  const double dtp = fTimeStep / upsample_factor;  // grid spacing in ns
+  const double mu_eff = std::max(mu0, 0.5);        // floor to keep prior non-degenerate
+
+  auto colTime = [&](int c) { return (dict_start + c) * fTimeStep / upsample_factor; };
+  auto buildActive = [&](const std::vector<int>& cols) {
+    TMatrixD A(region_length, static_cast<int>(cols.size()));
+    for (size_t j = 0; j < cols.size(); ++j) {
+      for (int i = 0; i < region_length; ++i) A(i, static_cast<int>(j)) = W_roi(i, cols[j]);
+    }
+    return A;
+  };
+  // Per-column occupancy probability given t0 (paper h(z,t0) ~ p(z|mu0,t0)).
+  auto pOcc = [&](int c, double t0) {
+    double p = mu_eff * LightCurve(colTime(c) - t0) * dtp;
+    return std::min(0.99, std::max(1e-6, p));
+  };
+  auto logPriorFull = [&](const std::vector<char>& inP, double t0) {
+    double s = 0.0;
+    for (int c = 0; c < dict_cols; ++c) {
+      const double p = pOcc(c, t0);
+      s += inP[c] ? std::log(p) : std::log(1.0 - p);
+    }
+    return s;
+  };
+
+  // Sampler state, initialised from the greedy result.
+  std::vector<char> inP(dict_cols, 0);
+  std::vector<int> P;
+  for (int c : active) {
+    if (c >= 0 && c < dict_cols && !inP[c]) {
+      inP[c] = 1;
+      P.push_back(c);
+    }
+  }
+  std::sort(P.begin(), P.end());
+
+  // t0 init: charge-weighted mean time of the initial PEs, else region center.
+  double t0 = colTime(dict_cols / 2);
+  if (!P.empty() && charges.GetNrows() == static_cast<int>(active.size())) {
+    double wsum = 0.0, tsum = 0.0;
+    for (size_t j = 0; j < active.size(); ++j) {
+      const double w = std::max(0.0, charges(static_cast<int>(j)));
+      wsum += w;
+      tsum += w * colTime(active[j]);
+    }
+    if (wsum > 0.0) t0 = tsum / wsum;
+  }
+  const double t0_min = colTime(0) - 3.0 * std::max(lightcurve_sigma, 1.0);
+  const double t0_max = colTime(dict_cols - 1) + 3.0 * std::max(lightcurve_sigma, 1.0);
+
+  TVectorD cur_charges;
+  double cur_logev = LogEvidence(buildActive(P), v, cur_charges);
+
+  // MAP tracking and posterior accumulators.
+  std::vector<int> best_P = P;
+  TVectorD best_charges = cur_charges;
+  double best_target = cur_logev + logPriorFull(inP, t0);
+  double sum_t0 = 0.0, sum_mu = 0.0;
+  size_t n_rec = 0;
+
+  // Note: the common 1/3 move-type proposal factor cancels in the birth/death
+  // acceptance ratio, so it is omitted below.
+  const size_t total_iters = burn_in + n_mcmc_samples;
+
+  for (size_t it = 0; it < total_iters; ++it) {
+    // ---- z update: one birth/death/shift move ----
+    const int npresent = static_cast<int>(P.size());
+    const int nabsent = dict_cols - npresent;
+    const double move = fRNG->Uniform();
+
+    if (move < 1.0 / 3.0 && nabsent > 0) {
+      // Birth: add a uniformly chosen inactive column.
+      int c = -1, k = fRNG->Integer(nabsent), seen = 0;
+      for (int j = 0; j < dict_cols; ++j) {
+        if (!inP[j]) {
+          if (seen == k) {
+            c = j;
+            break;
+          }
+          ++seen;
+        }
+      }
+      std::vector<int> Pp = P;
+      Pp.push_back(c);
+      std::sort(Pp.begin(), Pp.end());
+      TVectorD ch;
+      double logev_p = LogEvidence(buildActive(Pp), v, ch);
+      const double pc = pOcc(c, t0);
+      const double dlogprior = std::log(pc) - std::log(1.0 - pc);
+      const double logqratio = std::log(static_cast<double>(nabsent) / (npresent + 1));
+      const double la = (logev_p - cur_logev) + dlogprior + logqratio;
+      if (std::isfinite(logev_p) && std::log(fRNG->Uniform()) < la) {
+        P.swap(Pp);
+        inP[c] = 1;
+        cur_logev = logev_p;
+        cur_charges.ResizeTo(ch);
+        cur_charges = ch;
+      }
+    } else if (move < 2.0 / 3.0 && npresent > 0) {
+      // Death: remove a uniformly chosen active column.
+      int idx = fRNG->Integer(npresent);
+      int c = P[idx];
+      std::vector<int> Pp = P;
+      Pp.erase(Pp.begin() + idx);
+      TVectorD ch;
+      double logev_p = LogEvidence(buildActive(Pp), v, ch);
+      const double pc = pOcc(c, t0);
+      const double dlogprior = std::log(1.0 - pc) - std::log(pc);
+      const double logqratio = std::log(static_cast<double>(npresent) / (dict_cols - npresent + 1));
+      const double la = (logev_p - cur_logev) + dlogprior + logqratio;
+      if (std::isfinite(logev_p) && std::log(fRNG->Uniform()) < la) {
+        P.swap(Pp);
+        inP[c] = 0;
+        cur_logev = logev_p;
+        cur_charges.ResizeTo(ch);
+        cur_charges = ch;
+      }
+    } else if (npresent > 0) {
+      // Shift: move a random active column to a free neighbor (symmetric proposal).
+      int idx = fRNG->Integer(npresent);
+      int c = P[idx];
+      int dir = (fRNG->Uniform() < 0.5) ? -1 : 1;
+      int cp = c + dir;
+      if (cp >= 0 && cp < dict_cols && !inP[cp]) {
+        std::vector<int> Pp = P;
+        Pp[idx] = cp;
+        std::sort(Pp.begin(), Pp.end());
+        TVectorD ch;
+        double logev_p = LogEvidence(buildActive(Pp), v, ch);
+        const double pc = pOcc(c, t0), pcp = pOcc(cp, t0);
+        const double dlogprior = (std::log(pcp) - std::log(1.0 - pcp)) + (std::log(1.0 - pc) - std::log(pc));
+        const double la = (logev_p - cur_logev) + dlogprior;
+        if (std::isfinite(logev_p) && std::log(fRNG->Uniform()) < la) {
+          P.swap(Pp);
+          inP[c] = 0;
+          inP[cp] = 1;
+          cur_logev = logev_p;
+          cur_charges.ResizeTo(ch);
+          cur_charges = ch;
+        }
+      }
+    }
+
+    // ---- t0 update: random-walk Metropolis (evidence independent of t0) ----
+    const double t0_prop = t0 + fRNG->Gaus(0.0, t0_step);
+    if (t0_prop >= t0_min && t0_prop <= t0_max) {
+      const double dlp = logPriorFull(inP, t0_prop) - logPriorFull(inP, t0);
+      if (std::log(fRNG->Uniform()) < dlp) t0 = t0_prop;
+    }
+
+    // ---- record post burn-in ----
+    if (it >= burn_in) {
+      double qsum = 0.0;
+      for (int j = 0; j < cur_charges.GetNrows(); ++j) qsum += std::max(0.0, cur_charges(j));
+      sum_t0 += t0;
+      sum_mu += qsum;
+      ++n_rec;
+      const double target = cur_logev + logPriorFull(inP, t0);
+      if (target > best_target) {
+        best_target = target;
+        best_P = P;
+        best_charges.ResizeTo(cur_charges);
+        best_charges = cur_charges;
+      }
+    }
+  }
+
+  t0_hat = (n_rec > 0) ? sum_t0 / n_rec : t0;
+  mu_hat = (n_rec > 0) ? sum_mu / n_rec : 0.0;
+  active = best_P;
+  charges.ResizeTo(best_charges);
+  charges = best_charges;
+}
+
+void WaveformAnalysisFSMP::ProcessRegion(const std::vector<double>& voltWfm, int start_sample, int end_sample,
+                                         DS::WaveformAnalysisResult* fit_result, double gain_calibration,
+                                         double logodds, double mu0) {
+  const int region_length = end_sample - start_sample + 1;
+  if (region_length <= 0) return;
+
+  // Candidate dictionary columns whose PE time falls within the region.
+  const int dict_start = std::max(0, static_cast<int>(start_sample * upsample_factor));
+  const int dict_end = std::min(fW.GetNcols() - 1, static_cast<int>(end_sample * upsample_factor));
+  const int dict_cols = dict_end - dict_start + 1;
+  if (dict_cols <= 0) return;
+
+  // Region waveform vector
+  TVectorD v(region_length);
+  for (int i = 0; i < region_length; ++i) v(i) = voltWfm[start_sample + i];
+
+  // Region sub-dictionary W_roi (region_length x dict_cols)
+  TMatrixD W_roi(region_length, dict_cols);
+  W_roi.Zero();
+  for (int row = 0; row < region_length; ++row) {
+    const int global_row = start_sample + row;
+    for (int col = 0; col < dict_cols; ++col) {
+      W_roi(row, col) = fW(global_row, dict_start + col);
+    }
+  }
+
+  auto buildActive = [&](const std::vector<int>& cols) {
+    TMatrixD A(region_length, static_cast<int>(cols.size()));
+    for (size_t j = 0; j < cols.size(); ++j) {
+      for (int i = 0; i < region_length; ++i) A(i, static_cast<int>(j)) = W_roi(i, cols[j]);
+    }
+    return A;
+  };
+
+  // Greedy forward selection: the reported solution when the sampler is off,
+  // and the initialisation for the sampler when it is on.
+  std::vector<int> active;
+  TVectorD charges;
+  GreedySelect(W_roi, v, dict_cols, logodds, active, charges);
+
+  // FSMP intensity estimator mu_hat = sum of charges (in PE units), eq. 3.4.
+  double mu_hat = 0.0;
+  for (int j = 0; j < charges.GetNrows(); ++j) mu_hat += std::max(0.0, charges(j));
+  // t0 estimator: set by the sampler; otherwise a charge-weighted mean below.
+  double t0_hat = WaveformUtil::INVALID;
+
+  // Stochastic refinement (MH-within-Gibbs over z and t0).
+  if (enable_stochastic) {
+    SampleConfigurations(W_roi, v, dict_cols, dict_start, mu0, active, charges, t0_hat, mu_hat);
   }
 
   if (active.empty()) return;
 
   // Reconstructed waveform for goodness-of-fit (chi2/ndf normalized by noise).
   TMatrixD A_final = buildActive(active);
-  TVectorD fitted = A_final * best_charges;
+  TVectorD fitted = A_final * charges;
   double rss = 0.0;
   for (int i = 0; i < region_length; ++i) {
     const double res = v(i) - fitted(i);
@@ -380,14 +623,21 @@ void WaveformAnalysisFSMP::ProcessRegion(const std::vector<double>& voltWfm, int
   const int dof = std::max(1, region_length - static_cast<int>(active.size()));
   const double chi2ndf = rss / (noise_sigma * noise_sigma * dof);
 
-  // FSMP intensity estimator mu_hat = sum of charges (in PE units), eq. 3.4.
-  double mu_hat = 0.0;
-  for (int j = 0; j < best_charges.GetNrows(); ++j) mu_hat += std::max(0.0, best_charges(j));
+  if (t0_hat == WaveformUtil::INVALID) {
+    // Sampler off: report the charge-weighted mean reconstructed PE time.
+    double wsum = 0.0, tsum = 0.0;
+    for (size_t j = 0; j < active.size(); ++j) {
+      const double w = std::max(0.0, charges(static_cast<int>(j)));
+      wsum += w;
+      tsum += w * (dict_start + active[j]) * fTimeStep / upsample_factor;
+    }
+    t0_hat = (wsum > 0.0) ? tsum / wsum : WaveformUtil::INVALID;
+  }
 
   // Emit one PE per selected column (optionally split into integer PEs by charge).
   const double calibrated_vpe_charge = vpe_charge * gain_calibration;
   for (size_t j = 0; j < active.size(); ++j) {
-    const double weight = best_charges(static_cast<int>(j));
+    const double weight = charges(static_cast<int>(j));
     if (weight <= 0.0) continue;
     const int global_col = dict_start + active[j];
     const double time = global_col * fTimeStep / upsample_factor;
@@ -403,6 +653,7 @@ void WaveformAnalysisFSMP::ProcessRegion(const std::vector<double>& voltWfm, int
                         {
                             {"chi2ndf", chi2ndf},
                             {"fsmp_mu", mu_hat},
+                            {"fsmp_t0", t0_hat},
                             {"estimated_npe", static_cast<double>(npe)},
                         });
     }
