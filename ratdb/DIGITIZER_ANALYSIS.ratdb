@@ -177,7 +177,7 @@
 // and counted multiple times. Set to 0 to disable merging.
 "weight_merge_window": 2,
 
-// if true, perform a final NPE estimation on all resolved wave packet in the deconvolved 
+// if true, perform a final NPE estimation on all resolved wave packet in the deconvolved
 // waveform. Estimate the number of PEs in each packet using a gaussian PDF on charge.
 // The mean of the single PE charge distribution is centered around `vpe_charge`.
 "npe_estimate": true,
@@ -190,4 +190,51 @@
 // if total charge in waveform is between these values.
 // min_total_charge = -50.,
 // max_total_charge = 500.
+}
+
+{
+"name": "DIGITIZER_ANALYSIS",
+"index": "FSMP",
+"run_range": [0, 0],
+
+// Restrict analysis to threshold-crossing regions of interest.
+"process_threshold_crossing": 1, // 0=no, 1=yes
+"voltage_threshold": -2, // Voltage threshold for ROI detection (mV)
+"region_padding": 2, // Samples to pad around ROIs
+
+// Single-PE response (lognormal) template parameters.
+"lognormal_scale": 10.5, // "m" parameter in Lognormal distribution
+"lognormal_shape": 0.15, // "sigma" parameter in Lognormal distribution
+
+// Nominal charge of a single PE in pC. A dictionary column with weight 1
+// corresponds to a PE of this charge.
+"vpe_charge": 1.6,
+
+// Dictionary upsampling resolution factor for sub-sample PE timing.
+"upsampling_factor": 10.0,
+
+// Gaussian white-noise sigma of the waveform, in mV. Should match the
+// digitizer noise model (DIGITIZER "noise_amplitude"). Sets the evidence scale.
+"noise_sigma": 0.40,
+
+// Gamma prior on per-PE charge (in nominal-PE weight units): mean = k*theta,
+// variance = k*theta^2. Defaults give mean 1, variance 0.4^2 (paper sec 2.2).
+"gamma_k": 6.25, // 1 / 0.4^2
+"gamma_theta": 0.16, // 0.4^2
+
+// Model search: maximum number of PEs added per ROI in greedy selection.
+"max_iterations": 20,
+
+// Phase 2 stochastic sampler (not yet active). Set enable_stochastic true to
+// run the MCMC refinement after the deterministic FBMP core.
+"enable_stochastic": false,
+"n_mcmc_samples": 2000,
+"burn_in": 500,
+"random_seed": 0,
+
+// Split each resolved hit's posterior charge into integer PEs using a gaussian
+// single-PE charge PDF centered on vpe_charge.
+"npe_estimate": true,
+"npe_estimate_charge_width": 0.4, // pC
+"npe_estimate_max_pes": 20,
 }
