@@ -507,6 +507,12 @@ This optimizer only supports **gradient-free** (derivative-free) algorithms. Gra
 Available Costs
 '''''''''''''''
 
+Cost functions read hits via ``FitterInputHandler`` and append one entry per
+PE returned by ``GetTimes``/``GetCharges``. With ``FIT_COMMON.mode = 2``
+(multi-PE waveform analysis) this is one entry per reconstructed
+photoelectron; in single-PE modes it is one entry per hit PMT. PDFs must be
+trained in the same mode they will be evaluated in.
+
 PMTTypeTimeResidualPDF
 ++++++++++++++++++++++
 Evaluates a 1D time residual PDF as a negative log likelihood.
