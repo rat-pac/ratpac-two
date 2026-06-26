@@ -32,9 +32,9 @@ void ClassifyTimesProc::BeginOfRun(DS::Run *run) {
 }
 
 void ClassifyTimesProc::SetS(std::string param, std::string value) {
-  if (param == "classifier_name") {
-    if (value.empty()) throw ParamInvalid(param, "classifier_name cannot be empty.");
-    fClassifierName = value;
+  if (param == "label") {
+    if (value.empty()) throw ParamInvalid(param, "label cannot be empty.");
+    fNameTag = value;
   } else if (param == "position_fitter") {
     if (!fPosMethod.empty()) throw ParamInvalid(param, "Cannot specify both fixed and reconstructed position.");
     fPosFitter = value;
@@ -45,8 +45,6 @@ void ClassifyTimesProc::SetS(std::string param, std::string value) {
 void ClassifyTimesProc::SetI(std::string param, int value) {
   if (param == "pmt_type") {
     fPMTtype.push_back(value);
-  } else if (param == "verbose") {
-    fVerbose = value;
   } else
     throw ParamUnknown(param);
 }
@@ -111,17 +109,7 @@ void ClassifyTimesProc::SetD(std::string param, double value) {
 Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
   inputHandler.RegisterEvent(ev);
 
-  if (fVerbose >= 1) {
-    fParamNames.push_back("num_PMT");
-    fParamNames.push_back("num_PMT_numer");
-    fParamNames.push_back("num_PMT_denom");
-  }
-  if (fVerbose >= 2) {
-    fParamNames.push_back("time_resid_low");
-    fParamNames.push_back("time_resid_up");
-  }
-
-  DS::Classifier *clf = new DS::Classifier(fClassifierName, fParamNames);
+  DS::Classifier *clf = new DS::Classifier(name, fNameTag);
 
   /// Initialize ALL parameters with placeholder values
   clf->SetClassificationResult("ratio", NAN);
@@ -129,16 +117,11 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
   clf->SetClassificationResult("stddev", NAN);
   clf->SetClassificationResult("skewness", NAN);
   clf->SetClassificationResult("kurtosis", NAN);
-
-  if (fVerbose >= 1) {
-    clf->SetClassificationResult("num_PMT", 0.0);
-    clf->SetClassificationResult("num_PMT_numer", 0.0);
-    clf->SetClassificationResult("num_PMT_denom", 0.0);
-  }
-  if (fVerbose >= 2) {
-    clf->SetClassificationResult("time_resid_low", NAN);
-    clf->SetClassificationResult("time_resid_up", NAN);
-  }
+  clf->SetClassificationResult("num_PMT", 0.0);
+  clf->SetClassificationResult("num_PMT_numer", 0.0);
+  clf->SetClassificationResult("num_PMT_denom", 0.0);
+  clf->SetClassificationResult("time_resid_low", NAN);
+  clf->SetClassificationResult("time_resid_up", NAN);
 
   int numPMTs = inputHandler.GetNHits();
   if (numPMTs <= 0) {
@@ -184,6 +167,9 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
     }
     if (fit->GetEnableTime()) {
       eventTime = fit->GetTime();
+    } else {
+      ev->AddClassifierResult(clf);
+      return Processor::FAIL;
     }
   }
 
@@ -260,10 +246,8 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
     numPMT += 1;
     sumTimes += timeResidual;
 
-    if (timeResidual < timeResLow)
-      timeResLow = timeResidual;
-    else if (timeResidual > timeResUp)
-      timeResUp = timeResidual;
+    if (timeResidual < timeResLow) timeResLow = timeResidual;
+    if (timeResidual > timeResUp) timeResUp = timeResidual;
   }
   double mean = sumTimes / numPMT;
 
@@ -313,8 +297,13 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
   }
 
   /// Save results
+  clf->SetClassificationResult("num_PMT_numer", static_cast<double>(numPMTnumer));
+  clf->SetClassificationResult("num_PMT_denom", static_cast<double>(numPMTdenom));
   if (numPMTdenom > 0) clf->SetClassificationResult("ratio", static_cast<double>(numPMTnumer) / numPMTdenom);
 
+  clf->SetClassificationResult("num_PMT", static_cast<double>(numPMT));
+  clf->SetClassificationResult("time_resid_low", timeResLow);
+  clf->SetClassificationResult("time_resid_up", timeResUp);
   if (numPMT > 0) {
     clf->SetClassificationResult("mean", mean);
     if (num > 1) {
@@ -324,16 +313,6 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
         if (num > 3) clf->SetClassificationResult("kurtosis", kurt);
       }
     }
-  }
-
-  if (fVerbose >= 1) {
-    clf->SetClassificationResult("num_PMT", static_cast<double>(numPMT));
-    clf->SetClassificationResult("num_PMT_numer", static_cast<double>(numPMTnumer));
-    clf->SetClassificationResult("num_PMT_denom", static_cast<double>(numPMTdenom));
-  }
-  if (fVerbose >= 2) {
-    clf->SetClassificationResult("time_resid_low", timeResLow);
-    clf->SetClassificationResult("time_resid_up", timeResUp);
   }
 
   ev->AddClassifierResult(clf);

@@ -5,6 +5,7 @@
 #include <TTree.h>
 #include <sys/types.h>
 
+#include <RAT/DS/Classifier.hh>
 #include <RAT/DS/FitResult.hh>
 #include <RAT/DS/Run.hh>
 #include <RAT/Processor.hh>
@@ -75,6 +76,8 @@ class OutNtupleProc : public Processor {
   std::map<std::string, std::vector<std::string>> waveform_fitter_FOMs;
   std::vector<std::string> event_fitters;
   std::map<std::string, std::vector<std::string>> event_fitter_FOMs;
+  std::vector<std::string> event_classifiers;
+  std::map<std::string, std::vector<std::string>> event_classifier_FOMs;
 
  protected:
   std::string defaultFilename;
@@ -188,6 +191,7 @@ class OutNtupleProc : public Processor {
   std::map<std::string, double> fitvalues;
   std::map<std::string, bool> fitvalids;
   std::map<std::string, std::map<std::string, double>> fiteventFOMs;
+  std::map<std::string, std::map<std::string, double>> classifyeventFOMs;
   // Store PMT Hit Positions
   std::vector<int> hitPMTID;
   std::vector<double> hitPMTTime;
