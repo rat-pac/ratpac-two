@@ -12,7 +12,8 @@
 /rat/proc count
 /rat/procset update 100
 
-/rat/proclast outroot
+#/rat/proclast outroot
+/rat/proclast outntuple
 
 # Central 2.5 MeV electrons
 /generator/add combo gun:point:poisson
@@ -20,4 +21,4 @@
 /generator/pos/set 0.0 0.0 0.0
 /generator/rate/set 2.0
 
-/run/beamOn 100
+/run/beamOn 1000
