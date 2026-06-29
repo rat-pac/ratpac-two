@@ -1,6 +1,7 @@
 #pragma once
 #include <RAT/DB.hh>
 #include <RAT/FitterInputHandler.hh>
+#include <RAT/Log.hh>
 #include <mimir/Common.hh>
 #include <mimir/ParamSet.hh>
 
@@ -12,16 +13,24 @@ class Cost {
   virtual bool Configure(RAT::DBLinkPtr db_link) = 0;
   virtual double operator()(const ParamSet& params) const = 0;
 
-  virtual void AddHit(const int pmtid, const RAT::FitterInputHandler& input_handler) {
-    hit_pmtids.push_back(pmtid);
-    hit_times.push_back(input_handler.GetTime(pmtid));
-    hit_charges.push_back(input_handler.GetCharge(pmtid));
+  virtual void AddHits(const int pmtid, const RAT::FitterInputHandler& input_handler) {
+    std::vector<double> times = input_handler.GetTimes(pmtid);
+    std::vector<double> charges = input_handler.GetCharges(pmtid);
+    if (times.size() != charges.size()) {
+      RAT::Log::Die("mimir::Cost: GetTimes and GetCharges returned vectors of different sizes for PMT " +
+                    std::to_string(pmtid) + ".");
+    }
+    for (size_t i = 0; i < times.size(); ++i) {
+      hit_pmtids.push_back(pmtid);
+      hit_times.push_back(times[i]);
+      hit_charges.push_back(charges[i]);
+    }
   }
 
   virtual void AddAllHits(const RAT::FitterInputHandler& input_handler) {
     std::vector<int> pmtids = input_handler.GetAllHitPMTIDs();
     for (int pmtid : pmtids) {
-      AddHit(pmtid, input_handler);
+      AddHits(pmtid, input_handler);
     }
   }
 
