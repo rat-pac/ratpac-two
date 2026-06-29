@@ -80,6 +80,7 @@ Log::Die("Could not open " + filename + " for input.");
 #include <TObjString.h>
 #include <TObject.h>
 
+#include <RAT/FatalError.hh>
 #include <RAT/json.hh>
 #include <sstream>
 #include <string>
@@ -126,13 +127,14 @@ class Log {
   /** Set verbosity level for writing to log file. */
   static void SetLogLevel(Level level);
 
-  /** Write @p message to @p warn stream and immediately terminate,
-      sending @p return_code back to OS. */
+  /** Write @p message to @p warn stream and throw a FatalError carrying
+      @p return_code.  Batch executables catch this in main() and return
+      @p return_code to the OS; an interpreter such as ROOT's Cling catches it
+      and returns to its prompt. */
   [[noreturn]] static void Die(std::string message, int return_code = 1);
 
-  /** Write @p message to @p warn stream and immediately terminate if @condition
-      is not true.  @p return_code is returned to the OS to signal job failure
-   */
+  /** Write @p message to @p warn stream and throw a FatalError if @p condition
+      is not true.  @p return_code is propagated to signal job failure. */
   static void Assert(bool condition, std::string message, int return_code = 1);
 
   /** Return reference to string containing entire log from this session */
