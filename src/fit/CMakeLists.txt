@@ -16,7 +16,9 @@ target_include_directories(fit_common SYSTEM PUBLIC
         $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
 target_include_directories(fit_common PUBLIC
   $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
-  $<INSTALL_INTERFACE:include>)
+  $<INSTALL_INTERFACE:include>
+  ${TENSORFLOW_INCLUDE_DIRS}
+  )
 
 # Create interface target to hold all fit objects
 add_library(fit INTERFACE)
