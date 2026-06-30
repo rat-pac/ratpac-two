@@ -965,7 +965,7 @@ void Decay0::bb() {
       double ehigh = std::max(1e-4, fEbb2 - fE1 + 1e-4);
 
       if (((fModebb >= 4 && fModebb <= 6) || fModebb == 8 || (fModebb >= 13 && fModebb <= 16)) && fE1 < fE0) {
-        TF1 f1("f1", this, 0, fE0, 4, "Decay0");
+        TF1 f1("f1", this, &Decay0::operator(), 0, fE0, 4);
         ROOT::Math::WrappedTF1 wf1(f1);
         ROOT::Math::GaussLegendreIntegrator ig;
         ig.SetFunction(wf1);
