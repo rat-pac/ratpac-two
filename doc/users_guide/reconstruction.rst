@@ -92,8 +92,7 @@ Position fit information in data structure
 ''''''''''''''''''''''''''''''''''''''''''
 * name - "quad"
 * figure of merit - None
-The ``quadfitter`` processor reconstructs the vertex (position,time) of detector events using
-the median result of a large number of analytical solutions to quartets of hit PMT position vectors and times.
+
 
 ----------------------
 
