@@ -105,13 +105,13 @@
 "density": 7.87,
 "nelements": 3,
 "nmaterials": 0,
-"elements": ["Iron", "Chromium","Nitrogen"],
+"elements": ["Iron", "Chromium","Nickel"],
 "elemprop": [0.71, 0.19, 0.1],
 }
 
 {
 "name": "MATERIAL",
-"index": "stainless_steel_304H",
+"index": "stainless_steel_304H",  // 304 and 304H
 "run_range" : [0, 0],
 // Taken from https://www.sandmeyersteel.com/304H.html
 // Taking median amount of some elements. Iron makes up the remainder.
@@ -125,6 +125,44 @@
 "elemprop":[
   0.0008, 0.0200,  0.0075,  0.1900, 0.0925,
   0.00045, 0.00030, 0.0010, 0.68745
+],
+}
+
+{
+"name": "MATERIAL",
+"index": "stainless_steel_304L",
+"run_range" : [0, 0],
+// Taken from https://www.sandmeyersteel.com/alloy-304-304l/
+// Taking median amount of some elements. Iron makes up the remainder.
+"density": 7.90,
+"nelements": 9,
+"nmaterials": 0,
+"elements": [
+  "Carbon",     "Manganese", "Silicon",  "Chromium", "Nickel",
+  "Phosphorus", "Sulphur",   "Nitrogen", "Iron"
+],
+"elemprop":[
+  0.00030, 0.0200,  0.0075, 0.1900, 0.1000,
+  0.00045, 0.00030, 0.0010, 0.68045
+],
+}
+
+{
+"name": "MATERIAL",
+"index": "stainless_steel_316",
+"run_range" : [0, 0],
+// Taken from https://www.sandmeyersteel.com/alloy-316-316l/
+// Taking median amount of some elements. Iron makes up the remainder.
+"density": 7.90,
+"nelements": 10,
+"nmaterials": 0,
+"elements": [
+  "Carbon",     "Manganese",  "Silicon", "Chromium", "Nickel",
+  "Molybdenum", "Phosphorus", "Sulphur", "Nitrogen", "Iron"
+],
+"elemprop":[
+  0.0008, 0.0200,  0.0075, 0.1700, 0.1200,
+  0.0250, 0.00045, 0.0003, 0.001,  0.65495
 ],
 }
 

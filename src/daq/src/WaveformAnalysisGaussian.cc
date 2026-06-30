@@ -59,7 +59,7 @@ void WaveformAnalysisGaussian::DoAnalysis(DS::DigitPMT* digitpmt, const std::vec
   // Fit waveform to lognormal
   FitWaveform(voltWfm);
 
-  DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult("Gaussian");
+  DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(GetAnalyzerName());
   fit_result->AddPE(fFittedTime, fFittedCharge,
                     {{"baseline", fFittedBaseline}, {"width", fFittedWidth}, {"chi2ndf", fChi2NDF}});
 }
