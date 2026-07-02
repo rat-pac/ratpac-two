@@ -14,7 +14,8 @@
 /// (JINST 17 P06040, arXiv:2112.06913).
 ///
 /// The waveform is modelled as a sparse spike train of PEs convolved with a
-/// single-PE response (SER) template plus Gaussian white noise (paper eq. 2.5).
+/// single-PE response (SER) template (lognormal or gaussian, matching the
+/// detector's true SER shape) plus Gaussian white noise (paper eq. 2.5).
 /// A dictionary of time-shifted SER templates on an upsampled grid spans the
 /// candidate PE times. For a given PE configuration z (which grid points host a
 /// PE), the per-PE charges are integrated out analytically, yielding a
@@ -26,9 +27,12 @@
 /// The configuration z is found by a Metropolis-Hastings-within-Gibbs sampler
 /// over z (birth/death/shift moves) and the light-curve time t0, initialised
 /// from a greedy forward-selection solution. The sampler yields the unbiased t0
-/// and intensity (mu) estimators of paper eqs. 3.25-3.26, stored as figures of
-/// merit alongside the per-PE times and charges. Setting enable_stochastic
-/// false skips the sampler and reports the greedy solution only.
+/// estimator of paper eqs. 3.25-3.26 and an intensity (mu) estimator taken as
+/// the posterior-mean PE *count* (counting removes the single-PE charge
+/// variance from mu, the resolution gain of paper sec. 4.3; the paper's exact
+/// mu MLE reweights the same samples). Both are stored as figures of merit
+/// alongside the per-PE times and charges. Setting enable_stochastic false
+/// skips the sampler and reports the greedy solution only.
 ///
 /// The dictionary and region-of-interest machinery mirror WaveformAnalysisRAVEN.
 ////////////////////////////////////////////////////////////////////
@@ -45,6 +49,7 @@
 #include <RAT/Digitizer.hh>
 #include <RAT/Processor.hh>
 #include <RAT/WaveformAnalyzerBase.hh>
+#include <map>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -66,10 +71,12 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   void SetD(std::string param, double value) override;
   void SetI(std::string param, int value) override;
 
-  /// Build the dictionary matrix fW of time-shifted SER templates.
+  /// Build a dictionary matrix of time-shifted SER templates into W_out.
   /// Rows index waveform samples, columns index candidate PE times on the
   /// upsampled grid (column j -> time j * digitizer_period / upsample_factor).
-  void BuildDictionaryMatrix(int nsamples, double digitizer_period);
+  /// For the gaussian template, `width` is the SER sigma (per-PMT-type
+  /// selectable).
+  void BuildDictionaryMatrix(int nsamples, double digitizer_period, double width, TMatrixD &W_out);
 
  protected:
   DBLinkPtr fDigit;
@@ -79,13 +86,21 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   double voltage_threshold;         ///< Voltage threshold for ROI detection (mV)
   int threshold_region_padding;     ///< Samples to pad around ROIs
 
-  // --- Single-PE response (lognormal SER) ---
+  // --- Single-PE response (SER) template ---
+  int template_type;       ///< 0 = lognormal, 1 = gaussian
   double lognormal_scale;  ///< LogNormal 'm' parameter
   double lognormal_shape;  ///< LogNormal 'sigma' parameter
-  double vpe_charge;       ///< Nominal charge of a single PE (pC)
+  double gaussian_width;   ///< Gaussian 'sigma' parameter (ns)
+  /// Optional per-PMT-type gaussian widths (paired with gaussian_width_values).
+  /// PMT models differ in SER width; unlisted types use gaussian_width.
+  std::vector<int> gaussian_width_types;
+  std::vector<double> gaussian_width_values;
+  double vpe_charge;  ///< Nominal charge of a single PE (pC)
 
   // --- Dictionary ---
-  TMatrixD fW;             ///< Dictionary matrix (nsamples x dict_size), in mV per unit charge weight
+  /// Dictionary per template (key: gaussian width in ps; -1 = lognormal),
+  /// (nsamples x dict_size), in mV per unit charge weight.
+  std::map<int, TMatrixD> fWCache;
   double upsample_factor;  ///< Sub-sample resolution factor for candidate grid
 
   // --- Noise / charge prior (Bayesian evidence) ---
@@ -111,9 +126,9 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   bool npe_estimate;                 ///< Split posterior charge into integer PEs
   double npe_estimate_charge_width;  ///< Width of gaussian single-PE charge PDF
   size_t npe_estimate_max_pes;       ///< Upper bound on PEs per resolved hit
+  double weight_merge_window;        ///< Merge resolved atoms within this window (ns); 0 = off
 
   // --- Dictionary cache ---
-  bool dictionary_built;
   int cached_nsamples;
   double cached_digitizer_period;
 
@@ -127,7 +142,7 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   /// initialisation, then (if enable_stochastic) the MCMC sampler.
   /// `logodds` is the flat per-PE log prior-odds used by the greedy step;
   /// `mu0` is the preconditioner intensity used by the sampler's occupancy prior.
-  void ProcessRegion(const std::vector<double> &voltWfm, int start_sample, int end_sample,
+  void ProcessRegion(const TMatrixD &fW, const std::vector<double> &voltWfm, int start_sample, int end_sample,
                      DS::WaveformAnalysisResult *fit_result, double gain_calibration, double logodds, double mu0);
 
   /// Log Gaussian evidence log p(w|z) for the active set, returning the
