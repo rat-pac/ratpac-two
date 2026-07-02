@@ -397,7 +397,7 @@
 
 "construction": "lappd",
 
-"glass_material": "glass",
+"glass_material": "borosilicate_glass",
 "pmt_vacuum_material": "pmt_vacuum",
 "photocathode_surface": "photocathode_lappd",
 
