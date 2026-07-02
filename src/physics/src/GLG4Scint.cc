@@ -408,6 +408,12 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
       G4double birksConstant = physicsEntry->fBirksConstant;
       G4double QuenchedTotalEnergyDeposit = fQuenching->QuenchedEnergyDeposit(aStep, birksConstant);
 
+      // record for retrieval by Trajectory::FillStep, since this is the only
+      // place the per-step quenched energy deposit is computed
+      RAT::TrackInfo *trackInfo = dynamic_cast<RAT::TrackInfo *>(aTrack.GetUserInformation());
+      trackInfo->lastQuenchedEdep = QuenchedTotalEnergyDeposit;
+      trackInfo->lastQuenchedStepNumber = aTrack.GetCurrentStepNumber();
+
       // track total edep, quenched edep
       fTotEdep += TotalEnergyDeposit;
       fTotEdepQuenched += QuenchedTotalEnergyDeposit;

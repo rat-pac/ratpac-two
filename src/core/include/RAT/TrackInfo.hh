@@ -36,6 +36,13 @@ class TrackInfo : public G4VUserTrackInformation {
   /** Energy lost by this track, indexed by volume name */
   std::map<std::string, double> energyLoss;
 
+  /** Quenched energy deposit for the most recent step that went
+   *  through GLG4Scint::PostPostStepDoIt, paired with that step's number so a
+   *  step which never reached that code can be told apart from a zero deposit.
+   **/
+  double lastQuenchedEdep = 0.0;
+  int lastQuenchedStepNumber = -1;
+
   /** Step in the parent track at which this track was created */
   void SetCreatorStep(int _CreatorStep) { CreatorStep = _CreatorStep; };
   int GetCreatorStep() const { return CreatorStep; };
