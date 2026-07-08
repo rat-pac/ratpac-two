@@ -62,18 +62,23 @@ void FitQuadProc::SetD(std::string param, double value) {
       throw ParamInvalid(param, "cannot set both max_radius and (max_x or max_y or max_z).");
     fMaxRadius = value;
   } else if (param == "max_x") {
+    if (value <= 0) throw ParamInvalid(param, "max_x must be > 0.");
     fMaxX = value;
     fMaxRadius = 0;
   } else if (param == "max_y") {
+    if (value <= 0) throw ParamInvalid(param, "max_y must be > 0.");
     fMaxY = value;
     fMaxRadius = 0;
   } else if (param == "max_z") {
+    if (value <= 0) throw ParamInvalid(param, "max_z must be > 0.");
     fMaxZ = value;
     fMaxRadius = 0;
   } else if (param == "max_hit_time") {
     fMaxHitTime = value;
+    fSetMaxHitTime = true;
   } else if (param == "min_hit_time") {
     fMinHitTime = value;
+    fSetMinHitTime = true;
   } else
     throw ParamUnknown(param);
 }
@@ -157,8 +162,12 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
       Log::Die("Quad tried to set both max_radius and (max_x or max_y or max_z).");
   } else {
     if (fMaxX <= 0 || fMaxY <= 0 || fMaxZ <= 0)
-      Log::Die("Quad must set either max_radius or each of max_x, max_y, and max_z).");
+      Log::Die("Quad must set either max_radius or each of max_x, max_y, and max_z.");
   }
+  if (fSetMaxHitTime != fSetMinHitTime)
+    Log::Die("Quad must set both max_hit_time and min_hit_time.");
+  else if (fSetMaxHitTime && fMaxHitTime <= fMinHitTime)
+    Log::Die("Quad must set max_hit_time > min_hit_time.");
 
   inputHandler.RegisterEvent(ev);
 
@@ -179,7 +188,7 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
       continue;
     }
     // Select PMTs by time - optional
-    if (fMaxHitTime > fMinHitTime && (time > fMaxHitTime || time < fMinHitTime)) {
+    if (fSetMaxHitTime && (time > fMaxHitTime || time < fMinHitTime)) {
       continue;
     }
 
