@@ -27,13 +27,15 @@ class FitQuadProc : public Processor {
   unsigned int fNumQuadPoints;
   unsigned int fMaxQuadPoints;
   unsigned int fTableCutOff;
-  double fLightSpeed;    // [mm/ns].  Defaults to value in FIT_COMMON table.
-  double fMaxRadius;     // [mm].  Defaults to value in FIT_QUAD table.
-  double fMaxX = -9999;  // [mm].  Optional Cartesian alternative to fMaxRadius.
-  double fMaxY = -9999;
-  double fMaxZ = -9999;
+  double fLightSpeed;  // [mm/ns].  Defaults to value in FIT_COMMON table.
+  double fMaxRadius;   // [mm].  Defaults to value in FIT_QUAD table.
+  double fMaxX;        // [mm].  Optional Cartesian alternative to fMaxRadius.
+  double fMaxY;
+  double fMaxZ;
   double fMaxHitTime = -9999;  // [ns].  Optional hit time limits - ineffective when fMaxHitTime <= fMinHitTime.
   double fMinHitTime = 9999;   // [ns].
+  bool fSetMaxHitTime = false;
+  bool fSetMinHitTime = false;
   const std::array<unsigned int, 24> fNumPointsTbl = {0,    0,    0,    0,    1,    5,    15,   35,
                                                       70,   126,  210,  330,  495,  715,  1001, 1365,
                                                       1820, 2380, 3060, 3876, 4845, 5985, 7315, 8855};
