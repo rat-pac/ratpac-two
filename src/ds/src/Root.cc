@@ -10,6 +10,7 @@
 #include <RAT/DS/MCPhoton.hh>
 #include <RAT/DS/PMT.hh>
 #include <RAT/DS/Root.hh>
+#include <RAT/DS/RootFactory.hh>
 #include <RAT/DSReader.hh>
 #include <RAT/TrackNav.hh>
 
