@@ -12,7 +12,6 @@
 #include <RAT/Log.hh>
 #include <RAT/PhysicsList.hh>
 #include <RAT/json.hh>
-#include <iostream>
 
 namespace RAT {
 
@@ -25,7 +24,7 @@ DB *DSReader::LoadDB() {
   // The outroot processor stores the resolved DB as a JSON-array TObjString
   // named "ratdb" in each output file (see OutROOTProc). Pull it from the
   // first file of the chain.
-  if (total > 0) T.LoadTree(0);
+  if (fTotalEntries > 0) T.LoadTree(0);
   TFile *file = T.GetCurrentFile();
   if (file == nullptr) {
     warn << "DSReader::LoadDB: no input file available; DB left untouched." << newline;
@@ -76,31 +75,36 @@ void DSReader::BuildGeometry() {
   info << "DSReader::BuildGeometry: detector geometry constructed and closed." << newline;
 }
 
-DSReader::DSReader(const char *filename) : T("T"), runT("runT") {
+DSReader::DSReader(const std::string &filename) : T("T"), runT("runT") {
   RAT::Log::Init("/dev/null");
-  T.Add(filename);
+  T.Add(filename.c_str());
+  runT.Add(filename.c_str());
 
   next = 0;
-  total = T.GetEntries();
+  fTotalEntries = T.GetEntries();
+  fTotalRuns = runT.GetEntries();
 
 #ifdef DEBUG
   debug << "DSReader::DSReader - "
         << "filename='" << filename << "', total=" << total << newline;
 #endif
 
-  ds = new DS::Root();
-  T.SetBranchAddress("ds", &ds);
+  fDS = new DS::Root();
+  fRun = new DS::Run();
+  T.SetBranchAddress("ds", &fDS);
+  runT.SetBranchAddress("run", &fRun);
 
   // Reconstruct the DB from this file's snapshot before any event looping.
   LoadDB();
 }
 
-DSReader::~DSReader() { delete ds; }
+DSReader::~DSReader() { delete fDS; }
 
-void DSReader::Add(const char *filename) {
-  T.Add(filename);
-  runT.Add(filename);
-  total = T.GetEntries();
+void DSReader::Add(const std::string &filename) {
+  T.Add(filename.c_str());
+  runT.Add(filename.c_str());
+  fTotalEntries = T.GetEntries();
+  fTotalRuns = runT.GetEntries();
 
 #ifdef DEBUG
   debug << "DSReader::Add - "
@@ -108,13 +112,32 @@ void DSReader::Add(const char *filename) {
 #endif
 }
 
-DS::Root *DSReader::NextEvent() {
-  if (next < total) {
+const DS::Root &DSReader::NextEntry() {
+  if (HasNextEntry()) {
     T.GetEntry(next);
     next++;
-    return ds;
-  } else
-    return 0;
+    return *fDS;
+  } else {
+    Log::Die(dformat("DSReader::NextEvent: no more events in the chain (total=%lld, next=%lld)", fTotalEntries, next));
+  }
 }
+
+const DS::Run &DSReader::GetRunByRunID(int runID) {
+  if (runID == fRun->GetID()) return *fRun;
+  for (size_t iRun = 0; iRun < GetRunCount(); ++iRun) {
+    const DS::Run &run = GetRunByIndex(iRun);
+    if (run.GetID() == runID) {
+      return run;
+    }
+  }
+  Log::Die(dformat("DSReader::GetRunByRunID: runID %d not found in chain (total runs=%lld)", runID, fTotalRuns));
+}
+const DS::Run &DSReader::GetRunByIndex(size_t index) {
+  if (index >= fTotalRuns) {
+    Log::Die(dformat("DSReader::GetRunByIndex: index %d >= total runs %d", index, fTotalRuns));
+  }
+  runT.GetEntry(index);
+  return *fRun;
+};
 
 }  // namespace RAT

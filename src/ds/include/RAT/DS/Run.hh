@@ -43,6 +43,12 @@ class Run : public TObject {
     }
     return &pmtinfo[0];
   }
+  virtual const PMTInfo *GetPMTInfo() const {
+    if (pmtinfo.empty()) {
+      return nullptr;
+    }
+    return &pmtinfo[0];
+  }
   virtual void SetPMTInfo(const PMTInfo *_pmtinfo) {
     if (pmtinfo.empty()) {
       pmtinfo.resize(1);

@@ -20,15 +20,15 @@ class PMT : public TObject {
 
   /** ID number of PMT */
   virtual void SetID(Int_t _id) { this->id = _id; }
-  virtual Int_t GetID() { return id; }
+  virtual Int_t GetID() const { return id; }
 
   /** Total charge in waveform (pC) */
   virtual void SetCharge(Double_t _charge) { this->charge = _charge; }
-  virtual Double_t GetCharge() { return charge; }
+  virtual Double_t GetCharge() const { return charge; }
 
   /** Hit time in ns */
   virtual void SetTime(Double_t _time) { this->time = _time; }
-  virtual Double_t GetTime() { return time; }
+  virtual Double_t GetTime() const { return time; }
 
   ClassDef(PMT, 5);
 

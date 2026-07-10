@@ -52,7 +52,15 @@ class EV : public TObject {
     pmt[id].SetID(id);
     return &pmt[id];
   }
-  const std::vector<Int_t> GetAllPMTIDs() {
+  virtual const PMT *GetPMT(Int_t id) const {
+    auto it = pmt.find(id);
+    if (it != pmt.end()) {
+      return &it->second;
+    }
+    return nullptr;
+  }
+
+  const std::vector<Int_t> GetAllPMTIDs() const {
     std::vector<Int_t> result;
     for (auto const &kv : pmt) {
       result.push_back(kv.first);
@@ -67,7 +75,14 @@ class EV : public TObject {
     digitpmt[id].SetID(id);
     return &digitpmt[id];
   }
-  const std::vector<Int_t> GetAllDigitPMTIDs() {
+  virtual const DigitPMT *GetDigitPMT(Int_t id) const {
+    auto it = digitpmt.find(id);
+    if (it != digitpmt.end()) {
+      return &it->second;
+    }
+    return nullptr;
+  }
+  const std::vector<Int_t> GetAllDigitPMTIDs() const {
     std::vector<Int_t> result;
     for (auto const &kv : digitpmt) {
       result.push_back(kv.first);
