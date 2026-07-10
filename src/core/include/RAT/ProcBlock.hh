@@ -87,6 +87,11 @@ class ProcBlock : public Processor {
   virtual Processor::Result DSEvent(DS::Root *ds);
 
  protected:
+  /** Move any processors queued by DeferAppend() onto the end of the
+   *  active processor list.
+   *  */
+  void FlushDeferredAppends();
+
   /** List of pointers to processors in this block.  The ProcBlock
    *  object owns these Processor objects. */
   std::vector<Processor *> fProcessorList;
