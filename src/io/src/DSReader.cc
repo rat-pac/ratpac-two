@@ -118,7 +118,7 @@ DS::Root &DSReader::NextEntry() {
     next++;
     return *fDS;
   } else {
-    Log::Die(dformat("DSReader::NextEvent: no more events in the chain (total=%lld, next=%lld)", fTotalEntries, next));
+    Log::Die(dformat("DSReader::NextEntry: no more events in the chain (total=%lld, next=%lld)", fTotalEntries, next));
   }
 }
 
