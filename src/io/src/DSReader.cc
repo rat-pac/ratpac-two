@@ -112,7 +112,7 @@ void DSReader::Add(const std::string &filename) {
 #endif
 }
 
-const DS::Root &DSReader::NextEntry() {
+DS::Root &DSReader::NextEntry() {
   if (HasNextEntry()) {
     T.GetEntry(next);
     next++;
@@ -122,17 +122,17 @@ const DS::Root &DSReader::NextEntry() {
   }
 }
 
-const DS::Run &DSReader::GetRunByRunID(int runID) {
+DS::Run &DSReader::GetRunByRunID(int runID) {
   if (runID == fRun->GetID()) return *fRun;
   for (size_t iRun = 0; iRun < GetRunCount(); ++iRun) {
-    const DS::Run &run = GetRunByIndex(iRun);
+    DS::Run &run = GetRunByIndex(iRun);
     if (run.GetID() == runID) {
       return run;
     }
   }
   Log::Die(dformat("DSReader::GetRunByRunID: runID %d not found in chain (total runs=%lld)", runID, fTotalRuns));
 }
-const DS::Run &DSReader::GetRunByIndex(size_t index) {
+DS::Run &DSReader::GetRunByIndex(size_t index) {
   if (index >= fTotalRuns) {
     Log::Die(dformat("DSReader::GetRunByIndex: index %d >= total runs %d", index, fTotalRuns));
   }

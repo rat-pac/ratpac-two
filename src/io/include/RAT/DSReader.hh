@@ -41,20 +41,23 @@ class DSReader : public TObject {
   virtual DS::Root *GetDS() { return fDS; };
   Long64_t GetEntryCount() { return fTotalEntries; };
 
+  virtual bool HasNextEntry() { return next < fTotalEntries; };
+  virtual size_t GetRunCount() { return fTotalRuns; };
+
+  // FIXME: return types for all functions below should be const, but we don't
+  // have enough downstream const accessors to make this work yet.
+
   // Load event.  Returns ds (which will now point to specified event)
-  virtual const DS::Root &GetEntry(Long64_t num) {
+  virtual DS::Root &GetEntry(Long64_t num) {
     next = num + 1;
     T.GetEntry(num);
     return *fDS;
   };
 
-  virtual bool HasNextEntry() { return next < fTotalEntries; };
-  virtual const DS::Root &NextEntry();
-
-  virtual size_t GetRunCount() { return fTotalRuns; };
-  virtual const DS::Run &GetRun() { return GetRunByRunID(fDS->GetRunID()); };
-  virtual const DS::Run &GetRunByRunID(int runID);
-  virtual const DS::Run &GetRunByIndex(size_t index);
+  virtual DS::Root &NextEntry();
+  virtual DS::Run &GetRun() { return GetRunByRunID(fDS->GetRunID()); };
+  virtual DS::Run &GetRunByRunID(int runID);
+  virtual DS::Run &GetRunByIndex(size_t index);
   ClassDef(DSReader, 1);
 
  protected:
