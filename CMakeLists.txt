@@ -17,7 +17,7 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 if(NOT RATVERSION_SEMVERS)
-  set(RATVERSION_SEMVERS 4.0.0)
+  set(RATVERSION_SEMVERS 4.1.0)
 endif()
 
 project(ratpac
