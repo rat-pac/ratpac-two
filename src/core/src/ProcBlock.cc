@@ -29,7 +29,15 @@ ProcBlock::~ProcBlock() {
   Clear();  // Used to delete processors before we clear them from the list
 }
 
+void ProcBlock::FlushDeferredAppends() {
+  for (unsigned int i = 0; i < fDeferredAppendList.size(); i++) {
+    AddProcessor(fDeferredAppendList[i]);
+  }
+  fDeferredAppendList.clear();
+}
+
 void ProcBlock::BeginOfRun(DS::Run *run) {
+  FlushDeferredAppends();
   for (auto &proc : fProcessorList) {
     proc->BeginOfRun(run);
   }
@@ -76,11 +84,10 @@ Processor::Result ProcBlock::DSEvent(DS::Root *ds) {
   if (!fSeenFirstEvent) {
     fSeenFirstEvent = true;
 
-    // Append queued up processors to end of processor list
-    for (unsigned int i = 0; i < fDeferredAppendList.size(); i++) {
-      AddProcessor(fDeferredAppendList[i]);
-    }
-    fDeferredAppendList.clear();
+    // Append queued up processors to end of processor list. Normally these were
+    // already spliced in by BeginOfRun(); this is a fallback for any event
+    // source that drives DSEvent without first calling BeginOfRun.
+    FlushDeferredAppends();
   } else {
     fSourceTimer.Stop();
     fSourceCount++;

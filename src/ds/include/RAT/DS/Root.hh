@@ -98,6 +98,12 @@ class Root : public TObject {
     }
     return &mc[0];
   }
+  virtual const MC *GetMC() const {
+    if (mc.empty()) {
+      return nullptr;
+    }
+    return &mc[0];
+  }
   virtual bool ExistMC() const { return !mc.empty(); }
   virtual void PruneMC() { mc.resize(0); }
 
@@ -112,6 +118,12 @@ class Root : public TObject {
   virtual void PruneCalib() { calib.resize(0); }
 
   /** List of triggered events. */
+  virtual const EV *GetEV(int i) const {
+    if (i < 0 || i >= (int)ev.size()) {
+      return nullptr;
+    }
+    return &ev[i];
+  }
   virtual EV *GetEV(int i) { return &ev[i]; }
   virtual int GetEVCount() const { return ev.size(); }
   virtual EV *AddNewEV() {

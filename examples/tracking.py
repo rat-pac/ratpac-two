@@ -14,9 +14,9 @@ and the output file line should be:
 ds = RAT.DSReader(sys.argv[1])
 
 # Loop over the simulated events
-for ev in range(ds.GetTotal()):
+for ev in range(ds.GetEntryCount()):
  
-    r = ds.GetEvent(ev)
+    r = ds.GetEntry(ev)
 
     mc = r.GetMC()
     tracks = mc.GetMCTrackCount()

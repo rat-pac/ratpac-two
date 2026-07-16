@@ -102,7 +102,7 @@ memory.  The easiest way to do that is to use the RATDSReader class in your
 ROOT macro::
 
     RAT::DSReader r("testIBDgen.root");
-    RAT::DS::Root *ds = r.NextEvent();
+    RAT::DS::Root *ds = r.NextEntry();
 
 
 Once you have a data structure object, you can convert the tracks into a tree

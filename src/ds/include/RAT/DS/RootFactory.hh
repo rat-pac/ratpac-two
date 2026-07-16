@@ -1,3 +1,6 @@
+#ifndef RAT_DS_ROOTFACTORY_HH
+#define RAT_DS_ROOTFACTORY_HH
+
 #include <TClass.h>
 
 #include <stdexcept>
@@ -34,3 +37,5 @@ class RootFactory {
   }
 };
 }  // namespace RAT::DS
+
+#endif

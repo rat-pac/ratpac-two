@@ -22,7 +22,10 @@
 "include_digitizerwaveforms": false,
 "include_untriggered_events": true,
 "include_mchits": true,
+"include_mctransittime": true,
+"transittime_calculator_config": ["g4", "rindex"],
 "include_calib": true,
+// First entry is the config for the light path calculator, second is for group velocity calculator.
 
 
 "waveform_fitters": ["Lognormal", "Gaussian", "Sinc", "LucyDDM", "RAVEN"],

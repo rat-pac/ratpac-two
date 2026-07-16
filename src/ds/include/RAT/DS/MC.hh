@@ -56,6 +56,7 @@ class MC : public TObject {
 
   /** Initial particles in event */
   virtual MCParticle *GetMCParticle(Int_t i) { return &particle[i]; }
+  virtual const MCParticle *GetMCParticle(Int_t i) const { return &particle[i]; }
   virtual int GetMCParticleCount() const { return particle.size(); }
   virtual MCParticle *AddNewMCParticle() {
     particle.resize(particle.size() + 1);
