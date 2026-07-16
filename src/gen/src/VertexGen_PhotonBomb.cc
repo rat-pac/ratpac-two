@@ -205,7 +205,7 @@ void VertexGen_PhotonBomb::SetState(G4String newValues) {
 
 G4String VertexGen_PhotonBomb::GetState() {
   if (fSpectrum)
-    return dformat("Using wavelength specrum:\t%d\t%s", fNumPhotons, fWavelengthIndex);
+    return dformat("Using wavelength spectrum:\t%d\t%s", fNumPhotons, fWavelengthIndex.c_str());
   else if (fRndmEnergy)
     return dformat("%d\t%s\t%f", fNumPhotons, fMaterial.c_str(), fExpTime);
   else

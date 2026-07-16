@@ -59,7 +59,8 @@ void WaveformAnalysisLucyDDM::DoAnalysis(DS::DigitPMT* digitpmt, const std::vect
   size_t iterations_ran = 0;
   std::vector<double> demod_result = Deconvolve(voltWfm, iterations_ran);
   auto end = std::chrono::high_resolution_clock::now();
-  debug << "Deconvolution took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms."
+  debug << "Deconvolution took "
+        << static_cast<int64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()) << " ms."
         << newline;
   std::vector<double> reblurred_wfm = ReblurWaveform(demod_result);
   double poisson_nll = PoissonNLL(Resample(voltWfm, reblurred_wfm.size()), reblurred_wfm);
@@ -71,7 +72,8 @@ void WaveformAnalysisLucyDDM::DoAnalysis(DS::DigitPMT* digitpmt, const std::vect
     MergeClosePeaks(reco_times, reco_charges, reco_time_errors, reco_charge_errors);
   }
   end = std::chrono::high_resolution_clock::now();
-  debug << "Hit finding took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms."
+  debug << "Hit finding took "
+        << static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()) << " ms."
         << newline;
   DS::WaveformAnalysisResult* fit_result = digitpmt->GetOrCreateWaveformAnalysisResult(GetAnalyzerName());
   for (size_t ipacket = 0; ipacket < reco_times.size(); ++ipacket) {
@@ -161,8 +163,9 @@ void WaveformAnalysisLucyDDM::RequestFFTSize(size_t size) {
     vpe_norm_fft = fft->transform(vpe_norm);
     vpe_norm_flipped_fft = fft->transform(vpe_norm_flipped);
     info << "Plan Creation took "
-         << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start)
-                .count()
+         << static_cast<long>(
+                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start)
+                    .count())
          << " ms." << newline;
   }
 }
