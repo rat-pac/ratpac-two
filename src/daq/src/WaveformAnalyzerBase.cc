@@ -31,7 +31,11 @@ void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Di
   digitpmt->GetOrCreateWaveformAnalysisResult(GetAnalyzerName());
 
   double totalCharge = digitpmt->GetDigitizedTotalCharge();
-  if (totalCharge < fMinTotalCharge || totalCharge > fMaxTotalCharge) return;
+  if (totalCharge < fMinTotalCharge || totalCharge > fMaxTotalCharge) {
+    warn << "Total charge " << totalCharge << " is outside of the allowed range [" << fMinTotalCharge << ", "
+         << fMaxTotalCharge << "]. Skipping waveform analysis for PMT " << pmtID << "." << newline;
+    return;
+  }
 
   fVoltageRes = dsdigit->GetVoltageResolution();
   fTimeStep = dsdigit->GetTimeStepNS();
