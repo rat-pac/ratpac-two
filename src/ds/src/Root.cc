@@ -10,10 +10,12 @@
 #include <RAT/DS/MCPhoton.hh>
 #include <RAT/DS/PMT.hh>
 #include <RAT/DS/Root.hh>
+#include <RAT/DS/RootFactory.hh>
 #include <RAT/DSReader.hh>
 #include <RAT/TrackNav.hh>
 
 ClassImp(RAT::DS::Root);
+ClassImp(RAT::DS::RootFactory);
 ClassImp(RAT::DS::MC);
 ClassImp(RAT::DS::MCParticle);
 ClassImp(RAT::DS::MCPMT);

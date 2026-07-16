@@ -130,28 +130,129 @@ vessels for data which is computed elsewhere (such as a generator or
 processor). Never should a DS class itself be computing the data that it
 stores.
 
-Add to CINT
-'''''''''''
-Edit the src/ds/LinkDef.h file to ensure your new class is added to the
-CINT dictionary, which is needed for ROOT macros to work properly. You will
-need to add a line that looks like::
+Add to the ROOT dictionary
+''''''''''''''''''''''''''
+Edit the LinkDef fragment for the ``ds`` module,
+``src/ds/include/RAT/DS/LinkDef.hh``, to ensure your new class is added to the
+ROOT dictionary, which is needed for the object to be streamed to disk and for
+ROOT macros to work properly. You will need to add a line that looks like::
 
-    #pragma link C++ class RAT::DS::PMT;
+    #pragma link C++ class RAT::DS::PMT + ;
 
-And further down, there needs to be a line like::
+And further down, in the ``__MAKECINT__`` block, there needs to be a line for
+any STL container of your class, like::
 
-    #pragma link C++ class vector<RAT::DS::PMT>;
+    #pragma link C++ class vector < RAT::DS::PMT>;
 
-Add to SConstruct
-'''''''''''''''''
-Add your class name to the cint_cls list in the $RATROOT/SConstruct file.
-This will ensure the build system invokes rootcint on your new event class
-and generates the code that allows the event data structure to be streamed
-to disk or over network connections.
+Register the header for the dictionary
+''''''''''''''''''''''''''''''''''''''
+The dictionary generator also needs to see the header that declares your
+class. Make sure the ``ds`` module's ``CMakeLists.txt`` (``src/ds/CMakeLists.txt``)
+lists it in its ``rat_dictionary_headers()`` call, e.g.::
+
+    rat_dictionary_headers(
+      RAT/DS/PMT.hh
+      # ...other headers...
+    )
+
+Each module registers its own headers and LinkDef fragment via
+``rat_dictionary_headers()`` and ``rat_dictionary_linkdef()`` (see
+``cmake/RATDictionary.cmake``). These accumulate into a single global
+dictionary that is generated once in ``src/CMakeLists.txt``, so you no longer
+need to touch any central build file.
 
 Recompile
 '''''''''
-Run scons to recompile.
+Rebuild with ``make`` (or re-run ``make`` from your ``build`` directory) to
+regenerate the dictionary and pick up the new class.
+
+Extending the Data Structure in a Private Experiment
+`````````````````````````````````````````````````````
+The techniques above are appropriate when the new data belongs in RATPAC
+itself and can be shared with everyone. Private experiments, however, often
+need to attach experiment-specific data to the top-level event object,
+``RAT::DS::Root``, without modifying the shared class. **This is the supported
+way to extend the data structure for a private experiment:** subclass
+``RAT::DS::Root`` in your own code base and register the subclass with
+``RAT::DS::RootFactory``, rather than editing RATPAC's own data-structure
+classes.
+
+``RAT::DS::RootFactory`` acts as the single point where the top-level event
+object is constructed. A new ``RAT::DS::Root`` only ever originates in a
+*producer* -- the object that introduces events into the data stream, such as
+``Gsim`` for simulated events or ``InROOTProducer`` for events read back from a
+ROOT file. These producers obtain the event object from
+``RAT::DS::RootFactory::Create()`` instead of calling ``new DS::Root``
+directly. (The ROOT I/O classes ``DSReader``, ``DSWriter``, and ``OutROOTProc``
+also build their branch buffer through the factory so that the on-disk type
+matches, but they do not introduce new events -- only producers do.)
+
+By default the factory returns a plain ``RAT::DS::Root``. If you register the
+name of a subclass, the factory instead constructs and returns that subclass
+everywhere, so your extended object flows through the whole simulation and I/O
+chain transparently.
+
+Subclass RAT::DS::Root
+''''''''''''''''''''''
+In your private code base, create a class that inherits from
+``RAT::DS::Root`` and adds the members and accessors you need. It must have a
+default (I/O) constructor and a ``ClassDef``, following the same conventions
+as any other data-structure class::
+
+    namespace MyExp {
+      namespace DS {
+
+    class Root : public RAT::DS::Root {
+    public:
+      Root() {}
+      virtual ~Root() {}
+
+      double GetMyValue() const { return myValue; }
+      void SetMyValue(double v) { myValue = v; }
+
+    private:
+      double myValue;  ///< Experiment-specific quantity
+
+      ClassDef(MyExp::DS::Root, 1);
+    };
+
+      }  // namespace DS
+    }  // namespace MyExp
+
+Because official processors only ever see the ``RAT::DS::Root`` interface,
+your extra data is invisible to them, but it is written to and read back from
+disk with the rest of the event.
+
+Register the subclass in the ROOT dictionary
+''''''''''''''''''''''''''''''''''''''''''''
+ROOT needs dictionary information for your subclass so that it can be
+constructed by name and streamed to disk. Contribute the header and a LinkDef
+fragment from your module's ``CMakeLists.txt`` using the helpers in
+``cmake/RATDictionary.cmake``, exactly as an in-tree module would::
+
+    rat_dictionary_headers(MyExp/DS/Root.hh)
+    rat_dictionary_linkdef(MyExp/DS/LinkDef.hh)
+
+where your ``LinkDef.hh`` fragment contains the usual line::
+
+    #pragma link C++ class MyExp::DS::Root + ;
+
+Select the subclass at start-up
+'''''''''''''''''''''''''''''''
+Tell the factory which class to build by calling::
+
+    RAT::DS::RootFactory::SetClassName("MyExp::DS::Root");
+
+This must run once, early, before any event object is created (for example
+in your experiment's ``main`` or an initialization hook). From that point on,
+every ``RAT::DS::RootFactory::Create()`` returns a ``MyExp::DS::Root``.
+
+The factory validates the request at run time: it looks up the class in the
+ROOT dictionary, checks that it actually inherits from ``RAT::DS::Root``, and
+throws a ``std::runtime_error`` if the name is unknown or does not derive from
+``RAT::DS::Root``. If the name is left empty (or set to ``"RAT::DS::Root"``),
+the factory simply returns the base object, so RATPAC's default behavior is
+unchanged when no experiment override is registered.
 
 Update Documentation
 ````````````````````
