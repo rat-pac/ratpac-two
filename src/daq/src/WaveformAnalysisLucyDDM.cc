@@ -59,7 +59,7 @@ void WaveformAnalysisLucyDDM::DoAnalysis(DS::DigitPMT* digitpmt, const std::vect
   size_t iterations_ran = 0;
   std::vector<double> demod_result = Deconvolve(voltWfm, iterations_ran);
   auto end = std::chrono::high_resolution_clock::now();
-  debug << "Deconvolution took " << static_cast<long>(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()) << " ms."
+  debug << "Deconvolution took " << static_cast<int64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()) << " ms."
         << newline;
   std::vector<double> reblurred_wfm = ReblurWaveform(demod_result);
   double poisson_nll = PoissonNLL(Resample(voltWfm, reblurred_wfm.size()), reblurred_wfm);
