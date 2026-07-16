@@ -21,6 +21,15 @@ Parameters:
 
 * filename (required, string) Sets output filename.  File will be deleted if it already exists.
 
+The output file is meant to be a full representation of the RAT data structure, and can be re-introduced back into RAT for further processing via the InROOT processor. The file contains several objects:
+
+* ``log``: The RAT log messages as emitted during the processing of this file.
+* ``macro``: Content of the RAT macro used to generate this file.
+* `db`: A JSON representation of the state of the RATDB database at the time of processing this file. The recorded RATDB state is scoped to the run that these events are processed with.
+* `obj`: A directory of arbitrary objects that were added by a processor.
+* `runT`: A TTree object containing a DS::Run object for the run processed.
+* `T`: A TTree obejct containing DS::Root object for each event processed.
+
 .. _outntuple:
 
 outntuple
