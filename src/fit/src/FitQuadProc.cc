@@ -19,14 +19,26 @@ void FitQuadProc::BeginOfRun(DS::Run *run) {
   fMaxQuadPoints = quad_db->GetI("max_points");
   fTableCutOff = quad_db->GetI("table_cut_off");
   if (fTableCutOff > fNumPointsTbl.size()) {
-    Log::Die("Quad tried to set a table_cut_off larger than the size of fNumPointsTbl.");
+    Log::Die("Quad::BeginOfRun: cannot set a table_cut_off larger than the size of fNumPointsTbl.");
   }
   fMaxRadius = quad_db->GetD("max_radius");
+  fMaxX = quad_db->GetD("max_x");
+  fMaxY = quad_db->GetD("max_y");
+  fMaxZ = quad_db->GetD("max_z");
+  if (fMaxRadius > 0.0) {
+    if (fMaxX > 0.0 || fMaxY > 0.0 || fMaxZ > 0.0)
+      Log::Die(
+          "Quad::BeginOfRun: cannot set both max_radius and (max_x or max_y or max_z).  If using Cartesian, set "
+          "max_radius to 0.0.");
+  } else {
+    if (fMaxX <= 0.0 || fMaxY <= 0.0 || fMaxZ <= 0.0)
+      Log::Die("Quad::BeginOfRun: must set either max_radius or each of max_x, max_y, and max_z.");
+  }
 
   DBLinkPtr table = db->GetLink("FIT_COMMON", "");
   fLightSpeed = table->GetD("light_speed");
   if (fLightSpeed <= 0.0 || fLightSpeed > 299.792458)
-    Log::Die("light_speed in FIT_COMMON table must be > 0 and <= 299.792458 mm/ns.");
+    Log::Die("Quad::BeginOfRun: light_speed in FIT_COMMON table must be > 0 and <= 299.792458 mm/ns.");
 }
 
 void FitQuadProc::SetS(std::string param, std::string value) {
@@ -58,21 +70,21 @@ void FitQuadProc::SetD(std::string param, double value) {
       throw ParamInvalid(param, "light_speed must be positive and <= 299.792458 mm/ns.");
     fLightSpeed = value;
   } else if (param == "max_radius") {
-    if (fMaxX > 0 || fMaxY > 0 || fMaxZ > 0)
+    if (fMaxX > 0.0 || fMaxY > 0.0 || fMaxZ > 0.0)
       throw ParamInvalid(param, "cannot set both max_radius and (max_x or max_y or max_z).");
     fMaxRadius = value;
   } else if (param == "max_x") {
-    if (value <= 0) throw ParamInvalid(param, "max_x must be > 0.");
+    if (value <= 0.0) throw ParamInvalid(param, "max_x must be > 0.");
     fMaxX = value;
-    fMaxRadius = 0;
+    fMaxRadius = 0.0;
   } else if (param == "max_y") {
-    if (value <= 0) throw ParamInvalid(param, "max_y must be > 0.");
+    if (value <= 0.0) throw ParamInvalid(param, "max_y must be > 0.");
     fMaxY = value;
-    fMaxRadius = 0;
+    fMaxRadius = 0.0;
   } else if (param == "max_z") {
-    if (value <= 0) throw ParamInvalid(param, "max_z must be > 0.");
+    if (value <= 0.0) throw ParamInvalid(param, "max_z must be > 0.");
     fMaxZ = value;
-    fMaxRadius = 0;
+    fMaxRadius = 0.0;
   } else if (param == "max_hit_time") {
     fMaxHitTime = value;
     fSetMaxHitTime = true;
@@ -157,11 +169,11 @@ static inline int matinvert(double (*const ans)[3], const double (*const m)[3]) 
 }
 
 Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
-  if (fMaxRadius > 0) {
-    if (fMaxX > 0 || fMaxY > 0 || fMaxZ > 0)
-      Log::Die("Quad tried to set both max_radius and (max_x or max_y or max_z).");
+  if (fMaxRadius > 0.0) {
+    if (fMaxX > 0.0 || fMaxY > 0.0 || fMaxZ > 0.0)
+      Log::Die("Quad cannot set both max_radius and (max_x or max_y or max_z).");
   } else {
-    if (fMaxX <= 0 || fMaxY <= 0 || fMaxZ <= 0)
+    if (fMaxX <= 0.0 || fMaxY <= 0.0 || fMaxZ <= 0.0)
       Log::Die("Quad must set either max_radius or each of max_x, max_y, and max_z.");
   }
   if (fSetMaxHitTime != fSetMinHitTime)
