@@ -5,8 +5,8 @@
 "max_points": 10000,
 "table_cut_off": 23,
 
-"max_radius": 1200,  // [mm]
-"max_x": 0,          // [mm].  Optional Cartesian alternatives.  Must set max_radius to 0.
-"max_y": 0,
-"max_z": 0,
+"max_radius": 1200.0,  // [mm]
+"max_x": 0.0,          // [mm].  Optional Cartesian alternatives (set max_radius to 0.0).
+"max_y": 0.0,
+"max_z": 0.0,
 }
