@@ -29,9 +29,9 @@ class FitQuadProc : public Processor {
   unsigned int fTableCutOff;
   double fLightSpeed;  // [mm/ns].  Defaults to value in FIT_COMMON table.
   double fMaxRadius;   // [mm].  Defaults to value in FIT_QUAD table.
-  double fMaxX;        // [mm].  Optional Cartesian alternative to fMaxRadius.
-  double fMaxY;
-  double fMaxZ;
+  double fMaxX = 0.0;  // [mm].  Optional Cartesian alternative to fMaxRadius.
+  double fMaxY = 0.0;
+  double fMaxZ = 0.0;
   double fMaxHitTime = -9999;  // [ns].  Optional hit time limits - ineffective when fMaxHitTime <= fMinHitTime.
   double fMinHitTime = 9999;   // [ns].
   bool fSetMaxHitTime = false;
