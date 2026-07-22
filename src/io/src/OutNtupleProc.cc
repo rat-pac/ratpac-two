@@ -876,36 +876,32 @@ void OutNtupleProc::EndOfRun(DS::Run *run) {
 void OutNtupleProc::SetS(std::string param, std::string value) {
   if (param == "file") {
     this->defaultFilename = value;
+  } else {
+    throw Processor::ParamUnknown(param);
   }
 }
 
 void OutNtupleProc::SetI(std::string param, int value) {
   if (param == "include_tracking") {
     options.tracking = value ? true : false;
-  }
-  if (param == "include_mcparticles") {
+  } else if (param == "include_mcparticles") {
     options.mcparticles = value ? true : false;
-  }
-  if (param == "include_pmthits") {
+  } else if (param == "include_pmthits") {
     options.pmthits = value ? true : false;
-  }
-  if (param == "include_nestedtubehits") {
+  } else if (param == "include_nestedtubehits") {
     options.nthits = value ? true : false;
-  }
-  if (param == "include_untriggered_events") {
+  } else if (param == "include_untriggered_events") {
     options.untriggered = value ? true : false;
-  }
-  if (param == "include_mchits") {
+  } else if (param == "include_mchits") {
     options.mchits = value ? true : false;
-  }
-  if (param == "include_digitizerwaveforms") {
+  } else if (param == "include_digitizerwaveforms") {
     options.digitizerwaveforms = value ? true : false;
-  }
-  if (param == "include_digitizerhits") {
+  } else if (param == "include_digitizerhits") {
     options.digitizerhits = value ? true : false;
-  }
-  if (param == "include_digitizerfits") {
+  } else if (param == "include_digitizerfits") {
     options.digitizerfits = value ? true : false;
+  } else {
+    throw Processor::ParamUnknown(param);
   }
 }
 

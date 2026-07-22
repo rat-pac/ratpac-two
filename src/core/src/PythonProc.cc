@@ -55,6 +55,8 @@ void PythonProc::SetS(std::string param, std::string value) {
     TPython::Exec(cmd.c_str());
     // Update name of this processor to include Python class
     name = value;
+  } else {
+    throw Processor::ParamUnknown(param);
   }
 }
 

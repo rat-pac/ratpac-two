@@ -115,6 +115,8 @@ void OutROOTProc::SetS(std::string param, std::string value) {
     if (!OpenFile(value, false)) Log::Die("outroot: Cannot open file " + value);
   } else if (param == "updatefile") {
     if (!OpenFile(value, true)) Log::Die("outroot: Cannot open file " + value);
+  } else {
+    throw Processor::ParamUnknown(param);
   }
 }
 
@@ -130,6 +132,8 @@ void OutROOTProc::SetI(std::string param, int value) {
       savetree = false;
       info << "outroot: Not writing event tree!\n";
     }
+  } else {
+    throw Processor::ParamUnknown(param);
   }
 }
 
