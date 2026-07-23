@@ -12,6 +12,22 @@
 #include <string>
 
 namespace RAT {
+
+void FitCentroidProc::SetS(std::string param, std::string value) {
+  if (param == "label") {
+    if (value.empty()) throw ParamInvalid(param, "label cannot be empty.");
+    fFitLabel = value;
+  } else
+    throw ParamUnknown(param);
+}
+
+void FitCentroidProc::SetI(std::string param, int value) {
+  if (param == "pmt_type") {
+    fPMTtype.push_back(value);
+  } else
+    throw ParamUnknown(param);
+}
+
 void FitCentroidProc::SetD(std::string param, double value) {
   if (param == "power") {
     fPower = value;
@@ -27,13 +43,24 @@ Processor::Result FitCentroidProc::Event(DS::Root *ds, DS::EV *ev) {
   double totalQ = 0;
   TVector3 centroid(0.0, 0.0, 0.0);
 
+  DS::Run *run = DS::RunStore::Get()->GetRun(ds);
+  DS::PMTInfo *pmtinfo = run->GetPMTInfo();
+
   for (int pmtid : inputHandler.GetAllHitPMTIDs()) {
+    // Select PMTs by type - optional
+    if (fPMTtype.size() > 0) {
+      int pmtType = pmtinfo->GetType(pmtid);
+      unsigned int iType = 0;
+      for (iType = 0; iType < fPMTtype.size(); iType++) {
+        if (fPMTtype[iType] == pmtType) break;
+      }
+      if (iType == fPMTtype.size()) continue;  // No match found
+    }
+
     double Qpow = 0.0;
     Qpow = pow(inputHandler.GetCharge(pmtid), fPower);
     totalQ += Qpow;
 
-    DS::Run *run = DS::RunStore::Get()->GetRun(ds);
-    DS::PMTInfo *pmtinfo = run->GetPMTInfo();
     TVector3 pmtpos = pmtinfo->GetPosition(pmtid);
 
     if (fRescale != 1.0) {
@@ -43,7 +70,7 @@ Processor::Result FitCentroidProc::Event(DS::Root *ds, DS::EV *ev) {
     centroid += Qpow * pmtpos;
   }
 
-  DS::FitResult *fit = new DS::FitResult(name);
+  DS::FitResult *fit = new DS::FitResult(name, fFitLabel);
   fit->SetEnablePosition(true);
   if (totalQ) {
     centroid *= 1.0 / totalQ;

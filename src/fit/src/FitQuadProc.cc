@@ -14,19 +14,39 @@ void FitQuadProc::BeginOfRun(DS::Run *run) {
   fPMTInfo = run->GetPMTInfo();
 
   DB *db = DB::Get();
-
-  // TODO: Figure out experiment agnostic way to specify index for quad to use
   DBLinkPtr quad_db = db->GetLink("FIT_QUAD");
   fNumQuadPoints = quad_db->GetI("num_points");
   fMaxQuadPoints = quad_db->GetI("max_points");
   fTableCutOff = quad_db->GetI("table_cut_off");
   if (fTableCutOff > fNumPointsTbl.size()) {
-    Log::Die("Quad tried to set a table_cut_off larger than the size of fNumPointsTbl.");
+    Log::Die("Quad::BeginOfRun: cannot set a table_cut_off larger than the size of fNumPointsTbl.");
   }
-  fLightSpeed = quad_db->GetD("light_speed");
-  if (fLightSpeed <= 0.0 || fLightSpeed > 299.792458)
-    Log::Die("Quad tried to set a light_speed <= 0 or > 299.792458 mm/ns.");
   fMaxRadius = quad_db->GetD("max_radius");
+  fMaxX = quad_db->GetD("max_x");
+  fMaxY = quad_db->GetD("max_y");
+  fMaxZ = quad_db->GetD("max_z");
+  if (fMaxRadius > 0.0) {
+    if (fMaxX > 0.0 || fMaxY > 0.0 || fMaxZ > 0.0)
+      Log::Die(
+          "Quad::BeginOfRun: cannot set both max_radius and (max_x or max_y or max_z).  If using Cartesian, set "
+          "max_radius to 0.0.");
+  } else {
+    if (fMaxX <= 0.0 || fMaxY <= 0.0 || fMaxZ <= 0.0)
+      Log::Die("Quad::BeginOfRun: must set either max_radius or each of max_x, max_y, and max_z.");
+  }
+
+  DBLinkPtr table = db->GetLink("FIT_COMMON", "");
+  fLightSpeed = table->GetD("light_speed");
+  if (fLightSpeed <= 0.0 || fLightSpeed > 299.792458)
+    Log::Die("Quad::BeginOfRun: light_speed in FIT_COMMON table must be > 0 and <= 299.792458 mm/ns.");
+}
+
+void FitQuadProc::SetS(std::string param, std::string value) {
+  if (param == "label") {
+    if (value.empty()) throw ParamInvalid(param, "label cannot be empty.");
+    fFitLabel = value;
+  } else
+    throw ParamUnknown(param);
 }
 
 void FitQuadProc::SetI(std::string param, int value) {
@@ -38,6 +58,8 @@ void FitQuadProc::SetI(std::string param, int value) {
     fTableCutOff = value;
     if (fTableCutOff > fNumPointsTbl.size())
       throw ParamInvalid(param, "table_cut_off cannot be larger than the size of fNumPointsTbl.");
+  } else if (param == "pmt_type") {
+    fPMTtype.push_back(value);
   } else
     throw ParamUnknown(param);
 }
@@ -48,7 +70,27 @@ void FitQuadProc::SetD(std::string param, double value) {
       throw ParamInvalid(param, "light_speed must be positive and <= 299.792458 mm/ns.");
     fLightSpeed = value;
   } else if (param == "max_radius") {
+    if (fMaxX > 0.0 || fMaxY > 0.0 || fMaxZ > 0.0)
+      throw ParamInvalid(param, "cannot set both max_radius and (max_x or max_y or max_z).");
     fMaxRadius = value;
+  } else if (param == "max_x") {
+    if (value <= 0.0) throw ParamInvalid(param, "max_x must be > 0.");
+    fMaxX = value;
+    fMaxRadius = 0.0;
+  } else if (param == "max_y") {
+    if (value <= 0.0) throw ParamInvalid(param, "max_y must be > 0.");
+    fMaxY = value;
+    fMaxRadius = 0.0;
+  } else if (param == "max_z") {
+    if (value <= 0.0) throw ParamInvalid(param, "max_z must be > 0.");
+    fMaxZ = value;
+    fMaxRadius = 0.0;
+  } else if (param == "max_hit_time") {
+    fMaxHitTime = value;
+    fSetMaxHitTime = true;
+  } else if (param == "min_hit_time") {
+    fMinHitTime = value;
+    fSetMinHitTime = true;
   } else
     throw ParamUnknown(param);
 }
@@ -127,14 +169,42 @@ static inline int matinvert(double (*const ans)[3], const double (*const m)[3]) 
 }
 
 Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
+  if (fMaxRadius > 0.0) {
+    if (fMaxX > 0.0 || fMaxY > 0.0 || fMaxZ > 0.0)
+      Log::Die("Quad cannot set both max_radius and (max_x or max_y or max_z).");
+  } else {
+    if (fMaxX <= 0.0 || fMaxY <= 0.0 || fMaxZ <= 0.0)
+      Log::Die("Quad must set either max_radius or each of max_x, max_y, and max_z.");
+  }
+  if (fSetMaxHitTime != fSetMinHitTime)
+    Log::Die("Quad must set both max_hit_time and min_hit_time.");
+  else if (fSetMaxHitTime && fMaxHitTime <= fMinHitTime)
+    Log::Die("Quad must set max_hit_time > min_hit_time.");
+
   inputHandler.RegisterEvent(ev);
+
   std::vector<double> pmtx, pmty, pmtz, pmtt;
   for (int pmtid : inputHandler.GetAllHitPMTIDs()) {
-    TVector3 pmtpos = fPMTInfo->GetPosition(pmtid);
+    // Select PMTs by type - optional
+    if (fPMTtype.size() > 0) {
+      int pmtType = fPMTInfo->GetType(pmtid);
+      unsigned int iType = 0;
+      for (iType = 0; iType < fPMTtype.size(); iType++) {
+        if (fPMTtype[iType] == pmtType) break;
+      }
+      if (iType == fPMTtype.size()) continue;  // No match found
+    }
+
     double time = inputHandler.GetTime(pmtid);
     if (time > 1e6) {
       continue;
     }
+    // Select PMTs by time - optional
+    if (fSetMaxHitTime && (time > fMaxHitTime || time < fMinHitTime)) {
+      continue;
+    }
+
+    TVector3 pmtpos = fPMTInfo->GetPosition(pmtid);
     pmtt.push_back(time);
     pmtx.push_back(pmtpos.X());
     pmty.push_back(pmtpos.Y());
@@ -142,7 +212,7 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
   }
   size_t nhits = pmtt.size();
 
-  DS::FitResult *fit = new DS::FitResult(name);
+  DS::FitResult *fit = new DS::FitResult(name, fFitLabel);
   fit->SetValidEnergy(false);
   fit->SetValidDirection(false);
   fit->SetPosition(TVector3(-9999, -9999, -9999));
@@ -223,14 +293,14 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
         double v[3];
         for (int nt = 0; nt < 3; nt++) v[nt] = g[nt] + h[nt] * tau;
 
-        // Maximum radius (mm) for which we will accept a point.
+        // Maximum distance (mm) for which we will accept a point.
         // This is meant to remove wild fits, not directly
         // restrict them to the physically allowed region.
-        // Indeed, if we cut this off at the PMT sphere surface,
+        // Indeed, if we cut this off at the PMT surface,
         // it would introduce a large bias when we took the
-        // median later.  So it is a little larger than that.
+        // median later.  So it should be a little larger than that.
         const double rlimit = fMaxRadius;
-        if (mag2(v) < rlimit * rlimit) {
+        if (mag2(v) < rlimit * rlimit || (abs(v[0]) < fMaxX && abs(v[1]) < fMaxY && abs(v[2]) < fMaxZ)) {
           quad_xs.push_back(v[0]);
           quad_ys.push_back(v[1]);
           quad_zs.push_back(v[2]);

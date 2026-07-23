@@ -1,4 +1,4 @@
-# Example macro showing how to use quadfitte
+# Example macro showing how to use quadfitter
 
 /glg4debug/glg4param omit_muon_processes 1.0
 /glg4debug/glg4param omit_hadronic_processes 1.0
@@ -14,6 +14,8 @@
 
 /rat/proc quadfitter
 /rat/procset max_radius 4250.0  # Set max_radius > r_max of Valid.geo to account for resolution
+/rat/procset max_hit_time 38.0  # ns
+/rat/procset min_hit_time -8.0  # ns
 
 /rat/proclast outntuple
 
@@ -23,4 +25,4 @@
 /generator/rate/set 2.0
 
 
-/run/beamOn 100
+/run/beamOn 10000

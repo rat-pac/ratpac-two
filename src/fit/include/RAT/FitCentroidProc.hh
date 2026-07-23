@@ -17,14 +17,18 @@ class FitCentroidProc : public Processor {
   FitCentroidProc() : Processor("fitcentroid"), inputHandler(){};
   virtual ~FitCentroidProc() {}
 
-  /** param = "power", value = exponent to raise charge to when averaging
-   *  default is 2.0 */
+  virtual void SetS(std::string param, std::string value);
+
+  virtual void SetI(std::string param, int value);
+
   virtual void SetD(std::string param, double value);
 
   virtual Processor::Result Event(DS::Root *ds, DS::EV *ev);
 
  protected:
-  double fPower = 2.0;
+  std::vector<int> fPMTtype;   // Types of PMT to use in reconstruction.  If empty, uses all PMT types.
+  std::string fFitLabel = "";  // Label for the fit result.  User can specify.
+  double fPower = 2.0;         // Exponent to raise charge to when averaging.
   double fRescale = 1.0;
   FitterInputHandler inputHandler;
 };
