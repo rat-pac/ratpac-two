@@ -1,0 +1,25 @@
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+/rat/db/set DETECTOR experiment "Validation"
+/rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+
+# Retain only optical-photon trajectories that interact with a PMT.
+/rat/db/set MC tuning true
+/rat/db/set MC tuning_option "timepdf"
+
+/run/initialize
+
+/tracking/storeTrajectory 1
+
+/rat/proc forcedtrigger
+/rat/proc count
+/rat/procset update 100
+/rat/proclast outroot
+
+# Central 2.5 MeV electrons
+/generator/add combo gun:point:poisson
+/generator/vtx/set e- 0.0 0.0 0.0 2.5
+/generator/pos/set 0.0 0.0 0.0
+
+/run/beamOn 1000
