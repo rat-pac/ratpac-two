@@ -202,7 +202,7 @@ Processor::Result OutROOTProc::DSEvent(DS::Root *ds) {
       RAT::DS::MCTrack *mctrack = mc->GetMCTrack(i);
       int nsteps = mctrack->GetMCTrackStepCount();
       bool isMuon = (mctrack->GetParticleName().compare("mu-") == 0 || mctrack->GetParticleName().compare("mu+") == 0);
-      if (nsteps > 1e5 && !isMuon) {
+      if (nsteps > 1e8 && !isMuon) {
         warn << "outroot: trimming intermediate steps from MC event #" << mc->GetID() << ", track #" << mctrack->GetID()
              << " which has " << nsteps << " steps" << newline;
         mctrack->PruneIntermediateMCTrackSteps();
