@@ -203,6 +203,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputTree->Branch("triggerTime", &triggerTime);  // Local trigger time
   outputTree->Branch("timestamp", &timestamp);      // Global trigger time
   outputTree->Branch("trigger_word", &trigger_word);
+  outputTree->Branch("triggerSumPeak", &triggerSumPeak);
   outputTree->Branch("event_cleaning_word", &event_cleaning_word);
   outputTree->Branch("timeSinceLastTrigger_us", &timeSinceLastTrigger_us);
   // MC Information
@@ -591,6 +592,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     triggerTime = ev->GetCalibratedTriggerTime();
     timestamp = TTimeStamp_to_UnixTime(ev->GetUTC()) - TTimeStamp_to_UnixTime(runBranch->GetStartTime()) + triggerTime;
     trigger_word = ev->GetTriggerWord();
+    triggerSumPeak = ev->GetTriggerSumPeak();
     event_cleaning_word = ev->GetEventCleaningWord();
     timeSinceLastTrigger_us = ev->GetDeltaT() / 1000.;
 
@@ -767,6 +769,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     nhits = -1;
     totalcharge = 0;
     triggerTime = 0;
+    triggerSumPeak = 0;
     timeSinceLastTrigger_us = 0;
     if (options.pmthits) {
       hitPMTID.clear();

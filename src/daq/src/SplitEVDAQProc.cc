@@ -139,6 +139,16 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     ev->SetUTC(mc->GetUTC());
     ev->SetDeltaT(tt - lastTrigger);
     lastTrigger = tt;
+
+    // Find the peak of the trigger sum (in units of hits) over the same time window used for hits
+    double windowLo = tt - fLookback;
+    double windowHi = tt + fTriggerWindow;
+    int binLo = std::max(0, static_cast<int>(std::ceil((windowLo - start) / bw)));
+    int binHi = std::min(nbins - 1, static_cast<int>(std::floor((windowHi - start) / bw)));
+    double triggerSumPeak = 0.0;
+    for (int i = binLo; i <= binHi; i++) triggerSumPeak = std::max(triggerSumPeak, triggerHistogram[i]);
+    ev->SetTriggerSumPeak(triggerSumPeak);
+
     double totalEVCharge = 0;
     for (int imcpmt = 0; imcpmt < mc->GetMCPMTCount(); imcpmt++) {
       DS::MCPMT *mcpmt = mc->GetMCPMT(imcpmt);
@@ -151,7 +161,7 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
         for (int pidx = 0; pidx < mcpmt->GetMCPhotonCount(); pidx++) {
           DS::MCPhoton *photon = mcpmt->GetMCPhoton(pidx);
           double time = photon->GetFrontEndTime();
-          if ((time > (tt - fLookback)) && (time < (tt + fTriggerWindow))) {
+          if ((time > windowLo) && (time < windowHi)) {
             pmtInEvent = true;
             hitTimes.push_back(time);
             integratedCharge += photon->GetCharge();
