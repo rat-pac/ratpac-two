@@ -48,9 +48,11 @@ class TrackInfo : public G4VUserTrackInformation {
   void SetCreatorStep(int _CreatorStep) { CreatorStep = _CreatorStep; };
   int GetCreatorStep() const { return CreatorStep; };
 
-  /** Global time at which the parent particle excited the
-   *  scintillator, before any scintillation emission delay
-   *  is added to produce this track's own creation time.
+  /** Global time at the start of the step that produced this track
+   *  (the ionizing particle's step for scintillation photons, or the
+   *  absorbed photon's step for re-emitted photons), before any
+   *  scintillation/re-emission delay is added to produce this track's
+   *  own creation time.
    **/
   void SetExcitationTime(double _excitationTime) { fExcitationTime = _excitationTime; };
   double GetExcitationTime() const { return fExcitationTime; };

@@ -241,6 +241,11 @@ If ``include_mchits`` is set then we additionally add the following information 
 ``mcPEy``                      vector<double>       The true y position of the PE.
 ``mcPEz``                      vector<double>       The true z position of the PE.
 ``mcPECharge``                 vector<double>       The true charge of each PE.
+``mcPECreationTime``           vector<double>       The true time the photon that produced each PE started existing as its own track, including any scintillation emission delay, but before propagation to the PMT and electronics delays (ns). Always later than ``mcPEExcitationTime`` for scintillation/re-emission photons; see :ref:`photon_processes`.
+``mcPECreationX``              vector<double>       The true x position where the photon that produced each PE was created (mm).
+``mcPECreationY``              vector<double>       The true y position where the photon that produced each PE was created (mm).
+``mcPECreationZ``              vector<double>       The true z position where the photon that produced each PE was created (mm).
+``mcPEExcitationTime``         vector<double>       The true global time at the start of the step that produced the photon that created each PE (the ionizing particle's step for scintillation photons, or the absorbed photon's step for re-emitted photons), i.e. before the emission delay included in ``mcPECreationTime`` is added. NaN if not available (e.g. the photon is not from scintillation, such as Cherenkov light), in which case ``mcPECreationTime`` is still filled in as normal.
 =============================  ===================  ===================
 
 If ``include_tracking`` is set then we additionally add the following information to the ``output`` branch of the ntuple. These variables are filled from the ``RAT::DS::MCTrack`` and ``RAT::DS::MCTrackStep`` branches. The variables below are mostly 2D vectors. The inner vector is the set of steps along the particle track (``RAT::DS::MCTrackStep``) and the outer vector is the set of tracks along the particle trajectory (``RAT:DS::MCTrack``). In other words, each track can have many steps, each of which as an associated position, momentum, process, and volume. As a reminder, ``/tracking/storeTrajectory 1`` must also be set in the macro in order to save the tracking information.
@@ -257,6 +262,8 @@ If ``include_tracking`` is set then we additionally add the following informatio
 ``trackMomZ``                  vector<vector<double>>  The starting z momentum of each of the steps along the particle track.
 ``trackKE``                    vector<vector<double>>  The kinetic energy of each of the steps along the particle track.
 ``trackTime``                  vector<vector<double>>  The time, relative to the start of the simulation, of the particle steps.
+``trackDep``                   vector<vector<double>>  The energy deposited over each step.
+``trackQDep``                  vector<vector<double>>  The Birks' law quenched energy deposited over each step (0 if the step produced no scintillation light).
 ``trackProcess``               vector<vector<int>>     The ID of the process that created the step.
 ``trackVolume``                vector<vector<int>>     The ID of the detector volume the step started in.
 =============================  ======================  ===================

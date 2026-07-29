@@ -77,7 +77,8 @@ class MCPhoton : public TObject {
   virtual std::string GetCreatorProcess() const { return process; }
   virtual void SetCreatorProcess(const std::string &_process) { process = _process; }
 
-  /** Creation time of this PE's photon, before any delays (ns). */
+  /** Creation time of this PE's photon (ns). Includes any scintillation
+   *  emission delay, but not propagation to the PMT or electronics delays. */
   virtual void SetCreationTime(Double_t _creationTime) { creationTime = _creationTime; }
   virtual Double_t GetCreationTime() const { return creationTime; }
 
@@ -85,9 +86,11 @@ class MCPhoton : public TObject {
   virtual void SetCreationPosition(const TVector3 &_creationPos) { creationPos = _creationPos; }
   virtual TVector3 GetCreationPosition() const { return creationPos; }
 
-  /** Time the parent particle excited/ionized the scintillator, before any
-   *  scintillation emission delay (ns). NaN if not available (e.g. photon is
-   *  not from scintillation, such as Cherenkov light). */
+  /** Global time at the start of the step that produced this photon
+   *  (the ionizing particle's step for scintillation photons, or the
+   *  absorbed photon's step for re-emitted photons), before any
+   *  scintillation/re-emission delay (ns). NaN if not available (e.g.
+   *  photon is not from scintillation, such as Cherenkov light). */
   virtual void SetExcitationTime(Double_t _excitationTime) { excitationTime = _excitationTime; }
   virtual Double_t GetExcitationTime() const { return excitationTime; }
 
