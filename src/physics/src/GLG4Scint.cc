@@ -623,6 +623,7 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
       // Add the information to the track history (if it exists)
       RAT::TrackInfo *trackInfo = new RAT::TrackInfo();
       trackInfo->SetCreatorStep(aTrack.GetCurrentStepNumber());
+      trackInfo->SetExcitationTime(t0);
       // Copy the history of the parent into this one
       if (aTrack.GetParticleDefinition() == G4OpticalPhoton::OpticalPhoton()) {
         // This new track is produced from an existing photon.

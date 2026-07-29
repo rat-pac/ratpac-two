@@ -613,10 +613,13 @@ void Gsim::AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventI
   rat_mcphoton->SetMomentum(TVector3(x, y, z));
   photon->GetPolarization(x, y, z);
   rat_mcphoton->SetPolarization(TVector3(x, y, z));
+  photon->GetCreationPosition(x, y, z);
+  rat_mcphoton->SetCreationPosition(TVector3(x, y, z));
 
   rat_mcphoton->SetTrackID(photon->GetTrackID());
   rat_mcphoton->SetHitTime(photon->GetTime());
   rat_mcphoton->SetCreationTime(photon->GetCreationTime());
+  rat_mcphoton->SetExcitationTime(photon->GetExcitationTime());
 
   rat_mcphoton->SetFrontEndTime(fPMTTime[fPMTInfo->GetModel(rat_mcpmt->GetID())]->PickTime(photon->GetTime()));
   // Set the charge for the photoelectron, scaled by an optional calibration parameter chargeScale with a default value

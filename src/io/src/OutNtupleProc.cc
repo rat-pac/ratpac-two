@@ -319,6 +319,11 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     outputTree->Branch("mcPEy", &mcpey);
     outputTree->Branch("mcPEz", &mcpez);
     outputTree->Branch("mcPECharge", &mcpecharge);
+    outputTree->Branch("mcPECreationTime", &mcpecreationtime);
+    outputTree->Branch("mcPECreationX", &mcpecreationx);
+    outputTree->Branch("mcPECreationY", &mcpecreationy);
+    outputTree->Branch("mcPECreationZ", &mcpecreationz);
+    outputTree->Branch("mcPEExcitationTime", &mcpeexcitationtime);
   }
   if (options.tracking) {
     // Save particle tracking information
@@ -539,6 +544,11 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcpey.clear();
   mcpez.clear();
   mcpecharge.clear();
+  mcpecreationtime.clear();
+  mcpecreationx.clear();
+  mcpecreationy.clear();
+  mcpecreationz.clear();
+  mcpeexcitationtime.clear();
 
   mcnhits = mc->GetMCPMTCount();
   mcpecount = mc->GetNumPE();
@@ -559,6 +569,12 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         mcpey.push_back(position.Y());
         mcpez.push_back(position.Z());
         mcpecharge.push_back(mcph->GetCharge());
+        mcpecreationtime.push_back(mcph->GetCreationTime());
+        TVector3 creationPos = mcph->GetCreationPosition();
+        mcpecreationx.push_back(creationPos.X());
+        mcpecreationy.push_back(creationPos.Y());
+        mcpecreationz.push_back(creationPos.Z());
+        mcpeexcitationtime.push_back(mcph->GetExcitationTime());
         if (mcph->IsDarkHit()) {
           mcpeprocess.push_back(noise);
           continue;

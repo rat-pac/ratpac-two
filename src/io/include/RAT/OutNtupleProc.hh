@@ -181,6 +181,11 @@ class OutNtupleProc : public Processor {
   std::vector<double> mcpey;
   std::vector<double> mcpez;
   std::vector<double> mcpecharge;
+  std::vector<double> mcpecreationtime;
+  std::vector<double> mcpecreationx;
+  std::vector<double> mcpecreationy;
+  std::vector<double> mcpecreationz;
+  std::vector<double> mcpeexcitationtime;
   // MCParticles
   int mcpcount;
   int mcid;

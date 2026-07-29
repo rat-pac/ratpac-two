@@ -4,6 +4,7 @@
 #include <G4Allocator.hh>
 #include <G4VUserTrackInformation.hh>
 #include <RAT/CentroidCalculator.hh>
+#include <cmath>
 #include <map>
 #include <string>
 
@@ -47,11 +48,19 @@ class TrackInfo : public G4VUserTrackInformation {
   void SetCreatorStep(int _CreatorStep) { CreatorStep = _CreatorStep; };
   int GetCreatorStep() const { return CreatorStep; };
 
+  /** Global time at which the parent particle excited the
+   *  scintillator, before any scintillation emission delay
+   *  is added to produce this track's own creation time.
+   **/
+  void SetExcitationTime(double _excitationTime) { fExcitationTime = _excitationTime; };
+  double GetExcitationTime() const { return fExcitationTime; };
+
   virtual void Print() const {};
 
  protected:
   std::string fCreatorProcess;
   int CreatorStep;
+  double fExcitationTime = std::nan("");
 };
 
 // GEANT4 uses a custom allocator on subclass, so we need to override it here.
