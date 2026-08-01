@@ -354,7 +354,7 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
     return Processor::Result(FAIL);
   }
 
-  if (!fFixedPos) {  // Don't sort position if fitting only for time
+  if (fFixedPos == 0) {  // If fixing position, don't sort
     std::sort(quad_xs.begin(), quad_xs.end());
     std::sort(quad_ys.begin(), quad_ys.end());
     std::sort(quad_zs.begin(), quad_zs.end());
