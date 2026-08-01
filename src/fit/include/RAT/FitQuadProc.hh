@@ -32,8 +32,8 @@ class FitQuadProc : public Processor {
   double fMaxX = 0.0;  // [mm].  Optional Cartesian alternative to fMaxRadius.
   double fMaxY = 0.0;
   double fMaxZ = 0.0;
-  bool fFixedPos = false;
-  double fFixedX = 0.0;
+  int fFixedPos = false;  // If > 0, return a fitted time for the fixed position.
+  double fFixedX = 0.0;   // [mm]
   double fFixedY = 0.0;
   double fFixedZ = 0.0;
   double fMaxHitTime = -9999;  // [ns].  Optional hit time limits - ineffective when fMaxHitTime <= fMinHitTime.
