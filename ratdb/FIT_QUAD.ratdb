@@ -9,4 +9,9 @@
 "max_x": 0.0,          // [mm].  Optional Cartesian alternatives (set max_radius to 0.0).
 "max_y": 0.0,
 "max_z": 0.0,
+
+"fixed_position": 0,   //  If > 0, return a fitted time for the fixed position.
+"fixed_x": 0.0,        // [mm]
+"fixed_y": 0.0,
+"fixed_z": 0.0,
 }

@@ -6,6 +6,11 @@
 /rat/db/set DETECTOR experiment "Validation"
 /rat/db/set DETECTOR geo_file "Validation/Valid.geo"
 
+#/rat/db/set FIT_QUAD fixed_position 1
+#/rat/db/set FIT_QUAD fixed_x 0.0
+#/rat/db/set FIT_QUAD fixed_y 0.0
+#/rat/db/set FIT_QUAD fixed_z 0.0
+
 /run/initialize
 
 /rat/proc splitevdaq

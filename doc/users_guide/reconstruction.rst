@@ -88,6 +88,11 @@ different settings in a single macro.  An example is given in macros/examples/qu
 ``min_hit_time``            ``double``                  Optional lower cut on PMT hit times in ns
 ``max_hit_time``            ``double``                  Optional upper cut on PMT hit times in ns
 
+``fixed_position``          ``int``                     Option to give a fixed position and determine an event time
+``fixed_x``                 ``double``                  Fixed x coordinate in mm
+``fixed_y``                 ``double``                  Fixed y coordinate in mm
+``fixed_z``                 ``double``                  Fixed z coordinate in mm
+
 Position fit information in data structure
 ''''''''''''''''''''''''''''''''''''''''''
 * name - "quad"

@@ -34,6 +34,10 @@ void FitQuadProc::BeginOfRun(DS::Run *run) {
     if (fMaxX <= 0.0 || fMaxY <= 0.0 || fMaxZ <= 0.0)
       Log::Die("Quad::BeginOfRun: must set either max_radius or each of max_x, max_y, and max_z.");
   }
+  fFixedPos = quad_db->GetI("fixed_position");
+  fFixedX = quad_db->GetD("fixed_x");
+  fFixedY = quad_db->GetD("fixed_y");
+  fFixedZ = quad_db->GetD("fixed_z");
 
   DBLinkPtr table = db->GetLink("FIT_COMMON", "");
   fLightSpeed = table->GetD("light_speed");
@@ -60,6 +64,8 @@ void FitQuadProc::SetI(std::string param, int value) {
       throw ParamInvalid(param, "table_cut_off cannot be larger than the size of fNumPointsTbl.");
   } else if (param == "pmt_type") {
     fPMTtype.push_back(value);
+  } else if (param == "fixed_position") {
+    fFixedPos = value;
   } else
     throw ParamUnknown(param);
 }
@@ -91,6 +97,21 @@ void FitQuadProc::SetD(std::string param, double value) {
   } else if (param == "min_hit_time") {
     fMinHitTime = value;
     fSetMinHitTime = true;
+  } else if (param == "fixed_x") {
+    if (fFixedPos)
+      fFixedX = value;
+    else
+      throw ParamInvalid(param, "To set fixed_x, first set fixed_position > 0.");
+  } else if (param == "fixed_y") {
+    if (fFixedPos)
+      fFixedY = value;
+    else
+      throw ParamInvalid(param, "To set fixed_y, first set fixed_position > 0.");
+  } else if (param == "fixed_z") {
+    if (fFixedPos)
+      fFixedZ = value;
+    else
+      throw ParamInvalid(param, "To set fixed_z, first set fixed_position > 0.");
   } else
     throw ParamUnknown(param);
 }
@@ -237,8 +258,22 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
   // Arrays for quad points
   std::vector<double> quad_xs, quad_ys, quad_zs, quad_ts;
   for (size_t pt_i = 0; pt_i < num_pts; pt_i++) {
-    double min_time = 1e9;
     std::array<unsigned int, 4> pmt_ids = pmt_table[pt_i];
+
+    if (fFixedPos > 0) {  // If fitting only for time (fixed position provided)
+      for (int j = 0; j < 4; j++) {
+        unsigned int i = pmt_ids[j];
+        double dist = sqrt(pow(pmtx[i] - fFixedX, 2.0) + pow(pmty[i] - fFixedY, 2.0) + pow(pmtz[i] - fFixedZ, 2.0));
+        double time = pmtt[i] - dist / fLightSpeed;
+        quad_xs.push_back(fFixedX);
+        quad_ys.push_back(fFixedY);
+        quad_zs.push_back(fFixedZ);
+        quad_ts.push_back(time);
+        if (quad_xs.size() >= fMaxQuadPoints) break;  // got enough
+      }
+    }
+
+    double min_time = 1e9;
     double pmt_pos[4][3];
 
     std::array<double, 4> t;
@@ -319,9 +354,11 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
     return Processor::Result(FAIL);
   }
 
-  std::sort(quad_xs.begin(), quad_xs.end());
-  std::sort(quad_ys.begin(), quad_ys.end());
-  std::sort(quad_zs.begin(), quad_zs.end());
+  if (!fFixedPos) {  // Don't sort position if fitting only for time
+    std::sort(quad_xs.begin(), quad_xs.end());
+    std::sort(quad_ys.begin(), quad_ys.end());
+    std::sort(quad_zs.begin(), quad_zs.end());
+  }
   std::sort(quad_ts.begin(), quad_ts.end());
 
   TVector3 best_fit(quad_xs[quad_pts / 2], quad_ys[quad_pts / 2], quad_zs[quad_pts / 2]);
