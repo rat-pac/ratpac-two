@@ -2,55 +2,49 @@
 /// \class RAT::WaveformAnalysisFSMP
 ///
 /// \brief Reconstruct photoelectron times and charges with Fast Stochastic
-/// Matching Pursuit (FSMP).
+/// Matching Pursuit (FSMP)
 ///
 /// \author Ravi Carpen Pitelka <rpitelka@sas.upenn.edu>
 ///
 /// REVISION HISTORY:\n
 ///     24 Jun 2026: Initial commit
+///     31 Jul 2026: Greedy search split out into WaveformAnalysisGreedyMP
 ///
 /// \details
-/// Implements the Fast Stochastic Matching Pursuit method of Xu et al. 2022
-/// (JINST 17 P06040, arXiv:2112.06913).
+/// FSMP is the Bayesian waveform analysis of Xu et al. 2022, JINST 17 P06040
+/// (arXiv:2112.06913). The waveform is modelled as a sparse spike train of PEs
+/// convolved with a single PE response (SER) template plus Gaussian white noise.
+/// Given the evidence p(w|z) of a configuration z, the per PE charges integrated
+/// out analytically, configurations are explored with a
+/// Metropolis-Hastings-within-Gibbs sampler (birth/death/shift moves) run
+/// jointly with the light curve time t0 (paper eq. 2.2). The paper describes
+/// this as replacing the greedy search of FBMP with stochastic sampling; that
+/// greedy search is WaveformAnalysisGreedyMP, and pointing seed_analyzer at it
+/// gives the chain its starting configuration.
 ///
-/// The waveform is modelled as a sparse spike train of PEs convolved with a
-/// single-PE response (SER) template (lognormal or gaussian, matching the
-/// detector's true SER shape) plus Gaussian white noise (paper eq. 2.5).
-/// A dictionary of time-shifted SER templates on an upsampled grid spans the
-/// candidate PE times. For a given PE configuration z (which grid points host a
-/// PE), the per-PE charges are integrated out analytically, yielding a
-/// multivariate-Gaussian evidence p(w|z) (paper eq. 3.24). Candidate times are
-/// restricted to threshold-crossing regions of interest, and a non-iterative
-/// preconditioner derived from the upstream WaveformPrep total charge sets the
-/// occupancy prior.
+/// Because the sampler carries t0 and the intensity mu, FSMP estimates the
+/// incident light directly rather than only the individual PEs. Alongside the
+/// MAP configuration's PE times and charges it reports "fsmp_t0", "fsmp_mu" and
+/// "fsmp_npe" (paper eqs. 3.25-3.26), computed once per waveform across all
+/// regions jointly.
 ///
-/// The configuration z is found by a Metropolis-Hastings-within-Gibbs sampler
-/// over z (birth/death/shift moves) and the light-curve time t0, initialised
-/// from a greedy forward-selection solution. The sampler yields the unbiased t0
-/// estimator of paper eqs. 3.25-3.26 and an intensity (mu) estimator taken as
-/// the posterior-mean PE *count* (counting removes the single-PE charge
-/// variance from mu, the resolution gain of paper sec. 4.3; the paper's exact
-/// mu MLE reweights the same samples). Both are stored as figures of merit
-/// alongside the per-PE times and charges. Setting enable_stochastic false
-/// skips the sampler and reports the greedy solution only.
-///
-/// The dictionary and region-of-interest machinery mirror WaveformAnalysisRAVEN.
+/// Template types supported:
+/// - Lognormal
+/// - Gaussian
 ////////////////////////////////////////////////////////////////////
 #ifndef __RAT_WaveformAnalysisFSMP__
 #define __RAT_WaveformAnalysisFSMP__
 
-#include <TMatrixDfwd.h>
-#include <TObject.h>
+#include <TMatrixD.h>
 #include <TRandom3.h>
-#include <TVectorDfwd.h>
+#include <TVectorD.h>
 
 #include <RAT/DB.hh>
 #include <RAT/DS/DigitPMT.hh>
-#include <RAT/Digitizer.hh>
-#include <RAT/Processor.hh>
+#include <RAT/DS/WaveformAnalysisResult.hh>
 #include <RAT/WaveformAnalyzerBase.hh>
 #include <map>
-#include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -66,108 +60,117 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
 
   virtual ~WaveformAnalysisFSMP(){};
 
+  void BuildDictionaryMatrix(int nsamples, double digitizer_period, double width, TMatrixD &W_out);
+
   void Configure(const std::string &config_name) override;
 
   void SetD(std::string param, double value) override;
   void SetI(std::string param, int value) override;
+  void SetS(std::string param, std::string value) override;
 
-  /// Build a dictionary matrix of time-shifted SER templates into W_out.
-  /// Rows index waveform samples, columns index candidate PE times on the
-  /// upsampled grid (column j -> time j * digitizer_period / upsample_factor).
-  /// For the gaussian template, `width` is the SER sigma (per-PMT-type
-  /// selectable).
-  void BuildDictionaryMatrix(int nsamples, double digitizer_period, double width, TMatrixD &W_out);
+  void BeginOfRun(DS::Run *run) override;
 
  protected:
+  /// A threshold crossing region and the PE configuration assigned to it
+  struct Region {
+    int start_sample = 0;     ///< First waveform sample in the region
+    int end_sample = 0;       ///< Last waveform sample in the region
+    int dict_start = 0;       ///< Global dictionary column of local column 0
+    int dict_cols = 0;        ///< Number of candidate columns in the region
+    TMatrixD W;               ///< Region sub-dictionary (region_length x dict_cols)
+    TVectorD v;               ///< Region waveform (region_length)
+    std::vector<int> active;  ///< Occupied local columns, sorted ascending
+    TVectorD charges;         ///< Posterior-mean charges, aligned with `active`
+    double logev = 0.0;       ///< log p(w|z) for the current `active`
+  };
+
   DBLinkPtr fDigit;
 
-  // --- ROI / preconditioner ---
-  bool process_threshold_crossing;  ///< Restrict analysis to threshold-crossing regions
-  double voltage_threshold;         ///< Voltage threshold for ROI detection (mV)
-  int threshold_region_padding;     ///< Samples to pad around ROIs
+  bool process_threshold_crossing;  ///< Whether to use threshold crossing region processing
+  double voltage_threshold;         ///< Voltage threshold for threshold crossing region detection
+  int threshold_region_padding;     ///< Number of samples to pad around threshold crossing regions
 
-  // --- Single-PE response (SER) template ---
-  int template_type;       ///< 0 = lognormal, 1 = gaussian
-  double lognormal_scale;  ///< LogNormal 'm' parameter
-  double lognormal_shape;  ///< LogNormal 'sigma' parameter
-  double gaussian_width;   ///< Gaussian 'sigma' parameter (ns)
-  /// Optional per-PMT-type gaussian widths (paired with gaussian_width_values).
-  /// PMT models differ in SER width; unlisted types use gaussian_width.
-  std::vector<int> gaussian_width_types;
-  std::vector<double> gaussian_width_values;
-  double vpe_charge;  ///< Nominal charge of a single PE (pC)
+  int template_type;  ///< Template type: 0=lognormal, 1=gaussian
 
-  // --- Dictionary ---
-  /// Dictionary per template (key: gaussian width in ps; -1 = lognormal),
-  /// (nsamples x dict_size), in mV per unit charge weight.
-  std::map<int, TMatrixD> fWCache;
-  double upsample_factor;  ///< Sub-sample resolution factor for candidate grid
+  // LogNormal template parameters
+  double lognormal_scale;  ///< LogNormal 'm' parameter for SPE template
+  double lognormal_shape;  ///< LogNormal 'sigma' parameter for SPE template
 
-  // --- Noise / charge prior (Bayesian evidence) ---
-  double noise_sigma;  ///< Gaussian white-noise sigma (mV). <=0 means read from DIGITIZER.
-  double gamma_k;      ///< Shape of gamma charge prior (paper: 1/0.4^2)
-  double gamma_theta;  ///< Scale of gamma charge prior (paper: 0.4^2)
+  // Gaussian template parameters
+  double gaussian_width;                      ///< Gaussian 'sigma' parameter for SPE template
+  std::vector<int> gaussian_width_types;      ///< PMT types with their own template width
+  std::vector<double> gaussian_width_values;  ///< Widths of those types; others use gaussian_width
 
-  // --- Model search ---
-  size_t max_iterations;   ///< Max PEs selected per ROI in greedy initialisation
-  bool enable_stochastic;  ///< Run the MCMC sampler; if false, report the greedy solution only
-  size_t n_mcmc_samples;   ///< Number of post-burn-in MCMC samples
-  size_t burn_in;          ///< Burn-in samples discarded before recording
-  int random_seed;         ///< Seed for the sampler RNG
+  double vpe_charge;  ///< Nominal charge of single PE in pC
 
-  // --- Light curve prior on PE arrival times (paper eq. 2.2) ---
-  double lightcurve_tau;    ///< Exponential time constant tau_l (ns). 0 => pure Gaussian (Cherenkov).
-  double lightcurve_sigma;  ///< Timing spread sigma_l (ns), mainly PMT TTS.
-  double t0_step;           ///< Random-walk proposal step for t0 (ns).
+  // Algorithm configuration
+  std::map<int, TMatrixD> fWCache;  ///< Dictionary per template, keyed by width in ps (-1 = lognormal)
+  double upsample_factor;           ///< Dictionary upsampling factor for sub-sample resolution
+  size_t max_iterations;            ///< Maximum PEs taken from the seed per region
 
-  std::unique_ptr<TRandom3> fRNG;  ///< RNG for the stochastic sampler.
+  // Bayesian evidence parameters
+  double noise_sigma;  ///< Gaussian white-noise sigma of the waveform in mV. Must be > 0.
+  double gamma_k;      ///< Shape of the per-PE charge prior
+  double gamma_theta;  ///< Scale of the per-PE charge prior
 
-  // --- NPE estimation ---
-  bool npe_estimate;                 ///< Split posterior charge into integer PEs
-  double npe_estimate_charge_width;  ///< Width of gaussian single-PE charge PDF
-  size_t npe_estimate_max_pes;       ///< Upper bound on PEs per resolved hit
-  double weight_merge_window;        ///< Merge resolved atoms within this window (ns); 0 = off
+  // Initial configuration
+  std::string seed_analyzer;  ///< Analyzer whose result starts the chain, empty to start from no PEs
+  bool seed_missing_warned;   ///< Limits the "no seed result" warning to once per run
 
-  // --- Dictionary cache ---
-  int cached_nsamples;
-  double cached_digitizer_period;
+  // Stochastic sampler
+  size_t n_mcmc_samples;  ///< Number of post-burn-in MCMC samples
+  size_t burn_in;         ///< Burn-in samples discarded before recording
+  TRandom3 fRNG;          ///< Sampler RNG, seeded from the global engine at BeginOfRun
+
+  // Light curve prior on PE arrival times (paper eq. 2.2)
+  double lightcurve_tau;    ///< Exponential time constant tau_l (ns), 0 for pure Gaussian
+  double lightcurve_sigma;  ///< Timing spread sigma_l (ns), mainly PMT transit time spread
+  double t0_step;           ///< Random-walk proposal step for t0 (ns)
+
+  // NPE estimation parameters
+  bool npe_estimate;                 ///< Whether to perform NPE estimation on resolved wave packets
+  double npe_estimate_charge_width;  ///< Width of Gaussian single-PE charge distribution
+  size_t npe_estimate_max_pes;       ///< Upper limit for NPE estimation
+  double weight_merge_window;        ///< Time window (ns) for merging nearby weights, 0 to disable
+
+  // Dictionary management
+  int cached_nsamples;             ///< Cached number of samples for dictionary
+  double cached_digitizer_period;  ///< Cached digitizer period for dictionary
 
   void DoAnalysis(DS::DigitPMT *digitpmt, const std::vector<UShort_t> &digitWfm) override;
 
-  /// Find threshold crossing regions in a (negative-going) voltage waveform.
+  /// Gather the columns `cols` of `W` into a (nrows x |cols|) matrix
+  static TMatrixD BuildActive(const TMatrixD &W, int nrows, const std::vector<int> &cols);
+
+  /// Find threshold crossing regions in waveform for efficient processing
   std::vector<std::pair<int, int>> FindThresholdRegions(const std::vector<double> &voltWfm, double threshold,
                                                         int region_padding);
 
-  /// Analyze one ROI and write reconstructed PEs to fit_result. Runs the greedy
-  /// initialisation, then (if enable_stochastic) the MCMC sampler.
-  /// `logodds` is the flat per-PE log prior-odds used by the greedy step;
-  /// `mu0` is the preconditioner intensity used by the sampler's occupancy prior.
-  void ProcessRegion(const TMatrixD &fW, const std::vector<double> &voltWfm, int start_sample, int end_sample,
-                     DS::WaveformAnalysisResult *fit_result, double gain_calibration, double logodds, double mu0);
+  /// Slice the dictionary and waveform into a region, false if it holds no columns
+  bool PrepareRegion(const TMatrixD &fW, const std::vector<double> &voltWfm, int start_sample, int end_sample,
+                     Region &region_out);
 
-  /// Log Gaussian evidence log p(w|z) for the active set, returning the
-  /// posterior-mean charges of the active columns in `charges_out`.
-  /// `W_active` is (D x |P|), `voltVec` is (D). Uses the prior charge variance
-  /// (gamma_k * gamma_theta^2) and noise variance (noise_sigma^2).
+  /// Write one region's resolved atoms to fit_result, tagged with `extra_foms`
+  void EmitRegion(const Region &region, DS::WaveformAnalysisResult *fit_result, double gain_calibration, double chi2ndf,
+                  const std::map<std::string, double> &extra_foms);
+
+  /// Log evidence log p(w|z) of the active set, with its posterior-mean charges
   double LogEvidence(const TMatrixD &W_active, const TVectorD &voltVec, TVectorD &charges_out);
 
-  /// Greedy forward selection of PE columns within a region sub-dictionary
-  /// `W_roi` (region_length x dict_cols), maximising the log evidence plus the
-  /// flat occupancy penalty `logodds`. Fills `active` (local column indices) and
-  /// `charges` (posterior-mean charges of those columns).
-  void GreedySelect(const TMatrixD &W_roi, const TVectorD &v, int dict_cols, double logodds, std::vector<int> &active,
-                    TVectorD &charges);
+  /// Seed the regions from seed_analyzer's result, returning the PEs seeded
+  size_t SeedRegions(DS::DigitPMT *digitpmt, std::vector<Region> &regions);
 
-  /// Metropolis-Hastings-within-Gibbs sampler over the PE configuration z
-  /// (birth/death/shift moves) and the light-curve time t0. Initialised from
-  /// `active`/`charges`, it overwrites them with the MAP configuration and
-  /// returns the posterior-mean estimators t0_hat, mu_hat (paper eqs.
-  /// 3.25-3.26). `dict_start` maps local columns to global time.
-  void SampleConfigurations(const TMatrixD &W_roi, const TVectorD &v, int dict_cols, int dict_start, double mu0,
-                            std::vector<int> &active, TVectorD &charges, double &t0_hat, double &mu_hat);
+  /// Sample configurations z and the light curve time t0 jointly over every
+  /// region, overwriting `regions` with the MAP one and returning the estimators
+  /// of paper eqs. 3.25-3.26. The occupancy prior spans all `dict_total` columns.
+  void SampleConfigurations(std::vector<Region> &regions, int dict_total, double mu0, double &t0_hat, double &mu_hat,
+                            double &npe_hat);
 
-  /// Normalized light-curve density phi(dt) (paper eq. 2.2), dt = t - t0.
-  /// Ex-Gaussian for tau_l>0, pure Gaussian for tau_l->0.
+  /// Importance-reweighted intensity MLE (paper eqs. 3.25-3.26) from the PE-count
+  /// histogram `n_hist` drawn under `mu_ref`, given the in-window light `mass_scale`
+  double IntensityMLE(const std::vector<size_t> &n_hist, double mu_ref, double mass_scale) const;
+
+  /// Normalized light-curve density phi(dt) (paper eq. 2.2), dt = t - t0
   double LightCurve(double dt) const;
 };
 
