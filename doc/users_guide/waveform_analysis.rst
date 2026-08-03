@@ -103,6 +103,10 @@ There are several additional waveform analysis proccesors described below, each 
     
     /rat/proc WaveformAnalysisRAVEN
 
+    /rat/proc WaveformAnalysisGreedyMP
+
+    /rat/proc WaveformAnalysisFSMP
+
 For all of these processors, there is a utility located in ``util/src/`` called ``WaveformUtil.cc`` that provides useful analysis tools. For example, there are public methods to convert ADC counts to voltage, identify the peak of the waveform and the corresponding sample, get the total number of threshold crossings, etc.
 
 .. _common_parameters:
@@ -252,6 +256,93 @@ The method can be configured using the following ratdb parameters:
 ``npe_estimate_charge_width``     Width of single PE charge distribution (in pC) for NPE estimation.
 ``npe_estimate_max_pes``          Maximum number of PEs to consider in NPE estimation.
 ================================  ===================
+
+-------------------------
+
+GreedyMP
+````````
+
+Performs PMT waveform analysis by greedy Bayesian matching pursuit, the search used by fast Bayesian matching pursuit (Schniter, Potter and Ziniel, Information Theory and Applications Workshop 2008). The waveform is modelled as a sparse spike train of PEs convolved with a single PE template plus Gaussian white noise. For a configuration :math:`z` of occupied points on a sub-sample time grid, the per-PE charges are integrated out analytically to give a multivariate Gaussian evidence :math:`p(w|z)`; the analyzer then builds a configuration one atom at a time, at each step correlating every unoccupied dictionary column with the current fit residual, scoring the best-correlated handful with the full evidence, and keeping whichever most improves it net of a per-PE sparsity penalty. Only that shortlist is scored with the expensive evidence solve, which is what makes the search affordable on a grid ``upsampling_factor`` times denser than the digitizer samples. Two template types are supported: lognormal (asymmetric) and Gaussian (symmetric).
+
+GreedyMP and FSMP below use the same dictionary, regions of interest, evidence and PE emission, and differ only in how they search over configurations. Running both on the same waveforms therefore compares search strategies at identical settings, and FSMP is designed to take GreedyMP's output as its starting point.
+
+The method can be configured using the following ratdb parameters:
+
+================================  ===================
+**Name**                          **Description**
+================================  ===================
+``process_threshold_crossing``    Enable region-based processing (0=no, 1=yes).
+``voltage_threshold``             Voltage threshold for region detection, in mV.
+``region_padding``                Number of samples to pad around threshold crossing regions.
+``template_type``                 Template type: 0=lognormal, 1=gaussian.
+``lognormal_scale``               Lognormal "m" parameter (used when template_type=0).
+``lognormal_shape``               Lognormal "sigma" parameter (used when template_type=0).
+``gaussian_width``                Gaussian sigma parameter (used when template_type=1).
+``gaussian_width_pmt_types``      Optional PMT types with their own template width. Paired with the next entry.
+``gaussian_width_pmt_widths``     Gaussian sigma for each listed PMT type. Unlisted types use ``gaussian_width``.
+``vpe_charge``                    Nominal charge of a single PE in pC.
+``upsampling_factor``             Dictionary upsampling factor for sub-sample timing resolution.
+``noise_sigma``                   Gaussian white noise sigma of the waveform, in mV. Must be positive.
+``gamma_k``                       Shape of the per-PE charge prior. Paper value is 1/0.4^2.
+``gamma_theta``                   Scale of the per-PE charge prior. Paper value is 0.4^2.
+``seed_analyzer``                 Name of another analyzer's result to take the initial configuration from. Empty to search every region.
+``max_iterations``                Maximum number of PEs per region.
+``greedy_shortlist``              Number of best-correlated columns scored with the full evidence per step.
+``weight_merge_window``           Time window (ns) for merging nearby atoms. Set to 0 to disable.
+``npe_estimate``                  If true, perform NPE estimation on resolved atoms.
+``npe_estimate_charge_width``     Width of single PE charge distribution (in pC) for NPE estimation.
+``npe_estimate_max_pes``          Maximum number of PEs to consider in NPE estimation.
+================================  ===================
+
+-------------------------
+
+FSMP
+````
+
+Performs PMT waveform analysis using FSMP (Fast Stochastic Matching Pursuit), the Bayesian method of Xu et al. 2022, JINST 17 P06040 (https://arxiv.org/abs/2112.06913). It shares the sparse PE model, dictionary and evidence described under GreedyMP above, and differs in how it searches: rather than adding atoms greedily, it explores configurations with a Metropolis-Hastings-within-Gibbs sampler that makes birth, death and shift moves on :math:`z` jointly with the light curve time :math:`t_0`. The paper describes this as replacing the greedy search of FBMP with stochastic sampling; here that greedy search is the separate GreedyMP processor.
+
+Because the sampler carries :math:`t_0` and the intensity :math:`\mu`, FSMP reports estimates of the incident light itself rather than only the individual PEs. The sampler runs once per waveform across all regions, so these are per-PMT quantities repeated on every PE of that waveform:
+
+* ``fsmp_t0`` --- posterior mean light curve time, in the same time base as the reconstructed PE times.
+* ``fsmp_mu`` --- importance-reweighted intensity maximum likelihood estimate (paper eqs. 3.25-3.26).
+* ``fsmp_npe`` --- posterior mean number of PEs. More robust than ``fsmp_mu`` when the chain visits a wide range of PE counts.
+* ``chi2ndf`` --- goodness of fit of the reconstructed waveform, normalized by ``noise_sigma``, over all regions of the waveform.
+
+The Markov chain needs somewhere to start, which ``seed_analyzer`` supplies from another analyzer's result --- the role LucyDDM plays in the paper, and what GreedyMP is there for::
+
+    /rat/proc WaveformAnalysisGreedyMP
+
+    /rat/proc WaveformAnalysisFSMP
+    /rat/procset seed_analyzer "GreedyMP"
+
+The seed analyzer must appear **before** FSMP in the processor chain, since FSMP reads the ``WaveformAnalysisResult`` it left on the ``DigitPMT``. Any analyzer that reports PE times will do --- RAVEN and LucyDDM work equally well. The seed only sets where the chain starts, so a seed analyzer that misses or invents a PE is recoverable: the sampler can still add or remove PEs anywhere in the regions. Repeated PEs at the same time (as produced by an analyzer running ``npe_estimate``) collapse to a single occupied grid point, since the model allows at most one PE per grid point. If the named result is missing FSMP warns once and starts from an empty configuration, which mixes poorly --- the chain then has to discover every PE unaided.
+
+FSMP takes the same parameters as GreedyMP, minus ``greedy_shortlist``, plus the following:
+
+================================  ===================
+**Name**                          **Description**
+================================  ===================
+``n_mcmc_samples``                Number of post-burn-in samples recorded.
+``burn_in``                       Number of warm-up samples discarded.
+``lightcurve_tau``                Light curve exponential time constant, in ns. 0 gives a pure Gaussian.
+``lightcurve_sigma``              Light curve timing spread, in ns. Mainly PMT transit time spread.
+``t0_step``                       Random walk proposal step for t0, in ns.
+================================  ===================
+
+The sampler draws from its own random number generator, seeded once per run from the global CLHEP engine, so ``rat -s`` reproduces an FSMP run exactly. The generator is private to the analyzer, so enabling FSMP does not consume randomness from the simulation and does not change the events it produces.
+
+``lightcurve_tau`` and ``lightcurve_sigma`` describe the expected arrival time profile of the light and should match the detector medium: set ``lightcurve_tau`` to the effective scintillation decay constant of the fill, or to 0 for a Cherenkov-dominated (e.g. water) fill, and ``lightcurve_sigma`` to the PMT transit time spread. These only affect the sampler, but a badly mismatched ``lightcurve_tau`` degrades ``fsmp_t0`` substantially.
+
+-------------------------
+
+Shared notes
+````````````
+
+``noise_sigma`` should match the digitizer noise model (the ``noise_amplitude`` entry of the ``DIGITIZER`` table, or the pedestal RMS for real data), since it sets the scale of the evidence and therefore how readily either analyzer adds a PE.
+
+``weight_merge_window`` and ``npe_estimate`` default off for both GreedyMP and FSMP, unlike RAVEN. Splitting a resolved atom's charge into integer PEs reintroduces the single PE charge variance that resolving PEs individually is meant to remove.
+
+GreedyMP and FSMP each read their own ``DIGITIZER_ANALYSIS`` index, selected with ``/rat/procset analyzer_name``. Give them separate indices rather than sharing one with RAVEN: they read several keys under the same names but want different values, ``npe_estimate`` and ``weight_merge_window`` above among them.
 
 -------------------------
 

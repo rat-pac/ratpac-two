@@ -194,7 +194,7 @@
 
 {
 "name": "DIGITIZER_ANALYSIS",
-"index": "FSMP",
+"index": "GreedyMP",
 "run_range": [0, 0],
 
 // Restrict analysis to threshold-crossing regions of interest.
@@ -204,13 +204,13 @@
 
 // Single-PE response template: 0 = lognormal, 1 = gaussian. Match the true
 // SER shape of the detector (e.g. Eos PMTPULSE tables are gaussian).
-"fsmp_template_type": 0,
+"template_type": 0,
 
-// Single-PE response (lognormal) template parameters (fsmp_template_type = 0).
+// Single-PE response (lognormal) template parameters (template_type = 0).
 "lognormal_scale": 10.5, // "m" parameter in Lognormal distribution
 "lognormal_shape": 0.15, // "sigma" parameter in Lognormal distribution
 
-// Gaussian template parameter (fsmp_template_type = 1).
+// Gaussian template parameter (template_type = 1).
 "gaussian_width": 1.5, // sigma (ns)
 
 // Nominal charge of a single PE in pC. A dictionary column with weight 1
@@ -229,17 +229,76 @@
 "gamma_k": 6.25, // 1 / 0.4^2
 "gamma_theta": 0.16, // 0.4^2
 
-// Model search: maximum number of PEs added per ROI in greedy selection.
+// Seed the initial PE configuration from another analyzer's result instead of
+// searching from nothing, e.g. "RAVEN". That analyzer must run first in the
+// macro. Empty string = search every region.
+"seed_analyzer": "",
+
+// Model search: maximum number of PEs per ROI.
+"max_iterations": 20,
+// Best-correlated candidate columns scored with the full evidence per step.
+"greedy_shortlist": 8,
+
+// Post-processing, both off by default: splitting an atom's charge into integer
+// PEs undoes the charge-variance removal that comes from resolving PEs
+// individually (paper sec 4.3).
+"weight_merge_window": 0, // ns; 0 = off
+"npe_estimate": false,
+"npe_estimate_charge_width": 0.4, // pC
+"npe_estimate_max_pes": 20,
+}
+
+{
+"name": "DIGITIZER_ANALYSIS",
+"index": "FSMP",
+"run_range": [0, 0],
+
+// Restrict analysis to threshold-crossing regions of interest.
+"process_threshold_crossing": 1, // 0=no, 1=yes
+"voltage_threshold": -2, // Voltage threshold for ROI detection (mV)
+"region_padding": 2, // Samples to pad around ROIs
+
+// Single-PE response template: 0 = lognormal, 1 = gaussian. Match the true
+// SER shape of the detector (e.g. Eos PMTPULSE tables are gaussian).
+"template_type": 0,
+
+// Single-PE response (lognormal) template parameters (template_type = 0).
+"lognormal_scale": 10.5, // "m" parameter in Lognormal distribution
+"lognormal_shape": 0.15, // "sigma" parameter in Lognormal distribution
+
+// Gaussian template parameter (template_type = 1).
+"gaussian_width": 1.5, // sigma (ns)
+
+// Nominal charge of a single PE in pC. A dictionary column with weight 1
+// corresponds to a PE of this charge.
+"vpe_charge": 1.6,
+
+// Dictionary upsampling resolution factor for sub-sample PE timing.
+"upsampling_factor": 10.0,
+
+// Gaussian white-noise sigma of the waveform, in mV. Should match the
+// digitizer noise model (DIGITIZER "noise_amplitude"). Sets the evidence scale.
+"noise_sigma": 0.40,
+
+// Gamma prior on per-PE charge (in nominal-PE weight units): mean = k*theta,
+// variance = k*theta^2. Defaults give mean 1, variance 0.4^2 (paper sec 2.2).
+"gamma_k": 6.25, // 1 / 0.4^2
+"gamma_theta": 0.16, // 0.4^2
+
+// The sampler needs a starting configuration, taken from this analyzer's
+// result (the role LucyDDM plays in the paper). It must run before FSMP in the
+// macro. Its PE count also becomes the preconditioner intensity mu0. With an
+// empty string the chain starts from nothing and mixes poorly.
+"seed_analyzer": "GreedyMP",
+
+// Maximum number of PEs per ROI taken from the seed.
 "max_iterations": 20,
 
-// Stochastic sampler. When true (default), run the Metropolis-Hastings-within-
-// Gibbs sampler (over PE configuration z and the light-curve time t0) after the
-// greedy initialisation. This yields the unbiased fsmp_t0 / fsmp_mu estimators
-// (paper eqs. 3.25-3.26). Set false to report only the faster greedy solution.
-"enable_stochastic": true,
+// Stochastic sampler over the PE configuration z and the light-curve time t0,
+// started from the seed above. It runs once per waveform across all regions,
+// so fsmp_t0 / fsmp_mu / fsmp_npe are per-PMT quantities (paper eqs. 3.25-3.26).
 "n_mcmc_samples": 800, // post-burn-in samples
 "burn_in": 200, // discarded warm-up samples
-"random_seed": 20220630, // sampler RNG seed; must be nonzero (TRandom3 treats 0 as "seed from clock")
 
 // Light-curve prior on PE arrival times (paper eq. 2.2), used by the sampler.
 // tau_l = exponential time constant (ns); 0 => pure Gaussian (Cherenkov).
@@ -248,15 +307,11 @@
 "lightcurve_sigma": 1.5, // ~PMT transit-time spread (ns); see PMTTRANSIT
 "t0_step": 2.0, // random-walk proposal step for t0 (ns)
 
-// Merge resolved atoms closer than this window (ns) before NPE estimation.
-// The true SER width varies photon-to-photon while the template is fixed, so a
-// single PE is sometimes fit as a main atom plus a small satellite; merging
-// (anchored on the dominant atom) folds those back together. 0 = off.
-"weight_merge_window": 2,
-
-// Split each resolved hit's posterior charge into integer PEs using a gaussian
-// single-PE charge PDF centered on vpe_charge.
-"npe_estimate": true,
+// Post-processing, both off by default: splitting an atom's charge into integer
+// PEs undoes the charge-variance removal that comes from resolving PEs
+// individually (paper sec 4.3).
+"weight_merge_window": 0, // ns; 0 = off
+"npe_estimate": false,
 "npe_estimate_charge_width": 0.4, // pC
 "npe_estimate_max_pes": 20,
 }

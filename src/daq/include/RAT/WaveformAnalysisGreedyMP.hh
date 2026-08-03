@@ -1,42 +1,37 @@
 ////////////////////////////////////////////////////////////////////
-/// \class RAT::WaveformAnalysisFSMP
+/// \class RAT::WaveformAnalysisGreedyMP
 ///
-/// \brief Reconstruct photoelectron times and charges with Fast Stochastic
-/// Matching Pursuit (FSMP)
+/// \brief Reconstruct photoelectron times and charges by greedy Bayesian
+/// matching pursuit
 ///
 /// \author Ravi Carpen Pitelka <rpitelka@sas.upenn.edu>
 ///
 /// REVISION HISTORY:\n
-///     24 Jun 2026: Initial commit
-///     31 Jul 2026: Greedy search split out into WaveformAnalysisGreedyMP
+///     31 Jul 2026: Split out of WaveformAnalysisFSMP
 ///
 /// \details
-/// FSMP is the Bayesian waveform analysis of Xu et al. 2022, JINST 17 P06040
-/// (arXiv:2112.06913). The waveform is modelled as a sparse spike train of PEs
-/// convolved with a single PE response (SER) template plus Gaussian white noise.
-/// Given the evidence p(w|z) of a configuration z, the per PE charges integrated
-/// out analytically, configurations are explored with a
-/// Metropolis-Hastings-within-Gibbs sampler (birth/death/shift moves) run
-/// jointly with the light curve time t0 (paper eq. 2.2). The paper describes
-/// this as replacing the greedy search of FBMP with stochastic sampling; that
-/// greedy search is WaveformAnalysisGreedyMP, and pointing seed_analyzer at it
-/// gives the chain its starting configuration.
+/// Models the waveform as a sparse spike train of PEs convolved with a single PE
+/// response (SER) template plus Gaussian white noise, and infers which points of
+/// a fine time grid host a PE. This is the greedy search of fast Bayesian
+/// matching pursuit (Schniter, Potter and Ziniel, ITA Workshop 2008), the
+/// starting point Xu et al. 2022 (JINST 17 P06040) take for FSMP.
 ///
-/// Because the sampler carries t0 and the intensity mu, FSMP estimates the
-/// incident light directly rather than only the individual PEs. Alongside the
-/// MAP configuration's PE times and charges it reports "fsmp_t0", "fsmp_mu" and
-/// "fsmp_npe" (paper eqs. 3.25-3.26), computed once per waveform across all
-/// regions jointly.
+/// Each threshold crossing region is searched independently, an atom at a time:
+/// 1. Correlate every unoccupied dictionary column with the fit residual
+/// 2. Shortlist the greedy_shortlist best-correlated columns
+/// 3. Score those with the full evidence p(w|z), the per PE charges integrated
+///    out analytically, and keep whichever most improves it net of a per-PE
+///    sparsity penalty
+/// 4. Refit and repeat until no column improves the posterior
 ///
 /// Template types supported:
 /// - Lognormal
 /// - Gaussian
 ////////////////////////////////////////////////////////////////////
-#ifndef __RAT_WaveformAnalysisFSMP__
-#define __RAT_WaveformAnalysisFSMP__
+#ifndef __RAT_WaveformAnalysisGreedyMP__
+#define __RAT_WaveformAnalysisGreedyMP__
 
 #include <TMatrixD.h>
-#include <TRandom3.h>
 #include <TVectorD.h>
 
 #include <RAT/DB.hh>
@@ -50,15 +45,15 @@
 
 namespace RAT {
 
-class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
+class WaveformAnalysisGreedyMP : public WaveformAnalyzerBase {
  public:
-  WaveformAnalysisFSMP() : WaveformAnalysisFSMP("FSMP"){};
+  WaveformAnalysisGreedyMP() : WaveformAnalysisGreedyMP("GreedyMP"){};
 
-  WaveformAnalysisFSMP(std::string config_name) : WaveformAnalyzerBase("WaveformAnalysisFSMP", config_name) {
+  WaveformAnalysisGreedyMP(std::string config_name) : WaveformAnalyzerBase("WaveformAnalysisGreedyMP", config_name) {
     Configure(config_name);
   };
 
-  virtual ~WaveformAnalysisFSMP(){};
+  virtual ~WaveformAnalysisGreedyMP(){};
 
   void BuildDictionaryMatrix(int nsamples, double digitizer_period, double width, TMatrixD &W_out);
 
@@ -67,8 +62,6 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   void SetD(std::string param, double value) override;
   void SetI(std::string param, int value) override;
   void SetS(std::string param, std::string value) override;
-
-  void BeginOfRun(DS::Run *run) override;
 
  protected:
   /// A threshold crossing region and the PE configuration assigned to it
@@ -106,7 +99,8 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   // Algorithm configuration
   std::map<int, TMatrixD> fWCache;  ///< Dictionary per template, keyed by width in ps (-1 = lognormal)
   double upsample_factor;           ///< Dictionary upsampling factor for sub-sample resolution
-  size_t max_iterations;            ///< Maximum PEs taken from the seed per region
+  size_t max_iterations;            ///< Maximum PEs placed per region
+  int greedy_shortlist;             ///< Best-correlated columns scored per greedy step
 
   // Bayesian evidence parameters
   double noise_sigma;  ///< Gaussian white-noise sigma of the waveform in mV. Must be > 0.
@@ -114,18 +108,8 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   double gamma_theta;  ///< Scale of the per-PE charge prior
 
   // Initial configuration
-  std::string seed_analyzer;  ///< Analyzer whose result starts the chain, empty to start from no PEs
+  std::string seed_analyzer;  ///< Analyzer whose result seeds the search, empty to search from scratch
   bool seed_missing_warned;   ///< Limits the "no seed result" warning to once per run
-
-  // Stochastic sampler
-  size_t n_mcmc_samples;  ///< Number of post-burn-in MCMC samples
-  size_t burn_in;         ///< Burn-in samples discarded before recording
-  TRandom3 fRNG;          ///< Sampler RNG, seeded from the global engine at BeginOfRun
-
-  // Light curve prior on PE arrival times (paper eq. 2.2)
-  double lightcurve_tau;    ///< Exponential time constant tau_l (ns), 0 for pure Gaussian
-  double lightcurve_sigma;  ///< Timing spread sigma_l (ns), mainly PMT transit time spread
-  double t0_step;           ///< Random-walk proposal step for t0 (ns)
 
   // NPE estimation parameters
   bool npe_estimate;                 ///< Whether to perform NPE estimation on resolved wave packets
@@ -150,9 +134,9 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   bool PrepareRegion(const TMatrixD &fW, const std::vector<double> &voltWfm, int start_sample, int end_sample,
                      Region &region_out);
 
-  /// Write one region's resolved atoms to fit_result, tagged with `extra_foms`
-  void EmitRegion(const Region &region, DS::WaveformAnalysisResult *fit_result, double gain_calibration, double chi2ndf,
-                  const std::map<std::string, double> &extra_foms);
+  /// Write one region's resolved atoms to fit_result, with the NPE split applied
+  void EmitRegion(const Region &region, DS::WaveformAnalysisResult *fit_result, double gain_calibration,
+                  double chi2ndf);
 
   /// Log evidence log p(w|z) of the active set, with its posterior-mean charges
   double LogEvidence(const TMatrixD &W_active, const TVectorD &voltVec, TVectorD &charges_out);
@@ -160,18 +144,8 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   /// Seed the regions from seed_analyzer's result, returning the PEs seeded
   size_t SeedRegions(DS::DigitPMT *digitpmt, std::vector<Region> &regions);
 
-  /// Sample configurations z and the light curve time t0 jointly over every
-  /// region, overwriting `regions` with the MAP one and returning the estimators
-  /// of paper eqs. 3.25-3.26. The occupancy prior spans all `dict_total` columns.
-  void SampleConfigurations(std::vector<Region> &regions, int dict_total, double mu0, double &t0_hat, double &mu_hat,
-                            double &npe_hat);
-
-  /// Importance-reweighted intensity MLE (paper eqs. 3.25-3.26) from the PE-count
-  /// histogram `n_hist` drawn under `mu_ref`, given the in-window light `mass_scale`
-  double IntensityMLE(const std::vector<size_t> &n_hist, double mu_ref, double mass_scale) const;
-
-  /// Normalized light-curve density phi(dt) (paper eq. 2.2), dt = t - t0
-  double LightCurve(double dt) const;
+  /// Greedily select PE columns, maximising the evidence net of `logodds` per PE
+  void GreedySelect(Region &region, double logodds);
 };
 
 }  // namespace RAT

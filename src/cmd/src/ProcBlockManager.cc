@@ -30,6 +30,7 @@
 #include <RAT/SplitEVDAQProc.hh>
 #include <RAT/WaveformAnalysisFSMP.hh>
 #include <RAT/WaveformAnalysisGaussian.hh>
+#include <RAT/WaveformAnalysisGreedyMP.hh>
 #include <RAT/WaveformAnalysisLognormal.hh>
 #include <RAT/WaveformAnalysisLucyDDM.hh>
 #include <RAT/WaveformAnalysisRAVEN.hh>
@@ -105,6 +106,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
   AppendProcessor<WaveformAnalysisSinc>();
   AppendProcessor<WaveformAnalysisLucyDDM>();
   AppendProcessor<WaveformAnalysisRAVEN>();
+  AppendProcessor<WaveformAnalysisGreedyMP>();
   AppendProcessor<WaveformAnalysisFSMP>();
   // Misc
   AppendProcessor<CountProc>();
