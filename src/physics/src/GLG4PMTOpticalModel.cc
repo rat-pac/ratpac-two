@@ -19,6 +19,7 @@
 
 #include <RAT/Log.hh>
 #include <RAT/PhotonThinning.hh>
+#include <RAT/TrackInfo.hh>
 #include <complex>
 
 #include "G4GeometryTolerance.hh"
@@ -456,6 +457,12 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
         hit_photon->SetCreationTime(
             (double)(time - fastTrack.GetPrimaryTrack()->GetLocalTime()));  // Local time counts from track creation, so
                                                                             // Global - Local will be track origin time
+        const G4ThreeVector &vertexPos = fastTrack.GetPrimaryTrack()->GetVertexPosition();
+        hit_photon->SetCreationPosition((double)vertexPos.x(), (double)vertexPos.y(), (double)vertexPos.z());
+        RAT::TrackInfo *trackInfo = dynamic_cast<RAT::TrackInfo *>(fastTrack.GetPrimaryTrack()->GetUserInformation());
+        if (trackInfo) {
+          hit_photon->SetExcitationTime(trackInfo->GetExcitationTime());
+        }
         hit_photon->SetKineticEnergy((double)energy);
         hit_photon->SetPosition((double)pos.x(), (double)pos.y(), (double)pos.z());
         hit_photon->SetMomentum((double)dir.x(), (double)dir.y(), (double)dir.z());

@@ -117,6 +117,46 @@ If /tracking/storeTrajectory is turned on, mc.track:particle is used, where part
 
 ----------------------
 
+.. _tracksimplify_proc:
+
+Track Simplify Processor
+`````````````````````````
+The track simplify processor thins down stored MC tracks by merging consecutive
+:code:`MCTrackStep` s into buckets, each covering at least a minimum path length
+and/or a minimum elapsed time before being written out as a single step. This
+guarantees a step is kept at least every ``min_length`` of path and at least every 
+``min_time`` of elapsed time. Merged steps have their length and
+(quenched) deposited energy summed into the emitted step, so totals measured by
+summing over a track's steps are unaffected by simplification; only the number
+of stored steps changes.
+
+Like the prune processor, this is a pure I/O-side transform. It runs after the
+simulation has produced full-detail tracks, and only reduces how much of that
+detail gets written to disk. It should be placed just before the output
+processor(s), e.g. :ref:`outroot <output_processors>`.
+
+Command:
+::
+
+    /rat/proc tracksimplify
+
+Parameters:
+::
+
+    /rat/procset min_length [length]
+    /rat/procset min_time [time]
+
+* min_length (mm) - Path length accumulated before consecutive steps are
+  merged into one. Values <= 0 disable this term.
+* min_time (ns) - Elapsed time accumulated before consecutive steps are merged
+  into one. Values <= 0 disable this term.
+
+At least one of ``min_length`` or ``min_time`` must be set to a positive value
+for simplification to take effect. A track is unaffected if it has 2 or fewer
+steps. See ``macros/examples/track_simplify.mac`` for a runnable example.
+
+----------------------
+
 .. _python:
 
 Python Processor

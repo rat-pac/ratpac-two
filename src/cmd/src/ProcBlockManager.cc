@@ -28,6 +28,7 @@
 #include <RAT/PythonProc.hh>
 #include <RAT/SimpleDAQProc.hh>
 #include <RAT/SplitEVDAQProc.hh>
+#include <RAT/TrackSimplifyProc.hh>
 #include <RAT/WaveformAnalysisGaussian.hh>
 #include <RAT/WaveformAnalysisLognormal.hh>
 #include <RAT/WaveformAnalysisLucyDDM.hh>
@@ -80,6 +81,7 @@ ProcBlockManager::ProcBlockManager(ProcBlock *theMainBlock) {
 
   AppendProcessor<OutNtupleProc>();
   AppendProcessor<OutNetProc>();
+  AppendProcessor<TrackSimplifyProc>();
   // Fitters
   AppendProcessor<FitCentroidProc>();
 #if TENSORFLOW_Enabled

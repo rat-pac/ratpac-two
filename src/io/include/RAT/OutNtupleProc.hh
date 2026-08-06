@@ -3,6 +3,7 @@
 
 #include <TTimeStamp.h>
 #include <TTree.h>
+#include <fnmatch.h>
 #include <sys/types.h>
 
 #include <RAT/DS/Classifier.hh>
@@ -11,11 +12,13 @@
 #include <RAT/Processor.hh>
 #include <RAT/TransitTimeCalculator.hh>
 #include <functional>
+#include <vector>
 
 #include "Math/Types.h"
 
 class TFile;
 class TTree;
+class TBranch;
 
 namespace RAT {
 
@@ -85,7 +88,24 @@ class OutNtupleProc : public Processor {
   std::unique_ptr<RAT::TransitTimeCalculator> fTransitTimeCalculator;
 
  protected:
+  bool IsPruned(const std::string &name) const {
+    for (const auto &pattern : prunedBranches) {
+      if (fnmatch(pattern.c_str(), name.c_str(), 0) == 0) return true;
+    }
+    return false;
+  }
+
+  template <typename T>
+  TBranch *MakeBranch(TTree *tree, const std::string &name, T *ptr) {
+    if (IsPruned(name)) return nullptr;
+    return tree->Branch(name.c_str(), ptr);
+  }
+
   std::string defaultFilename;
+  // Branch names matching any of these glob patterns (fnmatch, supports * and ?)
+  // are skipped when building the ntuple trees.
+  // Populate via SetS("prune", "branchA,branchB*").
+  std::vector<std::string> prunedBranches;
   TFile *outputFile;
   TTree *outputTree;
   TTree *metaTree;
@@ -181,6 +201,11 @@ class OutNtupleProc : public Processor {
   std::vector<double> mcpey;
   std::vector<double> mcpez;
   std::vector<double> mcpecharge;
+  std::vector<double> mcpecreationtime;
+  std::vector<double> mcpecreationx;
+  std::vector<double> mcpecreationy;
+  std::vector<double> mcpecreationz;
+  std::vector<double> mcpeexcitationtime;
   // MCParticles
   int mcpcount;
   int mcid;
@@ -239,6 +264,8 @@ class OutNtupleProc : public Processor {
   std::vector<std::vector<double>> trackMomZ;
   std::vector<std::vector<double>> trackKE;
   std::vector<std::vector<double>> trackTime;
+  std::vector<std::vector<double>> trackDep;
+  std::vector<std::vector<double>> trackQDep;
   std::vector<std::vector<int>> trackProcess;
   std::vector<std::vector<int>> trackVolume;
 };

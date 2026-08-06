@@ -89,8 +89,21 @@ void Trajectory::FillStep(const G4StepPoint *point, const G4Step *step, DS::MCTr
 
   if (isInit) {
     ratStep->SetDepositedEnergy(0);
+    ratStep->SetQuenchedDepositedEnergy(0);
   } else {
-    ratStep->SetDepositedEnergy(step->GetTotalEnergyDeposit());
+    G4double depositedEnergy = step->GetTotalEnergyDeposit();
+    ratStep->SetDepositedEnergy(depositedEnergy);
+
+    // GLG4Scint::PostPostStepDoIt is the only place the Birks-quenched energy
+    // deposit is computed and it stashes the value on the track's TrackInfo.
+    // A step that never reached that code (e.g. not in a scintillating
+    // material) produces no scintillation light, so its quenched energy is 0.
+    TrackInfo *trackInfo = dynamic_cast<TrackInfo *>(step->GetTrack()->GetUserInformation());
+    G4double quenchedEnergy = 0;
+    if (trackInfo->lastQuenchedStepNumber == step->GetTrack()->GetCurrentStepNumber()) {
+      quenchedEnergy = trackInfo->lastQuenchedEdep;
+    }
+    ratStep->SetQuenchedDepositedEnergy(quenchedEnergy);
   }
 
   const G4VProcess *process = point->GetProcessDefinedStep();

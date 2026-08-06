@@ -267,3 +267,10 @@ typing just "mc.track" will prune all tracks from the data structure.  Note
 that this has no impact on the PMT hits.  The photons are propagated to the
 PMTs no matter what, but the prune processor lets you delete them after they
 are no longer needed.
+
+If you want to keep a track but don't need every simulation step of it, the
+:ref:`tracksimplify_proc` thins a track's step list down to one step per
+minimum path length and/or elapsed time, while preserving each step's summed
+length and (quenched) deposited energy. This is useful for tracks with many
+low-energy steps where the full step-by-step detail is not needed, but per-step 
+energy deposit information should still be preserved at some resolution.

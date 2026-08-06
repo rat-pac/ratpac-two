@@ -61,6 +61,7 @@ Parameters:
     /rat/procset event_fitter_FOM_FITTERNAME ["FOM1","FOM2"]
     /rat/procset event_classifiers ["classifychargebalance","classifytimes"]
     /rat/procset event_classifier_FOM_CLASSIFIERNAME ["FOM1","FOM2"]
+    /rat/procset prune "branchA,branchB*"
 
 * ``filename`` (required, string) Sets output filename.  File will be deleted if it already exists.
 * ``include_*`` (optional, int) Sets whether the ntuple structure will be extended to include more variables, as detailed below. By default the following, based on the entries in IO.ratdb, the following are set to 0 by default: ``include_tracking``, ``include_mcparticles``, and ``include_digitizerwaveforms`` and the rest are set to 1 by default (i.e., the associated variables aare included in the ntuple file, as detailed below).
@@ -70,6 +71,7 @@ Parameters:
 * ``event_fitter_FOM_FITTERNAME`` (optional, vector<string>) The figure of merit to include for each event fitter. See below for naming of the specific variables. FOM can be specified by the base name of the reconstruction algorithm (e.g., ``event_fitter_FOM_quadfitter``) or by the specific instances of each algorithm (e.g. ``event_fitter_FOM_fitdirectioncenter__0_quad``).
 * ``event_classifiers`` (optional, vector<string>) Event classification algorithm results to include in the ntuple. See below for naming of the specific variables.
 * ``event_classifier_FOM_CLASSIFIERNAME`` (optional, vector<string>) The figure of merit to include for each event classifier. See below for naming of the specific variables. FOM can be specified by the base name of the classification algorithm (e.g., ``event_classifier_FOM_classifytimes``) or by the specific instances of each algorithm (e.g. ``event_classifier_FOM_classifytimes__5p0_quad``).
+* ``prune`` (optional, string) Comma-separated list of branch names (or glob patterns using ``*`` and ``?``, matched with ``fnmatch``) to exclude from the ``meta``, ``output``, and ``waveform`` trees. Useful for shrinking file size when specific branches aren't needed. For example, ``/rat/procset prune "nhits,totalcharge,mcpe*"`` drops the ``nhits`` and ``totalcharge`` branches along with every branch starting with ``mcpe`` (e.g. ``mcpepmtid``, ``mcpehittime``, ``mcpecount``). Pruning is applied at branch-creation time, so it takes effect regardless of the other ``include_*`` settings.
 
 Similarly to the outroot file, one can pass the filename using the "-o" flag by running the macro as::
 
@@ -239,6 +241,11 @@ If ``include_mchits`` is set then we additionally add the following information 
 ``mcPEy``                      vector<double>       The true y position of the PE.
 ``mcPEz``                      vector<double>       The true z position of the PE.
 ``mcPECharge``                 vector<double>       The true charge of each PE.
+``mcPECreationTime``           vector<double>       The true time the photon that produced each PE started existing as its own track, including any scintillation emission delay, but before propagation to the PMT and electronics delays (ns). Always later than ``mcPEExcitationTime`` for scintillation/re-emission photons; see :ref:`photon_processes`.
+``mcPECreationX``              vector<double>       The true x position where the photon that produced each PE was created (mm).
+``mcPECreationY``              vector<double>       The true y position where the photon that produced each PE was created (mm).
+``mcPECreationZ``              vector<double>       The true z position where the photon that produced each PE was created (mm).
+``mcPEExcitationTime``         vector<double>       The true global time at the start of the step that produced the photon that created each PE (the ionizing particle's step for scintillation photons, or the absorbed photon's step for re-emitted photons), i.e. before the emission delay included in ``mcPECreationTime`` is added. NaN if not available (e.g. the photon is not from scintillation, such as Cherenkov light), in which case ``mcPECreationTime`` is still filled in as normal.
 =============================  ===================  ===================
 
 If ``include_tracking`` is set then we additionally add the following information to the ``output`` branch of the ntuple. These variables are filled from the ``RAT::DS::MCTrack`` and ``RAT::DS::MCTrackStep`` branches. The variables below are mostly 2D vectors. The inner vector is the set of steps along the particle track (``RAT::DS::MCTrackStep``) and the outer vector is the set of tracks along the particle trajectory (``RAT:DS::MCTrack``). In other words, each track can have many steps, each of which as an associated position, momentum, process, and volume. As a reminder, ``/tracking/storeTrajectory 1`` must also be set in the macro in order to save the tracking information.
@@ -255,6 +262,8 @@ If ``include_tracking`` is set then we additionally add the following informatio
 ``trackMomZ``                  vector<vector<double>>  The starting z momentum of each of the steps along the particle track.
 ``trackKE``                    vector<vector<double>>  The kinetic energy of each of the steps along the particle track.
 ``trackTime``                  vector<vector<double>>  The time, relative to the start of the simulation, of the particle steps.
+``trackDep``                   vector<vector<double>>  The energy deposited over each step.
+``trackQDep``                  vector<vector<double>>  The Birks' law quenched energy deposited over each step (0 if the step produced no scintillation light).
 ``trackProcess``               vector<vector<int>>     The ID of the process that created the step.
 ``trackVolume``                vector<vector<int>>     The ID of the detector volume the step started in.
 =============================  ======================  ===================
