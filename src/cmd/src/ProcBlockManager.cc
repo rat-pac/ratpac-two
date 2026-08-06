@@ -213,6 +213,7 @@ void ProcBlockManager::DoProcSetCmd(std::string cmdstring) {
       default:
         Log::Die("DoProcSetCmd: Invalid value in /rat/procset " + cmdstring);
     }
+    lastProc->MarkParamSet(param);
   } catch (Processor::ParamUnknown &pu) {
     Log::Die("Parameter unknown: " + pu.param);
   } catch (Processor::ParamInvalid &pi) {

@@ -15,16 +15,19 @@ void FitQuadProc::BeginOfRun(DS::Run *run) {
 
   DB *db = DB::Get();
   DBLinkPtr quad_db = db->GetLink("FIT_QUAD");
-  fNumQuadPoints = quad_db->GetI("num_points");
-  fMaxQuadPoints = quad_db->GetI("max_points");
-  fTableCutOff = quad_db->GetI("table_cut_off");
+  if (!WasParamSet("num_points")) fNumQuadPoints = quad_db->GetI("num_points");
+  if (!WasParamSet("max_points")) fMaxQuadPoints = quad_db->GetI("max_points");
+  if (!WasParamSet("table_cut_off")) fTableCutOff = quad_db->GetI("table_cut_off");
   if (fTableCutOff > fNumPointsTbl.size()) {
     Log::Die("Quad::BeginOfRun: cannot set a table_cut_off larger than the size of fNumPointsTbl.");
   }
-  fMaxRadius = quad_db->GetD("max_radius");
-  fMaxX = quad_db->GetD("max_x");
-  fMaxY = quad_db->GetD("max_y");
-  fMaxZ = quad_db->GetD("max_z");
+  // Only use defaults if none were set
+  if (!(WasParamSet("max_radius") || WasParamSet("max_x") || WasParamSet("max_y") || WasParamSet("max_z"))) {
+    fMaxRadius = quad_db->GetD("max_radius");
+    fMaxX = quad_db->GetD("max_x");
+    fMaxY = quad_db->GetD("max_y");
+    fMaxZ = quad_db->GetD("max_z");
+  }
   if (fMaxRadius > 0.0) {
     if (fMaxX > 0.0 || fMaxY > 0.0 || fMaxZ > 0.0)
       Log::Die(
@@ -36,7 +39,7 @@ void FitQuadProc::BeginOfRun(DS::Run *run) {
   }
 
   DBLinkPtr table = db->GetLink("FIT_COMMON", "");
-  fLightSpeed = table->GetD("light_speed");
+  if (!WasParamSet("light_speed")) fLightSpeed = table->GetD("light_speed");
   if (fLightSpeed <= 0.0 || fLightSpeed > 299.792458)
     Log::Die("Quad::BeginOfRun: light_speed in FIT_COMMON table must be > 0 and <= 299.792458 mm/ns.");
 }
@@ -70,18 +73,25 @@ void FitQuadProc::SetD(std::string param, double value) {
       throw ParamInvalid(param, "light_speed must be positive and <= 299.792458 mm/ns.");
     fLightSpeed = value;
   } else if (param == "max_radius") {
-    if (fMaxX > 0.0 || fMaxY > 0.0 || fMaxZ > 0.0)
+    if (WasParamSet("max_x") || WasParamSet("max_y") || WasParamSet("max_z"))
       throw ParamInvalid(param, "cannot set both max_radius and (max_x or max_y or max_z).");
+    if (value <= 0.0) throw ParamInvalid(param, "max_radius must be > 0.");
     fMaxRadius = value;
   } else if (param == "max_x") {
+    if (WasParamSet("max_radius"))
+      throw ParamInvalid(param, "cannot set both max_radius and (max_x or max_y or max_z).");
     if (value <= 0.0) throw ParamInvalid(param, "max_x must be > 0.");
     fMaxX = value;
     fMaxRadius = 0.0;
   } else if (param == "max_y") {
+    if (WasParamSet("max_radius"))
+      throw ParamInvalid(param, "cannot set both max_radius and (max_x or max_y or max_z).");
     if (value <= 0.0) throw ParamInvalid(param, "max_y must be > 0.");
     fMaxY = value;
     fMaxRadius = 0.0;
   } else if (param == "max_z") {
+    if (WasParamSet("max_radius"))
+      throw ParamInvalid(param, "cannot set both max_radius and (max_x or max_y or max_z).");
     if (value <= 0.0) throw ParamInvalid(param, "max_z must be > 0.");
     fMaxZ = value;
     fMaxRadius = 0.0;

@@ -18,14 +18,14 @@ void ClassifyTimesProc::BeginOfRun(DS::Run *run) {
   DB *db = DB::Get();
 
   DBLinkPtr table = db->GetLink("Classifier", "ClassifyTimes");
-  fNumerTimeResLow = table->GetD("numer_time_resid_low");
-  fNumerTimeResUp = table->GetD("numer_time_resid_up");
+  if (!WasParamSet("numer_time_resid_low")) fNumerTimeResLow = table->GetD("numer_time_resid_low");
+  if (!WasParamSet("numer_time_resid_up")) fNumerTimeResUp = table->GetD("numer_time_resid_up");
   if (fNumerTimeResLow > fNumerTimeResUp)
     throw ParamInvalid("numer_time_resid_low",
                        "numer_time_resid_low in Classifier table must be <= numer_time_resid_up.");
 
   DBLinkPtr tbl = db->GetLink("FIT_COMMON", "");
-  fLightSpeed = tbl->GetD("light_speed");
+  if (!WasParamSet("light_speed")) fLightSpeed = tbl->GetD("light_speed");
   if (fLightSpeed <= 0 || fLightSpeed > 299.792458)
     throw ParamInvalid("light_speed", "light_speed in FIT_COMMON table must be > 0 and <= 299.792458 mm/ns.");
 

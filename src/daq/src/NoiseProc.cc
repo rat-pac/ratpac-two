@@ -16,12 +16,12 @@ NoiseProc::NoiseProc() : Processor("noise") {}
 void NoiseProc::BeginOfRun(DS::Run *run) {
   DBLinkPtr lnoise = DB::Get()->GetLink("NOISEPROC");
 
-  fNoiseFlag = lnoise->GetI("noise_flag");
-  fDefaultNoiseRate = lnoise->GetD("default_noise_rate");
-  fLookback = lnoise->GetD("noise_lookback");
-  fLookforward = lnoise->GetD("noise_lookforward");
-  fMaxTime = lnoise->GetD("noise_maxtime");
-  fNearHits = lnoise->GetI("noise_nearhits");
+  if (!WasParamSet("flag")) fNoiseFlag = lnoise->GetI("noise_flag");
+  if (!WasParamSet("rate")) fDefaultNoiseRate = lnoise->GetD("default_noise_rate");
+  if (!WasParamSet("lookback")) fLookback = lnoise->GetD("noise_lookback");
+  if (!WasParamSet("lookforward")) fLookforward = lnoise->GetD("noise_lookforward");
+  if (!WasParamSet("maxtime")) fMaxTime = lnoise->GetD("noise_maxtime");
+  if (!WasParamSet("nearhits")) fNearHits = lnoise->GetI("noise_nearhits");
 
   DS::PMTInfo *pmtinfo = run->GetPMTInfo();
   UpdatePMTModels(pmtinfo);

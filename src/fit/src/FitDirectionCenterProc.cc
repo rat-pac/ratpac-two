@@ -16,7 +16,7 @@ namespace RAT {
 
 void FitDirectionCenterProc::BeginOfRun(DS::Run *run) {
   DBLinkPtr table = DB::Get()->GetLink("FIT_COMMON", "");
-  fLightSpeed = table->GetD("light_speed");
+  if (!WasParamSet("light_speed")) fLightSpeed = table->GetD("light_speed");
   if (fLightSpeed <= 0 || fLightSpeed > 299.792458)
     throw ParamInvalid("light_speed", "light_speed in FIT_COMMON table must be > 0 and <= 299.792458 mm/ns.");
 

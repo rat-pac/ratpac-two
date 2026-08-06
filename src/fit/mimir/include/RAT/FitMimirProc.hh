@@ -21,7 +21,6 @@ class FitMimirProc : public Processor {
  protected:
   FitterInputHandler inputHandler;
   std::unique_ptr<Mimir::FitStrategy> strategy;
-  bool configured = false;
   std::string strategyName, strategyConfig;
 };
 

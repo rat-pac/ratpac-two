@@ -31,8 +31,8 @@ AfterPulseProc::AfterPulseProc() : Processor("afterpulse") {}
 
 void AfterPulseProc::BeginOfRun(DS::Run* run) {
   DBLinkPtr lafterpulse = DB::Get()->GetLink("AFTERPULSEPROC");
-  fDefaultAPFraction = lafterpulse->GetD("afterpulse_fraction");
-  fAPFlag = lafterpulse->GetI("afterpulse_flag");
+  if (!WasParamSet("fraction")) fDefaultAPFraction = lafterpulse->GetD("afterpulse_fraction");
+  if (!WasParamSet("flag")) fAPFlag = lafterpulse->GetI("afterpulse_flag");
   fDefaultAPTime = lafterpulse->GetDArray("afterpulse_time");
   fDefaultAPProb = lafterpulse->GetDArray("afterpulse_prob");
   fDAQ = lafterpulse->GetS("daq");
