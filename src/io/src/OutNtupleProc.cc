@@ -69,6 +69,13 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.calib = true;
     options.nthits = false;
   }
+  // Read separately from the block above so that an IO table predating this
+  // option still loads the rest of its settings.
+  try {
+    options.expectedwaveforms = table->GetZ("include_expectedwaveforms");
+  } catch (DBNotFoundError &e) {
+    options.expectedwaveforms = true;
+  }
   if (options.digitizerfits) {
     waveform_fitters = table->GetSArray("waveform_fitters");
     for (const std::string &fitter_name : waveform_fitters) {
@@ -350,6 +357,14 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     MakeBranch(waveformTree, "inWindowPulseTimes", &inWindowPulseTimes);
     MakeBranch(waveformTree, "inWindowPulseCharges", &inWindowPulseCharges);
     MakeBranch(waveformTree, "waveform", &waveform);
+    if (options.expectedwaveforms) {
+      // Pedestal and the meta tree's digitizerVoltageResolution put the
+      // observed waveform on the same mV scale as the expected ones below.
+      MakeBranch(waveformTree, "waveform_pedestal", &waveform_pedestal);
+      for (const std::string &fitter_name : waveform_fitters) {
+        MakeBranch(waveformTree, "expected_waveform_" + fitter_name, &expectedWaveform[fitter_name]);
+      }
+    }
   }
   this->AssignAdditionalAddresses();
 
@@ -753,11 +768,27 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       DS::Digit digitizer = ev->GetDigitizer();
       double readout_window_min = 0;
       double readout_window_max = digitizer.GetNSamples() * digitizer.GetTimeStepNS();
+      // Waveforms exist for channels that were never analyzed (zero suppression
+      // drops their DigitPMT), so look up rather than create.
+      const std::vector<Int_t> digit_pmt_ids = ev->GetAllDigitPMTIDs();
       for (auto const &pair : digitizer.GetAllWaveforms()) {
         waveform_pmtid = pair.first;
         waveform = pair.second;
         inWindowPulseTimes.clear();
         inWindowPulseCharges.clear();
+        if (options.expectedwaveforms) {
+          waveform_pedestal = -9999;  // DigitPMT's "no pedestal measured" sentinel
+          for (const std::string &fitter_name : waveform_fitters) expectedWaveform[fitter_name].clear();
+          if (std::find(digit_pmt_ids.begin(), digit_pmt_ids.end(), waveform_pmtid) != digit_pmt_ids.end()) {
+            DS::DigitPMT *digitpmt = ev->GetOrCreateDigitPMT(waveform_pmtid);
+            waveform_pedestal = digitpmt->GetPedestal();
+            for (const std::string &fitter_name : digitpmt->GetFitterNames()) {
+              auto expected_it = expectedWaveform.find(fitter_name);
+              if (expected_it == expectedWaveform.end()) continue;  // fitter has no branch
+              expected_it->second = digitpmt->GetOrCreateWaveformAnalysisResult(fitter_name)->getExpectedWaveform();
+            }
+          }
+        }
         if (mc->GetMCPMTCount() == 0) {
         }  // if there's no MC information, skip it
         else if (waveform_pmtid < 0) {
@@ -930,6 +961,8 @@ void OutNtupleProc::SetI(std::string param, int value) {
     options.mchits = value ? true : false;
   } else if (param == "include_digitizerwaveforms") {
     options.digitizerwaveforms = value ? true : false;
+  } else if (param == "include_expectedwaveforms") {
+    options.expectedwaveforms = value ? true : false;
   } else if (param == "include_digitizerhits") {
     options.digitizerhits = value ? true : false;
   } else if (param == "include_digitizerfits") {

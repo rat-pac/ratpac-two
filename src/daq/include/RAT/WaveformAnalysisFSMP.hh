@@ -28,6 +28,11 @@
 /// "fsmp_npe" (paper eqs. 3.25-3.26), computed once per waveform across all
 /// regions jointly.
 ///
+/// The MAP configuration also defines an expected waveform, the model the fit
+/// settled on. Setting "store_expected_waveform" attaches it to the
+/// WaveformAnalysisResult, where outntuple picks it up alongside the observed
+/// waveform so the two can be overlaid.
+///
 /// Template types supported:
 /// - Lognormal
 /// - Gaussian
@@ -133,6 +138,9 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   size_t npe_estimate_max_pes;       ///< Upper limit for NPE estimation
   double weight_merge_window;        ///< Time window (ns) for merging nearby weights, 0 to disable
 
+  // Expected waveform output
+  bool store_expected_waveform;  ///< Whether to hand the MAP model waveform to the WaveformAnalysisResult
+
   // Dictionary management
   int cached_nsamples;             ///< Cached number of samples for dictionary
   double cached_digitizer_period;  ///< Cached digitizer period for dictionary
@@ -153,6 +161,10 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   /// Write one region's resolved atoms to fit_result, tagged with `extra_foms`
   void EmitRegion(const Region &region, DS::WaveformAnalysisResult *fit_result, double gain_calibration, double chi2ndf,
                   const std::map<std::string, double> &extra_foms);
+
+  /// Fold every region's resolved atoms back through the full-window dictionary
+  /// `fW`, giving the model waveform in mV over all `nsamples` digitizer samples
+  std::vector<double> ExpectedWaveform(const std::vector<Region> &regions, const TMatrixD &fW, int nsamples) const;
 
   /// Log evidence log p(w|z) of the active set, with its posterior-mean charges
   double LogEvidence(const TMatrixD &W_active, const TVectorD &voltVec, TVectorD &charges_out);

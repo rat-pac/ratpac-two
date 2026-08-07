@@ -329,7 +329,18 @@ FSMP takes the same parameters as GreedyMP, minus ``greedy_shortlist``, plus the
 ``lightcurve_tau``                Light curve exponential time constant, in ns. 0 gives a pure Gaussian.
 ``lightcurve_sigma``              Light curve timing spread, in ns. Mainly PMT transit time spread.
 ``t0_step``                       Random walk proposal step for t0, in ns.
+``store_expected_waveform``       Whether to keep the expected waveform of the MAP configuration. Off by default.
 ================================  ===================
+
+Setting ``store_expected_waveform`` attaches the waveform FSMP's MAP configuration predicts --- its PEs folded back through the single PE response, in mV, pedestal-subtracted, one entry per digitizer sample --- to the ``WaveformAnalysisResult``. This is the model behind ``chi2ndf``, taken before ``weight_merge_window`` and ``npe_estimate`` reshape the atoms for output, so it shows what the fit actually settled on rather than what was reported. ``outntuple`` writes it to the ``waveforms`` tree as ``expected_waveform_FSMP`` alongside the observed waveform (see :doc:`outputs`), which requires ``include_digitizerwaveforms``::
+
+    /rat/proc WaveformAnalysisFSMP
+    /rat/procset store_expected_waveform 1
+
+    /rat/proclast outntuple
+    /rat/procset include_digitizerwaveforms 1
+
+It costs an array of ``nsamples`` doubles per analyzed PMT per event, on top of the digitized waveforms themselves, so it is meant for inspecting fits rather than for production running.
 
 The sampler draws from its own random number generator, seeded once per run from the global CLHEP engine, so ``rat -s`` reproduces an FSMP run exactly. The generator is private to the analyzer, so enabling FSMP does not consume randomness from the simulation and does not change the events it produces.
 

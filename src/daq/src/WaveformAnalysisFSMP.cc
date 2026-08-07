@@ -84,6 +84,10 @@ void WaveformAnalysisFSMP::Configure(const std::string& config_name) {
     npe_estimate_max_pes = fDigit->GetI("npe_estimate_max_pes");
     weight_merge_window = fDigit->GetD("weight_merge_window");
 
+    // Diagnostic output: one array of nsamples doubles per analyzed PMT per
+    // event, so off unless asked for.
+    store_expected_waveform = fDigit->GetZ("store_expected_waveform");
+
     if (upsample_factor <= 0) {
       RAT::Log::Die(GetAnalyzerName() + ": Invalid upsampling factor.");
     }
@@ -163,6 +167,8 @@ void WaveformAnalysisFSMP::SetI(std::string param, int value) {
     npe_estimate = (value != 0);
   } else if (param == "npe_estimate_max_pes") {
     npe_estimate_max_pes = static_cast<size_t>(value);
+  } else if (param == "store_expected_waveform") {
+    store_expected_waveform = (value != 0);
   } else {
     throw Processor::ParamUnknown(param);
   }
@@ -484,6 +490,24 @@ void WaveformAnalysisFSMP::EmitRegion(const Region& region, DS::WaveformAnalysis
       fit_result->AddPE(time, pe_charge / npe, fom);
     }
   }
+}
+
+std::vector<double> WaveformAnalysisFSMP::ExpectedWaveform(const std::vector<Region>& regions, const TMatrixD& fW,
+                                                           int nsamples) const {
+  std::vector<double> expected(nsamples, 0.0);
+  for (const Region& region : regions) {
+    // Regions were fit independently but their templates are not confined to
+    // them, so sum the atoms over the full-window dictionary rather than the
+    // region slice: that keeps the tail a PE leaves outside its own region.
+    if (region.charges.GetNrows() != static_cast<int>(region.active.size())) continue;
+    for (size_t j = 0; j < region.active.size(); ++j) {
+      const double weight = region.charges(static_cast<int>(j));
+      if (weight == 0.0) continue;
+      const int gcol = region.dict_start + region.active[j];
+      for (int row = 0; row < nsamples; ++row) expected[row] += weight * fW(row, gcol);
+    }
+  }
+  return expected;
 }
 
 double WaveformAnalysisFSMP::IntensityMLE(const std::vector<size_t>& n_hist, double mu_ref, double mass_scale) const {
@@ -934,7 +958,12 @@ void WaveformAnalysisFSMP::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
     if (PrepareRegion(fW, voltWfm, 0, static_cast<int>(voltWfm.size()) - 1, region))
       regions.push_back(std::move(region));
   }
-  if (regions.empty()) return;
+  if (regions.empty()) {
+    // Nothing crossed threshold, so the model is flat. Still record it, so that
+    // every analyzed PMT has an expected waveform to plot against.
+    if (store_expected_waveform) fit_result->setExpectedWaveform(std::vector<double>(voltWfm.size(), 0.0));
+    return;
+  }
 
   // Starting configuration for the chain. A seeded PE count is the better
   // preconditioner intensity, since it comes from an algorithm that actually
@@ -976,6 +1005,12 @@ void WaveformAnalysisFSMP::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
 
   for (const Region& region : regions) {
     EmitRegion(region, fit_result, gain_calibration, chi2ndf, extra_foms);
+  }
+
+  // The model behind the chi2ndf above: the MAP atoms convolved with the SER,
+  // before EmitRegion's optional merging/NPE splitting reshapes them for output.
+  if (store_expected_waveform) {
+    fit_result->setExpectedWaveform(ExpectedWaveform(regions, fW, static_cast<int>(voltWfm.size())));
   }
 }
 

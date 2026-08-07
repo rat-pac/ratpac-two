@@ -68,6 +68,7 @@ class OutNtupleProc : public Processor {
     bool mcparticles;
     bool pmthits;
     bool digitizerwaveforms;
+    bool expectedwaveforms;
     bool digitizerhits;
     bool digitizerfits;
     bool untriggered;
@@ -155,6 +156,12 @@ class OutNtupleProc : public Processor {
   std::vector<Double_t> inWindowPulseTimes;
   std::vector<Double_t> inWindowPulseCharges;
   std::vector<UShort_t> waveform;
+  // Baseline of the waveform above, in ADC counts, so that it can be converted
+  // to the mV the analyzers work in: (waveform - pedestal) * voltage resolution.
+  Double_t waveform_pedestal;
+  // Model waveform per waveform analyzer, in mV, empty for analyzers that do
+  // not provide one.
+  std::map<std::string, std::vector<Double_t>> expectedWaveform;
   // Data Branches
   Int_t mcpdg;
   double mcx, mcy, mcz;

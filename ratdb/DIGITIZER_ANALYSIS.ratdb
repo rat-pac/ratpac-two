@@ -333,4 +333,13 @@
 "npe_estimate": false,
 "npe_estimate_charge_width": 0.4, // pC
 "npe_estimate_max_pes": 20,
+
+// Attach the MAP configuration's model waveform (mV, pedestal-subtracted, one
+// entry per digitizer sample) to the analysis result, for overlaying against
+// the observed waveform. outntuple writes it to the "waveforms" tree as
+// expected_waveform_FSMP, provided include_digitizerwaveforms is also on.
+// Costs one array of nsamples doubles per analyzed PMT per event, so off by
+// default. Toggle from a macro with
+//   /rat/procset store_expected_waveform 1
+"store_expected_waveform": false,
 }
