@@ -68,11 +68,9 @@ Processor::Result FitTimeProc::Event(DS::Root *ds, DS::EV *ev) {
   inputHandler.RegisterEvent(ev);
 
   DS::FitResult *fitT = new DS::FitResult(name, fFitLabel);
+  fitT->SetEnableTime(true);
 
-  /// Initialize ALL parameters with placeholder values
-  fitT->SetTime(0.0);
-  fitT->SetEnableTime(false);
-  fitT->SetValidTime(false);
+  /// Initialize FitResult parameters
   fitT->SetPosition(fPosition);
   // Figures of Merit
   fitT->SetFigureOfMerit("num_times", 0);
@@ -135,7 +133,6 @@ Processor::Result FitTimeProc::Event(DS::Root *ds, DS::EV *ev) {
 
   /// Save results
   fitT->SetTime(fitTime);
-  fitT->SetPosition(eventPos);
   fitT->SetFigureOfMerit("num_times", num_times);
   fitT->SetFigureOfMerit("num_PMT", num_PMT);
 
