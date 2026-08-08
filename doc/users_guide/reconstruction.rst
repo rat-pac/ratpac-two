@@ -16,6 +16,50 @@ Document the fitter handler.
 
 ----------------------
 
+.. _fittime:
+
+Time Fitter
+===============
+The ``FitTime`` processor reconstructs the time of detector events by taking the median
+of selected PMT time residuals based on a fixed position.  Time residuals can be calculated
+by simple distance/light_speed (default) or with a wavelength via TransitTimeCalculator.
+
+Command:
+::
+
+    /rat/proc fittime
+
+Parameters
+''''''''''
+All of the parameters below can be set in macro, which allows the processor to be run multiple times
+with different settings in a single macro.
+
+=========================   ==========================  ===================
+**Field**                   **Type**                    **Description**
+=========================   ==========================  ===================
+``label``                   ``string``                  Additional string appended to "fitcentroid"
+
+``pmt_type``                ``int``                     PMT "type" to use.  Multiple types can be used.  Defaults to all types.
+
+``light_speed``             ``double``                  Speed of light in material in mm/ns.  Defaults to value in FIT_COMMON table.
+``wavelength``              ``double``                  Wavelength of detected light in nm.  Defaults to 400 nm.
+
+``min_hit_time``            ``double``                  Optional lower cut on PMT hit times in ns
+``max_hit_time``            ``double``                  Optional upper cut on PMT hit times in ns
+
+``event_position_x``        ``double``                  Position of event in mm.  Defaults to 0.
+``event_position_y``        ``double``                  Position of event in mm.  Defaults to 0.
+``event_position_z``        ``double``                  Position of event in mm.  Defaults to 0.
+=========================   ==========================  ===================
+
+Position fit information in data structure
+''''''''''''''''''''''''''''''''''''''''''
+* name - "fittime"
+* figure of merit - ``num_times``      is the number of PMT hits used in the reconstruction
+* figure of merit - ``num_PMT``        is the number of PMTs used in the reconstruction
+
+----------------------
+
 .. _centroid:
 
 Centroid Fitter

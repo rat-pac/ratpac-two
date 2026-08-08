@@ -1,0 +1,31 @@
+# Example macro showing how to use quadfitter
+
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+/rat/db/set DETECTOR experiment "Validation"
+/rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+
+/run/initialize
+
+/rat/proc splitevdaq
+/rat/proc count
+/rat/procset update 100
+
+/rat/proc fittime
+/rat/procset wavelength 400.0      # nm (alternative to light_speed calculation)
+/rat/procset event_position_x 0.0  # mm
+/rat/procset event_position_y 0.0  # mm
+/rat/procset event_position_z 0.0  # mm
+/rat/procset max_hit_time 38.0     # ns
+/rat/procset min_hit_time -8.0     # ns
+
+/rat/proclast outntuple
+
+/generator/add combo gun:point:poisson
+/generator/vtx/set e- 0.0 0.0 0.0 2.5
+/generator/pos/set 0.0 0.0 0.0
+/generator/rate/set 2.0
+
+
+/run/beamOn 10000
