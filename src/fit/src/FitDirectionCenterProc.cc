@@ -94,15 +94,9 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
   inputHandler.RegisterEvent(ev);
 
   DS::FitResult *fitDC = new DS::FitResult(name, fFitLabel);
+  fitDC->SetEnableDirection(true);
 
-  /// Initialize ALL parameters with placeholder values
-  fitDC->SetEnablePosition(false);
-  fitDC->SetValidPosition(false);
-  fitDC->SetPosition(TVector3(0, 0, 0));
-  fitDC->SetEnableDirection(false);
-  fitDC->SetValidDirection(false);
-  fitDC->SetDirection(TVector3(0, 0, 0));
-  // Figures of Merit
+  /// Initialize ALL Figures of Merit with placeholder values
   fitDC->SetFigureOfMerit("num_PMT", 0);
   fitDC->SetFigureOfMerit("time_resid_low", NAN);
   fitDC->SetFigureOfMerit("time_resid_up", NAN);
@@ -195,9 +189,8 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
     }
     // Save drive correction
     eventPos -= fDrive * eventDir;
-    fitDC->SetEnablePosition(true);
-    if (validPos && validDir) fitDC->SetValidPosition(true);
     fitDC->SetPosition(eventPos);
+    if (!validPos || !validDir) fitDC->SetValidPosition(false);
 
   } else if (fDrive != 0.0 && fDirFitter.empty()) {
     Log::Die("FitDirectionCenterProc: No direction fitter specified while drive value is specified.");
@@ -414,8 +407,6 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
 
   /// Save results
   if (directionMean.Mag2() > 0) {
-    fitDC->SetEnableDirection(true);
-    fitDC->SetValidDirection(true);
     fitDC->SetDirection(directionMean.Unit());
     fitDC->SetFigureOfMerit("num_PMT", numDir);
     fitDC->SetFigureOfMerit("time_resid_low", timeResLow);
