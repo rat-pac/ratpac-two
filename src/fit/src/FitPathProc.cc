@@ -197,6 +197,16 @@ double FitPathProc::operator()(double *params) {
 }
 
 Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
+  DS::FitResult *fit = new DS::FitResult("FitPath");
+  fit->SetEnableTime(true);
+  fit->SetEnablePosition(true);
+  fit->SetEnableDirection(true);
+
+  if (ev->GetPMTCount() == 0) {
+    ev->AddFitResult(fit);
+    return Processor::FAIL;
+  }
+
   fHits.resize(ev->GetPMTCount());
 
   DS::Run *run = DS::RunStore::Get()->GetRun(ds);
@@ -213,15 +223,6 @@ Processor::Result FitPathProc::Event(DS::Root *ds, DS::EV *ev) {
     fHits[i].py = pmtdir.Y();
     fHits[i].pz = pmtdir.Z();
     fHits[i].t = pmt->GetTime();
-  }
-
-  DS::FitResult *fit = new DS::FitResult("FitPath");
-
-  if (ev->GetPMTCount() == 0) {
-    fit->SetPosition(TVector3(-100000, -100000, -100000));
-    fit->SetTime(-1);
-    fit->SetDirection(TVector3(-1, 0, 0));
-    return Processor::OK;
   }
 
   std::vector<double> point, seed;
