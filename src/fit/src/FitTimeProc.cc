@@ -73,7 +73,7 @@ Processor::Result FitTimeProc::Event(DS::Root *ds, DS::EV *ev) {
   fitT->SetTime(0.0);
   fitT->SetEnableTime(false);
   fitT->SetValidTime(false);
-  fitT->SetPosition(TVector3(0.0, 0.0, 0.0));
+  fitT->SetPosition(fPosition);
   // Figures of Merit
   fitT->SetFigureOfMerit("num_times", 0);
   fitT->SetFigureOfMerit("num_PMT", 0);
