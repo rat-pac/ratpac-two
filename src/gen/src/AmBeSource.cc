@@ -88,8 +88,19 @@ AmBeSource::AmBeSource() {
 #endif
   }
 
+  DBLinkPtr neutrondb = DB::Get()->GetLink("AMBE_NSPECTRUM", "");
+
   // pick a neutron multiplicity
-  Nneutron = 1;  // only one neutron generated
+  try {
+    Nneutron = neutrondb->GetI("n_neutron");
+    if (Nneutron < 0) {
+      Log::Die("AmBeSource: AMBE_NSPECTRUM n_neutron must be non-negative");
+    }
+  } catch (DBWrongTypeError &e) {
+    Log::Die("AmBeSource: AMBE_NSPECTRUM n_neutron must be an integer");
+  } catch (DBNotFoundError &e) {
+    Nneutron = 1;  // Default to legacy behavior
+  }
 
   // info << "   " << Nneutron << " neutrons" << newline;
   //
@@ -124,10 +135,9 @@ AmBeSource::AmBeSource() {
     Tneutron.push_back(0.);
   }
 
-  DBLinkPtr neutrondb = DB::Get()->GetLink("AMBE_NSPECTRUM", "");
   double prob_gamma_emission = neutrondb->GetD("prob_gamma_emission");
   double prob_gamma = CLHEP::RandFlat::shoot(0., 1.);
-  if (prob_gamma < prob_gamma_emission) {
+  if (prob_gamma < prob_gamma_emission || Nneutron == 0) {
     Ngamma = 1;  // only 1 gamma generated
   } else {
     Ngamma = 0;  // no gamma generated
