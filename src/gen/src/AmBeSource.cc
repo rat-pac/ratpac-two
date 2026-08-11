@@ -91,7 +91,16 @@ AmBeSource::AmBeSource() {
   DBLinkPtr neutrondb = DB::Get()->GetLink("AMBE_NSPECTRUM", "");
 
   // pick a neutron multiplicity
-  Nneutron = neutrondb->GetI("n_neutron");
+  try {
+    Nneutron = neutrondb->GetI("n_neutron");
+    if (Nneutron < 0) {
+      Log::Die("AmBeSource: AMBE_NSPECTRUM n_neutron must be non-negative");
+    }
+  } catch (DBWrongTypeError &e) {
+    Log::Die("AmBeSource: AMBE_NSPECTRUM n_neutron must be an integer");
+  } catch (DBNotFoundError &e) {
+    Nneutron = 1;  // Default to legacy behavior
+  }
 
   // info << "   " << Nneutron << " neutrons" << newline;
   //
