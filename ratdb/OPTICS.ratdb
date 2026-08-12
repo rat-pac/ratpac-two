@@ -797,3 +797,16 @@
 
 "PROPERTY_LIST": ["RINDEX", "ABSLENGTH",]
 }
+
+{
+"name": "OPTICS",
+"index": "PEEK",
+"run_range" : [0, 0],
+"REFLECTIVITY_option": "wavelength",
+"REFLECTIVITY_value1": [60.0, 650.0, 980.0, ],
+"REFLECTIVITY_value2": [0.3, 0.3, 0.015, ],  // visible light grey ~ 30%.  1.5% at 980 nm [10.1016/j.ijheatmasstransfer.2017.04.125]
+"ABSLENGTH_option": "wavelength",
+"ABSLENGTH_value1": [60.0, 800.0, ],
+"ABSLENGTH_value2": [1e-3, 1e-3, ],
+"PROPERTY_LIST": ["REFLECTIVITY", "ABSLENGTH", ]
+}
