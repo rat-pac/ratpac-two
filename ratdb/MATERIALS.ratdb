@@ -279,17 +279,6 @@
 
 {
 "name": "MATERIAL",
-"index": "AR_coating",
-"run_range" : [0, 0],
-"density": 1.14,
-"nelements": 3,
-"nmaterials": 0,
-"elements": ["Hydrogen", "Carbon", "Oxygen"],
-"elemprop": [0.0703, 0.558, 0.3717],
-}
-
-{
-"name": "MATERIAL",
 "index": "ZnO2",
 "run_range" : [0, 0],
 "density": 1.0,
@@ -339,27 +328,13 @@
 
 {
 "name": "MATERIAL",
-"index": "sapphire",
+"index": "AR_coating",
 "run_range" : [0, 0],
-"density": 3.98,
-"nelements": 2,
+"density": 1.14,
+"nelements": 3,
 "nmaterials": 0,
-"elements": ["Aluminum","Oxygen"],
-"elemprop": [0.52925, 0.47075],
-}
-
-
-// ------------------- PMT materials ----------------
-
-{
-"name": "MATERIAL",
-"index": "quartz",
-"run_range" : [0, 0],
-"density": 2.65,
-"nelements": 2,
-"nmaterials": 0,
-"elements": ["Silicon", "Oxygen",],
-"elemprop": [0.4675, 0.5325],
+"elements": ["Hydrogen", "Carbon", "Oxygen"],
+"elemprop": [0.0703, 0.558, 0.3717],
 }
 
 {
@@ -372,6 +347,9 @@
 "elements": ["Silicon", "Oxygen",],
 "elemprop": [0.4675, 0.5325],
 }
+
+
+// ------------------- PMT materials ----------------
 
 {
 "name": "MATERIAL",
@@ -393,6 +371,28 @@
 "nmaterials": 0,
 "elements": ["Lithium","Boron","Oxygen","Sodium","Aluminum","Silicon","Barium",],
 "elemprop": [0.001, 0.059, 0.523, 0.042, 0.049, 0.284, 0.042,],
+}
+
+{
+"name": "MATERIAL",
+"index": "quartz",
+"run_range" : [0, 0],
+"density": 2.65,
+"nelements": 2,
+"nmaterials": 0,
+"elements": ["Silicon", "Oxygen",],
+"elemprop": [0.4675, 0.5325],
+}
+
+{
+"name": "MATERIAL",
+"index": "sapphire",
+"run_range" : [0, 0],
+"density": 3.98,
+"nelements": 2,
+"nmaterials": 0,
+"elements": ["Aluminum","Oxygen"],
+"elemprop": [0.52925, 0.47075],
 }
 
 {
@@ -1120,53 +1120,6 @@
 {
 "name": "MATERIAL",
 "index": "liquid_Xe",
-"run_range" : [0, 0],
-"density": 2.978,
-"nelements": 1,
-"elements": ["Xenon"],
-"elemprop": [1.0],
-"nmaterials": 0,
-}
-
-/////////////    The dead versions are the same as the regular ones, but have
-/////////////    their scintillation turned off to speed up the simulation
-/////////////    where the light would otherwise not be detected anyways.
-{
-"name": "MATERIAL",
-"index": "dead_liquid_He",
-"run_range" : [0, 0],
-"density": 0.1451,
-"nelements": 1,
-"elements": ["Helium"],
-"elemprop": [1.0],
-"nmaterials": 0,
-}
-
-{
-"name": "MATERIAL",
-"index": "dead_liquid_Ne",
-"run_range" : [0, 0],
-"density": 1.2,
-"nelements": 1,
-"elements": ["Neon"],
-"elemprop": [1.0],
-"nmaterials": 0,
-}
-
-{
-"name": "MATERIAL",
-"index": "dead_liquid_Ar",
-"run_range" : [0, 0],
-"density": 1.4,
-"nelements": 1,
-"elements": ["Argon"],
-"elemprop": [1.0],
-"nmaterials": 0,
-}
-
-{
-"name": "MATERIAL",
-"index": "dead_liquid_Xe",
 "run_range" : [0, 0],
 "density": 2.978,
 "nelements": 1,
