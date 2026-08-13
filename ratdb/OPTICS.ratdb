@@ -358,7 +358,9 @@
 }
 
 
-// ---------------------------  PMT window materials  ------------------------
+// --------------- PMT materials ---------------
+
+// ---------------------------------------------------------------------------
 // ------ Since quantum efficiency measurements generally include glass ------
 // ------ absorption, PMT glass models do not need to account for it. --------
 // ------ GLG4PMTOpticalModel does not consider PMT glass absorption. --------
@@ -484,7 +486,7 @@
 }
 
 
-// --------------- Liquid organic scintillator experiments ------------------
+// --------------- Liquid organic scintillators ------------------
 
 {
 "name": "OPTICS",
