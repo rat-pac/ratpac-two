@@ -126,6 +126,9 @@ class WaveformAnalyzerBase : public Processor {
   // Charge thresholds: skip analysis if digitized total charge is outside [fMinTotalCharge, fMaxTotalCharge] (pC).
   double fMinTotalCharge = std::numeric_limits<double>::lowest();
   double fMaxTotalCharge = std::numeric_limits<double>::max();
+
+  // Whether the out-of-range charge message has already been printed for the current event. Reset in Event().
+  bool fChargeRangeReported = false;
 };
 
 }  // namespace RAT

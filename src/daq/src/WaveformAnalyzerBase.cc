@@ -31,7 +31,15 @@ void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Di
   digitpmt->GetOrCreateWaveformAnalysisResult(GetAnalyzerName());
 
   double totalCharge = digitpmt->GetDigitizedTotalCharge();
-  if (totalCharge < fMinTotalCharge || totalCharge > fMaxTotalCharge) return;
+  if (totalCharge < fMinTotalCharge || totalCharge > fMaxTotalCharge) {
+    if (!fChargeRangeReported) {
+      info << "Total charge " << totalCharge << " is outside of the allowed range [" << fMinTotalCharge << ", "
+           << fMaxTotalCharge << "]. Skipping waveform analysis for PMT " << pmtID
+           << ". Further out-of-range PMTs in this event will not be reported." << newline;
+      fChargeRangeReported = true;
+    }
+    return;
+  }
 
   fVoltageRes = dsdigit->GetVoltageResolution();
   fTimeStep = dsdigit->GetTimeStepNS();
@@ -41,6 +49,7 @@ void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Di
 }
 
 Processor::Result WaveformAnalyzerBase::Event(DS::Root* ds, DS::EV* ev) {
+  fChargeRangeReported = false;
   if (!ev->DigitizerExists()) {
     warn << "Running waveform analysis, but no digitzer information." << newline;
     return Processor::Result::OK;
