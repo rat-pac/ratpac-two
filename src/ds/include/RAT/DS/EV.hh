@@ -158,8 +158,8 @@ class EV : public TObject {
   void SetTotalCharge(Double_t _qTotal) { qTotal = _qTotal; }
 
   /** Peak value of the DAQ trigger sum, in units of hits. */
-  Double_t GetTriggerSumPeak() const { return triggerSumPeak; }
-  void SetTriggerSumPeak(Double_t _triggerSumPeak) { triggerSumPeak = _triggerSumPeak; }
+  Double_t GetTriggerPeak() const { return triggerPeak; }
+  void SetTriggerPeak(Double_t _triggerPeak) { triggerPeak = _triggerPeak; }
 
   /** Fit Results **/
   virtual std::vector<FitResult *> GetFitResults() { return fitResults; }
@@ -217,7 +217,7 @@ class EV : public TObject {
   std::vector<Classifier *> classifierResults;
   std::vector<Digit> digitizer;  ///< The digitizer information
   uint64_t eventCleaningWord = 0;
-  Double_t triggerSumPeak = 0;
+  Double_t triggerPeak = 0;
 };
 
 }  // namespace DS

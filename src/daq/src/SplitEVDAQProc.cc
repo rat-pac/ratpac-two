@@ -145,9 +145,9 @@ Processor::Result SplitEVDAQProc::DSEvent(DS::Root *ds) {
     double windowHi = tt + fTriggerWindow;
     int binLo = std::max(0, static_cast<int>(std::ceil((windowLo - start) / bw)));
     int binHi = std::min(nbins - 1, static_cast<int>(std::floor((windowHi - start) / bw)));
-    double triggerSumPeak = 0.0;
-    for (int i = binLo; i <= binHi; i++) triggerSumPeak = std::max(triggerSumPeak, triggerHistogram[i]);
-    ev->SetTriggerSumPeak(triggerSumPeak);
+    double triggerPeak = 0.0;
+    for (int i = binLo; i <= binHi; i++) triggerPeak = std::max(triggerPeak, triggerHistogram[i]);
+    ev->SetTriggerPeak(triggerPeak);
 
     double totalEVCharge = 0;
     for (int imcpmt = 0; imcpmt < mc->GetMCPMTCount(); imcpmt++) {
