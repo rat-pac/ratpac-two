@@ -136,6 +136,7 @@ The data-structure for the ``output`` tree is as follows. First, the "default" v
 ``nhits``                    int                  The total number of PMTs that detected light in the detector event.
 ``triggerTime``              double               The trigger time of the detector event, relative to the start of the simulation.
 ``timestamp``                double               The UTC time of the detector event.
+``triggerPeak``              double               The peak value of the trigger sum in units of hits (0 if not produced by the DAQ processor).
 ``timeSinceLastTrigger_us``  double               The time since the last triggered event, in microseconds. 
 ``event_cleaning_word``      ulong64              The list of event cleaning cuts that failed.
 ===========================  ===================  ===================
