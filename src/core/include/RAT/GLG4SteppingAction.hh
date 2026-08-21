@@ -20,6 +20,10 @@ class GLG4SteppingAction : public G4UserSteppingAction {
   // Default is 0, or no time limit.
   static G4double max_global_time;
 
+  // Kill every optical photon on its first step, so no optical propagation is
+  // simulated. Set by the "profile" MC tuning option.
+  static G4bool fKillOpticalPhotons;
+
  private:
   GLG4PrimaryGeneratorAction *myGenerator;
 };

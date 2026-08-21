@@ -136,13 +136,20 @@ int GLG4SteppingAction_dump_IlluminationMap(void) {
 G4double GLG4SteppingAction_totEdep = 0.0;
 #endif /* G4DEBUG */
 
-G4int GLG4SteppingAction_MaxStepNumber = 100000;
+G4int GLG4SteppingAction_MaxStepNumber = 100000000;
 G4double GLG4SteppingAction::max_global_time = 0.0;
 G4bool GLG4SteppingAction::fUseGLG4 = true;
+G4bool GLG4SteppingAction::fKillOpticalPhotons = false;
 
 void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   G4Track *track = aStep->GetTrack();
   static G4int num_zero_steps_in_a_row = 0;
+
+  // Kill optical photons as soon as they are emitted, so that only the
+  // non-optical part of the event is simulated.
+  if (fKillOpticalPhotons && track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
+    track->SetTrackStatus(fStopAndKill);
+  }
 
   // check for too many zero steps in a row
   if (aStep->GetStepLength() <= 0.0 && track->GetCurrentStepNumber() > 1) {

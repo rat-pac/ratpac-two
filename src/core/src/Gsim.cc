@@ -175,6 +175,27 @@ void Gsim::BeginOfRunAction(const G4Run * /*aRun*/) {
   runID = DB::Get()->GetDefaultRun();
   utc = TTimeStamp();  // default to now
 
+  fTimePDFTuning = false;
+  GLG4SteppingAction::fKillOpticalPhotons = false;
+  try {
+    if (lmc->GetZ("tuning")) {
+      const std::string tuningOption = lmc->GetS("tuning_option");
+      if (tuningOption == "timepdf") {
+        fTimePDFTuning = true;
+        info << "Gsim: Time-PDF tuning enabled; only optical-photon trajectories that interact with a PMT will be "
+                "saved"
+             << newline;
+      } else if (tuningOption == "profile") {
+        GLG4SteppingAction::fKillOpticalPhotons = true;
+        info << "Gsim: Profile tuning enabled; optical photons will be killed as soon as they are emitted" << newline;
+      } else {
+        warn << "Gsim: Unknown MC tuning option \"" << tuningOption << "\"; no tuning will be applied" << newline;
+      }
+    }
+  } catch (DBNotFoundError &e) {
+    // Tuning is opt-in so older MC tables retain their existing behavior.
+  }
+
   info << "Gsim: Simulating run " << runID << newline;
   info << "Gsim: Run start at " << utc.AsString() << newline;
 
@@ -390,6 +411,11 @@ void Gsim::PostUserTrackingAction(const G4Track *aTrack) {
   // Now deal with creator process naming override from trackInfo
   if (trackInfo && trackInfo->GetCreatorProcess() != "") {
     creatorProcessName = trackInfo->GetCreatorProcess();
+  }
+
+  if (fTimePDFTuning && trackInfo && aTrack->GetDefinition()->GetParticleName() == "opticalphoton" &&
+      !trackInfo->fTouchedPMT) {
+    fpTrackingManager->SetStoreTrajectory(false);
   }
 
   if (trackInfo) {

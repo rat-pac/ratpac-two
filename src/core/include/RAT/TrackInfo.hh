@@ -28,6 +28,9 @@ class TrackInfo : public G4VUserTrackInformation {
   // double counting
   bool preUserTrackingActionDone = false;
 
+  /** Whether this optical photon entered a PMT optical model. */
+  bool fTouchedPMT = false;
+
   /** Centroid of steps, weighted by energy loss. */
   CentroidCalculator energyCentroid;
   /** Centroid of optical photon creation vertices. */

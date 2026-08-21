@@ -96,6 +96,7 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
   TTimeStamp utc;
   int maxpe;
   int nabort;
+  bool fTimePDFTuning;
 
   /** PMT and noise simulation */
   int npmts;
