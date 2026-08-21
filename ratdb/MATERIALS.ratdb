@@ -966,6 +966,17 @@
 
 {
 "name": "MATERIAL",
+"index": "PEEK", // polyether ether ketone (C19H12O3)
+"run_range" : [0, 0],
+"density": 1.32,
+"nelements": 3,
+"nmaterials": 0,
+"elements": ["Carbon", "Hydrogen", "Oxygen"],
+"elemprop": [0.7915, 0.0420, 0.1665],
+}
+
+{
+"name": "MATERIAL",
 "index": "pet", // polyethylene terphthalate
 "run_range" : [0, 0],
 "density": 1.397, // from NIST database
