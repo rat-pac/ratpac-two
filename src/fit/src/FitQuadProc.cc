@@ -195,6 +195,11 @@ Processor::Result FitQuadProc::Event(DS::Root *ds, DS::EV *ev) {
       if (iType == fPMTtype.size()) continue;  // No match found
     }
 
+    // Skip PMTs where the waveform analyzer reconstructed no pulse, and so has no time to offer
+    if (inputHandler.GetNPEs(pmtid) == 0) {
+      continue;
+    }
+
     double time = inputHandler.GetTime(pmtid);
     if (time > 1e6) {
       continue;
