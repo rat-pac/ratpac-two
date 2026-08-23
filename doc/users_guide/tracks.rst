@@ -268,9 +268,39 @@ that this has no impact on the PMT hits.  The photons are propagated to the
 PMTs no matter what, but the prune processor lets you delete them after they
 are no longer needed.
 
-If you want to keep a track but don't need every simulation step of it, the
-:ref:`tracksimplify_proc` thins a track's step list down to one step per
-minimum path length and/or elapsed time, while preserving each step's summed
-length and (quenched) deposited energy. This is useful for tracks with many
-low-energy steps where the full step-by-step detail is not needed, but per-step 
-energy deposit information should still be preserved at some resolution.
+Online Track Compaction
+```````````````````````
+If you want to keep a trajectory but do not need every Geant4 step, RAT can
+compact the trajectory online as its steps are produced. Consecutive
+``MCTrackStep`` objects are merged into buckets until a configured path-length
+or elapsed-time threshold is reached. Because the full-detail trajectory is
+never accumulated, online compaction reduces both runtime memory use and the
+size of saved tracking data.
+
+The global compaction thresholds are configured with::
+
+    /tracking/trajectoryCompactionLength 1.0 mm
+    /tracking/trajectoryCompactionTime 0.05 ns
+
+Each command also accepts a Geant4 particle name before the value to set a
+per-particle override::
+
+    /tracking/trajectoryCompactionLength e- 0.5 mm
+    /tracking/trajectoryCompactionTime e- 0.01 ns
+
+Particle names do not require quotes. Length and time values use Geant4's
+standard unit parser, so any registered unit of the appropriate category can
+be used. A value less than or equal to zero disables that threshold. Both
+thresholds default to zero, which disables compaction and retains every step.
+
+When either enabled threshold is reached, the current bucket is closed. A
+bucket is also closed whenever a step ends at a Geant4 geometry boundary, so
+geometry-boundary endpoints are retained even when neither threshold has been
+reached. Merged steps retain the latest endpoint, time, momentum, kinetic
+energy, process, and volume; their step lengths, deposited energies, and
+quenched deposited energies are summed.
+
+Global and per-particle settings only affect trajectories selected for storage
+by the ``/tracking/storeTrajectory``, ``/tracking/storeParticleTrajectory``,
+and ``/tracking/discardParticleTrajectory`` commands. See
+``macros/examples/track_compact.mac`` for a runnable example.

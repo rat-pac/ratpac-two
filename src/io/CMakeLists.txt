@@ -10,9 +10,7 @@ add_library(io OBJECT
         src/OutNtupleProc.cc
         src/OutROOTProc.cc
         src/TrackCursor.cc
-        src/TrackNav.cc
-        src/TrackSimplifier.cc
-        src/TrackSimplifyProc.cc)
+        src/TrackNav.cc)
 
 # Set our include directories
 target_include_directories(io SYSTEM PUBLIC 

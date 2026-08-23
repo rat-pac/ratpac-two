@@ -67,6 +67,10 @@ bool Gsim::StoreOpticalTrackID = false;
 double Gsim::MaxWallTime = 0;
 std::set<G4String> Gsim::fStoreParticleTraj;
 std::set<G4String> Gsim::fDiscardParticleTraj;
+double Gsim::fTrajectoryCompactionMinLength = 0.0;
+double Gsim::fTrajectoryCompactionMinTime = 0.0;
+std::map<G4String, double> Gsim::fParticleTrajectoryCompactionMinLength;
+std::map<G4String, double> Gsim::fParticleTrajectoryCompactionMinTime;
 
 // 01-Aug-2006 WGS: I'm putting in the default initializers to remind
 // us that they're being called anyway, because Gsim inherits from
@@ -319,7 +323,9 @@ void Gsim::PreUserTrackingAction(const G4Track *aTrack) {
   // provided by G4UserTrackingAction parent class
   if (GetStoreParticleTraj(aTrack->GetDefinition()->GetParticleName())) {
     fpTrackingManager->SetStoreTrajectory(true);
-    fpTrackingManager->SetTrajectory(new Trajectory(aTrack));
+    const G4String &particleName = aTrack->GetDefinition()->GetParticleName();
+    fpTrackingManager->SetTrajectory(new Trajectory(aTrack, GetTrajectoryCompactionMinLength(particleName),
+                                                    GetTrajectoryCompactionMinTime(particleName)));
   } else {
     fpTrackingManager->SetStoreTrajectory(false);
   }
@@ -672,6 +678,32 @@ bool Gsim::GetStoreParticleTraj(const G4String &particleName) {
     else
       return false;
   }
+}
+
+void Gsim::SetTrajectoryCompactionMinLength(double minLength) { fTrajectoryCompactionMinLength = minLength; }
+
+void Gsim::SetTrajectoryCompactionMinLength(const G4String &particleName, double minLength) {
+  fParticleTrajectoryCompactionMinLength[particleName] = minLength;
+}
+
+double Gsim::GetTrajectoryCompactionMinLength() { return fTrajectoryCompactionMinLength; }
+
+double Gsim::GetTrajectoryCompactionMinLength(const G4String &particleName) {
+  const auto it = fParticleTrajectoryCompactionMinLength.find(particleName);
+  return it == fParticleTrajectoryCompactionMinLength.end() ? fTrajectoryCompactionMinLength : it->second;
+}
+
+void Gsim::SetTrajectoryCompactionMinTime(double minTime) { fTrajectoryCompactionMinTime = minTime; }
+
+void Gsim::SetTrajectoryCompactionMinTime(const G4String &particleName, double minTime) {
+  fParticleTrajectoryCompactionMinTime[particleName] = minTime;
+}
+
+double Gsim::GetTrajectoryCompactionMinTime() { return fTrajectoryCompactionMinTime; }
+
+double Gsim::GetTrajectoryCompactionMinTime(const G4String &particleName) {
+  const auto it = fParticleTrajectoryCompactionMinTime.find(particleName);
+  return it == fParticleTrajectoryCompactionMinTime.end() ? fTrajectoryCompactionMinTime : it->second;
 }
 
 G4String Gsim::GetStoreParticleTrajString(const bool &gDoStore) {

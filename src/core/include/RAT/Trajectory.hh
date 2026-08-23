@@ -3,6 +3,7 @@
 
 #include <G4Trajectory.hh>
 #include <RAT/DS/MCTrack.hh>
+#include <RAT/TrackCompactor.hh>
 #include <string>
 
 namespace RAT {
@@ -10,7 +11,7 @@ namespace RAT {
 class Trajectory : public G4Trajectory {
  public:
   Trajectory();
-  Trajectory(const G4Track *aTrack);
+  Trajectory(const G4Track *aTrack, double compactionMinLength = 0.0, double compactionMinTime = 0.0);
   virtual ~Trajectory();
 
   inline void *operator new(size_t);
@@ -19,7 +20,7 @@ class Trajectory : public G4Trajectory {
   virtual void AppendStep(const G4Step *aStep);
   virtual void MergeTrajectory(G4VTrajectory *secondTrajectory);
 
-  virtual void FillStep(const G4StepPoint *point, const G4Step *step, DS::MCTrackStep *ratStep, double stepLength,
+  virtual void FillStep(const G4StepPoint *point, const G4Step *step, DS::MCTrackStep &ratStep, double stepLength,
                         bool isInit);
   DS::MCTrack *GetTrack() { return ratTrack; };
 
@@ -29,6 +30,7 @@ class Trajectory : public G4Trajectory {
  protected:
   std::string creatorProcessName;
   DS::MCTrack *ratTrack;
+  TrackCompactor trackCompactor;
   static bool fgDoAppendMuonStepSpecial;
 };
 

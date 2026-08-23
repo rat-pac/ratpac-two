@@ -1,3 +1,4 @@
+#include <RAT/G4UIcmdWithOptionalStringAndADoubleAndUnit.hh>
 #include <RAT/GLG4SteppingAction.hh>
 #include <RAT/Gsim.hh>
 #include <RAT/Log.hh>
@@ -35,6 +36,18 @@ TrackingMessenger::TrackingMessenger() {
   storeOpticalTrackIDCmd->SetParameterName("state", true, false);
   storeOpticalTrackIDCmd->SetDefaultValue(false);
 
+  trajectoryCompactionLengthCmd = new G4UIcmdWithOptionalStringAndADoubleAndUnit(
+      "/tracking/trajectoryCompactionLength", this, "minLength", "mm", "particleName");
+  trajectoryCompactionLengthCmd->SetGuidance(
+      "Set the accumulated path length between trajectory points, optionally for one Geant4 particle name.");
+  trajectoryCompactionLengthCmd->SetGuidance("Values <= 0 disable length-based compaction.");
+
+  trajectoryCompactionTimeCmd = new G4UIcmdWithOptionalStringAndADoubleAndUnit("/tracking/trajectoryCompactionTime",
+                                                                               this, "minTime", "ns", "particleName");
+  trajectoryCompactionTimeCmd->SetGuidance(
+      "Set the elapsed time between trajectory points, optionally for one Geant4 particle name.");
+  trajectoryCompactionTimeCmd->SetGuidance("Values <= 0 disable time-based compaction.");
+
   setMaxGlobalTimeCmd = new G4UIcmdWithADouble("/tracking/setMaxGlobalTime", this);
   setMaxGlobalTimeCmd->SetGuidance(
       "Kill any track whose global time exceeds this (double) value, in ns.  "
@@ -50,6 +63,8 @@ TrackingMessenger::~TrackingMessenger() {
   delete storeMuonTrajSpecialCmd;
   delete setMaxGlobalTimeCmd;
   delete storeOpticalTrackIDCmd;
+  delete trajectoryCompactionLengthCmd;
+  delete trajectoryCompactionTimeCmd;
 }
 
 G4String TrackingMessenger::GetCurrentValue(G4UIcommand *command) {
@@ -65,6 +80,10 @@ G4String TrackingMessenger::GetCurrentValue(G4UIcommand *command) {
     return Trajectory::GetDoAppendMuonStepSpecial() ? "True" : "False";
   } else if (command == setMaxGlobalTimeCmd) {
     return setMaxGlobalTimeCmd->ConvertToString(GLG4SteppingAction::max_global_time);
+  } else if (command == trajectoryCompactionLengthCmd) {
+    return trajectoryCompactionLengthCmd->ConvertToString(Gsim::GetTrajectoryCompactionMinLength());
+  } else if (command == trajectoryCompactionTimeCmd) {
+    return trajectoryCompactionTimeCmd->ConvertToString(Gsim::GetTrajectoryCompactionMinTime());
   } else {
     Log::Die("TrackingMessenger sent unknown get command: " + command->GetCommandPath());
     return "";  // never get here
@@ -116,6 +135,21 @@ void TrackingMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
     else
       detail << "Tracking: Max global time for tracks set to " << val << newline;
     GLG4SteppingAction::max_global_time = val;
+  } else if (command == trajectoryCompactionLengthCmd) {
+    const G4UIcmdWithOptionalStringAndADoubleAndUnit::Value value =
+        trajectoryCompactionLengthCmd->GetNewValue(newValue);
+    if (value.hasSelector) {
+      Gsim::SetTrajectoryCompactionMinLength(value.selector, value.value);
+    } else {
+      Gsim::SetTrajectoryCompactionMinLength(value.value);
+    }
+  } else if (command == trajectoryCompactionTimeCmd) {
+    const G4UIcmdWithOptionalStringAndADoubleAndUnit::Value value = trajectoryCompactionTimeCmd->GetNewValue(newValue);
+    if (value.hasSelector) {
+      Gsim::SetTrajectoryCompactionMinTime(value.selector, value.value);
+    } else {
+      Gsim::SetTrajectoryCompactionMinTime(value.value);
+    }
   } else {
     Log::Die("TrackingMessenger sent unknown set command: " + command->GetCommandPath());
   }
