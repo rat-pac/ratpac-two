@@ -20,8 +20,11 @@
 #include <RAT/TrackInfo.hh>
 
 #include "CLHEP/Units/PhysicalConstants.h"
+#include "G4OpBoundaryProcess.hh"
 #include "G4OpticalPhoton.hh"
 #include "G4ParticleChange.hh"
+#include "G4ProcessManager.hh"
+#include "G4ProcessVector.hh"
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
 #include "G4SteppingManager.hh"
@@ -140,6 +143,117 @@ G4int GLG4SteppingAction_MaxStepNumber = 100000000;
 G4double GLG4SteppingAction::max_global_time = 0.0;
 G4bool GLG4SteppingAction::fUseGLG4 = true;
 G4bool GLG4SteppingAction::fKillOpticalPhotons = false;
+G4bool GLG4SteppingAction::fDirectLightOnly = false;
+std::vector<std::string> GLG4SteppingAction::fDirectLightProcesses = {"Cerenkov", "Scintillation"};
+G4double GLG4SteppingAction::fDirectLightMinCosine = -1.0;
+
+namespace {
+
+// Processes that redirect an optical photon without it crossing a geometrical
+// boundary.  A photon that has undergone any of them is no longer direct light.
+// Boundaries are handled separately in ApplyDirectLightFilter, because
+// refraction into the next volume still counts as direct light while every
+// flavour of reflection does not.
+bool IsOpticalScatteringProcess(const G4String &name) {
+  return name == "OpRayleigh" || name == "Rayleigh" || name == "OpMieHG" || name == "OpWLS" || name == "OpWLS2";
+}
+
+// The boundary process instance attached to the optical photon in this thread,
+// needed to ask what actually happened at a boundary step.  Cached because the
+// lookup walks the whole process list.
+G4OpBoundaryProcess *GetOpBoundaryProcess() {
+  static G4ThreadLocal G4OpBoundaryProcess *boundaryProcess = nullptr;
+  static G4ThreadLocal bool searched = false;
+  if (!searched) {
+    searched = true;
+    G4ProcessManager *pm = G4OpticalPhoton::OpticalPhotonDefinition()->GetProcessManager();
+    if (pm) {
+      G4ProcessVector *pv = pm->GetProcessList();
+      for (G4int i = 0; i < (G4int)pv->size(); i++) {
+        boundaryProcess = dynamic_cast<G4OpBoundaryProcess *>((*pv)[i]);
+        if (boundaryProcess) break;
+      }
+    }
+  }
+  return boundaryProcess;
+}
+
+}  // namespace
+
+bool GLG4SteppingAction::ApplyDirectLightFilter(const G4Step *aStep, G4Track *track) {
+  // Where did this photon come from?  GLG4Scint hands out its own dummy
+  // processes ("Scintillation", "Reemission", "ReemissionFromCompN") and RAT
+  // records the name in the TrackInfo as well, so prefer that when it is set,
+  // exactly as Gsim does when it classifies photons.
+  if (track->GetCurrentStepNumber() <= 1) {
+    std::string creatorName;
+    const G4VProcess *creator = track->GetCreatorProcess();
+    if (creator) creatorName = creator->GetProcessName();
+    RAT::TrackInfo *trackInfo = dynamic_cast<RAT::TrackInfo *>(track->GetUserInformation());
+    if (trackInfo && trackInfo->GetCreatorProcess() != "") creatorName = trackInfo->GetCreatorProcess();
+
+    // An empty name means a primary photon straight from the generator, which
+    // has not been produced by any secondary process and so is kept.
+    if (!creatorName.empty()) {
+      bool keep = false;
+      for (size_t i = 0; i < fDirectLightProcesses.size(); i++) {
+        if (creatorName.find(fDirectLightProcesses[i]) != std::string::npos) {
+          keep = true;
+          break;
+        }
+      }
+      if (!keep) {
+        track->SetTrackStatus(fStopAndKill);
+        return true;
+      }
+    }
+  }
+
+  const G4VProcess *postProcess = aStep->GetPostStepPoint()->GetProcessDefinedStep();
+  if (postProcess) {
+    if (IsOpticalScatteringProcess(postProcess->GetProcessName())) {
+      track->SetTrackStatus(fStopAndKill);
+      return true;
+    }
+
+    const G4OpBoundaryProcess *boundary = GetOpBoundaryProcess();
+    if (boundary && postProcess == boundary) {
+      switch (boundary->GetStatus()) {
+        case Undefined:
+        case Transmission:
+        case FresnelRefraction:
+        case NotAtBoundary:
+        case SameMaterial:
+        case StepTooSmall:
+        case NoRINDEX:
+        case Absorption:
+        case Detection:
+        case CoatedDielectricRefraction:
+        case CoatedDielectricFrustratedTransmission:
+          // Still direct: the photon either kept going into the next volume or
+          // is about to be absorbed/detected anyway.
+          break;
+        default:
+          // Every kind of reflection, plus Dichroic, whose outcome is ambiguous
+          // and is treated conservatively as indirect.
+          track->SetTrackStatus(fStopAndKill);
+          return true;
+      }
+    }
+  }
+
+  // Optional angular cut, measured against the emission direction rather than
+  // the previous step, so that many small deflections cannot add up to a large
+  // one without being noticed.
+  if (fDirectLightMinCosine > -1.0) {
+    if (track->GetVertexMomentumDirection().dot(track->GetMomentumDirection()) < fDirectLightMinCosine) {
+      track->SetTrackStatus(fStopAndKill);
+      return true;
+    }
+  }
+
+  return false;
+}
 
 void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   G4Track *track = aStep->GetTrack();
@@ -149,6 +263,16 @@ void GLG4SteppingAction::UserSteppingAction(const G4Step *aStep) {
   // non-optical part of the event is simulated.
   if (fKillOpticalPhotons && track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
     track->SetTrackStatus(fStopAndKill);
+  }
+
+  // Keep only unscattered, unreflected Cerenkov/scintillation light if asked to.
+  if (fDirectLightOnly && track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
+    if (ApplyDirectLightFilter(aStep, track)) {
+      // The track is finished, so the shared zero step counter must not carry
+      // this track's history over into the next one.
+      num_zero_steps_in_a_row = 0;
+      return;
+    }
   }
 
   // check for too many zero steps in a row
