@@ -1,0 +1,34 @@
+### pileup.mac
+#
+# Demonstrates the "pileup" generator: each event contains multiple
+# primary vertices from a single vertex/position generator, with the
+# number of vertices and their times relative to the event start each
+# drawn from a configurable distribution (fixed, uniform, or poisson).
+#
+
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+/rat/db/set DETECTOR experiment "Validation"
+/rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+
+/run/initialize
+
+/rat/proc count
+/rat/procset update 10
+
+/rat/proclast outntuple
+
+# Central 1 MeV electrons, one event every 2 seconds on average
+/generator/add pileup gun:point:poisson
+/generator/vtx/set e- 0.0 0.0 0.0 1.0
+/generator/pos/set 0.0 0.0 0.0
+/generator/rate/set 0.5
+
+# Number of pile-up vertices per event: Poisson-distributed, mean of 3
+/generator/pileup/multiplicity poisson:3
+
+# Vertex times, relative to the event start: uniform over 0-50 ns
+/generator/pileup/spacing uniform:0:50
+
+/run/beamOn 100

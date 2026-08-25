@@ -34,6 +34,7 @@
 #include <RAT/PDFPMTTime.hh>
 #include <RAT/PMTFactoryBase.hh>
 #include <RAT/PhysicsList.hh>
+#include <RAT/PileupGen.hh>
 #include <RAT/PrimaryVertexInformation.hh>
 #include <RAT/ProcBlock.hh>
 #include <RAT/ReacIBDgen.hh>
@@ -131,6 +132,7 @@ void Gsim::Init() {
   GlobalFactory<GLG4Gen>::Register("he", new Alloc<GLG4Gen, HeGen>);
   GlobalFactory<GLG4Gen>::Register("led", new Alloc<GLG4Gen, Gen_LED>);
   GlobalFactory<GLG4Gen>::Register("coincidence", new Alloc<GLG4Gen, Coincidence_Gen>);
+  GlobalFactory<GLG4Gen>::Register("pileup", new Alloc<GLG4Gen, PileupGen>);
   GlobalFactory<GLG4Gen>::Register("vertexfile", new Alloc<GLG4Gen, VertexFile_Gen>);
   GlobalFactory<GLG4Gen>::Register("rootracker", new Alloc<GLG4Gen, RooTracker_Gen>);
 

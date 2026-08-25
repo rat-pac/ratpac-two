@@ -12,6 +12,7 @@ add_library(cmd OBJECT
         src/GLG4VisMessenger.cc
         src/IsotopeMessenger.cc
         src/PhysicsListMessenger.cc
+        src/PileupMessenger.cc
         src/ProcBlockManager.cc
         src/IBDgenMessenger.cc
         src/RatMessenger.cc
