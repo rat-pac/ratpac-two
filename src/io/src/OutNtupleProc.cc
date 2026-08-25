@@ -203,6 +203,7 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   MakeBranch(outputTree, "triggerTime", &triggerTime);  // Local trigger time
   MakeBranch(outputTree, "timestamp", &timestamp);      // Global trigger time
   MakeBranch(outputTree, "trigger_word", &trigger_word);
+  MakeBranch(outputTree, "triggerPeak", &triggerPeak);
   MakeBranch(outputTree, "event_cleaning_word", &event_cleaning_word);
   MakeBranch(outputTree, "timeSinceLastTrigger_us", &timeSinceLastTrigger_us);
   // MC Information
@@ -616,6 +617,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     triggerTime = ev->GetCalibratedTriggerTime();
     timestamp = TTimeStamp_to_UnixTime(ev->GetUTC()) - TTimeStamp_to_UnixTime(runBranch->GetStartTime()) + triggerTime;
     trigger_word = ev->GetTriggerWord();
+    triggerPeak = ev->GetTriggerPeak();
     event_cleaning_word = ev->GetEventCleaningWord();
     timeSinceLastTrigger_us = ev->GetDeltaT() / 1000.;
 
@@ -792,6 +794,7 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     nhits = -1;
     totalcharge = 0;
     triggerTime = 0;
+    triggerPeak = 0;
     timeSinceLastTrigger_us = 0;
     if (options.pmthits) {
       hitPMTID.clear();
@@ -901,6 +904,8 @@ void OutNtupleProc::EndOfRun(DS::Run *run) {
 void OutNtupleProc::SetS(std::string param, std::string value) {
   if (param == "file") {
     this->defaultFilename = value;
+  } else {
+    throw Processor::ParamUnknown(param);
   }
   if (param == "prune") {
     std::stringstream ss(value);
@@ -914,30 +919,24 @@ void OutNtupleProc::SetS(std::string param, std::string value) {
 void OutNtupleProc::SetI(std::string param, int value) {
   if (param == "include_tracking") {
     options.tracking = value ? true : false;
-  }
-  if (param == "include_mcparticles") {
+  } else if (param == "include_mcparticles") {
     options.mcparticles = value ? true : false;
-  }
-  if (param == "include_pmthits") {
+  } else if (param == "include_pmthits") {
     options.pmthits = value ? true : false;
-  }
-  if (param == "include_nestedtubehits") {
+  } else if (param == "include_nestedtubehits") {
     options.nthits = value ? true : false;
-  }
-  if (param == "include_untriggered_events") {
+  } else if (param == "include_untriggered_events") {
     options.untriggered = value ? true : false;
-  }
-  if (param == "include_mchits") {
+  } else if (param == "include_mchits") {
     options.mchits = value ? true : false;
-  }
-  if (param == "include_digitizerwaveforms") {
+  } else if (param == "include_digitizerwaveforms") {
     options.digitizerwaveforms = value ? true : false;
-  }
-  if (param == "include_digitizerhits") {
+  } else if (param == "include_digitizerhits") {
     options.digitizerhits = value ? true : false;
-  }
-  if (param == "include_digitizerfits") {
+  } else if (param == "include_digitizerfits") {
     options.digitizerfits = value ? true : false;
+  } else {
+    throw Processor::ParamUnknown(param);
   }
 }
 
