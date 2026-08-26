@@ -1,5 +1,6 @@
 #include <TRandom.h>
 #include <sys/resource.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <time.h>
@@ -20,7 +21,9 @@
 #include <RAT/SignalHandler.hh>
 #include <RAT/TrackingMessenger.hh>
 #include <Randomize.hh>
+#include <algorithm>
 #include <globals.hh>
+#include <sstream>
 #include <string>
 
 namespace RAT {
@@ -66,11 +69,6 @@ void Rat::Configure() {
   // Database management
   rdb = DB::Get();
   rdb_messenger = new DBMessenger();
-  // Local data management
-  if (getenv("RATSHARE") != NULL) {
-    ratdb_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/ratdb");
-    model_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/models");
-  }
   // Rat Messenger
   rat_messenger = new RatMessenger();
 
@@ -105,6 +103,30 @@ void Rat::Configure() {
   detail << "Seeding random number generator: " << this->seed << newline;
   CLHEP::HepRandom::setTheSeed(this->seed);
   gRandom->SetSeed(static_cast<UInt_t>(this->seed));  // ROOT rng should not be used, but just in case
+
+  // Local data management
+  // RATDB_EXTRA_PATH is a colon-separated list of directories searched (and
+  // loaded) with priority over $RATSHARE/ratdb, highest priority first.
+  if (getenv("RATDB_EXTRA_PATH") != NULL) {
+    std::stringstream extra_path(static_cast<std::string>(getenv("RATDB_EXTRA_PATH")));
+    std::string dir;
+    while (std::getline(extra_path, dir, ':')) {
+      if (dir.empty()) continue;
+      struct stat s;
+      if (stat(dir.c_str(), &s) != 0 || !S_ISDIR(s.st_mode)) {
+        warn << "RATDB_EXTRA_PATH: " << dir << " is not a directory, skipping." << newline;
+        continue;
+      }
+      if (std::find(ratdb_directories.begin(), ratdb_directories.end(), dir) == ratdb_directories.end()) {
+        ratdb_directories.push_back(dir);
+      }
+    }
+  }
+  if (getenv("RATSHARE") != NULL) {
+    ratdb_directories.push_back(static_cast<std::string>(getenv("RATSHARE")) + "/ratdb");
+    model_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/models");
+  }
+
   rdb->LoadDefaults();
 }
 

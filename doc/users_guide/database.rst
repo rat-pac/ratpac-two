@@ -155,3 +155,20 @@ However, other than this particular override behavior, any other collision in ta
 and index will currently result in completely undefined behavior. This is true between
 tables placed in RATPAC-two and a private experiment. **If an override is required,
 always place the overriding table in the experiment-specific directory.**
+
+Adding extra RATDB search directories
+``````````````````````````````````````
+The environment variable ``RATDB_EXTRA_PATH`` can be set to a colon-separated
+list of one or more directories to search for RATDB tables, in addition to
+``$RATSHARE/ratdb``. This is useful for local development or for overriding
+individual tables without editing or rebuilding the standard installation.
+
+::
+
+  export RATDB_EXTRA_PATH=/path/to/my/tables:/path/to/other/tables
+
+Directories listed in ``RATDB_EXTRA_PATH`` take priority over
+``$RATSHARE/ratdb``: a table of the same name and index found in one of these
+directories will override the corresponding default table. When multiple
+directories are listed, earlier ones take priority over later ones. If a
+listed directory does not exist, RAT will print a warning and skip it.

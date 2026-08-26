@@ -9,6 +9,7 @@
 #include <RAT/RatMessenger.hh>
 #include <set>
 #include <string>
+#include <vector>
 
 namespace RAT {
 
@@ -31,7 +32,8 @@ class Rat {
   ProducerBlock prodBlock;
 
  public:
-  inline static std::set<std::string> ratdb_directories = {};
+  // Ordered highest-priority first: RATDB_EXTRA_PATH directories, then $RATSHARE/ratdb.
+  inline static std::vector<std::string> ratdb_directories = {};
   inline static std::set<std::string> model_directories = {};
 
   Rat(AnyParse *parser, int argc, char **argv) : parser(parser), argc(argc), argv(argv){};
