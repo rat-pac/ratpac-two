@@ -55,7 +55,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct() {
     if (result == 2) {
       info << "Found experiment files in " << experiment << newline;
     } else {
-      for (auto dir : Rat::ratdb_directories) {
+      for (auto &dir : Rat::ratdb_search_path) {
         std::string experimentDirectoryString = dir + "/" + experiment;
         int result = db->LoadAll(experimentDirectoryString);
         if (result == 2) {

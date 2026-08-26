@@ -106,7 +106,8 @@ void Rat::Configure() {
 
   // Local data management
   // RATDB_EXTRA_PATH is a colon-separated list of directories searched (and
-  // loaded) with priority over $RATSHARE/ratdb, highest priority first.
+  // loaded) with priority over $RATSHARE/ratdb (appended below, so it's
+  // always lowest priority), highest priority first.
   if (getenv("RATDB_EXTRA_PATH") != NULL) {
     std::stringstream extra_path(static_cast<std::string>(getenv("RATDB_EXTRA_PATH")));
     std::string dir;
@@ -117,13 +118,11 @@ void Rat::Configure() {
         warn << "RATDB_EXTRA_PATH: " << dir << " is not a directory, skipping." << newline;
         continue;
       }
-      if (std::find(ratdb_directories.begin(), ratdb_directories.end(), dir) == ratdb_directories.end()) {
-        ratdb_directories.push_back(dir);
-      }
+      ratdb_search_path.Append(dir);
     }
   }
   if (getenv("RATSHARE") != NULL) {
-    ratdb_directories.push_back(static_cast<std::string>(getenv("RATSHARE")) + "/ratdb");
+    ratdb_search_path.Append(static_cast<std::string>(getenv("RATSHARE")) + "/ratdb");
     model_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/models");
   }
 

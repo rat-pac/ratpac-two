@@ -151,10 +151,13 @@ these tables will override any other tables with the same name. This can be very
 when an experiment wants to override the default values in certain tables, without
 worrying about telling a processor how to read a table with a non-default index.
 
-However, other than this particular override behavior, any other collision in table name
-and index will currently result in completely undefined behavior. This is true between
-tables placed in RATPAC-two and a private experiment. **If an override is required,
-always place the overriding table in the experiment-specific directory.**
+If a downstream experiment adds its own data directory by inserting directly into the
+legacy ``RAT::Rat::ratdb_directories`` set, ``$RATSHARE/ratdb`` always wins any table-name
+collision against it (in older RATPAC-2 versions this was arbitrary, not guaranteed).
+To override ``$RATSHARE/ratdb`` instead, use ``RAT::Rat::ratdb_search_path`` and
+``Prepend()`` the directory (see "For downstream experiments (C++ API)" below).
+**If an override is required, always place the overriding table in the
+experiment-specific directory, or use ``ratdb_search_path``.**
 
 Adding extra RATDB search directories
 ``````````````````````````````````````
@@ -172,3 +175,26 @@ Directories listed in ``RATDB_EXTRA_PATH`` take priority over
 directories will override the corresponding default table. When multiple
 directories are listed, earlier ones take priority over later ones. If a
 listed directory does not exist, RAT will print a warning and skip it.
+
+For downstream experiments 
+``````````````````````````````````````
+Experiment-specific ``RAT::Rat`` subclasses have historically added their own
+data directories by inserting directly into the public
+``RAT::Rat::ratdb_directories`` set, e.g.::
+
+  ratdb_directories.insert(my_experiment_data_dir + "/ratdb");
+
+This still compiles, and such directories are still searched by
+``DB::Load()``, ``DBTextLoader::PickFile()``, and the experiment-specific
+directory search described above. However, ``ratdb_directories`` is a
+``std::set``, which cannot express priority order: as a result,
+``$RATSHARE/ratdb`` is always loaded last (and therefore always wins any
+table-name collision) in ``DB::LoadDefaults()``, regardless of what has also
+been inserted into ``ratdb_directories``.
+
+New code should instead use ``RAT::Rat::ratdb_search_path``, which supports
+``Prepend()`` (highest priority) and ``Append()`` (lowest priority) for
+well-defined, deterministic override behavior everywhere, including
+``LoadDefaults()``::
+
+  RAT::Rat::ratdb_search_path.Prepend(my_experiment_data_dir + "/ratdb");
