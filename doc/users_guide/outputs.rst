@@ -57,7 +57,7 @@ Parameters:
     /rat/procset include_digitizerfits 1
     /rat/procset waveform_fitters ["Lognormal","Gaussian","Sinc","LucyDDM","RAVEN"]
     /rat/procset waveform_fitter_FOM_FITTERNAME ["FOM1","FOM2"]
-    /rat/procset event_fitters ["quadfitter","fitcentroid","fitdirectioncenter","mimir"]
+    /rat/procset event_fitters ["fittime","quadfitter","fitcentroid","fitdirectioncenter","mimir"]
     /rat/procset event_fitter_FOM_FITTERNAME ["FOM1","FOM2"]
     /rat/procset event_classifiers ["classifychargebalance","classifytimes"]
     /rat/procset event_classifier_FOM_CLASSIFIERNAME ["FOM1","FOM2"]

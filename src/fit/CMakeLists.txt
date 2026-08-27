@@ -9,6 +9,7 @@ add_library(fit_common OBJECT
   src/FitTensorProc.cc
   src/FitQuadProc.cc
   src/FitDirectionCenterProc.cc
+  src/FitTimeProc.cc
   src/MiniSim.cc)
 set_target_properties(fit_common PROPERTIES POSITION_INDEPENDENT_CODE ON)
 # Set our include directories
