@@ -250,7 +250,7 @@ class RatTest:
         critical_probability = self.KS_threshold / len(both)
         overall_success = True
 
-        for objname in both:
+        for objname in sorted(both):
             c_obj = current_file.Get(objname)
             m_obj = master_file.Get(objname)
 
@@ -273,7 +273,7 @@ class RatTest:
                     success = False
                     overall_success = False
 
-            success_message = "\033[1;32mSUCCESS\033[0m" if (success and overall_success) else "\033[1;31mFAILURE\033[0m"
+            success_message = "\033[1;32mSUCCESS\033[0m" if success else "\033[1;31mFAILURE\033[0m"
             print("  {}: KS prob = {}".format(success_message, prob))
 
             plotfile = os.path.join(self.testdir, objname + '.png')
