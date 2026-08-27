@@ -1,6 +1,5 @@
 #include <TRandom.h>
 #include <sys/resource.h>
-#include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <time.h>
@@ -22,6 +21,7 @@
 #include <RAT/TrackingMessenger.hh>
 #include <Randomize.hh>
 #include <algorithm>
+#include <filesystem>
 #include <globals.hh>
 #include <sstream>
 #include <string>
@@ -113,8 +113,7 @@ void Rat::Configure() {
     std::string dir;
     while (std::getline(extra_path, dir, ':')) {
       if (dir.empty()) continue;
-      struct stat s;
-      if (stat(dir.c_str(), &s) != 0 || !S_ISDIR(s.st_mode)) {
+      if (!std::filesystem::is_directory(dir)) {
         warn << "RATDB_EXTRA_PATH: " << dir << " is not a directory, skipping." << newline;
         continue;
       }
