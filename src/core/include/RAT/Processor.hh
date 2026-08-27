@@ -29,6 +29,7 @@
 
 #include <RAT/DS/Root.hh>
 #include <RAT/DS/Run.hh>
+#include <set>
 #include <string>
 
 namespace RAT {
@@ -36,6 +37,10 @@ namespace RAT {
 class Processor {
  protected:
   std::string name;
+
+ private:
+  /** Names of the parameters set by the user with /rat/procset. */
+  std::set<std::string> fSetParams;
 
  public:
   /** The short name of this processor. */
@@ -150,6 +155,20 @@ class Processor {
    *  @throws ParamInvalid if value is not allowed for param.
    */
   virtual void SetS(std::string param, std::string value);
+
+  /** Record that a param was set by the user with /rat/procset.
+   *
+   *  @param[in]  param  Name of parameter.
+   */
+  void MarkParamSet(std::string param) { fSetParams.insert(param); }
+
+  /** Check whether a param was set by the user with /rat/procset.
+   *
+   *  @param[in]  param  Name of parameter.
+   *
+   *  @return True if the user set the param. False if not.
+   */
+  bool WasParamSet(std::string param) const { return fSetParams.count(param) > 0; }
 
   /** Process one physics event.
    *

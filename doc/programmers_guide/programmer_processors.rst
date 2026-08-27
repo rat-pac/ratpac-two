@@ -75,6 +75,22 @@ Next you need to decide what parameters your processor will accept at runtime.  
 
 Only overload the methods you need.
 
+Each `/rat/procset` command applies to the processor created by the most recent `/rat/proc` command. This allows a macro to create several instances of the same processor with different values. If your ``BeginOfRun`` also loads a default value from RATDB for one of these parameters, check whether the parameter was set by the user with ``WasParamSet`` so the RATDB default does not overwrite the user's choice. The ``BeginOfRun`` definition from above then becomes::
+
+  void NoiseProc::BeginOfRun(DS::Run *run) {
+    DBLinkPtr lnoise = DB::Get()->GetLink("NOISEPROC");
+
+    if (!WasParamSet("flag")) fNoiseFlag = lnoise->GetI("noise_flag");
+    if (!WasParamSet("rate")) fDefaultNoiseRate = lnoise->GetD("default_noise_rate");
+    ...
+
+    DS::PMTInfo *pmtinfo = run->GetPMTInfo();
+    UpdatePMTModels(pmtinfo);
+    ...
+  }
+
+Note that ``WasParamSet`` accepts the parameter name used by the `/rat/procset` command (and in ``SetI``/``SetF``/``SetD``/``SetS``), while the RATDB table may use a different name.
+
 Finally, the ``EndOfRun`` method is invoked once after all of the events have been processed, and can be used to clean-up variables or print summary statistics.
 
 ---------------------------

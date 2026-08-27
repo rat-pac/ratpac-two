@@ -7,7 +7,7 @@ namespace RAT {
 FitMimirProc::FitMimirProc() : Processor("mimir"), inputHandler() {}
 
 void FitMimirProc::BeginOfRun(DS::Run *run) {
-  if (!configured) {
+  if (!WasParamSet("strategy")) {
     info << "FitMimirProc: No strategy configured, using default from RATDB." << newline;
     DBLinkPtr lConfig = DB::Get()->GetLink("FIT_MIMIR", "");
     strategyName = lConfig->GetS("strategy");
@@ -30,7 +30,6 @@ void FitMimirProc::Configure(const std::string &strategyName, const std::string 
 void FitMimirProc::SetS(std::string param, std::string value) {
   if (param == "strategy") {
     DB::ParseTableName(value, strategyName, strategyConfig);
-    configured = true;
   } else {
     throw Processor::ParamUnknown(param);
   }
