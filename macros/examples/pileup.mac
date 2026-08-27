@@ -29,6 +29,6 @@
 /generator/pileup/multiplicity poisson:3
 
 # Vertex times, relative to the event start: uniform over 0-50 ns
-/generator/pileup/spacing uniform:0:50
+/generator/pileup/timing uniform:0:50
 
 /run/beamOn 100

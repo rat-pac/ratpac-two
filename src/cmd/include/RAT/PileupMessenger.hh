@@ -28,7 +28,7 @@ class PileupMessenger : public G4UImessenger {
   PileupGen *fGen;
 
   std::unique_ptr<G4UIcommand> MultiplicityCmd;
-  std::unique_ptr<G4UIcommand> SpacingCmd;
+  std::unique_ptr<G4UIcommand> TimingCmd;
 };
 
 }  // namespace RAT

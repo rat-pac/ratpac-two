@@ -130,7 +130,7 @@ bool PileupDist::MultiplicityConfigIsValid() const {
 PileupGen::PileupGen() : stateStr(""), vertexGen(nullptr), posGen(nullptr) {
   timeGen = new GLG4TimeGen_Poisson();
   multiplicityDist.SetState("fixed:1");
-  spacingDist.SetState("fixed:0");
+  vertexTimingDist.SetState("fixed:0");
   messenger = std::make_unique<PileupMessenger>(this);
 }
 
@@ -149,7 +149,7 @@ void PileupGen::GenerateEvent(G4Event *event) {
     return;
   }
 
-  std::vector<double> times = spacingDist.GenerateTimes(n, NextTime());
+  std::vector<double> times = vertexTimingDist.GenerateTimes(n, NextTime());
   for (uint64_t i = 0; i < n; i++) {
     G4ThreeVector pos;
     posGen->GeneratePosition(pos);
@@ -247,8 +247,8 @@ void PileupGen::SetMultiplicityState(G4String state) {
 
 G4String PileupGen::GetMultiplicityState() const { return multiplicityDist.GetState(); }
 
-void PileupGen::SetSpacingState(G4String state) { spacingDist.SetState(state); }
+void PileupGen::SetVertexTimingState(G4String state) { vertexTimingDist.SetState(state); }
 
-G4String PileupGen::GetSpacingState() const { return spacingDist.GetState(); }
+G4String PileupGen::GetVertexTimingState() const { return vertexTimingDist.GetState(); }
 
 }  // namespace RAT

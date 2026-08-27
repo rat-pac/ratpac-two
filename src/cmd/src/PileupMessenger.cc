@@ -22,14 +22,14 @@ PileupMessenger::PileupMessenger(PileupGen *gen) : fGen(gen) {
   MultiplicityCmd->SetGuidance("Usage: /generator/pileup/multiplicity fixed:N | uniform:min:max | poisson:mean");
   MultiplicityCmd->SetParameter(new G4UIparameter("dist", 's', true));
 
-  SpacingCmd = std::make_unique<G4UIcommand>("/generator/pileup/spacing", this);
-  SpacingCmd->SetGuidance("Set the distribution for vertex times (ns) relative to the event start time.");
-  SpacingCmd->SetGuidance(
+  TimingCmd = std::make_unique<G4UIcommand>("/generator/pileup/timing", this);
+  TimingCmd->SetGuidance("Set the distribution for vertex times (ns) relative to the event start time.");
+  TimingCmd->SetGuidance(
       "fixed:dt places vertices dt apart; uniform:min:max draws each vertex's offset "
       "independently and uniformly from [min,max] and time-orders them; poisson:mean draws each "
       "vertex's offset independently from Exponential(mean) and time-orders them");
-  SpacingCmd->SetGuidance("Usage: /generator/pileup/spacing fixed:dt | uniform:min:max | poisson:mean");
-  SpacingCmd->SetParameter(new G4UIparameter("dist", 's', true));
+  TimingCmd->SetGuidance("Usage: /generator/pileup/timing fixed:dt | uniform:min:max | poisson:mean");
+  TimingCmd->SetParameter(new G4UIparameter("dist", 's', true));
 }
 
 PileupMessenger::~PileupMessenger() {}
@@ -37,8 +37,8 @@ PileupMessenger::~PileupMessenger() {}
 void PileupMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
   if (command == MultiplicityCmd.get()) {
     fGen->SetMultiplicityState(newValues);
-  } else if (command == SpacingCmd.get()) {
-    fGen->SetSpacingState(newValues);
+  } else if (command == TimingCmd.get()) {
+    fGen->SetVertexTimingState(newValues);
   } else {
     RAT::warn << "Error: PileupMessenger invalid command" << newline;
   }
@@ -47,8 +47,8 @@ void PileupMessenger::SetNewValue(G4UIcommand *command, G4String newValues) {
 G4String PileupMessenger::GetCurrentValue(G4UIcommand *command) {
   if (command == MultiplicityCmd.get()) {
     return fGen->GetMultiplicityState();
-  } else if (command == SpacingCmd.get()) {
-    return fGen->GetSpacingState();
+  } else if (command == TimingCmd.get()) {
+    return fGen->GetVertexTimingState();
   }
   return G4String("invalid Pileup Messenger \"get\" command");
 }

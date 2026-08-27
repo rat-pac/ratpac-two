@@ -87,8 +87,8 @@ class PileupGen : public GLG4Gen {
 
   void SetMultiplicityState(G4String state);
   G4String GetMultiplicityState() const;
-  void SetSpacingState(G4String state);
-  G4String GetSpacingState() const;
+  void SetVertexTimingState(G4String state);
+  G4String GetVertexTimingState() const;
 
  protected:
   G4String stateStr;
@@ -97,7 +97,7 @@ class PileupGen : public GLG4Gen {
   GLG4PosGen *posGen;
 
   PileupDist multiplicityDist;
-  PileupDist spacingDist;
+  PileupDist vertexTimingDist;
 
   std::unique_ptr<PileupMessenger> messenger;
 };

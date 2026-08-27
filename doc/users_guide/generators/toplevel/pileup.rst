@@ -33,9 +33,9 @@ poisson mean must be greater than 0.
 
 ::
 
-    /generator/pileup/spacing fixed:dt
-    /generator/pileup/spacing uniform:min:max
-    /generator/pileup/spacing poisson:mean
+    /generator/pileup/timing fixed:dt
+    /generator/pileup/timing uniform:min:max
+    /generator/pileup/timing poisson:mean
 
 Sets the distribution, in ns, for vertex times relative to the event start
 time (TIME). ``fixed`` places vertices dt apart, starting at TIME.
@@ -51,7 +51,7 @@ Example
 ::
 
     /generator/pileup/multiplicity poisson:5
-    /generator/pileup/spacing uniform:0:1000
+    /generator/pileup/timing uniform:0:1000
 
 A constant-rate radioactive source observed over a fixed time window: the
 number of decays in the window is Poisson-distributed, and conditioned on
