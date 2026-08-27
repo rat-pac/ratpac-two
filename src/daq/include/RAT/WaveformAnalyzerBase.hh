@@ -127,7 +127,8 @@ class WaveformAnalyzerBase : public Processor {
   double fMinTotalCharge = std::numeric_limits<double>::lowest();
   double fMaxTotalCharge = std::numeric_limits<double>::max();
 
-  // Whether the out-of-range charge message has already been printed for the current event. Reset in Event().
+  // Whether the out-of-range charge message has already been printed at info level for the current event.
+  // Reset in Event().
   bool fChargeRangeReported = false;
 };
 
