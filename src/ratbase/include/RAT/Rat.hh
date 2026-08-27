@@ -39,18 +39,18 @@ class RatdbDirectoryList {
  public:
   void Prepend(const std::string &dir);
   void Append(const std::string &dir);
-  bool Contains(const std::string &dir) const { return std::find(dirs_.begin(), dirs_.end(), dir) != dirs_.end(); }
+  bool Contains(const std::string &dir) const { return std::find(fDirs.begin(), fDirs.end(), dir) != fDirs.end(); }
 
   std::vector<std::string>::const_iterator begin() const;
-  std::vector<std::string>::const_iterator end() const { return combined_.end(); }
+  std::vector<std::string>::const_iterator end() const { return fCombined.end(); }
   std::vector<std::string>::const_reverse_iterator rbegin() const;
-  std::vector<std::string>::const_reverse_iterator rend() const { return combined_.rend(); }
+  std::vector<std::string>::const_reverse_iterator rend() const { return fCombined.rend(); }
 
  private:
   void RebuildCombined() const;
 
-  std::vector<std::string> dirs_;
-  mutable std::vector<std::string> combined_;
+  std::vector<std::string> fDirs;
+  mutable std::vector<std::string> fCombined;
 };
 
 class Rat {
@@ -89,32 +89,32 @@ class Rat {
 
 inline void RatdbDirectoryList::Prepend(const std::string &dir) {
   // Delete if already exists
-  dirs_.erase(std::remove(dirs_.begin(), dirs_.end(), dir), dirs_.end());
-  dirs_.insert(dirs_.begin(), dir);
+  fDirs.erase(std::remove(fDirs.begin(), fDirs.end(), dir), fDirs.end());
+  fDirs.insert(fDirs.begin(), dir);
   Rat::ratdb_directories.insert(dir);
 }
 
 inline void RatdbDirectoryList::Append(const std::string &dir) {
-  dirs_.erase(std::remove(dirs_.begin(), dirs_.end(), dir), dirs_.end());
-  dirs_.push_back(dir);
+  fDirs.erase(std::remove(fDirs.begin(), fDirs.end(), dir), fDirs.end());
+  fDirs.push_back(dir);
   Rat::ratdb_directories.insert(dir);
 }
 
 inline void RatdbDirectoryList::RebuildCombined() const {
-  combined_ = dirs_;
+  fCombined = fDirs;
   for (const auto &dir : Rat::ratdb_directories) {
-    if (!Contains(dir)) combined_.push_back(dir);
+    if (!Contains(dir)) fCombined.push_back(dir);
   }
 }
 
 inline std::vector<std::string>::const_iterator RatdbDirectoryList::begin() const {
   RebuildCombined();
-  return combined_.begin();
+  return fCombined.begin();
 }
 
 inline std::vector<std::string>::const_reverse_iterator RatdbDirectoryList::rbegin() const {
   RebuildCombined();
-  return combined_.rbegin();
+  return fCombined.rbegin();
 }
 
 }  // namespace RAT
