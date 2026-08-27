@@ -117,11 +117,11 @@ void Rat::Configure() {
         warn << "RATDB_EXTRA_PATH: " << dir << " is not a directory, skipping." << newline;
         continue;
       }
-      ratdb_search_path.Append(dir);
+      ratdb_directories.Append(dir);
     }
   }
   if (getenv("RATSHARE") != NULL) {
-    ratdb_search_path.Append(static_cast<std::string>(getenv("RATSHARE")) + "/ratdb");
+    ratdb_directories.Append(static_cast<std::string>(getenv("RATSHARE")) + "/ratdb");
     model_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/models");
   }
 

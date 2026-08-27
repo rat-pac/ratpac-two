@@ -5,6 +5,7 @@
 #include <RAT/AnyParse.hh>
 #include <RAT/DB.hh>
 #include <RAT/DBMessenger.hh>
+#include <RAT/Log.hh>
 #include <RAT/ProducerBlock.hh>
 #include <RAT/RatMessenger.hh>
 #include <algorithm>
@@ -19,38 +20,49 @@ namespace RAT {
  *
  *  Prepend()/Append() give a directory higher/lower priority than anything
  *  already present. If it's already in the list, it's moved rather than
- *  duplicated. Both also insert into the legacy Rat::ratdb_directories set so
- *  old code that inserts into or iterates that set directly still works and
- *  sees everything.
+ *  duplicated.
  *
- *  Forward iteration (begin()/end()) yields Prepended/Appended directories in
- *  priority order, then whatever's left in ratdb_directories. Reverse
- *  iteration (rbegin()/rend()) yields the same back-to-front, so loading each
- *  directory in reverse order and letting later loads overwrite earlier ones
- *  makes the highest-priority directory win (see DB::LoadDefaults()). Every
- *  begin()/rbegin() call re-pulls ratdb_directories' current contents into
- *  this combined view; don't hold an iterator across a fresh begin()/rbegin()
- *  call, since it rewrites the storage that iterator points into. Normal
- *  iteration (which calls begin()/rbegin() once, then end()/rend() once) is
- *  unaffected.
+ *  Forward iteration (begin()/end()) yields directories highest priority
+ *  first. Reverse iteration (rbegin()/rend()) yields the same back-to-front,
+ *  so loading each directory in reverse order and letting later loads
+ *  overwrite earlier ones makes the highest-priority directory win (see
+ *  DB::LoadDefaults()).
+ *
+ *  insert() is a legacy alias for downstream code that used to insert
+ *  directly into the old std::set<std::string> ratdb_directories. A
+ *  std::set has no priority order, so insert() treats the directory as
+ *  highest priority (equivalent to Prepend()) and warns.
  **/
 
 class RatdbDirectoryList {
  public:
-  void Prepend(const std::string &dir);
-  void Append(const std::string &dir);
+  void Prepend(const std::string &dir) {
+    // Delete if already exists
+    fDirs.erase(std::remove(fDirs.begin(), fDirs.end(), dir), fDirs.end());
+    fDirs.insert(fDirs.begin(), dir);
+  }
+
+  void Append(const std::string &dir) {
+    fDirs.erase(std::remove(fDirs.begin(), fDirs.end(), dir), fDirs.end());
+    fDirs.push_back(dir);
+  }
+
+  void insert(const std::string &dir) {
+    warn << "RAT::Rat::ratdb_directories.insert() is deprecated: std::set has no priority order, so \"" << dir
+         << "\" is being treated as highest priority (equivalent to Prepend()). Use Prepend()/Append() instead."
+         << newline;
+    Prepend(dir);
+  }
+
   bool Contains(const std::string &dir) const { return std::find(fDirs.begin(), fDirs.end(), dir) != fDirs.end(); }
 
-  std::vector<std::string>::const_iterator begin() const;
-  std::vector<std::string>::const_iterator end() const { return fCombined.end(); }
-  std::vector<std::string>::const_reverse_iterator rbegin() const;
-  std::vector<std::string>::const_reverse_iterator rend() const { return fCombined.rend(); }
+  std::vector<std::string>::const_iterator begin() const { return fDirs.begin(); }
+  std::vector<std::string>::const_iterator end() const { return fDirs.end(); }
+  std::vector<std::string>::const_reverse_iterator rbegin() const { return fDirs.rbegin(); }
+  std::vector<std::string>::const_reverse_iterator rend() const { return fDirs.rend(); }
 
  private:
-  void RebuildCombined() const;
-
   std::vector<std::string> fDirs;
-  mutable std::vector<std::string> fCombined;
 };
 
 class Rat {
@@ -72,12 +84,9 @@ class Rat {
   ProducerBlock prodBlock;
 
  public:
-  // Priority-ordered RATDB search directories (e.g. RATDB_EXTRA_PATH), highest
-  // priority first. Use Prepend()/Append() to add to this rather than
-  // inserting into ratdb_directories, so priority order is preserved.
-  inline static RatdbDirectoryList ratdb_search_path = {};
-  // Retained for backwards compatibility with code that inserts into it directly.
-  inline static std::set<std::string> ratdb_directories = {};
+  // Priority-ordered RATDB search directories, highest
+  // priority first. Use Prepend()/Append() to add to this.
+  inline static RatdbDirectoryList ratdb_directories = {};
   inline static std::set<std::string> model_directories = {};
 
   Rat(AnyParse *parser, int argc, char **argv) : parser(parser), argc(argc), argv(argv){};
@@ -86,36 +95,6 @@ class Rat {
   void Begin();
   void Report();
 };
-
-inline void RatdbDirectoryList::Prepend(const std::string &dir) {
-  // Delete if already exists
-  fDirs.erase(std::remove(fDirs.begin(), fDirs.end(), dir), fDirs.end());
-  fDirs.insert(fDirs.begin(), dir);
-  Rat::ratdb_directories.insert(dir);
-}
-
-inline void RatdbDirectoryList::Append(const std::string &dir) {
-  fDirs.erase(std::remove(fDirs.begin(), fDirs.end(), dir), fDirs.end());
-  fDirs.push_back(dir);
-  Rat::ratdb_directories.insert(dir);
-}
-
-inline void RatdbDirectoryList::RebuildCombined() const {
-  fCombined = fDirs;
-  for (const auto &dir : Rat::ratdb_directories) {
-    if (!Contains(dir)) fCombined.push_back(dir);
-  }
-}
-
-inline std::vector<std::string>::const_iterator RatdbDirectoryList::begin() const {
-  RebuildCombined();
-  return fCombined.begin();
-}
-
-inline std::vector<std::string>::const_reverse_iterator RatdbDirectoryList::rbegin() const {
-  RebuildCombined();
-  return fCombined.rbegin();
-}
 
 }  // namespace RAT
 

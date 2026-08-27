@@ -45,7 +45,7 @@ int DB::Load(std::string filename, bool printPath) {
       return LoadFile(filename);
   } else {
     // Check through the data directories
-    for (auto &dir : Rat::ratdb_search_path) {
+    for (auto &dir : Rat::ratdb_directories) {
       std::string newfilename = dir + "/" + filename;
       if (printPath) info << "DB: Loading " << newfilename << newline;
       if (stat(newfilename.c_str(), &s) == 0) {
@@ -161,7 +161,7 @@ int DB::LoadAll(std::string dirname, std::string pattern) {
 int DB::LoadDefaults() {
   // Load lowest-priority directories first so higher-priority directories
   // are loaded last and correctly overwrite same-named default tables.
-  for (auto it = Rat::ratdb_search_path.rbegin(); it != Rat::ratdb_search_path.rend(); ++it) LoadAll(*it);
+  for (auto it = Rat::ratdb_directories.rbegin(); it != Rat::ratdb_directories.rend(); ++it) LoadAll(*it);
   return 1;
 }
 
