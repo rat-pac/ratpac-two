@@ -3,6 +3,7 @@
 #include <RAT/Log.hh>
 #include <RAT/TrackingMessenger.hh>
 #include <RAT/Trajectory.hh>
+#include <sstream>
 
 namespace RAT {
 
@@ -41,6 +42,38 @@ TrackingMessenger::TrackingMessenger() {
       "value <= 0.0 means do not kill any tracks.");
   setMaxGlobalTimeCmd->SetParameterName("value", true, false);
   setMaxGlobalTimeCmd->SetDefaultValue(0.0);
+
+  directLightOnlyCmd = new G4UIcmdWithABool("/tracking/directLightOnly", this);
+  directLightOnlyCmd->SetGuidance("Keep only direct optical photons.");
+  directLightOnlyCmd->SetGuidance(
+      "A photon is killed as soon as it is created by a process not listed in "
+      "/tracking/directLightProcesses (reemission, wavelength shifting, ...), "
+      "or as soon as it scatters, wavelength shifts or is reflected at a "
+      "surface.  Refraction into the next volume is kept, since the photon has "
+      "still travelled straight from its emission point to that surface.");
+  directLightOnlyCmd->SetParameterName("on", true, false);
+  directLightOnlyCmd->SetDefaultValue(false);
+
+  directLightProcessesCmd = new G4UIcmdWithAString("/tracking/directLightProcesses", this);
+  directLightProcessesCmd->SetGuidance(
+      "Space separated list of creator process names kept by "
+      "/tracking/directLightOnly.");
+  directLightProcessesCmd->SetGuidance(
+      "Names are matched as substrings, so \"Cerenkov\" matches the "
+      "\"G4CerenkovProcess\" name that RAT actually uses.  Default is "
+      "\"Cerenkov Scintillation\".  Photons with no creator process at all "
+      "(primaries from a photon generator) are always kept.");
+  directLightProcessesCmd->SetParameterName("processes", true, false);
+  directLightProcessesCmd->SetDefaultValue("Cerenkov Scintillation");
+
+  directLightMinCosineCmd = new G4UIcmdWithADouble("/tracking/directLightMinCosine", this);
+  directLightMinCosineCmd->SetGuidance(
+      "Optional angular cut used by /tracking/directLightOnly: kill a photon "
+      "once the cosine of the angle between its current direction and its "
+      "emission direction drops below this (double) value.");
+  directLightMinCosineCmd->SetGuidance("Values <= -1.0 (the default) disable the cut.");
+  directLightMinCosineCmd->SetParameterName("value", true, false);
+  directLightMinCosineCmd->SetDefaultValue(-1.0);
 }
 
 TrackingMessenger::~TrackingMessenger() {
@@ -50,6 +83,9 @@ TrackingMessenger::~TrackingMessenger() {
   delete storeMuonTrajSpecialCmd;
   delete setMaxGlobalTimeCmd;
   delete storeOpticalTrackIDCmd;
+  delete directLightOnlyCmd;
+  delete directLightProcessesCmd;
+  delete directLightMinCosineCmd;
 }
 
 G4String TrackingMessenger::GetCurrentValue(G4UIcommand *command) {
@@ -65,6 +101,17 @@ G4String TrackingMessenger::GetCurrentValue(G4UIcommand *command) {
     return Trajectory::GetDoAppendMuonStepSpecial() ? "True" : "False";
   } else if (command == setMaxGlobalTimeCmd) {
     return setMaxGlobalTimeCmd->ConvertToString(GLG4SteppingAction::max_global_time);
+  } else if (command == directLightOnlyCmd) {
+    return GLG4SteppingAction::fDirectLightOnly ? "True" : "False";
+  } else if (command == directLightProcessesCmd) {
+    std::ostringstream processes;
+    for (size_t i = 0; i < GLG4SteppingAction::fDirectLightProcesses.size(); i++) {
+      if (i > 0) processes << " ";
+      processes << GLG4SteppingAction::fDirectLightProcesses[i];
+    }
+    return processes.str();
+  } else if (command == directLightMinCosineCmd) {
+    return directLightMinCosineCmd->ConvertToString(GLG4SteppingAction::fDirectLightMinCosine);
   } else {
     Log::Die("TrackingMessenger sent unknown get command: " + command->GetCommandPath());
     return "";  // never get here
@@ -116,6 +163,30 @@ void TrackingMessenger::SetNewValue(G4UIcommand *command, G4String newValue) {
     else
       detail << "Tracking: Max global time for tracks set to " << val << newline;
     GLG4SteppingAction::max_global_time = val;
+  } else if (command == directLightOnlyCmd) {
+    bool on = G4UIcmdWithABool::GetNewBoolValue(newValue);
+    if (on)
+      detail << "Tracking: keeping direct optical photons only" << newline;
+    else
+      detail << "Tracking: keeping all optical photons" << newline;
+    GLG4SteppingAction::fDirectLightOnly = on;
+  } else if (command == directLightProcessesCmd) {
+    std::vector<std::string> processes;
+    std::istringstream stream(newValue);
+    std::string process;
+    while (stream >> process) processes.push_back(process);
+    if (processes.empty()) {
+      Log::Die("Tracking: /tracking/directLightProcesses needs at least one process name.");
+    }
+    GLG4SteppingAction::fDirectLightProcesses = processes;
+    detail << "Tracking: direct light kept for photons created by " << newValue << newline;
+  } else if (command == directLightMinCosineCmd) {
+    G4double val = G4UIcmdWithADouble::GetNewDoubleValue(newValue);
+    if (val <= -1.0)
+      detail << "Tracking: no angular cut applied to direct light." << newline;
+    else
+      detail << "Tracking: direct light killed below cos(angle to emission direction) = " << val << newline;
+    GLG4SteppingAction::fDirectLightMinCosine = val;
   } else {
     Log::Die("TrackingMessenger sent unknown set command: " + command->GetCommandPath());
   }

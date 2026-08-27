@@ -16,6 +16,7 @@ Table of Contents
    geometry
    physics_processes
    photon_processes
+   tuning
    processors
    producers
    pmt

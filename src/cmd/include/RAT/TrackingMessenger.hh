@@ -24,6 +24,9 @@ class TrackingMessenger : public G4UImessenger {
   G4UIcmdWithABool *storeMuonTrajSpecialCmd;
   G4UIcmdWithADouble *setMaxGlobalTimeCmd;
   G4UIcmdWithABool *storeOpticalTrackIDCmd;
+  G4UIcmdWithABool *directLightOnlyCmd;
+  G4UIcmdWithAString *directLightProcessesCmd;
+  G4UIcmdWithADouble *directLightMinCosineCmd;
 };
 
 }  // namespace RAT

@@ -33,6 +33,7 @@
 #include "G4Version.hh"
 #include "RAT/GLG4HitPhoton.hh"
 #include "RAT/GLG4VEventAction.hh"
+#include "RAT/TrackInfo.hh"
 #include "Randomize.hh"
 #include "local_g4compat.hh"
 
@@ -237,6 +238,8 @@ void GLG4PMTOpticalModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastSte
 
   // find which pmt we are in
   ipmt = GetPMTID(fastTrack);
+  RAT::TrackInfo *trackInfo = dynamic_cast<RAT::TrackInfo *>(fastTrack.GetPrimaryTrack()->GetUserInformation());
+  if (trackInfo) trackInfo->fTouchedPMT = true;
 
   // get position and direction in local coordinates
   pos = fastTrack.GetPrimaryTrackLocalPosition();
