@@ -30,6 +30,8 @@ void FitMimirProc::Configure(const std::string &strategyName, const std::string 
 void FitMimirProc::SetS(std::string param, std::string value) {
   if (param == "strategy") {
     DB::ParseTableName(value, strategyName, strategyConfig);
+  } else {
+    throw Processor::ParamUnknown(param);
   }
 }
 
