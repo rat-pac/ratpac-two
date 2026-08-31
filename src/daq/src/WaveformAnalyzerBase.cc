@@ -1,5 +1,7 @@
 #include "RAT/WaveformAnalyzerBase.hh"
 
+#include <sstream>
+
 #include "RAT/DS/DigitPMT.hh"
 #include "RAT/DS/RunStore.hh"
 
@@ -31,7 +33,19 @@ void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Di
   digitpmt->GetOrCreateWaveformAnalysisResult(GetAnalyzerName());
 
   double totalCharge = digitpmt->GetDigitizedTotalCharge();
-  if (totalCharge < fMinTotalCharge || totalCharge > fMaxTotalCharge) return;
+  if (totalCharge < fMinTotalCharge || totalCharge > fMaxTotalCharge) {
+    // Only the first out-of-range PMT of an event is announced at info level, the rest are demoted to debug.
+    std::ostringstream msg;
+    msg << "Total charge " << totalCharge << " is outside of the allowed range [" << fMinTotalCharge << ", "
+        << fMaxTotalCharge << "]. Skipping waveform analysis for PMT " << pmtID << ".";
+    if (!fChargeRangeReported) {
+      info << msg.str() << " Further out-of-range PMTs in this event will only be reported at debug level." << newline;
+      fChargeRangeReported = true;
+    } else {
+      debug << msg.str() << newline;
+    }
+    return;
+  }
 
   fVoltageRes = dsdigit->GetVoltageResolution();
   fTimeStep = dsdigit->GetTimeStepNS();
@@ -41,6 +55,7 @@ void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Di
 }
 
 Processor::Result WaveformAnalyzerBase::Event(DS::Root* ds, DS::EV* ev) {
+  fChargeRangeReported = false;
   if (!ev->DigitizerExists()) {
     warn << "Running waveform analysis, but no digitzer information." << newline;
     return Processor::Result::OK;
