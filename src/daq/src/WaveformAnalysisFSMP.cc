@@ -28,39 +28,16 @@ void WaveformAnalysisFSMP::Configure(const std::string& config_name) {
     voltage_threshold = fDigit->GetD("voltage_threshold");
     threshold_region_padding = fDigit->GetI("region_padding");
 
-    // Single-PE response template: set 1 (gaussian) when the detector SER is
-    // gaussian, e.g. the Eos PMTPULSE tables.
-    template_type = fDigit->GetI("template_type");
-    if (template_type == 0) {
-      lognormal_scale = fDigit->GetD("lognormal_scale");
-      lognormal_shape = fDigit->GetD("lognormal_shape");
-    } else if (template_type == 1) {
-      gaussian_width = fDigit->GetD("gaussian_width");
-      // Optional per-PMT-type template widths (paired arrays); unlisted PMT
-      // types fall back to gaussian_width.
-      gaussian_width_types.clear();
-      gaussian_width_values.clear();
-      try {
-        gaussian_width_types = fDigit->GetIArray("gaussian_width_pmt_types");
-        gaussian_width_values = fDigit->GetDArray("gaussian_width_pmt_widths");
-      } catch (DBNotFoundError&) {
-      }
-      if (gaussian_width_types.size() != gaussian_width_values.size()) {
-        RAT::Log::Die(GetAnalyzerName() + ": gaussian_width_pmt_types/widths must have equal length.");
-      }
-    } else {
-      RAT::Log::Die(GetAnalyzerName() + ": Invalid template_type " + std::to_string(template_type) +
-                    ". Must be 0 (lognormal) or 1 (gaussian).");
-    }
-    vpe_charge = fDigit->GetD("vpe_charge");
+    // SER template, per-PE charge and its prior. All of it is per PMT type (and
+    // optionally straight out of PMTPULSE), so it lives in SERDictionary and is
+    // resolved per waveform in DoAnalysis() rather than here.
+    fDict.Configure(fDigit, GetAnalyzerName());
 
     // Dictionary
     upsample_factor = fDigit->GetD("upsampling_factor");
 
-    // Noise / charge prior
+    // Noise
     noise_sigma = fDigit->GetD("noise_sigma");
-    gamma_k = fDigit->GetD("gamma_k");
-    gamma_theta = fDigit->GetD("gamma_theta");
 
     // Initial configuration
     seed_analyzer = fDigit->GetS("seed_analyzer");
@@ -75,6 +52,18 @@ void WaveformAnalysisFSMP::Configure(const std::string& config_name) {
     lightcurve_tau = fDigit->GetD("lightcurve_tau");
     lightcurve_sigma = fDigit->GetD("lightcurve_sigma");
     t0_step = fDigit->GetD("t0_step");
+    // Optional flat component. Without it the light curve is the only thing
+    // saying where a PE may sit, and an ex-Gaussian falls off fast enough that
+    // dark noise and the PMTTRANSIT late tail get p_occ ~ 1e-300, i.e. they
+    // cannot be found at all. Defaults off, preserving the pure-curve prior.
+    try {
+      lightcurve_floor = fDigit->GetD("lightcurve_floor");
+    } catch (DBNotFoundError&) {
+      lightcurve_floor = 0.0;
+    }
+    if (lightcurve_floor < 0.0 || lightcurve_floor >= 1.0) {
+      RAT::Log::Die(GetAnalyzerName() + ": lightcurve_floor must be in [0, 1).");
+    }
 
     // NPE estimation. Splitting a resolved atom's charge into integer PEs
     // reintroduces the single PE charge variance that FSMP removes by counting
@@ -92,7 +81,6 @@ void WaveformAnalysisFSMP::Configure(const std::string& config_name) {
       RAT::Log::Die(GetAnalyzerName() + ": Invalid upsampling factor.");
     }
 
-    fWCache.clear();
     cached_nsamples = -1;
     cached_digitizer_period = -1.0;
 
@@ -110,26 +98,21 @@ void WaveformAnalysisFSMP::BeginOfRun(DS::Run*) {
 }
 
 void WaveformAnalysisFSMP::SetD(std::string param, double value) {
-  if (param == "lognormal_scale") {
-    lognormal_scale = value;
-  } else if (param == "lognormal_shape") {
-    lognormal_shape = value;
-  } else if (param == "gaussian_width") {
-    gaussian_width = value;
-    fWCache.clear();
-  } else if (param == "vpe_charge") {
-    vpe_charge = value;
-  } else if (param == "upsampling_factor") {
+  // Template and charge parameters belong to the dictionary, which clears its
+  // own cache when one of them changes.
+  if (fDict.SetD(param, value)) return;
+
+  if (param == "upsampling_factor") {
     upsample_factor = value;
-    fWCache.clear();
   } else if (param == "voltage_threshold") {
     voltage_threshold = value;
   } else if (param == "noise_sigma") {
     noise_sigma = value;
-  } else if (param == "gamma_k") {
-    gamma_k = value;
-  } else if (param == "gamma_theta") {
-    gamma_theta = value;
+  } else if (param == "lightcurve_floor") {
+    if (value < 0.0 || value >= 1.0) {
+      RAT::Log::Die(GetAnalyzerName() + ": lightcurve_floor must be in [0, 1).");
+    }
+    lightcurve_floor = value;
   } else if (param == "lightcurve_tau") {
     lightcurve_tau = value;
   } else if (param == "lightcurve_sigma") {
@@ -146,15 +129,10 @@ void WaveformAnalysisFSMP::SetD(std::string param, double value) {
 }
 
 void WaveformAnalysisFSMP::SetI(std::string param, int value) {
+  if (fDict.SetI(param, value)) return;
+
   if (param == "process_threshold_crossing") {
     process_threshold_crossing = (value != 0);
-  } else if (param == "template_type") {
-    if (value != 0 && value != 1) {
-      RAT::Log::Die(GetAnalyzerName() + ": Invalid template_type " + std::to_string(value) +
-                    ". Must be 0 (lognormal) or 1 (gaussian).");
-    }
-    template_type = value;
-    fWCache.clear();
   } else if (param == "region_padding") {
     threshold_region_padding = value;
   } else if (param == "max_iterations") {
@@ -189,38 +167,6 @@ TMatrixD WaveformAnalysisFSMP::BuildActive(const TMatrixD& W, int nrows, const s
     for (int i = 0; i < nrows; ++i) A(i, static_cast<int>(j)) = W(i, cols[j]);
   }
   return A;
-}
-
-void WaveformAnalysisFSMP::BuildDictionaryMatrix(int nsamples, double digitizer_period, double width, TMatrixD& W_out) {
-  debug << GetAnalyzerName() << ": Building dictionary matrix " << nsamples << " x "
-        << static_cast<int>(nsamples * upsample_factor) << newline;
-
-  const int dict_size = static_cast<int>(nsamples * upsample_factor);
-  W_out.ResizeTo(nsamples, dict_size);
-  W_out.Zero();
-
-  // mag_factor maps the (unit-integral) lognormal time PDF [1/ns] to a voltage
-  // [mV] such that a column with weight 1 corresponds to a PE of vpe_charge.
-  // charge[pC] = -V[mV] * dt[ns] / Ohm  =>  integral(template)*dt = vpe_charge.
-  const double mag_factor = vpe_charge * fTermOhms;
-
-  for (int col = 0; col < dict_size; ++col) {
-    const double delay = col * digitizer_period / upsample_factor;
-    const double lognormal_shift = delay - lognormal_scale;
-    for (int row = 0; row < nsamples; ++row) {
-      const double sample_time = row * digitizer_period;
-      double template_val = 0.0;
-      if (template_type == 0) {  // lognormal
-        if (sample_time > lognormal_shift) {
-          template_val = mag_factor * TMath::LogNormal(sample_time, lognormal_shape, lognormal_shift, lognormal_scale);
-        }
-      } else {  // gaussian
-        template_val = mag_factor * TMath::Gaus(sample_time, delay, width, kTRUE);
-      }
-      // Pulses are negative-going, matching the (pedestal-subtracted) voltage waveform.
-      W_out(row, col) = -template_val;
-    }
-  }
 }
 
 double WaveformAnalysisFSMP::LogEvidence(const TMatrixD& W_active, const TVectorD& voltVec, TVectorD& charges_out) {
@@ -880,51 +826,53 @@ double WaveformAnalysisFSMP::LightCurve(double dt) const {
   const double tau = lightcurve_tau;
   const double sqrt2 = std::sqrt(2.0);
 
+  double phi = 0.0;
   if (tau <= 1e-6) {
     // Pure Gaussian (Cherenkov limit, tau_l -> 0).
-    if (sigma <= 0.0) return (std::abs(dt) < 1e-9) ? 1.0 : 0.0;
-    return std::exp(-0.5 * (dt / sigma) * (dt / sigma)) / (sigma * std::sqrt(2.0 * TMath::Pi()));
-  }
-  if (sigma <= 0.0) {
+    if (sigma <= 0.0) {
+      phi = (std::abs(dt) < 1e-9) ? 1.0 : 0.0;
+    } else {
+      phi = std::exp(-0.5 * (dt / sigma) * (dt / sigma)) / (sigma * std::sqrt(2.0 * TMath::Pi()));
+    }
+  } else if (sigma <= 0.0) {
     // Pure exponential (no timing spread).
-    return (dt > 0.0) ? std::exp(-dt / tau) / tau : 0.0;
+    phi = (dt > 0.0) ? std::exp(-dt / tau) / tau : 0.0;
+  } else {
+    // Exponentially-modified Gaussian (ex-Gaussian), paper eq. 2.2.
+    double expo = sigma * sigma / (2.0 * tau * tau) - dt / tau;
+    expo = std::min(expo, 300.0);  // guard against overflow
+    const double arg = sigma / (sqrt2 * tau) - dt / (sqrt2 * sigma);
+    phi = (1.0 / (2.0 * tau)) * std::exp(expo) * TMath::Erfc(arg);
   }
-  // Exponentially-modified Gaussian (ex-Gaussian), paper eq. 2.2.
-  double expo = sigma * sigma / (2.0 * tau * tau) - dt / tau;
-  expo = std::min(expo, 300.0);  // guard against overflow
-  const double arg = sigma / (sqrt2 * tau) - dt / (sqrt2 * sigma);
-  return (1.0 / (2.0 * tau)) * std::exp(expo) * TMath::Erfc(arg);
+
+  // Mix in a flat component over the readout window. Not every PE in the window
+  // comes from the light the curve describes -- dark noise is uniform, and the
+  // PMTTRANSIT late tail runs tens of ns past the prompt peak -- and without
+  // this the prior on a column that far out is ~1e-300, so the sampler can
+  // never accept one however well it fits the waveform.
+  if (lightcurve_floor > 0.0 && lightcurve_window > 0.0) {
+    phi = (1.0 - lightcurve_floor) * phi + lightcurve_floor / lightcurve_window;
+  }
+  return phi;
 }
 
 void WaveformAnalysisFSMP::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
-  // Invalidate the dictionary cache when digitizer parameters change
-  const double period_tolerance = 1e-9;
-  if (cached_nsamples != static_cast<int>(digitWfm.size()) ||
-      std::abs(cached_digitizer_period - fTimeStep) > period_tolerance) {
-    fWCache.clear();
-    cached_nsamples = static_cast<int>(digitWfm.size());
-    cached_digitizer_period = fTimeStep;
-  }
+  cached_nsamples = static_cast<int>(digitWfm.size());
+  cached_digitizer_period = fTimeStep;
+  // The dictionary rebuilds itself if any of this changed since the last call.
+  fDict.SetGeometry(cached_nsamples, fTimeStep, fTermOhms, upsample_factor);
 
-  // Pick the template width for this PMT's type (gaussian template only) and
-  // fetch/build the matching dictionary.
-  double width = gaussian_width;
-  if (template_type == 1 && !gaussian_width_types.empty()) {
-    const int pmt_type = DS::RunStore::GetCurrentRun()->GetPMTInfo()->GetType(digitpmt->GetID());
-    for (size_t i = 0; i < gaussian_width_types.size(); ++i) {
-      if (gaussian_width_types[i] == pmt_type) {
-        width = gaussian_width_values[i];
-        break;
-      }
-    }
-  }
-  const int cache_key = (template_type == 0) ? -1 : static_cast<int>(std::lround(width * 1000.0));
-  auto cache_it = fWCache.find(cache_key);
-  if (cache_it == fWCache.end()) {
-    cache_it = fWCache.emplace(cache_key, TMatrixD()).first;
-    BuildDictionaryMatrix(cached_nsamples, cached_digitizer_period, width, cache_it->second);
-  }
-  const TMatrixD& fW = cache_it->second;
+  // Everything the SER model says about *this* PMT: the template it is fit
+  // with, the charge a unit weight carries, and the prior on that weight. Held
+  // as scalars for the rest of the waveform so the kernels stay unaware of the
+  // per-PMT-type lookups behind them.
+  const int pmtid = digitpmt->GetID();
+  const TMatrixD& fW = fDict.Get(pmtid);
+  vpe_charge = fDict.VpeCharge(pmtid);
+  gamma_k = fDict.GammaK(pmtid);
+  gamma_theta = fDict.GammaTheta(pmtid);
+  // The flat part of the light curve is spread over the readout window.
+  lightcurve_window = cached_nsamples * fTimeStep;
 
   double pedestal = digitpmt->GetPedestal();
   if (pedestal == -9999) {

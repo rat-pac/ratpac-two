@@ -47,6 +47,7 @@
 #include <RAT/DB.hh>
 #include <RAT/DS/DigitPMT.hh>
 #include <RAT/DS/WaveformAnalysisResult.hh>
+#include <RAT/SERDictionary.hh>
 #include <RAT/WaveformAnalyzerBase.hh>
 #include <map>
 #include <string>
@@ -64,8 +65,6 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   };
 
   virtual ~WaveformAnalysisFSMP(){};
-
-  void BuildDictionaryMatrix(int nsamples, double digitizer_period, double width, TMatrixD &W_out);
 
   void Configure(const std::string &config_name) override;
 
@@ -95,28 +94,22 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   double voltage_threshold;         ///< Voltage threshold for threshold crossing region detection
   int threshold_region_padding;     ///< Number of samples to pad around threshold crossing regions
 
-  int template_type;  ///< Template type: 0=lognormal, 1=gaussian
+  /// SER templates and per-PE charge scales, shared with WaveformAnalysisGreedyMP
+  /// so a seed and the sampler that starts from it describe the same detector.
+  SERDictionary fDict;
 
-  // LogNormal template parameters
-  double lognormal_scale;  ///< LogNormal 'm' parameter for SPE template
-  double lognormal_shape;  ///< LogNormal 'sigma' parameter for SPE template
-
-  // Gaussian template parameters
-  double gaussian_width;                      ///< Gaussian 'sigma' parameter for SPE template
-  std::vector<int> gaussian_width_types;      ///< PMT types with their own template width
-  std::vector<double> gaussian_width_values;  ///< Widths of those types; others use gaussian_width
-
-  double vpe_charge;  ///< Nominal charge of single PE in pC
+  // Resolved from fDict for the PMT currently being analyzed, at the top of
+  // DoAnalysis(), so the kernels below can stay per-waveform scalars.
+  double vpe_charge;   ///< Nominal charge of single PE in pC
+  double gamma_k;      ///< Shape of the per-PE charge prior
+  double gamma_theta;  ///< Scale of the per-PE charge prior
 
   // Algorithm configuration
-  std::map<int, TMatrixD> fWCache;  ///< Dictionary per template, keyed by width in ps (-1 = lognormal)
-  double upsample_factor;           ///< Dictionary upsampling factor for sub-sample resolution
-  size_t max_iterations;            ///< Maximum PEs taken from the seed per region
+  double upsample_factor;  ///< Dictionary upsampling factor for sub-sample resolution
+  size_t max_iterations;   ///< Maximum PEs taken from the seed per region
 
   // Bayesian evidence parameters
   double noise_sigma;  ///< Gaussian white-noise sigma of the waveform in mV. Must be > 0.
-  double gamma_k;      ///< Shape of the per-PE charge prior
-  double gamma_theta;  ///< Scale of the per-PE charge prior
 
   // Initial configuration
   std::string seed_analyzer;  ///< Analyzer whose result starts the chain, empty to start from no PEs
@@ -130,7 +123,10 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   // Light curve prior on PE arrival times (paper eq. 2.2)
   double lightcurve_tau;    ///< Exponential time constant tau_l (ns), 0 for pure Gaussian
   double lightcurve_sigma;  ///< Timing spread sigma_l (ns), mainly PMT transit time spread
-  double t0_step;           ///< Random-walk proposal step for t0 (ns)
+  double
+      lightcurve_floor;  ///< Fraction of the prior spread flat across the window, for PEs the curve does not describe
+  double lightcurve_window;  ///< Digitizer window (ns) the floor is spread over, set per waveform
+  double t0_step;            ///< Random-walk proposal step for t0 (ns)
 
   // NPE estimation parameters
   bool npe_estimate;                 ///< Whether to perform NPE estimation on resolved wave packets

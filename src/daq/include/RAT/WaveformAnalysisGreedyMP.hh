@@ -37,6 +37,7 @@
 #include <RAT/DB.hh>
 #include <RAT/DS/DigitPMT.hh>
 #include <RAT/DS/WaveformAnalysisResult.hh>
+#include <RAT/SERDictionary.hh>
 #include <RAT/WaveformAnalyzerBase.hh>
 #include <map>
 #include <string>
@@ -54,8 +55,6 @@ class WaveformAnalysisGreedyMP : public WaveformAnalyzerBase {
   };
 
   virtual ~WaveformAnalysisGreedyMP(){};
-
-  void BuildDictionaryMatrix(int nsamples, double digitizer_period, double width, TMatrixD &W_out);
 
   void Configure(const std::string &config_name) override;
 
@@ -83,29 +82,23 @@ class WaveformAnalysisGreedyMP : public WaveformAnalyzerBase {
   double voltage_threshold;         ///< Voltage threshold for threshold crossing region detection
   int threshold_region_padding;     ///< Number of samples to pad around threshold crossing regions
 
-  int template_type;  ///< Template type: 0=lognormal, 1=gaussian
+  /// SER templates and per-PE charge scales, shared with WaveformAnalysisFSMP
+  /// so a seed and the sampler that starts from it describe the same detector.
+  SERDictionary fDict;
 
-  // LogNormal template parameters
-  double lognormal_scale;  ///< LogNormal 'm' parameter for SPE template
-  double lognormal_shape;  ///< LogNormal 'sigma' parameter for SPE template
-
-  // Gaussian template parameters
-  double gaussian_width;                      ///< Gaussian 'sigma' parameter for SPE template
-  std::vector<int> gaussian_width_types;      ///< PMT types with their own template width
-  std::vector<double> gaussian_width_values;  ///< Widths of those types; others use gaussian_width
-
-  double vpe_charge;  ///< Nominal charge of single PE in pC
+  // Resolved from fDict for the PMT currently being analyzed, at the top of
+  // DoAnalysis(), so the kernels below can stay per-waveform scalars.
+  double vpe_charge;   ///< Nominal charge of single PE in pC
+  double gamma_k;      ///< Shape of the per-PE charge prior
+  double gamma_theta;  ///< Scale of the per-PE charge prior
 
   // Algorithm configuration
-  std::map<int, TMatrixD> fWCache;  ///< Dictionary per template, keyed by width in ps (-1 = lognormal)
-  double upsample_factor;           ///< Dictionary upsampling factor for sub-sample resolution
-  size_t max_iterations;            ///< Maximum PEs placed per region
-  int greedy_shortlist;             ///< Best-correlated columns scored per greedy step
+  double upsample_factor;  ///< Dictionary upsampling factor for sub-sample resolution
+  size_t max_iterations;   ///< Maximum PEs placed per region
+  int greedy_shortlist;    ///< Best-correlated columns scored per greedy step
 
   // Bayesian evidence parameters
   double noise_sigma;  ///< Gaussian white-noise sigma of the waveform in mV. Must be > 0.
-  double gamma_k;      ///< Shape of the per-PE charge prior
-  double gamma_theta;  ///< Scale of the per-PE charge prior
 
   // Initial configuration
   std::string seed_analyzer;  ///< Analyzer whose result seeds the search, empty to search from scratch

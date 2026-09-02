@@ -27,39 +27,16 @@ void WaveformAnalysisGreedyMP::Configure(const std::string& config_name) {
     voltage_threshold = fDigit->GetD("voltage_threshold");
     threshold_region_padding = fDigit->GetI("region_padding");
 
-    // Single-PE response template: set 1 (gaussian) when the detector SER is
-    // gaussian, e.g. the Eos PMTPULSE tables.
-    template_type = fDigit->GetI("template_type");
-    if (template_type == 0) {
-      lognormal_scale = fDigit->GetD("lognormal_scale");
-      lognormal_shape = fDigit->GetD("lognormal_shape");
-    } else if (template_type == 1) {
-      gaussian_width = fDigit->GetD("gaussian_width");
-      // Optional per-PMT-type template widths (paired arrays); unlisted PMT
-      // types fall back to gaussian_width.
-      gaussian_width_types.clear();
-      gaussian_width_values.clear();
-      try {
-        gaussian_width_types = fDigit->GetIArray("gaussian_width_pmt_types");
-        gaussian_width_values = fDigit->GetDArray("gaussian_width_pmt_widths");
-      } catch (DBNotFoundError&) {
-      }
-      if (gaussian_width_types.size() != gaussian_width_values.size()) {
-        RAT::Log::Die(GetAnalyzerName() + ": gaussian_width_pmt_types/widths must have equal length.");
-      }
-    } else {
-      RAT::Log::Die(GetAnalyzerName() + ": Invalid template_type " + std::to_string(template_type) +
-                    ". Must be 0 (lognormal) or 1 (gaussian).");
-    }
-    vpe_charge = fDigit->GetD("vpe_charge");
+    // SER template, per-PE charge and its prior. All of it is per PMT type (and
+    // optionally straight out of PMTPULSE), so it lives in SERDictionary and is
+    // resolved per waveform in DoAnalysis() rather than here.
+    fDict.Configure(fDigit, GetAnalyzerName());
 
     // Dictionary
     upsample_factor = fDigit->GetD("upsampling_factor");
 
-    // Noise / charge prior
+    // Noise
     noise_sigma = fDigit->GetD("noise_sigma");
-    gamma_k = fDigit->GetD("gamma_k");
-    gamma_theta = fDigit->GetD("gamma_theta");
 
     // Model search
     seed_analyzer = fDigit->GetS("seed_analyzer");
@@ -79,7 +56,6 @@ void WaveformAnalysisGreedyMP::Configure(const std::string& config_name) {
       RAT::Log::Die(GetAnalyzerName() + ": Invalid upsampling factor.");
     }
 
-    fWCache.clear();
     cached_nsamples = -1;
     cached_digitizer_period = -1.0;
 
@@ -89,26 +65,16 @@ void WaveformAnalysisGreedyMP::Configure(const std::string& config_name) {
 }
 
 void WaveformAnalysisGreedyMP::SetD(std::string param, double value) {
-  if (param == "lognormal_scale") {
-    lognormal_scale = value;
-  } else if (param == "lognormal_shape") {
-    lognormal_shape = value;
-  } else if (param == "gaussian_width") {
-    gaussian_width = value;
-    fWCache.clear();
-  } else if (param == "vpe_charge") {
-    vpe_charge = value;
-  } else if (param == "upsampling_factor") {
+  // Template and charge parameters belong to the dictionary, which clears its
+  // own cache when one of them changes.
+  if (fDict.SetD(param, value)) return;
+
+  if (param == "upsampling_factor") {
     upsample_factor = value;
-    fWCache.clear();
   } else if (param == "voltage_threshold") {
     voltage_threshold = value;
   } else if (param == "noise_sigma") {
     noise_sigma = value;
-  } else if (param == "gamma_k") {
-    gamma_k = value;
-  } else if (param == "gamma_theta") {
-    gamma_theta = value;
   } else if (param == "npe_estimate_charge_width") {
     npe_estimate_charge_width = value;
   } else if (param == "weight_merge_window") {
@@ -119,15 +85,10 @@ void WaveformAnalysisGreedyMP::SetD(std::string param, double value) {
 }
 
 void WaveformAnalysisGreedyMP::SetI(std::string param, int value) {
+  if (fDict.SetI(param, value)) return;
+
   if (param == "process_threshold_crossing") {
     process_threshold_crossing = (value != 0);
-  } else if (param == "template_type") {
-    if (value != 0 && value != 1) {
-      RAT::Log::Die(GetAnalyzerName() + ": Invalid template_type " + std::to_string(value) +
-                    ". Must be 0 (lognormal) or 1 (gaussian).");
-    }
-    template_type = value;
-    fWCache.clear();
   } else if (param == "region_padding") {
     threshold_region_padding = value;
   } else if (param == "max_iterations") {
@@ -158,39 +119,6 @@ TMatrixD WaveformAnalysisGreedyMP::BuildActive(const TMatrixD& W, int nrows, con
     for (int i = 0; i < nrows; ++i) A(i, static_cast<int>(j)) = W(i, cols[j]);
   }
   return A;
-}
-
-void WaveformAnalysisGreedyMP::BuildDictionaryMatrix(int nsamples, double digitizer_period, double width,
-                                                     TMatrixD& W_out) {
-  debug << GetAnalyzerName() << ": Building dictionary matrix " << nsamples << " x "
-        << static_cast<int>(nsamples * upsample_factor) << newline;
-
-  const int dict_size = static_cast<int>(nsamples * upsample_factor);
-  W_out.ResizeTo(nsamples, dict_size);
-  W_out.Zero();
-
-  // mag_factor maps the (unit-integral) lognormal time PDF [1/ns] to a voltage
-  // [mV] such that a column with weight 1 corresponds to a PE of vpe_charge.
-  // charge[pC] = -V[mV] * dt[ns] / Ohm  =>  integral(template)*dt = vpe_charge.
-  const double mag_factor = vpe_charge * fTermOhms;
-
-  for (int col = 0; col < dict_size; ++col) {
-    const double delay = col * digitizer_period / upsample_factor;
-    const double lognormal_shift = delay - lognormal_scale;
-    for (int row = 0; row < nsamples; ++row) {
-      const double sample_time = row * digitizer_period;
-      double template_val = 0.0;
-      if (template_type == 0) {  // lognormal
-        if (sample_time > lognormal_shift) {
-          template_val = mag_factor * TMath::LogNormal(sample_time, lognormal_shape, lognormal_shift, lognormal_scale);
-        }
-      } else {  // gaussian
-        template_val = mag_factor * TMath::Gaus(sample_time, delay, width, kTRUE);
-      }
-      // Pulses are negative-going, matching the (pedestal-subtracted) voltage waveform.
-      W_out(row, col) = -template_val;
-    }
-  }
 }
 
 double WaveformAnalysisGreedyMP::LogEvidence(const TMatrixD& W_active, const TVectorD& voltVec, TVectorD& charges_out) {
@@ -541,34 +469,20 @@ void WaveformAnalysisGreedyMP::GreedySelect(Region& region, double logodds) {
 }
 
 void WaveformAnalysisGreedyMP::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
-  // Invalidate the dictionary cache when digitizer parameters change
-  const double period_tolerance = 1e-9;
-  if (cached_nsamples != static_cast<int>(digitWfm.size()) ||
-      std::abs(cached_digitizer_period - fTimeStep) > period_tolerance) {
-    fWCache.clear();
-    cached_nsamples = static_cast<int>(digitWfm.size());
-    cached_digitizer_period = fTimeStep;
-  }
+  cached_nsamples = static_cast<int>(digitWfm.size());
+  cached_digitizer_period = fTimeStep;
+  // The dictionary rebuilds itself if any of this changed since the last call.
+  fDict.SetGeometry(cached_nsamples, fTimeStep, fTermOhms, upsample_factor);
 
-  // Pick the template width for this PMT's type (gaussian template only) and
-  // fetch/build the matching dictionary.
-  double width = gaussian_width;
-  if (template_type == 1 && !gaussian_width_types.empty()) {
-    const int pmt_type = DS::RunStore::GetCurrentRun()->GetPMTInfo()->GetType(digitpmt->GetID());
-    for (size_t i = 0; i < gaussian_width_types.size(); ++i) {
-      if (gaussian_width_types[i] == pmt_type) {
-        width = gaussian_width_values[i];
-        break;
-      }
-    }
-  }
-  const int cache_key = (template_type == 0) ? -1 : static_cast<int>(std::lround(width * 1000.0));
-  auto cache_it = fWCache.find(cache_key);
-  if (cache_it == fWCache.end()) {
-    cache_it = fWCache.emplace(cache_key, TMatrixD()).first;
-    BuildDictionaryMatrix(cached_nsamples, cached_digitizer_period, width, cache_it->second);
-  }
-  const TMatrixD& fW = cache_it->second;
+  // Everything the SER model says about *this* PMT: the template it is fit
+  // with, the charge a unit weight carries, and the prior on that weight. Held
+  // as scalars for the rest of the waveform so the kernels stay unaware of the
+  // per-PMT-type lookups behind them.
+  const int pmtid = digitpmt->GetID();
+  const TMatrixD& fW = fDict.Get(pmtid);
+  vpe_charge = fDict.VpeCharge(pmtid);
+  gamma_k = fDict.GammaK(pmtid);
+  gamma_theta = fDict.GammaTheta(pmtid);
 
   double pedestal = digitpmt->GetPedestal();
   if (pedestal == -9999) {

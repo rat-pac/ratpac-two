@@ -20,6 +20,7 @@ add_library(daq OBJECT
   src/WaveformAnalysisSinc.cc
   src/WaveformAnalysisLucyDDM.cc
   src/WaveformAnalysisRAVEN.cc
+  src/SERDictionary.cc
   src/WaveformAnalysisGreedyMP.cc
   src/WaveformAnalysisFSMP.cc
   )

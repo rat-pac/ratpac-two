@@ -276,17 +276,22 @@ The method can be configured using the following ratdb parameters:
 ``process_threshold_crossing``    Enable region-based processing (0=no, 1=yes).
 ``voltage_threshold``             Voltage threshold for region detection, in mV.
 ``region_padding``                Number of samples to pad around threshold crossing regions.
-``template_type``                 Template type: 0=lognormal, 1=gaussian.
+``template_type``                 Template type: 0=lognormal, 1=gaussian, 2=from PMTPULSE. See below.
 ``lognormal_scale``               Lognormal "m" parameter (used when template_type=0).
 ``lognormal_shape``               Lognormal "sigma" parameter (used when template_type=0).
 ``gaussian_width``                Gaussian sigma parameter (used when template_type=1).
 ``gaussian_width_pmt_types``      Optional PMT types with their own template width. Paired with the next entry.
 ``gaussian_width_pmt_widths``     Gaussian sigma for each listed PMT type. Unlisted types use ``gaussian_width``.
+``apply_pulse_width_scale``       Stretch the template by ChannelStatus' per-channel ``pulse_width_scale``. Off by default.
 ``vpe_charge``                    Nominal charge of a single PE in pC.
+``vpe_charge_pmt_types``          Optional PMT types with their own single PE charge. Paired with the next entry.
+``vpe_charge_pmt_charges``        Single PE charge (pC) for each listed PMT type. Unlisted types use ``vpe_charge``.
 ``upsampling_factor``             Dictionary upsampling factor for sub-sample timing resolution.
 ``noise_sigma``                   Gaussian white noise sigma of the waveform, in mV. Must be positive.
 ``gamma_k``                       Shape of the per-PE charge prior. Paper value is 1/0.4^2.
 ``gamma_theta``                   Scale of the per-PE charge prior. Paper value is 0.4^2.
+``gamma_pmt_types``               Optional PMT types with their own charge prior. Paired with the next entry.
+``gamma_pmt_rel_sigma``           Relative charge prior width for each listed PMT type. Unlisted types use ``gamma_k``/``gamma_theta``.
 ``seed_analyzer``                 Name of another analyzer's result to take the initial configuration from. Empty to search every region.
 ``max_iterations``                Maximum number of PEs per region.
 ``greedy_shortlist``              Number of best-correlated columns scored with the full evidence per step.
@@ -295,6 +300,25 @@ The method can be configured using the following ratdb parameters:
 ``npe_estimate_charge_width``     Width of single PE charge distribution (in pC) for NPE estimation.
 ``npe_estimate_max_pes``          Maximum number of PEs to consider in NPE estimation.
 ================================  ===================
+
+Single PE response templates
+````````````````````````````
+
+The dictionary both analyzers fit with is the single PE response delayed onto an upsampled time grid, and how faithfully it describes the detector sets how many atoms the fit needs to explain a pulse. A template narrower than the true SER is paid for with spurious atoms; a wider one merges PEs that could have been resolved.
+
+``template_type`` chooses where that shape comes from:
+
+* ``0`` --- a lognormal of ``lognormal_scale`` and ``lognormal_shape``, the same shape for every channel.
+* ``1`` --- a gaussian of ``gaussian_width``, optionally per PMT type through ``gaussian_width_pmt_types`` / ``gaussian_width_pmt_widths``.
+* ``2`` --- whatever ``PMTPULSE`` says for each PMT's model, i.e. the table the simulation generated the pulse from. A ``datadriven`` table is interpolated directly. An analytic gaussian is **marginalised over its measured width distribution**, since the simulation draws a fresh width per PE and no single gaussian reproduces that mixture. An analytic lognormal uses its ``lognormal_mean`` and ``lognormal_width``.
+
+Prefer ``2`` wherever ``PMTPULSE`` describes the detector: no width has to be transcribed into the analysis table, the fit follows the pulse table if it is ever refit, and it is the only option that keeps the per-PE width spread. That spread matters when it is broad --- for Eos's ``r7081_hqe`` it is 23% of the mean width.
+
+``apply_pulse_width_scale`` additionally stretches the template by the per-channel ``pulse_width_scale`` calibration, matching what ``PMTWaveformGenerator`` applies when it builds the pulse. Scales are bucketed to 5% before they reach the dictionary cache, since one dictionary per channel would not fit in memory.
+
+``vpe_charge`` and the charge prior take the same per-PMT-type treatment, which matters in a detector whose PMT models have different gains. Note that ``vpe_charge`` only moves the prior: the dictionary scales by it and the fitted weight by its inverse, so the reported charge is invariant. The per-type prior is spelled as a relative width, ``gamma_pmt_rel_sigma``, which fixes the prior mean at exactly one PE --- the natural form once ``vpe_charge`` is itself per type.
+
+All of this lives in ``RAT::SERDictionary``, shared by both analyzers so that a seed and the sampler that starts from it always describe the same detector.
 
 -------------------------
 
@@ -328,6 +352,7 @@ FSMP takes the same parameters as GreedyMP, minus ``greedy_shortlist``, plus the
 ``burn_in``                       Number of warm-up samples discarded.
 ``lightcurve_tau``                Light curve exponential time constant, in ns. 0 gives a pure Gaussian.
 ``lightcurve_sigma``              Light curve timing spread, in ns. Mainly PMT transit time spread.
+``lightcurve_floor``              Fraction of the arrival time prior spread flat across the readout window. 0 by default.
 ``t0_step``                       Random walk proposal step for t0, in ns.
 ``store_expected_waveform``       Whether to keep the expected waveform of the MAP configuration. Off by default.
 ================================  ===================
@@ -345,6 +370,10 @@ It costs an array of ``nsamples`` doubles per analyzed PMT per event, on top of 
 The sampler draws from its own random number generator, seeded once per run from the global CLHEP engine, so ``rat -s`` reproduces an FSMP run exactly. The generator is private to the analyzer, so enabling FSMP does not consume randomness from the simulation and does not change the events it produces.
 
 ``lightcurve_tau`` and ``lightcurve_sigma`` describe the expected arrival time profile of the light and should match the detector medium: set ``lightcurve_tau`` to the effective scintillation decay constant of the fill, or to 0 for a Cherenkov-dominated (e.g. water) fill, and ``lightcurve_sigma`` to the PMT transit time spread. These only affect the sampler, but a badly mismatched ``lightcurve_tau`` degrades ``fsmp_t0`` substantially.
+
+Transit time spread is a lower bound on ``lightcurve_sigma``, not the whole of it: the curve also has to absorb photon time of flight across the photocathode and the finite size of the source. Narrowing it to a measured PMTTRANSIT prompt peak has been seen to cost PE finding efficiency outright.
+
+``lightcurve_floor`` mixes a flat component into that profile. The light curve describes the prompt light only, and it falls off fast enough that a PE in the PMTTRANSIT late tail, or a dark noise PE anywhere in the window, is given an occupancy prior of order 1e-300 --- the sampler cannot accept one however well it fits the waveform. A small floor makes those reachable. Treat it as a nuisance parameter to fit rather than a measured fraction: the flat part is proportional to :math:`\mu` in this model, which dark noise is not.
 
 -------------------------
 
