@@ -299,7 +299,7 @@ If ``include_expectedwaveforms`` is also set (it is off by default), the ``wavef
 ``expected_waveform_FITTERNAME``     vector<double>       The waveform the analyzer's fit predicts, in mV, pedestal-subtracted, one entry per digitizer sample. Empty unless that analyzer was asked to store it.
 ===================================  ===================  ===================
 
-The observed waveform is put on the same scale as the expected ones with ``(waveform - waveform_pedestal) * digitizerVoltageResolution``, the latter from the ``meta`` tree.
+The observed waveform is put on the same scale as the expected ones with ``(waveform - waveform_pedestal) * digitizerResolution_mVPerADC``, the latter from the ``meta`` tree.
 
 Producing an expected waveform is optional per analyzer, since it costs one array of ``nsamples`` doubles per PMT per event; only analyzers that model the whole waveform can provide one. ``WaveformAnalysisFSMP`` does, under its ``store_expected_waveform`` parameter::
 
