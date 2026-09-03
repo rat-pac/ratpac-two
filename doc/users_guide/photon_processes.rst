@@ -79,6 +79,12 @@ which depends on the kinetic energy of the particle at the end of the step.
 This is useful if the scintillator quenching has been measured directly for a
 range of energies.
 
+This per-step ``dE_quench`` is recorded on the track step as its "quenched
+deposited energy" (0 for steps that never reach this code, e.g. because
+the step is in a non-scintillating material). Summed over an event, it is
+available as ``scintEdepQuenched`` in the ntuple output, and per-step as
+``trackQDep`` if ``include_tracking`` is set (see :ref:`outntuple`).
+
 The deposited energy is converted to scintillation photons using the product of
 the light yield (''Y'') of the scintillator (which is in units of photons per
 MeV), the deposited energy, Birk's Law scaling, the particle-dependent
@@ -118,9 +124,10 @@ the line connecting the start and end points of the step.
 Time Structure
 ''''''''''''''
 The scintillation process has some time structure associated with it.  The
-start time of a scintillation photon is the time the particle passed through
-the origin point of the photon, plus a delay drawn from the user-specified
-distribution.  There are three possible options for the delay distribution:
+start time of a scintillation photon, its "creation time", is the time the
+particle passed through the origin point of the photon, plus a delay drawn
+from the user-specified distribution.  There are three possible options for
+the delay distribution:
 
 1. A sampled time distribution, in the form of a list of (time, intensity)
    pairs.
@@ -131,6 +138,22 @@ distribution.  There are three possible options for the delay distribution:
 
 The specification of delay distribution is described in the RATDB section
 below.
+
+By contrast to the photon's creation time above, the global time at the
+start of the step that produced the photon, before this emission delay is
+added, is called the photon's "excitation time". The excitation time is
+always earlier than the creation time. For scintillation
+photons the excitation time comes from the ionizing particle's step; for
+re-emitted photons it instead comes from the absorbed photon's step, since
+re-emission runs on the absorbed photon's own track.
+
+Both times are recorded on the photon and, together with the photon's
+creation position, are available in the ntuple output as
+``mcPEExcitationTime``, ``mcPECreationTime``, and
+``mcPECreationX``/``Y``/``Z`` if ``include_mchits`` is set (see
+:ref:`outntuple`). Photons that are not the product of scintillation (e.g.
+Cherenkov light) have no excitation time, and this field will be NaN for
+them, while their creation time is still filled in as normal.
 
 Wavelength Shifting
 ```````````````````

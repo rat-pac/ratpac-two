@@ -9,6 +9,7 @@
     @author Glenn Horton-Smith
 */
 
+#include <cmath>
 #include <iostream>
 
 /** GLG4HitPhoton stores information about a photon that makes a
@@ -29,11 +30,18 @@
 
 class GLG4HitPhoton {
  public:
-  GLG4HitPhoton() { fPrepulse = false; }
+  GLG4HitPhoton() {
+    fPrepulse = false;
+    fCreationTime = std::nan("");
+    fCreationPosition[0] = fCreationPosition[1] = fCreationPosition[2] = std::nan("");
+    fExcitationTime = std::nan("");
+  }
 
   void SetPMTID(int id) { fPMTID = id; }
   void SetTime(double t) { fTime = t; }
   void SetCreationTime(double t) { fCreationTime = t; }
+  void SetCreationPosition(double x, double y, double z);
+  void SetExcitationTime(double t) { fExcitationTime = t; }
   void SetKineticEnergy(double KE);
   void SetWavelength(double wl);
   void SetPosition(double x, double y, double z);
@@ -48,6 +56,9 @@ class GLG4HitPhoton {
   int GetPMTID() const { return fPMTID; }
   double GetTime() const { return fTime; }
   double GetCreationTime() const { return fCreationTime; }
+  template <class T>
+  inline void GetCreationPosition(T &x, T &y, T &z) const;
+  double GetExcitationTime() const { return fExcitationTime; }
   double GetKineticEnergy() const;
   double GetWavelength() const;
   template <class T>
@@ -66,6 +77,9 @@ class GLG4HitPhoton {
  private:
   double fTime;                 // time of hit
   double fCreationTime;         /// creation time of the photon that created the hit
+  double fCreationPosition[3];  /// x,y,z components of position of the photon at creation
+  double fExcitationTime;       /// time the parent particle excited the scintillator, before any
+                                /// scintillation emission delay (unset if no TrackInfo/excitation available)
   int fPMTID;                   // ID number of PMT the HitPhoton hit
   double fKE;                   // kinetic energy
   double fPosition[3];          // x,y,z components of position
@@ -85,6 +99,13 @@ inline void GLG4HitPhoton::GetPosition(T &x, T &y, T &z) const {
   x = fPosition[0];
   y = fPosition[1];
   z = fPosition[2];
+}
+
+template <class T>
+inline void GLG4HitPhoton::GetCreationPosition(T &x, T &y, T &z) const {
+  x = fCreationPosition[0];
+  y = fCreationPosition[1];
+  z = fCreationPosition[2];
 }
 
 template <class T>

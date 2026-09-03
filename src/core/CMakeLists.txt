@@ -21,6 +21,7 @@ add_library(core OBJECT
         src/Processor.cc
         src/SignalHandler.cc
         src/TrackInfo.cc
+        src/TrackCompactor.cc
         src/Log.cc
         src/GLG4HitPMTCollection.cc)
 

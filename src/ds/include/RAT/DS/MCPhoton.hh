@@ -77,20 +77,35 @@ class MCPhoton : public TObject {
   virtual std::string GetCreatorProcess() const { return process; }
   virtual void SetCreatorProcess(const std::string &_process) { process = _process; }
 
-  /** Creation time of this PE */
+  /** Creation time of this PE's photon (ns). Includes any scintillation
+   *  emission delay, but not propagation to the PMT or electronics delays. */
   virtual void SetCreationTime(Double_t _creationTime) { creationTime = _creationTime; }
   virtual Double_t GetCreationTime() const { return creationTime; }
+
+  /** Position where this PE's photon was created (mm). */
+  virtual void SetCreationPosition(const TVector3 &_creationPos) { creationPos = _creationPos; }
+  virtual TVector3 GetCreationPosition() const { return creationPos; }
+
+  /** Global time at the start of the step that produced this photon
+   *  (the ionizing particle's step for scintillation photons, or the
+   *  absorbed photon's step for re-emitted photons), before any
+   *  scintillation/re-emission delay (ns). NaN if not available (e.g.
+   *  photon is not from scintillation, such as Cherenkov light). */
+  virtual void SetExcitationTime(Double_t _excitationTime) { excitationTime = _excitationTime; }
+  virtual Double_t GetExcitationTime() const { return excitationTime; }
 
   /** Operator overload **/
   bool operator<(const MCPhoton &mcp) const { return (frontEndTime < mcp.frontEndTime); }
   bool operator>(const MCPhoton &mcp) const { return (frontEndTime > mcp.frontEndTime); }
 
-  ClassDef(MCPhoton, 4);
+  ClassDef(MCPhoton, 5);
 
  protected:
   Double_t hitTime;
   Double_t frontEndTime;
   Double_t creationTime;
+  TVector3 creationPos;
+  Double_t excitationTime;
   Double_t lambda;
   TVector3 pos;
   TVector3 mom;

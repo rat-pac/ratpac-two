@@ -9,6 +9,8 @@
 
 namespace RAT {
 
+class G4UIcmdWithOptionalStringAndADoubleAndUnit;
+
 class TrackingMessenger : public G4UImessenger {
  public:
   TrackingMessenger();
@@ -24,6 +26,8 @@ class TrackingMessenger : public G4UImessenger {
   G4UIcmdWithABool *storeMuonTrajSpecialCmd;
   G4UIcmdWithADouble *setMaxGlobalTimeCmd;
   G4UIcmdWithABool *storeOpticalTrackIDCmd;
+  G4UIcmdWithOptionalStringAndADoubleAndUnit *trajectoryCompactionLengthCmd;
+  G4UIcmdWithOptionalStringAndADoubleAndUnit *trajectoryCompactionTimeCmd;
 };
 
 }  // namespace RAT

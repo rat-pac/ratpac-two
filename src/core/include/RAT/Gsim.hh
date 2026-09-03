@@ -18,6 +18,7 @@
 #include <RAT/GLG4VEventAction.hh>
 #include <RAT/GeoFiberSensitiveDetectorHit.hh>
 #include <RAT/Producer.hh>
+#include <map>
 #include <set>
 
 class G4RunManager;
@@ -72,6 +73,15 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
 
   static void SetMaxWallTime(double time) { MaxWallTime = time; }
 
+  static void SetTrajectoryCompactionMinLength(double minLength);
+  static void SetTrajectoryCompactionMinLength(const G4String &particleName, double minLength);
+  static double GetTrajectoryCompactionMinLength();
+  static double GetTrajectoryCompactionMinLength(const G4String &particleName);
+  static void SetTrajectoryCompactionMinTime(double minTime);
+  static void SetTrajectoryCompactionMinTime(const G4String &particleName, double minTime);
+  static double GetTrajectoryCompactionMinTime();
+  static double GetTrajectoryCompactionMinTime(const G4String &particleName);
+
  protected:
   void Init();  // the real constructor
   void AddMCPhoton(DS::MCPMT *rat_mcpmt, const GLG4HitPhoton *photon, EventInfo *exinfo = NULL,
@@ -117,6 +127,10 @@ class Gsim : public Producer, G4UserRunAction, G4UserEventAction, G4UserTracking
   static double MaxWallTime;
   static std::set<G4String> fStoreParticleTraj;
   static std::set<G4String> fDiscardParticleTraj;
+  static double fTrajectoryCompactionMinLength;
+  static double fTrajectoryCompactionMinTime;
+  static std::map<G4String, double> fParticleTrajectoryCompactionMinLength;
+  static std::map<G4String, double> fParticleTrajectoryCompactionMinTime;
 
   G4VisExecutive *theVisExecutive;
 };

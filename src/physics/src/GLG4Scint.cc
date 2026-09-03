@@ -408,6 +408,12 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
       G4double birksConstant = physicsEntry->fBirksConstant;
       G4double QuenchedTotalEnergyDeposit = fQuenching->QuenchedEnergyDeposit(aStep, birksConstant);
 
+      // record for retrieval by Trajectory::FillStep, since this is the only
+      // place the per-step quenched energy deposit is computed
+      RAT::TrackInfo *trackInfo = dynamic_cast<RAT::TrackInfo *>(aTrack.GetUserInformation());
+      trackInfo->lastQuenchedEdep = QuenchedTotalEnergyDeposit;
+      trackInfo->lastQuenchedStepNumber = aTrack.GetCurrentStepNumber();
+
       // track total edep, quenched edep
       fTotEdep += TotalEnergyDeposit;
       fTotEdepQuenched += QuenchedTotalEnergyDeposit;
@@ -617,6 +623,7 @@ G4VParticleChange *GLG4Scint::PostPostStepDoIt(const G4Track &aTrack, const G4St
       // Add the information to the track history (if it exists)
       RAT::TrackInfo *trackInfo = new RAT::TrackInfo();
       trackInfo->SetCreatorStep(aTrack.GetCurrentStepNumber());
+      trackInfo->SetExcitationTime(t0);
       // Copy the history of the parent into this one
       if (aTrack.GetParticleDefinition() == G4OpticalPhoton::OpticalPhoton()) {
         // This new track is produced from an existing photon.
