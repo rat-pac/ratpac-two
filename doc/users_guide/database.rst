@@ -151,7 +151,47 @@ these tables will override any other tables with the same name. This can be very
 when an experiment wants to override the default values in certain tables, without
 worrying about telling a processor how to read a table with a non-default index.
 
-However, other than this particular override behavior, any other collision in table name
-and index will currently result in completely undefined behavior. This is true between
-tables placed in RATPAC-two and a private experiment. **If an override is required,
-always place the overriding table in the experiment-specific directory.**
+If a downstream experiment adds its own data directory via the deprecated
+``RAT::Rat::ratdb_directories.insert()`` (see "For downstream experiments" 
+below), it is treated as highest priority and will win any
+table-name collision against ``$RATSHARE/ratdb``. To make this explicit
+instead, use ``Prepend()``/``Append()`` directly.
+**If an override is required, always place the overriding table in the
+experiment-specific directory, or use ``RAT::Rat::ratdb_directories``.**
+
+Adding extra RATDB search directories
+``````````````````````````````````````
+The environment variable ``RATDB_EXTRA_PATH`` can be set to a colon-separated
+list of one or more directories to search for RATDB tables, in addition to
+``$RATSHARE/ratdb``. This is useful for local development or for overriding
+individual tables without editing or rebuilding the standard installation.
+
+::
+
+  export RATDB_EXTRA_PATH=/path/to/my/tables:/path/to/other/tables
+
+Directories listed in ``RATDB_EXTRA_PATH`` take priority over
+``$RATSHARE/ratdb``: a table of the same name and index found in one of these
+directories will override the corresponding default table. When multiple
+directories are listed, earlier ones take priority over later ones. If a
+listed directory does not exist, RAT will print a warning and skip it.
+
+For downstream experiments 
+``````````````````````````````````````
+Experiment-specific ``RAT::Rat`` subclasses have historically added their own
+data directories by inserting directly into the public
+``RAT::Rat::ratdb_directories``, which used to be a ``std::set``, e.g.::
+
+  ratdb_directories.insert(my_experiment_data_dir + "/ratdb");
+
+This still compiles: ``ratdb_directories`` is now an ordered
+``RatdbDirectoryList``, and ``insert()`` is kept as a deprecated alias for
+old callers. A ``std::set`` cannot express priority order, so ``insert()``
+treats the directory as highest priority (equivalent to ``Prepend()``) and
+prints a warning.
+
+New code should use ``Prepend()`` (highest priority) or ``Append()`` (lowest
+priority) directly for well-defined override behavior
+everywhere, including ``LoadDefaults()``::
+
+  RAT::Rat::ratdb_directories.Prepend(my_experiment_data_dir + "/ratdb");

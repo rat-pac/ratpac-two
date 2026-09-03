@@ -20,7 +20,10 @@
 #include <RAT/SignalHandler.hh>
 #include <RAT/TrackingMessenger.hh>
 #include <Randomize.hh>
+#include <algorithm>
+#include <filesystem>
 #include <globals.hh>
+#include <sstream>
 #include <string>
 
 namespace RAT {
@@ -66,11 +69,6 @@ void Rat::Configure() {
   // Database management
   rdb = DB::Get();
   rdb_messenger = new DBMessenger();
-  // Local data management
-  if (getenv("RATSHARE") != NULL) {
-    ratdb_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/ratdb");
-    model_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/models");
-  }
   // Rat Messenger
   rat_messenger = new RatMessenger();
 
@@ -105,6 +103,28 @@ void Rat::Configure() {
   detail << "Seeding random number generator: " << this->seed << newline;
   CLHEP::HepRandom::setTheSeed(this->seed);
   gRandom->SetSeed(static_cast<UInt_t>(this->seed));  // ROOT rng should not be used, but just in case
+
+  // Local data management
+  // RATDB_EXTRA_PATH is a colon-separated list of directories searched (and
+  // loaded) with priority over $RATSHARE/ratdb (appended below, so it's
+  // always lowest priority), highest priority first.
+  if (getenv("RATDB_EXTRA_PATH") != NULL) {
+    std::stringstream extra_path(static_cast<std::string>(getenv("RATDB_EXTRA_PATH")));
+    std::string dir;
+    while (std::getline(extra_path, dir, ':')) {
+      if (dir.empty()) continue;
+      if (!std::filesystem::is_directory(dir)) {
+        warn << "RATDB_EXTRA_PATH: " << dir << " is not a directory, skipping." << newline;
+        continue;
+      }
+      ratdb_directories.Append(dir);
+    }
+  }
+  if (getenv("RATSHARE") != NULL) {
+    ratdb_directories.Append(static_cast<std::string>(getenv("RATSHARE")) + "/ratdb");
+    model_directories.insert(static_cast<std::string>(getenv("RATSHARE")) + "/models");
+  }
+
   rdb->LoadDefaults();
 }
 

@@ -170,8 +170,9 @@ class DB : public DBFieldCallback {
    *  directory, all of the files in that directory ending in .ratdb
    *  will be loaded.
    *
-   *  The current directory is searched first, then the $RATSHARE/ratdb
-   *  directory.
+   *  The current directory is searched first, then each directory listed in
+   *  $RATDB_EXTRA_PATH (colon-separated, checked in order), then the
+   *  $RATSHARE/ratdb directory.
    *
    *  If printFullPath is true, then an info message is printed
    *  to stdout (and logged) indicating the path of the
@@ -202,7 +203,11 @@ class DB : public DBFieldCallback {
 
   /** Load standard tables into memory.
    *
-   *  Currently, the standard tables are $RATSHARE/ratdb/ *.ratdb.
+   *  Currently, the standard tables are $RATSHARE/ratdb/ *.ratdb, plus
+   *  *.ratdb in each directory listed in $RATDB_EXTRA_PATH (colon-separated).
+   *  Tables from $RATDB_EXTRA_PATH directories take priority and overwrite
+   *  same-named tables from $RATSHARE/ratdb; among multiple $RATDB_EXTRA_PATH
+   *  directories, earlier-listed ones take priority over later ones.
    */
   int LoadDefaults();
 
