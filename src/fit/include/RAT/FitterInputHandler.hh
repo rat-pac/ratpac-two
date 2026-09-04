@@ -313,7 +313,11 @@ class FitterInputHandler {
         if (std::find(fitterNames.begin(), fitterNames.end(), wfm_ana_name) == fitterNames.end()) {
           info << "FitResult not found for pmt id " << id << " " << wfm_ana_name << newline;
         }
-        return digitpmt->GetOrCreateWaveformAnalysisResult(wfm_ana_name)->getTime(0);
+        DS::WaveformAnalysisResult* result = digitpmt->GetOrCreateWaveformAnalysisResult(wfm_ana_name);
+        if (result->getNPEs() == 0)
+          Log::Die("FitterInputHandler: " + wfm_ana_name + " reconstructed no hits on channel " + std::to_string(id) +
+                   "!");
+        return result->getTime(0);
       }
       default:
         Log::Die("INVALID TYPE! Should never reach here.");
