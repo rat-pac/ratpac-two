@@ -67,6 +67,12 @@ class MCTrackStep : public TObject {
   virtual Double_t GetDepositedEnergy() const { return depositedEnergy; }
   virtual void SetDepositedEnergy(Double_t _depositedEnergy) { depositedEnergy = _depositedEnergy; }
 
+  /** Quenched energy deposited along the step (MeV), after Birks' law suppression. **/
+  virtual Double_t GetQuenchedDepositedEnergy() const { return quenchedDepositedEnergy; }
+  virtual void SetQuenchedDepositedEnergy(Double_t _quenchedDepositedEnergy) {
+    quenchedDepositedEnergy = _quenchedDepositedEnergy;
+  }
+
   /** Name of physics process acting at endpoint. */
   virtual std::string GetProcess() const { return process; }
   virtual void SetProcess(const std::string &_process) { process = _process; }
@@ -75,7 +81,7 @@ class MCTrackStep : public TObject {
   virtual std::string GetVolume() const { return volume; }
   virtual void SetVolume(const std::string &_volume) { volume = _volume; }
 
-  ClassDef(MCTrackStep, 2);
+  ClassDef(MCTrackStep, 3);
 
  protected:
   Double_t length;
@@ -84,6 +90,7 @@ class MCTrackStep : public TObject {
   Double_t properTime;
   Double_t ke;
   Double_t depositedEnergy;
+  Double_t quenchedDepositedEnergy;
   TVector3 endpoint;
   TVector3 mom;
   std::string process;

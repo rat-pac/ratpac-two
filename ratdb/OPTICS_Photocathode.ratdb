@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------------
+// ------ Quantum efficiencies are expected to include PMT glass absorption. ------
+// ------ GLG4PMTOpticalModel does not consider PMT glass absorption. -------------
+// --------------------------------------------------------------------------------
+
 ////   Below is the standard R5912 photocathode
 {
 "name": "OPTICS",

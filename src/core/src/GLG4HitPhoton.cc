@@ -23,6 +23,12 @@ void GLG4HitPhoton::SetPosition(double x, double y, double z) {
   fPosition[2] = z;
 }
 
+void GLG4HitPhoton::SetCreationPosition(double x, double y, double z) {
+  fCreationPosition[0] = x;
+  fCreationPosition[1] = y;
+  fCreationPosition[2] = z;
+}
+
 void GLG4HitPhoton::SetMomentum(double x, double y, double z) {
   fMomentum[0] = x;
   fMomentum[1] = y;

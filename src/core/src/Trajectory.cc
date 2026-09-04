@@ -11,11 +11,14 @@ namespace RAT {
 G4Allocator<Trajectory> aTrajectoryAllocator;
 bool Trajectory::fgDoAppendMuonStepSpecial = false;
 
-Trajectory::Trajectory() : G4Trajectory() { ratTrack = new DS::MCTrack; }
+Trajectory::Trajectory()
+    : G4Trajectory(), creatorProcessName("start"), ratTrack(new DS::MCTrack), trackCompactor(ratTrack, 0.0, 0.0) {}
 
-Trajectory::Trajectory(const G4Track *aTrack) : G4Trajectory(aTrack), creatorProcessName("start") {
-  ratTrack = new DS::MCTrack;
-
+Trajectory::Trajectory(const G4Track *aTrack, double compactionMinLength, double compactionMinTime)
+    : G4Trajectory(aTrack),
+      creatorProcessName("start"),
+      ratTrack(new DS::MCTrack),
+      trackCompactor(ratTrack, compactionMinLength, compactionMinTime) {
   ratTrack->SetID(GetTrackID());
   ratTrack->SetParentID(GetParentID());
   ratTrack->SetPDGCode(GetPDGEncoding());
@@ -36,10 +39,13 @@ Trajectory::~Trajectory() { delete ratTrack; }
 void Trajectory::AppendStep(const G4Step *aStep) {
   if (ratTrack->GetMCTrackStepCount() == 0) {
     // Add initial step at very beginning of track
-    DS::MCTrackStep *initStep = ratTrack->AddNewMCTrackStep();
+    DS::MCTrackStep initStep;
     G4StepPoint *initPoint = aStep->GetPreStepPoint();
     FillStep(initPoint, aStep, initStep, 0.0, true);
+    trackCompactor.AddInitialStep(initStep);
   }
+
+  const bool crossesBoundary = aStep->GetPostStepPoint()->GetStepStatus() == fGeomBoundary;
 
   // Check if we are storing truncated stepping info for muons
   G4String particleName = aStep->GetTrack()->GetDefinition()->GetParticleName();
@@ -47,11 +53,12 @@ void Trajectory::AppendStep(const G4Step *aStep) {
     G4String processName = aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
     // would also like to store steps where neutron was created...but not yet
     if (processName == "Transportation") {
-      DS::MCTrackStep *ratStep = ratTrack->AddNewMCTrackStep();
+      DS::MCTrackStep ratStep;
       G4StepPoint *endPoint = aStep->GetPostStepPoint();
       FillStep(endPoint, aStep, ratStep, aStep->GetStepLength(), false);
+      trackCompactor.AddStep(ratStep, crossesBoundary);
       // Update total track length
-      // ratTrack->SetLength(ratTrack->GetLength() + ratStep->GetLength());
+      // ratTrack->SetLength(ratTrack->GetLength() + ratStep.GetLength());
       // previous line won't work if we're only keeping a subset of steps
       // so let's just set it to -1 for now to prevent misuse of
       // ratTrack->GetLength() instead, will have to use position of steps to
@@ -62,49 +69,63 @@ void Trajectory::AppendStep(const G4Step *aStep) {
     return;
   }
 
-  DS::MCTrackStep *ratStep = ratTrack->AddNewMCTrackStep();
+  DS::MCTrackStep ratStep;
   G4StepPoint *endPoint = aStep->GetPostStepPoint();
   FillStep(endPoint, aStep, ratStep, aStep->GetStepLength(), false);
+  trackCompactor.AddStep(ratStep, crossesBoundary);
   // Update total track length
-  ratTrack->SetLength(ratTrack->GetLength() + ratStep->GetLength());
-  ratTrack->SetDepositedEnergy(ratTrack->GetDepositedEnergy() + ratStep->GetDepositedEnergy());
+  ratTrack->SetLength(ratTrack->GetLength() + ratStep.GetLength());
+  ratTrack->SetDepositedEnergy(ratTrack->GetDepositedEnergy() + ratStep.GetDepositedEnergy());
   if (Gsim::GetFillPointCont()) G4Trajectory::AppendStep(aStep);
 }
 
-void Trajectory::FillStep(const G4StepPoint *point, const G4Step *step, DS::MCTrackStep *ratStep, double stepLength,
+void Trajectory::FillStep(const G4StepPoint *point, const G4Step *step, DS::MCTrackStep &ratStep, double stepLength,
                           bool isInit) {
   G4StepPoint *startPoint = step->GetPreStepPoint();
 
-  ratStep->SetLength(stepLength);
+  ratStep.SetLength(stepLength);
 
   const G4ThreeVector &pos = point->GetPosition();
-  ratStep->SetEndpoint(TVector3(pos.x(), pos.y(), pos.z()));
-  ratStep->SetGlobalTime(point->GetGlobalTime());
-  ratStep->SetLocalTime(point->GetLocalTime());
-  ratStep->SetProperTime(point->GetProperTime());
+  ratStep.SetEndpoint(TVector3(pos.x(), pos.y(), pos.z()));
+  ratStep.SetGlobalTime(point->GetGlobalTime());
+  ratStep.SetLocalTime(point->GetLocalTime());
+  ratStep.SetProperTime(point->GetProperTime());
 
   G4ThreeVector mom = point->GetMomentum();
-  ratStep->SetMomentum(TVector3(mom.x(), mom.y(), mom.z()));
-  ratStep->SetKE(point->GetKineticEnergy());
+  ratStep.SetMomentum(TVector3(mom.x(), mom.y(), mom.z()));
+  ratStep.SetKE(point->GetKineticEnergy());
 
   if (isInit) {
-    ratStep->SetDepositedEnergy(0);
+    ratStep.SetDepositedEnergy(0);
+    ratStep.SetQuenchedDepositedEnergy(0);
   } else {
-    ratStep->SetDepositedEnergy(step->GetTotalEnergyDeposit());
+    G4double depositedEnergy = step->GetTotalEnergyDeposit();
+    ratStep.SetDepositedEnergy(depositedEnergy);
+
+    // GLG4Scint::PostPostStepDoIt is the only place the Birks-quenched energy
+    // deposit is computed and it stashes the value on the track's TrackInfo.
+    // A step that never reached that code (e.g. not in a scintillating
+    // material) produces no scintillation light, so its quenched energy is 0.
+    TrackInfo *trackInfo = dynamic_cast<TrackInfo *>(step->GetTrack()->GetUserInformation());
+    G4double quenchedEnergy = 0;
+    if (trackInfo->lastQuenchedStepNumber == step->GetTrack()->GetCurrentStepNumber()) {
+      quenchedEnergy = trackInfo->lastQuenchedEdep;
+    }
+    ratStep.SetQuenchedDepositedEnergy(quenchedEnergy);
   }
 
   const G4VProcess *process = point->GetProcessDefinedStep();
   if (process == 0)
-    ratStep->SetProcess(creatorProcessName);  // Assume first step
+    ratStep.SetProcess(creatorProcessName);  // Assume first step
   else
-    ratStep->SetProcess(process->GetProcessName());
+    ratStep.SetProcess(process->GetProcessName());
 
   G4VPhysicalVolume *volume = startPoint->GetPhysicalVolume();
   if (volume == NULL) {
     detail << "\nTrajectory encountered a NULL volume.  Continuing...\n";
-    ratStep->SetVolume("NULL");
+    ratStep.SetVolume("NULL");
   } else {
-    ratStep->SetVolume(volume->GetName());
+    ratStep.SetVolume(volume->GetName());
   }
 }
 

@@ -7,6 +7,7 @@ add_library(cmd OBJECT
         src/DBMessenger.cc
         src/ESCrossSecMessenger.cc
         src/FastNeutronMessenger.cc
+        src/G4UIcmdWithOptionalStringAndADoubleAndUnit.cc
         src/GLG4DebugMessenger.cc
         src/GLG4PrimaryGeneratorMessenger.cc
         src/GLG4VisMessenger.cc

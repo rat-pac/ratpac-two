@@ -319,6 +319,11 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     MakeBranch(outputTree, "mcPEy", &mcpey);
     MakeBranch(outputTree, "mcPEz", &mcpez);
     MakeBranch(outputTree, "mcPECharge", &mcpecharge);
+    MakeBranch(outputTree, "mcPECreationTime", &mcpecreationtime);
+    MakeBranch(outputTree, "mcPECreationX", &mcpecreationx);
+    MakeBranch(outputTree, "mcPECreationY", &mcpecreationy);
+    MakeBranch(outputTree, "mcPECreationZ", &mcpecreationz);
+    MakeBranch(outputTree, "mcPEExcitationTime", &mcpeexcitationtime);
   }
   if (options.tracking) {
     // Save particle tracking information
@@ -331,6 +336,8 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     MakeBranch(outputTree, "trackMomZ", &trackMomZ);
     MakeBranch(outputTree, "trackKE", &trackKE);
     MakeBranch(outputTree, "trackTime", &trackTime);
+    MakeBranch(outputTree, "trackDep", &trackDep);
+    MakeBranch(outputTree, "trackQDep", &trackQDep);
     MakeBranch(outputTree, "trackProcess", &trackProcess);
     MakeBranch(metaTree, "processCodeMap", &processCodeMap);
     MakeBranch(outputTree, "trackVolume", &trackVolume);
@@ -442,12 +449,14 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     trackMomZ.clear();
     trackKE.clear();
     trackTime.clear();
+    trackDep.clear();
+    trackQDep.clear();
     trackProcess.clear();
     trackVolume.clear();
 
     std::vector<double> xtrack, ytrack, ztrack;
     std::vector<double> pxtrack, pytrack, pztrack;
-    std::vector<double> kinetic, globaltime;
+    std::vector<double> kinetic, globaltime, deposited, quenchedDeposited;
     std::vector<int> processMapID;
     std::vector<int> volumeMapID;
     for (int trk = 0; trk < nTracks; trk++) {
@@ -461,6 +470,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       pztrack.clear();
       kinetic.clear();
       globaltime.clear();
+      deposited.clear();
+      quenchedDeposited.clear();
       processMapID.clear();
       volumeMapID.clear();
       int nSteps = track->GetMCTrackStepCount();
@@ -486,6 +497,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         TVector3 momentum = step->GetMomentum();
         kinetic.push_back(step->GetKE());
         globaltime.push_back(step->GetGlobalTime());
+        deposited.push_back(step->GetDepositedEnergy());
+        quenchedDeposited.push_back(step->GetQuenchedDepositedEnergy());
         xtrack.push_back(tv.X());
         ytrack.push_back(tv.Y());
         ztrack.push_back(tv.Z());
@@ -495,6 +508,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
       }
       trackKE.push_back(kinetic);
       trackTime.push_back(globaltime);
+      trackDep.push_back(deposited);
+      trackQDep.push_back(quenchedDeposited);
       trackPosX.push_back(xtrack);
       trackPosY.push_back(ytrack);
       trackPosZ.push_back(ztrack);
@@ -529,6 +544,11 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
   mcpey.clear();
   mcpez.clear();
   mcpecharge.clear();
+  mcpecreationtime.clear();
+  mcpecreationx.clear();
+  mcpecreationy.clear();
+  mcpecreationz.clear();
+  mcpeexcitationtime.clear();
 
   mcnhits = mc->GetMCPMTCount();
   mcpecount = mc->GetNumPE();
@@ -549,6 +569,12 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
         mcpey.push_back(position.Y());
         mcpez.push_back(position.Z());
         mcpecharge.push_back(mcph->GetCharge());
+        mcpecreationtime.push_back(mcph->GetCreationTime());
+        TVector3 creationPos = mcph->GetCreationPosition();
+        mcpecreationx.push_back(creationPos.X());
+        mcpecreationy.push_back(creationPos.Y());
+        mcpecreationz.push_back(creationPos.Z());
+        mcpeexcitationtime.push_back(mcph->GetExcitationTime());
         if (mcph->IsDarkHit()) {
           mcpeprocess.push_back(noise);
           continue;

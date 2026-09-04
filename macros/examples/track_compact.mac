@@ -1,0 +1,42 @@
+### track_compact.mac
+#
+# Demonstrates per-step MC track output, including the quenched energy
+# deposit stored on each MCTrackStep, and online trajectory compaction.
+# Consecutive steps are merged into buckets as Geant4 produces them, so the
+# full-detail trajectory never accumulates in memory. Geometry boundary
+# crossings are always retained.
+
+/glg4debug/glg4param omit_muon_processes 1.0
+/glg4debug/glg4param omit_hadronic_processes 1.0
+
+/rat/db/set DETECTOR experiment "Validation"
+/rat/db/set DETECTOR geo_file "Validation/Valid.geo"
+
+/tracking/storeTrajectory 1
+/tracking/discardParticleTrajectory opticalphoton
+
+# Store a trajectory step after 1 mm of accumulated path or 0.05 ns of
+# elapsed time, whichever comes first. Values <= 0 disable that threshold.
+# Length and time use Geant4's standard unit parser.
+/tracking/trajectoryCompactionLength 1.0 mm
+/tracking/trajectoryCompactionTime 0.05 ns
+
+# Optional per-particle overrides use Geant4 particle names. For example:
+# /tracking/trajectoryCompactionLength e- 0.5 mm
+# /tracking/trajectoryCompactionTime e- 0.01 ns
+
+/run/initialize
+
+/rat/proc count
+/rat/procset update 10
+
+/rat/proclast outntuple
+/rat/procset include_tracking 1
+
+# Central 2.5 MeV electrons
+/generator/add combo gun:point:poisson
+/generator/vtx/set e- 0.0 0.0 0.0 2.5
+/generator/pos/set 0.0 0.0 0.0
+/generator/rate/set 2.0
+
+/run/beamOn 100

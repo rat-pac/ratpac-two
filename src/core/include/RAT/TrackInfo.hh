@@ -4,6 +4,7 @@
 #include <G4Allocator.hh>
 #include <G4VUserTrackInformation.hh>
 #include <RAT/CentroidCalculator.hh>
+#include <cmath>
 #include <map>
 #include <string>
 
@@ -36,15 +37,32 @@ class TrackInfo : public G4VUserTrackInformation {
   /** Energy lost by this track, indexed by volume name */
   std::map<std::string, double> energyLoss;
 
+  /** Quenched energy deposit for the most recent step that went
+   *  through GLG4Scint::PostPostStepDoIt, paired with that step's number so a
+   *  step which never reached that code can be told apart from a zero deposit.
+   **/
+  double lastQuenchedEdep = 0.0;
+  int lastQuenchedStepNumber = -1;
+
   /** Step in the parent track at which this track was created */
   void SetCreatorStep(int _CreatorStep) { CreatorStep = _CreatorStep; };
   int GetCreatorStep() const { return CreatorStep; };
+
+  /** Global time at the start of the step that produced this track
+   *  (the ionizing particle's step for scintillation photons, or the
+   *  absorbed photon's step for re-emitted photons), before any
+   *  scintillation/re-emission delay is added to produce this track's
+   *  own creation time.
+   **/
+  void SetExcitationTime(double _excitationTime) { fExcitationTime = _excitationTime; };
+  double GetExcitationTime() const { return fExcitationTime; };
 
   virtual void Print() const {};
 
  protected:
   std::string fCreatorProcess;
   int CreatorStep;
+  double fExcitationTime = std::nan("");
 };
 
 // GEANT4 uses a custom allocator on subclass, so we need to override it here.
