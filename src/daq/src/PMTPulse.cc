@@ -55,7 +55,7 @@ double PMTPulse::GetPulseHeight(double utime) {
 
   double height = fPulseOffset + fPulsePolaritySign * (fPulseCharge * val);
 
-  if (abs(height) < fPulseMin) {
+  if (std::abs(height) < fPulseMin) {
     height = 0;
   }
 
