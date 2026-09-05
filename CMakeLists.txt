@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11...3.14)
+cmake_minimum_required(VERSION 3.16...3.31)
 include(CMakePackageConfigHelpers)
 # Automatically get version of git tags.
 execute_process(
@@ -58,15 +58,15 @@ add_custom_target(
 ###########################################################
 # Set default build type
 set(default_build_type "RelWithDebInfo")
-#set(CMAKE_BUILD_TYPE Debug)
-#set(CMAKE_CXX_FLAGS -pg)
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
-      STRING "Choose the type of build." FORCE)
+      STRING "Choose the type of build." FORCE
+  )
   # Set the possible values of build type for cmake-gui
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo"
+  )
 endif()
 add_compile_options(-Wall)
 # Not turning on errors yet to ease transition
@@ -74,101 +74,40 @@ add_compile_options(-Wall)
 
 ###########################################################
 # Set CMAKE standards
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ###########################################################
-# External libraries and dependencies
-set(CRY_Enabled 0)
-if(DEFINED ENV{CRYLIB})
-  message(STATUS "Compiling with CRY enabled")
-  set(CRY_Enabled 1)
-  set(CRYLIBDIR $ENV{CRYLIB})
-  set(CRYINCLUDE $ENV{CRYINCLUDE})
-  set(CRYDATA $ENV{CRYDATA})
-  set(CRY_LIBRARIES CRY)
-  include_directories(${CRYINCLUDE})
-  link_directories(${CRYLIBDIR})
-endif()
-
-set(TENSORFLOW_Enabled 0)
-find_library(TENSORFLOW_LIBRARIES tensorflow)
-find_path(TENSORFLOW_INCLUDE_DIRS tensorflow/c/c_api.h)
-if(TENSORFLOW_LIBRARIES AND TENSORFLOW_INCLUDE_DIRS)
-  message(STATUS "Compiling with Tensorflow")
-  set(TENSORFLOW_Enabled 1)
-else()
-  message(WARNING "Tensorflow Not Found")
-  set(TENSORFLOW_LIBRARIES "")
-  set(TENSORFLOW_INCLUDE_DIRS "")
-endif()
-
-set(NLOPT_Enabled 0)
-find_library(NLOPT_LIBRARIES nlopt)
-find_path(NLOPT_INCLUDE_DIRS nlopt.hpp)
-if(NLOPT_LIBRARIES AND NLOPT_INCLUDE_DIRS)
-    message(STATUS "Compiling with NLOPT")
-    set(NLOPT_Enabled 1)
-else()
-    message(WARNING "NLOPT Not Found")
-    set(NLOPT_LIBRARIES "")
-    set(NLOPT_INCLUDE_DIRS "")
-endif()
-
-###########################################################
 # Options
-set(RATPAC_BINARY_DIR ${PROJECT_BINARY_DIR}/bin CACHE PATH "Where to output executables")
-set(RATPAC_LIBRARY_DIR ${PROJECT_BINARY_DIR}/lib CACHE PATH "Where to output library files")
-set(RATPAC_INCLUDE_DIR ${PROJECT_BINARY_DIR}/include CACHE PATH "Where to collect headers")
-set(RATPAC_CMAKE_DIR ${PROJECT_BINARY_DIR}/cmake CACHE PATH "Where to cmake configuration")
 option(RATPAC_ROOT "build bootstrapped root executable" ON)
 option(RATPAC_RAT "build rat executable" ON)
 
 ###########################################################
-# Set up third party libraries
-
-if(ROOT_DIR)
-find_package(ROOT NO_DEFAULT_PATH CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython MathMore)
-else()
-find_package(ROOT CONFIG REQUIRED COMPONENTS Minuit2 ROOTTPython MathMore)
-endif()
-include(${ROOT_USE_FILE})
-
-find_package(Geant4 11.4 REQUIRED)
-find_package(Geant4 QUIET OPTIONAL_COMPONENTS vis_all ui_all)
-include(${Geant4_USE_FILE})
-include_directories(${Geant4_INCLUDE_DIRS})
-include_directories(${CLHEP_INCLUDE_DIRS})
-include_directories(${XercesC_INCLUDE_DIRS})
-
-find_package(Threads REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(FFTW3 REQUIRED IMPORTED_TARGET fftw3)
-if (NOT TARGET FFTW3::fftw3)
-  add_library(FFTW3::fftw3 ALIAS PkgConfig::FFTW3)
-  include_directories(${FFTW3_INCLUDE_DIRS})
-endif()
+# External libraries and dependencies: find them and wrap them in
+# target-based usage requirements (ratpac_common, Ratpac::Geant4,
+# Ratpac::ROOT, Ratpac::NLopt, Ratpac::TensorFlow, Ratpac::CRY)
+include(${CMAKE_SOURCE_DIR}/cmake/RatpacDependencies.cmake)
 
 ###########################################################
 # Configure header with our version information
+#
 configure_file(${CMAKE_SOURCE_DIR}/config/Config.hh.in
-  ${CMAKE_SOURCE_DIR}/src/core/include/RAT/Config.hh
-  @ONLY NEWLINE_STYLE UNIX)
+  ${PROJECT_BINARY_DIR}/generated/RAT/Config.hh
+  @ONLY NEWLINE_STYLE UNIX
+)
+install(FILES ${PROJECT_BINARY_DIR}/generated/RAT/Config.hh DESTINATION include/RAT)
 
 # Configure local scripts
 set(RATROOT ${CMAKE_INSTALL_PREFIX})
 set(RATSHARE ${PROJECT_SOURCE_DIR})
 configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.sh.in
   ${PROJECT_SOURCE_DIR}/ratpac.sh
-  @ONLY NEWLINE_STYLE UNIX)
+  @ONLY NEWLINE_STYLE UNIX
+)
 configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.csh.in
   ${PROJECT_SOURCE_DIR}/ratpac.csh
-  @ONLY NEWLINE_STYLE UNIX)
-#configure_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
-#  ${PROJECT_SOURCE_DIR}/RatpacConfig.cmake
-#  @ONLY NEWLINE_STYLE UNIX)
+  @ONLY NEWLINE_STYLE UNIX
+)
 
 ###########################################################
 # Helper functions
@@ -186,49 +125,64 @@ add_subdirectory(tools)
 # Configure global scripts
 set(RATSHARE ${CMAKE_INSTALL_PREFIX}/share/RAT)
 configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.sh.in
-  ${RATPAC_BINARY_DIR}/ratpac.sh
-  @ONLY NEWLINE_STYLE UNIX)
+  ${PROJECT_BINARY_DIR}/bin/ratpac.sh
+  @ONLY NEWLINE_STYLE UNIX
+)
 configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.csh.in
-  ${RATPAC_BINARY_DIR}/ratpac.csh
-  @ONLY NEWLINE_STYLE UNIX)
-configure_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
-  ${RATPAC_CMAKE_DIR}/RatpacConfig.cmake
-  @ONLY NEWLINE_STYLE UNIX)
+  ${PROJECT_BINARY_DIR}/bin/ratpac.csh
+  @ONLY NEWLINE_STYLE UNIX
+)
+# The package is installed twice, at two different destinations, on purpose:
+# DESTINATION cmake (flat) is this project's original layout, and is what
+# existing consumers (e.g. RatpacExperiment) already point at; DESTINATION
+# lib/cmake/Ratpac is the conventional CMake package layout, which lets a
+# plain, unhinted find_package(Ratpac) also succeed via CMake's default
+# package search paths. RatpacConfig.cmake has to be configured once per
+# destination
+configure_package_config_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
+  ${PROJECT_BINARY_DIR}/cmake/RatpacConfig.cmake
+  INSTALL_DESTINATION cmake
+)
+configure_package_config_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
+  ${PROJECT_BINARY_DIR}/lib/cmake/Ratpac/RatpacConfig.cmake
+  INSTALL_DESTINATION lib/cmake/Ratpac
+)
 write_basic_package_version_file(
-  "${RATPAC_CMAKE_DIR}/RatpacConfigVersion.cmake"
+  "${PROJECT_BINARY_DIR}/cmake/RatpacConfigVersion.cmake"
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMinorVersion
 )
+install(EXPORT RatpacTargets NAMESPACE Ratpac:: DESTINATION cmake)
+install(EXPORT RatpacTargets NAMESPACE Ratpac:: DESTINATION lib/cmake/Ratpac)
 
 # Install the data files
-install(DIRECTORY ratdb/ DESTINATION ${RATSHARE}/ratdb
-  PATTERN "ratdb/*")
+install(DIRECTORY ratdb/ DESTINATION ${RATSHARE}/ratdb PATTERN "ratdb/*")
 
-install(DIRECTORY models/ DESTINATION ${RATSHARE}/models
-  PATTERN "models/*")
+install(DIRECTORY models/ DESTINATION ${RATSHARE}/models PATTERN "models/*")
 
 # Install the python files
-install(DIRECTORY python/ DESTINATION ${RATSHARE}/python
-  PATTERN "python/*")
+install(DIRECTORY python/ DESTINATION ${RATSHARE}/python PATTERN "python/*")
 
 # Install rattest executable
 install(PROGRAMS python/rattest.py DESTINATION bin RENAME rattest)
 
 # Install the macro files
-install(DIRECTORY macros/ DESTINATION ${RATSHARE}/macros
-  PATTERN "macros/*")
+install(DIRECTORY macros/ DESTINATION ${RATSHARE}/macros PATTERN "macros/*")
 
 # Install the doc files
-install(DIRECTORY doc/ DESTINATION ${RATSHARE}/doc
-  PATTERN "doc/*")
+install(DIRECTORY doc/ DESTINATION ${RATSHARE}/doc PATTERN "doc/*")
 
 # Install env files
-install(FILES ${RATPAC_BINARY_DIR}/ratpac.sh
-  ${RATPAC_BINARY_DIR}/ratpac.csh
-  DESTINATION bin)
+install(FILES 
+  ${PROJECT_BINARY_DIR}/bin/ratpac.sh
+  ${PROJECT_BINARY_DIR}/bin/ratpac.csh
+  DESTINATION bin
+)
 
-install(FILES ${RATPAC_CMAKE_DIR}/RatpacConfig.cmake
-  DESTINATION cmake)
+install(FILES ${PROJECT_BINARY_DIR}/cmake/RatpacConfig.cmake DESTINATION cmake)
 
-install(FILES ${RATPAC_CMAKE_DIR}/RatpacConfigVersion.cmake
-  DESTINATION cmake)
+install(FILES ${PROJECT_BINARY_DIR}/cmake/RatpacConfigVersion.cmake DESTINATION cmake)
+
+install(FILES ${PROJECT_BINARY_DIR}/lib/cmake/Ratpac/RatpacConfig.cmake DESTINATION lib/cmake/Ratpac)
+
+install(FILES ${PROJECT_BINARY_DIR}/cmake/RatpacConfigVersion.cmake DESTINATION lib/cmake/Ratpac)

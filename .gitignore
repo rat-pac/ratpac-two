@@ -1,7 +1,6 @@
 # RAT configuration files
 build*
 install*
-src/core/include/RAT/Config.hh
 *.pyc
 .sconsign
 .sconsign.dblite
@@ -9,13 +8,11 @@ src/core/include/RAT/Config.hh
 lib
 bin
 config.log
-src/core/config.hh
 # Eclipse aux files
 .cproject
 .project
 .pydevproject
 .settings
-src/core/Config.hh
 
 *.log
 *.root

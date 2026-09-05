@@ -2,6 +2,7 @@
 # CMakeLists for core module
 
 add_library(core OBJECT
+        src/Log.cc
         src/GLG4HitPhoton.cc
         src/GLG4HitPMT.cc
         src/GLG4SteppingAction.cc
@@ -22,24 +23,13 @@ add_library(core OBJECT
         src/SignalHandler.cc
         src/TrackInfo.cc
         src/TrackCompactor.cc
-        src/Log.cc
-        src/GLG4HitPMTCollection.cc)
+        src/GLG4HitPMTCollection.cc
+)
 
-# Link Geant4 so its imported targets' INTERFACE_COMPILE_DEFINITIONS
-# (e.g. G4VIS_USE_OPENGLQT) propagate to this object library's sources.
-# Without this, the G4VIS_USE_* #ifdef blocks in GLG4VisManager.cc are
-# never enabled and no visualization backends get registered.
-target_link_libraries(core PUBLIC ${Geant4_LIBRARIES})
-
-# Set our include directories
-target_include_directories(core SYSTEM PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
-target_include_directories(core PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:include>)
+target_link_libraries(core PUBLIC ratpac_common stlplus)
 
 # Copy our headers when installing
-file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
+install(DIRECTORY include/ DESTINATION include)
 
 # Contribute this module's headers and LinkDef fragment to the RAT ROOT
 # dictionary (RATDict).

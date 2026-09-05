@@ -9,16 +9,11 @@ add_library(fit_common OBJECT
   src/FitTensorProc.cc
   src/FitQuadProc.cc
   src/FitDirectionCenterProc.cc
-  src/MiniSim.cc)
+  src/MiniSim.cc
+)
 set_target_properties(fit_common PROPERTIES POSITION_INDEPENDENT_CODE ON)
-# Set our include directories
-target_include_directories(fit_common SYSTEM PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
-target_include_directories(fit_common PUBLIC
-  $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
-  $<INSTALL_INTERFACE:include>
-  ${TENSORFLOW_INCLUDE_DIRS}
-  )
+# FitTensorProc.{cc,hh} uses cppflow, which wraps TensorFlow.
+target_link_libraries(fit_common PUBLIC ratpac_common cppflow Ratpac::TensorFlow)
 
 # Create interface target to hold all fit objects
 add_library(fit INTERFACE)
@@ -29,4 +24,4 @@ target_sources(fit INTERFACE
 
 
 # Copy our headers when installing
-file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
+install(DIRECTORY include/ DESTINATION include)

@@ -11,14 +11,7 @@ add_library(mimir OBJECT
 )
 
 set_target_properties(mimir PROPERTIES POSITION_INDEPENDENT_CODE ON)
-# Set our include directories
-target_include_directories(mimir SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
-target_include_directories(mimir PUBLIC
-  $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
-  $<INSTALL_INTERFACE:include>
-  ${NLOPT_INCLUDE_DIRS}
-  )
+target_link_libraries(mimir PUBLIC ratpac_common Ratpac::NLopt)
 
 # Copy our headers when installing
-file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
+install(DIRECTORY include/ DESTINATION include)

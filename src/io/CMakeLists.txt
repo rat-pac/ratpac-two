@@ -4,23 +4,19 @@
 add_library(io OBJECT
         src/DSReader.cc
         src/DSWriter.cc
+        src/TrackCursor.cc
+        src/TrackNav.cc
         src/InNetProducer.cc
         src/InROOTProducer.cc
         src/OutNetProc.cc
         src/OutNtupleProc.cc
         src/OutROOTProc.cc
-        src/TrackCursor.cc
-        src/TrackNav.cc)
+)
 
-# Set our include directories
-target_include_directories(io SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
-target_include_directories(io PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:include>)
+target_link_libraries(io PUBLIC ratpac_common stlplus)
 
 # Copy our headers when installing
-file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
+install(DIRECTORY include/ DESTINATION include)
 
 # Contribute this module's headers and LinkDef fragment to the RAT ROOT
 # dictionary (RATDict).
@@ -32,4 +28,5 @@ rat_dictionary_headers(
         RAT/TrackNode.hh
         RAT/TrackCursor.hh
         RAT/ObjInt.hh
-        RAT/ObjDbl.hh)
+        RAT/ObjDbl.hh
+)

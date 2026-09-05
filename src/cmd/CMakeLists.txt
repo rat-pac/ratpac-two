@@ -18,16 +18,10 @@ add_library(cmd OBJECT
         src/RatMessenger.cc
         src/ReacIBDgenMessenger.cc
         src/SNgenMessenger.cc
-        src/TrackingMessenger.cc)
+        src/TrackingMessenger.cc
+)
 
-# Set our include directories
-target_include_directories(cmd SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
-target_include_directories(cmd PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:include>
-        ${TENSORFLOW_INCLUDE_DIRS}
-        )
+target_link_libraries(cmd PUBLIC ratpac_common cppflow Ratpac::TensorFlow)
 
 # Copy our headers when installing
-file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
+install(DIRECTORY include/ DESTINATION include)

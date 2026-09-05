@@ -3,14 +3,10 @@
 
 add_library(ratbase OBJECT
   src/Rat.cc
-  src/AnyParse.cc)
+  src/AnyParse.cc
+)
 
-# Set our include directories
-target_include_directories(ratbase SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
-target_include_directories(ratbase PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:include>)
+target_link_libraries(ratbase PUBLIC ratpac_common)
 
 # Copy our headers when installing
-file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
+install(DIRECTORY include/ DESTINATION include)

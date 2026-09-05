@@ -48,7 +48,8 @@ set(gen_sources
     src/VertexGen_ReacIBD.cc
     src/VertexGen_SN.cc
     src/VertexGen_Spectrum.cc
-    src/VertexGen_WIMP.cc)
+    src/VertexGen_WIMP.cc
+)
 
 if(${CRY_Enabled})
   set(gen_sources ${gen_sources} src/VertexGen_CRY.cc)
@@ -56,12 +57,7 @@ endif()
 
 add_library(gen OBJECT ${gen_sources})
 
-# Set our include directories
-target_include_directories(gen SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
-target_include_directories(gen PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:include>)
+target_link_libraries(gen PUBLIC ratpac_common Ratpac::CRY)
 
 # Copy our headers when installing
-file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
+install(DIRECTORY include/ DESTINATION include)

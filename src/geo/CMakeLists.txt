@@ -68,12 +68,7 @@ add_library(geo OBJECT
         src/pmt/HemisphereEncapsulation.cc
         )
 
-# Set our include directories
-target_include_directories(geo SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
-target_include_directories(geo PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:include>)
+target_link_libraries(geo PUBLIC ratpac_common)
 
 # Copy our headers when installing
-file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
+install(DIRECTORY include/ DESTINATION include)

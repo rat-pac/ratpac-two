@@ -2,17 +2,13 @@
 # CMakeLists for ds module
 
 add_library(ds OBJECT
-        src/Root.cc
         src/MCPMT.cc
-        src/RunStore.cc)
-# Set our include directories
-target_include_directories(ds SYSTEM PUBLIC 
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}/stlplus>)
-target_include_directories(ds PUBLIC
-        $<BUILD_INTERFACE:${RATPAC_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:include>)
+        src/Root.cc
+        src/RunStore.cc
+)
+target_link_libraries(ds PUBLIC ratpac_common)
 
-file(COPY include/ DESTINATION ${RATPAC_INCLUDE_DIR})
+install(DIRECTORY include/ DESTINATION include)
 
 #################################################
 # Contribute this module's headers and LinkDef fragment to the RAT ROOT
@@ -44,4 +40,5 @@ rat_dictionary_headers(
         RAT/DS/MCTrack.hh
         RAT/DS/MCTrackStep.hh
         RAT/DS/Calib.hh
-        RAT/DS/WaveformAnalysisResult.hh)
+        RAT/DS/WaveformAnalysisResult.hh
+)
