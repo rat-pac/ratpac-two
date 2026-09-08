@@ -1,5 +1,6 @@
 #include <fftw3.h>
 #include <sys/types.h>
+#include <limits>
 
 #include <RAT/Log.hh>
 #include <RAT/WaveformUtil.hh>
