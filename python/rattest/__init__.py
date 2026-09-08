@@ -112,10 +112,10 @@ class RatTest:
         if rat_bin is None:
             self.rat_bin = os.path.abspath(os.path.join(os.environ['RATROOT'], 'bin', 'rat'))
         else:
-            self.rat_bin = os.path.abspath(rat_bin)
-            if not os.path.exists(self.rat_bin):
-                raise RuntimeError(f"Experiment binary not found: {self.rat_bin}. "
-                                   f"Expected a path to the binary.")
+            self.rat_bin = shutil.which(rat_bin)
+            if not self.rat_bin:
+                raise RuntimeError(f"Experiment binary not found: {rat_bin}. "
+                                   f"Expected a path to the binary or a name on PATH.")
 
         # Set the event file basename (rat appends .root or .ntuple.root automatically)
         self.event_file_basename = 'mc_events'

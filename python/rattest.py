@@ -36,7 +36,7 @@ parser.add_argument('-t', '--text-only',
 
 parser.add_argument('-e', '--experiment',
                     type=str, dest='experiment_bin', default=None,
-                    help='Absolute path to experiment binary to run test with. Uses `rat` as default.')
+                    help='Path to experiment binary, or its name on PATH, to run test with. Uses `rat` as default.')
 
 parser.add_argument('--make-template', type=str, dest='template', default=None,
                     help='Write a template rattest to current directory for you to edit. '\
