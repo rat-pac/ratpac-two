@@ -183,9 +183,6 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
       TVector3 pmtPos = fPMTInfo->GetPosition(pmtid);
       TVector3 hitDir = pmtPos - eventPos;
 
-      // Skip PMTs where the waveform analyzer reconstructed no pulse, and so has no time to offer
-      if (inputHandler.GetNPEs(pmtid) == 0) continue;
-
       double transitTime = hitDir.Mag() / fLightSpeed;
       double timeResidual = inputHandler.GetTime(pmtid) - transitTime - eventTime;
       pmtTimes.push_back(timeResidual);
@@ -219,9 +216,6 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
 
     TVector3 pmtPos = fPMTInfo->GetPosition(pmtid);
     TVector3 hitDir = pmtPos - eventPos;
-
-    // Skip PMTs where the waveform analyzer reconstructed no pulse, and so has no time to offer
-    if (inputHandler.GetNPEs(pmtid) == 0) continue;
 
     double transitTime = hitDir.Mag() / fLightSpeed;
     double timeResidual = inputHandler.GetTime(pmtid) - transitTime - eventTime;
@@ -264,9 +258,6 @@ Processor::Result ClassifyTimesProc::Event(DS::Root *ds, DS::EV *ev) {
 
     TVector3 pmtPos = fPMTInfo->GetPosition(pmtid);
     TVector3 hitDir = pmtPos - eventPos;
-
-    // Skip PMTs where the waveform analyzer reconstructed no pulse, and so has no time to offer
-    if (inputHandler.GetNPEs(pmtid) == 0) continue;
 
     double transitTime = hitDir.Mag() / fLightSpeed;
     double timeResidual = inputHandler.GetTime(pmtid) - transitTime - eventTime;
