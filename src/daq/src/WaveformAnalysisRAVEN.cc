@@ -263,6 +263,31 @@ TVectorD WaveformAnalysisRAVEN::Thresholded_rsNNLS(const TMatrixD& W_region, con
     if (h_full(j) > 0.0) P.push_back(j);
   }
 
+  // A threshold-crossing region exists because the waveform crossed threshold, so
+  // it must yield a PE. The solver can still return nothing when nnls_tolerance is
+  // set above the pulse's own gradient, so seed the best-correlated column with the
+  // weight NNLS would give it alone: max(0, A_j.v / ||A_j||^2).
+  if (process_threshold_crossing && P.empty()) {
+    int seed_col = -1;
+    double seed_dot = 0.0;
+    for (int j = 0; j < K; ++j) {
+      double dot = 0.0;
+      for (int i = 0; i < D; ++i) dot += W_region(i, j) * voltVec(i);
+      if (dot > seed_dot) {
+        seed_dot = dot;
+        seed_col = j;
+      }
+    }
+    if (seed_col >= 0) {
+      double norm2 = 0.0;
+      for (int i = 0; i < D; ++i) norm2 += W_region(i, seed_col) * W_region(i, seed_col);
+      if (norm2 > 0.0) {
+        h_full(seed_col) = seed_dot / norm2;
+        P.push_back(seed_col);
+      }
+    }
+  }
+
   // Helper lambda to extract dictionary submatrix for active components
   auto subCols = [](const TMatrixD& W, const std::vector<int>& cols) {
     TMatrixD S(W.GetNrows(), cols.size());
