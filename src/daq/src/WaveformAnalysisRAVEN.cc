@@ -76,17 +76,24 @@ void WaveformAnalysisRAVEN::Configure(const std::string& config_name) {
   }
 }
 
+// Parameters that change the template shape or scale invalidate the cached
+// dictionary; it is rebuilt on the next waveform.
 void WaveformAnalysisRAVEN::SetD(std::string param, double value) {
   if (param == "lognormal_scale") {
     lognormal_scale = value;
+    dictionary_built = false;
   } else if (param == "lognormal_shape") {
     lognormal_shape = value;
+    dictionary_built = false;
   } else if (param == "gaussian_width") {
     gaussian_width = value;
+    dictionary_built = false;
   } else if (param == "vpe_charge") {
     vpe_charge = value;
+    dictionary_built = false;
   } else if (param == "upsampling_factor") {
     upsample_factor = value;
+    dictionary_built = false;
   } else if (param == "weight_threshold") {
     weight_threshold = value;
   } else if (param == "voltage_threshold") {
@@ -113,6 +120,7 @@ void WaveformAnalysisRAVEN::SetI(std::string param, int value) {
       RAT::Log::Die("WaveformAnalysisRAVEN: Invalid raven_template_type " + std::to_string(value) +
                     ". Must be 0 (lognormal) or 1 (gaussian).");
     }
+    dictionary_built = false;
   } else if (param == "npe_estimate") {
     npe_estimate = (value != 0);
   } else if (param == "npe_estimate_max_pes") {
