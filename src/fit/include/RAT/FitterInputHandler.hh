@@ -260,6 +260,9 @@ class FitterInputHandler {
         return ev->GetOrCreateDigitPMT(id)->GetDigitizedCharge();
       case Mode::kWaveformAnalysis: {
         std::vector<double> charges = GetCharges(id);
+        // The analyzer can decline a channel, e.g. when it falls outside the analyzer's total charge
+        // cuts, leaving a result with no hits. Fall back to the WaveformPrep charge in that case.
+        if (charges.empty()) return ev->GetOrCreateDigitPMT(id)->GetDigitizedCharge();
         double charge = 0;
         for (size_t ic = 0; ic < charges.size(); ic++) charge += charges[ic];
         return charge;
@@ -314,9 +317,9 @@ class FitterInputHandler {
           info << "FitResult not found for pmt id " << id << " " << wfm_ana_name << newline;
         }
         DS::WaveformAnalysisResult* result = digitpmt->GetOrCreateWaveformAnalysisResult(wfm_ana_name);
-        if (result->getNPEs() == 0)
-          Log::Die("FitterInputHandler: " + wfm_ana_name + " reconstructed no hits on channel " + std::to_string(id) +
-                   "!");
+        // The analyzer can decline a channel, e.g. when it falls outside the analyzer's total charge
+        // cuts, leaving a result with no hits. Fall back to the WaveformPrep time in that case.
+        if (result->getNPEs() == 0) return digitpmt->GetDigitizedTime();
         return result->getTime(0);
       }
       default:
