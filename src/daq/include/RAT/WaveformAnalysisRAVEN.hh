@@ -11,6 +11,7 @@
 ///     12 Nov 2025: Added to ratpac-two
 ///     15 Jan 2026: Added region-based processing and NPE estimation features
 ///     09 Feb 2026: Renamed to RAVEN
+///     09 Sep 2026: Added optional PE time refinement
 ///
 /// \details
 /// RAVEN (Reverse Analysis of Voltage Events with Nonegativity) is a waveform analysis algorithm
@@ -22,7 +23,8 @@
 /// 2. Identifies threshold crossing regions in the waveform for localized processing
 /// 3. For each region, extracts relevant dictionary submatrix and applies NNLS fitting
 /// 4. Uses iterative thresholding to remove low-weight components and redistribute weights
-/// 5. Extracts PE times and charges from remaining significant weights
+/// 5. Optionally refines component times against neighboring dictionary columns
+/// 6. Extracts PE times and charges from remaining significant weights
 ///
 /// Template types supported:
 /// - Lognormal
@@ -88,6 +90,8 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
   // Thresholding parameters
   double weight_threshold;     ///< Minimum weight threshold for component significance
   double weight_merge_window;  ///< Time window (ns) for merging nearby weights before NPE estimation
+
+  bool refine_times;  ///< Move components to better-fitting neighboring times
 
   // NPE estimation parameters
   bool npe_estimate;                 ///< Whether to perform NPE estimation on resolved wave packets

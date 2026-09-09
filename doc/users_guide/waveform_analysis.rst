@@ -228,7 +228,7 @@ The method can be configured using the following ratdb parameters.
 RAVEN
 `````
 
-Performs PMT waveform analysis using RAVEN (Reverse Analysis of Voltage Events with Nonnegativity), a sparse non-negative least squares fitting algorithm that reconstructs multiple photoelectron times and charges from digitized waveforms. The underlying algorithm (rsNNLS) is described in Sec. 3.1.1 of https://www.sciencedirect.com/science/article/pii/S0925231211006370. The method builds a dictionary matrix of time-shifted single PE templates at sub-sample resolution, applies non-negative least squares to find optimal template weights, and iteratively removes low-significance components to improve sparsity. After weight merging, NPE estimation can be performed on resolved peaks. Two template types are supported: lognormal (asymmetric) and Gaussian (symmetric).
+Performs PMT waveform analysis using RAVEN (Reverse Analysis of Voltage Events with Nonnegativity), a sparse non-negative least squares fitting algorithm that reconstructs multiple photoelectron times and charges from digitized waveforms. The underlying algorithm (rsNNLS) is described in Sec. 3.1.1 of https://www.sciencedirect.com/science/article/pii/S0925231211006370. The method builds a dictionary matrix of time-shifted single PE templates at sub-sample resolution, applies non-negative least squares to find optimal template weights, and iteratively removes low-significance components to improve sparsity. Because that pass only removes components, a mistimed component is optionally refined afterwards by moving it to a neighbouring dictionary column when the residual improves. After weight merging, NPE estimation can be performed on resolved peaks. Two template types are supported: lognormal (asymmetric) and Gaussian (symmetric).
 
 The method can be configured using the following ratdb parameters:
 
@@ -246,6 +246,7 @@ The method can be configured using the following ratdb parameters:
 ``upsampling_factor``             Dictionary upsampling factor for sub-sample timing resolution.
 ``max_iterations``                Maximum iterative thresholding iterations.
 ``nnls_tolerance``                NNLS convergence tolerance.
+``refine_times``                  If true, move surviving components to nearby times when that lowers the residual. Must be a boolean.
 ``weight_threshold``              Minimum weight for component significance.
 ``weight_merge_window``           Time window (ns) for merging nearby weights. Set to 0 to disable.
 ``npe_estimate``                  If true, perform NPE estimation on resolved wave packets.

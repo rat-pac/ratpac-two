@@ -10,6 +10,7 @@
 #include <RAT/WaveformAnalysisRAVEN.hh>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 #include "RAT/DS/DigitPMT.hh"
 #include "RAT/DS/WaveformAnalysisResult.hh"
@@ -60,6 +61,15 @@ void WaveformAnalysisRAVEN::Configure(const std::string& config_name) {
 
     // Weight merging configuration
     weight_merge_window = fDigit->GetD("weight_merge_window");  // Time window for merging nearby weights (ns)
+
+    // Optional time refinement
+    refine_times = false;
+    try {
+      refine_times = fDigit->GetZ("refine_times");
+    } catch (DBWrongTypeError&) {
+      RAT::Log::Die("WaveformAnalysisRAVEN: refine_times must be a boolean (true/false), not an integer.");
+    } catch (DBNotFoundError&) {
+    }
 
     // Validate critical parameters
     if (upsample_factor <= 0) {
@@ -125,6 +135,8 @@ void WaveformAnalysisRAVEN::SetI(std::string param, int value) {
     npe_estimate = (value != 0);
   } else if (param == "npe_estimate_max_pes") {
     npe_estimate_max_pes = static_cast<size_t>(value);
+  } else if (param == "refine_times") {
+    refine_times = (value != 0);
   } else {
     throw Processor::ParamUnknown(param);
   }
@@ -261,38 +273,130 @@ TVectorD WaveformAnalysisRAVEN::Thresholded_rsNNLS(const TMatrixD& W_region, con
     return S;
   };
 
-  // Iterative thresholding
   int local_iterations_ran = 0;
 
-  for (size_t iter = 0; iter < max_iterations && !P.empty(); ++iter) {
-    local_iterations_ran = static_cast<int>(iter + 1);
+  // Iterative thresholding. Time refinement runs a second pass over this, so the
+  // shared iteration budget is carried in local_iterations_ran rather than reset.
+  auto pruneBelowThreshold = [&]() {
+    while (local_iterations_ran < static_cast<int>(max_iterations) && !P.empty()) {
+      local_iterations_ran++;
 
-    // Find component with minimum weight
-    std::vector<int>::iterator minIt =
-        std::min_element(P.begin(), P.end(), [&h_full](int a, int b) { return h_full(a) < h_full(b); });
-    size_t minPos = std::distance(P.begin(), minIt);
-    double minVal = h_full(*minIt);
+      // Find component with minimum weight
+      std::vector<int>::iterator minIt =
+          std::min_element(P.begin(), P.end(), [&h_full](int a, int b) { return h_full(a) < h_full(b); });
+      size_t minPos = std::distance(P.begin(), minIt);
+      double minVal = h_full(*minIt);
 
-    if (minVal >= threshold) break;
+      if (minVal >= threshold) break;
 
-    // Never prune the last remaining component — always fit at least one PE per threshold crossing
-    if (P.size() == 1) break;
+      // Never prune the last remaining component: always fit at least one PE per threshold crossing
+      if (P.size() == 1) break;
 
-    // Remove component with smallest weight
-    h_full(P[minPos]) = 0.0;
-    P.erase(P.begin() + minPos);
+      // Remove component with smallest weight
+      h_full(P[minPos]) = 0.0;
+      P.erase(P.begin() + minPos);
 
-    // Re-solve on reduced active set
-    TMatrixD W_P = subCols(W_region, P);
-    TVectorD h_reduced(P.size());
-    h_reduced.Zero();
-    h_reduced = Math::NNLS_LawsonHanson(W_P, voltVec, epsilon, 0, 0);
+      // Re-solve on reduced active set
+      TMatrixD W_P = subCols(W_region, P);
+      TVectorD h_reduced(P.size());
+      h_reduced.Zero();
+      h_reduced = Math::NNLS_LawsonHanson(W_P, voltVec, epsilon, 0, 0);
 
-    // Update full weight vector
-    h_full.Zero();
-    for (size_t k = 0; k < P.size(); ++k) {
-      h_full(P[k]) = h_reduced(k);
+      // Update full weight vector
+      h_full.Zero();
+      for (size_t k = 0; k < P.size(); ++k) {
+        h_full(P[k]) = h_reduced(k);
+      }
     }
+  };
+
+  pruneBelowThreshold();
+
+  // Time refinement. Reverse pursuit only removes components, so a component
+  // the initial solve misplaced (typically ~1 sample early, on a steep leading
+  // edge) would otherwise stay misplaced as an early ghost PE.
+  if (refine_times && !P.empty()) {
+    const int max_shift = std::max(1, static_cast<int>(std::lround(upsample_factor)));  // +- 1 sample
+    auto residualOf = [&](const TVectorD& h) {
+      TVectorD r = voltVec;
+      for (int j = 0; j < K; ++j) {
+        if (h(j) == 0.0) continue;
+        for (int i = 0; i < D; ++i) r(i) -= W_region(i, j) * h(j);
+      }
+      return r;
+    };
+    TVectorD r_full = residualOf(h_full);
+    double cur_rss = r_full * r_full;
+    std::vector<char> occupied(K, 0);
+    for (int c : P) occupied[c] = 1;
+
+    // Column norms are fixed across candidates and sweeps, so compute each once.
+    std::vector<double> col_norm2(K, -1.0);
+    auto colNorm2 = [&](int col) {
+      if (col_norm2[col] < 0.0) {
+        double n2 = 0.0;
+        for (int i = 0; i < D; ++i) n2 += W_region(i, col) * W_region(i, col);
+        col_norm2[col] = n2;
+      }
+      return col_norm2[col];
+    };
+
+    // Two sweeps at most: a move can free a column its neighbour then wants, but in
+    // practice nothing moves after the second pass and each sweep costs a full re-solve.
+    for (int sweep = 0; sweep < 2; ++sweep) {
+      bool improved = false;
+      for (size_t idx = 0; idx < P.size(); ++idx) {
+        const int c = P[idx];
+        // Residual with this component removed, other weights fixed.
+        TVectorD r_wo = r_full;
+        for (int i = 0; i < D; ++i) r_wo(i) += W_region(i, c) * h_full(c);
+        const double rss_wo = r_wo * r_wo;
+        // Score each nearby free column by the rss left after refitting one weight on it.
+        int best_col = c;
+        double best_1d = std::numeric_limits<double>::max();
+        for (int dc = -max_shift; dc <= max_shift; ++dc) {
+          const int cp = c + dc;
+          if (cp < 0 || cp >= K) continue;
+          if (cp != c && occupied[cp]) continue;
+          double dot = 0.0;
+          for (int i = 0; i < D; ++i) dot += W_region(i, cp) * r_wo(i);
+          const double norm2 = colNorm2(cp);
+          const double gain = (dot > 0.0 && norm2 > 0.0) ? dot * dot / norm2 : 0.0;
+          const double rss_1d = rss_wo - gain;
+          if (rss_1d < best_1d - 1e-12) {
+            best_1d = rss_1d;
+            best_col = cp;
+          }
+        }
+        if (best_col == c) continue;
+
+        // Full re-solve with the component moved; accept only on improvement.
+        std::vector<int> P_trial = P;
+        P_trial[idx] = best_col;
+        TMatrixD W_P = subCols(W_region, P_trial);
+        TVectorD h_trial = Math::NNLS_LawsonHanson(W_P, voltVec, epsilon, 0, 0);
+        TVectorD h_new(K);
+        h_new.Zero();
+        for (size_t k = 0; k < P_trial.size(); ++k) h_new(P_trial[k]) = h_trial(static_cast<int>(k));
+        TVectorD r_new = residualOf(h_new);
+        const double new_rss = r_new * r_new;
+        // Relative test: an absolute one would mean different things per region size.
+        if (new_rss < cur_rss * (1.0 - 1e-9)) {
+          occupied[c] = 0;
+          occupied[best_col] = 1;
+          P[idx] = best_col;
+          h_full = h_new;
+          r_full = r_new;
+          cur_rss = new_rss;
+          improved = true;
+        }
+      }
+      if (!improved) break;
+    }
+
+    // Re-solving on a moved support can drop a survivor back below `threshold`,
+    // so re-apply the cut rather than leak sub-threshold components.
+    pruneBelowThreshold();
   }
 
   // Ensure numerical stability

@@ -176,6 +176,11 @@
 "max_iterations": 50, // Maximum number of rsNNLS iterations
 "nnls_tolerance": 1e-10, // NNLS convergence tolerance
 
+// Post-pruning time refinement: tentatively move each remaining component
+// to nearby free time offsets and keep moves that lower the residual.
+// Must be a JSON boolean; an integer is silently ignored.
+"refine_times": false,
+
 // Thresholding parameters
 "weight_threshold": 0.25, // Minimum weight for component significance
 
