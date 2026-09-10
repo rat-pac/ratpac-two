@@ -12,7 +12,7 @@
 ///     15 Jan 2026: Added region-based processing and NPE estimation features
 ///     09 Feb 2026: Renamed to RAVEN
 ///     09 Sep 2026: Added optional PE time refinement
-///     09 Sep 2026: Replaced the dictionary matrix with a shift-invariant template profile
+///     10 Sep 2026: Added per-PMT template shapes, built from a shift-invariant profile
 ///
 /// \details
 /// RAVEN (Reverse Analysis of Voltage Events with Nonegativity) is a waveform analysis algorithm
@@ -26,6 +26,11 @@
 /// 4. Uses iterative thresholding to remove low-weight components and redistribute weights
 /// 5. Optionally refines component times against neighboring dictionary columns
 /// 6. Extracts PE times and charges from remaining significant weights
+///
+/// A detector mixing PMT models with different single-electron-response widths needs one
+/// template per model, or its wider pulses are fit with satellite components. The template
+/// shape comes per PMT from PMTPULSE, the table the waveform generator samples, scaled by the
+/// per-channel pulse_width_scale calibration; one profile is cached per channel.
 ///
 /// Template types supported:
 /// - Lognormal
@@ -42,6 +47,8 @@
 #include <RAT/Digitizer.hh>
 #include <RAT/Processor.hh>
 #include <RAT/WaveformAnalyzerBase.hh>
+#include <map>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -57,7 +64,11 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
 
   virtual ~WaveformAnalysisRAVEN(){};
 
-  void BuildTemplateProfile(int nsamples, double digitizer_period);
+  /// SPE template shape for one PMT: the lognormal 'sigma' and 'm'; the gaussian
+  /// template uses only the second, as its sigma.
+  using TemplateShape = std::pair<double, double>;
+
+  void BuildTemplateProfile(const TemplateShape &shape, std::vector<double> &profile) const;
 
   void Configure(const std::string &config_name) override;
 
@@ -80,14 +91,20 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
   // Gaussian template parameters
   double gaussian_width;  ///< Gaussian 'sigma' parameter for SPE template
 
+  bool width_from_pmtpulse;  ///< Take the template shape per PMT from PMTPULSE instead of the parameters above
+
   double vpe_charge;  ///< Nominal charge of single PE in pC
 
   // Algorithm configuration
-  std::vector<double> fTemplate;  ///< SPE template on the upsampled lag grid, generating every dictionary column
-  int profile_offset;             ///< Index of zero lag in fTemplate
-  double epsilon;                 ///< NNLS convergence tolerance
-  size_t max_iterations;          ///< Maximum iterations for iterative thresholding
-  double upsample_factor;         ///< Dictionary upsampling factor for sub-sample resolution
+  /// SPE templates on the upsampled lag grid, each generating every dictionary column. Keyed
+  /// by PMT id, since pulse_width_scale is a per-channel calibration and channels of one model
+  /// can carry different widths.
+  std::map<int, std::vector<double>> fTemplateCache;
+  std::map<std::string, TemplateShape> fModelShapeCache;  ///< PMTPULSE shape per PMT model, before per-channel scaling
+  int profile_offset;                                     ///< Index of zero lag in a template profile
+  double epsilon;                                         ///< NNLS convergence tolerance
+  size_t max_iterations;                                  ///< Maximum iterations for iterative thresholding
+  double upsample_factor;                                 ///< Dictionary upsampling factor for sub-sample resolution
 
   // Thresholding parameters
   double weight_threshold;     ///< Minimum weight threshold for component significance
@@ -109,6 +126,25 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
 
   void DoAnalysis(DS::DigitPMT *digitpmt, const std::vector<UShort_t> &digitWfm) override;
 
+  /// Drop every cached template. Must be called whenever a parameter that changes the
+  /// template shape or scale, or the shape of the lag grid, is modified.
+  void ClearTemplateCache();
+
+  /// Template shape for one PMT: the PMTPULSE shape for its model, with the lognormal 'm' or
+  /// the gaussian sigma scaled by the channel's pulse_width_scale calibration.
+  TemplateShape ShapeForPMT(int pmtid);
+
+  /// Template shape built from the configured lognormal/gaussian parameters, used when
+  /// PMTPULSE is switched off or cannot describe a model.
+  TemplateShape ConfiguredShape() const;
+
+  /// PMTPULSE shape for one PMT model, falling back to the configured parameters when the
+  /// table has no usable entry for it.
+  TemplateShape ShapeForModel(const std::string &model_name);
+
+  /// Template profile for one cache key, built from the given shape on first use.
+  const std::vector<double> &GetTemplateProfile(int key, const TemplateShape &shape);
+
   /// Perform reverse sparse NNLS with iterative thresholding on a region submatrix
   TVectorD Thresholded_rsNNLS(const TMatrixD &W_region, const TVectorD &voltVec, const double threshold,
                               double &chi2ndf_out, int &iterations_out);
@@ -118,8 +154,8 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
                                                         int region_padding);
 
   /// Process a single threshold crossing region with rsNNLS
-  void ProcessThresholdRegion(const std::vector<double> &voltWfm, int start_sample, int end_sample,
-                              DS::WaveformAnalysisResult *fit_result, double gain_calibration);
+  void ProcessThresholdRegion(const std::vector<double> &profile, const std::vector<double> &voltWfm, int start_sample,
+                              int end_sample, DS::WaveformAnalysisResult *fit_result, double gain_calibration);
 
   /// Extract photoelectrons from significant weights in the region
   void ExtractPhotoelectrons(const TVectorD &region_weights, int dict_start, int dict_cols, int start_sample,

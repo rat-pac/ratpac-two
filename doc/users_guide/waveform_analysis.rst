@@ -228,7 +228,7 @@ The method can be configured using the following ratdb parameters.
 RAVEN
 `````
 
-Performs PMT waveform analysis using RAVEN (Reverse Analysis of Voltage Events with Nonnegativity), a sparse non-negative least squares fitting algorithm that reconstructs multiple photoelectron times and charges from digitized waveforms. The underlying algorithm (rsNNLS) is described in Sec. 3.1.1 of https://www.sciencedirect.com/science/article/pii/S0925231211006370. The method builds a dictionary matrix of time-shifted single PE templates at sub-sample resolution, applies non-negative least squares to find optimal template weights, and iteratively removes low-significance components to improve sparsity. Because that pass only removes components, a mistimed component is optionally refined afterwards by moving it to a neighbouring dictionary column when the residual improves. After weight merging, NPE estimation can be performed on resolved peaks. Two template types are supported: lognormal (asymmetric) and Gaussian (symmetric).
+Performs PMT waveform analysis using RAVEN (Reverse Analysis of Voltage Events with Nonnegativity), a sparse non-negative least squares fitting algorithm that reconstructs multiple photoelectron times and charges from digitized waveforms. The underlying algorithm (rsNNLS) is described in Sec. 3.1.1 of https://www.sciencedirect.com/science/article/pii/S0925231211006370. The method builds a dictionary matrix of time-shifted single PE templates at sub-sample resolution, applies non-negative least squares to find optimal template weights, and iteratively removes low-significance components to improve sparsity. Because that pass only removes components, a mistimed component is optionally refined afterwards by moving it to a neighbouring dictionary column when the residual improves. After weight merging, NPE estimation can be performed on resolved peaks. Two template types are supported: lognormal (asymmetric) and Gaussian (symmetric). A detector mixing PMT models whose single-electron responses have different widths needs one template per model, so the template shape is taken per PMT from the same ``PMTPULSE`` table the waveform generator samples, scaled by the channel's ``pulse_width_scale`` calibration. Where ``PMTPULSE`` gives the Gaussian width as a distribution, RAVEN uses its median.
 
 The method can be configured using the following ratdb parameters:
 
@@ -246,6 +246,7 @@ The method can be configured using the following ratdb parameters:
 ``upsampling_factor``             Dictionary upsampling factor for sub-sample timing resolution. Must be a positive whole number.
 ``max_iterations``                Maximum iterative thresholding iterations.
 ``nnls_tolerance``                NNLS convergence tolerance.
+``width_from_pmtpulse``           If true, take the template shape per PMT from ``PMTPULSE``, scaled by the channel's ``pulse_width_scale``. Must be a boolean.
 ``refine_times``                  If true, move surviving components to nearby times when that lowers the residual. Must be a boolean.
 ``weight_threshold``              Minimum weight for component significance.
 ``weight_merge_window``           Time window (ns) for merging nearby weights. Set to 0 to disable.

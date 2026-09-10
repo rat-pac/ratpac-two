@@ -4,6 +4,7 @@
 #include <TMatrixD.h>
 #include <TVectorD.h>
 
+#include <RAT/DS/PMTInfo.hh>
 #include <RAT/DS/RunStore.hh>
 #include <RAT/Log.hh>
 #include <RAT/NPEEstimator.hh>
@@ -28,6 +29,38 @@ void ValidateUpsampleFactor(double value) {
                   ". Must be a positive whole number.");
   }
 }
+
+// PMTPULSE stores the gaussian width as a piecewise-linear PDF that the waveform generator
+// samples by inverse-CDF. RAVEN fits one template per PMT, so collapse the PDF to its median by
+// inverting the same trapezoidal CDF. The median is better for skewed width distributions.
+double PDFMedian(const std::vector<double>& x, const std::vector<double>& prob) {
+  if (x.size() != prob.size() || x.size() < 2) {
+    RAT::Log::Die(
+        "WaveformAnalysisRAVEN: PMTPULSE width PDF needs at least two matching width and probability points.");
+  }
+
+  std::vector<double> cumu(x.size(), 0.0);
+  for (size_t i = 0; i + 1 < x.size(); ++i) {
+    cumu[i + 1] = cumu[i] + (x[i + 1] - x[i]) * (prob[i] + prob[i + 1]) / 2.0;
+  }
+
+  if (cumu.back() <= 0.0) {
+    RAT::Log::Die("WaveformAnalysisRAVEN: PMTPULSE width PDF has non-positive normalization.");
+  }
+
+  for (size_t i = 1; i < x.size(); ++i) {
+    const double c = cumu[i] / cumu.back();
+    if (0.5 <= c) {
+      const double c_prev = cumu[i - 1] / cumu.back();
+      return (0.5 - c_prev) * (x[i] - x[i - 1]) / (c - c_prev) + x[i - 1];
+    }
+  }
+  return x.back();
+}
+
+// Cache key for the single template every channel shares when per-PMT shapes are off. PMT ids
+// are non-negative, so this cannot collide with one.
+constexpr int kSharedTemplate = -1;
 }  // namespace
 
 void WaveformAnalysisRAVEN::Configure(const std::string& config_name) {
@@ -82,11 +115,20 @@ void WaveformAnalysisRAVEN::Configure(const std::string& config_name) {
     } catch (DBNotFoundError&) {
     }
 
+    // Optional per-PMT template shapes from PMTPULSE
+    width_from_pmtpulse = true;
+    try {
+      width_from_pmtpulse = fDigit->GetZ("width_from_pmtpulse");
+    } catch (DBWrongTypeError&) {
+      RAT::Log::Die("WaveformAnalysisRAVEN: width_from_pmtpulse must be a boolean (true/false), not an integer.");
+    } catch (DBNotFoundError&) {
+    }
+
     // Validate critical parameters
     ValidateUpsampleFactor(upsample_factor);
 
     // Initialize dictionary flags
-    dictionary_built = false;
+    ClearTemplateCache();
     cached_nsamples = -1;            // Invalid initial value to force dictionary build on first use
     cached_digitizer_period = -1.0;  // Invalid initial value to force dictionary build on first use
 
@@ -95,25 +137,25 @@ void WaveformAnalysisRAVEN::Configure(const std::string& config_name) {
   }
 }
 
-// Parameters that change the template shape or scale invalidate the cached
-// dictionary; it is rebuilt on the next waveform.
+// Parameters that change the template shape or scale invalidate the cached templates;
+// they are rebuilt on the next waveform.
 void WaveformAnalysisRAVEN::SetD(std::string param, double value) {
   if (param == "lognormal_scale") {
     lognormal_scale = value;
-    dictionary_built = false;
+    ClearTemplateCache();
   } else if (param == "lognormal_shape") {
     lognormal_shape = value;
-    dictionary_built = false;
+    ClearTemplateCache();
   } else if (param == "gaussian_width") {
     gaussian_width = value;
-    dictionary_built = false;
+    ClearTemplateCache();
   } else if (param == "vpe_charge") {
     vpe_charge = value;
-    dictionary_built = false;
+    ClearTemplateCache();
   } else if (param == "upsampling_factor") {
     ValidateUpsampleFactor(value);
     upsample_factor = value;
-    dictionary_built = false;
+    ClearTemplateCache();
   } else if (param == "weight_threshold") {
     weight_threshold = value;
   } else if (param == "voltage_threshold") {
@@ -140,74 +182,171 @@ void WaveformAnalysisRAVEN::SetI(std::string param, int value) {
       RAT::Log::Die("WaveformAnalysisRAVEN: Invalid raven_template_type " + std::to_string(value) +
                     ". Must be 0 (lognormal) or 1 (gaussian).");
     }
-    dictionary_built = false;
+    ClearTemplateCache();
   } else if (param == "npe_estimate") {
     npe_estimate = (value != 0);
   } else if (param == "npe_estimate_max_pes") {
     npe_estimate_max_pes = static_cast<size_t>(value);
   } else if (param == "refine_times") {
     refine_times = (value != 0);
+  } else if (param == "width_from_pmtpulse") {
+    width_from_pmtpulse = (value != 0);
+    ClearTemplateCache();
   } else {
     throw Processor::ParamUnknown(param);
   }
+}
+
+void WaveformAnalysisRAVEN::ClearTemplateCache() {
+  fTemplateCache.clear();
+  fModelShapeCache.clear();
+  dictionary_built = false;
+}
+
+WaveformAnalysisRAVEN::TemplateShape WaveformAnalysisRAVEN::ConfiguredShape() const {
+  // The gaussian template has no shape parameter, and Configure leaves lognormal_shape unset
+  // whenever that template is selected, so the shape stays zero here: reading it would be an
+  // uninitialized read.
+  return (template_type == 0) ? TemplateShape(lognormal_shape, lognormal_scale) : TemplateShape(0.0, gaussian_width);
+}
+
+// RAVEN's template is the waveform generator's pulse shape, so its per-model parameters come
+// from the generator's own PMTPULSE table. There 'lognormal_width' and 'lognormal_mean' are
+// RAVEN's shape and scale, and the gaussian width is a PDF rather than a single value.
+WaveformAnalysisRAVEN::TemplateShape WaveformAnalysisRAVEN::ShapeForModel(const std::string& model_name) {
+  std::map<std::string, TemplateShape>::const_iterator cached = fModelShapeCache.find(model_name);
+  if (cached != fModelShapeCache.end()) {
+    return cached->second;
+  }
+
+  DBLinkPtr lpulse;
+  try {
+    lpulse = DB::Get()->GetLink("PMTPULSE", model_name);
+    lpulse->GetS("index");
+  } catch (DBNotFoundError&) {
+    // The generator falls back to the default entry for an unlisted model; match it.
+    try {
+      lpulse = DB::Get()->GetLink("PMTPULSE", "");
+      lpulse->GetS("index");
+    } catch (DBNotFoundError&) {
+      lpulse = nullptr;
+    }
+  }
+
+  // Fall back to the configured parameters whenever PMTPULSE cannot describe this model with
+  // the template RAVEN is set up to fit.
+  TemplateShape shape = ConfiguredShape();
+  std::string reason;
+
+  if (!lpulse) {
+    reason = "no PMTPULSE entry";
+  } else {
+    try {
+      const std::string pulse_type = lpulse->GetS("pulse_type");
+      const std::string pulse_shape = lpulse->GetS("pulse_shape");
+      const std::string wanted = (template_type == 0) ? "lognormal" : "gaussian";
+
+      if (pulse_type != "analytic") {
+        reason = "PMTPULSE pulse_type is " + pulse_type + ", not analytic";
+      } else if (pulse_shape != wanted) {
+        reason = "PMTPULSE pulse_shape is " + pulse_shape + ", but RAVEN fits " + wanted;
+      } else if (template_type == 0) {
+        shape = TemplateShape(lpulse->GetD("lognormal_width"), lpulse->GetD("lognormal_mean"));
+      } else {
+        shape.second = PDFMedian(lpulse->GetDArray("gaussian_width"), lpulse->GetDArray("gaussian_width_prob"));
+      }
+    } catch (DBNotFoundError&) {
+      reason = "PMTPULSE entry is missing template parameters";
+    }
+  }
+
+  if (reason.empty()) {
+    info << "WaveformAnalysisRAVEN: Template for " << model_name
+         << " from PMTPULSE: " << (template_type == 0 ? "lognormal m " : "gaussian sigma ") << shape.second << " ns"
+         << newline;
+  } else {
+    warn << "WaveformAnalysisRAVEN: " << reason << " for " << model_name
+         << ". Using the configured template parameters." << newline;
+  }
+
+  fModelShapeCache[model_name] = shape;
+  return shape;
+}
+
+WaveformAnalysisRAVEN::TemplateShape WaveformAnalysisRAVEN::ShapeForPMT(int pmtid) {
+  DS::Run* run = DS::RunStore::GetCurrentRun();
+  TemplateShape shape = ShapeForModel(run->GetPMTInfo()->GetModelNameByID(pmtid));
+  // The generator scales the lognormal 'm' and the gaussian width per channel, leaving the
+  // lognormal 'sigma' alone.
+  shape.second *= run->GetChannelStatus()->GetPulseWidthScaleByPMTID(pmtid);
+  return shape;
+}
+
+const std::vector<double>& WaveformAnalysisRAVEN::GetTemplateProfile(int key, const TemplateShape& shape) {
+  std::map<int, std::vector<double>>::iterator cached = fTemplateCache.find(key);
+  if (cached != fTemplateCache.end()) {
+    return cached->second;
+  }
+
+  std::vector<double>& profile = fTemplateCache[key];
+  BuildTemplateProfile(shape, profile);
+
+  debug << "WaveformAnalysisRAVEN: Built a " << profile.size() << " point profile for scale " << shape.second << " ("
+        << fTemplateCache.size() << " cached)" << newline;
+
+  return profile;
 }
 
 // The dictionary is shift invariant: an entry depends on its row and column only through
 // the lag between the sample and the template start. One template sampled on that lag grid
 // therefore generates every column, at 2 * upsample_factor entries per sample rather than
 // the nsamples * upsample_factor of the full matrix.
-void WaveformAnalysisRAVEN::BuildTemplateProfile(int nsamples, double digitizer_period) {
-  debug << "WaveformAnalysisRAVEN: Building template profile" << newline;
-  debug << "WaveformAnalysisRAVEN: Profile state - built: " << dictionary_built
-        << ", cached_nsamples: " << cached_nsamples << ", cached_period: " << cached_digitizer_period << newline;
-  debug << "WaveformAnalysisRAVEN: Current params - nsamples: " << nsamples << ", period: " << digitizer_period
-        << newline;
-  debug << "WaveformAnalysisRAVEN: Using raven_template_type: " << template_type << " ("
-        << (template_type == 0 ? "lognormal" : "gaussian") << ")" << newline;
+void WaveformAnalysisRAVEN::BuildTemplateProfile(const TemplateShape& shape, std::vector<double>& profile) const {
+  const double template_shape = shape.first;
+  const double template_scale = shape.second;
 
-  cached_upsample = static_cast<int>(std::lround(upsample_factor));
-  cached_dict_size = nsamples * cached_upsample;
-
-  // The lag index row * upsample - col runs from -(dict_size - 1) to (nsamples - 1) * upsample;
-  // profile_offset shifts it onto a non-negative array index.
-  profile_offset = cached_dict_size - 1;
-  fTemplate.assign(profile_offset + (nsamples - 1) * cached_upsample + 1, 0.0);
-
-  debug << "WaveformAnalysisRAVEN: Profile size: " << fTemplate.size() << " for a " << nsamples << " x "
-        << cached_dict_size << " dictionary" << newline;
+  profile.assign(profile_offset + (cached_nsamples - 1) * cached_upsample + 1, 0.0);
 
   const double mag_factor = vpe_charge * fTermOhms;
 
-  for (size_t i = 0; i < fTemplate.size(); ++i) {
-    const double lag = (static_cast<int>(i) - profile_offset) * digitizer_period / upsample_factor;
+  for (size_t i = 0; i < profile.size(); ++i) {
+    const double lag = (static_cast<int>(i) - profile_offset) * cached_digitizer_period / upsample_factor;
     double template_val = 0.0;
 
     if (template_type == 0) {  // lognormal
-      if (lag > -lognormal_scale) {
-        template_val = mag_factor * TMath::LogNormal(lag, lognormal_shape, -lognormal_scale, lognormal_scale);
+      if (lag > -template_scale) {
+        template_val = mag_factor * TMath::LogNormal(lag, template_shape, -template_scale, template_scale);
       }
     } else if (template_type == 1) {  // gaussian
-      template_val = mag_factor * TMath::Gaus(lag, 0.0, gaussian_width, kTRUE);
+      template_val = mag_factor * TMath::Gaus(lag, 0.0, template_scale, kTRUE);
     }
 
-    fTemplate[i] = -template_val;
+    profile[i] = -template_val;
   }
 }
 
 void WaveformAnalysisRAVEN::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
-  // Build the template profile on first call or when digitizer parameters change
+  // Lay out the lag grid on first call or when digitizer parameters change. The cached
+  // templates are sampled on that grid, so they are dropped with it.
   const double period_tolerance = 1e-9;  // 1 ps tolerance for digitizer period comparison
   if (!dictionary_built || cached_nsamples != static_cast<int>(digitWfm.size()) ||
       std::abs(cached_digitizer_period - fTimeStep) > period_tolerance) {
+    ClearTemplateCache();
+
     // Use current digitizer information from the waveform and base class
-    int nsamples = static_cast<int>(digitWfm.size());
-    double digitizer_period = fTimeStep;
+    cached_nsamples = static_cast<int>(digitWfm.size());
+    cached_digitizer_period = fTimeStep;
+    cached_upsample = static_cast<int>(std::lround(upsample_factor));
+    cached_dict_size = cached_nsamples * cached_upsample;
 
-    BuildTemplateProfile(nsamples, digitizer_period);
-
-    cached_nsamples = nsamples;
-    cached_digitizer_period = digitizer_period;
+    // The lag index row * upsample - col runs from -(dict_size - 1) to (nsamples - 1) * upsample;
+    // profile_offset shifts it onto a non-negative array index.
+    profile_offset = cached_dict_size - 1;
     dictionary_built = true;
+
+    debug << "WaveformAnalysisRAVEN: Lag grid for a " << cached_nsamples << " x " << cached_dict_size
+          << " dictionary, raven_template_type " << template_type << " ("
+          << (template_type == 0 ? "lognormal" : "gaussian") << ")" << newline;
   }
 
   double pedestal = digitpmt->GetPedestal();
@@ -218,9 +357,15 @@ void WaveformAnalysisRAVEN::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector
   // Get per-PMT gain calibration for consistent charge calculation (same as LucyDDM)
   double gain_calibration = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByPMTID(digitpmt->GetID());
 
-  // Verify waveform size matches the dictionary the profile was sized for
+  // Pick this PMT's template, cached per channel. With per-PMT shapes off every channel fits
+  // the same configured template, so they all share one entry.
+  const int pmtid = digitpmt->GetID();
+  const TemplateShape shape = width_from_pmtpulse ? ShapeForPMT(pmtid) : ConfiguredShape();
+  const std::vector<double>& profile = GetTemplateProfile(width_from_pmtpulse ? pmtid : kSharedTemplate, shape);
+
+  // Verify waveform size matches the lag grid the templates were sampled on
   if (static_cast<int>(digitWfm.size()) != cached_nsamples) {
-    RAT::Log::Die("WaveformAnalysisRAVEN: Waveform size mismatch with dictionary matrix.");
+    RAT::Log::Die("WaveformAnalysisRAVEN: Waveform size mismatch with dictionary.");
   }
 
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal);
@@ -244,14 +389,14 @@ void WaveformAnalysisRAVEN::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector
       int end_sample = region.second;
 
       // Perform rsNNLS on this region
-      ProcessThresholdRegion(voltWfm, start_sample, end_sample, fit_result, gain_calibration);
+      ProcessThresholdRegion(profile, voltWfm, start_sample, end_sample, fit_result, gain_calibration);
     }
   } else {
     int start_sample = 0;
     int end_sample = static_cast<int>(voltWfm.size()) - 1;
 
     // Perform rsNNLS on the entire waveform
-    ProcessThresholdRegion(voltWfm, start_sample, end_sample, fit_result, gain_calibration);
+    ProcessThresholdRegion(profile, voltWfm, start_sample, end_sample, fit_result, gain_calibration);
   }
 }
 
@@ -313,8 +458,8 @@ TVectorD WaveformAnalysisRAVEN::Thresholded_rsNNLS(const TMatrixD& W_region, con
 
   int local_iterations_ran = 0;
 
-  // Iterative thresholding. Time refinement runs a second pass over this, so the
-  // shared iteration budget is carried in local_iterations_ran rather than reset.
+  // Iterative thresholding. Time refinement runs a second pass over this, and both passes
+  // draw on one iteration budget, which local_iterations_ran carries between them.
   auto pruneBelowThreshold = [&]() {
     while (local_iterations_ran < static_cast<int>(max_iterations) && !P.empty()) {
       local_iterations_ran++;
@@ -350,9 +495,9 @@ TVectorD WaveformAnalysisRAVEN::Thresholded_rsNNLS(const TMatrixD& W_region, con
 
   pruneBelowThreshold();
 
-  // Time refinement. Reverse pursuit only removes components, so a component
-  // the initial solve misplaced (typically ~1 sample early, on a steep leading
-  // edge) would otherwise stay misplaced as an early ghost PE.
+  // Time refinement. Reverse pursuit only removes components, so it cannot correct one the
+  // initial solve misplaced, typically by ~1 sample on a steep leading edge. Refinement moves
+  // such a component onto the column that fits it, clearing the early ghost PE it would emit.
   if (refine_times && !P.empty()) {
     const int max_shift = std::max(1, static_cast<int>(std::lround(upsample_factor)));  // +- 1 sample
     auto residualOf = [&](const TVectorD& h) {
@@ -432,8 +577,8 @@ TVectorD WaveformAnalysisRAVEN::Thresholded_rsNNLS(const TMatrixD& W_region, con
       if (!improved) break;
     }
 
-    // Re-solving on a moved support can drop a survivor back below `threshold`,
-    // so re-apply the cut rather than leak sub-threshold components.
+    // Re-solving on a moved support can drop a survivor back below `threshold`, so re-apply
+    // the cut.
     pruneBelowThreshold();
   }
 
@@ -503,7 +648,8 @@ std::vector<std::pair<int, int>> WaveformAnalysisRAVEN::FindThresholdRegions(con
   return regions;
 }
 
-void WaveformAnalysisRAVEN::ProcessThresholdRegion(const std::vector<double>& voltWfm, int start_sample, int end_sample,
+void WaveformAnalysisRAVEN::ProcessThresholdRegion(const std::vector<double>& profile,
+                                                   const std::vector<double>& voltWfm, int start_sample, int end_sample,
                                                    DS::WaveformAnalysisResult* fit_result, double gain_calibration) {
   const int region_length = end_sample - start_sample + 1;
 
@@ -522,7 +668,7 @@ void WaveformAnalysisRAVEN::ProcessThresholdRegion(const std::vector<double>& vo
     return;
   }
 
-  // Build this region's dictionary submatrix from the template profile
+  // Build this region's dictionary submatrix from this PMT's template profile
   TMatrixD W_region(region_length, dict_cols);
   W_region.Zero();
 
@@ -533,7 +679,7 @@ void WaveformAnalysisRAVEN::ProcessThresholdRegion(const std::vector<double>& vo
     // Entry (row, col) is the profile at lag global_row * upsample - (dict_start + col)
     const int lag_index = global_row * cached_upsample + profile_offset - dict_start;
     for (int col = 0; col < dict_cols; ++col) {
-      W_region(row, col) = fTemplate[lag_index - col];
+      W_region(row, col) = profile[lag_index - col];
     }
   }
 
@@ -613,18 +759,18 @@ void WaveformAnalysisRAVEN::ExtractPhotoelectrons(const TVectorD& region_weights
   std::vector<std::pair<double, double>> merged_weights =
       MergeNearbyWeights(region_weights, dict_start, dict_cols, weight_merge_window);
 
-  // Sanity check parameters
-  double template_scale = (template_type == 0) ? lognormal_scale : gaussian_width;
-  double region_start_time = start_sample * fTimeStep;
-  double region_end_time = end_sample * fTimeStep;
+  // A merged time is a weight-weighted mean of this region's own dictionary column times, and
+  // refinement only moves components between those columns, so a time outside the column span
+  // is an indexing error. One column of slack absorbs rounding in the mean.
+  const double column_step = fTimeStep / upsample_factor;
+  const double earliest_time = (dict_start - 1) * column_step;
+  const double latest_time = (dict_start + dict_cols) * column_step;
 
   // Extract PEs from merged weights
   for (const auto& [delay, weight] : merged_weights) {
-    // Sanity check - ensure PE time is within expected range
-    if (delay < region_start_time - 3.0 * template_scale || delay > region_end_time + 3.0 * template_scale) {
-      warn << "WaveformAnalysisRAVEN: PE time " << delay << " ns outside expected range ["
-           << (region_start_time - 3.0 * template_scale) << ", " << (region_end_time + 3.0 * template_scale)
-           << "] for region [" << start_sample << ", " << end_sample << "]" << newline;
+    if (delay < earliest_time || delay > latest_time) {
+      warn << "WaveformAnalysisRAVEN: PE time " << delay << " ns outside the dictionary columns [" << earliest_time
+           << ", " << latest_time << "] of region [" << start_sample << ", " << end_sample << "]" << newline;
       continue;
     }
 

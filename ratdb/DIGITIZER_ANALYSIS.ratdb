@@ -176,9 +176,15 @@
 "max_iterations": 50, // Maximum number of rsNNLS iterations
 "nnls_tolerance": 1e-10, // NNLS convergence tolerance
 
-// Post-pruning time refinement: tentatively move each remaining component
-// to nearby free time offsets and keep moves that lower the residual.
-// Must be a JSON boolean; an integer is silently ignored.
+// Take the template shape per PMT from PMTPULSE, the table the waveform generator samples,
+// scaled by the channel's pulse_width_scale. Models PMTPULSE cannot describe with the
+// configured template type use the parameters above instead.
+// Must be true or false, not 1 or 0.
+"width_from_pmtpulse": true,
+
+// Post-pruning time refinement: move each surviving component to a nearby free time offset
+// when that lowers the residual.
+// Must be true or false, not 1 or 0.
 "refine_times": false,
 
 // Thresholding parameters
