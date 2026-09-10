@@ -12,6 +12,7 @@
 ///     15 Jan 2026: Added region-based processing and NPE estimation features
 ///     09 Feb 2026: Renamed to RAVEN
 ///     09 Sep 2026: Added optional PE time refinement
+///     09 Sep 2026: Replaced the dictionary matrix with a shift-invariant template profile
 ///
 /// \details
 /// RAVEN (Reverse Analysis of Voltage Events with Nonegativity) is a waveform analysis algorithm
@@ -19,9 +20,9 @@
 /// NPE likelihood estimation on digitized PMT waveforms to reconstruct photoelectron times and charges.
 ///
 /// The algorithm uses region-based processing for improved efficiency:
-/// 1. Builds a dictionary matrix of time-shifted templates
+/// 1. Builds a single PE template profile that generates every time-shifted dictionary column
 /// 2. Identifies threshold crossing regions in the waveform for localized processing
-/// 3. For each region, extracts relevant dictionary submatrix and applies NNLS fitting
+/// 3. For each region, builds the dictionary submatrix from the profile and applies NNLS fitting
 /// 4. Uses iterative thresholding to remove low-weight components and redistribute weights
 /// 5. Optionally refines component times against neighboring dictionary columns
 /// 6. Extracts PE times and charges from remaining significant weights
@@ -56,7 +57,7 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
 
   virtual ~WaveformAnalysisRAVEN(){};
 
-  void BuildDictionaryMatrix(int nsamples, double digitizer_period);
+  void BuildTemplateProfile(int nsamples, double digitizer_period);
 
   void Configure(const std::string &config_name) override;
 
@@ -82,10 +83,11 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
   double vpe_charge;  ///< Nominal charge of single PE in pC
 
   // Algorithm configuration
-  TMatrixD fW;             ///< Dictionary matrix for NNLS (nsamples × dict_size)
-  double epsilon;          ///< NNLS convergence tolerance
-  size_t max_iterations;   ///< Maximum iterations for iterative thresholding
-  double upsample_factor;  ///< Dictionary upsampling factor for sub-sample resolution
+  std::vector<double> fTemplate;  ///< SPE template on the upsampled lag grid, generating every dictionary column
+  int profile_offset;             ///< Index of zero lag in fTemplate
+  double epsilon;                 ///< NNLS convergence tolerance
+  size_t max_iterations;          ///< Maximum iterations for iterative thresholding
+  double upsample_factor;         ///< Dictionary upsampling factor for sub-sample resolution
 
   // Thresholding parameters
   double weight_threshold;     ///< Minimum weight threshold for component significance
@@ -102,6 +104,8 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
   bool dictionary_built;           ///< Flag to track if dictionary has been built
   int cached_nsamples;             ///< Cached number of samples for dictionary
   double cached_digitizer_period;  ///< Cached digitizer period for dictionary
+  int cached_upsample;             ///< Cached upsampling factor, as the whole number the lag grid needs
+  int cached_dict_size;            ///< Cached number of dictionary columns
 
   void DoAnalysis(DS::DigitPMT *digitpmt, const std::vector<UShort_t> &digitWfm) override;
 

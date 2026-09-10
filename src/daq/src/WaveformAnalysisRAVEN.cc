@@ -19,6 +19,17 @@
 
 namespace RAT {
 
+namespace {
+// Dictionary column j is the template delayed by j digitizer periods over the upsampling
+// factor, so only a whole-number factor puts every column on a common integer lag grid.
+void ValidateUpsampleFactor(double value) {
+  if (value <= 0.0 || std::abs(value - std::lround(value)) > 1e-9) {
+    RAT::Log::Die("WaveformAnalysisRAVEN: Invalid upsampling factor " + std::to_string(value) +
+                  ". Must be a positive whole number.");
+  }
+}
+}  // namespace
+
 void WaveformAnalysisRAVEN::Configure(const std::string& config_name) {
   debug << "WaveformAnalysisRAVEN: Configure called with config_name " << config_name << newline;
   // Load analysis parameters from DIGITIZER_ANALYSIS database
@@ -72,9 +83,7 @@ void WaveformAnalysisRAVEN::Configure(const std::string& config_name) {
     }
 
     // Validate critical parameters
-    if (upsample_factor <= 0) {
-      RAT::Log::Die("WaveformAnalysisRAVEN: Invalid upsampling factor.");
-    }
+    ValidateUpsampleFactor(upsample_factor);
 
     // Initialize dictionary flags
     dictionary_built = false;
@@ -102,6 +111,7 @@ void WaveformAnalysisRAVEN::SetD(std::string param, double value) {
     vpe_charge = value;
     dictionary_built = false;
   } else if (param == "upsampling_factor") {
+    ValidateUpsampleFactor(value);
     upsample_factor = value;
     dictionary_built = false;
   } else if (param == "weight_threshold") {
@@ -142,47 +152,50 @@ void WaveformAnalysisRAVEN::SetI(std::string param, int value) {
   }
 }
 
-void WaveformAnalysisRAVEN::BuildDictionaryMatrix(int nsamples, double digitizer_period) {
-  debug << "WaveformAnalysisRAVEN: Building dictionary matrix" << newline;
-  debug << "WaveformAnalysisRAVEN: Dictionary state - built: " << dictionary_built
+// The dictionary is shift invariant: an entry depends on its row and column only through
+// the lag between the sample and the template start. One template sampled on that lag grid
+// therefore generates every column, at 2 * upsample_factor entries per sample rather than
+// the nsamples * upsample_factor of the full matrix.
+void WaveformAnalysisRAVEN::BuildTemplateProfile(int nsamples, double digitizer_period) {
+  debug << "WaveformAnalysisRAVEN: Building template profile" << newline;
+  debug << "WaveformAnalysisRAVEN: Profile state - built: " << dictionary_built
         << ", cached_nsamples: " << cached_nsamples << ", cached_period: " << cached_digitizer_period << newline;
   debug << "WaveformAnalysisRAVEN: Current params - nsamples: " << nsamples << ", period: " << digitizer_period
         << newline;
   debug << "WaveformAnalysisRAVEN: Using raven_template_type: " << template_type << " ("
         << (template_type == 0 ? "lognormal" : "gaussian") << ")" << newline;
-  debug << "WaveformAnalysisRAVEN: Dictionary size: " << nsamples << " x "
-        << static_cast<int>(nsamples * upsample_factor) << newline;
 
-  const int dict_size = static_cast<int>(nsamples * upsample_factor);
-  fW.ResizeTo(nsamples, dict_size);
-  fW.Zero();
+  cached_upsample = static_cast<int>(std::lround(upsample_factor));
+  cached_dict_size = nsamples * cached_upsample;
+
+  // The lag index row * upsample - col runs from -(dict_size - 1) to (nsamples - 1) * upsample;
+  // profile_offset shifts it onto a non-negative array index.
+  profile_offset = cached_dict_size - 1;
+  fTemplate.assign(profile_offset + (nsamples - 1) * cached_upsample + 1, 0.0);
+
+  debug << "WaveformAnalysisRAVEN: Profile size: " << fTemplate.size() << " for a " << nsamples << " x "
+        << cached_dict_size << " dictionary" << newline;
 
   const double mag_factor = vpe_charge * fTermOhms;
 
-  // Generate dictionary with time-shifted templates
-  for (int col = 0; col < dict_size; ++col) {
-    double delay = col * digitizer_period / upsample_factor;
+  for (size_t i = 0; i < fTemplate.size(); ++i) {
+    const double lag = (static_cast<int>(i) - profile_offset) * digitizer_period / upsample_factor;
+    double template_val = 0.0;
 
-    for (int row = 0; row < nsamples; ++row) {
-      double sample_time = row * digitizer_period;
-      double template_val = 0.0;
-
-      if (template_type == 0) {  // lognormal
-        double lognormal_shift = delay - lognormal_scale;
-        if (sample_time > lognormal_shift) {
-          template_val = mag_factor * TMath::LogNormal(sample_time, lognormal_shape, lognormal_shift, lognormal_scale);
-        }
-      } else if (template_type == 1) {  // gaussian
-        template_val = mag_factor * TMath::Gaus(sample_time, delay, gaussian_width, kTRUE);
+    if (template_type == 0) {  // lognormal
+      if (lag > -lognormal_scale) {
+        template_val = mag_factor * TMath::LogNormal(lag, lognormal_shape, -lognormal_scale, lognormal_scale);
       }
-
-      fW(row, col) = -template_val;
+    } else if (template_type == 1) {  // gaussian
+      template_val = mag_factor * TMath::Gaus(lag, 0.0, gaussian_width, kTRUE);
     }
+
+    fTemplate[i] = -template_val;
   }
 }
 
 void WaveformAnalysisRAVEN::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<UShort_t>& digitWfm) {
-  // Build dictionary on first call or when digitizer parameters change
+  // Build the template profile on first call or when digitizer parameters change
   const double period_tolerance = 1e-9;  // 1 ps tolerance for digitizer period comparison
   if (!dictionary_built || cached_nsamples != static_cast<int>(digitWfm.size()) ||
       std::abs(cached_digitizer_period - fTimeStep) > period_tolerance) {
@@ -190,7 +203,7 @@ void WaveformAnalysisRAVEN::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector
     int nsamples = static_cast<int>(digitWfm.size());
     double digitizer_period = fTimeStep;
 
-    BuildDictionaryMatrix(nsamples, digitizer_period);
+    BuildTemplateProfile(nsamples, digitizer_period);
 
     cached_nsamples = nsamples;
     cached_digitizer_period = digitizer_period;
@@ -205,8 +218,8 @@ void WaveformAnalysisRAVEN::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector
   // Get per-PMT gain calibration for consistent charge calculation (same as LucyDDM)
   double gain_calibration = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByPMTID(digitpmt->GetID());
 
-  // Verify waveform size matches dictionary matrix
-  if (static_cast<int>(digitWfm.size()) != fW.GetNrows()) {
+  // Verify waveform size matches the dictionary the profile was sized for
+  if (static_cast<int>(digitWfm.size()) != cached_nsamples) {
     RAT::Log::Die("WaveformAnalysisRAVEN: Waveform size mismatch with dictionary matrix.");
   }
 
@@ -502,26 +515,25 @@ void WaveformAnalysisRAVEN::ProcessThresholdRegion(const std::vector<double>& vo
   // We want columns that correspond to this region's sample range
 
   const int dict_start = std::max(0, static_cast<int>(start_sample * upsample_factor));
-  const int dict_end = std::min(fW.GetNcols() - 1, static_cast<int>(end_sample * upsample_factor));
+  const int dict_end = std::min(cached_dict_size - 1, static_cast<int>(end_sample * upsample_factor));
   const int dict_cols = dict_end - dict_start + 1;
 
   if (dict_cols <= 0) {
     return;
   }
 
-  // Extract relevant dictionary submatrix
+  // Build this region's dictionary submatrix from the template profile
   TMatrixD W_region(region_length, dict_cols);
   W_region.Zero();
 
   for (int row = 0; row < region_length; ++row) {
     int global_row = start_sample + row;
-    if (global_row >= fW.GetNrows()) continue;
+    if (global_row >= cached_nsamples) continue;
 
+    // Entry (row, col) is the profile at lag global_row * upsample - (dict_start + col)
+    const int lag_index = global_row * cached_upsample + profile_offset - dict_start;
     for (int col = 0; col < dict_cols; ++col) {
-      int global_col = dict_start + col;
-      if (global_col >= 0 && global_col < fW.GetNcols()) {
-        W_region(row, col) = fW(global_row, global_col);
-      }
+      W_region(row, col) = fTemplate[lag_index - col];
     }
   }
 
