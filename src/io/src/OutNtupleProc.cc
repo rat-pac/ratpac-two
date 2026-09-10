@@ -142,215 +142,214 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   outputFile = TFile::Open(filename.c_str(), "RECREATE");
   // Meta Tree
   metaTree = new TTree("meta", "meta");
-  metaTree->Branch("runId", &runId);
-  metaTree->Branch("runType", &runType);
-  metaTree->Branch("runTime", &runTime);
-  metaTree->Branch("dsentries", &dsentries);
-  metaTree->Branch("macro", &macro);
-  metaTree->Branch("pmtType", &pmtType);
-  metaTree->Branch("pmtId", &pmtId);
-  metaTree->Branch("pmtChannel", &pmtChannel);
-  metaTree->Branch("pmtIsOnline", &pmtIsOnline);
-  metaTree->Branch("pmtCableOffset", &pmtCableOffset);
-  metaTree->Branch("pmtChargeScale", &pmtChargeScale);
-  metaTree->Branch("pmtPulseWidthScale", &pmtPulseWidthScale);
-  metaTree->Branch("pmtX", &pmtX);
-  metaTree->Branch("pmtY", &pmtY);
-  metaTree->Branch("pmtZ", &pmtZ);
-  metaTree->Branch("pmtU", &pmtU);
-  metaTree->Branch("pmtV", &pmtV);
-  metaTree->Branch("pmtW", &pmtW);
-  metaTree->Branch("digitizerWindowSize", &digitizerWindowSize);
-  metaTree->Branch("digitizerSampleRate_GHz", &digitizerSampleRate);
-  metaTree->Branch("digitizerDynamicRange_mV", &digitizerDynamicRange);
-  metaTree->Branch("digitizerResolution_mVPerADC", &digitizerVoltageResolution);
+  MakeBranch(metaTree, "runId", &runId);
+  MakeBranch(metaTree, "runType", &runType);
+  MakeBranch(metaTree, "runTime", &runTime);
+  MakeBranch(metaTree, "dsentries", &dsentries);
+  MakeBranch(metaTree, "macro", &macro);
+  MakeBranch(metaTree, "pmtType", &pmtType);
+  MakeBranch(metaTree, "pmtId", &pmtId);
+  MakeBranch(metaTree, "pmtChannel", &pmtChannel);
+  MakeBranch(metaTree, "pmtIsOnline", &pmtIsOnline);
+  MakeBranch(metaTree, "pmtCableOffset", &pmtCableOffset);
+  MakeBranch(metaTree, "pmtChargeScale", &pmtChargeScale);
+  MakeBranch(metaTree, "pmtPulseWidthScale", &pmtPulseWidthScale);
+  MakeBranch(metaTree, "pmtX", &pmtX);
+  MakeBranch(metaTree, "pmtY", &pmtY);
+  MakeBranch(metaTree, "pmtZ", &pmtZ);
+  MakeBranch(metaTree, "pmtU", &pmtU);
+  MakeBranch(metaTree, "pmtV", &pmtV);
+  MakeBranch(metaTree, "pmtW", &pmtW);
+  MakeBranch(metaTree, "digitizerWindowSize", &digitizerWindowSize);
+  MakeBranch(metaTree, "digitizerSampleRate_GHz", &digitizerSampleRate);
+  MakeBranch(metaTree, "digitizerDynamicRange_mV", &digitizerDynamicRange);
+  MakeBranch(metaTree, "digitizerResolution_mVPerADC", &digitizerVoltageResolution);
   if (options.calib) {
-    metaTree->Branch("calibId", &calibId);
-    metaTree->Branch("calibMode", &calibMode);
-    metaTree->Branch("calibIntensity", &calibIntensity);
-    metaTree->Branch("calibWavelength", &calibWavelength);
-    metaTree->Branch("calibName", &calibName);
-    metaTree->Branch("calibTime", &calibTime);
-    metaTree->Branch("calibX", &calibX);
-    metaTree->Branch("calibY", &calibY);
-    metaTree->Branch("calibZ", &calibZ);
-    metaTree->Branch("calibU", &calibU);
-    metaTree->Branch("calibV", &calibV);
-    metaTree->Branch("calibW", &calibW);
+    MakeBranch(metaTree, "calibId", &calibId);
+    MakeBranch(metaTree, "calibMode", &calibMode);
+    MakeBranch(metaTree, "calibIntensity", &calibIntensity);
+    MakeBranch(metaTree, "calibWavelength", &calibWavelength);
+    MakeBranch(metaTree, "calibName", &calibName);
+    MakeBranch(metaTree, "calibTime", &calibTime);
+    MakeBranch(metaTree, "calibX", &calibX);
+    MakeBranch(metaTree, "calibY", &calibY);
+    MakeBranch(metaTree, "calibZ", &calibZ);
+    MakeBranch(metaTree, "calibU", &calibU);
+    MakeBranch(metaTree, "calibV", &calibV);
+    MakeBranch(metaTree, "calibW", &calibW);
   }
   this->AssignAdditionalMetaAddresses();
   dsentries = 0;
   // Data Tree
   outputTree = new TTree("output", "output");
   // These are the *first* particles MC positions, directions, and time
-  outputTree->Branch("mcpdg", &mcpdg);
-  outputTree->Branch("mcx", &mcx);
-  outputTree->Branch("mcy", &mcy);
-  outputTree->Branch("mcz", &mcz);
-  outputTree->Branch("mcu", &mcu);
-  outputTree->Branch("mcv", &mcv);
-  outputTree->Branch("mcw", &mcw);
-  outputTree->Branch("mcke", &mcke);
-  outputTree->Branch("mct", &mct);
+  MakeBranch(outputTree, "mcpdg", &mcpdg);
+  MakeBranch(outputTree, "mcx", &mcx);
+  MakeBranch(outputTree, "mcy", &mcy);
+  MakeBranch(outputTree, "mcz", &mcz);
+  MakeBranch(outputTree, "mcu", &mcu);
+  MakeBranch(outputTree, "mcv", &mcv);
+  MakeBranch(outputTree, "mcw", &mcw);
+  MakeBranch(outputTree, "mcke", &mcke);
+  MakeBranch(outputTree, "mct", &mct);
   if (options.transittime) {
-    outputTree->Branch("mcTransitTimesToPMTs", &mcTransitTimes);
+    MakeBranch(outputTree, "mcTransitTimesToPMTs", &mcTransitTimes);
   }
   // Event IDs and trigger time and nhits
-  outputTree->Branch("evid", &evid);
-  outputTree->Branch("subev", &subev);
-  outputTree->Branch("nhits", &nhits);
-  outputTree->Branch("totalcharge", &totalcharge);
-  outputTree->Branch("triggerTime", &triggerTime);  // Local trigger time
-  outputTree->Branch("timestamp", &timestamp);      // Global trigger time
-  outputTree->Branch("trigger_word", &trigger_word);
-  outputTree->Branch("triggerPeak", &triggerPeak);
-  outputTree->Branch("event_cleaning_word", &event_cleaning_word);
-  outputTree->Branch("timeSinceLastTrigger_us", &timeSinceLastTrigger_us);
+  MakeBranch(outputTree, "evid", &evid);
+  MakeBranch(outputTree, "subev", &subev);
+  MakeBranch(outputTree, "nhits", &nhits);
+  MakeBranch(outputTree, "totalcharge", &totalcharge);
+  MakeBranch(outputTree, "triggerTime", &triggerTime);  // Local trigger time
+  MakeBranch(outputTree, "timestamp", &timestamp);      // Global trigger time
+  MakeBranch(outputTree, "trigger_word", &trigger_word);
+  MakeBranch(outputTree, "triggerPeak", &triggerPeak);
+  MakeBranch(outputTree, "event_cleaning_word", &event_cleaning_word);
+  MakeBranch(outputTree, "timeSinceLastTrigger_us", &timeSinceLastTrigger_us);
   // MC Information
-  outputTree->Branch("mcid", &mcid);
-  outputTree->Branch("mcparticlecount", &mcpcount);
-  outputTree->Branch("mcpecount", &mcpecount);
-  outputTree->Branch("mcnhits", &mcnhits);
-  outputTree->Branch("scintEdep", &scintEdep);
-  outputTree->Branch("scintEdepQuenched", &scintEdepQuenched);
+  MakeBranch(outputTree, "mcid", &mcid);
+  MakeBranch(outputTree, "mcparticlecount", &mcpcount);
+  MakeBranch(outputTree, "mcpecount", &mcpecount);
+  MakeBranch(outputTree, "mcnhits", &mcnhits);
+  MakeBranch(outputTree, "scintEdep", &scintEdep);
+  MakeBranch(outputTree, "scintEdepQuenched", &scintEdepQuenched);
   // Total number of produced photons of each type
-  outputTree->Branch("scintPhotons", &scintPhotons);
-  outputTree->Branch("remPhotons", &remPhotons);
-  outputTree->Branch("cherPhotons", &cherPhotons);
+  MakeBranch(outputTree, "scintPhotons", &scintPhotons);
+  MakeBranch(outputTree, "remPhotons", &remPhotons);
+  MakeBranch(outputTree, "cherPhotons", &cherPhotons);
   if (options.mcparticles) {
     // Save information about *all* particles that are simulated
     // Variable naming is the same as the first particle, just plural.
-    outputTree->Branch("mcpdgs", &pdgcodes);
-    outputTree->Branch("mcxs", &mcPosx);
-    outputTree->Branch("mcys", &mcPosy);
-    outputTree->Branch("mczs", &mcPosz);
-    outputTree->Branch("mcus", &mcDirx);
-    outputTree->Branch("mcvs", &mcDiry);
-    outputTree->Branch("mcws", &mcDirz);
-    outputTree->Branch("mckes", &mcKEnergies);
-    outputTree->Branch("mcts", &mcTime);
+    MakeBranch(outputTree, "mcpdgs", &pdgcodes);
+    MakeBranch(outputTree, "mcxs", &mcPosx);
+    MakeBranch(outputTree, "mcys", &mcPosy);
+    MakeBranch(outputTree, "mczs", &mcPosz);
+    MakeBranch(outputTree, "mcus", &mcDirx);
+    MakeBranch(outputTree, "mcvs", &mcDiry);
+    MakeBranch(outputTree, "mcws", &mcDirz);
+    MakeBranch(outputTree, "mckes", &mcKEnergies);
+    MakeBranch(outputTree, "mcts", &mcTime);
   }
   if (options.pmthits) {
     // Save full PMT hit informations
-    outputTree->Branch("hitPMTID", &hitPMTID);
+    MakeBranch(outputTree, "hitPMTID", &hitPMTID);
     // Information about *first* detected PE
-    outputTree->Branch("hitPMTTime", &hitPMTTime);
-    outputTree->Branch("hitPMTCharge", &hitPMTCharge);
+    MakeBranch(outputTree, "hitPMTTime", &hitPMTTime);
+    MakeBranch(outputTree, "hitPMTCharge", &hitPMTCharge);
   }
   if (options.digitizerhits) {
     // Output of the waveform analysis
-    outputTree->Branch("digitNhits", &digitNhits);
-    outputTree->Branch("digitPMTID", &digitPMTID);
-    outputTree->Branch("digitTime", &digitTime);
-    outputTree->Branch("digitCharge", &digitCharge);
-    outputTree->Branch("digitNCrossings", &digitNCrossings);
-    outputTree->Branch("digitNhitsCleaned", &digitHitCleanedNhits);
-    outputTree->Branch("digitHitCleaningMask", &digitHitCleaningMask);
-    outputTree->Branch("digitTimeOverThreshold", &digitTimeOverThreshold);
-    outputTree->Branch("digitVoltageOverThreshold", &digitVoltageOverThreshold);
-    outputTree->Branch("digitPeak", &digitPeak);
-    outputTree->Branch("digitLocalTriggerTime", &digitLocalTriggerTime);
-    outputTree->Branch("digitReconNPEs", &digitReconNPEs);
+    MakeBranch(outputTree, "digitNhits", &digitNhits);
+    MakeBranch(outputTree, "digitPMTID", &digitPMTID);
+    MakeBranch(outputTree, "digitTime", &digitTime);
+    MakeBranch(outputTree, "digitCharge", &digitCharge);
+    MakeBranch(outputTree, "digitNCrossings", &digitNCrossings);
+    MakeBranch(outputTree, "digitNhitsCleaned", &digitHitCleanedNhits);
+    MakeBranch(outputTree, "digitHitCleaningMask", &digitHitCleaningMask);
+    MakeBranch(outputTree, "digitTimeOverThreshold", &digitTimeOverThreshold);
+    MakeBranch(outputTree, "digitVoltageOverThreshold", &digitVoltageOverThreshold);
+    MakeBranch(outputTree, "digitPeak", &digitPeak);
+    MakeBranch(outputTree, "digitLocalTriggerTime", &digitLocalTriggerTime);
+    MakeBranch(outputTree, "digitReconNPEs", &digitReconNPEs);
   }
   if (options.digitizerfits) {
     for (const std::string &fitter_name : waveform_fitters) {
-      outputTree->Branch(TString("fit_pmtid_" + fitter_name), &wfmFitPmtID[fitter_name]);
-      outputTree->Branch(TString("fit_time_" + fitter_name), &wfmFitTime[fitter_name]);
-      outputTree->Branch(TString("fit_charge_" + fitter_name), &wfmFitCharge[fitter_name]);
+      MakeBranch(outputTree, "fit_pmtid_" + fitter_name, &wfmFitPmtID[fitter_name]);
+      MakeBranch(outputTree, "fit_time_" + fitter_name, &wfmFitTime[fitter_name]);
+      MakeBranch(outputTree, "fit_charge_" + fitter_name, &wfmFitCharge[fitter_name]);
       for (const std::string &fom_name : waveform_fitter_FOMs[fitter_name]) {
-        outputTree->Branch(TString("fit_FOM_" + fitter_name + "_" + fom_name), &wfmFitFOM[fitter_name][fom_name]);
+        MakeBranch(outputTree, "fit_FOM_" + fitter_name + "_" + fom_name, &wfmFitFOM[fitter_name][fom_name]);
       }
     }
   }
   for (const std::string &fitter_full_name : event_fitters) {
     // fitter names are specified as either fittername__tag or just fittername.
-    outputTree->Branch(TString("x_" + fitter_full_name), &fitvalues["x_" + fitter_full_name]);
-    outputTree->Branch(TString("y_" + fitter_full_name), &fitvalues["y_" + fitter_full_name]);
-    outputTree->Branch(TString("z_" + fitter_full_name), &fitvalues["z_" + fitter_full_name]);
-    outputTree->Branch(TString("u_" + fitter_full_name), &fitvalues["u_" + fitter_full_name]);
-    outputTree->Branch(TString("v_" + fitter_full_name), &fitvalues["v_" + fitter_full_name]);
-    outputTree->Branch(TString("w_" + fitter_full_name), &fitvalues["w_" + fitter_full_name]);
-    outputTree->Branch(TString("energy_" + fitter_full_name), &fitvalues["energy_" + fitter_full_name]);
-    outputTree->Branch(TString("time_" + fitter_full_name), &fitvalues["time_" + fitter_full_name]);
-    outputTree->Branch(TString("validposition_" + fitter_full_name), &fitvalids["validposition_" + fitter_full_name]);
-    outputTree->Branch(TString("validdirection_" + fitter_full_name), &fitvalids["validdirection_" + fitter_full_name]);
-    outputTree->Branch(TString("validenergy_" + fitter_full_name), &fitvalids["validenergy_" + fitter_full_name]);
-    outputTree->Branch(TString("validtime_" + fitter_full_name), &fitvalids["validtime_" + fitter_full_name]);
+    MakeBranch(outputTree, "x_" + fitter_full_name, &fitvalues["x_" + fitter_full_name]);
+    MakeBranch(outputTree, "y_" + fitter_full_name, &fitvalues["y_" + fitter_full_name]);
+    MakeBranch(outputTree, "z_" + fitter_full_name, &fitvalues["z_" + fitter_full_name]);
+    MakeBranch(outputTree, "u_" + fitter_full_name, &fitvalues["u_" + fitter_full_name]);
+    MakeBranch(outputTree, "v_" + fitter_full_name, &fitvalues["v_" + fitter_full_name]);
+    MakeBranch(outputTree, "w_" + fitter_full_name, &fitvalues["w_" + fitter_full_name]);
+    MakeBranch(outputTree, "energy_" + fitter_full_name, &fitvalues["energy_" + fitter_full_name]);
+    MakeBranch(outputTree, "time_" + fitter_full_name, &fitvalues["time_" + fitter_full_name]);
+    MakeBranch(outputTree, "validposition_" + fitter_full_name, &fitvalids["validposition_" + fitter_full_name]);
+    MakeBranch(outputTree, "validdirection_" + fitter_full_name, &fitvalids["validdirection_" + fitter_full_name]);
+    MakeBranch(outputTree, "validenergy_" + fitter_full_name, &fitvalids["validenergy_" + fitter_full_name]);
+    MakeBranch(outputTree, "validtime_" + fitter_full_name, &fitvalids["validtime_" + fitter_full_name]);
     for (const std::string &fom_name : event_fitter_FOMs[fitter_full_name]) {
-      outputTree->Branch(TString(fom_name + "_" + fitter_full_name), &fiteventFOMs[fitter_full_name][fom_name]);
+      MakeBranch(outputTree, fom_name + "_" + fitter_full_name, &fiteventFOMs[fitter_full_name][fom_name]);
     }
   }
   for (const std::string &classifier_full_name : event_classifiers) {
     // classifier names are specified as either classifiername__tag or just classifiername.
     for (const std::string &fom_name : event_classifier_FOMs[classifier_full_name]) {
-      outputTree->Branch(TString(classifier_full_name + "_" + fom_name),
-                         &classifyeventFOMs[classifier_full_name][fom_name]);
+      MakeBranch(outputTree, classifier_full_name + "_" + fom_name, &classifyeventFOMs[classifier_full_name][fom_name]);
     }
   }
   if (options.nthits) {
-    outputTree->Branch("mcnNTs", &mcnNTs);
-    outputTree->Branch("mcnNThits", &mcnNThits);
-    outputTree->Branch("mcNTid", &mcNTid);
-    outputTree->Branch("mcNThittime", &mcNThittime);
-    outputTree->Branch("mcNThitx", &mcNThitx);
-    outputTree->Branch("mcNThity", &mcNThity);
-    outputTree->Branch("mcNThitz", &mcNThitz);
-    metaTree->Branch("ntId", &ntId);
-    metaTree->Branch("ntX", &ntX);
-    metaTree->Branch("ntY", &ntY);
-    metaTree->Branch("ntZ", &ntZ);
-    metaTree->Branch("ntU", &ntU);
-    metaTree->Branch("ntV", &ntV);
-    metaTree->Branch("ntW", &ntW);
+    MakeBranch(outputTree, "mcnNTs", &mcnNTs);
+    MakeBranch(outputTree, "mcnNThits", &mcnNThits);
+    MakeBranch(outputTree, "mcNTid", &mcNTid);
+    MakeBranch(outputTree, "mcNThittime", &mcNThittime);
+    MakeBranch(outputTree, "mcNThitx", &mcNThitx);
+    MakeBranch(outputTree, "mcNThity", &mcNThity);
+    MakeBranch(outputTree, "mcNThitz", &mcNThitz);
+    MakeBranch(metaTree, "ntId", &ntId);
+    MakeBranch(metaTree, "ntX", &ntX);
+    MakeBranch(metaTree, "ntY", &ntY);
+    MakeBranch(metaTree, "ntZ", &ntZ);
+    MakeBranch(metaTree, "ntU", &ntU);
+    MakeBranch(metaTree, "ntV", &ntV);
+    MakeBranch(metaTree, "ntW", &ntW);
   }
   if (options.mchits) {
     // Save full MC PMT hit information
-    outputTree->Branch("mcPMTID", &mcpmtid);
-    outputTree->Branch("mcPMTNPE", &mcpmtnpe);
-    outputTree->Branch("mcPMTCharge", &mcpmtcharge);
+    MakeBranch(outputTree, "mcPMTID", &mcpmtid);
+    MakeBranch(outputTree, "mcPMTNPE", &mcpmtnpe);
+    MakeBranch(outputTree, "mcPMTCharge", &mcpmtcharge);
 
-    outputTree->Branch("mcPEPMTID", &mcpepmtid);
-    outputTree->Branch("mcPEHitTime", &mcpehittime);
-    outputTree->Branch("mcPEFrontEndTime", &mcpefrontendtime);
+    MakeBranch(outputTree, "mcPEPMTID", &mcpepmtid);
+    MakeBranch(outputTree, "mcPEHitTime", &mcpehittime);
+    MakeBranch(outputTree, "mcPEFrontEndTime", &mcpefrontendtime);
     // Production process
     // 1=Cherenkov, 0=Dark noise, 2=Scint., 3=Reem., 4=Unknown
-    outputTree->Branch("mcPEProcess", &mcpeprocess);
-    outputTree->Branch("mcPEWavelength", &mcpewavelength);
-    outputTree->Branch("mcPEx", &mcpex);
-    outputTree->Branch("mcPEy", &mcpey);
-    outputTree->Branch("mcPEz", &mcpez);
-    outputTree->Branch("mcPECharge", &mcpecharge);
-    outputTree->Branch("mcPECreationTime", &mcpecreationtime);
-    outputTree->Branch("mcPECreationX", &mcpecreationx);
-    outputTree->Branch("mcPECreationY", &mcpecreationy);
-    outputTree->Branch("mcPECreationZ", &mcpecreationz);
-    outputTree->Branch("mcPEExcitationTime", &mcpeexcitationtime);
+    MakeBranch(outputTree, "mcPEProcess", &mcpeprocess);
+    MakeBranch(outputTree, "mcPEWavelength", &mcpewavelength);
+    MakeBranch(outputTree, "mcPEx", &mcpex);
+    MakeBranch(outputTree, "mcPEy", &mcpey);
+    MakeBranch(outputTree, "mcPEz", &mcpez);
+    MakeBranch(outputTree, "mcPECharge", &mcpecharge);
+    MakeBranch(outputTree, "mcPECreationTime", &mcpecreationtime);
+    MakeBranch(outputTree, "mcPECreationX", &mcpecreationx);
+    MakeBranch(outputTree, "mcPECreationY", &mcpecreationy);
+    MakeBranch(outputTree, "mcPECreationZ", &mcpecreationz);
+    MakeBranch(outputTree, "mcPEExcitationTime", &mcpeexcitationtime);
   }
   if (options.tracking) {
     // Save particle tracking information
-    outputTree->Branch("trackPDG", &trackPDG);
-    outputTree->Branch("trackPosX", &trackPosX);
-    outputTree->Branch("trackPosY", &trackPosY);
-    outputTree->Branch("trackPosZ", &trackPosZ);
-    outputTree->Branch("trackMomX", &trackMomX);
-    outputTree->Branch("trackMomY", &trackMomY);
-    outputTree->Branch("trackMomZ", &trackMomZ);
-    outputTree->Branch("trackKE", &trackKE);
-    outputTree->Branch("trackTime", &trackTime);
-    outputTree->Branch("trackDep", &trackDep);
-    outputTree->Branch("trackQDep", &trackQDep);
-    outputTree->Branch("trackProcess", &trackProcess);
-    metaTree->Branch("processCodeMap", &processCodeMap);
-    outputTree->Branch("trackVolume", &trackVolume);
-    metaTree->Branch("volumeCodeMap", &volumeCodeMap);
+    MakeBranch(outputTree, "trackPDG", &trackPDG);
+    MakeBranch(outputTree, "trackPosX", &trackPosX);
+    MakeBranch(outputTree, "trackPosY", &trackPosY);
+    MakeBranch(outputTree, "trackPosZ", &trackPosZ);
+    MakeBranch(outputTree, "trackMomX", &trackMomX);
+    MakeBranch(outputTree, "trackMomY", &trackMomY);
+    MakeBranch(outputTree, "trackMomZ", &trackMomZ);
+    MakeBranch(outputTree, "trackKE", &trackKE);
+    MakeBranch(outputTree, "trackTime", &trackTime);
+    MakeBranch(outputTree, "trackDep", &trackDep);
+    MakeBranch(outputTree, "trackQDep", &trackQDep);
+    MakeBranch(outputTree, "trackProcess", &trackProcess);
+    MakeBranch(metaTree, "processCodeMap", &processCodeMap);
+    MakeBranch(outputTree, "trackVolume", &trackVolume);
+    MakeBranch(metaTree, "volumeCodeMap", &volumeCodeMap);
   }
   if (options.digitizerwaveforms) {
     waveformTree = new TTree("waveforms", "waveforms");
-    waveformTree->Branch("evid", &evid);
-    waveformTree->Branch("waveform_pmtid", &waveform_pmtid);
-    waveformTree->Branch("inWindowPulseTimes", &inWindowPulseTimes);
-    waveformTree->Branch("inWindowPulseCharges", &inWindowPulseCharges);
-    waveformTree->Branch("waveform", &waveform);
+    MakeBranch(waveformTree, "evid", &evid);
+    MakeBranch(waveformTree, "waveform_pmtid", &waveform_pmtid);
+    MakeBranch(waveformTree, "inWindowPulseTimes", &inWindowPulseTimes);
+    MakeBranch(waveformTree, "inWindowPulseCharges", &inWindowPulseCharges);
+    MakeBranch(waveformTree, "waveform", &waveform);
   }
   this->AssignAdditionalAddresses();
 
@@ -905,6 +904,12 @@ void OutNtupleProc::EndOfRun(DS::Run *run) {
 void OutNtupleProc::SetS(std::string param, std::string value) {
   if (param == "file") {
     this->defaultFilename = value;
+  } else if (param == "prune") {
+    std::stringstream ss(value);
+    std::string branch_name;
+    while (std::getline(ss, branch_name, ',')) {
+      prunedBranches.push_back(branch_name);
+    }
   } else {
     throw Processor::ParamUnknown(param);
   }

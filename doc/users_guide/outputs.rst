@@ -61,6 +61,7 @@ Parameters:
     /rat/procset event_fitter_FOM_FITTERNAME ["FOM1","FOM2"]
     /rat/procset event_classifiers ["classifychargebalance","classifytimes"]
     /rat/procset event_classifier_FOM_CLASSIFIERNAME ["FOM1","FOM2"]
+    /rat/procset prune "branchA,branchB*"
 
 * ``filename`` (required, string) Sets output filename.  File will be deleted if it already exists.
 * ``include_*`` (optional, int) Sets whether the ntuple structure will be extended to include more variables, as detailed below. By default the following, based on the entries in IO.ratdb, the following are set to 0 by default: ``include_tracking``, ``include_mcparticles``, and ``include_digitizerwaveforms`` and the rest are set to 1 by default (i.e., the associated variables aare included in the ntuple file, as detailed below).
@@ -70,6 +71,7 @@ Parameters:
 * ``event_fitter_FOM_FITTERNAME`` (optional, vector<string>) The figure of merit to include for each event fitter. See below for naming of the specific variables. FOM can be specified by the base name of the reconstruction algorithm (e.g., ``event_fitter_FOM_quadfitter``) or by the specific instances of each algorithm (e.g. ``event_fitter_FOM_fitdirectioncenter__0_quad``).
 * ``event_classifiers`` (optional, vector<string>) Event classification algorithm results to include in the ntuple. See below for naming of the specific variables.
 * ``event_classifier_FOM_CLASSIFIERNAME`` (optional, vector<string>) The figure of merit to include for each event classifier. See below for naming of the specific variables. FOM can be specified by the base name of the classification algorithm (e.g., ``event_classifier_FOM_classifytimes``) or by the specific instances of each algorithm (e.g. ``event_classifier_FOM_classifytimes__5p0_quad``).
+* ``prune`` (optional, string) Comma-separated list of branch names (or glob patterns using ``*`` and ``?``, matched with ``fnmatch``) to exclude from the ``meta``, ``output``, and ``waveform`` trees. Useful for shrinking file size when specific branches aren't needed. For example, ``/rat/procset prune "nhits,totalcharge,mcpe*"`` drops the ``nhits`` and ``totalcharge`` branches along with every branch starting with ``mcpe`` (e.g. ``mcpepmtid``, ``mcpehittime``, ``mcpecount``). Pruning is applied at branch-creation time, so it takes effect regardless of the other ``include_*`` settings.
 
 Similarly to the outroot file, one can pass the filename using the "-o" flag by running the macro as::
 
