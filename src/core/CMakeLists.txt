@@ -9,6 +9,7 @@ add_library(core OBJECT
         src/ProcBlock.cc
         src/ProducerBlock.cc
         src/RunManager.cc
+        src/RatRunManager.cc
         src/CountProc.cc
         src/PruneProc.cc
         src/Gsim.cc

@@ -74,6 +74,7 @@ class Rat {
   std::string vector_filename;
   std::vector<std::string> python_processors;
   int run;
+  int numEvents;
   bool vis;
   int argc;
   char **argv;

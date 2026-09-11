@@ -62,6 +62,7 @@ options:
  -d, --debug             Enable debug printing
  -i, --input             Set default input filename
  -l, --log               Set log filename
+ -N, --num-events        Set the number of events to simulate, overriding /run/beamOn
  -o, --output            Set default output filename
  -p, --python            Set python processors
  -q, --quiet             Quiet mode, only show warnings
@@ -256,7 +257,12 @@ These commands manage the initialization and execution of simulation runs and di
 
  * `/run/beamOn <numberOfEvents>`: This command starts a simulation run, processing the specified number of events.
 
-   Multiple `/run/beamOn` commands can appear in a single macro, for instance, to simulate different particle types or energies sequentially after reconfiguring the event generator.
+   Multiple `/run/beamOn` commands can appear in a single macro, for instance, to simulate different particle types or energies sequentially after reconfiguring the event generator. 
+   The number of events can instead be set from the command line with `-N`/`--num-events`, e.g. `rat -N 500 example.mac`.
+   This overrides the count passed to *every* `/run/beamOn` in the invocation, regardless of what count is written in the macro. 
+   No changes to the macro itself are needed. 
+   If `/run/beamOn` is invoked more than once while `-N` is set (e.g. multiple calls in one macro, or across multiple macros passed on the command line), the first call
+   uses the override and `rat` then exits with an error before the second call runs, since the intended count would be ambiguous.
 
 
 ### 2.2. Verbosity Control

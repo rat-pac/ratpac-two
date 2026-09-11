@@ -5,6 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <G4RunManager.hh>
 #include <G4UIExecutive.hh>
 #include <G4UImanager.hh>
 #include <G4UItcsh.hh>
@@ -17,6 +18,7 @@
 #include <RAT/ProcBlockManager.hh>
 #include <RAT/PythonProc.hh>
 #include <RAT/Rat.hh>
+#include <RAT/RatRunManager.hh>
 #include <RAT/SignalHandler.hh>
 #include <RAT/TrackingMessenger.hh>
 #include <Randomize.hh>
@@ -56,6 +58,8 @@ void Rat::Configure() {
   this->parser->AddArgument("database", "", "b", 1, "URL to database", ParseString);
   this->parser->AddArgument("log", "", "l", 1, "Set log filename", ParseString);
   this->parser->AddArgument("seed", -1, "s", 1, "Set random number seed", ParseInt);
+  this->parser->AddArgument("num-events", -1, "N", 1, "Set the number of events to simulate, overriding /run/beamOn",
+                            ParseInt);
   this->parser->AddArgument("input", "", "i", 1, "Set default input filename", ParseString);
   this->parser->AddArgument("output", "", "o", 1, "Set default output filename", ParseString);
   this->parser->AddArgument("vector", "", "x", 1, "Set default vector filename", ParseString);
@@ -77,6 +81,7 @@ void Rat::Configure() {
   this->output_filename = this->parser->GetValue("output", "");
   this->vector_filename = this->parser->GetValue("output", "");
   this->run = this->parser->GetValue("run", 0);
+  this->numEvents = this->parser->GetValue("num-events", -1);
   this->vis = this->parser->GetValue("vis", false);
   this->python_processors = this->parser->GetValue("python", std::vector<std::string>());
 
@@ -178,6 +183,11 @@ void Rat::Begin() {
 
     G4UIExecutive *theSession = nullptr;
     if (this->vis) theSession = new G4UIExecutive(this->argc, this->argv);
+
+    if (this->numEvents != -1) {
+      info << "Overriding number of events per /run/beamOn: " << this->numEvents << newline;
+      static_cast<RatRunManager *>(G4RunManager::GetRunManager())->SetNumEventsOverride(this->numEvents);
+    }
 
     std::string command = "/control/execute ";
     for (auto &mac : this->parser->Positionals) {
