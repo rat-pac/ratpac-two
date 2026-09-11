@@ -12,7 +12,7 @@ The existing rattests are included with the standard RAT distribution, in `$RATS
 
 The `rattest.py` script takes the following options::
 
-    usage: rattest.py [-h] [-u] [-m] [-r] [-t] [--make-template TEMPLATE] input [input ...]
+    usage: rattest.py [-h] [-u] [-m] [-r] [-c] [-t] [-e EXPERIMENT_BIN] [--make-template TEMPLATE] input [input ...]
 
     positional arguments:
       input                 RAT test(s) to run. Must be a directory or directories.
@@ -22,7 +22,10 @@ The `rattest.py` script takes the following options::
       -u, --update          Update "standard" histogram with current results.
       -m, --regen-mc        Force Monte Carlo to be regenerated.
       -r, --regen-plots     Force histograms to be regenerated.
+      -c, --clean           Remove outputs of a previous run before running.
       -t, --text-only       Do not open web pages with plots.
+      -e EXPERIMENT_BIN, --experiment EXPERIMENT_BIN
+                            Path to experiment binary, or its name on PATH, to run test with. Uses `rat` as default.
       --make-template TEMPLATE
                             Write a template rattest to current directory for you to edit. Supplied name is used for .mac and .C files.
 
