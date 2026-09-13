@@ -13,5 +13,7 @@ add_library(mimir OBJECT
 set_target_properties(mimir PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(mimir PUBLIC ratpac_common Ratpac::NLopt)
 
+rat_register_include_dir()
+
 # Copy our headers when installing
 install(DIRECTORY include/ DESTINATION include)

@@ -23,5 +23,7 @@ add_library(daq OBJECT
   )
 target_link_libraries(daq PUBLIC ratpac_common FFTW3::fftw3)
 
+rat_register_include_dir()
+
 # Copy our headers when installing
 install(DIRECTORY include/ DESTINATION include)

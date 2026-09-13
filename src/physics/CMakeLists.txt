@@ -25,5 +25,7 @@ add_library(physics OBJECT
 
 target_link_libraries(physics PUBLIC ratpac_common stlplus)
 
+rat_register_include_dir()
+
 # Copy our headers when installing
 install(DIRECTORY include/ DESTINATION include)

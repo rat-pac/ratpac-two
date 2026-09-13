@@ -22,6 +22,7 @@ target_sources(fit INTERFACE
   $<TARGET_OBJECTS:fit_common>
 )
 
+rat_register_include_dir()
 
 # Copy our headers when installing
 install(DIRECTORY include/ DESTINATION include)

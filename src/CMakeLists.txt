@@ -1,31 +1,20 @@
-###########################################################
-# Go through each module and get their targets
-#
-set(RATPAC_MODULE_DIRS
-    cmd core daq db ds fit gen geo io physics ratbase util external
-)
-foreach(_dir IN LISTS RATPAC_MODULE_DIRS)
-  add_subdirectory(${_dir})
-endforeach()
+# Go through each module
+add_subdirectory(cmd)
+add_subdirectory(core)
+add_subdirectory(daq)
+add_subdirectory(db)
+add_subdirectory(ds)
+add_subdirectory(fit)
+add_subdirectory(gen)
+add_subdirectory(geo)
+add_subdirectory(io)
+add_subdirectory(physics)
+add_subdirectory(ratbase)
+add_subdirectory(util)
+add_subdirectory(external)
 
-###########################################################
-# Get every module's include directory in {module_name}/include if it exists
-set(RATPAC_MODULE_INCLUDE_DIRS)
-foreach(_dir IN LISTS RATPAC_MODULE_DIRS)
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_dir}/include)
-    list(APPEND RATPAC_MODULE_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/${_dir}/include)
-  endif()
-endforeach()
-# Add on the nested mimir include and the generated include 
-list(APPEND RATPAC_MODULE_INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/fit/mimir/include
-    ${PROJECT_BINARY_DIR}/generated
-)
-# Add all of the include directories to the ratpac_common target at build
-# to avoid copying all include directories to the same directory 
-foreach(_dir IN LISTS RATPAC_MODULE_INCLUDE_DIRS)
-  target_include_directories(ratpac_common INTERFACE $<BUILD_INTERFACE:${_dir}>)
-endforeach()
+# RATPAC_MODULE_INCLUDE_DIRS GLOBAL property via rat_register_include_dir()
+get_property(RATPAC_MODULE_INCLUDE_DIRS GLOBAL PROPERTY RATPAC_MODULE_INCLUDE_DIRS)
 
 ###########################################################
 # Create Root Dictionary

@@ -70,5 +70,7 @@ add_library(geo OBJECT
 
 target_link_libraries(geo PUBLIC ratpac_common)
 
+rat_register_include_dir()
+
 # Copy our headers when installing
 install(DIRECTORY include/ DESTINATION include)

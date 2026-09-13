@@ -12,6 +12,8 @@ add_library(db OBJECT
 )
 target_link_libraries(db PUBLIC ratpac_common stlplus CURL::libcurl)
 
+rat_register_include_dir()
+
 # Copy our headers when installing
 install(DIRECTORY include/ DESTINATION include)
 

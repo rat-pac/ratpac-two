@@ -118,20 +118,3 @@ if(CRY_Enabled)
   target_include_directories(Ratpac::CRY SYSTEM INTERFACE ${CRYINCLUDE})
   target_link_directories(Ratpac::CRY INTERFACE ${CRYLIBDIR})
 endif()
-
-###########################################################
-# ratpac_common
-#
-# Baseline usage requirements every RAT module needs: C++17, the collected
-# header tree, Geant4, and ROOT.
-#
-add_library(ratpac_common INTERFACE)
-target_compile_features(ratpac_common INTERFACE cxx_std_17)
-target_link_libraries(ratpac_common INTERFACE Ratpac::Geant4 Ratpac::ROOT)
-target_include_directories(ratpac_common INTERFACE $<INSTALL_INTERFACE:include>)
-
-# Include stlplus headers
-target_include_directories(ratpac_common SYSTEM INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/external/stlplus/include/stlplus>
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/external/stlplus/include>
-)

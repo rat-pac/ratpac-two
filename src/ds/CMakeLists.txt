@@ -8,6 +8,8 @@ add_library(ds OBJECT
 )
 target_link_libraries(ds PUBLIC ratpac_common)
 
+rat_register_include_dir()
+
 install(DIRECTORY include/ DESTINATION include)
 
 #################################################

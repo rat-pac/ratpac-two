@@ -8,5 +8,7 @@ add_library(ratbase OBJECT
 
 target_link_libraries(ratbase PUBLIC ratpac_common)
 
+rat_register_include_dir()
+
 # Copy our headers when installing
 install(DIRECTORY include/ DESTINATION include)

@@ -59,5 +59,7 @@ add_library(gen OBJECT ${gen_sources})
 
 target_link_libraries(gen PUBLIC ratpac_common Ratpac::CRY)
 
+rat_register_include_dir()
+
 # Copy our headers when installing
 install(DIRECTORY include/ DESTINATION include)

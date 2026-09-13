@@ -28,6 +28,8 @@ add_library(core OBJECT
 
 target_link_libraries(core PUBLIC ratpac_common stlplus)
 
+rat_register_include_dir()
+
 # Copy our headers when installing
 install(DIRECTORY include/ DESTINATION include)
 

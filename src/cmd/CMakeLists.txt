@@ -23,5 +23,7 @@ add_library(cmd OBJECT
 
 target_link_libraries(cmd PUBLIC ratpac_common cppflow Ratpac::TensorFlow)
 
+rat_register_include_dir()
+
 # Copy our headers when installing
 install(DIRECTORY include/ DESTINATION include)

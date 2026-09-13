@@ -89,6 +89,36 @@ option(RATPAC_RAT "build rat executable" ON)
 # target-based usage requirements (ratpac_common, Ratpac::Geant4,
 # Ratpac::ROOT, Ratpac::NLopt, Ratpac::TensorFlow, Ratpac::CRY)
 include(${CMAKE_SOURCE_DIR}/cmake/RatpacDependencies.cmake)
+###########################################################
+# ratpac_common
+#
+# Baseline usage requirements every RAT module needs: C++17, the collected
+# headers, Geant4, and ROOT.
+#
+add_library(ratpac_common INTERFACE)
+target_compile_features(ratpac_common INTERFACE cxx_std_17)
+target_link_libraries(ratpac_common INTERFACE Ratpac::Geant4 Ratpac::ROOT)
+target_include_directories(ratpac_common INTERFACE $<INSTALL_INTERFACE:include>)
+
+# Include stlplus headers
+target_include_directories(ratpac_common SYSTEM INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/external/stlplus/include/stlplus>
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/external/stlplus/include>
+)
+
+# Register the include directory into ratpac_common and the GLOBAL variable
+# needed to build the rootcling dictionary.
+# If no argument given defaults to ./include, otherwise accepts a directory path
+function(rat_register_include_dir)
+  if(ARGC EQUAL 0)
+    set(_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  else()
+    set(_dir ${ARGV0})
+  endif()
+  target_include_directories(ratpac_common INTERFACE $<BUILD_INTERFACE:${_dir}>)
+  set_property(GLOBAL APPEND PROPERTY RATPAC_MODULE_INCLUDE_DIRS ${_dir})
+endfunction()
+
 
 ###########################################################
 # Configure header with our version information
@@ -98,6 +128,7 @@ configure_file(${CMAKE_SOURCE_DIR}/config/Config.hh.in
   @ONLY NEWLINE_STYLE UNIX
 )
 install(FILES ${PROJECT_BINARY_DIR}/generated/RAT/Config.hh DESTINATION include/RAT)
+rat_register_include_dir(${PROJECT_BINARY_DIR}/generated)
 
 # Configure local scripts
 set(RATROOT ${CMAKE_INSTALL_PREFIX})
