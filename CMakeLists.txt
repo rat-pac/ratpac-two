@@ -58,6 +58,8 @@ add_custom_target(
 ###########################################################
 # Set default build type
 set(default_build_type "RelWithDebInfo")
+# Please use `make debug` or the cmake cache variable 
+# `-DCMAKE_BUILD_TYPE=Debug` for debug mode
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
