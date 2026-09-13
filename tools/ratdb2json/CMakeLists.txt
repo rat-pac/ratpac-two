@@ -2,8 +2,7 @@
 # CMakeLists for rat tool
 
 add_executable(ratdb2json ratdb2json.cpp)
-target_link_libraries(ratdb2json PUBLIC RATPAC)
+target_link_libraries(ratdb2json PUBLIC RATPAC ratpac_common)
 add_dependencies(ratdb2json RATPAC)
 
-install(TARGETS ratdb2json
-        RUNTIME DESTINATION bin)
+install(TARGETS ratdb2json RUNTIME DESTINATION bin)

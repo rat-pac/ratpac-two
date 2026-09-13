@@ -6,6 +6,8 @@ namespace RAT {
 
 FitMimirProc::FitMimirProc() : Processor("mimir"), inputHandler() {}
 
+FitMimirProc::~FitMimirProc() = default;
+
 void FitMimirProc::BeginOfRun(DS::Run *run) {
   if (!WasParamSet("strategy")) {
     info << "FitMimirProc: No strategy configured, using default from RATDB." << newline;
