@@ -132,13 +132,10 @@ configure_file(${CMAKE_SOURCE_DIR}/config/ratpac.csh.in
   ${PROJECT_BINARY_DIR}/bin/ratpac.csh
   @ONLY NEWLINE_STYLE UNIX
 )
-# The package is installed twice, at two different destinations, on purpose:
-# DESTINATION cmake (flat) is this project's original layout, and is what
-# existing consumers (e.g. RatpacExperiment) already point at; DESTINATION
-# lib/cmake/Ratpac is the conventional CMake package layout, which lets a
-# plain, unhinted find_package(Ratpac) also succeed via CMake's default
-# package search paths. RatpacConfig.cmake has to be configured once per
-# destination
+
+# Older versions of ratpac put the cmake config file in a non standard location 
+# (ie not lib/cmake/Ratpac). For backwards compatibility, both the standard and 
+# legacy paths are configured. 
 configure_package_config_file(${CMAKE_SOURCE_DIR}/config/RatpacConfig.cmake.in
   ${PROJECT_BINARY_DIR}/cmake/RatpacConfig.cmake
   INSTALL_DESTINATION cmake
