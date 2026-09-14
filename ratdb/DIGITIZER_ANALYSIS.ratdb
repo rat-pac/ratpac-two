@@ -170,7 +170,7 @@
 "vpe_charge": 1.6, 
 
 // Dictionary matrix parameters
-"upsampling_factor": 10.0, // Upsampling resolution factor for dictionary
+"upsampling_factor": 10, // Upsampling resolution factor for dictionary
 
 // Algorithm parameters  
 "max_iterations": 50, // Maximum number of rsNNLS iterations
@@ -179,12 +179,10 @@
 // Take the template shape per PMT from PMTPULSE, the table the waveform generator samples,
 // scaled by the channel's pulse_width_scale. Models PMTPULSE cannot describe with the
 // configured template type use the parameters above instead.
-// Must be true or false, not 1 or 0.
 "width_from_pmtpulse": true,
 
 // Post-pruning time refinement: move each surviving component to a nearby free time offset
 // when that lowers the residual.
-// Must be true or false, not 1 or 0.
 "refine_times": false,
 
 // Thresholding parameters

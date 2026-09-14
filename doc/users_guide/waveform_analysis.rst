@@ -243,7 +243,7 @@ The method can be configured using the following ratdb parameters:
 ``lognormal_shape``               Lognormal "sigma" parameter (used when raven_template_type=0).
 ``gaussian_width``                Gaussian sigma parameter (used when raven_template_type=1).
 ``vpe_charge``                    Nominal charge of a single PE in pC.
-``upsampling_factor``             Dictionary upsampling factor for sub-sample timing resolution. Must be a positive whole number.
+``upsampling_factor``             Dictionary upsampling factor for sub-sample timing resolution.
 ``max_iterations``                Maximum iterative thresholding iterations.
 ``nnls_tolerance``                NNLS convergence tolerance.
 ``width_from_pmtpulse``           If true, take the template shape per PMT from ``PMTPULSE``, scaled by the channel's ``pulse_width_scale``. Must be a boolean.

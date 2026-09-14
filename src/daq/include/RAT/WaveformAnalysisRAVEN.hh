@@ -104,7 +104,7 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
   int profile_offset;                                     ///< Index of zero lag in a template profile
   double epsilon;                                         ///< NNLS convergence tolerance
   size_t max_iterations;                                  ///< Maximum iterations for iterative thresholding
-  double upsample_factor;                                 ///< Dictionary upsampling factor for sub-sample resolution
+  int upsample_factor;                                    ///< Dictionary upsampling factor for sub-sample resolution
 
   // Thresholding parameters
   double weight_threshold;     ///< Minimum weight threshold for component significance
@@ -121,7 +121,6 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
   bool dictionary_built;           ///< Flag to track if dictionary has been built
   int cached_nsamples;             ///< Cached number of samples for dictionary
   double cached_digitizer_period;  ///< Cached digitizer period for dictionary
-  int cached_upsample;             ///< Cached upsampling factor, as the whole number the lag grid needs
   int cached_dict_size;            ///< Cached number of dictionary columns
 
   void DoAnalysis(DS::DigitPMT *digitpmt, const std::vector<UShort_t> &digitWfm) override;
@@ -142,8 +141,8 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
   /// table has no usable entry for it.
   TemplateShape ShapeForModel(const std::string &model_name);
 
-  /// Template profile for one cache key, built from the given shape on first use.
-  const std::vector<double> &GetTemplateProfile(int key, const TemplateShape &shape);
+  /// Template profile for one PMT, built on first use.
+  const std::vector<double> &GetTemplateProfile(int pmtid);
 
   /// Perform reverse sparse NNLS with iterative thresholding on a region submatrix
   TVectorD Thresholded_rsNNLS(const TMatrixD &W_region, const TVectorD &voltVec, const double threshold,
@@ -158,9 +157,8 @@ class WaveformAnalysisRAVEN : public WaveformAnalyzerBase {
                               int end_sample, DS::WaveformAnalysisResult *fit_result, double gain_calibration);
 
   /// Extract photoelectrons from significant weights in the region
-  void ExtractPhotoelectrons(const TVectorD &region_weights, int dict_start, int dict_cols, int start_sample,
-                             int end_sample, double chi2ndf, int iterations_ran, DS::WaveformAnalysisResult *fit_result,
-                             double gain_calibration);
+  void ExtractPhotoelectrons(const TVectorD &region_weights, int dict_start, int dict_cols, double chi2ndf,
+                             int iterations_ran, DS::WaveformAnalysisResult *fit_result, double gain_calibration);
 
   /// Merge nearby weights within a time window to prevent PE overcounting
   /// Returns vector of (time, merged_weight) pairs
