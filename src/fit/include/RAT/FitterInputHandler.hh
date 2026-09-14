@@ -244,6 +244,7 @@ class FitterInputHandler {
    * @brief Get the integrated charge of a PMT.
    * This method returns the integrated charge of all hits on a PMT.
    * To get information about individual hits, use GetCharges.
+   * In kWaveformAnalysis mode, if the analyzer left no hits on the PMT, the DigitPMT charge is returned instead.
    *
    * @param id PMT ID.
    * @return integrated charge of a PMT.
@@ -296,6 +297,7 @@ class FitterInputHandler {
    * @brief Get the earliest time for a hit PMT.
    * In the case where a waveoform analyzer created multiple hits on the PMT (multi-PE), this method returns
    * the time of only the first hit. To get the times of each hit, use GetTimes.
+   * In kWaveformAnalysis mode, if the analyzer left no hits on the PMT, the DigitPMT time is returned instead.
    *
    * @param id PMT ID.
    * @return time of the first hit.

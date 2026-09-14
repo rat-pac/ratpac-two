@@ -11,8 +11,34 @@ Here we describe the reconstruction processors.
 
 Fitter Input Handler
 ====================
+The ``FitterInputHandler`` is the common interface through which the reconstruction
+processors read PMT hits.  It is configured from the FIT_COMMON table and selects
+which representation of a hit is used for the time and charge of each channel.
 
-Document the fitter handler.
+=========================   ==========================  ===================
+**Field**                   **Type**                    **Description**
+=========================   ==========================  ===================
+``mode``                    ``int``                     Hit source.  0 = ``DS::PMT``, 1 = ``DS::DigitPMT`` digitized time and charge from ``WaveformPrep``, 2 = ``WaveformAnalysisResult``.
+``waveform_analyzer``       ``string``                  Name of the waveform analysis result to read.  Only used if ``mode`` is 2.
+``hit_cleaning_mask``       ``int``                     Bitmask of hit cleaning flags.  Channels with any of these bits set are excluded.  Defaults to 0 (no cleaning).
+``vertex_seed``             ``string``                  Name of the fitter providing the seed position and time.
+``direction_seed``          ``string``                  Name of the fitter providing the seed direction.
+``energy_seed``             ``string``                  Name of the fitter providing the seed energy.
+``light_speed``             ``double``                  Speed of light in material in mm/ns.  Used as the default by several fitters.
+=========================   ==========================  ===================
+
+Modes 0 and 1 provide a single time and charge per hit channel.  Mode 2 reads the
+multi-PE result of the named waveform analyzer (see :ref:`waveform_analysis`),
+so ``GetTimes``/``GetCharges`` return one entry per reconstructed photoelectron,
+while ``GetTime``/``GetCharge`` return the time of the first PE and the summed charge.
+
+In mode 2 an analyzer may leave a channel with no PEs, for example when the
+waveform falls outside the analyzer's ``min_total_charge``/``max_total_charge``
+cuts (see :ref:`common_parameters`).  Such a channel is still a hit channel,
+and ``GetTime`` and ``GetCharge`` fall back to the ``WaveformPrep`` digitized
+time and charge for it, as in mode 1.  ``GetTimes``, ``GetCharges`` and
+``GetNPEs`` do not fall back and report the empty result, so multi-PE fitters
+see no PEs on that channel.
 
 ----------------------
 
