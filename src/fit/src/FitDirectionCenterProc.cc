@@ -95,6 +95,14 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
 
   DS::FitResult *fitDC = new DS::FitResult(name, fFitLabel);
   fitDC->SetEnableDirection(true);
+  bool applyDrive = (!fDirFitter.empty() && fDrive != 0.0);
+  if (applyDrive)
+    fitDC->SetEnablePosition(true);
+  else if (fDrive != 0.0 && fDirFitter.empty())
+    Log::Die("FitDirectionCenterProc: No direction fitter specified while drive value is specified.");
+  else if (fDrive == 0.0 && !fDirFitter.empty())
+    Log::Die("FitDirectionCenterProc: No drive value specified while direction fitter \'" + fDirFitter +
+             "\' is specified.");
 
   /// Initialize ALL Figures of Merit with placeholder values
   fitDC->SetFigureOfMerit("num_PMT", 0);
@@ -158,7 +166,6 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
   }
 
   // Apply drive correction
-  bool applyDrive = (!fDirFitter.empty() && fDrive != 0.0);
   if (applyDrive) {
     std::vector<RAT::DS::FitResult *> fits = ev->GetFitResults();
     if (fits.size() == 0) {
@@ -191,12 +198,6 @@ Processor::Result FitDirectionCenterProc::Event(DS::Root *ds, DS::EV *ev) {
     eventPos -= fDrive * eventDir;
     fitDC->SetPosition(eventPos);
     if (!validPos || !validDir) fitDC->SetValidPosition(false);
-
-  } else if (fDrive != 0.0 && fDirFitter.empty()) {
-    Log::Die("FitDirectionCenterProc: No direction fitter specified while drive value is specified.");
-  } else if (fDrive == 0.0 && !fDirFitter.empty()) {
-    Log::Die("FitDirectionCenterProc: No drive value specified while direction fitter \'" + fPosFitter +
-             "\' is specified.");
   }
 
   /// If fractional time cuts specified, determine cut times
