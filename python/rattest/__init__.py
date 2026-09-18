@@ -14,6 +14,7 @@ from __future__ import division
 
 import sys
 import os.path
+import glob
 import shutil
 from math import sqrt
 
@@ -126,32 +127,45 @@ class RatTest:
         self.standard_results = os.path.join(self.testdir, 'standard.root')
         self.current_results = os.path.join(self.testdir, 'current.root')
 
-    def run(self, regen_mc=False, regen_plots=False, html=None):
+    def run(self, regen_mc=False, regen_plots=False, clean=False, html=None):
         '''
         Run a full RAT test, including simulation and the ROOT macro.
         Includes writing results to the HTML file, if option is specified.
         '''
         print("\033[1;35m" + '=' * 5 + ' Run Test: {} '.format(self.name) + '=' * 5 + "\033[0m")
-        self._do_run(regen_mc=regen_mc, regen_plots=regen_plots)
+        self._do_run(regen_mc=regen_mc, regen_plots=regen_plots, clean=clean)
 
         if html:
             html.header(name=self.name, description=self.description)
 
         return self.compare_hists(self.standard_results, self.current_results, html=html)
 
-    def update(self, regen_mc=False, regen_plots=False):
+    def update(self, regen_mc=False, regen_plots=False, clean=False):
         '''
         Update the RAT tests.
         '''
         print('=' * 5 + ' Update Test: {} '.format(self.name) + '=' * 5)
-        self._do_run(regen_mc=regen_mc, regen_plots=regen_plots)
+        self._do_run(regen_mc=regen_mc, regen_plots=regen_plots, clean=clean)
         print('Copying current results to master file of standard results')
         shutil.copyfile(self.current_results, self.standard_results)
 
-    def _do_run(self, regen_mc, regen_plots):
+    def clean(self):
+        '''
+        Remove the event file, current results, logs, and plots left by a previous run.
+        '''
+        patterns = [self.event_file_basename + '*.root', 'current.root', 'rat.*.log', '*.png', '*.html']
+        for pattern in patterns:
+            for path in glob.glob(os.path.join(self.testdir, pattern)):
+                print('Removing: {}'.format(path))
+                os.remove(path)
+
+    def _do_run(self, regen_mc, regen_plots, clean=False):
         '''
         Run the RAT simulation and the corresponding ROOT macro for processing the results.
         '''
+        if clean:
+            self.clean()
+
         self.event_file = find_event_file(self.testdir, self.event_file_basename)
         
         if regen_mc or target_needs_update(self.event_file, [self.rat_macro, self.rat_script, self.rat_bin]):
