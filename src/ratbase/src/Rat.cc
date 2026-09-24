@@ -45,6 +45,9 @@ std::string get_long_hostname() {
   return std::string(c_hostname);
 }
 void Rat::Configure() {
+  // If `Configure` has already been called, do not configure again
+  if (configured) return;
+  configured = true;
   // Setup a base set of arguments
   this->parser->SetHelpLine("[options] macro1.mac macro2.mac ...");
   // Form is AddArgument(name, default, shortname, length, help, type)
