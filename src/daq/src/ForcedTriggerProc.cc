@@ -5,6 +5,7 @@ Forced trigger causes a trigger regardless of the total number of PMTs hit
 #include <RAT/DS/PMT.hh>
 #include <RAT/DS/RunStore.hh>
 #include <RAT/ForcedTriggerProc.hh>
+#include <Randomize.hh>
 
 namespace RAT {
 
@@ -18,6 +19,14 @@ void ForcedTriggerProc::BeginOfRun(DS::Run *run) {
   fDigitize = ldaq->GetZ("digitize");
 
   fDigitizer = new Digitizer(fDigitizerType);
+  if (!WasParamSet("jitter")) {
+    try {
+      fJitter = ldaq->GetD("jitter");
+    } catch (DBNotFoundError) {
+      fJitter = 0.0;
+    }
+  }
+  info << "ForcedTriggerProc: Trigger Jitter set to " << fJitter << " ns" << newline;
 
   if (fDigitize) {
     DS::PMTInfo *pmtinfo = run->GetPMTInfo();
@@ -26,6 +35,14 @@ void ForcedTriggerProc::BeginOfRun(DS::Run *run) {
       const std::string &modelName = pmtinfo->GetModelName(i);
       fDigitizer->AddWaveformGenerator(modelName);
     }
+  }
+}
+
+void ForcedTriggerProc::SetD(std::string param, double value) {
+  if (param == "jitter") {
+    fJitter = value;
+  } else {
+    RAT::Processor::SetD(param, value);
   }
 }
 
@@ -38,7 +55,8 @@ Processor::Result ForcedTriggerProc::DSEvent(DS::Root *ds) {
 
   DS::EV *ev = ds->AddNewEV();
   ev->SetID(fEventCounter++);
-  ev->SetCalibratedTriggerTime(0.0);
+  double trigger_time = G4UniformRand() * fJitter;  // Random trigger time within the jitter window
+  ev->SetCalibratedTriggerTime(trigger_time);
   ev->SetUTC(mc->GetUTC());
   double totalEVCharge = 0;
   // Loop over the mcpmts and fill the pmt branch assuming we've triggered
@@ -61,7 +79,7 @@ Processor::Result ForcedTriggerProc::DSEvent(DS::Root *ds) {
     pmt->SetCharge(integratedCharge);
     totalEVCharge += integratedCharge;
     if (fDigitize) {
-      fDigitizer->DigitizePMT(mcpmt, pmtID, 0.0, pmtinfo);
+      fDigitizer->DigitizePMT(mcpmt, pmtID, trigger_time, pmtinfo);
     }
   }
   if (fDigitize) {
