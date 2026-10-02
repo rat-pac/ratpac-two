@@ -37,6 +37,8 @@
 
 // Optional charge thresholds. When uncommented, processor will only run
 // if total charge in waveform is between these values.
+// Skipped channels keep an empty result; fitters reading it fall back to
+// the WaveformPrep time and charge.
 // min_total_charge = -50.,
 // max_total_charge = 500.
 }
@@ -57,6 +59,8 @@
 
 // Optional charge thresholds. When uncommented, processor will only run
 // if total charge in waveform is between these values.
+// Skipped channels keep an empty result; fitters reading it fall back to
+// the WaveformPrep time and charge.
 // min_total_charge = -50.,
 // max_total_charge = 500.
 }
@@ -77,6 +81,8 @@
 
 // Optional charge thresholds. When uncommented, processor will only run
 // if total charge in waveform is between these values.
+// Skipped channels keep an empty result; fitters reading it fall back to
+// the WaveformPrep time and charge.
 // min_total_charge = -50.,
 // max_total_charge = 500.
 }
@@ -133,6 +139,8 @@
 
 // Optional charge thresholds. When uncommented, processor will only run
 // if total charge in waveform is between these values.
+// Skipped channels keep an empty result; fitters reading it fall back to
+// the WaveformPrep time and charge.
 // min_total_charge = -50.,
 // max_total_charge = 500.
 }
@@ -188,6 +196,8 @@
 
 // Optional charge thresholds. When uncommented, processor will only run
 // if total charge in waveform is between these values.
+// Skipped channels keep an empty result; fitters reading it fall back to
+// the WaveformPrep time and charge.
 // min_total_charge = -50.,
 // max_total_charge = 500.
 }

@@ -244,6 +244,7 @@ class FitterInputHandler {
    * @brief Get the integrated charge of a PMT.
    * This method returns the integrated charge of all hits on a PMT.
    * To get information about individual hits, use GetCharges.
+   * In kWaveformAnalysis mode, if the analyzer left no hits on the PMT, the DigitPMT charge is returned instead.
    *
    * @param id PMT ID.
    * @return integrated charge of a PMT.
@@ -260,6 +261,9 @@ class FitterInputHandler {
         return ev->GetOrCreateDigitPMT(id)->GetDigitizedCharge();
       case Mode::kWaveformAnalysis: {
         std::vector<double> charges = GetCharges(id);
+        // The analyzer can decline a channel, e.g. when it falls outside the analyzer's total charge
+        // cuts, leaving a result with no hits. Fall back to the WaveformPrep charge in that case.
+        if (charges.empty()) return ev->GetOrCreateDigitPMT(id)->GetDigitizedCharge();
         double charge = 0;
         for (size_t ic = 0; ic < charges.size(); ic++) charge += charges[ic];
         return charge;
@@ -293,6 +297,7 @@ class FitterInputHandler {
    * @brief Get the earliest time for a hit PMT.
    * In the case where a waveoform analyzer created multiple hits on the PMT (multi-PE), this method returns
    * the time of only the first hit. To get the times of each hit, use GetTimes.
+   * In kWaveformAnalysis mode, if the analyzer left no hits on the PMT, the DigitPMT time is returned instead.
    *
    * @param id PMT ID.
    * @return time of the first hit.
@@ -313,7 +318,11 @@ class FitterInputHandler {
         if (std::find(fitterNames.begin(), fitterNames.end(), wfm_ana_name) == fitterNames.end()) {
           info << "FitResult not found for pmt id " << id << " " << wfm_ana_name << newline;
         }
-        return digitpmt->GetOrCreateWaveformAnalysisResult(wfm_ana_name)->getTime(0);
+        DS::WaveformAnalysisResult* result = digitpmt->GetOrCreateWaveformAnalysisResult(wfm_ana_name);
+        // The analyzer can decline a channel, e.g. when it falls outside the analyzer's total charge
+        // cuts, leaving a result with no hits. Fall back to the WaveformPrep time in that case.
+        if (result->getNPEs() == 0) return digitpmt->GetDigitizedTime();
+        return result->getTime(0);
       }
       default:
         Log::Die("INVALID TYPE! Should never reach here.");

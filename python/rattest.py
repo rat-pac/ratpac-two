@@ -30,13 +30,17 @@ parser.add_argument('-r', '--regen-plots',
                     action='store_true', dest='regen_plots', default=False,
                     help='Force histograms to be regenerated.')
 
+parser.add_argument('-c', '--clean',
+                    action='store_true', dest='clean', default=False,
+                    help='Remove outputs of a previous run before running.')
+
 parser.add_argument('-t', '--text-only',
                     action='store_false', dest='web', default=True,
                     help='Do not open web pages with plots.')
 
 parser.add_argument('-e', '--experiment',
                     type=str, dest='experiment_bin', default=None,
-                    help='Absolute path to experiment binary to run test with. Uses `rat` as default.')
+                    help='Path to experiment binary, or its name on PATH, to run test with. Uses `rat` as default.')
 
 parser.add_argument('--make-template', type=str, dest='template', default=None,
                     help='Write a template rattest to current directory for you to edit. '\
@@ -58,11 +62,12 @@ for dirname in args.input:
         if configname in filenames:
             testcase = RatTest(os.path.join(dirpath, configname), rat_bin=args.experiment_bin)
             if args.update:
-                testcase.update(regen_mc=args.regen_mc, regen_plots=args.regen_plots)
+                testcase.update(regen_mc=args.regen_mc, regen_plots=args.regen_plots,
+                                clean=args.clean)
             else:
                 testcase_html = RatHtml(os.path.join(dirpath, htmlname))
                 result = testcase.run(regen_mc=args.regen_mc, regen_plots=args.regen_plots,
-                                      html=testcase_html)
+                                      clean=args.clean, html=testcase_html)
                 testcase_html.write()
                 if args.web:
                     webbrowser.open('file://'+os.path.abspath(testcase_html.htmlname), new=1)

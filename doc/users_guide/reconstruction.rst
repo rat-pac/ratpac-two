@@ -11,8 +11,78 @@ Here we describe the reconstruction processors.
 
 Fitter Input Handler
 ====================
+The ``FitterInputHandler`` is the common interface through which the reconstruction
+processors read PMT hits.  It is configured from the FIT_COMMON table and selects
+which representation of a hit is used for the time and charge of each channel.
 
-Document the fitter handler.
+=========================   ==========================  ===================
+**Field**                   **Type**                    **Description**
+=========================   ==========================  ===================
+``mode``                    ``int``                     Hit source.  0 = ``DS::PMT``, 1 = ``DS::DigitPMT`` digitized time and charge from ``WaveformPrep``, 2 = ``WaveformAnalysisResult``.
+``waveform_analyzer``       ``string``                  Name of the waveform analysis result to read.  Only used if ``mode`` is 2.
+``hit_cleaning_mask``       ``int``                     Bitmask of hit cleaning flags.  Channels with any of these bits set are excluded.  Defaults to 0 (no cleaning).
+``vertex_seed``             ``string``                  Name of the fitter providing the seed position and time.
+``direction_seed``          ``string``                  Name of the fitter providing the seed direction.
+``energy_seed``             ``string``                  Name of the fitter providing the seed energy.
+``light_speed``             ``double``                  Speed of light in material in mm/ns.  Used as the default by several fitters.
+=========================   ==========================  ===================
+
+Modes 0 and 1 provide a single time and charge per hit channel.  Mode 2 reads the
+multi-PE result of the named waveform analyzer (see :ref:`waveform_analysis`),
+so ``GetTimes``/``GetCharges`` return one entry per reconstructed photoelectron,
+while ``GetTime``/``GetCharge`` return the time of the first PE and the summed charge.
+
+In mode 2 an analyzer may leave a channel with no PEs, for example when the
+waveform falls outside the analyzer's ``min_total_charge``/``max_total_charge``
+cuts (see :ref:`common_parameters`).  Such a channel is still a hit channel,
+and ``GetTime`` and ``GetCharge`` fall back to the ``WaveformPrep`` digitized
+time and charge for it, as in mode 1.  ``GetTimes``, ``GetCharges`` and
+``GetNPEs`` do not fall back and report the empty result, so multi-PE fitters
+see no PEs on that channel.
+
+----------------------
+
+.. _fittime:
+
+Time Fitter
+===============
+The ``FitTime`` processor reconstructs the time of detector events by taking the median
+of selected PMT time residuals based on a fixed position.  Time residuals can be calculated
+by simple distance/light_speed (default) or with a wavelength via TransitTimeCalculator.
+
+Command:
+::
+
+    /rat/proc fittime
+
+Parameters
+''''''''''
+All of the parameters below can be set in macro, which allows the processor to be run multiple times
+with different settings in a single macro.
+
+=========================   ==========================  ===================
+**Field**                   **Type**                    **Description**
+=========================   ==========================  ===================
+``label``                   ``string``                  Additional string appended to "fittime"
+
+``pmt_type``                ``int``                     PMT "type" to use.  Multiple types can be used.  Defaults to all types.
+
+``light_speed``             ``double``                  Speed of light in material in mm/ns.  Defaults to value in FIT_COMMON table.
+``wavelength``              ``double``                  Wavelength of detected light in nm.  Defaults to 400 nm.
+
+``min_hit_time``            ``double``                  Optional lower cut on PMT hit times in ns
+``max_hit_time``            ``double``                  Optional upper cut on PMT hit times in ns
+
+``event_position_x``        ``double``                  Position of event in mm.  Defaults to 0.
+``event_position_y``        ``double``                  Position of event in mm.  Defaults to 0.
+``event_position_z``        ``double``                  Position of event in mm.  Defaults to 0.
+=========================   ==========================  ===================
+
+Time fit information in data structure
+''''''''''''''''''''''''''''''''''''''''''
+* name - "fittime"
+* figure of merit - ``num_times``      is the number of PMT hits used in the reconstruction
+* figure of merit - ``num_PMT``        is the number of PMTs used in the reconstruction
 
 ----------------------
 

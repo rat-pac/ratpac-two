@@ -115,7 +115,7 @@ All waveform analysis processors inherit from ``WaveformAnalyzerBase`` and share
     min_total_charge
     max_total_charge
 
-* Lower and upper bounds (in pC) on the digitized total charge of the waveform (``DigitPMT::GetDigitizedTotalCharge()``). If the total charge falls outside ``[min_total_charge, max_total_charge]``, the analysis for that channel is skipped entirely. By default these are set to the most negative and most positive finite ``double`` values respectively, so all waveforms are analyzed unless a cut is explicitly specified.
+* Lower and upper bounds (in pC) on the digitized total charge of the waveform (``DigitPMT::GetDigitizedTotalCharge()``). If the total charge falls outside ``[min_total_charge, max_total_charge]``, the analysis for that channel is skipped entirely. By default these are set to the most negative and most positive finite ``double`` values respectively, so all waveforms are analyzed unless a cut is explicitly specified. A skipped channel still carries an empty ``WaveformAnalysisResult`` for the analyzer (``getNPEs() == 0``); see :ref:`fitter_handler` for how the reconstruction processors treat such channels.
 
 For example, to restrict analysis to waveforms with total charge between -5 pC and 50 pC::
 

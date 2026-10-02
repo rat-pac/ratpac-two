@@ -75,8 +75,6 @@ Processor::Result FitCentroidProc::Event(DS::Root *ds, DS::EV *ev) {
   if (totalQ) {
     centroid *= 1.0 / totalQ;
     fit->SetPosition(centroid);
-  } else {
-    fit->SetValidPosition(false);
   }
   ev->AddFitResult(fit);
 
