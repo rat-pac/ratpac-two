@@ -1059,8 +1059,10 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, const G4Strin
                    "rise time must be greater than or equal to 0.");
 
   if (theWaveForm) {
+    double first = theWaveForm->Energy(0);
+    double last = theWaveForm->Energy(theWaveForm->GetVectorLength() - 1);
     // do we have time-series or decay-time data?
-    if (theWaveForm->GetEnergy(0) >= 0.0) {
+    if (first >= 0.0) {
       // we have digitized waveform (time-series) data
       // find the integral
       fTimeIntegral = Integrate_MPV_to_POFV(theWaveForm);
@@ -1069,21 +1071,18 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, const G4Strin
       // we have decay-time data.
       // sanity-check user's values:
       // issue a warning if they are nonsense, but continue
-      if (theWaveForm->Energy(theWaveForm->GetVectorLength() - 1) > 0.0) {
+      if (last > 0.0) {
         RAT::warn << "GLG4Scint::MyPhysicsTable::Entry::Build():  "
                   << "SCINTWAVEFORM" << name << " for material " << matName
                   << " has both positive and negative X values.  "
                   << " Undefined results will ensue!" << newline;
       }
 
-      /* Set the bin width to 100 times smaller than the smallest
-       * decay constant. */
-      G4double mintime = -1.0 * (theWaveForm->GetMaxEnergy());
+      // Set the bin width to 100 times smaller than the smallest decay constant.
+      G4double mintime = -1.0 * last;
       G4double bin_width = mintime / 100;
-
-      /* Set the maximum time for the PDF to 30 times the longest
-       * decay constant. */
-      G4double maxtime = -30.0 * (theWaveForm->GetEnergy(0));
+      // Set the maximum time for the PDF to 30 times the longest decay constant.
+      G4double maxtime = -30.0 * first;
       int nbins = ((int)(maxtime / bin_width)) + 1;
 
       G4double *tval = new G4double[nbins];
@@ -1138,8 +1137,10 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, const G4Strin
           aMaterialPropertiesTable->GetProperty((property_string.str()).c_str());
 
       if (theReemitWaveForm) {
+        double first = theReemitWaveForm->Energy(0);
+        double last = theReemitWaveForm->Energy(theReemitWaveForm->GetVectorLength() - 1);
         // do we have time-series or decay-time data?
-        if (theReemitWaveForm->GetEnergy(0) >= 0.0) {
+        if (first >= 0.0) {
           // we have digitized waveform (time-series) data
           // find the integral
           fReemissionTimeVector.push_back(Integrate_MPV_to_POFV(theReemitWaveForm));
@@ -1148,17 +1149,20 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, const G4Strin
           // we have decay-time data.
           // sanity-check user's values:
           // issue a warning if they are nonsense, but continue
-          if (theReemitWaveForm->GetMaxEnergy() > 0.0) {
+          if (last > 0.0) {
             RAT::warn << "GLG4Scint::MyPhysicsTable::Entry::Build():  "
                       << "REEMITWAVEFORM" << cnt << " for material " << matName
                       << " has both positive and negative X values.  "
                       << " Undefined results will ensue!" << newline;
           }
 
-          G4double maxtime = -3.0 * (theReemitWaveForm->GetEnergy(0));
-          G4double mintime = -1.0 * (theReemitWaveForm->GetMaxEnergy());
+          // Set the bin width to 100 times smaller than the smallest decay constant.
+          G4double mintime = -1.0 * last;
           G4double bin_width = mintime / 100;
+          // Set the maximum time for the PDF to 30 times the longest decay constant.
+          G4double maxtime = -30.0 * first;
           int nbins = ((int)(maxtime / bin_width)) + 1;
+
           G4double *tval = new G4double[nbins];
           G4double *ival = new G4double[nbins];
           for (int ii = 0; ii < nbins; ii++) {
@@ -1199,8 +1203,10 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, const G4Strin
     G4MaterialPropertyVector *theReemitWaveForm = aMaterialPropertiesTable->GetProperty("REEMITWAVEFORM");
 
     if (theReemitWaveForm) {
+      double first = theReemitWaveForm->Energy(0);
+      double last = theReemitWaveForm->Energy(theReemitWaveForm->GetVectorLength() - 1);
       // do we have time-series or decay-time data?
-      if (theReemitWaveForm->GetEnergy(0) >= 0.0) {
+      if (first >= 0.0) {
         // we have digitized waveform (time-series) data
         // find the integral
         fReemissionTimeIntegral = Integrate_MPV_to_POFV(theReemitWaveForm);
@@ -1209,7 +1215,7 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, const G4Strin
         // we have decay-time data.
         // sanity-check user's values:
         // issue a warning if they are nonsense, but continue
-        if (theReemitWaveForm->GetMaxEnergy() > 0.0) {
+        if (last > 0.0) {
           RAT::warn << "GLG4Scint::MyPhysicsTable::Entry::Build():  "
                     << "REEMITWAVEFORM for material " << matName
                     << " has both positive and negative X values.  "
@@ -1217,10 +1223,13 @@ void GLG4Scint::MyPhysicsTable::Entry::Build(const G4String &name, const G4Strin
                     << newline;
         }
 
-        G4double maxtime = -3.0 * (theReemitWaveForm->GetEnergy(0));
-        G4double mintime = -1.0 * (theReemitWaveForm->GetMaxEnergy());
+        // Set the bin width to 100 times smaller than the smallest decay constant.
+        G4double mintime = -1.0 * last;
         G4double bin_width = mintime / 100;
+        // Set the maximum time for the PDF to 30 times the longest decay constant.
+        G4double maxtime = -30.0 * first;
         int nbins = ((int)(maxtime / bin_width)) + 1;
+
         G4double *tval = new G4double[nbins];
         G4double *ival = new G4double[nbins];
         for (int ii = 0; ii < nbins; ii++) {
