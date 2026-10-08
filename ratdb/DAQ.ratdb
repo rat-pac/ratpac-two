@@ -29,6 +29,7 @@
 "index": "ForcedTrigger",
 "run_range": [0, 0],
 
+"trigger_jitter": 0.0, // ns. half-width of uniform distribution for trigger time jitter
 "digitizer_name": "V1730",
 "digitize": true, // Run digitization of PMT waveforms
 }
