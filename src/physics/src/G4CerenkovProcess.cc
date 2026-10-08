@@ -287,7 +287,7 @@ G4VParticleChange* G4CerenkovProcess::PostStepDoIt(const G4Track& aTrack, const 
 
   ////////////////////////////////////////////////////////////////
   G4double Pmin = Rindex->Energy(0);
-  G4double Pmax = Rindex->GetMaxEnergy();
+  G4double Pmax = Rindex->Energy(Rindex->GetVectorLength() - 1);
   G4double dp = Pmax - Pmin;
 
   G4double nMax = fMaxRindex[materialIndex];
@@ -485,7 +485,7 @@ G4double G4CerenkovProcess::GetAverageNumberOfPhotons(const G4double charge, con
 
   // Min and Max photon energies
   G4double Pmin = Rindex->Energy(0);
-  G4double Pmax = Rindex->GetMaxEnergy();
+  G4double Pmax = Rindex->Energy(Rindex->GetVectorLength() - 1);
 
   // Min and Max refractive index values
   G4double nMin = fMinRindex[materialIndex];

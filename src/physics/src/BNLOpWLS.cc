@@ -76,11 +76,11 @@ G4VParticleChange *BNLOpWLS::PostStepDoIt(const G4Track &aTrack, const G4Step &a
 
   if (QYValues) {
     // Case where energy is lower than the min energy; set to min value.
-    if (primaryEnergy < QYValues->GetEnergy(0)) {
+    if (primaryEnergy < QYValues->Energy(0)) {
       theQY = QYValues->GetMinValue();
     }
     // Case where energy is higher than the max energy; set to max value.
-    else if (QYValues->GetMaxEnergy() < primaryEnergy) {
+    else if (QYValues->Energy(QYValues->GetVectorLength() - 1) < primaryEnergy) {
       theQY = QYValues->GetMaxValue();
     }
     // Set to the nearest energy bin.
