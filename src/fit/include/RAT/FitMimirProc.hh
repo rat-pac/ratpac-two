@@ -3,14 +3,17 @@
 
 #include <RAT/FitterInputHandler.hh>
 #include <RAT/Processor.hh>
-#include <mimir/FitStrategy.hh>
+
+namespace Mimir {
+class FitStrategy;
+}
 
 namespace RAT {
 
 class FitMimirProc : public Processor {
  public:
   FitMimirProc();
-  virtual ~FitMimirProc() {}
+  ~FitMimirProc() override;
   void BeginOfRun(DS::Run *run) override;
   // virtual void SetI(std::string param, int value) override;
   // virtual void SetD(std::string param, double value) override;

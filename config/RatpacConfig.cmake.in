@@ -1,8 +1,57 @@
-# Similar to ratpac.sh.in
+@PACKAGE_INIT@
+
+# Ratpac::RATPAC / Ratpac::RATEvent (defined below, via RatpacTargets.cmake)
+# publicly link Ratpac::ROOT / Ratpac::Geant4 / Ratpac::CRY / Ratpac::TensorFlow
+# / Ratpac::NLopt by name (see cmake/RatpacDependencies.cmake in the
+# ratpac-two source tree, which defines the same targets for in-tree
+# builds), so those names must exist before RatpacTargets.cmake is included.
+include(CMakeFindDependencyMacro)
+find_dependency(ROOT CONFIG COMPONENTS @RATPAC_ROOT_FIND_COMPONENTS@)
+find_dependency(Geant4 @RATPAC_GEANT4_VERSION@)
+include(${Geant4_USE_FILE})
+
+if(NOT TARGET Ratpac::ROOT)
+  set(_ratpac_root_components @RATPAC_ROOT_COMPONENTS@)
+  add_library(Ratpac::ROOT INTERFACE IMPORTED)
+  foreach(_comp IN LISTS _ratpac_root_components)
+    if(TARGET ROOT::${_comp})
+      target_link_libraries(Ratpac::ROOT INTERFACE ROOT::${_comp})
+    endif()
+  endforeach()
+  unset(_ratpac_root_components)
+endif()
+
+if(NOT TARGET Ratpac::Geant4)
+  add_library(Ratpac::Geant4 INTERFACE IMPORTED)
+  target_link_libraries(Ratpac::Geant4 INTERFACE ${Geant4_LIBRARIES})
+  target_include_directories(Ratpac::Geant4 SYSTEM INTERFACE
+          ${Geant4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${XercesC_INCLUDE_DIRS}
+  )
+  target_compile_definitions(Ratpac::Geant4 INTERFACE ${Geant4_DEFINITIONS})
+endif()
+
+# CRY, TensorFlow and NLopt are optional, build-time-detected dependencies
+# that only a handful of RAT's public headers reference (VertexGen_CRY,
+# FitTensorProc, mimir's NLOPTOptimizer). Rather than re-running their
+# find_library() detection here, declare empty placeholders so the target
+# names Ratpac::RATPAC/RATEvent reference resolve. If you need one of them,
+# find it yourself and populate the corresponding target's
+# INTERFACE_INCLUDE_DIRECTORIES/INTERFACE_LINK_LIBRARIES before using classes
+# that need it.
+foreach(_optdep CRY TensorFlow NLopt)
+  if(NOT TARGET Ratpac::${_optdep})
+    add_library(Ratpac::${_optdep} INTERFACE IMPORTED)
+  endif()
+endforeach()
+
+include("${CMAKE_CURRENT_LIST_DIR}/RatpacTargets.cmake")
+
+# --- Backward-compatible variables, for consumers (e.g. RatpacExperiment)
+#     that predate the Ratpac::RATPAC target above and use these directly. ---
 set(RATROOT @RATROOT@)
 set(RATSHARE @RATSHARE@)
 set(ROOT_INCLUDE_PATH @RATROOT@/include)
-set(Ratpac_LIBRARIES @RATROOT@/lib/libRATPAC.so)
+get_target_property(Ratpac_LIBRARIES Ratpac::RATPAC LOCATION)
 include_directories(SYSTEM @RATROOT@/include/stlplus)
 include_directories(@RATROOT@/include)
 link_directories(@RATROOT@/lib)

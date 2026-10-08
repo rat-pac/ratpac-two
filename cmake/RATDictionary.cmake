@@ -11,7 +11,8 @@
 # src/CMakeLists.txt calls rat_generate_linkdef() to emit a global LinkDef that
 # #includes each fragment, and feeds the collected headers + that LinkDef to
 # root_generate_dictionary() once. Order of registration does not matter, and
-# fragments are resolved on rootcling's include path (RATPAC_INCLUDE_DIR).
+# fragments are resolved on rootcling's include path (the per-module
+# include/ directories set via include_directories() in src/CMakeLists.txt).
 
 # Register one or more headers for inclusion in the RAT ROOT dictionary.
 function(rat_dictionary_headers)
