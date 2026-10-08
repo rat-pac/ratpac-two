@@ -3,6 +3,7 @@
 #include <RAT/Gsim.hh>
 #include <RAT/PhysicsList.hh>
 #include <RAT/ProcBlock.hh>
+#include <RAT/RatRunManager.hh>
 #include <RAT/RunManager.hh>
 
 namespace RAT {
@@ -18,7 +19,7 @@ RunManager::RunManager(ProcBlock *theMainBlock) {
 }
 
 void RunManager::Init() {
-  theRunManager = new G4RunManager;  // Manages GEANT4 simulation process
+  theRunManager = new RatRunManager;  // Manages GEANT4 simulation process
 
   // Particle transport and interactions.  Note that this has to be
   // created outside of Gsim, since the physics list must be
