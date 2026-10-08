@@ -62,18 +62,6 @@ target_link_libraries(RATPAC
 target_include_directories(RATPAC PUBLIC $<INSTALL_INTERFACE:include>)
 target_include_directories(RATPAC SYSTEM PUBLIC $<INSTALL_INTERFACE:include/stlplus>)
 
-### library for ROOT
-# TODO: this is a byte-by-byte identical copy to RATPAC.
-# To make this a lighter weight library to read ratpac data some of the ratpac source 
-#will need to be changed. 
-add_library(RATEvent SHARED)
-target_include_directories(RATEvent PUBLIC $<INSTALL_INTERFACE:include>)
-target_include_directories(RATEvent SYSTEM PUBLIC $<INSTALL_INTERFACE:include/stlplus>)
-target_link_libraries(RATEvent
-  PUBLIC Ratpac::ROOT Ratpac::Geant4 Ratpac::CRY Ratpac::TensorFlow Ratpac::NLopt
-  PRIVATE ${RATPAC_MODULES}
-)
-
 # This copies the root dict files to <build>/lib
 add_custom_command(TARGET RATPAC POST_BUILD
    COMMAND ${CMAKE_COMMAND} -E copy
@@ -90,14 +78,14 @@ add_custom_command(TARGET RATPAC POST_BUILD
        ${PROJECT_BINARY_DIR}/bin
 )
 
-set_target_properties(RATPAC RATEvent
+set_target_properties(RATPAC
     PROPERTIES
        ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
 )
 
-# Prepare RATPAC and RATEvent for installation
-install(TARGETS RATPAC RATEvent
+# Prepare RATPAC for installation
+install(TARGETS RATPAC
         EXPORT RatpacTargets
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib

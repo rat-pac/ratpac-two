@@ -7,7 +7,7 @@ MAKEFILE = Makefile
 include $(GENIE)/src/make/Make.include
 
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
-RAT_LIBS = -L$(RATROOT)/lib -lRATEvent
+RAT_LIBS = -L$(RATROOT)/lib -lRATPAC
 
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES) $(RAT_LIBS)
 
