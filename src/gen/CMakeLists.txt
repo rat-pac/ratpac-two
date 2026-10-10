@@ -28,6 +28,7 @@ set(gen_sources
     src/Gen_LED.cc
     src/Gen_RandomTrigger.cc
     src/IBDgen.cc
+    src/PileupGen.cc
     src/PosGen_FillShell.cc
     src/PosGen_Line.cc
     src/PosGen_Multipoint.cc
