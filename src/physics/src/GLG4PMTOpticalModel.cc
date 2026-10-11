@@ -76,14 +76,19 @@ GLG4PMTOpticalModel::GLG4PMTOpticalModel(G4String modelName, G4Region *envelope_
     _applyCorrection = false;
   }
 
+  auto nDaughters = envelope_log->GetNoDaughters();
+  if (nDaughters < 1) {
+      G4Exception(__FILE__, "Bad Geometry", FatalException, "GLG4PMTOpticalModel: envelope has no daughter volumes!");
+  }
+
   // ... material properties of photocathode (first get photocathode surface)
   // here we assume that the first daughter volume is the "inner1" volume
   _inner1_phys = envelope_log->GetDaughter(0);
 
   // also retrieve the other volumes for use in DoIt() only
   // be VERY careful about how to do this
-  _inner2_phys = envelope_log->GetDaughter(1);
-  _central_gap_phys = envelope_log->GetDaughter(2);
+  _inner2_phys = nDaughters > 1 ? envelope_log->GetDaughter(1) : nullptr;
+  _central_gap_phys = nDaughters > 2 ? envelope_log->GetDaughter(2) : nullptr;
 
   if (pc_opsurf == nullptr) {
     G4Exception(__FILE__, "Bad Properties", FatalException, "GLG4PMTOpticalModel: no photocathode optical surface!?!");
