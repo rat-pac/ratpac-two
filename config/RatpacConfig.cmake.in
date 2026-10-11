@@ -1,7 +1,7 @@
 @PACKAGE_INIT@
 
-# Ratpac::RATPAC / Ratpac::RATEvent (defined below, via RatpacTargets.cmake)
-# publicly link Ratpac::ROOT / Ratpac::Geant4 / Ratpac::CRY / Ratpac::TensorFlow
+# Ratpac::RATPAC (defined below, via RatpacTargets.cmake)
+# publicly links Ratpac::ROOT / Ratpac::Geant4 / Ratpac::CRY / Ratpac::TensorFlow
 # / Ratpac::NLopt by name (see cmake/RatpacDependencies.cmake in the
 # ratpac-two source tree, which defines the same targets for in-tree
 # builds), so those names must exist before RatpacTargets.cmake is included.
@@ -34,7 +34,7 @@ endif()
 # that only a handful of RAT's public headers reference (VertexGen_CRY,
 # FitTensorProc, mimir's NLOPTOptimizer). Rather than re-running their
 # find_library() detection here, declare empty placeholders so the target
-# names Ratpac::RATPAC/RATEvent reference resolve. If you need one of them,
+# names referenced by Ratpac::RATPAC resolve. If you need one of them,
 # find it yourself and populate the corresponding target's
 # INTERFACE_INCLUDE_DIRECTORIES/INTERFACE_LINK_LIBRARIES before using classes
 # that need it.
