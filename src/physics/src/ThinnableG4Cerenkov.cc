@@ -81,6 +81,7 @@ G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack, cons
     // Check whether wavelength in range and continue if not
     double wvl = (CLHEP::twopi * CLHEP::hbarc) / (existing->GetKineticEnergy() * CLHEP::MeV) / CLHEP::nm;
     if (wvl < lower_wavelength_threshold || wvl > upper_wavelength_threshold) {
+      delete existing; // Delete tracks filtered by wavelength
       continue;
     }
 
@@ -94,6 +95,8 @@ G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack, cons
       // second, explicitly label tracking
       secondary->SetParentID(aTrack.GetTrackID());
       secondaries.push_back(secondary);
+    } else {
+      delete existing; //Delete tracks rejected by thinning
     }
   }
 
