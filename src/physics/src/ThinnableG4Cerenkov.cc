@@ -70,33 +70,29 @@ G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack, cons
   if (n_pred == 0) {
     return rv;
   }
-  // TODO a fixed length here could speed things up...
-  // but is not (?) predictable, since we don't know outcome of following
-  // per-photon RNG decisions
-  //  G4int n_prod = static_cast<G4int>(std::round(n_pred));
+  // Reserve enough capacity for all predicted photons to avoid
+  // repeated reallocations. The actual number retained will
+  // depend on wavelength filtering and random thinning.
   std::vector<G4Track *> secondaries;
+  secondaries.reserve(n_pred);
+  
+  // Retain the original G4Track pointers for accepted photons,
+  // avoiding unnecessary copies. Delete rejected tracks to
+  // prevent memory leaks.
   for (G4int i = 0; i < n_pred; i++) {
     G4Track *existing = rv->GetSecondary(i);
 
-    // Check whether wavelength in range and continue if not
+    // Calculate photon wavelength
     double wvl = (CLHEP::twopi * CLHEP::hbarc) / (existing->GetKineticEnergy() * CLHEP::MeV) / CLHEP::nm;
-    if (wvl < lower_wavelength_threshold || wvl > upper_wavelength_threshold) {
-      delete existing; // Delete tracks filtered by wavelength
-      continue;
-    }
-
-    double random = heprandom.flat();
-    if (random < this->GetThinningFactor()) {
-      // G4VParticleChange::SetNumberOfSecondaries will free all pending
-      // secondaries, so we must explicitly copy each surviving track
-      // into a separate data structure, which is a two-step process
-      // first, copy data structure
-      G4Track *secondary = new G4Track(*existing);
-      // second, explicitly label tracking
-      secondary->SetParentID(aTrack.GetTrackID());
-      secondaries.push_back(secondary);
+    
+    // Check photon in wavelength range
+    bool in_range = wvl >= lower_wavelength_threshold && wvl <= upper_wavelength_threshold;
+    
+    if (in_range && heprandom.flat() < this->GetThinningFactor()) {
+      existing->SetParentID(aTrack.GetTrackID());
+      secondaries.push_back(existing);
     } else {
-      delete existing; //Delete tracks rejected by thinning
+      delete existing;
     }
   }
 
@@ -105,11 +101,14 @@ G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack, cons
   // verbose flags but this is safe to ignore, though it will clutter the log
   // UPDATE: Going to just redirect the output to ignore this since we are intentionally
   // calling this function again and the prints at issue got removed in G4 11.1.0
+  //
+  // Rebuild the active secondary list using the retained tracks.
+  // G4 takes ownership of these tracks for subsequent propagation.
   RAT::mute_g4mute();
   rv->SetNumberOfSecondaries(secondaries.size());
   RAT::mute_g4unmute();
-  for (size_t i = 0; i < secondaries.size(); i++) {
-    G4Track *secondary = secondaries[i];
+  
+  for (G4Track* secondary : secondaries) {
     rv->AddSecondary(secondary);
   }
 
