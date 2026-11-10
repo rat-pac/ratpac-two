@@ -75,7 +75,9 @@ G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack, cons
   // depend on wavelength filtering and random thinning.
   std::vector<G4Track *> secondaries;
   secondaries.reserve(n_pred);
-  
+
+  // In Geant4 11.1+, SetNumberOfSecondaries() resets the active
+  // secondary count without deleting the existing tracks.
   // Retain the original G4Track pointers for accepted photons,
   // avoiding unnecessary copies. Delete rejected tracks to
   // prevent memory leaks.
@@ -84,10 +86,10 @@ G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack, cons
 
     // Calculate photon wavelength
     double wvl = (CLHEP::twopi * CLHEP::hbarc) / (existing->GetKineticEnergy() * CLHEP::MeV) / CLHEP::nm;
-    
-    // Check photon in wavelength range
+
+    // Check whether the photon wavelength is within allowed range
     bool in_range = wvl >= lower_wavelength_threshold && wvl <= upper_wavelength_threshold;
-    
+
     if (in_range && heprandom.flat() < this->GetThinningFactor()) {
       existing->SetParentID(aTrack.GetTrackID());
       secondaries.push_back(existing);
@@ -96,19 +98,18 @@ G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack, cons
     }
   }
 
-  // clear the list of secondaries, and repopulate with chosen subset
-  // Geant4 may spit out warning messages based on whether it was compiled with
-  // verbose flags but this is safe to ignore, though it will clutter the log
-  // UPDATE: Going to just redirect the output to ignore this since we are intentionally
-  // calling this function again and the prints at issue got removed in G4 11.1.0
+  // Reset the active secondary count without deleting the
+  // existing tracks (Geant4 11.1+).
+  // Rebuild the active secondary list using the retained
+  // photon pointers.
   //
   // Rebuild the active secondary list using the retained tracks.
   // G4 takes ownership of these tracks for subsequent propagation.
   RAT::mute_g4mute();
   rv->SetNumberOfSecondaries(secondaries.size());
   RAT::mute_g4unmute();
-  
-  for (G4Track* secondary : secondaries) {
+
+  for (G4Track *secondary : secondaries) {
     rv->AddSecondary(secondary);
   }
 
