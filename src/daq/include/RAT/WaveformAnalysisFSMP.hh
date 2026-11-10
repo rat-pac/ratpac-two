@@ -132,13 +132,24 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
   double
       lightcurve_floor;  ///< Fraction of the prior spread flat across the window, for PEs the curve does not describe
   double lightcurve_window;  ///< Digitizer window (ns) the floor is spread over, set per waveform
-  double t0_step;            ///< Random-walk proposal step for t0 (ns)
+  // Optional scintillator profile. When lightcurve_taus is set the curve is the
+  // emission profile GLG4Scint samples -- one rise, several weighted decays --
+  // convolved with a gaussian of lightcurve_sigma, plus a prompt gaussian
+  // fraction for Cherenkov light; lightcurve_tau is then unused.
+  std::vector<double> lightcurve_taus;     ///< Decay constants (ns), empty for the single ex-Gaussian
+  std::vector<double> lightcurve_weights;  ///< Their relative weights, normalised on read
+  double lightcurve_rise;                  ///< Rise time (ns) shared by every decay component, 0 for none
+  double lightcurve_prompt;                ///< Fraction of the light arriving at t0 with no delay (Cherenkov)
+  double t0_step;                          ///< Random-walk proposal step for t0 (ns)
 
   // NPE estimation parameters
   bool npe_estimate;                 ///< Whether to perform NPE estimation on resolved wave packets
   double npe_estimate_charge_width;  ///< Width of Gaussian single-PE charge distribution
   size_t npe_estimate_max_pes;       ///< Upper limit for NPE estimation
   double weight_merge_window;        ///< Time window (ns) for merging nearby weights, 0 to disable
+  bool pileup_split;                 ///< Recover PEs merged into one atom from the region's total charge
+  double pileup_split_threshold;     ///< Log-likelihood gain the charge must show before PEs are added
+  int mu_prior;                      ///< Occupancy-prior intensity: 0 seed count, 1 charge, 2 the larger
 
   // Expected waveform output
   bool store_expected_waveform;  ///< Whether to hand the MAP model waveform to the WaveformAnalysisResult
@@ -186,6 +197,19 @@ class WaveformAnalysisFSMP : public WaveformAnalyzerBase {
 
   /// Normalized light-curve density phi(dt) (paper eq. 2.2), dt = t - t0
   double LightCurve(double dt) const;
+
+  /// Mean delay of the light curve after t0 (ns), which sets how far before
+  /// the first candidate PE the sampler lets t0 go
+  double LightCurveMeanDelay() const;
+
+  /// Per-atom PE multiplicity for pileup_split: the region's PE count N >= the
+  /// atom count that maximises Gamma(sum of weights; N k, theta), if it beats
+  /// the atom count by more than pileup_split_threshold, with the extra PEs
+  /// handed one at a time to the atom carrying the most weight per PE
+  std::vector<size_t> PileupMultiplicity(const std::vector<std::pair<double, double>> &pes) const;
+
+  /// Die on an inconsistent scintillator profile (lengths, signs, rise == decay)
+  void CheckLightCurve() const;
 };
 
 }  // namespace RAT

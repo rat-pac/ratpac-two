@@ -370,8 +370,15 @@ FSMP takes the same parameters as GreedyMP, minus ``greedy_shortlist``, plus the
 ``lightcurve_tau``                Light curve exponential time constant, in ns. 0 gives a pure Gaussian.
 ``lightcurve_sigma``              Light curve timing spread, in ns. Mainly PMT transit time spread.
 ``lightcurve_floor``              Fraction of the arrival time prior spread flat across the readout window. 0 by default.
+``lightcurve_taus``               Optional scintillator decay constants, in ns. When set, replaces ``lightcurve_tau``.
+``lightcurve_weights``            Relative weights of ``lightcurve_taus``, normalised on read. Same length.
+``lightcurve_rise``               Rise time shared by every ``lightcurve_taus`` component, in ns. 0 by default.
+``lightcurve_prompt``             Fraction of the light with no delay after t0 (Cherenkov). 0 by default.
 ``t0_step``                       Random walk proposal step for t0, in ns.
 ``store_expected_waveform``       Whether to keep the expected waveform of the MAP configuration. Off by default.
+``pileup_split``                  Recover PEs hidden inside one atom from the region's total charge. Off by default.
+``pileup_split_threshold``        Log likelihood gain the charge must show before ``pileup_split`` adds a PE. 2 by default.
+``mu_prior``                      Occupancy prior intensity: 0 the seeded PE count (default), 1 the charge, 2 the larger.
 ================================  ===================
 
 Setting ``store_expected_waveform`` attaches the waveform FSMP's MAP configuration predicts --- its PEs folded back through the single PE response, in mV, pedestal-subtracted, one entry per digitizer sample --- to the ``WaveformAnalysisResult``. This is the model behind ``chi2ndf``, taken before ``weight_merge_window`` and ``npe_estimate`` reshape the atoms for output, so it shows what the fit actually settled on rather than what was reported. ``outntuple`` writes it to the ``waveforms`` tree as ``expected_waveform_FSMP`` alongside the observed waveform (see :doc:`outputs`), which requires ``include_digitizerwaveforms``::
@@ -391,6 +398,10 @@ The sampler draws from its own random number generator, seeded once per run from
 Transit time spread is a lower bound on ``lightcurve_sigma``, not the whole of it: the curve also has to absorb photon time of flight across the photocathode and the finite size of the source. Narrowing it to a measured PMTTRANSIT prompt peak has been seen to cost PE finding efficiency outright.
 
 ``lightcurve_floor`` mixes a flat component into that profile. The light curve describes the prompt light only, and it falls off fast enough that a PE in the PMTTRANSIT late tail, or a dark noise PE anywhere in the window, is given an occupancy prior of order 1e-300 --- the sampler cannot accept one however well it fits the waveform. A small floor makes those reachable. Treat it as a nuisance parameter to fit rather than a measured fraction: the flat part is proportional to :math:`\mu` in this model, which dark noise is not.
+
+``lightcurve_taus`` describes a scintillator more closely than the single ex-Gaussian. The curve is then the emission profile GLG4Scint samples --- for each component, :math:`(e^{-t/d} - e^{-t/r})/(d - r)` with decay :math:`d` from ``lightcurve_taus`` and rise :math:`r` = ``lightcurve_rise`` --- weighted by ``lightcurve_weights``, convolved with a Gaussian of ``lightcurve_sigma``, and mixed with a pure Gaussian of fraction ``lightcurve_prompt`` for Cherenkov light. Arrays cannot be set with ``/rat/procset``; set them in the table with ``/rat/db/set`` before ``/run/initialize``. A rise of 0 and one decay is the ex-Gaussian of ``lightcurve_tau``. The shape is best fit to MC truth arrival times of the fill, since the PMT transit time spread, time of flight and reflections all enter it.
+
+``pileup_split`` and ``mu_prior`` address PEs that arrive too close together to separate in time, which on a bright channel is most of them: Cherenkov PEs on one channel arrive within about 1 ns. The sampler then resolves fewer atoms than there are PEs. ``pileup_split`` counts them from the charge instead: one PE's charge follows the Gamma charge prior, so N PEs sum to :math:`\Gamma(N k, \theta)`, and when the region's summed weight prefers more PEs than atoms by more than ``pileup_split_threshold`` in log likelihood, the extra PEs go one at a time to the atom carrying the most charge per PE. It has no effect when ``npe_estimate`` is on. ``mu_prior`` sets the intensity the occupancy prior scales with. The seeded PE count, the default, is low on exactly those channels, and the prior then charges the sampler for every PE it adds; 2 takes the larger of the seed count and the charge.
 
 -------------------------
 

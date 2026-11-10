@@ -72,6 +72,28 @@ void WaveformAnalysisFSMP::Configure(const std::string& config_name) {
     if (lightcurve_floor < 0.0 || lightcurve_floor >= 1.0) {
       RAT::Log::Die(GetAnalyzerName() + ": lightcurve_floor must be in [0, 1).");
     }
+    // Optional scintillator profile (see LightCurve). Absent keys keep the
+    // single ex-Gaussian of lightcurve_tau / lightcurve_sigma.
+    lightcurve_taus.clear();
+    lightcurve_weights.clear();
+    lightcurve_rise = 0.0;
+    lightcurve_prompt = 0.0;
+    try {
+      lightcurve_taus = fDigit->GetDArray("lightcurve_taus");
+      lightcurve_weights = fDigit->GetDArray("lightcurve_weights");
+    } catch (DBNotFoundError&) {
+      lightcurve_taus.clear();
+      lightcurve_weights.clear();
+    }
+    try {
+      lightcurve_rise = fDigit->GetD("lightcurve_rise");
+    } catch (DBNotFoundError&) {
+    }
+    try {
+      lightcurve_prompt = fDigit->GetD("lightcurve_prompt");
+    } catch (DBNotFoundError&) {
+    }
+    CheckLightCurve();
 
     // NPE estimation. Splitting a resolved atom's charge into integer PEs
     // reintroduces the single PE charge variance that FSMP removes by counting
@@ -80,6 +102,27 @@ void WaveformAnalysisFSMP::Configure(const std::string& config_name) {
     npe_estimate_charge_width = fDigit->GetD("npe_estimate_charge_width");
     npe_estimate_max_pes = fDigit->GetI("npe_estimate_max_pes");
     weight_merge_window = fDigit->GetD("weight_merge_window");
+    // Pile-up recovery by charge. Optional, off by default: an atom is a set of
+    // PEs the waveform cannot separate in time, but its charge still counts them.
+    pileup_split = false;
+    pileup_split_threshold = 2.0;
+    try {
+      pileup_split = (fDigit->GetI("pileup_split") != 0);
+    } catch (DBNotFoundError&) {
+    }
+    try {
+      pileup_split_threshold = fDigit->GetD("pileup_split_threshold");
+    } catch (DBNotFoundError&) {
+    }
+    // Intensity the occupancy prior scales with. Optional, default the seeded
+    // count as before; the charge forms exist because the seed undercounts
+    // piled-up channels, and the prior then charges every extra PE for it.
+    mu_prior = 0;
+    try {
+      mu_prior = fDigit->GetI("mu_prior");
+    } catch (DBNotFoundError&) {
+    }
+    if (mu_prior < 0 || mu_prior > 2) RAT::Log::Die(GetAnalyzerName() + ": mu_prior must be 0, 1 or 2.");
 
     // Diagnostic output: one array of nsamples doubles per analyzed PMT per
     // event, so off unless asked for.
@@ -123,6 +166,12 @@ void WaveformAnalysisFSMP::SetD(std::string param, double value) {
     lightcurve_floor = value;
   } else if (param == "lightcurve_tau") {
     lightcurve_tau = value;
+  } else if (param == "lightcurve_rise") {
+    lightcurve_rise = value;
+    CheckLightCurve();
+  } else if (param == "lightcurve_prompt") {
+    lightcurve_prompt = value;
+    CheckLightCurve();
   } else if (param == "lightcurve_sigma") {
     lightcurve_sigma = value;
   } else if (param == "t0_step") {
@@ -131,6 +180,8 @@ void WaveformAnalysisFSMP::SetD(std::string param, double value) {
     npe_estimate_charge_width = value;
   } else if (param == "weight_merge_window") {
     weight_merge_window = value;
+  } else if (param == "pileup_split_threshold") {
+    pileup_split_threshold = value;
   } else {
     WaveformAnalyzerBase::SetD(param, value);
   }
@@ -157,6 +208,11 @@ void WaveformAnalysisFSMP::SetI(std::string param, int value) {
     npe_estimate_max_pes = static_cast<size_t>(value);
   } else if (param == "store_expected_waveform") {
     store_expected_waveform = (value != 0);
+  } else if (param == "pileup_split") {
+    pileup_split = (value != 0);
+  } else if (param == "mu_prior") {
+    if (value < 0 || value > 2) RAT::Log::Die(GetAnalyzerName() + ": mu_prior must be 0, 1 or 2.");
+    mu_prior = value;
   } else {
     throw Processor::ParamUnknown(param);
   }
@@ -429,14 +485,17 @@ void WaveformAnalysisFSMP::EmitRegion(const Region& region, DS::WaveformAnalysis
     pes.swap(merged);
   }
 
-  // One PE per resolved atom, unless npe_estimate splits it by charge.
+  // One PE per resolved atom, unless npe_estimate or pileup_split splits it by charge.
   const double calibrated_vpe_charge = vpe_charge * gain_calibration;
-  for (const auto& [time, weight] : pes) {
-    const double pe_charge = weight * vpe_charge * gain_calibration;
+  const std::vector<size_t> multiplicity =
+      (pileup_split && !npe_estimate) ? PileupMultiplicity(pes) : std::vector<size_t>(pes.size(), 1);
+  for (size_t ia = 0; ia < pes.size(); ++ia) {
+    const double time = pes[ia].first;
+    const double pe_charge = pes[ia].second * vpe_charge * gain_calibration;
 
     size_t npe = npe_estimate
                      ? EstimateNPE(pe_charge, calibrated_vpe_charge, npe_estimate_charge_width, npe_estimate_max_pes)
-                     : 1;
+                     : multiplicity[ia];
     if (npe == 0) npe = 1;
 
     for (size_t ipe = 0; ipe < npe; ++ipe) {
@@ -446,6 +505,44 @@ void WaveformAnalysisFSMP::EmitRegion(const Region& region, DS::WaveformAnalysis
       fit_result->AddPE(time, pe_charge / npe, fom);
     }
   }
+}
+
+std::vector<size_t> WaveformAnalysisFSMP::PileupMultiplicity(const std::vector<std::pair<double, double>>& pes) const {
+  // Weights are in units of the nominal PE, and FSMP's charge prior says one PE
+  // is Gamma(k, theta); N of them sum to Gamma(N k, theta). Pile-up only ever
+  // hides PEs inside an atom, so the atom count is a floor, and the charge is
+  // only allowed to add to it when it clearly prefers more (the threshold): a
+  // single PE in the upper tail of a 37%-wide charge spectrum must not split.
+  std::vector<size_t> n(pes.size(), 1);
+  const size_t a = pes.size();
+  double wsum = 0.0;
+  for (const auto& pe : pes) wsum += pe.second;
+  if (a == 0 || wsum <= 0.0) return n;
+  const double k = gamma_k, theta = gamma_theta;
+  auto loglik = [&](size_t N) {
+    const double shape = N * k;
+    return (shape - 1.0) * std::log(wsum) - wsum / theta - shape * std::log(theta) - std::lgamma(shape);
+  };
+  const double ll_a = loglik(a);
+  size_t best = a;
+  double ll_best = ll_a;
+  const size_t nmax = a + static_cast<size_t>(std::ceil(3.0 * wsum / (k * theta))) + 5;
+  for (size_t N = a + 1; N <= nmax; ++N) {
+    const double ll = loglik(N);
+    if (ll > ll_best) {
+      ll_best = ll;
+      best = N;
+    }
+  }
+  if (ll_best - ll_a <= pileup_split_threshold) return n;
+  for (size_t extra = best - a; extra > 0; --extra) {
+    size_t imax = 0;
+    for (size_t i = 1; i < a; ++i) {
+      if (pes[i].second / n[i] > pes[imax].second / n[imax]) imax = i;
+    }
+    ++n[imax];
+  }
+  return n;
 }
 
 std::vector<double> WaveformAnalysisFSMP::ExpectedWaveform(const std::vector<Region>& regions, const TMatrixD& fW,
@@ -560,7 +657,7 @@ void WaveformAnalysisFSMP::SampleConfigurations(std::vector<Region>& regions, in
   }
   // PEs follow t0 for an ex-Gaussian light curve, so allow t0 well before the
   // first candidate column and only a few sigma after the last.
-  const double pad_lo = 3.0 * std::max(lightcurve_sigma, 1.0) + std::max(lightcurve_tau, 0.0);
+  const double pad_lo = 3.0 * std::max(lightcurve_sigma, 1.0) + LightCurveMeanDelay();
   const double pad_hi = 3.0 * std::max(lightcurve_sigma, 1.0);
   const int jlo = g_min - static_cast<int>(std::ceil(pad_lo / dtp));
   const int jhi = g_max + static_cast<int>(std::ceil(pad_hi / dtp));
@@ -831,13 +928,90 @@ void WaveformAnalysisFSMP::SampleConfigurations(std::vector<Region>& regions, in
   mu_hat = (n_rec > 0) ? IntensityMLE(n_hist, mu_eff, mass_scale) : npe_hat;
 }
 
+namespace {
+
+// exp(x^2) erfc(x) for x >= 0. Direct below 25, where neither factor
+// overflows; the asymptotic series above, where it is good to ~1e-10.
+double ErfcxPositive(double x) {
+  if (x < 25.0) return std::exp(x * x) * std::erfc(x);
+  const double ix2 = 1.0 / (x * x);
+  return (1.0 - 0.5 * ix2 + 0.75 * ix2 * ix2 - 1.875 * ix2 * ix2 * ix2) / (x * std::sqrt(TMath::Pi()));
+}
+
+// Unit-integral exponential of mean tau convolved with a gaussian of width
+// sigma, i.e. the ex-Gaussian. Through erfcx where the plain form would
+// multiply an overflowing exponential by an underflowing erfc, which is the
+// regime a short rise time puts it in.
+double ExGaussian(double dt, double sigma, double tau) {
+  if (sigma <= 0.0) return (dt > 0.0) ? std::exp(-dt / tau) / tau : 0.0;
+  const double x = (sigma / tau - dt / sigma) / std::sqrt(2.0);
+  if (x > 0.0) return std::exp(-0.5 * (dt / sigma) * (dt / sigma)) * ErfcxPositive(x) / (2.0 * tau);
+  return std::exp(sigma * sigma / (2.0 * tau * tau) - dt / tau) * std::erfc(x) / (2.0 * tau);
+}
+
+}  // namespace
+
+void WaveformAnalysisFSMP::CheckLightCurve() const {
+  if (lightcurve_taus.size() != lightcurve_weights.size()) {
+    RAT::Log::Die(GetAnalyzerName() + ": lightcurve_taus and lightcurve_weights differ in length.");
+  }
+  double wsum = 0.0;
+  for (size_t i = 0; i < lightcurve_taus.size(); ++i) {
+    if (lightcurve_taus[i] <= 0.0 || lightcurve_weights[i] < 0.0) {
+      RAT::Log::Die(GetAnalyzerName() + ": lightcurve_taus must be > 0 and lightcurve_weights >= 0.");
+    }
+    if (std::abs(lightcurve_taus[i] - lightcurve_rise) < 1e-6) {
+      RAT::Log::Die(GetAnalyzerName() + ": a lightcurve_taus entry equals lightcurve_rise.");
+    }
+    wsum += lightcurve_weights[i];
+  }
+  if (!lightcurve_taus.empty() && wsum <= 0.0) {
+    RAT::Log::Die(GetAnalyzerName() + ": lightcurve_weights sum to zero.");
+  }
+  if (lightcurve_rise < 0.0) RAT::Log::Die(GetAnalyzerName() + ": lightcurve_rise must be >= 0.");
+  if (lightcurve_prompt < 0.0 || lightcurve_prompt > 1.0) {
+    RAT::Log::Die(GetAnalyzerName() + ": lightcurve_prompt must be in [0, 1].");
+  }
+}
+
+double WaveformAnalysisFSMP::LightCurveMeanDelay() const {
+  if (lightcurve_taus.empty()) return std::max(lightcurve_tau, 0.0);
+  // Each rise/decay component has mean rise + decay; prompt light has none.
+  double wsum = 0.0, mean = 0.0;
+  for (size_t i = 0; i < lightcurve_taus.size(); ++i) {
+    wsum += lightcurve_weights[i];
+    mean += lightcurve_weights[i] * (lightcurve_rise + lightcurve_taus[i]);
+  }
+  return (1.0 - lightcurve_prompt) * mean / wsum;
+}
+
 double WaveformAnalysisFSMP::LightCurve(double dt) const {
   const double sigma = lightcurve_sigma;
   const double tau = lightcurve_tau;
   const double sqrt2 = std::sqrt(2.0);
 
   double phi = 0.0;
-  if (tau <= 1e-6) {
+  if (!lightcurve_taus.empty()) {
+    // Scintillator profile: GLG4Scint's per-component density
+    // (e^{-t/d} - e^{-t/r}) / (d - r) is [d Exp_d - r Exp_r] / (d - r) in terms of
+    // unit-integral exponentials, so its convolution with the gaussian is the
+    // same combination of ex-Gaussians. Rise 0 and one decay is the ex-Gaussian
+    // below; the prompt part is the pure-Gaussian limit.
+    double wsum = 0.0;
+    for (double w : lightcurve_weights) wsum += w;
+    const double r = lightcurve_rise;
+    for (size_t i = 0; i < lightcurve_taus.size(); ++i) {
+      const double d = lightcurve_taus[i];
+      const double comp = (r > 1e-6) ? (d * ExGaussian(dt, sigma, d) - r * ExGaussian(dt, sigma, r)) / (d - r)
+                                     : ExGaussian(dt, sigma, d);
+      phi += lightcurve_weights[i] / wsum * comp;
+    }
+    phi *= (1.0 - lightcurve_prompt);
+    if (lightcurve_prompt > 0.0 && sigma > 0.0) {
+      phi += lightcurve_prompt * std::exp(-0.5 * (dt / sigma) * (dt / sigma)) / (sigma * std::sqrt(2.0 * TMath::Pi()));
+    }
+    phi = std::max(phi, 0.0);  // the difference of two ex-Gaussians can round below zero far out
+  } else if (tau <= 1e-6) {
     // Pure Gaussian (Cherenkov limit, tau_l -> 0).
     if (sigma <= 0.0) {
       phi = (std::abs(dt) < 1e-9) ? 1.0 : 0.0;
@@ -931,12 +1105,17 @@ void WaveformAnalysisFSMP::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
     return;
   }
 
-  // Starting configuration for the chain. A seeded PE count is the better
-  // preconditioner intensity, since it comes from an algorithm that actually
-  // resolves PEs rather than from the integrated charge.
+  // Starting configuration for the chain. By default a seeded PE count replaces
+  // the charge as the prior intensity (mu_prior 0); 1 keeps the charge, and 2
+  // takes the larger, since pile-up only ever makes the seed count too low.
   size_t nseed = 0;
   if (!seed_analyzer.empty()) nseed = SeedRegions(digitpmt, regions);
-  if (nseed > 0) mu0 = static_cast<double>(nseed);
+  if (nseed > 0) {
+    if (mu_prior == 0)
+      mu0 = static_cast<double>(nseed);
+    else if (mu_prior == 2)
+      mu0 = std::max(mu0, static_cast<double>(nseed));
+  }
 
   double t0_hat = WaveformUtil::INVALID, mu_hat = 0.0, npe_hat = 0.0;
   SampleConfigurations(regions, fW.GetNcols(), mu0, t0_hat, mu_hat, npe_hat);
