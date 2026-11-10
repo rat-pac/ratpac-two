@@ -304,6 +304,7 @@ The method can be configured using the following ratdb parameters:
 ``vpe_charge_pmt_charges``        Single PE charge (pC) for each listed PMT type. Unlisted types use ``vpe_charge``.
 ``upsampling_factor``             Dictionary upsampling factor for sub-sample timing resolution.
 ``noise_sigma``                   Gaussian white noise sigma of the waveform, in mV. Must be positive.
+``apply_charge_scale``            Fit each waveform against the template scaled by ChannelStatus' per-channel ``charge_scale``. Off by default.
 ``gamma_k``                       Shape of the per-PE charge prior. Paper value is 1/0.4^2.
 ``gamma_theta``                   Scale of the per-PE charge prior. Paper value is 0.4^2.
 ``gamma_pmt_types``               Optional PMT types with their own charge prior. Paired with the next entry.
@@ -397,6 +398,8 @@ Shared notes
 ````````````
 
 ``noise_sigma`` should match the digitizer noise model (the ``noise_amplitude`` entry of the ``DIGITIZER`` table, or the pedestal RMS for real data), since it sets the scale of the evidence and therefore how readily either analyzer adds a PE.
+
+On data, set ``apply_charge_scale``: a PE on a channel carries ``vpe_charge`` times that channel's ``charge_scale``, while the template is built per PMT type, so without it a single PE fits with a weight equal to the gain and the charge prior is centred off one PE. The waveform is fit divided by the gain at ``noise_sigma`` divided by the gain, which is equivalent to scaling the template; regions are still found on the recorded waveform and the stored expected waveform is in recorded mV. In simulation ``charge_scale`` is 1 and the setting changes nothing.
 
 ``weight_merge_window`` and ``npe_estimate`` default off for both GreedyMP and FSMP, unlike RAVEN. Splitting a resolved atom's charge into integer PEs reintroduces the single PE charge variance that resolving PEs individually is meant to remove.
 

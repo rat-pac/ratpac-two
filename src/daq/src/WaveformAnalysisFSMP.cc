@@ -38,6 +38,14 @@ void WaveformAnalysisFSMP::Configure(const std::string& config_name) {
 
     // Noise
     noise_sigma = fDigit->GetD("noise_sigma");
+    fit_noise_sigma = noise_sigma;
+    // Optional, default off. Simulation runs at charge_scale 1, where it changes
+    // nothing; on data the gain spreads a single PE over weights 0.8 to 2.
+    try {
+      apply_charge_scale = fDigit->GetZ("apply_charge_scale");
+    } catch (DBNotFoundError&) {
+      apply_charge_scale = false;
+    }
 
     // Initial configuration
     seed_analyzer = fDigit->GetS("seed_analyzer");
@@ -131,7 +139,9 @@ void WaveformAnalysisFSMP::SetD(std::string param, double value) {
 void WaveformAnalysisFSMP::SetI(std::string param, int value) {
   if (fDict.SetI(param, value)) return;
 
-  if (param == "process_threshold_crossing") {
+  if (param == "apply_charge_scale") {
+    apply_charge_scale = (value != 0);
+  } else if (param == "process_threshold_crossing") {
     process_threshold_crossing = (value != 0);
   } else if (param == "region_padding") {
     threshold_region_padding = value;
@@ -173,7 +183,7 @@ double WaveformAnalysisFSMP::LogEvidence(const TMatrixD& W_active, const TVector
   const int D = voltVec.GetNrows();
   const int K = W_active.GetNcols();
 
-  const double noise_var = noise_sigma * noise_sigma;
+  const double noise_var = fit_noise_sigma * fit_noise_sigma;
   // Gamma charge prior (in nominal-PE weight units): mean = k*theta, var = k*theta^2.
   const double charge_mean = gamma_k * gamma_theta;
   const double charge_var = gamma_k * gamma_theta * gamma_theta;
@@ -886,6 +896,15 @@ void WaveformAnalysisFSMP::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
   double gain_calibration = DS::RunStore::GetCurrentRun()->GetChannelStatus()->GetChargeScaleByPMTID(digitpmt->GetID());
 
   std::vector<double> voltWfm = WaveformUtil::ADCtoVoltage(digitWfm, fVoltageRes, pedestal);
+  // Regions are found on the waveform as recorded (the threshold is in mV); the
+  // fit sees it divided by the channel gain, so that a weight of 1 is one PE on
+  // *this* channel and the charge prior is centred where its PEs actually are.
+  const double fit_gain = (apply_charge_scale && gain_calibration > 0.0) ? gain_calibration : 1.0;
+  fit_noise_sigma = noise_sigma / fit_gain;
+  std::vector<double> fitWfm = voltWfm;
+  if (fit_gain != 1.0) {
+    for (double& v : fitWfm) v /= fit_gain;
+  }
 
   // Preconditioner: educated guess of the PE count from the integrated charge
   // computed upstream by WaveformPrep.
@@ -899,12 +918,11 @@ void WaveformAnalysisFSMP::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
   if (process_threshold_crossing) {
     for (const auto& bounds : FindThresholdRegions(voltWfm, voltage_threshold, threshold_region_padding)) {
       Region region;
-      if (PrepareRegion(fW, voltWfm, bounds.first, bounds.second, region)) regions.push_back(std::move(region));
+      if (PrepareRegion(fW, fitWfm, bounds.first, bounds.second, region)) regions.push_back(std::move(region));
     }
   } else {
     Region region;
-    if (PrepareRegion(fW, voltWfm, 0, static_cast<int>(voltWfm.size()) - 1, region))
-      regions.push_back(std::move(region));
+    if (PrepareRegion(fW, fitWfm, 0, static_cast<int>(fitWfm.size()) - 1, region)) regions.push_back(std::move(region));
   }
   if (regions.empty()) {
     // Nothing crossed threshold, so the model is flat. Still record it, so that
@@ -949,7 +967,9 @@ void WaveformAnalysisFSMP::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
     }
   }
   const int dof = std::max(1, npoints - nparams);
-  const double chi2ndf = rss / (noise_sigma * noise_sigma * dof);
+  // Residuals are in fit units (mV / g), and so is fit_noise_sigma, so this is
+  // the chi2 of the waveform as recorded.
+  const double chi2ndf = rss / (fit_noise_sigma * fit_noise_sigma * dof);
 
   for (const Region& region : regions) {
     EmitRegion(region, fit_result, gain_calibration, chi2ndf, extra_foms);
@@ -958,7 +978,11 @@ void WaveformAnalysisFSMP::DoAnalysis(DS::DigitPMT* digitpmt, const std::vector<
   // The model behind the chi2ndf above: the MAP atoms convolved with the SER,
   // before EmitRegion's optional merging/NPE splitting reshapes them for output.
   if (store_expected_waveform) {
-    fit_result->setExpectedWaveform(ExpectedWaveform(regions, fW, static_cast<int>(voltWfm.size())));
+    std::vector<double> expected = ExpectedWaveform(regions, fW, static_cast<int>(voltWfm.size()));
+    if (fit_gain != 1.0) {
+      for (double& v : expected) v *= fit_gain;  // back to mV as recorded
+    }
+    fit_result->setExpectedWaveform(expected);
   }
 }
 

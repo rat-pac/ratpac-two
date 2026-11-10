@@ -99,6 +99,12 @@ class WaveformAnalysisGreedyMP : public WaveformAnalyzerBase {
 
   // Bayesian evidence parameters
   double noise_sigma;  ///< Gaussian white-noise sigma of the waveform in mV. Must be > 0.
+  // Per-channel gain. ChannelStatus' charge_scale says a PE on this channel
+  // carries vpe_charge * charge_scale, but the dictionary is built per PMT
+  // type, so without this the charge prior sits off one PE by the gain.
+  // Fitting v/g at noise sigma/g is the same as fitting v with g*W at sigma.
+  bool apply_charge_scale;  ///< Fold ChannelStatus charge_scale into the template
+  double fit_noise_sigma;   ///< noise_sigma in the units the waveform is fit in, set per waveform
 
   // Initial configuration
   std::string seed_analyzer;  ///< Analyzer whose result seeds the search, empty to search from scratch
