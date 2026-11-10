@@ -54,6 +54,34 @@ void WaveformAnalyzerBase::RunAnalysis(DS::DigitPMT* digitpmt, int pmtID, DS::Di
   DoAnalysis(digitpmt, digitWfm);
 }
 
+bool WaveformAnalyzerBase::PassesEventGate(DS::EV* ev, const std::vector<int>& pmt_ids) {
+  if (fMaxEventCharge == std::numeric_limits<double>::max() &&
+      fMaxEventMeanCrossings == std::numeric_limits<double>::max() && fMaxEventNegativeFraction >= 1.0)
+    return true;
+  // WaveformPrep's numbers, over channels that carry a PMT. Muons and detector-wide baseline
+  // oscillations both cross threshold many times per channel, and an oscillation leaves most
+  // channels with negative charge; light from a low-energy event does neither.
+  double charge = 0.0;
+  int npmt = 0, nneg = 0, nhit = 0, ncross = 0;
+  for (int pmt_id : pmt_ids) {
+    if (pmt_id < 0) continue;
+    DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(pmt_id);
+    // The pulse-window charge, as the ntuple's digitCharge, so the gate can be re-derived offline.
+    double q = digitpmt->GetDigitizedCharge();
+    charge += q;
+    ++npmt;
+    if (q < 0) ++nneg;
+    int n = digitpmt->GetNCrossings();
+    if (n > 0) {
+      ++nhit;
+      ncross += n;
+    }
+  }
+  double mean_cross = nhit > 0 ? static_cast<double>(ncross) / nhit : 0.0;
+  double neg_frac = npmt > 0 ? static_cast<double>(nneg) / npmt : 0.0;
+  return charge <= fMaxEventCharge && mean_cross <= fMaxEventMeanCrossings && neg_frac <= fMaxEventNegativeFraction;
+}
+
 Processor::Result WaveformAnalyzerBase::Event(DS::Root* ds, DS::EV* ev) {
   fChargeRangeReported = false;
   if (!ev->DigitizerExists()) {
@@ -62,6 +90,11 @@ Processor::Result WaveformAnalyzerBase::Event(DS::Root* ds, DS::EV* ev) {
   }
   DS::Digit* dsdigit = &ev->GetDigitizer();
   std::vector<int> pmt_ids = ev->GetAllDigitPMTIDs();
+  if (!PassesEventGate(ev, pmt_ids)) {
+    // Skipped events still carry an (empty) result on every PMT, like the per-channel charge cut.
+    for (int pmt_id : pmt_ids) ev->GetOrCreateDigitPMT(pmt_id)->GetOrCreateWaveformAnalysisResult(GetAnalyzerName());
+    return Processor::Result::OK;
+  }
   for (int pmt_id : pmt_ids) {
     DS::DigitPMT* digitpmt = ev->GetOrCreateDigitPMT(pmt_id);
     RunAnalysis(digitpmt, pmt_id, dsdigit);
@@ -82,6 +115,12 @@ void WaveformAnalyzerBase::SetD(std::string param, double value) {
     fMinTotalCharge = value;
   } else if (param == "max_total_charge") {
     fMaxTotalCharge = value;
+  } else if (param == "max_event_charge") {
+    fMaxEventCharge = value;
+  } else if (param == "max_event_mean_crossings") {
+    fMaxEventMeanCrossings = value;
+  } else if (param == "max_event_negative_fraction") {
+    fMaxEventNegativeFraction = value;
   } else {
     throw Processor::ParamUnknown(param);
   }

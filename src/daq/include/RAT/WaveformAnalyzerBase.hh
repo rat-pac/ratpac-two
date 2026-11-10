@@ -130,6 +130,15 @@ class WaveformAnalyzerBase : public Processor {
   // Whether the out-of-range charge message has already been printed at info level for the current event.
   // Reset in Event().
   bool fChargeRangeReported = false;
+
+  // Event gate: skip the whole event if the digitized charge summed over PMT channels exceeds
+  // fMaxEventCharge (pC), the mean threshold crossings per crossing PMT channel exceeds
+  // fMaxEventMeanCrossings, or the fraction of PMT channels with negative digitized charge exceeds
+  // fMaxEventNegativeFraction. Off by default. Needs WaveformPrep upstream.
+  double fMaxEventCharge = std::numeric_limits<double>::max();
+  double fMaxEventMeanCrossings = std::numeric_limits<double>::max();
+  double fMaxEventNegativeFraction = 1.0;
+  bool PassesEventGate(DS::EV *ev, const std::vector<int> &pmt_ids);
 };
 
 }  // namespace RAT

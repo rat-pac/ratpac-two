@@ -129,6 +129,22 @@ For example, to restrict analysis to waveforms with total charge between -5 pC a
 
 These cuts are applied per-channel, per-event, before ``DoAnalysis()`` is called, so they are a lightweight way to skip waveforms that are clearly noise or saturated without running the full analysis.
 
+An event-level gate skips the whole event, for every channel, before any of them is analyzed::
+
+    max_event_charge
+    max_event_mean_crossings
+    max_event_negative_fraction
+
+* The event is skipped if the digitized charge summed over the PMT channels exceeds ``max_event_charge`` (pC), if the mean number of threshold crossings per channel that crosses exceeds ``max_event_mean_crossings``, or if the fraction of PMT channels with negative digitized charge exceeds ``max_event_negative_fraction``. All three are off by default. They read the charge and crossings ``WaveformPrep`` stores, so ``WaveformPrep`` must run first. A skipped event still carries an empty result on every PMT, as a channel outside the total-charge cut does.
+
+The gate is meant for the sampling analyzers on data: muons and detector-wide baseline oscillations each cost FSMP seconds per event, and an oscillation comes back as thousands of fake PEs. Both cross threshold many times per channel, and an oscillation leaves most channels with negative charge, while light from a low-energy event does neither. Set it after ``analyzer_name``, which re-reads the table::
+
+    /rat/proc WaveformAnalysisFSMP
+    /rat/procset analyzer_name "MyFSMP"
+    /rat/procset max_event_charge 2000.0
+    /rat/procset max_event_mean_crossings 3.0
+    /rat/procset max_event_negative_fraction 0.5
+
 -------------------------
 
 .. _lognormalfit:
