@@ -328,6 +328,8 @@ bool OutNtupleProc::OpenFile(std::string filename) {
   if (options.tracking) {
     // Save particle tracking information
     MakeBranch(outputTree, "trackPDG", &trackPDG);
+    MakeBranch(outputTree, "trackID", &trackID);
+    MakeBranch(outputTree, "trackParentID", &trackParentID);
     MakeBranch(outputTree, "trackPosX", &trackPosX);
     MakeBranch(outputTree, "trackPosY", &trackPosY);
     MakeBranch(outputTree, "trackPosZ", &trackPosZ);
@@ -441,6 +443,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     int nTracks = mc->GetMCTrackCount();
     // Clear previous event
     trackPDG.clear();
+    trackID.clear();
+    trackParentID.clear();
     trackPosX.clear();
     trackPosY.clear();
     trackPosZ.clear();
@@ -462,6 +466,8 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
     for (int trk = 0; trk < nTracks; trk++) {
       DS::MCTrack *track = mc->GetMCTrack(trk);
       trackPDG.push_back(track->GetPDGCode());
+      trackID.push_back(track->GetID());
+      trackParentID.push_back(track->GetParentID());
       xtrack.clear();
       ytrack.clear();
       ztrack.clear();
