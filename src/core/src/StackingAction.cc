@@ -45,7 +45,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track *track
   // we postpone all of its secondaries except the 158Gd.
   // These secondaries are then send here (StackingAction.cc)
   // to be removed.
-  
+
   if (track->GetTrackStatus() == fPostponeToNextEvent && (nameParticle == "gamma" || nameParticle == "e-")) {
     return fKill;
   } else {
