@@ -257,6 +257,8 @@ class OutNtupleProc : public Processor {
 
   // Tracking
   std::vector<int> trackPDG;
+  std::vector<int> trackID;
+  std::vector<int> trackParentID;
   std::vector<std::vector<double>> trackPosX;
   std::vector<std::vector<double>> trackPosY;
   std::vector<std::vector<double>> trackPosZ;
