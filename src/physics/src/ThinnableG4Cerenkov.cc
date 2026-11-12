@@ -58,56 +58,37 @@ double ThinnableG4Cerenkov::GetUpperWavelengthThreshold() {
 }
 
 G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) {
-  // let G4 predict how many photons should be produced...
+  // Let G4 predict how many photons should be produced.
   G4VParticleChange *rv = G4CerenkovProcess::PostStepDoIt(aTrack, aStep);
 
   if (!should_thin) {
     return rv;
   }
 
-  // but only choose a fraction thereof to actually propagate
+  // Only propagate photons that pass the thinning criteria.
   G4int n_pred = rv->GetNumberOfSecondaries();
   if (n_pred == 0) {
     return rv;
   }
-  // TODO a fixed length here could speed things up...
-  // but is not (?) predictable, since we don't know outcome of following
-  // per-photon RNG decisions
-  //  G4int n_prod = static_cast<G4int>(std::round(n_pred));
-  std::vector<G4Track *> secondaries;
+
+  // Reset the secondary count and reuse the existing storage.
+  rv->SetNumberOfSecondaries(n_pred);
+
   for (G4int i = 0; i < n_pred; i++) {
     G4Track *existing = rv->GetSecondary(i);
 
-    // Check whether wavelength in range and continue if not
+    // Calculate photon wavelength.
     double wvl = (CLHEP::twopi * CLHEP::hbarc) / (existing->GetKineticEnergy() * CLHEP::MeV) / CLHEP::nm;
-    if (wvl < lower_wavelength_threshold || wvl > upper_wavelength_threshold) {
-      continue;
-    }
 
-    double random = heprandom.flat();
-    if (random < this->GetThinningFactor()) {
-      // G4VParticleChange::SetNumberOfSecondaries will free all pending
-      // secondaries, so we must explicitly copy each surviving track
-      // into a separate data structure, which is a two-step process
-      // first, copy data structure
-      G4Track *secondary = new G4Track(*existing);
-      // second, explicitly label tracking
-      secondary->SetParentID(aTrack.GetTrackID());
-      secondaries.push_back(secondary);
-    }
-  }
+    // Check whether the photon wavelength is within the allowed range.
+    bool in_range = wvl >= lower_wavelength_threshold && wvl <= upper_wavelength_threshold;
 
-  // clear the list of secondaries, and repopulate with chosen subset
-  // Geant4 may spit out warning messages based on whether it was compiled with
-  // verbose flags but this is safe to ignore, though it will clutter the log
-  // UPDATE: Going to just redirect the output to ignore this since we are intentionally
-  // calling this function again and the prints at issue got removed in G4 11.1.0
-  RAT::mute_g4mute();
-  rv->SetNumberOfSecondaries(secondaries.size());
-  RAT::mute_g4unmute();
-  for (size_t i = 0; i < secondaries.size(); i++) {
-    G4Track *secondary = secondaries[i];
-    rv->AddSecondary(secondary);
+    if (in_range && heprandom.flat() < this->GetThinningFactor()) {
+      existing->SetParentID(aTrack.GetTrackID());
+      rv->AddSecondary(existing);
+    } else {
+      delete existing;
+    }
   }
 
   return rv;
