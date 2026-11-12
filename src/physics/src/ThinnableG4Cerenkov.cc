@@ -58,59 +58,37 @@ double ThinnableG4Cerenkov::GetUpperWavelengthThreshold() {
 }
 
 G4VParticleChange *ThinnableG4Cerenkov::PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) {
-  // let G4 predict how many photons should be produced...
+  // Let G4 predict how many photons should be produced.
   G4VParticleChange *rv = G4CerenkovProcess::PostStepDoIt(aTrack, aStep);
 
   if (!should_thin) {
     return rv;
   }
 
-  // but only choose a fraction thereof to actually propagate
+  // Only propagate photons that pass the thinning criteria.
   G4int n_pred = rv->GetNumberOfSecondaries();
   if (n_pred == 0) {
     return rv;
   }
-  // Reserve enough capacity for all predicted photons to avoid
-  // repeated reallocations. The actual number retained will
-  // depend on wavelength filtering and random thinning.
-  std::vector<G4Track *> secondaries;
-  secondaries.reserve(n_pred);
 
-  // In Geant4 11.1+, SetNumberOfSecondaries() resets the active
-  // secondary count without deleting the existing tracks.
-  // Retain the original G4Track pointers for accepted photons,
-  // avoiding unnecessary copies. Delete rejected tracks to
-  // prevent memory leaks.
+  // Reset the secondary count and reuse the existing storage.
+  rv->SetNumberOfSecondaries(n_pred);
+
   for (G4int i = 0; i < n_pred; i++) {
     G4Track *existing = rv->GetSecondary(i);
 
-    // Calculate photon wavelength
+    // Calculate photon wavelength.
     double wvl = (CLHEP::twopi * CLHEP::hbarc) / (existing->GetKineticEnergy() * CLHEP::MeV) / CLHEP::nm;
 
-    // Check whether the photon wavelength is within allowed range
+    // Check whether the photon wavelength is within the allowed range.
     bool in_range = wvl >= lower_wavelength_threshold && wvl <= upper_wavelength_threshold;
 
     if (in_range && heprandom.flat() < this->GetThinningFactor()) {
       existing->SetParentID(aTrack.GetTrackID());
-      secondaries.push_back(existing);
+      rv->AddSecondary(existing);
     } else {
       delete existing;
     }
-  }
-
-  // Reset the active secondary count without deleting the
-  // existing tracks (Geant4 11.1+).
-  // Rebuild the active secondary list using the retained
-  // photon pointers.
-  //
-  // Rebuild the active secondary list using the retained tracks.
-  // G4 takes ownership of these tracks for subsequent propagation.
-  RAT::mute_g4mute();
-  rv->SetNumberOfSecondaries(secondaries.size());
-  RAT::mute_g4unmute();
-
-  for (G4Track *secondary : secondaries) {
-    rv->AddSecondary(secondary);
   }
 
   return rv;
