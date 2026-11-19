@@ -194,7 +194,7 @@
 // and counted multiple times. Set to 0 to disable merging.
 "weight_merge_window": 2,
 
-// if true, perform a final NPE estimation on all resolved wave packet in the deconvolved 
+// if true, perform a final NPE estimation on all resolved wave packet in the deconvolved
 // waveform. Estimate the number of PEs in each packet using a gaussian PDF on charge.
 // The mean of the single PE charge distribution is centered around `vpe_charge`.
 "npe_estimate": true,
@@ -209,4 +209,193 @@
 // the WaveformPrep time and charge.
 // min_total_charge = -50.,
 // max_total_charge = 500.
+}
+
+{
+"name": "DIGITIZER_ANALYSIS",
+"index": "GreedyMP",
+"run_range": [0, 0],
+
+// Restrict analysis to threshold-crossing regions of interest.
+"process_threshold_crossing": 1, // 0=no, 1=yes
+"voltage_threshold": -2, // Voltage threshold for ROI detection (mV)
+"region_padding": 2, // Samples to pad around ROIs
+
+// Single-PE response template:
+//   0 = lognormal
+//   1 = gaussian, optionally per PMT type
+//   2 = whatever PMTPULSE says for each PMT's model -- the same table the
+//       simulation built the pulse from. A "datadriven" table is used as-is;
+//       an analytic gaussian is marginalised over its measured width
+//       distribution, which no single width reproduces. Prefer this where
+//       PMTPULSE describes the detector: nothing is hand-entered, it follows
+//       the table if it is refit, and it keeps the per-PE width spread.
+"template_type": 0,
+
+// Single-PE response (lognormal) template parameters (template_type = 0).
+"lognormal_scale": 10.5, // "m" parameter in Lognormal distribution
+"lognormal_shape": 0.15, // "sigma" parameter in Lognormal distribution
+
+// Gaussian template parameter (template_type = 1).
+"gaussian_width": 1.5, // sigma (ns)
+// Optional per-PMT-type widths. Unlisted types use gaussian_width.
+// "gaussian_width_pmt_types": [0, 1],
+// "gaussian_width_pmt_widths": [1.5, 3.0],
+
+// Stretch the template by ChannelStatus' per-channel pulse_width_scale, the
+// same calibration PMTWaveformGenerator applies when generating the pulse.
+// Scales are bucketed to 5% before they reach the dictionary cache.
+"apply_pulse_width_scale": false,
+
+// Nominal charge of a single PE in pC. A dictionary column with weight 1
+// corresponds to a PE of this charge. Only the charge prior depends on it: the
+// dictionary scales by vpe_charge and the fitted weight by 1/vpe_charge, so the
+// reported charge is invariant. Optionally per PMT type.
+"vpe_charge": 1.6,
+// "vpe_charge_pmt_types": [0, 1],
+// "vpe_charge_pmt_charges": [1.5, 1.26],
+
+// Dictionary upsampling resolution factor for sub-sample PE timing.
+"upsampling_factor": 10.0,
+
+// Gaussian white-noise sigma of the waveform, in mV. Should match the
+// digitizer noise model (DIGITIZER "noise_amplitude"). Sets the evidence scale.
+"noise_sigma": 0.40,
+
+// Gamma prior on per-PE charge (in nominal-PE weight units): mean = k*theta,
+// variance = k*theta^2. Defaults give mean 1, variance 0.4^2 (paper sec 2.2).
+"gamma_k": 6.25, // 1 / 0.4^2
+"gamma_theta": 0.16, // 0.4^2
+// Optional per-PMT-type form: a relative width, which fixes the prior mean at
+// exactly one PE (k = 1/rel^2, theta = rel^2). This is the natural spelling
+// once vpe_charge is itself per type. Unlisted types keep the pair above.
+// "gamma_pmt_types": [0, 1],
+// "gamma_pmt_rel_sigma": [0.36, 0.45],
+
+// Seed the initial PE configuration from another analyzer's result instead of
+// searching from nothing, e.g. "RAVEN". That analyzer must run first in the
+// macro. Empty string = search every region.
+"seed_analyzer": "",
+
+// Model search: maximum number of PEs per ROI.
+"max_iterations": 20,
+// Best-correlated candidate columns scored with the full evidence per step.
+"greedy_shortlist": 8,
+
+// Post-processing, both off by default: splitting an atom's charge into integer
+// PEs undoes the charge-variance removal that comes from resolving PEs
+// individually (paper sec 4.3).
+"weight_merge_window": 0, // ns; 0 = off
+"npe_estimate": false,
+"npe_estimate_charge_width": 0.4, // pC
+"npe_estimate_max_pes": 20,
+}
+
+{
+"name": "DIGITIZER_ANALYSIS",
+"index": "FSMP",
+"run_range": [0, 0],
+
+// Restrict analysis to threshold-crossing regions of interest.
+"process_threshold_crossing": 1, // 0=no, 1=yes
+"voltage_threshold": -2, // Voltage threshold for ROI detection (mV)
+"region_padding": 2, // Samples to pad around ROIs
+
+// Single-PE response template:
+//   0 = lognormal
+//   1 = gaussian, optionally per PMT type
+//   2 = whatever PMTPULSE says for each PMT's model -- the same table the
+//       simulation built the pulse from. A "datadriven" table is used as-is;
+//       an analytic gaussian is marginalised over its measured width
+//       distribution, which no single width reproduces. Prefer this where
+//       PMTPULSE describes the detector: nothing is hand-entered, it follows
+//       the table if it is refit, and it keeps the per-PE width spread.
+"template_type": 0,
+
+// Single-PE response (lognormal) template parameters (template_type = 0).
+"lognormal_scale": 10.5, // "m" parameter in Lognormal distribution
+"lognormal_shape": 0.15, // "sigma" parameter in Lognormal distribution
+
+// Gaussian template parameter (template_type = 1).
+"gaussian_width": 1.5, // sigma (ns)
+// Optional per-PMT-type widths. Unlisted types use gaussian_width.
+// "gaussian_width_pmt_types": [0, 1],
+// "gaussian_width_pmt_widths": [1.5, 3.0],
+
+// Stretch the template by ChannelStatus' per-channel pulse_width_scale, the
+// same calibration PMTWaveformGenerator applies when generating the pulse.
+// Scales are bucketed to 5% before they reach the dictionary cache.
+"apply_pulse_width_scale": false,
+
+// Nominal charge of a single PE in pC. A dictionary column with weight 1
+// corresponds to a PE of this charge. Only the charge prior depends on it: the
+// dictionary scales by vpe_charge and the fitted weight by 1/vpe_charge, so the
+// reported charge is invariant. Optionally per PMT type.
+"vpe_charge": 1.6,
+// "vpe_charge_pmt_types": [0, 1],
+// "vpe_charge_pmt_charges": [1.5, 1.26],
+
+// Dictionary upsampling resolution factor for sub-sample PE timing.
+"upsampling_factor": 10.0,
+
+// Gaussian white-noise sigma of the waveform, in mV. Should match the
+// digitizer noise model (DIGITIZER "noise_amplitude"). Sets the evidence scale.
+"noise_sigma": 0.40,
+
+// Gamma prior on per-PE charge (in nominal-PE weight units): mean = k*theta,
+// variance = k*theta^2. Defaults give mean 1, variance 0.4^2 (paper sec 2.2).
+"gamma_k": 6.25, // 1 / 0.4^2
+"gamma_theta": 0.16, // 0.4^2
+// Optional per-PMT-type form: a relative width, which fixes the prior mean at
+// exactly one PE (k = 1/rel^2, theta = rel^2). This is the natural spelling
+// once vpe_charge is itself per type. Unlisted types keep the pair above.
+// "gamma_pmt_types": [0, 1],
+// "gamma_pmt_rel_sigma": [0.36, 0.45],
+
+// The sampler needs a starting configuration, taken from this analyzer's
+// result (the role LucyDDM plays in the paper). It must run before FSMP in the
+// macro. Its PE count also becomes the preconditioner intensity mu0. With an
+// empty string the chain starts from nothing and mixes poorly.
+"seed_analyzer": "GreedyMP",
+
+// Maximum number of PEs per ROI taken from the seed.
+"max_iterations": 20,
+
+// Stochastic sampler over the PE configuration z and the light-curve time t0,
+// started from the seed above. It runs once per waveform across all regions,
+// so fsmp_t0 / fsmp_mu / fsmp_npe are per-PMT quantities (paper eqs. 3.25-3.26).
+"n_mcmc_samples": 800, // post-burn-in samples
+"burn_in": 200, // discarded warm-up samples
+
+// Light-curve prior on PE arrival times (paper eq. 2.2), used by the sampler.
+// tau_l = exponential time constant (ns); 0 => pure Gaussian (Cherenkov).
+// sigma_l = timing spread (ns), mainly PMT transit-time spread.
+"lightcurve_tau": 0.0,
+"lightcurve_sigma": 1.5, // ~PMT transit-time spread (ns); see PMTTRANSIT
+"t0_step": 2.0, // random-walk proposal step for t0 (ns)
+// Fraction of the arrival-time prior spread flat across the readout window.
+// The curve above describes the prompt light only, and it falls off fast
+// enough that a PE in the PMTTRANSIT late tail, or a dark-noise PE anywhere in
+// the window, gets an occupancy prior of ~1e-300 -- the sampler cannot accept
+// one however well it fits the waveform. A floor is the minimal fix. Note it
+// makes the flat part scale with the intensity mu, which dark noise does not,
+// so treat it as a nuisance parameter to fit rather than a measured fraction.
+"lightcurve_floor": 0.0,
+
+// Post-processing, both off by default: splitting an atom's charge into integer
+// PEs undoes the charge-variance removal that comes from resolving PEs
+// individually (paper sec 4.3).
+"weight_merge_window": 0, // ns; 0 = off
+"npe_estimate": false,
+"npe_estimate_charge_width": 0.4, // pC
+"npe_estimate_max_pes": 20,
+
+// Attach the MAP configuration's model waveform (mV, pedestal-subtracted, one
+// entry per digitizer sample) to the analysis result, for overlaying against
+// the observed waveform. outntuple writes it to the "waveforms" tree as
+// expected_waveform_FSMP, provided include_digitizerwaveforms is also on.
+// Costs one array of nsamples doubles per analyzed PMT per event, so off by
+// default. Toggle from a macro with
+//   /rat/procset store_expected_waveform 1
+"store_expected_waveform": false,
 }

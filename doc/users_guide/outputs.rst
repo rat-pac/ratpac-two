@@ -55,7 +55,7 @@ Parameters:
     /rat/procset include_digitizerwaveforms 1
     /rat/procset include_digitizerhits 1
     /rat/procset include_digitizerfits 1
-    /rat/procset waveform_fitters ["Lognormal","Gaussian","Sinc","LucyDDM","RAVEN"]
+    /rat/procset waveform_fitters ["Lognormal","Gaussian","Sinc","LucyDDM","RAVEN","GreedyMP","FSMP"]
     /rat/procset waveform_fitter_FOM_FITTERNAME ["FOM1","FOM2"]
     /rat/procset event_fitters ["fittime","quadfitter","fitcentroid","fitdirectioncenter","mimir"]
     /rat/procset event_fitter_FOM_FITTERNAME ["FOM1","FOM2"]
@@ -289,6 +289,22 @@ If ``include_digitizerwaveforms`` is set then we create a new branch in the ntup
 ``inWindowPulseCharges``       vector<double>       The list of MCPE charges that fall inside the waveform window.
 ``waveform``                   vector<ushort>       The digitized waveform, per PMT.
 =============================  ===================  ===================
+
+If ``include_expectedwaveforms`` is also set (it is off by default), the ``waveform`` tree additionally carries the model waveform of each analyzer listed in ``waveform_fitters``, so that it can be overlaid on the observed one:
+
+===================================  ===================  ===================
+**Name**                             **Type**             **Description**
+===================================  ===================  ===================
+``waveform_pedestal``                double               Baseline of ``waveform``, in ADC counts, as measured by ``WaveformPrep``. ``-9999`` for channels that were not analyzed.
+``expected_waveform_FITTERNAME``     vector<double>       The waveform the analyzer's fit predicts, in mV, pedestal-subtracted, one entry per digitizer sample. Empty unless that analyzer was asked to store it.
+===================================  ===================  ===================
+
+The observed waveform is put on the same scale as the expected ones with ``(waveform - waveform_pedestal) * digitizerResolution_mVPerADC``, the latter from the ``meta`` tree.
+
+Producing an expected waveform is optional per analyzer, since it costs one array of ``nsamples`` doubles per PMT per event; only analyzers that model the whole waveform can provide one. ``WaveformAnalysisFSMP`` does, under its ``store_expected_waveform`` parameter::
+
+    /rat/proc WaveformAnalysisFSMP
+    /rat/procset store_expected_waveform 1
 
 If ``event_fitters`` specify that event reconstruction algorithm results should be included in the ntuple, then we add the following variables to the ``output`` branch of the ntuple. These are filled from the ``DS::EventFitResult`` branch. All fitter instances are labeled by the "full name" of the fitter instance, which is the name of the fitter type + the instance name of the fitter separated by double underscores (e.g., ``quadfitter__instance1``). The variables are as follows:
 

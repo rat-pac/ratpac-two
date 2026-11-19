@@ -47,7 +47,20 @@ class WaveformAnalysisResult : public TObject {
 
   virtual const std::vector<Double_t>& getTimes() { return times; }
   virtual const std::vector<Double_t>& getCharges() { return charges; }
-  ClassDef(WaveformAnalysisResult, 2);
+
+  /* *
+   * Record the waveform this analyzer's model predicts, i.e. its PEs folded
+   * back through the single-PE response. Optional: analyzers that can produce
+   * one leave it empty unless asked, since it costs one array per PMT per event.
+   * @param waveform  Expected waveform in mV, pedestal-subtracted and sampled on
+   *                  the digitizer clock, so that it lines up sample-for-sample
+   *                  with WaveformUtil::ADCtoVoltage() of the observed waveform.
+   * */
+  virtual void setExpectedWaveform(const std::vector<Double_t>& waveform) { expected_waveform = waveform; }
+  virtual const std::vector<Double_t>& getExpectedWaveform() { return expected_waveform; }
+  virtual bool hasExpectedWaveform() { return !expected_waveform.empty(); }
+
+  ClassDef(WaveformAnalysisResult, 3);
 
  protected:
   // All arrays are parallel arrays. It is assumed that they are sorted in time
@@ -55,6 +68,9 @@ class WaveformAnalysisResult : public TObject {
   std::vector<Double_t> charges;
   std::map<std::string, std::vector<Double_t>> figures_of_merit;
   Double_t time_offset;
+  // Model waveform in mV, one entry per digitizer sample. Empty when the
+  // analyzer does not provide one.
+  std::vector<Double_t> expected_waveform;
 };
 
 }  // namespace DS
