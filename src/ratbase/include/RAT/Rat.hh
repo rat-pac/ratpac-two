@@ -83,6 +83,7 @@ class Rat {
   DBMessenger *rdb_messenger;
   RatMessenger *rat_messenger;
   ProducerBlock prodBlock;
+  bool configured = false;
 
  public:
   // Priority-ordered RATDB search directories, highest
