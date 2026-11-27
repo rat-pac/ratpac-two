@@ -26,6 +26,7 @@ jobs:
         with:
           fetch-tags: true
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Docker meta
         id: meta
